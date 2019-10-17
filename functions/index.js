@@ -1,7 +1,8 @@
 const functions = require('firebase-functions');
 const myfunc=require('./myfunc');
 
-exports.index = functions.https.onRequest( async (request, response) => {
+exports.index = functions.https.onRequest(
+	async function(request, response){
 
 		try{
 
@@ -61,33 +62,5 @@ exports.index = functions.https.onRequest( async (request, response) => {
 );
 
 exports.sports = require('./sports');
-/*
-functions.https.onRequest( async (request, response) => {
 
-		try{
-
-			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
-
-			console.info(request.params);
-
-			//response.send( '' );
-
-			
-			var arr=[];
-			arr.push('ok');//myfunc.ok();
-			arr.push( myfunc.json2txt( request.params ) );//myfunc.ok();
-
-
-			response.send( arr.join( "\n" ) );
-			
-
-		} catch (e) {
-
-			//var err=['catch : ',,e.name,e.message];
-
-			response.send( e.stack );//err.join("\n")
-		}
-
-	}
-);
-*/
+exports.messages = require('./messages');

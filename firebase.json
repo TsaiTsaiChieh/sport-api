@@ -15,10 +15,6 @@
     ],
       "rewrites": [
         {
-          "source": "/",
-          "function": "index"
-        },
-        {
           "source": "/index",
           "function": "index"
         },
@@ -27,10 +23,21 @@
           "function": "sports"
 		},
 		{
-          "source": "/sports",
+          "source": "/sports/**",
           "function": "sports"
-		}
-		
+		},
+		{
+          "source": "/messages",
+          "function": "messages"
+		},
+		{
+          "source": "/messages/**",
+          "function": "messages"
+		},
+		{
+          "source": "/",
+          "function": "index"
+        }		
       ]
   },
   "storage": {

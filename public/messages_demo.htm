@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>
+			messages api demo
+		</title>
+		<style>
+			#msg_pool {
+				width: 100%;
+				height: 500px;
+				background-color: #EEE;
+			}
+			#txta_send {
+				width: 300px;
+				height: 100px;
+			}
+		</style>
+	</head>
+
+	<body onLoad="init();">
+		<div id="msg_pool">
+		</div>
+
+		<br>
+		回應的訊息流水號
+		<input type="text" id="re_hash" />
+		<br/>
+		是否夾帶檔案
+		<input type="file" id="fi_send" />
+		<br/>
+		發送內容
+		<textarea id="txta_send">
+		</textarea>
+
+		<input type="button" id="bt_send" value="執行send()" onClick="send();" />
+
+
+	</body>
+
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js">
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/firebase@7/dist/index.cjs.js">
+	</script>
+
+	<script type="text/javascript">
+
+		var rtdb;//Realtime database
+		var fsdb;//Cloud Firestore
+
+		var mydata={
+			'uhash':'用戶資料庫流水號',
+			'name':'用戶顯示的名稱',
+			'picture':'大頭照base64',
+			'key'='私密訊息的解壓縮密碼'
+		};//登入者的資訊
+
+		var fi_content='';//當有選取檔案,這裡就會有內容,用於上傳
+
+		function init(){
+			//初始化行為
+			const firebaseConfig = {
+
+				apiKey: 'd23e597f8c957a12606f4b77bde670dbafe0182f',
+				authDomain: 'sport19y0715.web.app',
+				projectId: 'sport19y0715'
+
+			};
+
+			firebase.initializeApp(firebaseConfig);
+
+
+			rtdb = firebase.database();//Realtime database
+
+			fsdb = firebase.firestore();//Cloud Firestore
+
+			//設定監聽realtime資料庫的
+			rtdb.ref('/live_stat').limitToLast(1).on('value', function(snapshot) {
+
+					//監聽之後這邊的行為是收到資料的行為.
+					var sv=snapshot.val();//你收到的內容,不穩定的json格式
+					logi( sv );
+
+					//前端行為邏輯在此...
+					switch(sv.type){
+						//檢查這是什麼狀態訊息
+						case 'new_message'://新訊息
+						//....
+						break;
+
+						case 'recycle_message'://回收訊息(對所有人做刪除/隱藏該訊息)
+						//sv.executer.uhash是用戶hash ,管理員是 'admin'
+						//sv.executer.name用戶的名稱, 管理員是 '管理員'
+						//刪除訊息,顯示 sv.executer.name 刪除(回收?)了這個訊息
+
+						break;
+
+
+						case 'del_message'://刪除訊息(只對用戶自己刪除/隱藏)
+						if(sv.executer.uhash===mydata.uhash){
+							//如果就是自己,前端就要做刪除自己的訊息
+							//刪除訊息...
+						}
+						break;
+					}
+
+				});
+
+			//取得過去的狀態訊息50筆//參考,不使用
+			rtdb.ref('/message').limitToLast(50).once('value', function(snapshot) {
+
+					var sv=snapshot.val();//你收到的內容,不穩定的json格式
+					logi( sv );
+
+					//前端行為邏輯在此...
+
+				});
+
+			$('#fi_send').change(function() {
+					//監聽上傳按鈕的事件
+					logi('fi_send change');
+					
+					fi_content='';//先清空
+
+					//var fi_path=$.('#fi_send').val();
+					if( fi_path=$.('#fi_send').val() !== ''){
+						//有檔案路徑
+
+						try {
+							//有可能失敗,必須try
+
+							var f = $('#fi_send')[0].files[0];//檔案uri,給檔案物件讀取用的
+
+							//logi(f);
+
+							var r = new FileReader;//檔案讀取物件
+							r.onload = function(e) {
+								//讀取成功的行為
+
+								try {
+									fi_content=str_def(e.target.result,'');
+
+								}catch (e4) {
+									$.('#fi_send').val('');//失敗就清空
+									logw(e4);
+								}
+							};
+
+							r.readAsDataURL(f);//真的讀取
+
+						} catch (e3) {
+							$.('#fi_send').val('');//失敗就清空
+							logw(e3);
+						}
+
+					}
+
+				});
+
+			function send(){
+				var msg=$.trim( $.('#txta_send') );
+
+				if( msg !=='' || fi_content !== '' ){
+					// 有文字 或是 有檔案 才送出
+					var re=$.trim( $.('#re_hash') );//如果是回應文章就會有hash
+
+					$.post('/messages', {
+							uhash:mydata.uhash, //發送者hash
+							re_hash:re ,//回文hash
+							send_message: msg,
+							send_file: fi_content
+						},
+						function(data) {
+							//獲得回傳
+						});
+
+				}else{
+					alert('沒有 內文 也沒有 夾帶檔案 ,不處理');
+				}
+			}
+
+		}
+	</script>
+</html>

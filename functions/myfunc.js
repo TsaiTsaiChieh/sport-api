@@ -1,3 +1,4 @@
+
 /*
 範例,在exports的時候呼叫同檔案的函數,需加前綴this.
 exports.ok=
@@ -7,6 +8,8 @@ return this.un2def(inp,'ok2');
 */
 
 const admin = require('firebase-admin');
+const functions = require('firebase-functions');
+const fs= require('fs');
 
 //const admin = require('firebase-admin');
 //const functions = require('firebase-functions');
@@ -67,48 +70,26 @@ function(res){
 exports.fadmin=
 function (fpath){
 
-	try{
+	//admin.initializeApp(functions.config().firebase);//on firebase
 
-		//admin.initializeApp(functions.config().firebase);//on firebase
-
-		
-		switch(fpath){
-		case '':
-		case undefined:
-		case null:
-		case 'firebase':
-		admin.initializeApp(functions.config().firebase);//on firebase
-		break;
-
-		case 'gcp':
-		case 'GCP':
-		admin.initializeApp( { credential: admin.credential.applicationDefault()	} );//on gcp
-		break;
-
-
-		default://有輸入fpath
+	if( fs.existsSync(fpath) ){
+		//fpath目標存在
 		admin.initializeApp( { credential: admin.credential.cert( require(fpath) ) } );//on local emu
-		break;
+	}else{
+		//fpath目標不存在
+
+		switch(fpath){
+
+			case 'gcp':
+			case 'GCP':
+			admin.initializeApp( { credential: admin.credential.applicationDefault()	} );//on gcp
+			break;
+
+			default:
+			admin.initializeApp(functions.config().firebase);//on firebase
+			break;
 		}
-		
-
-	} catch (err) {
-
-		/*
-		try{
-			admin.initializeApp({ 	credential: admin.credential.applicationDefault()	});//on gcp
-		} catch (err2) {
-
-			try{
-				admin.initializeApp(	{	credential: admin.credential.cert( require(fpath) )	}	);//on local emu
-			} catch (err3) {
-				//可能初始化過,不理會
-			}//t3
-
-		}//t2
-		*/
-
-	}//t1
+	}
 
 	return admin;//.firestore();
 }
