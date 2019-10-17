@@ -24,7 +24,7 @@ module.exports = functions.https.onRequest(
 
 			var re={
 			};
-			re.stat='error';
+			re.stat='error';//預設為警告,直到行為完成才OK
 
 			var arr=[];
 
@@ -41,22 +41,28 @@ module.exports = functions.https.onRequest(
 			}else{
 				//沒有操作,列出訊息,默認是最後50個訊息.
 
-				var p_sports=fsdb.collection('messages');//.get();
+				//var citiesRef = db.collection('cities');//.get();
+				//var query = citiesRef.where('capital', '==', true).get()
+				//var lastThree = citiesRef.orderBy('name', 'desc').limit(3);
 
-				var sn_sports = await p_sports.get();
+				var c_msgs=fsdb.collection('messages');//.get();
+				var lm_msgs=c_msgs.orderBy('appear_timestamp', 'desc').limit(50);
 
-				var txt=JSON.stringify(sn_sports);
 
-				sn_sports.forEach( //這裡不能async
-				
-					function(doc){ 
-					
+				var sn_msgs = await lm_msgs.get();
+
+				var txt=JSON.stringify(sn_msgs);
+
+				sn_msgs.forEach( //這裡不能async
+
+					function(doc){
+
 						var data=doc.data();//每一筆訊息,(不能await)
 
 						//console.log(doc.id, '=>', doc.data().name);
 
 						//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
-						
+
 						switch(data.stat){
 
 							//管理員刪除
@@ -77,11 +83,11 @@ module.exports = functions.https.onRequest(
 							case undefined:
 							case null:
 							default:
-							
+
 							//arr.push( myfunc.json2txt( doc.data() ) );
-							
+
 							break;
-							
+
 						}//sw
 
 						arr.push( data );
@@ -104,7 +110,7 @@ module.exports = functions.https.onRequest(
 
 			//response.send( e.stack );//err.join("\n")
 
-			
+
 			re.stack=e.stack;
 
 		}
