@@ -9,7 +9,7 @@ exports.index = functions.https.onRequest(
 			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8');
 
 
-			const fadmin=myfunc.fadmin('./sport19y0715-d23e597f8c95.json');
+			const fadmin=myfunc.fadmin( '../../sport19y0715-d23e597f8c95.json' );
 			const fsdb=fadmin.firestore();
 
 			//var template = swig.compileFile( init.thisdir.concat('/html/index.html') );//'test_chat/html/index.html'
