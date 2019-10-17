@@ -1,66 +1,72 @@
 const functions = require('firebase-functions');
 const myfunc=require('./myfunc');
-// test
+const mycfg= require('./mycfg');
+
+exports.sports = require('./sports');
+exports.messages = require('./messages');
+
+
 exports.index = functions.https.onRequest(
 	async function(request, response){
 
 		try{
 
-			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8');
+			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
 
+			//console.info(request);
 
-			const fadmin=myfunc.fadmin( '../../sport19y0715-d23e597f8c95.json' );
-			const fsdb=fadmin.firestore();
-
-			//var template = swig.compileFile( init.thisdir.concat('/html/index.html') );//'test_chat/html/index.html'
-			//var j = {
-			//};
-			//j.prfx = init.prfx;
-			//j.userId = '';
-			//var output = template(j);
-
-
-			var p_sports=fsdb.collection('sports');//.get();
-
-			//var citiesRef = db.collection('cities');
-
-			var sn_sports = await p_sports.get();
-
-			var txt=JSON.stringify(sn_sports);
+			/*
+			if (request.method === 'POST'){
+			var cookies = request.get('cookie');
+			if (cookies !== undefined) {
+			var token = cookie.parse(cookies).__session;
+			}
+			}*/
 
 			var arr=[];
-			arr.push('ok');//myfunc.ok();
+			arr.push('<html><head><meta charset="utf-8" /><title>sports api</title></head><body>');
+
+			//arr.push( myfunc.json2txt( request.params ) );
+
+			//arr.push( myfunc.json2txt( request.query ) );
+
+			arr.push( myfunc.json2txt( typeof( request ) ) );
 
 
-			sn_sports.forEach( //這裡不能async
-				function(doc){
-					//doc.data() 不能await
-
-					//console.log(doc.id, '=>', doc.data().name);
-
-					//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
-					arr.push( myfunc.json2txt( doc.data() ) );
-
-					//return true; //終止迴圈
-
-				}
-			);
+			/*
+			for (var i in request) {
+			try{
+			arr.push( myfunc.json2txt( request[i] ) );
+			} catch (e2) {
+			//arr.push( myfunc.json2txt( e2.stack ) );
+			}//try
+			}
+			*/
 
 
-			response.send( arr.join( "\n" ) );
+ 
+			arr.push('<form action="/sports" method="POST" enctype="multipart/form-data" id="f01"><input type="text" id="txt01"><input type="submit"  value="送出"></form></body></html>');
+
+			if(request.method === 'POST') {
+				//有送參數的查詢
+
+				//add/del/edit
+			}else{
+				//沒有查詢參數,直接給過去1天~未來2天的比賽清單
+
+			}
+
+
+			response.send( arr.join( "\n" )  );//htmlencode.htmlEncode(  )
 
 		} catch (e) {
 
 			//var err=['catch : ',,e.name,e.message];
 
 			response.send( e.stack );//err.join("\n")
+
+
+			//response.send( request );//err.join("\n")
 		}
-
-
-		//response.send('END');
 	}
 );
-
-exports.sports = require('./sports');
-
-exports.messages = require('./messages');

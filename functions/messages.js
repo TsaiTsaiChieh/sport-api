@@ -1,13 +1,20 @@
 const functions = require('firebase-functions');
-
 const myfunc=require('./myfunc');
-
+const mycfg= require('./mycfg');
 const htmlencode = require('htmlencode');
 
 
 //公開聊天室訊息
 module.exports = functions.https.onRequest(
 	async function(request, response){
+
+		var stacks=[];
+
+		var uhash='';//登入後有值.
+
+		var lm=50;//預設查詢筆數
+
+		//var def_ex=50;//因為沒有 '!=' 'or' 查詢方法.
 
 		try{
 
@@ -28,7 +35,7 @@ module.exports = functions.https.onRequest(
 
 			var arr=[];
 
-			const fadmin=myfunc.fadmin('../../sport19y0715-d23e597f8c95.json');
+			const fadmin=myfunc.fadmin( myfunc.cert );
 			const fsdb=fadmin.firestore();
 
 			if (request.method === 'POST'){
@@ -45,57 +52,97 @@ module.exports = functions.https.onRequest(
 				//var query = citiesRef.where('capital', '==', true).get()
 				//var lastThree = citiesRef.orderBy('name', 'desc').limit(3);
 
-				var c_msgs=fsdb.collection('messages');//.get();
-				var lm_msgs=c_msgs.orderBy('appear_timestamp', 'desc').limit(50);
+				/*
+				var n=0;
 
+				if(uhash !== ''){
+				var c_myhide= fsdb.collection('messages')//
+				//.where('stat', '==', 2)//
+				.where('hide_stat', '==', uhash)//
 
-				var sn_msgs = await lm_msgs.get();
+				.orderBy('appear_timestamp', 'desc');//
 
-				var txt=JSON.stringify(sn_msgs);
+				var
+				}*/
+
+				var c_msgs = fsdb.collection('messages')//.get();
+				//where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
+
+				//軟刪除狀態,0正常顯示,1用戶刪除,1管理員刪除(回收),其他(uhash)只對用戶自己隱藏
+				//-1=管理員刪除 的訊息都不要
+				//1=用戶回收 的訊息都不要
+
+				.where('hide_stat', '==', 0)//
+				//.where('hide_stat', '>', 1);//
+
+				c_msgs.orderBy('appear_timestamp', 'desc')//
+				.limit(lm*2)//
+				.get();//
+
+				var sn_msgs = await c_msgs.get();
+
+				//var txt=JSON.stringify(sn_msgs);
+
+				var cnt=0;
+				lm+=1;
 
 				sn_msgs.forEach( //這裡不能async
 
 					function(doc){
 
-						var data=doc.data();//每一筆訊息,(不能await)
+						if(cnt<lm){
 
-						//console.log(doc.id, '=>', doc.data().name);
 
-						//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
+							var data=doc.data();//每一筆訊息,(不能await)
 
-						switch(data.stat){
+							//console.log(doc.id, '=>', doc.data().name);
 
-							//管理員刪除
-							case -1:
-							case '-1':
+							//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
 
-							//用戶回收
-							case 1:
-							case '1':
 
-							//用戶刪除(對自己隱藏)
-							case 2:
-							case '2':
-							//以上狀態的訊息都不要
-							break;
+							switch(data.stat){
 
-							//沒設定,正常顯示
-							case undefined:
-							case null:
-							default:
+								//管理員刪除
+								case -1:
+								case '-1':
 
-							//arr.push( myfunc.json2txt( doc.data() ) );
+								//用戶回收
+								case 1:
+								case '1':
 
-							break;
+								//用戶刪除(對自己隱藏)
+								case 2:
+								case '2':
+								//以上狀態的訊息都不要
+								break;
 
-						}//sw
+								//沒設定,正常顯示
+								case undefined:
+								case null:
+								default:
 
-						arr.push( data );
+								//arr.push( myfunc.json2txt( doc.data() ) );
 
-						//return true; //終止迴圈
+								break;
+
+							}//sw
+
+
+							arr.push( data );
+
+							//return true; //終止迴圈
+
+
+
+
+
+							cnt++;
+						}else{
+							return true; //終止迴圈
+						}
 
 					});//for
-
+					
 				//arr.
 
 				//response.send( arr.join( "\n" ) );
@@ -110,16 +157,17 @@ module.exports = functions.https.onRequest(
 
 			//response.send( e.stack );//err.join("\n")
 
-
-			re.stack=e.stack;
+			stacks.push(e.stack);
 
 		}
 
 		re.messages=arr;
 
+		if(! mycfg.release){
+			re.stack=stacks;
+		}
 
-		response.send( re  );//htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
-
+		response.send( re );//htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
 
 	}
 
