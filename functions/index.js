@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const myfunc=require('./myfunc');
-
+// test
 exports.index = functions.https.onRequest(
 	async function(request, response){
 
