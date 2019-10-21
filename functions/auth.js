@@ -8,8 +8,8 @@ const functions = require('firebase-functions');
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
+// exports.helloWorld = functions.https.onRequest((req, res) => {
+//  res.send("Hello from Firebase!");
 // });
 const express = require("express");
 
@@ -34,6 +34,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 
 const app = express();
 app.use(express.json());
@@ -61,26 +62,34 @@ app.post('/api', (req, res) => {
 // /auth/emailRegister
 app.post('/emailRegister', (req, res) => {
     // console.log(req.body);
-// exports.EmailRegister = functions.https.onRequest((req, res) => {
-//     console.log("......2");
+    // exports.EmailRegister = functions.https.onRequest((req, res) => {
+    //     console.log("......2");
     if (req.method === 'POST') {
         const registerEmail = req.body.registerEmail;
         const registerPassword = req.body.registerPassword;
         const confirmPassword = req.body.confirmPassword;
         // var displayName = req.body.displayName;
 
-        if (!registerEmail) return res.status(400).json({error: 'missing email'});
-        if (!registerPassword) return res.status(400).json({error: 'missing password'});
-        if (!confirmPassword) return res.status(400).json({error: 'missing password'});
-        if (registerPassword !== confirmPassword) return res.status(400).json({error: 'password not same'});
+        if (!registerEmail) return res.status(400).json({
+            error: 'missing email'
+        });
+        if (!registerPassword) return res.status(400).json({
+            error: 'missing password'
+        });
+        if (!confirmPassword) return res.status(400).json({
+            error: 'missing password'
+        });
+        if (registerPassword !== confirmPassword) return res.status(400).json({
+            error: 'password not same'
+        });
 
         //參考https://firebase.google.com/docs/auth/admin/manage-users?authuser=0#create_a_user
         admin.auth().createUser({
-            email: registerEmail,
-            password: registerPassword,
-            // displayName:displayName
-            rawId: "testID"
-        })
+                email: registerEmail,
+                password: registerPassword,
+                // displayName:displayName
+                rawId: "testID"
+            })
             .then(function (userRecord) {
                 // See the UserRecord reference doc for the contents of userRecord.
                 // var uid = userRecord.uid;
@@ -105,7 +114,7 @@ app.post('/emailRegister', (req, res) => {
             success: false,
             message: '無效的請求'
         });
-        console.log('Error creating new user : Invalid request');
+        console.log('Error creating new user : Invalid req');
     }
 });
 
@@ -114,16 +123,26 @@ app.post('/email', (req, res) => {
     const loginEmail = req.body.loginEmail;
     const loginPassword = req.body.loginPassword;
 
-    if (!loginEmail) return res.status(400).json({error: 'missing email'});
-    if (!loginPassword) return res.status(400).json({error: 'missing password'});
+    if (!loginEmail) return res.status(400).json({
+        error: 'missing email'
+    });
+    if (!loginPassword) return res.status(400).json({
+        error: 'missing password'
+    });
     firebase.auth().signInWithEmailAndPassword(loginEmail, loginPassword)
         .then(function (user) {
             user.user.getIdToken()
                 .then(function (idToken) {
                     const expiresIn = 60 * 60 * 24 * 7 * 1000;
-                    admin.auth().createSessionCookie(idToken, {expiresIn})
+                    admin.auth().createSessionCookie(idToken, {
+                            expiresIn
+                        })
                         .then(function (sessionCookie) {
-                            const options = {maxAge: expiresIn, httpOnly: true, secure: true};
+                            const options = {
+                                maxAge: expiresIn,
+                                httpOnly: true,
+                                secure: true
+                            };
                             res.cookie('__session', sessionCookie, options);
                             res.json({
                                 success: true,

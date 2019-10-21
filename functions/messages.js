@@ -6,7 +6,7 @@ const htmlencode = require('htmlencode');
 
 //公開聊天室訊息
 module.exports = functions.https.onRequest(
-	async function(request, response){
+	async function(req, res){
 
 		var stacks=[];
 
@@ -18,12 +18,12 @@ module.exports = functions.https.onRequest(
 
 		try{
 
-			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
+			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
 
-			//console.info(request.params);
+			//console.info(req.params);
 
 			//cookie -> __session
-			//var cookies = request.get('cookie');
+			//var cookies = req.get('cookie');
 			//if (cookies !== undefined) {
 			//	var token = cookie.parse(cookies).__session;
 			//}
@@ -38,12 +38,12 @@ module.exports = functions.https.onRequest(
 			const fadmin=myfunc.fadmin( myfunc.cert );
 			const fsdb=fadmin.firestore();
 
-			if (request.method === 'POST'){
+			if (req.method === 'POST'){
 				//訊息進階操作
 
-				re.params=request.params;
+				re.params=req.params;
 
-				//var inp=myfunc.un2def(request.body,{});
+				//var inp=myfunc.un2def(req.body,{});
 
 			}else{
 				//沒有操作,列出訊息,默認是最後50個訊息.
@@ -145,7 +145,7 @@ module.exports = functions.https.onRequest(
 					
 				//arr.
 
-				//response.send( arr.join( "\n" ) );
+				//res.send( arr.join( "\n" ) );
 
 			}//else
 
@@ -155,7 +155,7 @@ module.exports = functions.https.onRequest(
 
 			//var err=['catch : ',,e.name,e.message];
 
-			//response.send( e.stack );//err.join("\n")
+			//res.send( e.stack );//err.join("\n")
 
 			stacks.push(e.stack);
 
@@ -167,7 +167,7 @@ module.exports = functions.https.onRequest(
 			re.stack=stacks;
 		}
 
-		response.send( re );//htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
+		res.send( re );//htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
 
 	}
 

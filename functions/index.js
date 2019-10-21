@@ -9,17 +9,17 @@ exports.auth = require('./auth');
 
 
 exports.index = functions.https.onRequest(
-	async function(request, response){
+	async function(req, res){
 
 		try{
 
-			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
+			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
 
-			//console.info(request);
+			//console.info(req);
 
 			/*
-			if (request.method === 'POST'){
-			var cookies = request.get('cookie');
+			if (req.method === 'POST'){
+			var cookies = req.get('cookie');
 			if (cookies !== undefined) {
 			var token = cookie.parse(cookies).__session;
 			}
@@ -28,17 +28,17 @@ exports.index = functions.https.onRequest(
 			var arr=[];
 			arr.push('<html><head><meta charset="utf-8" /><title>sports api</title></head><body>');
 
-			//arr.push( myfunc.json2txt( request.params ) );
+			//arr.push( myfunc.json2txt( req.params ) );
 
-			//arr.push( myfunc.json2txt( request.query ) );
+			//arr.push( myfunc.json2txt( req.query ) );
 
-			arr.push( myfunc.json2txt( typeof( request ) ) );
+			arr.push( myfunc.json2txt( typeof( req ) ) );
 
 
 			/*
-			for (var i in request) {
+			for (var i in req) {
 			try{
-			arr.push( myfunc.json2txt( request[i] ) );
+			arr.push( myfunc.json2txt( req[i] ) );
 			} catch (e2) {
 			//arr.push( myfunc.json2txt( e2.stack ) );
 			}//try
@@ -49,7 +49,7 @@ exports.index = functions.https.onRequest(
  
 			arr.push('<form action="/sports" method="POST" enctype="multipart/form-data" id="f01"><input type="text" id="txt01"><input type="submit"  value="送出"></form></body></html>');
 
-			if(request.method === 'POST') {
+			if(req.method === 'POST') {
 				//有送參數的查詢
 
 				//add/del/edit
@@ -59,16 +59,16 @@ exports.index = functions.https.onRequest(
 			}
 
 
-			response.send( arr.join( "\n" )  );//htmlencode.htmlEncode(  )
+			res.send( arr.join( "\n" )  );//htmlencode.htmlEncode(  )
 
 		} catch (e) {
 
 			//var err=['catch : ',,e.name,e.message];
 
-			response.send( e.stack );//err.join("\n")
+			res.send( e.stack );//err.join("\n")
 
 
-			//response.send( request );//err.join("\n")
+			//res.send( req );//err.join("\n")
 		}
 	}
 );

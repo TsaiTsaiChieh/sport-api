@@ -1,11 +1,11 @@
 const functions = require('firebase-functions');
 const myfunc=require('./myfunc');
 
-exports.index = functions.https.onRequest( async (request, response) => {
+exports.index = functions.https.onRequest( async (req, res) => {
 
 		try{
 
-			myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8');
+			myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8');
 
 
 			const fadmin=myfunc.fadmin('./sport19y0715-d23e597f8c95.json');
@@ -46,46 +46,46 @@ exports.index = functions.https.onRequest( async (request, response) => {
 			);
 
 
-			response.send( arr.join( "\n" ) );
+			res.send( arr.join( "\n" ) );
 
 		} catch (e) {
 
 			//var err=['catch : ',,e.name,e.message];
 
-			response.send( e.stack );//err.join("\n")
+			res.send( e.stack );//err.join("\n")
 		}
 
 
-		//response.send('END');
+		//res.send('END');
 	}
 );
 
 exports.sports = require('./sports');
 /*
-functions.https.onRequest( async (request, response) => {
+functions.https.onRequest( async (req, res) => {
 
 		try{
 
-			myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
+			myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
 
-			console.info(request.params);
+			console.info(req.params);
 
-			//response.send( '' );
+			//res.send( '' );
 
 			
 			var arr=[];
 			arr.push('ok');//myfunc.ok();
-			arr.push( myfunc.json2txt( request.params ) );//myfunc.ok();
+			arr.push( myfunc.json2txt( req.params ) );//myfunc.ok();
 
 
-			response.send( arr.join( "\n" ) );
+			res.send( arr.join( "\n" ) );
 			
 
 		} catch (e) {
 
 			//var err=['catch : ',,e.name,e.message];
 
-			response.send( e.stack );//err.join("\n")
+			res.send( e.stack );//err.join("\n")
 		}
 
 	}

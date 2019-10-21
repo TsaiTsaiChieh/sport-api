@@ -4,13 +4,13 @@ const mycfg= require('./mycfg');
 const htmlencode = require('htmlencode');
 
 module.exports = functions.https.onRequest(
-	async function(request, response){
+	async function(req, res){
 
 		var stacks=[];
 		
 				try{
 
-			//myfunc.utf8lang(response);//= response.set('Content-Type', 'text/plain; charset=utf-8');
+			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8');
 
 
 			const fadmin=myfunc.fadmin( myfunc.cert );
@@ -51,19 +51,19 @@ module.exports = functions.https.onRequest(
 			);
 
 
-			response.send( arr.join( "\n" ) );
+			res.send( arr.join( "\n" ) );
 
 		} catch (e) {
 
 			//var err=['catch : ',,e.name,e.message];
 
-			response.send( e.stack );//err.join("\n")
+			res.send( e.stack );//err.join("\n")
 		}
 		
 		
 
 
-		//response.send('END');
+		//res.send('END');
 
 	}
 

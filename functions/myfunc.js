@@ -106,12 +106,12 @@ function (fpath){
 exports.cert='../../sport19y0715-d23e597f8c95.json';
 
 exports.send_json=
-function ( response , json ){
+function ( res , json ){
 	
 	if(mycfg.release){
 		
 		json.stack=[];
 	}
 	
-	response.send( json  );
+	res.send( json  );
 }
