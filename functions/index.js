@@ -1,9 +1,11 @@
 const functions = require('firebase-functions');
 const myfunc=require('./myfunc');
 const mycfg= require('./mycfg');
+// const auth = require('./auth');
 
 exports.sports = require('./sports');
 exports.messages = require('./messages');
+exports.auth = require('./auth');
 
 
 exports.index = functions.https.onRequest(

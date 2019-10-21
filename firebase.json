@@ -12,33 +12,7 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-      "rewrites": [
-        {
-          "source": "/index",
-          "function": "index"
-        },
-		{
-          "source": "/sports",
-          "function": "sports"
-		},
-		{
-          "source": "/sports/**",
-          "function": "sports"
-		},
-		{
-          "source": "/messages",
-          "function": "messages"
-		},
-		{
-          "source": "/messages/**",
-          "function": "messages"
-		},
-		{
-          "source": "/",
-          "function": "index"
-        }		
-      ]
+    ]
   },
   "storage": {
     "rules": "storage.rules"
