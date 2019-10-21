@@ -10,6 +10,7 @@ return this.un2def(inp,'ok2');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const fs= require('fs');
+
 const mycfg= require('./mycfg');
 
 //const admin = require('firebase-admin');
@@ -74,12 +75,12 @@ function (fpath){
 	//admin.initializeApp(functions.config().firebase);//on firebase
 
 	if ( ! admin.apps.length ) {//表示尚未初始化
-	
+
 		if( fs.existsSync(fpath) ){
-			
+
 		//fpath目標存在
 		admin.initializeApp( { credential: admin.credential.cert( require(fpath) ) } );//on local emu
-		
+
 	}else{
 		//fpath目標不存在
 
@@ -94,24 +95,24 @@ function (fpath){
 			admin.initializeApp(functions.config().firebase);//on firebase
 			break;
 		}//sw
-		
+
 	}//else
 	}
 
-	
+
 
 	return admin;//.firestore();
 }
 
-exports.cert='../../sport19y0715-d23e597f8c95.json';
+
 
 exports.send_json=
 function ( res , json ){
-	
+
 	if(mycfg.release){
-		
+
 		json.stack=[];
 	}
-	
+
 	res.send( json  );
 }

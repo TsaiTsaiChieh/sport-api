@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
-
+const myfunc=require('./myfunc');
+const mycfg= require('./mycfg');
 
 // import * as express from "express";
 // import * as admin from "firebase-admin";
