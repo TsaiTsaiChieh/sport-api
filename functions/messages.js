@@ -35,7 +35,7 @@ module.exports = functions.https.onRequest(
 
 			var arr=[];
 
-			const fadmin=myfunc.fadmin( myfunc.cert );
+			const fadmin=myfunc.fadmin( mycfg.cert );
 			const fsdb=fadmin.firestore();
 
 			if (req.method === 'POST'){

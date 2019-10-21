@@ -13,7 +13,7 @@ module.exports = functions.https.onRequest(
 			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8');
 
 
-			const fadmin=myfunc.fadmin( myfunc.cert );
+			const fadmin=myfunc.fadmin( mycfg.cert );
 			const fsdb=fadmin.firestore();
 
 			//var template = swig.compileFile( init.thisdir.concat('/html/index.html') );//'test_chat/html/index.html'
