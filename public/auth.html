@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>聊運彩 ver.0717</title>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css"/>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+</head>
+<body>
+<div id="firebaseui-auth-container"></div>
+
+<div
+        class="fb-like"
+        data-share="true"
+        data-width="450"
+        data-show-faces="true">
+</div>
+<script type="text/javascript">
+
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '2278394362272852',
+            xfbml      : true,
+            version    : 'v4.0'
+        });
+        FB.AppEvents.logPageView();
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo",
+        authDomain: "sport19y0715.firebaseapp.com",
+        databaseURL: "https://sport19y0715.firebaseio.com",
+        projectId: "sport19y0715",
+        storageBucket: "sport19y0715.appspot.com",
+        messagingSenderId: "179049951227",
+        appId: "1:179049951227:web:15b2ae874d653216"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // FirebaseUI config.
+
+    var uiConfig = {
+        signInSuccessUrl: '/',
+        signInOptions: [
+            {
+                provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+                defaultCountry: 'TW',
+                recaptchaParameters: {
+                    type: 'image',
+                    size: 'invisible',
+                    badge: 'bottomleft'
+                }
+            },
+            {provider: firebase.auth.EmailAuthProvider.PROVIDER_ID},
+            {provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID},
+            {provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID},
+
+        ],
+        tosUrl: '/a',
+        privacyPolicyUrl: function () {
+            window.location.assign('privacyPolicy');
+        }
+    };
+
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+</script>
+</body>
+</html>

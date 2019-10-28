@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
-const myfunc=require('./myfunc');
-const mycfg= require('./mycfg');
+const myfunc = require('./myfunc');
+const mycfg = require('./mycfg');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -16,7 +16,7 @@ const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://rextest-ded68.firebaseio.com"
+    databaseURL: "https://sport19y0715.firebaseio.com"
 });
 
 const firebase = require('firebase');
@@ -59,9 +59,6 @@ app.post('/api', (req, res) => {
 //信箱註冊
 // /auth/emailRegister
 app.post('/emailRegister', (req, res) => {
-    // console.log(req.body);
-    // exports.EmailRegister = functions.https.onRequest((req, res) => {
-    //     console.log("......2");
     if (req.method === 'POST') {
         const registerEmail = req.body.registerEmail;
         const registerPassword = req.body.registerPassword;
@@ -297,7 +294,7 @@ app.post('/phone', (req, res) => {
 
     var token = req.body.token;
     if (!token) return res.status(400).json({error: 'missing email'});
-    console.log(token);
+    // console.log(token);
 
     var expiresIn = 60 * 60 * 24 * 7 * 1000;
     admin.auth().createSessionCookie(token, {expiresIn})
@@ -320,8 +317,8 @@ app.post('/phone', (req, res) => {
 });
 
 app.post('/sendSMS', function (req, res) {
-    const { phoneNumber, recaptchaToken } = req.body;
-    console.log(phoneNumber,recaptchaToken);
+    const {phoneNumber, recaptchaToken} = req.body;
+    console.log(phoneNumber, recaptchaToken);
     const identityToolkit = google.identitytoolkit({
         auth: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
         version: 'v3',
@@ -336,9 +333,64 @@ app.post('/sendSMS', function (req, res) {
     // const sessionInfo = response.data.sessionInfo;
     console.log(response);
     res.json({
-        "test":"test"
+        "test": "test"
     })
+});
 
+app.post('/login', function (req, res) {
+    let token = req.body.token;
+    if (!token) {
+        console.log('Error login user: missing token');
+        return res.status(400).json({success: false, message: "登入失敗"});
+    }
+    let expiresIn = 60 * 60 * 24 * 7 * 1000;
+    admin.auth().createSessionCookie(token, {expiresIn})
+        .then(function (sessionCookie) {
+            let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            res.cookie('__session', sessionCookie, options);
+            res.json({
+                success: true,
+                message: '登入成功'
+            })
+        })
+        .catch(function (error) {
+            console.log('Error login user: \n\t', error);
+            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({
+                success: false,
+                message: "登入失敗"
+            })
+        });
+});
+
+app.post('/logout', function (req, res) {
+    res.clearCookie('__session');
+    res.json({
+        success: true,
+        message: '登出成功'
+    });
+});
+
+app.get('/verifySessionCookie', function (req, res) {
+    let cookies = req.get('cookie') || '__session=';
+    let sessionCookie = cookie.parse(cookies).__session;
+
+    admin.auth().verifySessionCookie(
+        sessionCookie, true)
+        .then((decodedClaims) => {
+            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({
+                success: true,
+                decodedClaims: decodedClaims
+            })
+        })
+        .catch(error => {
+            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({
+                success: false,
+                message: error
+            })
+        });
 });
 
 // app.listen(5000,()=> console.log('Server started on port 5000'));
