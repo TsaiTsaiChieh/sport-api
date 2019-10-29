@@ -9,7 +9,9 @@ const mycfg = require('./mycfg');
 //  res.send("Hello from Firebase!");
 // });
 const express = require("express");
-const {google} = require('googleapis');
+const {
+    google
+} = require('googleapis');
 
 const admin = myfunc.fadmin(mycfg.cert, 'https://rextest-ded68.firebaseio.com');
 /*
@@ -87,10 +89,10 @@ app.post('/emailRegister', (req, res) => {
 
         //參考https://firebase.google.com/docs/auth/admin/manage-users?authuser=0#create_a_user
         admin.auth().createUser({
-            email: registerEmail,
-            password: registerPassword,
-            // displayName:displayName
-        })
+                email: registerEmail,
+                password: registerPassword,
+                // displayName:displayName
+            })
             .then(function (userRecord) {
                 // See the UserRecord reference doc for the contents of userRecord.
                 // var uid = userRecord.uid;
@@ -138,8 +140,8 @@ app.post('/email', (req, res) => {
                 .then(function (idToken) {
                     const expiresIn = 60 * 60 * 24 * 7 * 1000;
                     admin.auth().createSessionCookie(idToken, {
-                        expiresIn
-                    })
+                            expiresIn
+                        })
                         .then(function (sessionCookie) {
                             const options = {
                                 maxAge: expiresIn,
@@ -181,6 +183,7 @@ app.post('/email', (req, res) => {
         });
 });
 
+
 app.post('/phoneRegister', (req, res) => {
     const registerPhone = req.body.registerPhone;
     const registerPassword = req.body.registerPassword;
@@ -205,8 +208,8 @@ app.post('/phoneRegister', (req, res) => {
     });
     //參考https://firebase.google.com/docs/auth/admin/manage-users?authuser=0#create_a_user
     admin.auth().createUser({
-        phoneNumber: registerPhone
-    })
+            phoneNumber: registerPhone
+        })
         .then(function (userRecord) {
             // See the UserRecord reference doc for the contents of userRecord.
             const uid = userRecord.uid;
@@ -251,8 +254,8 @@ app.post('/phoneToken', (req, res) => {
                 .then(function (idToken) {
                     const expiresIn = 60 * 60 * 24 * 7 * 1000;
                     admin.auth().createSessionCookie(idToken, {
-                        expiresIn
-                    })
+                            expiresIn
+                        })
                         .then(function (sessionCookie) {
                             const options = {
                                 maxAge: expiresIn,
@@ -296,13 +299,21 @@ app.post('/phoneToken', (req, res) => {
 app.post('/phone', (req, res) => {
 
     var token = req.body.token;
-    if (!token) return res.status(400).json({error: 'missing email'});
+    if (!token) return res.status(400).json({
+        error: 'missing email'
+    });
     // console.log(token);
 
     var expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {expiresIn})
+    admin.auth().createSessionCookie(token, {
+            expiresIn
+        })
         .then(function (sessionCookie) {
-            const options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            const options = {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: true
+            };
             res.cookie('__session', sessionCookie, options);
             res.json({
                 success: true,
@@ -320,7 +331,10 @@ app.post('/phone', (req, res) => {
 });
 
 app.post('/sendSMS', function (req, res) {
-    const {phoneNumber, recaptchaToken} = req.body;
+    const {
+        phoneNumber,
+        recaptchaToken
+    } = req.body;
     console.log(phoneNumber, recaptchaToken);
     const identityToolkit = google.identitytoolkit({
         auth: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
@@ -344,12 +358,21 @@ app.post('/login', function (req, res) {
     let token = req.body.token;
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json({success: false, message: "登入失敗"});
+        return res.status(400).json({
+            success: false,
+            message: "登入失敗"
+        });
     }
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {expiresIn})
+    admin.auth().createSessionCookie(token, {
+            expiresIn
+        })
         .then(function (sessionCookie) {
-            let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            let options = {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: true
+            };
             res.cookie('__session', sessionCookie, options);
             res.json({
                 success: true,
@@ -379,7 +402,7 @@ app.get('/verifySessionCookie', function (req, res) {
     let sessionCookie = cookie.parse(cookies).__session;
 
     admin.auth().verifySessionCookie(
-        sessionCookie, true)
+            sessionCookie, true)
         .then((decodedClaims) => {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.json({
