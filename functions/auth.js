@@ -11,6 +11,8 @@ const mycfg = require('./mycfg');
 const express = require("express");
 const {google} = require('googleapis');
 
+const admin = myfunc.fadmin(mycfg.cert, 'https://rextest-ded68.firebaseio.com');
+/*
 const admin = require("firebase-admin");
 const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
 
@@ -18,6 +20,7 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://sport19y0715.firebaseio.com"
 });
+*/
 
 const firebase = require('firebase');
 

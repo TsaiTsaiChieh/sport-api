@@ -10,6 +10,11 @@ return this.un2def(inp,'ok2');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const fs= require('fs');
+const crypto = require("crypto");
+const cookie = require('cookie');
+//const htmlencode = require('js-htmlencode');
+const moment = require('moment');
+const util = require("util");
 
 const mycfg= require('./mycfg');
 
@@ -46,6 +51,12 @@ function (src,def){
 	return def;
 }
 
+exports.sha3_384 =
+	function (data) {
+		//crypto.getHashes()
+		return crypto.createHash('sha3-384').update(data, 'binary').digest('hex'); //'hex'，'latin1'或者 'base64'
+	}
+
 exports.ck2ss=
 function (req){
 	//取得firebase傳遞的cookie/session , session指定變數名稱不能改
@@ -70,16 +81,25 @@ function(res){
 
 
 exports.fadmin=
-function (fpath){
+	function (fpath, databaseURL) {
+		databaseURL = databaseURL || '';
 
 	//admin.initializeApp(functions.config().firebase);//on firebase
 
 	if ( ! admin.apps.length ) {//表示尚未初始化
 
+			var inf = {
+				credential: admin.credential.cert(require(fpath))
+			};
+
+			if (databaseURL !== '') {
+				inf.databaseURL = databaseURL;
+			}
+
 		if( fs.existsSync(fpath) ){
 
 		//fpath目標存在
-		admin.initializeApp( { credential: admin.credential.cert( require(fpath) ) } );//on local emu
+				admin.initializeApp(inf); //on local emu
 
 	}else{
 		//fpath目標不存在
@@ -88,7 +108,7 @@ function (fpath){
 
 			case 'gcp':
 			case 'GCP':
-			admin.initializeApp( { credential: admin.credential.applicationDefault()	} );//on gcp
+						admin.initializeApp(inf); //on gcp
 			break;
 
 			default:
@@ -97,7 +117,7 @@ function (fpath){
 		}//sw
 
 	}//else
-	}
+		} //if
 
 
 
