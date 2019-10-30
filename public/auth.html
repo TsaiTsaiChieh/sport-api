@@ -92,7 +92,7 @@
                 let http = new XMLHttpRequest();
                 // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/verifySessionCookie';
                 // let url = '/auth/verifySessionCookie';
-                let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/VerifySessionCookie';
+                let url = '/auth/VerifySessionCookie';
                 http.open('GET', url, true);
                 console.log("verify ....begin");
                 http.onreadystatechange = function () {
@@ -114,7 +114,7 @@
                 let http = new XMLHttpRequest();
                 // let url = '/auth/login';
                 // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/login';
-                let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/login';
+                let url = '/auth/login';
                 // let params = 'token=' + firebase.auth().currentUser.refreshToken;
                 let params = 'token=' + firebase.auth().currentUser.ma;
                 http.open('POST', url, true);
@@ -141,7 +141,7 @@
             let http = new XMLHttpRequest();
             // let url = '/auth/logout';
             // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/logout';
-            let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/logout';
+            let url = '/auth/logout';
             http.open('POST', url, true);
             http.onreadystatechange = function () {
                 // alert(http.status)
