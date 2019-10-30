@@ -2,59 +2,63 @@
 <html>
 <head>
     <title>聊運彩 ver.0717</title>
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css"/>
-    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
-
+    <!--    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>-->
+    <!--    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css"/>-->
+    <!--    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase-app.js"></script>-->
+    <!--<script src="/__/firebase/6.6.1/firebase-app.js"></script>-->
     <!-- Add Firebase products that you want to use -->
-    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <!--    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase-auth.js"></script>-->
+    <!--    <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>-->
+    <!--    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase-firestore.js"></script>-->
     <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth.css"/>
+    <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+    <script src="/__/firebase/6.6.1/firebase-auth.js"></script>
+    <script src="/__/firebase/init.js"></script>
 </head>
 <body>
 <div id="firebaseui-auth-container"></div>
-
-<div
-        class="fb-like"
-        data-share="true"
-        data-width="450"
-        data-show-faces="true">
+<div>
+    <button type="button" onclick="logout()">登出</button>
 </div>
 <script type="text/javascript">
 
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId      : '2278394362272852',
-            xfbml      : true,
-            version    : 'v4.0'
-        });
-        FB.AppEvents.logPageView();
-    };
+    // window.fbAsyncInit = function () {
+    //     FB.init({
+    //         appId: '2278394362272852',
+    //         xfbml: true,
+    //         version: 'v4.0'
+    //     });
+    //     FB.AppEvents.logPageView();
+    // };
 
-    (function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
+    // (function (d, s, id) {
+    //     var js, fjs = d.getElementsByTagName(s)[0];
+    //     if (d.getElementById(id)) {
+    //         return;
+    //     }
+    //     js = d.createElement(s);
+    //     js.id = id;
+    //     js.src = "https://connect.facebook.net/en_US/sdk.js";
+    //     fjs.parentNode.insertBefore(js, fjs);
+    // }(document, 'script', 'facebook-jssdk'));
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo",
-        authDomain: "sport19y0715.firebaseapp.com",
-        databaseURL: "https://sport19y0715.firebaseio.com",
-        projectId: "sport19y0715",
-        storageBucket: "sport19y0715.appspot.com",
-        messagingSenderId: "179049951227",
-        appId: "1:179049951227:web:15b2ae874d653216"
-    };
+    // const firebaseConfig = {
+    //     apiKey: "AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo",
+    //     authDomain: "sport19y0715.firebaseapp.com",
+    //     databaseURL: "https://sport19y0715.firebaseio.com",
+    //     projectId: "sport19y0715",
+    //     storageBucket: "sport19y0715.appspot.com",
+    //     messagingSenderId: "179049951227",
+    //     appId: "1:179049951227:web:15b2ae874d653216"
+    // };
 
-    firebase.initializeApp(firebaseConfig);
+    // firebase.initializeApp(firebaseConfig);
 
     // FirebaseUI config.
 
-    var uiConfig = {
-        signInSuccessUrl: '/',
+    const uiConfig = {
+        signInSuccessUrl: '/auth.html',
         signInOptions: [
             {
                 provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
@@ -77,9 +81,85 @@
     };
 
     // Initialize the FirebaseUI Widget using Firebase.
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
     // The start method will wait until the DOM is loaded.
     ui.start('#firebaseui-auth-container', uiConfig);
+
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            function VerifySessionCookie() {
+                // alert("verifylll");
+                let http = new XMLHttpRequest();
+                // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/verifySessionCookie';
+                // let url = '/auth/verifySessionCookie';
+                let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/VerifySessionCookie';
+                http.open('GET', url, true);
+                console.log("verify ....begin");
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4 && http.status == 200) {
+                        let res = JSON.parse(http.responseText);
+                        if (res.success == true) {
+                            alert('登入成功');
+                        } else {
+                            alert('/auth/VerifySessionCookie - login()');
+                            login();
+                        }
+                    }
+                };
+                http.send();
+            }
+
+            function login() {
+                // alert("login...")
+                let http = new XMLHttpRequest();
+                // let url = '/auth/login';
+                // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/login';
+                let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/login';
+                // let params = 'token=' + firebase.auth().currentUser.refreshToken;
+                let params = 'token=' + firebase.auth().currentUser.ma;
+                http.open('POST', url, true);
+                http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4 && http.status == 200) {
+                        let res = JSON.parse(http.responseText);
+                        if (res.success == true) {
+                            alert('登入成功');
+                        } else {
+                            alert('登入失敗');
+                        }
+                    }
+                };
+                http.send(params);
+            }
+            VerifySessionCookie();
+        }
+
+    });
+
+    function logout() {
+        firebase.auth().signOut().then(function () {
+            let http = new XMLHttpRequest();
+            // let url = '/auth/logout';
+            // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/logout';
+            let url = 'https://us-central1-sport19y0715.cloudfunctions.net/auth/logout';
+            http.open('POST', url, true);
+            http.onreadystatechange = function () {
+                // alert(http.status)
+                if (http.readyState === 4) {
+                    // if (http.readyState === 4 && http.status === 200) {
+                    let res = JSON.parse(http.responseText);
+                    if (res.success == true) {
+                        alert('登出成功');
+                    } else {
+                        // alert('登出失敗');
+                    }
+                }
+            };
+            http.send();
+        }).catch(function (error) {
+            // console.log(error)
+        });
+    }
 </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const myfunc = require('./myfunc');
 const mycfg = require('./mycfg');
+const cookie = require('cookie');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -9,20 +10,18 @@ const mycfg = require('./mycfg');
 //  res.send("Hello from Firebase!");
 // });
 const express = require("express");
-const {
-    google
-} = require('googleapis');
+const {google} = require('googleapis');
+const helmet = require("helmet");
 
-const admin = myfunc.fadmin(mycfg.cert, 'https://rextest-ded68.firebaseio.com');
-/*
-const admin = require("firebase-admin");
-const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://sport19y0715.firebaseio.com"
-});
-*/
+const admin = myfunc.fadmin(mycfg.cert);
+// const admin = require("firebase-admin");
+// const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
+
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     databaseURL: "https://sport19y0715.firebaseio.com"
+// });
 
 const firebase = require('firebase');
 
@@ -38,15 +37,22 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+// module.exports = functions.https.onRequest(function(req, res){
+//     res.json({
+//         message: 'Hello API 4'
+//     });
+// });
+
 
 const app = express();
 app.use(express.json());
-
+app.use(helmet());
 // app.disable("x-powered-by");
 app.post('/api', (req, res) => {
-    console.log("api....");
+    console.log("api33....");
+    res.cookie('__session', "test");
     res.json({
-        message: 'Hello API2'
+        message: 'Hello API 3'
     });
     // return res.status(200);
     // res.status(200).send("hello");
@@ -89,10 +95,10 @@ app.post('/emailRegister', (req, res) => {
 
         //參考https://firebase.google.com/docs/auth/admin/manage-users?authuser=0#create_a_user
         admin.auth().createUser({
-                email: registerEmail,
-                password: registerPassword,
-                // displayName:displayName
-            })
+            email: registerEmail,
+            password: registerPassword,
+            // displayName:displayName
+        })
             .then(function (userRecord) {
                 // See the UserRecord reference doc for the contents of userRecord.
                 // var uid = userRecord.uid;
@@ -140,8 +146,8 @@ app.post('/email', (req, res) => {
                 .then(function (idToken) {
                     const expiresIn = 60 * 60 * 24 * 7 * 1000;
                     admin.auth().createSessionCookie(idToken, {
-                            expiresIn
-                        })
+                        expiresIn
+                    })
                         .then(function (sessionCookie) {
                             const options = {
                                 maxAge: expiresIn,
@@ -183,7 +189,6 @@ app.post('/email', (req, res) => {
         });
 });
 
-
 app.post('/phoneRegister', (req, res) => {
     const registerPhone = req.body.registerPhone;
     const registerPassword = req.body.registerPassword;
@@ -208,8 +213,8 @@ app.post('/phoneRegister', (req, res) => {
     });
     //參考https://firebase.google.com/docs/auth/admin/manage-users?authuser=0#create_a_user
     admin.auth().createUser({
-            phoneNumber: registerPhone
-        })
+        phoneNumber: registerPhone
+    })
         .then(function (userRecord) {
             // See the UserRecord reference doc for the contents of userRecord.
             const uid = userRecord.uid;
@@ -254,8 +259,8 @@ app.post('/phoneToken', (req, res) => {
                 .then(function (idToken) {
                     const expiresIn = 60 * 60 * 24 * 7 * 1000;
                     admin.auth().createSessionCookie(idToken, {
-                            expiresIn
-                        })
+                        expiresIn
+                    })
                         .then(function (sessionCookie) {
                             const options = {
                                 maxAge: expiresIn,
@@ -265,7 +270,8 @@ app.post('/phoneToken', (req, res) => {
                             res.cookie('__session', sessionCookie, options);
                             res.json({
                                 success: true,
-                                message: '登入成功'
+                                message: '登入成功',
+                                stats: 1
                             });
                             console.log('Successfully login user : ', user.user.uid);
                         })
@@ -297,23 +303,14 @@ app.post('/phoneToken', (req, res) => {
         });
 });
 app.post('/phone', (req, res) => {
-
-    var token = req.body.token;
-    if (!token) return res.status(400).json({
-        error: 'missing email'
-    });
+    let token = req.body.token;
+    if (!token) return res.status(400).json({error: 'missing email'});
     // console.log(token);
 
-    var expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {
-            expiresIn
-        })
+    const expiresIn = 60 * 60 * 24 * 7 * 1000;
+    admin.auth().createSessionCookie(token, {expiresIn})
         .then(function (sessionCookie) {
-            const options = {
-                maxAge: expiresIn,
-                httpOnly: true,
-                secure: true
-            };
+            let options = {maxAge: expiresIn, httpOnly: true, secure: true};
             res.cookie('__session', sessionCookie, options);
             res.json({
                 success: true,
@@ -331,10 +328,7 @@ app.post('/phone', (req, res) => {
 });
 
 app.post('/sendSMS', function (req, res) {
-    const {
-        phoneNumber,
-        recaptchaToken
-    } = req.body;
+    const {phoneNumber, recaptchaToken} = req.body;
     console.log(phoneNumber, recaptchaToken);
     const identityToolkit = google.identitytoolkit({
         auth: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
@@ -356,71 +350,69 @@ app.post('/sendSMS', function (req, res) {
 
 app.post('/login', function (req, res) {
     let token = req.body.token;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    console.log('login : ', token);
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json({
-            success: false,
-            message: "登入失敗"
-        });
+        return res.status(400).json({success: false, message: "登入失敗0"});
     }
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {
-            expiresIn
-        })
+    admin.auth().createSessionCookie(token, {expiresIn})
         .then(function (sessionCookie) {
-            let options = {
-                maxAge: expiresIn,
-                httpOnly: true,
-                secure: true
-            };
+            let options = {maxAge: expiresIn, httpOnly: true, secure: true, domain: 'sport19y0715.web.app'};
+            // res.cookie('name', 'tobi', {domain: 'localhost:5000', secure: false});
             res.cookie('__session', sessionCookie, options);
-            res.json({
-                success: true,
-                message: '登入成功'
-            })
+            //res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({success: true, message: '11登入成功33'})
         })
         .catch(function (error) {
             console.log('Error login user: \n\t', error);
-            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({
-                success: false,
-                message: "登入失敗"
-            })
+            // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({success: false, message: "登入失敗1"})
         });
 });
 
 app.post('/logout', function (req, res) {
+    console.log('logout...');
     res.clearCookie('__session');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.json({
         success: true,
-        message: '登出成功'
+        message: '登出成功1'
     });
 });
 
 app.get('/verifySessionCookie', function (req, res) {
+    // res.json({test:'test'})
     let cookies = req.get('cookie') || '__session=';
-    let sessionCookie = cookie.parse(cookies).__session;
-
-    admin.auth().verifySessionCookie(
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // let cookies = req.get('cookie');
+    // console.log('verifySessionCookie - ', cookies);
+    // if (cookies === undefined) console.log("test 0");
+    // if (cookies !== undefined) console.log("test 1");
+    //
+    // if (!cookies) console.log("test 2");
+    if (cookies) {
+        let sessionCookie = cookie.parse(cookies).__session;
+        console.log('verifySessionCookie - ', sessionCookie);
+        admin.auth().verifySessionCookie(
             sessionCookie, true)
-        .then((decodedClaims) => {
-            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({
-                success: true,
-                decodedClaims: decodedClaims
+            .then((decodedClaims) => {
+                console.log('Auth - verifySessionCookie success : ', decodedClaims);
+                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                res.json({
+                    success: true,
+                    decodedClaims: decodedClaims
+                })
             })
-        })
-        .catch(error => {
-            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({
-                success: false,
-                message: error
-            })
-        });
+            .catch(error => {
+                console.log('Auth - verifySessionCookie false : ', error);
+                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                res.json({success: false})
+            });
+    }
 });
 
 // app.listen(5000,()=> console.log('Server started on port 5000'));
-
-// module.exports = functions.https.onRequest(app);
 
 module.exports = functions.https.onRequest(app);
