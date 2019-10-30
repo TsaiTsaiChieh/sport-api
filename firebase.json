@@ -27,31 +27,7 @@
     "rewrites": [
       {
         "source": "**",
-        "function": "auth"
-      },
-      {
-        "source": "/index",
-        "function": "index"
-      },
-      {
-        "source": "/sports",
-        "function": "sports"
-      },
-      {
-        "source": "/sports/**",
-        "function": "sports"
-      },
-      {
-        "source": "/messages",
-        "function": "messages"
-      },
-      {
-        "source": "/messages/**",
-        "function": "messages"
-      },
-      {
-        "source": "/",
-        "function": "index"
+        "function": "api"
       }
     ]
   },

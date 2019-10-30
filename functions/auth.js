@@ -11,7 +11,6 @@ const cookie = require('cookie');
 // });
 const express = require("express");
 const {google} = require('googleapis');
-const helmet = require("helmet");
 
 
 const admin = myfunc.fadmin(mycfg.cert);
@@ -37,22 +36,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-// module.exports = functions.https.onRequest(function(req, res){
-//     res.json({
-//         message: 'Hello API 4'
-//     });
-// });
-
 
 const app = express();
 app.use(express.json());
-app.use(helmet());
+
 // app.disable("x-powered-by");
 app.post('/api', (req, res) => {
-    console.log("api33....");
-    res.cookie('__session', "test");
+    console.log("api....");
     res.json({
-        message: 'Hello API 3'
+        message: 'Hello API2'
     });
     // return res.status(200);
     // res.status(200).send("hello");
@@ -348,44 +340,43 @@ app.post('/sendSMS', function (req, res) {
     })
 });
 
-app.post('/auth/login', function (req, res) {
+app.post('/login', function (req, res) {
     let token = req.body.token;
-    //res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     console.log('login : ', token);
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json({success: false, message: "登入失敗0"});
+        return res.status(400).json({success: false, message: "登入失敗"});
     }
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
     admin.auth().createSessionCookie(token, {expiresIn})
         .then(function (sessionCookie) {
-            let options = {maxAge: expiresIn, httpOnly: true, secure: true, domain: 'sport19y0715.web.app'};
-            // res.cookie('name', 'tobi', {domain: 'localhost:5000', secure: false});
+            let options = {maxAge: expiresIn, httpOnly: true};
             res.cookie('__session', sessionCookie, options);
-            //res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: true, message: '11登入成功33'})
+            // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({success: true, message: '登入成功'})
         })
         .catch(function (error) {
             console.log('Error login user: \n\t', error);
-            // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: false, message: "登入失敗1"})
+            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.json({success: false, message: "登入失敗"})
         });
 });
 
-app.post('/auth/logout', function (req, res) {
+app.post('/logout', function (req, res) {
     console.log('logout...');
     res.clearCookie('__session');
-    //res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.json({
         success: true,
-        message: '登出成功1'
+        message: '登出成功'
     });
 });
 
-app.get('/auth/verifySessionCookie', function (req, res) {
+app.get('/verifySessionCookie', function (req, res) {
     // res.json({test:'test'})
     let cookies = req.get('cookie') || '__session=';
-    //res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     // let cookies = req.get('cookie');
     // console.log('verifySessionCookie - ', cookies);
     // if (cookies === undefined) console.log("test 0");
@@ -414,5 +405,7 @@ app.get('/auth/verifySessionCookie', function (req, res) {
 });
 
 // app.listen(5000,()=> console.log('Server started on port 5000'));
+
+// module.exports = functions.https.onRequest(app);
 
 module.exports = functions.https.onRequest(app);
