@@ -350,7 +350,7 @@ app.post('/sendSMS', function (req, res) {
 
 app.post('/auth/login', function (req, res) {
     let token = req.body.token;
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    //res.setHeader('Access-Control-Allow-Origin', '*');
     console.log('login : ', token);
     if (!token) {
         console.log('Error login user: missing token');
@@ -375,7 +375,7 @@ app.post('/auth/login', function (req, res) {
 app.post('/auth/logout', function (req, res) {
     console.log('logout...');
     res.clearCookie('__session');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    //res.setHeader('Access-Control-Allow-Origin', '*');
     res.json({
         success: true,
         message: '登出成功1'
@@ -385,7 +385,7 @@ app.post('/auth/logout', function (req, res) {
 app.get('/auth/verifySessionCookie', function (req, res) {
     // res.json({test:'test'})
     let cookies = req.get('cookie') || '__session=';
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    //res.setHeader('Access-Control-Allow-Origin', '*');
     // let cookies = req.get('cookie');
     // console.log('verifySessionCookie - ', cookies);
     // if (cookies === undefined) console.log("test 0");
