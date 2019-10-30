@@ -26,11 +26,7 @@
     ],
     "rewrites": [
       {
-        "source": "/auth/**",
-        "function": "auth"
-      },
-      {
-        "source": "/auth",
+        "source": "**",
         "function": "auth"
       },
       {
