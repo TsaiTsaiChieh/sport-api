@@ -1,15 +1,93 @@
+/* eslint-disable no-empty */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 /* eslint-disable no-fallthrough */
 const functions = require('firebase-functions');
-const fauth = require('./mycfg');
+
+//const fstorge = require('firebase-firestore');
+
+
 const myfunc = require('./myfunc');
 const mycfg = require('./mycfg');
 //const htmlencode = require('htmlencode');
+const cookie = require('cookie');
 
 //初始化資料庫
 const fadmin = myfunc.fadmin(mycfg.cert);
 const fsdb = fadmin.firestore();
 
-async function msg_list(uhash, lm, jutc) {
+const fs = require('fs');
+
+//const bucket = fadmin.storage().bucket().upload());
+
+//const firebase = require('firebase');
+//const fauth = admin.auth();
+
+//初始話儲存桶
+//var b = await myfunc.gcsb('firebase_messages_files') || 'err';
+//GCP桶不好用,暫時用fsdb存檔案
+
+//fsdb單次上限10MB,單檔上限1MB,存檔先建立2種 散列hash 再切割.
+
+
+async function fi_update(fi, ftype, life) { //把檔案上傳並且去重複,回傳上傳後的網址與hash
+	var re = {
+		'success': false
+	};
+	fi = fi || '';
+
+	ftype = ftype || '';
+
+	if (fi !== '') {
+
+		var fhash = myfunc.sha3_384(fi);
+
+		var l = fi.length;
+
+		//Define bucket.
+		//var bucket_def = gcs.bucket();
+
+		//var c_fis =
+
+		var sn_fis = await fsdb.collection('upload_files') //
+			.where('fhash', '==', fhash) //
+			.where('length', '==', fi.length) //
+			//.orderBy('appear_timestamp', 'desc') //不須排序,加速
+			//.limit(50) //不限制sha384重複的檔案數量.
+			.get();
+
+		var due = false;
+
+
+		sn_fis.forEach( //這裡不能async
+
+			function (doc) {
+				var data = doc.data(); //每一筆檔案資訊,(不能await)
+				if (data.content === fi) { //有重複sha384
+					//due = true;
+
+
+
+
+
+					//return true;
+				}
+			}
+		); //for
+
+
+
+	} else {
+		re.stack = 'no file';
+	}
+
+	return re;
+}
+
+
+
+async function msg_list(uhash, lm, utc_jump) {
+
 
 	//var re = {}; //回傳的json.
 
@@ -22,7 +100,7 @@ async function msg_list(uhash, lm, jutc) {
 
 	uhash = uhash || ''; //myfunc.un2def(uhash, ''); //沒有hash就用'';
 	lm = parseInt(lm, 10) || 50; //無法辨識則默認50筆;//parseInt(來源, 10進制)
-	jutc = parseInt(jutc, 10) || -1; //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
+	utc_jump = parseInt(utc_jump, 10) || -1; //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
 
 
 	//var c_msgs = fsdb.collection('messages') //.get();
@@ -39,11 +117,10 @@ async function msg_list(uhash, lm, jutc) {
 	//	.limit(lm + 100) //額外取得100筆紀錄,避免過濾後筆數不足
 	//	.get(); //
 
-	var c_msgs = await fsdb.collection('messages'); //
-	if (jutc > 0) {
-		c_msgs = c_msgs.where('appear_timestamp', '<=', jutc);
+	var c_msgs = fsdb.collection('messages'); //
+	if (utc_jump > 0) {
+		c_msgs = c_msgs.where('appear_timestamp', '<=', utc_jump);
 	}
-
 
 	var sn_msgs = await c_msgs.orderBy('appear_timestamp', 'desc') //
 		.limit(lm + 50) //額外取得50筆紀錄,避免過濾後筆數不足
@@ -116,11 +193,13 @@ async function msg_list(uhash, lm, jutc) {
 
 }
 
-function msg_new(uhash, msg, re_hash, fi, ftype) {
+
+
+function msg_create(uhash, msg, re_hash, fi, ftype) {
 
 }
 
-function msg_hide(uhash, msg_hash, stat) {
+function msg_del(uhash, msg_hash, stat) {
 
 }
 
@@ -133,7 +212,7 @@ module.exports = functions.https.onRequest(
 
 		var uhash = ''; //登入後有值.
 
-		var lm = 50; //預設查詢筆數
+		//var lm = 50; //預設查詢筆數
 
 		//var def_ex=50;//因為沒有 '!=' 'or' 查詢方法.
 
@@ -141,32 +220,98 @@ module.exports = functions.https.onRequest(
 
 		try {
 
+			//var [buckets] = await storage.getBuckets();
+			//console.log('Buckets:');
+			//buckets.forEach(bucket => {
+			//	//	console.log(bucket.name);
+			//	bucket.name
+			//});
+			//console.log(b);
+
+			//re.bucket = await myfunc.gcsb('firebase_messages_files') || 'err';
+			re.file = fs.readFileSync(mycfg.cert);
+
+
 			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
 
 			//console.info(req.params);
 
 			//cookie -> __session
-			//var cookies = req.get('cookie');
-			//if (cookies !== undefined) {
-			//	var token = cookie.parse(cookies).__session;
-			//}
+			var cookies = req.get('cookie');
+			if (cookies !== undefined) {
+				var token = cookie.parse(cookies).__session;
+			}
 
+			var ss = myfunc.ck2ss(req) || '';
 
-			re.success = '0'; //預設為警告,直到行為完成才OK
+			uhash = ss;
 
-			var results = [];
+			re.success = false; //預設為false,直到行為完成才true
+
+			var user = fadmin.auth().getUser(ss) || {};
+			//var name, email, photoUrl, uid, emailVerified;
+			//re.user = fadmin.auth().getUser() || {};
+			/*
+			if (user != null) {
+				name = user.displayName;
+				email = user.email;
+				photoUrl = user.photoURL;
+				emailVerified = user.emailVerified;
+				uid = user.uid; // The user's ID, unique to the Firebase project. Do NOT use
+				// this value to authenticate with your backend server, if
+				// you have one. Use User.getToken() instead.
+			}*/
+
+			stacks.push({
+				'user': user
+			});
+
+			//var results = [];
 
 			if (req.method === 'POST') {
 				//訊息進階操作
 
-				re.params = req.params;
+				//var r = req.params[0]; //{"0":"/messages/xxxx/yyyy"}
+				var arr_r = req.params[0].split('/') || [];
+				//0='messages'
+				//1=xxxx
+				//2=yyyy
+
+				re.params = req.params || {};
+				switch (arr_r[1] || '') {
+					case 'create':
+						break;
+
+						//case 'edit':
+						//	break;
+
+					case 'del':
+
+						break;
+
+					default: //message_hash
+
+						switch (arr_r[2] || '') {
+							//case 'edit':
+							//	break;
+
+							case 'del':
+
+								break;
+
+							default:
+								break;
+						}
+
+						break;
+				}
 
 				//var inp=myfunc.un2def(req.body,{});
 
 			} else {
 				//沒有操作,列出訊息,默認是最後50個訊息.
 
-				results = await msg_list(uhash, lm);
+				re.results = await msg_list(user.uid);
 
 				//arr.
 
@@ -174,7 +319,7 @@ module.exports = functions.https.onRequest(
 
 			} //else
 
-			re.stat = 'ok';
+			re.success = true;
 
 		} catch (e) {
 
@@ -182,15 +327,18 @@ module.exports = functions.https.onRequest(
 
 			//res.send( e.stack );//err.join("\n")
 
+			console.error(e.stack);
+
 			stacks.push(e.stack);
 
 		}
 
-		re.results = results;
+		//re.results = results;
 
-		if (!mycfg.release && stacks.length > 0) {
-			re.stack = stacks;
-		}
+		//if (!mycfg.release && stacks.length > 0) {
+		//	re.stack = stacks;
+		//}
+		re.stack = stacks;
 
 		res.send(re); //htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
 
