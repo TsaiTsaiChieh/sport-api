@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const firebaseFunctions = require( 'firebase-functions' );
-const longsingShortcutFunction = require( './longsing_shortcuts/shortcut_function' );
+const longsingShortcutFunction = require( './shortcut_function' );
 const envValues = require( '././env_values' );
 const users = require( './users' );
 const htmlencode = require( 'js-htmlencode' );

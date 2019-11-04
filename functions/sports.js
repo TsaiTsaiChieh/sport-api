@@ -2,23 +2,24 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 
-const functions = require('firebase-functions');
-const myfunc=require('./myfunc');
-const mycfg= require('./mycfg');
-const htmlencode = require('htmlencode');
+const functions = require( 'firebase-functions' );
+const envValues = require( '././env_values' );
+const longsingShortcutFunction = require( './shortcut_function' );
+const longsingShortcutHash = require( './shortcut_hash' );
+const htmlencode = require( 'htmlencode' );
 
 module.exports = functions.https.onRequest(
-	async function(req, res){
+	async function ( req, res ) {
 
-		let stacks=[];
+		let stacks = [];
 
-				try{
+		try {
 
 			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8');
 
 
-			const firebaseGetAdmin=myfunc.firebaseGetAdmin( mycfg.cert );
-			const fsdb=firebaseGetAdmin.firestore();
+			const firebaseGetAdmin = longsingShortcutFunction.lazyFirebaseAdmin( envValues.cert );
+			const fsdb = firebaseGetAdmin.firestore();
 
 			//let template = swig.compileFile( init.thisdir.concat('/html/index.html') );//'test_chat/html/index.html'
 			//let j = {
@@ -28,26 +29,26 @@ module.exports = functions.https.onRequest(
 			//let output = template(j);
 
 
-			let p_sports=fsdb.collection('sports');//.get();
+			let p_sports = fsdb.collection( 'sports' ); //.get();
 
 			//let citiesRef = db.collection('cities');
 
 			let sn_sports = await p_sports.get();
 
-			let txt=JSON.stringify(sn_sports);
+			let txt = JSON.stringify( sn_sports );
 
-			let arr=[];
-			arr.push('ok');//myfunc.ok();
+			let arr = [];
+			arr.push( 'ok' ); //myfunc.ok();
 
 
 			sn_sports.forEach( //這裡不能async
-				function(doc){
+				function ( doc ) {
 					//doc.data() 不能await
 
 					//console.log(doc.id, '=>', doc.data().name);
 
 					//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
-					arr.push( myfunc.jsonFormatOut( doc.data() ) );
+					arr.push( longsingShortcutFunction.jsonFormatOut( doc.data() ) );
 
 					//return true; //終止迴圈
 
@@ -57,11 +58,11 @@ module.exports = functions.https.onRequest(
 
 			res.send( arr.join( "\n" ) );
 
-		} catch (e) {
+		} catch ( e ) {
 
 			//let err=['catch : ',,e.name,e.message];
 
-			res.send( e.stack );//err.join("\n")
+			res.send( e.stack ); //err.join("\n")
 		}
 
 

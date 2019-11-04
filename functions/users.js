@@ -3,8 +3,8 @@
 const admin = require( 'firebase-admin' );
 const functions = require( 'firebase-functions' );
 const envValues = require( '././env_values' );
-const longsingShortcutFunction = require( './longsing_shortcuts/shortcut_function' );
-const longsingShortcutHash = require( './longsing_shortcuts/shortcut_hash' );
+const longsingShortcutFunction = require( './shortcut_function' );
+const longsingShortcutHash = require( './shortcut_hash' );
 
 var QRCode = require( 'qrcode' );
 

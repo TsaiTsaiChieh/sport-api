@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 const functions = require( 'firebase-functions' );
 //const myfunc = require( './myfunc' );
-const longsingShortcutFunction = require( './longsing_shortcuts/shortcut_function' );
+const longsingShortcutFunction = require( './shortcut_function' );
 const envValues = require( '././env_values' );
 const cookie = require( 'cookie' );
 const rp = require( 'request-promise' );
