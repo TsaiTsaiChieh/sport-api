@@ -3,3 +3,4 @@ node_modules/
 auth/
 ./firtebase_request.js
 ./package-lock.json
+.BAK

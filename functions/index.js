@@ -8,4 +8,5 @@ app.use(express.json());
 app.use('/sports', sports);
 app.use('/messages', messages);
 app.use('/auth', auth);
+app.use('/test', require('./test'));
 exports.api = functions.https.onRequest(app);

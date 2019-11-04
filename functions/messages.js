@@ -1,347 +1,451 @@
-/* eslint-disable no-empty */
+/* eslint-disable no-fallthrough */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
-/* eslint-disable no-fallthrough */
-const functions = require('firebase-functions');
-
-//const fstorge = require('firebase-firestore');
-
-
-const myfunc = require('./myfunc');
-const mycfg = require('./mycfg');
-//const htmlencode = require('htmlencode');
-const cookie = require('cookie');
+const firebaseFunctions = require( 'firebase-functions' );
+const longsingShortcutFunction = require( './longsing_shortcuts/shortcut_function' );
+const envValues = require( '././env_values' );
+const users = require( './users' );
+const htmlencode = require( 'js-htmlencode' );
 
 //初始化資料庫
-const fadmin = myfunc.fadmin(mycfg.cert);
-const fsdb = fadmin.firestore();
+const firebaseAdmin = longsingShortcutFunction.lazyFirebaseAdmin( envValues.cert ); //cert是路徑
+const firestore = firebaseAdmin.firestore();
 
-const fs = require('fs');
+const cookie = require( 'cookie' );
 
-//const bucket = fadmin.storage().bucket().upload());
+const express = require( 'express' );
 
-//const firebase = require('firebase');
-//const fauth = admin.auth();
+const app = express();
+app.use( express.json() );
 
-//初始話儲存桶
-//var b = await myfunc.gcsb('firebase_messages_files') || 'err';
-//GCP桶不好用,暫時用fsdb存檔案
+//安全設定 //https://helmetjs.github.io/docs/
+//https://expressjs.com/zh-tw/advanced/best-practice-security.htm
+//const helmet = require('helmet');
+//app.use(helmet());
+//app.disable("x-powered-by");
 
-//fsdb單次上限10MB,單檔上限1MB,存檔先建立2種 散列hash 再切割.
+/*
 
+const cors = require("cors");
 
-async function fi_update(fi, ftype, life) { //把檔案上傳並且去重複,回傳上傳後的網址與hash
-	var re = {
-		'success': false
-	};
-	fi = fi || '';
+app.use(cors(
+    //默認准許跨域請求,上線前按需去除
+    {
+        origin: true
+    }));*/
 
-	ftype = ftype || '';
+/*
+app.get('/:a', (req, res) => {
+    res.status(200).send("post");
+    res.status(200).json();
+});
+*/
 
-	if (fi !== '') {
-
-		var fhash = myfunc.sha3_384(fi);
-
-		var l = fi.length;
-
-		//Define bucket.
-		//var bucket_def = gcs.bucket();
-
-		//var c_fis =
-
-		var sn_fis = await fsdb.collection('upload_files') //
-			.where('fhash', '==', fhash) //
-			.where('length', '==', fi.length) //
-			//.orderBy('appear_timestamp', 'desc') //不須排序,加速
-			//.limit(50) //不限制sha384重複的檔案數量.
+async function getOneMessage( messageId = '' ) {
+	//userId = userId.toString();
+	messageId = messageId.toString();
+	let doc = {};
+	try {
+		let docSnapshot = await firestore
+			.collection( 'messages' )
+			.doc( messageId )
 			.get();
 
-		var due = false;
+		if ( docSnapshot.exists ) {
+			doc = this.setNoValue( docSnapshot.data(), {} );
+		} else {
+			doc.stack = 'no data';
+		}
+	} catch ( error ) {
+		doc.stack = error.stacks;
+	}
 
+	//let cityRef = db.collection('cities').doc('SF');
+	//let getDoc = cityRef.get()
 
-		sn_fis.forEach( //這裡不能async
+	return doc;
+}
 
-			function (doc) {
-				var data = doc.data(); //每一筆檔案資訊,(不能await)
-				if (data.content === fi) { //有重複sha384
-					//due = true;
+async function listMessages( userData = {}, limit = 50, utcJump = -1 ) {
+	//console.info('run listMessages');
 
+	let returnArray = []; //返回的訊息陣列
 
+	try {
+		let userId = longsingShortcutFunction.unEntityValueToDef( userData.uid, '' ); //登入者id
 
+		console.info( 'userId', userId );
 
-
-					//return true;
-				}
+		if ( Number.isInteger( limit ) ) {
+			//筆數上限}
+			if ( limit > 200 ) {
+				limit = 200;
 			}
+		} else {
+			limit = 50; //筆數預設值
+		}
+
+		if ( !Number.isInteger( utcJump ) ) {
+			//跳過訊息的時間位置
+			limit = -1;
+		}
+
+		//userId = longsingShortcutFunction.setNoValue(userId, '');
+		//utcJump = longsingShortcutFunction.setNoValue(parseInt(utcJump, 10), -1); //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
+
+		//limit = longsingShortcutFunction.setNoValue(parseInt(limit, 10), 50); //無法辨識則默認50筆,上限200//parseInt(來源, 10進制)
+
+		//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收,大家全部不能看),1用戶刪除(自己不能看,其他人可以看),無設定/其他值:正常顯示
+		//-1=管理員刪除 的訊息都不要
+		//0=用戶回收 的訊息都不要
+
+		//where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
+		//.where('hide_stat', '==', 0) // .where('hide_stat', '>', 1);//where難用,放棄,手動過濾
+
+		let collection = firestore.collection( 'messages' ); //
+		if ( utcJump > 0 ) {
+			//跳過訊息的時間位置
+			// @ts-ignore
+			collection = collection.where( 'appear_timestamp', '<=', utcJump );
+		}
+
+		let Snapshot = await collection //
+			.orderBy( 'appear_timestamp', 'desc' ) //
+			.limit( limit + 50 ) //額外取得50筆紀錄,避免過濾後筆數不足
+			.get();
+
+		let userDataArray = []; // 臨時用戶資料表
+		//await longsingShortcutFunction.firebaseSessionGetLoginUser(req);
+		userDataArray[ userData.uid ] = userData; //把用戶自己加入臨時用戶表
+
+		//let count = 0;
+		let limit1 = limit - 1; //0~49=50;49=50-1;
+
+		//let last_utc = -1;
+
+		Snapshot.forEach(
+			//async
+			function ( doc ) {
+				let data = doc.data(); //每一筆訊息,(不能await)
+
+				//console.info('data', data);
+
+				//last_utc = longsingShortcutFunction.setNoValue(data.appear_timestamp, last_utc);
+
+				//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
+				//let softDelete = ; //parseInt(來源, 10進制)
+				switch ( parseInt( data.softDelete, 10 ) ) {
+					case -1: //管理員刪除(全域)
+					case 0: //用戶回收(全域刪除)
+						//以上狀態的訊息都不要
+						break;
+
+					case 1: //用戶刪除(對自己隱藏)
+						if ( data.uid === userId ) {
+							//如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
+							break;
+						}
+
+						//沒設定,正常顯示
+						//case undefined:
+						//case null:
+						//case NaN:
+						//case Infinity:
+						default:
+							//ex:999
+
+							/*
+							userDataArray = await users.GetUserDataToArray(data.uid, userDataArray);
+
+							let messageUser = userDataArray[ data.uid ];
+							*/
+
+							data.displayName = ''; //longsingShortcutFunction.setNoValue(messageUser.displayName, '');
+							data.headPictureUri = ''; //longsingShortcutFunction.setNoValue(messageUser.headPictureUri, ''); //;
+							//data.color = ''; //longsingShortcutFunction.setNoValue(messageUser.color, ''); // ;
+
+							data.softDelete = undefined; //去掉刪除狀態
+
+							returnArray.push( data ); //真正要的訊息,放到陣列準備輸出.
+
+							//count++; //有效筆數+1
+							break;
+				} //sw
+
+				if ( returnArray.length >= limit1 ) {
+					//如果取得筆數符合需求筆數數量.
+					return true; //終止迴圈
+				} //if i
+			} //for func
 		); //for
 
-
-
-	} else {
-		re.stack = 'no file';
+		//console.info('returnArray', returnArray);
+	} catch ( error ) {
+		console.warn( 'listMessages', error.stacks );
 	}
 
-	return re;
+	return returnArray; //re
 }
 
+async function createMessage( req = {}, userData = {} ) {
+	//新訊息 //, re_hash, fi, ftype
+	//let utc = firestore.ServerValue.TIMESTAMP;
 
+	let returnJson = {
+		success: false
+	};
 
-async function msg_list(uhash, lm, utc_jump) {
+	try {
+		if ( longsingShortcutFunction.setNoValue( userData.blockMessage, false ) ) {
+			returnJson.message = 'block';
+			return returnJson;
+		}
 
+		let messageContent = req.body;
 
-	//var re = {}; //回傳的json.
+		let messageLength = longsingShortcutFunction.trim( messageContent.message ).length;
 
+		if ( messageLength + longsingShortcutFunction.trim( messageContent.file ).length < 1 ) {
+			//沒有內文或是檔案
+			returnJson.message = 'no content or file';
+			return returnJson;
+		}
 
-	//var stacks = [];
+		if ( longsingShortcutFunction.trim( messageContent.tempHash || '' ).length < 4 ) {
+			returnJson.message = 'no temp hash';
+			return returnJson;
+		}
 
-	var arr = [];
-	//try {
-	//	re.stat = 'warning'; //預設為警告,直到行為完成才OK
+		let newMessage = {
+			//appear_timestamp: longsingShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
+			tempHash: messageContent.tempHash //發送端的臨時唯一編號
+			//message: htmlencode.htmlEncode(messageContent.message) //訊息本體
+		};
 
-	uhash = uhash || ''; //myfunc.un2def(uhash, ''); //沒有hash就用'';
-	lm = parseInt(lm, 10) || 50; //無法辨識則默認50筆;//parseInt(來源, 10進制)
-	utc_jump = parseInt(utc_jump, 10) || -1; //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
+		//如果有夾帶檔案
+		let uploadFileReturnJson = await longsingShortcutFunction.runFileUpload( messageContent.file, messageContent.fileType );
+		if ( uploadFileReturnJson.success ) {
+			newMessage.fileUploadId = uploadFileReturnJson.docRef.id || '';
+			newMessage.fileName = messageContent.fileName || '';
+			newMessage.fileType = messageContent.fileType || '';
+		} else {
+			//當沒有檔案也沒文字內容的訊息不要存入
+			if ( messageLength < 1 ) {
+				returnJson.message = 'no content or file';
+				return returnJson;
+			} //if messageLength
+		} //else uploadFileReturnJson
 
+		//let newMessage = {
+		//appear_timestamp: longsingShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
+		//	tempHash: messageContent.tempHash //發送端的臨時唯一編號
+		//message: htmlencode.htmlEncode(messageContent.message) //訊息本體
+		//};
 
-	//var c_msgs = fsdb.collection('messages') //.get();
-	//where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
+		newMessage.appear_timestamp = longsingShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
+		newMessage.message = htmlencode.htmlEncode( messageContent.message ); //訊息本體,需要編碼才能存入
 
-	//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收,大家全部不能看),1用戶刪除(自己不能看,其他人可以看),無設定/其他值:正常顯示
-	//-1=管理員刪除 的訊息都不要
-	//0=用戶回收 的訊息都不要
+		returnJson.docRef = await firestore.collection( 'messages' ).add( newMessage ); //docRef
+		//docRef.id//此訊息的唯一編號
+		if ( !longsingShortcutFunction.haveEntityValue( returnJson.docRef.id ) ) {
+			returnJson.message = 'con not save message';
+			return returnJson;
+		}
 
-	//.where('hide_stat', '==', 0) // .where('hide_stat', '>', 1);//where難用,放棄,手動過濾
+		let pushRefKey = await longsingShortcutFunction.realTimePushData( {
+			action: 'newMessage',
+			message: newMessage.message,
+			appear_timestamp: newMessage.appear_timestamp
+		} );
 
+		returnJson.pushRefKey = pushRefKey;
 
-	//fsdb.collection('messages').orderBy('appear_timestamp', 'desc') //
-	//	.limit(lm + 100) //額外取得100筆紀錄,避免過濾後筆數不足
-	//	.get(); //
+		returnJson.success = pushRefKey.length > 0;
 
-	var c_msgs = fsdb.collection('messages'); //
-	if (utc_jump > 0) {
-		c_msgs = c_msgs.where('appear_timestamp', '<=', utc_jump);
+		//let realTimeDB = firebaseAdmin.database();
+
+		/*
+		var push_ref = await admin
+			.database()
+			.ref('/message')
+			.push(msg2);
+		var push_ref_key = un2def(push_ref.key, '');*/
+
+		//returnJson.success = true;
+	} catch ( error ) {
+		console.warn( 'createMessage', error );
+		returnJson.stack = error;
 	}
 
-	var sn_msgs = await c_msgs.orderBy('appear_timestamp', 'desc') //
-		.limit(lm + 50) //額外取得50筆紀錄,避免過濾後筆數不足
-		.get();
-
-	//var txt=JSON.stringify(sn_msgs);
-
-	var i = 0;
-	var lm1 = lm - 1; //0~49=50;49=50-1;
-
-	var last_utc = -1;
-
-	sn_msgs.forEach( //這裡不能async
-
-		function (doc) {
-
-			var data = doc.data(); //每一筆訊息,(不能await)
-
-			last_utc = data.appear_timestamp || last_utc || -1;
-
-			//console.log(doc.id, '=>', doc.data().name);
-
-			//arr.push( JSON.stringify(  doc.data(),null, "\t" ) );
-
-			//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
-			var i_hide_stat = parseInt(data.hide_stat, 10); //parseInt(來源, 10進制)
-			switch (i_hide_stat) {
-
-				case -1: //管理員刪除
-				case 0: //用戶回收
-					//以上狀態的訊息都不要
-					break;
-
-				case 1: //用戶刪除(對自己隱藏)
-					if (data.uhash === uhash) { //如果是隱藏自己的訊息,剛好就是自己的訊息,就不要了.
-						break;
-					}
-					//沒設定,正常顯示
-					case undefined:
-					case null:
-					case NaN:
-					default: //ex:999
-
-						//arr.push( myfunc.json2txt( doc.data() ) );
-						arr.push(data); //真正要的訊息,放到陣列準備輸出.
-						i++; //有效筆數+1
-						break;
-
-			} //sw
-
-			//return true; //終止迴圈
-
-			if (i === lm1) { //如果取得筆數符合需求筆數數量.
-				return true; //終止迴圈
-			} //if i
-
-		} //for func
-	); //for
-
-	//} catch (e) {
-	//	re.stat = 'error';
-	//	stacks.push(e.stack);
-	//}
-
-
-	//re.messages = arr;
-	//re.stat = 'ok';
-
-	return arr; //re
-
+	return returnJson;
 }
 
-
-
-function msg_create(uhash, msg, re_hash, fi, ftype) {
-
+async function reportMessage( userId = '', messageId = '' ) {
+	//檢舉訊息
 }
 
-function msg_del(uhash, msg_hash, stat) {
-
+async function softDeleteMessage( userId = '', messageId = '', deleteStat ) {
+	//軟刪除訊息
 }
 
+app.all( '*', async ( req, res ) => {
+	//'*' 可以用 '/:a/:b/**' 的方式匹配req.params.?變數,但在此不好用,自行切割解析
 
-//公開聊天室訊息
-module.exports = functions.https.onRequest(
-	async function (req, res) {
+	let returnJson = {
+		success: false
+	}; //最終輸出
 
-		var stacks = [];
+	try {
+		//returnJson.method = req.method; //post,get;
+		switch ( req.method ) {
+			case 'GET':
+				//break;
+			case 'POST':
+				break;
 
-		var uhash = ''; //登入後有值.
+			default:
+				//post,get以外的行為直接403
+				res.status( 403 ).send( '' );
+				//res.end();
+				break;
+		} //sw
 
-		//var lm = 50; //預設查詢筆數
+		let userData = await users.firebaseSessionGetLoginUser( req );
+		//userData.uid=''
+		//userData.block=false
 
-		//var def_ex=50;//因為沒有 '!=' 'or' 查詢方法.
+		//if (!longsingShortcutFunction.setNoValue(userData.block, false)) {
+		//}
 
-		var re = {}; //回傳的json.
+		//returnJson.params = req.params;
+		//req.query=?...
+		//req.headers
 
-		try {
+		let paramArray = req.params[ 0 ] //網址後面,實測已經有decodeURI(),不用再次decodeURI()
+			.split( '/' ) //切割,注意 '//' 和第一個 '/' 造成空字串
+			.filter( param => param.length > 0 ); //留下非空字串
+		//returnJson.paramArray = paramArray;
 
-			//var [buckets] = await storage.getBuckets();
-			//console.log('Buckets:');
-			//buckets.forEach(bucket => {
-			//	//	console.log(bucket.name);
-			//	bucket.name
-			//});
-			//console.log(b);
+		let param1 = longsingShortcutFunction.unEntityValueToDef( paramArray[ 0 ], '' );
+		let param2 = longsingShortcutFunction.unEntityValueToDef( paramArray[ 1 ], '' );
 
-			//re.bucket = await myfunc.gcsb('firebase_messages_files') || 'err';
-			re.file = fs.readFileSync(mycfg.cert);
+		switch ( param1.toLowerCase() ) {
+			//列表行為
+			case '':
+			case 'list':
+				//msg_list();
+				returnJson.results = await listMessages( userData ); //userId, limit, utcJump
+				break;
 
-
-			//myfunc.utf8lang(res);//= res.set('Content-Type', 'text/plain; charset=utf-8')+('content-language', 'zh-TW,zh')
-
-			//console.info(req.params);
-
-			//cookie -> __session
-			var cookies = req.get('cookie');
-			if (cookies !== undefined) {
-				var token = cookie.parse(cookies).__session;
+			case 'create': //新訊息,回應訊息
+			{
+				let result = await createMessage( req );
 			}
 
-			var ss = myfunc.ck2ss(req) || '';
+			//docRef.id
+			break;
 
-			uhash = ss;
+		case 'report': //檢舉
+			break;
 
-			re.success = false; //預設為false,直到行為完成才true
+		case 'delete': //隱藏/回收/刪除訊息,
+			break;
 
-			var user = fadmin.auth().getUser(ss) || {};
-			//var name, email, photoUrl, uid, emailVerified;
-			//re.user = fadmin.auth().getUser() || {};
-			/*
-			if (user != null) {
-				name = user.displayName;
-				email = user.email;
-				photoUrl = user.photoURL;
-				emailVerified = user.emailVerified;
-				uid = user.uid; // The user's ID, unique to the Firebase project. Do NOT use
-				// this value to authenticate with your backend server, if
-				// you have one. Use User.getToken() instead.
-			}*/
+		case '_schema': //請求資料庫定義資訊
+			if ( envValues.release ) {
+				//營運時不顯示
+				break;
+			}
 
-			stacks.push({
-				'user': user
-			});
+			default:
+			//取得特定訊息
+			{
+				if ( param2.length > 0 && param1 !== '_schema' ) {
+					//表示是要對此訊息作行為
 
-			//var results = [];
+					switch ( param2.toLowerCase() ) {
+						case 'delete':
+							break;
 
-			if (req.method === 'POST') {
-				//訊息進階操作
+						case 'report':
+							break;
+					}
+				}
 
-				//var r = req.params[0]; //{"0":"/messages/xxxx/yyyy"}
-				var arr_r = req.params[0].split('/') || [];
-				//0='messages'
-				//1=xxxx
-				//2=yyyy
+				let doc = await getOneMessage( param1 );
 
-				re.params = req.params || {};
-				switch (arr_r[1] || '') {
-					case 'create':
+				switch (
+					doc.hide_stat //999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
+				) {
+					case -1:
+						//returnJson.message = '訊息已經刪除';
+						//break;
+					case 0:
+						returnJson.message = '訊息已經刪除';
 						break;
 
-						//case 'edit':
-						//	break;
-
-					case 'del':
-
-						break;
-
-					default: //message_hash
-
-						switch (arr_r[2] || '') {
-							//case 'edit':
-							//	break;
-
-							case 'del':
-
-								break;
-
-							default:
-								break;
+					case 1:
+						if ( doc.uid !== userData.uid ) {
+							returnJson.results = doc;
 						}
 
 						break;
-				}
 
-				//var inp=myfunc.un2def(req.body,{});
+					default:
+						returnJson.results = doc;
+						break;
+				} //sw
+			} //default
 
-			} else {
-				//沒有操作,列出訊息,默認是最後50個訊息.
+			break;
+		} //sw
 
-				re.results = await msg_list(user.uid);
-
-				//arr.
-
-				//res.send( arr.join( "\n" ) );
-
-			} //else
-
-			re.success = true;
-
-		} catch (e) {
-
-			//var err=['catch : ',,e.name,e.message];
-
-			//res.send( e.stack );//err.join("\n")
-
-			console.error(e.stack);
-
-			stacks.push(e.stack);
-
-		}
-
-		//re.results = results;
-
-		//if (!mycfg.release && stacks.length > 0) {
-		//	re.stack = stacks;
-		//}
-		re.stack = stacks;
-
-		res.send(re); //htmlencode.htmlEncode(  ) //myfunc.json2txt(  )
-
+		//res.status(200).send('');//txt
+		//res.status(200).json(returnJson);
+		returnJson.success = true;
+	} catch ( error ) {
+		console.warn( error.stack );
+		//res.status(200).send(error.stack); //txt
+		returnJson.stack = error;
 	}
 
-);
+	res.json( longsingShortcutFunction.clearJson( returnJson ) );
+	//res.status(200)...
+
+	//return next();
+
+	//res.end();
+} );
+
+/*
+app.post('*', (req, res) => {
+
+	//console.log("api....");
+
+	res.status(200).send(req.method); //"post"
+	//res.status(200).json();
+
+	//res.status.json({
+	//   message: 'test ok'
+	//});
+	// return res.status(200);
+	// res.status(200).send("hello");
+});
+
+
+
+app.get('*', (req, res) => {
+	//console.log("api....");
+
+
+
+	//res.status(200).json(arr_parm);
+
+	//res.status.json({
+	//   message: 'test ok'
+	//});
+	// return res.status(200);
+	// res.status(200).send("hello");
+});*/
+
+module.exports = firebaseFunctions.https.onRequest( app );
