@@ -65,9 +65,6 @@ module.exports = functions.https.onRequest(
 			res.send( e.stack ); //err.join("\n")
 		}
 
-
-
-
 		//res.send('END');
 
 	}

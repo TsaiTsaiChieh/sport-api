@@ -29,9 +29,9 @@ exports.sipHashToInt = function ( str = '', key ) {
 	return siphash.hash_uint( siphash.string16_to_key( new Date().getTime().toString() ), str.toString() );
 };
 
-exports.sipHashToHex = function ( str = '', key ) {
-	if ( longsingShortcutFunction.haveValue( key ) ) {
-		return siphash.hash_hex( siphash.string16_to_key( key.toString() ), str.toString() );
+exports.sipHashToHex = function ( str = '', intKey1 = 0, intKey2 = 0, intKey3 = 0, intKey4 = 0 ) {
+	if ( longsingShortcutFunction.haveValue( intKey1 ) ) {
+		return siphash.hash_hex( [ intKey1, intKey2, intKey3, intKey4 ], str.toString() );
 	}
 
 	return siphash.hash_hex( siphash.string16_to_key( new Date().getTime().toString() ), str.toString() );

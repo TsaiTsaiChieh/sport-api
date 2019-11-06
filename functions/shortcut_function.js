@@ -21,7 +21,9 @@ const moment = require( 'moment' ); //https://www.npmjs.com/package/moment
 const util = require( 'util' );
 
 const envValues = require( './env_values' );
-const myHash = require( './shortcut_hash' );
+const ShortcutHash = require( './shortcut_hash' );
+
+const htmlencode = require( 'js-htmlencode' );
 
 //const { Storage } = require('@google-cloud/storage');
 
@@ -91,7 +93,7 @@ exports.setNoValue = function ( input, output ) {
 	return output;
 };
 
-exports.lazyFirebaseAdmin = function ( certStringOrPath = '', databaseURL = '' ) {
+exports.lazyFirebaseAdmin = function ( certStringOrPath = '', databaseURL = 'https://sport19y0715.firebaseio.com' ) {
 	databaseURL = this.setNoValue( databaseURL, '' );
 
 	//admin.initializeApp(functions.config().firebase);//on firebase
@@ -100,7 +102,8 @@ exports.lazyFirebaseAdmin = function ( certStringOrPath = '', databaseURL = '' )
 		//表示尚未初始化
 
 		let inf = {
-			credential: admin.credential.cert( require( certStringOrPath ) )
+			credential: admin.credential.cert( require( certStringOrPath ) ),
+			databaseURL: databaseURL
 		};
 
 		if ( this.haveEntityValue( databaseURL ) ) {
@@ -188,6 +191,16 @@ exports.timestampUTCmsInt = function ( changeDays = 0 ) {
 	return moment().valueOf();
 };
 
+exports.timestampUTCmsSconds = function ( changeSconds = 0 ) {
+	let Days = parseInt( changeSconds.toString() ) || 0;
+	if ( Days > 0 || Days < 0 ) {
+		return moment()
+			.add( Days, 'seconds' )
+			.valueOf();
+	}
+	return moment().valueOf();
+};
+
 exports.timestampUTCmsFloat = function ( changeDays = 0 ) {
 	return this.timestampUTCmsInt( changeDays ) * 0.001; //= ans/1000
 };
@@ -214,12 +227,49 @@ exports.stringSplitToArray = function ( string = '', splitLength = 1 ) {
 	return Array.from( string );
 };
 
+async function asyncAwaitSeridArrayDemo() {
+
+	const files = []; //await getFilePaths();
+
+	for ( const file of files ) {
+		// @ts-ignore
+		const contents = await fs.readFile( file, 'utf8' );
+		console.log( contents );
+	}
+}
+
 exports.runFileContentsUpload = async function ( FileSplitArray = [], newDocRef, firestore ) {
 	let uploadFileContentIdArray = [];
+
+	let returnJson = {
+		success: false
+	}
 
 	try {
 		firestore = this.setNoValue( firestore, this.lazyFirebaseAdmin().firestore() );
 
+		//===================================================================================
+
+		let i = 0;
+
+		for ( const SplitFile of FileSplitArray ) {
+			// @ts-ignore
+			//const contents = await fs.readFile( file, 'utf8' );
+			let FileSplitDocRef = await firestore.collection( 'uploadFileContents' ).add( {
+				fileContent: SplitFile,
+				sequence: i,
+				fileUploadId: newDocRef.id
+			} );
+
+			uploadFileContentIdArray.push( FileSplitDocRef.id );
+
+			i++;
+
+			console.log( 'FileSplitDocRef.id====================', FileSplitDocRef.id );
+		}
+		//=================================================================================
+
+		/*
 		FileSplitArray.forEach( async function ( item, index ) {
 			//console.log( item, index, array ); // 物件, 索引(非必須), 陣列本身(非必須)
 			//return item;//=undefined  // forEach 沒在 return 的，所以這邊寫了也沒用
@@ -230,25 +280,41 @@ exports.runFileContentsUpload = async function ( FileSplitArray = [], newDocRef,
 			} );
 
 			uploadFileContentIdArray.push( FileSplitDocRef.id );
-		} );
+		} );*/
 
 		//let docRef = firestore.collection('uploadFiles').doc(fileUploadId);
+
+		console.log( 'uploadFileContentIdArray  ====================', uploadFileContentIdArray );
+
+
+		returnJson.success = true;
 	} catch ( error ) {
-		return [];
+		returnJson.uploadFileContentIdArray = uploadFileContentIdArray;
+		returnJson.error = error;
+		return returnJson;
+		//return uploadFileContentIdArray;
 	}
 
-	return uploadFileContentIdArray;
+	returnJson.uploadFileContentIdArray = uploadFileContentIdArray;
+	return returnJson;
 };
 
-exports.runFileUpload = async function ( fileContent = '', fileType = '', firestore ) {
+exports.fileCheckAndReplace = function ( fileContent = '', fileType = '' ) {
+
 	let returnJson = {
-		success: false
+		success: false,
+		fileSize: 0,
+		fileContent: '',
+		fileType: fileType || ''
 	};
 
 	try {
+
 		if ( !this.haveEntityValue( fileContent ) ) {
 			//非實體內容
-			returnJson.stack = 'not string or real file';
+			returnJson.error = '檔案不存在';
+			returnJson.fileSize = 0;
+			//returnJson.success = true;
 			return returnJson;
 		}
 
@@ -257,26 +323,46 @@ exports.runFileUpload = async function ( fileContent = '', fileType = '', firest
 		if ( this.trim( fileContent ).length < 1 ) {
 			//內容長度為零
 			//returnJson.success = true;
-			returnJson.stack = 'file length is zero';
+			returnJson.error = '沒有檔案或是沒有檔案內容';
+			returnJson.fileSize = 0;
 			return returnJson;
 		}
 
-		fileContent = fileContent.replace( / /g, '+' ); //避免存入資料庫的問題;
+		returnJson.fileContent = fileContent.replace( / /g, '+' ); //避免存入資料庫的問題;
 
-		if ( fileContent.length > 1028096 ) {
+		returnJson.fileSize = returnJson.fileContent.length;
+
+		if ( returnJson.fileSize > 1028096 ) {
 			//檔案太大
 			//1024*1024=1MB,(1024*(1024-20))=1028096,留20K,切10份各用2K
 			//fileToStr
 			//內容長度太大
-			returnJson.stack = 'file length is too big';
+			returnJson.error = '檔案體積太大';
 			return returnJson;
 		}
 
-		//fileContent = fileToStr
+		returnJson.success = true;
+
+		return returnJson;
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	return returnJson;
+
+}
+
+exports.runFileUpload = async function ( fileInfo = {}, firestore ) {
+	let returnJson = {
+		success: false
+	};
+
+	try {
 
 		//驗證與避免碰撞用的hash
-		let farmHash1 = myHash.farmHashToInt( fileContent );
-		let sipHash1 = myHash.sipHashToInt( fileContent, '' );
+		let farmHash1 = ShortcutHash.farmHashToInt( fileInfo.fileContent );
+		let sipHash1 = ShortcutHash.sipHashToHex( fileInfo.fileContent );
 
 		//let fileSize = fileContent.length;
 
@@ -285,9 +371,9 @@ exports.runFileUpload = async function ( fileContent = '', fileType = '', firest
 		//檢查是否有重複檔案
 		let Snapshot = await firestore
 			.collection( 'uploadFiles' )
-			.where( 'farmHash', '==', farmHash1 )
-			.where( 'sipHash', '==', sipHash1 )
-			.where( 'fileSize', '==', fileContent.length )
+			.where( 'fileFarmHash', '==', farmHash1 )
+			.where( 'fileSipHash', '==', sipHash1 )
+			.where( 'fileSize', '==', fileInfo.fileSize )
 			.limit( 1 )
 			.get();
 
@@ -295,76 +381,95 @@ exports.runFileUpload = async function ( fileContent = '', fileType = '', firest
 
 		Snapshot.forEach(
 			function ( doc ) {
-				let data = doc.data();
+				//let data = doc.data();
 				fileUploadId = doc.data().key || '';
 				return true;
 			} //doc
 		); //forEach
 
 		//end_timestamp存活時間戳記
-		let endTimestamp = this.timestampUTCmsInt( 100 );
+		//let endTimestamp = this.timestampUTCmsInt( 1 ); //1天
 
 		if ( fileUploadId.length > 0 ) {
 			//有重複檔案,取得該重複檔案
 			let oldDocRef = firestore.collection( 'uploadFiles' ).doc( fileUploadId );
 
+			returnJson.fileUploadId = fileUploadId;
+			returnJson.DocRef = oldDocRef;
+			//目前此處有錯
+			returnJson.success = true;
+
 			//更新存活時間
 			let updateStat = await oldDocRef.update( {
-				end_timestamp: endTimestamp
+				end_timestamp: this.timestampUTCmsInt( 100 )
 			} ); //, { merge: true }
 
-			//returnJson.fileUploadId = fileUploadId;
-			returnJson.DocRef = oldDocRef;
-			returnJson.success = true;
+
 			return returnJson;
 		}
 
 		//沒有重複檔案,切割上傳,先上傳檔案資訊,取得檔案唯一編號
 
 		let newDocRef = await firestore.collection( 'uploadFiles' ).add( {
-			endTimestamp: endTimestamp,
-			fileSize: fileContent.length,
-			farmHash: farmHash1,
-			sipHash: sipHash1,
-			fileType: fileType
+			endTimestamp: this.timestampUTCmsSconds( 300 ), //300秒(完成再改100天),
+			fileSize: fileInfo.fileSize,
+			fileFarmHash: farmHash1,
+			fileSipHash: sipHash1,
+			fileType: htmlencode.htmlEncode( fileInfo.fileType )
 			//'fileName': fileName //存在message因為相同檔案可能有多個不同來源檔名
 		} );
 
-		//fileUploadId = newDocRef.id;
+		fileUploadId = newDocRef.id;
 
-		returnJson.fileContent = fileContent; //把編碼過的檔案傳回去
-		returnJson.fileType = fileType;
+		returnJson.fileUploadId = fileUploadId;
 
-		let fileSplits = this.stringSplitToArray( fileContent, 102810 ); //檔案切割的陣列 //(1024*(1024-20))/10=102809.6=102810,保留約2K放訊息
+		console.info( '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>newDocRef.id', newDocRef.id );
+
+		//returnJson.fileContent = fileContent; //把編碼過的檔案傳回去
+		returnJson.fileType = newDocRef.fileType;
+
+		let fileContent = fileInfo.fileContent;
+
+		let fileSplitArray = this.stringSplitToArray( fileContent, 102810 ); //檔案切割的陣列 //(1024*(1024-20))/10=102809.6=102810,保留約2K放訊息
+
+		//console.info( 'fileSplitArray =============', fileSplitArray );
 
 		//至此,切割完成,清空檔案內容
 		fileContent = '';
 
 		//開始上傳分塊,並取回分塊的id陣列
-		let fileContentsIdArray = await this.runFileContentsUpload( fileSplits, newDocRef );
+		let FileContentsUploadReturnJson = await this.runFileContentsUpload( fileSplitArray, newDocRef );
+		let fileContentsIdArray = FileContentsUploadReturnJson.fileContentsIdArray;
+
+		//console.info( 'fileContentsIdArray =============', fileContentsIdArray )
 
 		if ( fileContentsIdArray.length < 1 ) {
 			//上傳分塊不正常
-			returnJson.stack = 'FileContentsUpload error';
+			returnJson.error = '上傳失敗 : 分塊上傳不正常';
+			returnJson.FileContentsUploadReturnJson = FileContentsUploadReturnJson;
 			return returnJson;
 		}
 
 		//追加存入FileContentsUploads的id陣列
 		let updateStat = await newDocRef.update( {
+			endTimestamp: this.timestampUTCmsInt( 100 ), //100天,
 			fileContentsIdArray: fileContentsIdArray
 		} ); //, { merge: true }
+
+		//console.info( '================== newDocRef===================', newDocRef );
 
 		returnJson.DocRef = newDocRef;
 		returnJson.success = true;
 		//return returnJson;
 	} catch ( error ) {
 		console.warn( 'runFileUpload', error );
-		returnJson.stack = error;
+		returnJson.error = error;
 	}
 
 	return returnJson;
 };
 
+/*
 exports.realTimePushData = async function ( pushData = {}, collectionName = 'livePush', realTimeDB ) {
 	let pushRefKey = '';
 
@@ -381,124 +486,52 @@ exports.realTimePushData = async function ( pushData = {}, collectionName = 'liv
 
 	return pushRefKey;
 };
-
-/*
-//初始化資料庫
-var myfirebaseAdmin = null;
-//var firestore = null;
-
-exports.lazyFirebaseAdmin = function(certStringOrPath='') {
-	if ( myfirebaseAdmin === null ) {
-
-		myfirebaseAdmin = this.firebaseGetAdmin(this.setNoValue()); //cert是路徑
-	}
-	return myfirebaseAdmin;
-};
-
-exports.lazyFirebaseFirestore = function() {
-	if (firestore === null) {
-		firestore = firebaseAdmin.firestore();
-	}
-	return lazyFirebaseAdmin;
-};
-
-exports.lazyFirebase = {
-	admin: function() {
-		return setNoValue();
-	},
-	firestore: function() {
-		return;
-	},
-};
 */
 
-/*
-exports.authCopyToUsers = async function () { //將auth的用戶資料複製到users表
-	let firebaseAdmin = this.firebaseGetAdmin(envValues.cert); //cert是路徑
-	//let listUsersResult = await firebaseAdmin.auth().listUsers(500);
-
-	//return listUsersResult;
-
-	let returnArray = [];
-	//listUsersResult.users.forEach(function (userRecord) {
-	//	//console.log('user', userRecord.toJSON());
-	//	returnArray.push(userRecord.toJSON());
-	//});
-
-	//returnArray;
-
-
-	firebaseAdmin.auth().listUsers(500).then(function (listUsersResult) {
-			listUsersResult.users.forEach(function (userRecord) {
-				console.info(userRecord.toJSON());
-			});
-			//if (listUsersResult.pageToken) {
-			// List next batch of users.
-			//	listAllUsers(listUsersResult.pageToken);
-			//}
-		})
-		.catch(function (error) {
-			console.log('Error listing users:', error);
-		});
-
-}*/
-
-/*
-exports.sessionTokenFindUser = async function(sessionToken = '', firestore) {
-	if (!this.haveValue(firestore)) {
-		//初始化資料庫
-		let firebaseAdmin = this.firebaseGetAdmin(envValues.cert); //cert是路徑
-		let firestore = firebaseAdmin.firestore();
+exports.ParseInt = function ( input, defineValue, numberSystem = 10 ) {
+	if ( Number.isInteger( input ) ) {
+		return parseInt( input.toString(), numberSystem );
 	}
 
-	sessionToken = this.setNoValue(sessionToken, '');
-};
-*/
+	return defineValue;
+}
 
-/*
-exports.gcpStorageBucket =
-	async function (bucket_name, filePath) { //GCP拿儲存桶(證書路徑,桶名稱)
 
-		// Creates a client
-		let storage;
+exports.realtimePush = function ( pushData = {}, subPath1 = 'livePush', subPath2 = 'public' ) {
 
-		if (fs.existsSync(filePath)) { //證書存在的初始
-			storage = new Storage({
-				'projectId': mycfg.projectId,
-				'keyFilename': filePath
-			});
-		} else { //沒有證書的初始
-			storage = new Storage();
+	let returnJson = {
+		'success': false,
+		subPath1: subPath1,
+		subPath2: subPath2,
+		pushData: pushData
+	};
+
+	//檢舉訊息
+	try {
+
+		let firebaseAdmin = this.lazyFirebaseAdmin( envValues.cert, 'https://sport19y0715.firebaseio.com' );
+
+		let push = firebaseAdmin.database().ref( subPath1 ).push();
+
+		/*
+		pushData = {
+			action: 'newMessage',
+			messageId: 'bnKcVVaiIaUf3daVMNTTK5gH4hf1',
+			appearTimestamp: this.timestampUTCmsInt(),
+			uid: 'bnKcVVaiIaUf3daVMNTTK5gH4hf1',
+			displayName: '路人甲bnKcVVaiIaUf3daVMNTTK5gH4hf1',
+			message: 'test2',
+			headPictureUri: ''
 		}
+		*/
 
-		let [buckets] = await storage.getBuckets(); //取得全部桶名稱
-		//console.log('Buckets:');
-		let b = false;
+		push.set( pushData );
 
-		//storage.bucket(bucket_name )
+		returnJson.success = true;
+	} catch ( error ) {
+		console.info( 'message push error ==========================', error );
+		returnJson.error = error;
+	}
 
-		buckets.forEach(bucket => {
-			//	console.log(bucket.name);
-			if (bucket.name === bucket_name) {
-				b = true;
-				return true;
-			}
-
-		});
-
-		if (!b) { //沒有桶
-
-			await storage.createBucket(bucket_name, {
-				'location': 'us',
-				'storageClass': 'multi_regional',
-			});
-
-			//await storage.createBucket(bucket_name);
-
-		}
-
-		return storage.bucket(bucket_name);
-
-	} //gcpStorageBucket
-
-*/
+	return returnJson;
+}

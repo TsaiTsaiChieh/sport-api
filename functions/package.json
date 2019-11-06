@@ -12,8 +12,8 @@
     "node": "10"
   },
   "dependencies": {
-
     "@google-cloud/storage": "^4.0.0",
+    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "farmhash": "^3.0.0",
     "firebase": "^7.2.2",
@@ -25,9 +25,9 @@
     "htmlencode": "^0.0.4",
     "js-htmlencode": "^0.3.0",
     "moment": "^2.24.0",
-    "request-promise": "^4.2.4",
-    "request": "^2.88.0",
     "qrcode": "^1.4.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
     "siphash": "^1.1.0"
   },
   "devDependencies": {

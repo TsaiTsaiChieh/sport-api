@@ -41,10 +41,9 @@
 
 	</body>
 
-	<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js">
-	</script>
-	<script src="https://cdn.jsdelivr.net/npm/firebase@7/dist/index.cjs.js">
-	</script>
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	 <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase.js"></script>
+	<script src="https://raw.githubusercontent.com/jedisct1/siphash-js/master/lib/siphash.js.min"></script>
 
 	<script type="text/javascript">
 
@@ -55,7 +54,7 @@
 			'uhash':'用戶資料庫流水號',
 			'name':'用戶顯示的名稱',
 			'picture':'大頭照base64',
-			'key'='私密訊息的解壓縮密碼'
+			'key':'私密訊息的解壓縮密碼'
 		};//登入者的資訊
 
 		var fi_content='';//當有選取檔案,這裡就會有內容,用於上傳
@@ -78,7 +77,7 @@
 			fsdb = firebase.firestore();//Cloud Firestore
 
 			//設定監聽realtime資料庫的
-			rtdb.ref('/live_stat').limitToLast(1).on('value', function(snapshot) {
+			rtdb.ref('/livePush').limitToLast(1).on('value', function(snapshot) {
 
 					//監聽之後這邊的行為是收到資料的行為.
 					var sv=snapshot.val();//你收到的內容,不穩定的json格式
@@ -87,11 +86,11 @@
 					//前端行為邏輯在此...
 					switch(sv.type){
 						//檢查這是什麼狀態訊息
-						case 'new_message'://新訊息
+						case 'newMessage'://新訊息
 						//....
 						break;
 
-						case 'recycle_message'://回收訊息(對所有人做刪除/隱藏該訊息)
+						case 'recycleMessage'://回收訊息(對所有人做刪除/隱藏該訊息)
 						//sv.executer.uhash是用戶hash ,管理員是 'admin'
 						//sv.executer.name用戶的名稱, 管理員是 '管理員'
 						//刪除訊息,顯示 sv.executer.name 刪除(回收?)了這個訊息
@@ -99,7 +98,7 @@
 						break;
 
 
-						case 'del_message'://刪除訊息(只對用戶自己刪除/隱藏)
+						case 'delMessage'://刪除訊息(只對用戶自己刪除/隱藏)
 						if(sv.executer.uhash===mydata.uhash){
 							//如果就是自己,前端就要做刪除自己的訊息
 							//刪除訊息...
@@ -125,8 +124,12 @@
 					
 					fi_content='';//先清空
 
-					//var fi_path=$.('#fi_send').val();
-					if( fi_path=$.('#fi_send').val() !== ''){
+					var fi_path=$.('#fi_send').val();
+					if( 
+						
+						fi_path !== ''
+					){
+						//fi_path=$.('#fi_send').val();
 						//有檔案路徑
 
 						try {
