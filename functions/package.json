@@ -25,7 +25,7 @@
     "htmlencode": "^0.0.4",
     "js-htmlencode": "^0.3.0",
     "moment": "^2.24.0",
-    "qrcode": "^1.4.2",
+    "qrcode": "^1.4.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "siphash": "^1.1.0"
@@ -33,7 +33,7 @@
   "devDependencies": {
     "eslint": "^5.12.0",
     "eslint-plugin-promise": "^4.0.1",
-    "firebase-functions-test": "^0.1.6"
+    "firebase-functions-test": "^0.1.7"
   },
   "private": true
 }

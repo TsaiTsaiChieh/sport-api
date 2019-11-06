@@ -10,8 +10,12 @@ const htmlencode = require( 'js-htmlencode' );
 const cookie = require( 'cookie' );
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
-
+const helmet = require( 'helmet' );
 const app = express();
+app.use( helmet() );
+app.disable( 'x-powered-by' );
+app.use( helmet.xssFilter() )
+app.use( helmet.frameguard() )
 app.use( bodyParser.urlencoded( {
 	limit: '50mb',
 	extended: false
