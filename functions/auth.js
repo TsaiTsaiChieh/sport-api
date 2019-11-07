@@ -361,41 +361,38 @@ app.post('/sendSMS', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-    let params = JSON.parse(req.body.params);
-    let token = params.token;
-    let uid = params.uid;
-    let test = firebaseGetUserData(uid);
-    console.log("..........");
-    console.log(JSON.stringify( test, null, '\t' ));
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log('login token : ', token);
-    console.log('login uid : ', params.uid);
-    // admin.auth().getUser(uid)
-    //     .then(function (userRecord) {
-    //         console.log('Successfully fetched user data:', userRecord.toJSON());
-    //     })
-    //     .catch(function (error) {
-    //         console.log('Error fetching user data:', error);
-    //     });
+    let returnJson = {success: false};
+    let token = req.body.token;
+    let uid = req.body.uid;
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json({success: false, message: "登入失敗"});
+        return res.status(400).json(returnJson);
     }
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
     admin.auth().createSessionCookie(token, {expiresIn})
-        .then(function (sessionCookie) {
+        .then(async function (sessionCookie) {
             let options = {maxAge: expiresIn, httpOnly: true};
+            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
             res.cookie('__session', sessionCookie, options);
-            // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: true, message: '登入成功'})
+
+            let firestoreUser = await getUserProfile(uid);
+            returnJson.success = true;
+            if (firestoreUser) {
+                console.log("firestoreUser exist");
+                returnJson.uid = firestoreUser.uid;
+                returnJson.userStats = firestoreUser.stats;
+                returnJson.userInfo = firestoreUser.data;
+            } else {
+                returnJson.userStats = 0;
+                console.log("firestoreUser exist not");
+            }
+            console.log("ready login");
+            res.json(returnJson)
         })
         .catch(function (error) {
             console.log('Error login user: \n\t', error);
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({
-                success: false,
-                message: "登入失敗"
-            })
+            res.status(400).json({success: false})
         });
 });
 
@@ -406,11 +403,8 @@ app.post('/logout', function (req, res) {
         firebase.auth().signOut().then(function () {
             console.log('logout out user');
             res.clearCookie('__session');
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.json({
-                success: true,
-                message: '登出成功'
-            });
+            // res.setHeader('Access-Control-Allow-Origin', '*');
+            res.json({success: true});
         }).catch(function (error) {
             // An error happened.
         });
@@ -424,18 +418,8 @@ app.get('/signIn', function (req, res) {
 });
 
 app.get('/verifySessionCookie', async function (req, res) {
-    // firebase.auth().signInWithPopup(provider).then((result) => {
-    //     console.log(result.additionalUserInfo.isNewUser);
-    // });
-    // res.json({test:'test'})
     let cookies = req.get('cookie') || '__session=';
     res.setHeader('Access-Control-Allow-Origin', '*');
-    // let cookies = req.get('cookie');
-    // console.log('verifySessionCookie - ', cookies);
-    // if (cookies === undefined) console.log("test 0");
-    // if (cookies !== undefined) console.log("test 1");
-    //
-    // if (!cookies) console.log("test 2");
     if (cookies) {
         let sessionCookie = cookie.parse(cookies).__session;
         console.log('verifySessionCookie - ', sessionCookie);
@@ -443,20 +427,11 @@ app.get('/verifySessionCookie', async function (req, res) {
             sessionCookie, true)
             .then((decodedClaims) => {
                 console.log('Auth - verifySessionCookie success : ', decodedClaims);
-                console.log(decodedClaims.auth_time);
-                console.log(decodedClaims.uid);
-                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                res.json({
-                    success: true,
-                    decodedClaims: decodedClaims
-                })
+                res.json({success: true})
             })
             .catch(error => {
                 console.log('Auth - verifySessionCookie false : ', error);
-                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                res.json({
-                    success: false
-                })
+                res.json({success: false})
             });
     }
 });
@@ -619,6 +594,56 @@ app.post('/verifyToken', async (req, res) => {
     }
 });
 
+app.post('/getUserInfo', async (req, res) => {
+    let userId = req.body.uid;
+    let returnJson = {
+        success: false,
+        uid: userId
+    };
+    try {
+        let userIdStr = userId.toString().trim();
+
+        if (userIdStr.length < 1) {
+            console.warn('firebaseGetUserData no userId : ', userId);
+            returnJson.stat = 0;
+            returnJson.uid = userId;
+            res.status(200).json(returnJson);
+        }
+
+        let firestore = longsingShortcutFunction.lazyFirebaseAdmin().firestore();
+
+        let docRef = firestore
+            .collection('users')
+            .doc(userIdStr)
+            .get();
+        //docSnapshot.exists
+
+        let data = {};
+
+        let userExists = docRef.exists;
+
+        if (userExists) {
+            data = docRef.data();
+            returnJson.stat = 1;
+        } else {
+            returnJson.stat = 0;
+            //return returnJson;
+        }
+        returnJson.data = data;
+
+        returnJson.success = true;
+        //doc = this.setNoValue(docSnapshot.data(), {});
+    } catch (error) {
+        console.warn('firebaseGetUserData', error);
+        returnJson.stat = error;
+    }
+
+    //let cityRef = db.collection('cities').doc('SF');
+    //let getDoc = cityRef.get()
+    console.log('getFirestoreUser\n', returnJson);
+    res.status(200).json(returnJson);
+});
+
 //Line Login v2.1 https://github.com/jirawatee/LINE-Login-x-Firebase-Android/blob/master/functions/index.js
 
 // function generateFirebaseToken(lineMid) {
@@ -643,77 +668,41 @@ app.post('/verifyToken', async (req, res) => {
 
 // module.exports = functions.https.onRequest(app);
 
-function firebaseGetUserData(userId) {
+async function getUserProfile(userId) {
     let returnJson = {
         success: false,
         uid: userId
     };
     try {
-        let userIdStr = userId.toString().trim();
+        // let userIdStr = userId.toString().trim();
+        let userIdStr = userId;
+        console.log("get firestore user : ", userIdStr);
 
         if (userIdStr.length < 1) {
             console.warn('firebaseGetUserData no userId : ', userId);
-            returnJson.stack = 'no userId';
-            returnJson.userId = userId;
+            returnJson.stats = 0;
+            returnJson.uid = userId;
+            returnJson.success = false;
             return returnJson;
         }
 
         let firestore = longsingShortcutFunction.lazyFirebaseAdmin().firestore();
-
-        let docRef = firestore
-            .collection('users')
-            .doc(userIdStr)
-            .get();
-        //docSnapshot.exists
-
-        let data = {};
-
-        let userExists = docRef.exists;
-
-        if (userExists) {
-            data = docRef.data();
+        let doc = await firestore.collection('users').doc(userIdStr).get();
+        if (!doc.exists) {
+            console.log('No such document!');
+            returnJson.stats = 0;
+            returnJson.success = true;
         } else {
-            returnJson.stack = 'no data';
-            //return returnJson;
+            returnJson.data = doc.data();
+            returnJson.stats = doc.data().stats;
+            returnJson.success = true;
         }
-        returnJson.data = data;
-
-        // let timestamp1 = longsingShortcutFunction.timestampUTCmsInt();
-
-        // let updateUserData = {};
-        // if (!userExists) {
-        //     updateUserData.uid = userId;
-        //     if (userEmail.toString().length > 0) {
-        //         updateUserData.email = userEmail;
-        //     }
-        // }
-        //
-        // returnJson.displayName = data.displayName || '';
-        // if (returnJson.displayName.length < 1) {
-        //     returnJson.displayName = '?????_'.concat(longsingShortcutHash.sipHashToHex(userId, timestamp1));
-        //     updateUserData.displayName = returnJson.displayName;
-        // }
-
-        //returnJson.uid = userId;
-        //returnJson.displayName = data.displayName || ;
-        // returnJson.headPictureUri = data.headPictureUri || '';
-        // if (returnJson.headPictureUri.length < 1) {
-        //     returnJson.headPictureUri = this.stringToQRcodeUri(returnJson.displayName);
-        //     updateUserData.headPictureUri = returnJson.headPictureUri;
-        // }
-        //returnJson.color = data.color || '';
-
-        returnJson.success = true;
-        //doc = this.setNoValue(docSnapshot.data(), {});
+        console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+        return await returnJson;
     } catch (error) {
         console.warn('firebaseGetUserData', error);
-        returnJson.stack = error;
+        returnJson.success = false;
     }
-
-    //let cityRef = db.collection('cities').doc('SF');
-    //let getDoc = cityRef.get()
-    console.info('firebaseGetUserData', returnJson);
-    return returnJson;
-};
+}
 
 module.exports = functions.https.onRequest(app);

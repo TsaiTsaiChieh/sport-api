@@ -2,8 +2,7 @@
 <html>
 
 <head>
-    <title>聊運彩 ver.0717</title>
-    <!--    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase-firestore.js"></script>-->
+    <title>Firebase Authentication UI templete ver.0717</title>
     <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth.css"/>
     <script src="/__/firebase/6.6.1/firebase-app.js"></script>
@@ -41,7 +40,6 @@
             },
             {
                 provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-                requireDisplayName: false,
                 scopes: [
                     'public_profile',
                     'email',
@@ -53,12 +51,9 @@
                     auth_type: 'reauthenticate'
                 }
             },
-            //{provider:firebase.auth.}
         ],
-        tosUrl: '/a',
-        privacyPolicyUrl: function () {
-            window.location.assign('privacyPolicy');
-        }
+        tosUrl: '/a',   //《服務條款》
+        privacyPolicyUrl: 'https://google.com'  //《隱私權政策》。
     };
 
     // Initialize the FirebaseUI Widget using Firebase.
@@ -71,24 +66,17 @@
     });
 
     function VerifySessionCookie(user) {
-        // alert("verifylll");
         let http = new XMLHttpRequest();
-        // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/verifySessionCookie';
-        // let url = '/auth/verifySessionCookie';
         let url = '/auth/verifySessionCookie';
         http.open('GET', url, true);
-        console.log("verify ....begin");
         http.onreadystatechange = function () {
             if (http.readyState == 4 && http.status == 200) {
                 let res = JSON.parse(http.responseText);
                 if (res.success == true) {
-
+                    // 登入成功
                     console.log(res);
-                    //if displayName==Null , redirect to complete profile page
-                    console.log(user.displayName);
-                    // alert('登入成功');
                 } else {
-                    // alert('/auth/VerifySessionCookie - login()');
+                    //  沒有SessionCookie執行login(), createSessionCookie
                     login();
                 }
             }
@@ -98,16 +86,15 @@
 
     function login() {
         let http = new XMLHttpRequest();
-        // let url = '/auth/login';
-        // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/login';
         let url = '/auth/login';
-        // let params = 'token=' + firebase.auth().currentUser.refreshToken;
         let token = firebase.auth().currentUser.ma;
         let uid = firebase.auth().currentUser.uid;
         if (token && uid) {
-            let params = "params=" + JSON.stringify({uid: uid, token: token});
+            let params = JSON.stringify({uid: uid, token: token});
+            // let params = "params=" + JSON.stringify({uid: uid, token: token});
             http.open('POST', url, true);
-            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            http.setRequestHeader('Content-type', 'application/json');
+            // http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             http.onreadystatechange = function () {
                 if (http.readyState == 4 && http.status == 200) {
                     let res = JSON.parse(http.responseText);
@@ -118,6 +105,7 @@
                     }
                 }
             };
+            console.log(params);
             http.send(params);
         }
     }
@@ -149,14 +137,10 @@
     function logout() {
         firebase.auth().signOut().then(function () {
             let http = new XMLHttpRequest();
-            // let url = '/auth/logout';
-            // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/logout';
             let url = '/auth/logout';
             http.open('POST', url, true);
             http.onreadystatechange = function () {
-                // alert(http.status)
                 if (http.readyState === 4) {
-                    // if (http.readyState === 4 && http.status === 200) {
                     let res = JSON.parse(http.responseText);
                     if (res.success == true) {
                         alert('登出成功');
