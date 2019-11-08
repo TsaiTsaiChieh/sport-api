@@ -10,7 +10,7 @@ const functions = require('firebase-functions');
 // const rp = require( 'request-promise' );
 // const users = require( './users' );
 // =======
-const longsingShortcutFunction = require('./shortcut_function');
+const ShortcutFunction = require('./shortcut_function');
 const envValues = require('././env_values');
 const cookie = require('cookie');
 const rp = require('request-promise');
@@ -34,7 +34,7 @@ const {
 // });
 
 //const admin = myfunc.fadmin( mycfg.cert );
-const admin = longsingShortcutFunction.lazyFirebaseAdmin(envValues.cert);
+const admin = ShortcutFunction.lazyFirebaseAdmin(envValues.cert);
 
 // const admin = require("firebase-admin");
 // const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
@@ -361,56 +361,49 @@ app.post('/sendSMS', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-    let params = JSON.parse(req.body.params);
-    let token = params.token;
-    let uid = params.uid;
-    let test = firebaseGetUserData(uid);
-    console.log("..........");
-    console.log(JSON.stringify( test, null, '\t' ));
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log('login token : ', token);
-    console.log('login uid : ', params.uid);
-    // admin.auth().getUser(uid)
-    //     .then(function (userRecord) {
-    //         console.log('Successfully fetched user data:', userRecord.toJSON());
-    //     })
-    //     .catch(function (error) {
-    //         console.log('Error fetching user data:', error);
-    //     });
+    let returnJson = {success: false};
+    let token = req.body.token;
+    let uid = req.body.uid;
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json({success: false, message: "登入失敗"});
+        return res.status(400).json(returnJson);
     }
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
     admin.auth().createSessionCookie(token, {expiresIn})
-        .then(function (sessionCookie) {
+        .then(async function (sessionCookie) {
             let options = {maxAge: expiresIn, httpOnly: true};
+            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
             res.cookie('__session', sessionCookie, options);
-            // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: true, message: '登入成功'})
+
+            let firestoreUser = await getUserProfile(uid);
+            returnJson.success = true;
+            if (firestoreUser) {
+                console.log("firestoreUser exist");
+                returnJson.uid = firestoreUser.uid;
+                returnJson.userStats = firestoreUser.stats;
+                returnJson.userInfo = firestoreUser.data;
+            } else {
+                returnJson.userStats = 0;
+                console.log("firestoreUser exist not");
+            }
+            console.log("ready login");
+            res.json(returnJson)
         })
         .catch(function (error) {
             console.log('Error login user: \n\t', error);
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({
-                success: false,
-                message: "登入失敗"
-            })
+            res.status(400).json({success: false})
         });
 });
 
 app.post('/logout', function (req, res) {
-    console.log(req.body);
     let cookies = req.get('cookie') || '__session=';
     if (cookies) {
         firebase.auth().signOut().then(function () {
             console.log('logout out user');
             res.clearCookie('__session');
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.json({
-                success: true,
-                message: '登出成功'
-            });
+            // res.setHeader('Access-Control-Allow-Origin', '*');
+            res.json({success: true});
         }).catch(function (error) {
             // An error happened.
         });
@@ -424,42 +417,41 @@ app.get('/signIn', function (req, res) {
 });
 
 app.get('/verifySessionCookie', async function (req, res) {
-    // firebase.auth().signInWithPopup(provider).then((result) => {
-    //     console.log(result.additionalUserInfo.isNewUser);
-    // });
-    // res.json({test:'test'})
     let cookies = req.get('cookie') || '__session=';
     res.setHeader('Access-Control-Allow-Origin', '*');
-    // let cookies = req.get('cookie');
-    // console.log('verifySessionCookie - ', cookies);
-    // if (cookies === undefined) console.log("test 0");
-    // if (cookies !== undefined) console.log("test 1");
-    //
-    // if (!cookies) console.log("test 2");
     if (cookies) {
         let sessionCookie = cookie.parse(cookies).__session;
         console.log('verifySessionCookie - ', sessionCookie);
-        admin.auth().verifySessionCookie(
-            sessionCookie, true)
-            .then((decodedClaims) => {
-                console.log('Auth - verifySessionCookie success : ', decodedClaims);
-                console.log(decodedClaims.auth_time);
-                console.log(decodedClaims.uid);
-                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                res.json({
-                    success: true,
-                    decodedClaims: decodedClaims
-                })
-            })
-            .catch(error => {
-                console.log('Auth - verifySessionCookie false : ', error);
-                // res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                res.json({
-                    success: false
-                })
-            });
+        if (await verifySessionCookie(sessionCookie)) {
+            res.json({success: true});
+        } else {
+            res.json({success: false});
+        }
+        // admin.auth().verifySessionCookie(
+        //     sessionCookie, true)
+        //     .then((decodedClaims) => {
+        //         console.log('Auth - verifySessionCookie success : ', decodedClaims);
+        //         res.json({success: true})
+        //     })
+        //     .catch(error => {
+        //         console.log('Auth - verifySessionCookie false : ', error);
+        //         res.json({success: false})
+        //     });
     }
 });
+
+async function verifySessionCookie(sessionCookie) {
+    admin.auth().verifySessionCookie(
+        sessionCookie, true)
+        .then((decodedClaims) => {
+            console.log('Auth - verifySessionCookie success : ', decodedClaims);
+            return true;
+        })
+        .catch(error => {
+            console.log('Auth - verifySessionCookie false : ', error);
+            return false;
+        });
+}
 
 /**
  * Line login , reference from :
@@ -619,6 +611,56 @@ app.post('/verifyToken', async (req, res) => {
     }
 });
 
+app.post('/getUserInfo', async (req, res) => {
+    let userId = req.body.uid;
+    let returnJson = {
+        success: false,
+        uid: userId
+    };
+    try {
+        let userIdStr = userId.toString().trim();
+
+        if (userIdStr.length < 1) {
+            console.warn('firebaseGetUserData no userId : ', userId);
+            returnJson.stat = 0;
+            returnJson.uid = userId;
+            res.status(200).json(returnJson);
+        }
+
+        let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+
+        let docRef = firestore
+            .collection('users')
+            .doc(userIdStr)
+            .get();
+        //docSnapshot.exists
+
+        let data = {};
+
+        let userExists = docRef.exists;
+
+        if (userExists) {
+            data = docRef.data();
+            returnJson.stat = 1;
+        } else {
+            returnJson.stat = 0;
+            //return returnJson;
+        }
+        returnJson.data = data;
+
+        returnJson.success = true;
+        //doc = this.setNoValue(docSnapshot.data(), {});
+    } catch (error) {
+        console.warn('firebaseGetUserData', error);
+        returnJson.stat = error;
+    }
+
+    //let cityRef = db.collection('cities').doc('SF');
+    //let getDoc = cityRef.get()
+    console.log('getFirestoreUser\n', returnJson);
+    res.status(200).json(returnJson);
+});
+
 //Line Login v2.1 https://github.com/jirawatee/LINE-Login-x-Firebase-Android/blob/master/functions/index.js
 
 // function generateFirebaseToken(lineMid) {
@@ -643,77 +685,143 @@ app.post('/verifyToken', async (req, res) => {
 
 // module.exports = functions.https.onRequest(app);
 
-function firebaseGetUserData(userId) {
+async function getUserProfile(userId) {
     let returnJson = {
         success: false,
         uid: userId
     };
     try {
-        let userIdStr = userId.toString().trim();
+        // let userIdStr = userId.toString().trim();
+        let userIdStr = userId;
+        console.log("get firestore user : ", userIdStr);
 
         if (userIdStr.length < 1) {
             console.warn('firebaseGetUserData no userId : ', userId);
-            returnJson.stack = 'no userId';
-            returnJson.userId = userId;
+            // returnJson.userStats = 0;
+            returnJson.uid = userId;
+            returnJson.success = false;
             return returnJson;
         }
 
-        let firestore = longsingShortcutFunction.lazyFirebaseAdmin().firestore();
-
-        let docRef = firestore
-            .collection('users')
-            .doc(userIdStr)
-            .get();
-        //docSnapshot.exists
-
-        let data = {};
-
-        let userExists = docRef.exists;
-
-        if (userExists) {
-            data = docRef.data();
+        let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+        let doc = await firestore.collection('users').doc(userIdStr).get();
+        if (!doc.exists) {
+            console.log('No such document!');
+            returnJson.userStats = 0;
+            returnJson.success = true;
         } else {
-            returnJson.stack = 'no data';
-            //return returnJson;
+            returnJson.data = doc.data();
+            returnJson.userStats = doc.data().userStats;
+            returnJson.success = true;
         }
-        returnJson.data = data;
-
-        // let timestamp1 = longsingShortcutFunction.timestampUTCmsInt();
-
-        // let updateUserData = {};
-        // if (!userExists) {
-        //     updateUserData.uid = userId;
-        //     if (userEmail.toString().length > 0) {
-        //         updateUserData.email = userEmail;
-        //     }
-        // }
-        //
-        // returnJson.displayName = data.displayName || '';
-        // if (returnJson.displayName.length < 1) {
-        //     returnJson.displayName = '?????_'.concat(longsingShortcutHash.sipHashToHex(userId, timestamp1));
-        //     updateUserData.displayName = returnJson.displayName;
-        // }
-
-        //returnJson.uid = userId;
-        //returnJson.displayName = data.displayName || ;
-        // returnJson.headPictureUri = data.headPictureUri || '';
-        // if (returnJson.headPictureUri.length < 1) {
-        //     returnJson.headPictureUri = this.stringToQRcodeUri(returnJson.displayName);
-        //     updateUserData.headPictureUri = returnJson.headPictureUri;
-        // }
-        //returnJson.color = data.color || '';
-
-        returnJson.success = true;
-        //doc = this.setNoValue(docSnapshot.data(), {});
+        console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+        return await returnJson;
     } catch (error) {
         console.warn('firebaseGetUserData', error);
-        returnJson.stack = error;
+        returnJson.success = false;
     }
+}
 
-    //let cityRef = db.collection('cities').doc('SF');
-    //let getDoc = cityRef.get()
-    console.info('firebaseGetUserData', returnJson);
-    return returnJson;
-};
+app.post('/modifyUserProfile', async function (req, res) {
+    try {
+        let cookies = req.get('cookie') || '__session=';
+        let uid = req.body.uid;
+        if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+        let nowTimestamp = ShortcutFunction.timestampUTCmsInt();
+        let firestoreUser = await getUserProfile(uid);
+        let data = {};
+        console.log(",.asdldfkalsklfdaklasdfllkl");
+        console.log(firestoreUser.userStats);
+        switch (firestoreUser.userStats) {
+            case 0: //新會員
+                if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
+                    res.status(400).json({success: false, message: 'missing info'});
+                data.createTime = nowTimestamp;
+                data.updateTime = nowTimestamp;
+                data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
+                data.name = req.body.name;                  //only new user can set name(real name), none changeable value
+                data.phone = req.body.phone;
+                data.email = req.body.email;
+                data.birthday = req.body.birthday;          //only new user can set birthday, none changeable value
+                if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+                data.userStats = 1;
+                console.log("new user profile : ", uid);
+                break;
+            case 1: //一般會員
+                break;
+            case 2: //大神
+                break;
+            case 3: //鎖帳號會員
+                res.status(400).json({success: false, message: 'blocked user'});
+                break;
+            case 9: //管理員
+                break;
+            default:
+                throw 'LINE channel ID mismatched';
+        }
+        if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
+        if (req.body.email) data.email = req.body.email;
+        if (req.body.phone) data.phone = req.body.phone;
+        if (req.body.signature) data.signature = req.body.signature;
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        if (true) { //開發中暫停驗證sessionCookie
+            // if (await verifySessionCookie(sessionCookie)) {
+            let sessionCookie = cookie.parse(cookies).__session;
+            let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+            firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
+                console.log('Added document with ID: ', ref);
+                res.json({success: true, result: ref});
+            }).catch(e => {
+                console.log('Added document with error: ', e);
+                res.json({success: false, message: "update failed"});
+            });
+            // res.json({success: true, result: writeResult});
+        } else {
+            res.json({success: false, message: "not login"});
+        }
+    } catch (e) {
+        console.log('Added document with error: ', e);
+        res.json({success: false, message: "profile faild"});
+    }
+});
+
+async function uploadAvatar() {
+    console.log("compress avatar to 100*100?");
+    return "https://uploaded.firestorage.avatar.jpg";
+    // let returnJson = {
+    //     success: false,
+    //     uid: userId
+    // };
+    // try {
+    //     // let userIdStr = userId.toString().trim();
+    //     let userIdStr = userId;
+    //     console.log("get firestore user : ", userIdStr);
+    //
+    //     if (userIdStr.length < 1) {
+    //         console.warn('firebaseGetUserData no userId : ', userId);
+    //         returnJson.userStats = 0;
+    //         returnJson.uid = userId;
+    //         returnJson.success = false;
+    //         return returnJson;
+    //     }
+    //
+    //     let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+    //     let doc = await firestore.collection('users').doc(userIdStr).get();
+    //     if (!doc.exists) {
+    //         console.log('No such document!');
+    //         returnJson.userStats = 0;
+    //         returnJson.success = true;
+    //     } else {
+    //         returnJson.data = doc.data();
+    //         returnJson.userStats = doc.data().stats;
+    //         returnJson.success = true;
+    //     }
+    //     console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+    //     return await returnJson;
+    // } catch (error) {
+    //     console.warn('firebaseGetUserData', error);
+    //     returnJson.success = false;
+    // }
+}
 
 module.exports = functions.https.onRequest(app);
