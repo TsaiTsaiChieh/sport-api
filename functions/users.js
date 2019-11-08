@@ -2,17 +2,15 @@
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
-const admin = require( 'firebase-admin' );
-const functions = require( 'firebase-functions' );
+//const admin = require( 'firebase-admin' );
+//const functions = require( 'firebase-functions' );
 const envValues = require( '././env_values' );
 const ShortcutFunction = require( './shortcut_function' );
-const ShortcutHash = require( './shortcut_hash' );
+//const ShortcutHash = require( './shortcut_hash' );
 const htmlencode = require( 'js-htmlencode' );
 const QRCode = require( 'qrcode' );
-const firebaseFunctions = require( 'firebase-functions' );
-const users = require( './users' );
-const cookie = require( 'cookie' );
-const express = require( 'express' );
+
+let a = "";
 
 
 exports.stringToQRcodeUri = async function ( string = '' ) {
@@ -111,8 +109,8 @@ exports.usersGetData = async function ( uid = '', userEmail = '' ) {
 		let mergeData = {
 			uid: uid,
 			email: userEmail,
-			displayName: htmlencode.htmlEncode( '新用戶'.concat( uid ) ),
-			headPictureUri: await this.stringToQRcodeUri( '新用戶'.concat( uid ) ),
+			displayName: htmlencode.htmlEncode( 'new_'.concat( uid ) ),
+			headPictureUri: await this.stringToQRcodeUri( 'new_'.concat( uid ) ),
 			appearTimestamp: ShortcutFunction.timestampUTCmsInt()
 		};
 
@@ -141,12 +139,20 @@ exports.authVerfyGetUserData = async function ( req ) {
 	//從auth區取得用戶資料
 	//console.info('run authVerfyGetUserData :');
 
-	let firebaseSession = ShortcutFunction.cookieGet__session( req );
+
 	let returnJson = {
 		success: false
 	};
 
 	try {
+		//造假用戶資料===========================================================
+		return await this.usersGetData( 'bnKcVVaiIaUf3daVMNTTK5gH4hf1' );
+
+
+		//==================================================================================
+		let firebaseSession = ShortcutFunction.cookieGet__session( req );
+		console.info( 'firebaseSession', firebaseSession );
+
 		let firebaseAdmin = ShortcutFunction.lazyFirebaseAdmin( envValues.cert ); //
 		//ShortcutFunction.firebaseGetAdmin(envValues.cert);
 		//console.info('firebaseAdmin', firebaseAdmin);
@@ -196,7 +202,7 @@ exports.authVerfyGetUserData = async function ( req ) {
 
 		//console.info( 'authVerfyGetUserData userData', userData );
 
-		returnJson = userData;
+		return userData;
 		//returnJson.block = null || false;
 
 		//returnJson.success = true;

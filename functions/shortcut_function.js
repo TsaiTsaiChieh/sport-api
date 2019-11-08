@@ -16,10 +16,10 @@ const functions = require( 'firebase-functions' );
 const fs = require( 'fs' );
 
 const cookie = require( 'cookie' );
-//const htmlencode = require('js-htmlencode');
-const moment = require( 'moment' ); //https://www.npmjs.com/package/moment
-const util = require( 'util' );
 
+const moment = require( 'moment' ); //https://www.npmjs.com/package/moment
+//const util = require( 'util' );
+const ShortcutFunction = require( './shortcut_function' );
 const envValues = require( './env_values' );
 const ShortcutHash = require( './shortcut_hash' );
 
@@ -146,20 +146,34 @@ exports.jsonFormatOut = function ( json ) {
 
 exports.cookieGet__session = function ( req ) {
 	//取得firebase傳遞的cookie/session , session指定變數名稱不能改
-	let token =
-		'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzI1OTI2OTEsInVzZXJfaWQiOiJibktjVlZhaUlhVWYzZGFWTU5UVEs1Z0g0aGYxIiwic3ViIjoiYm5LY1ZWYWlJYVVmM2RhVk1OVFRLNWdINGhmMSIsImlhdCI6MTU3MjU5MjY5NSwiZXhwIjoxNTczMTk3NDk1LCJlbWFpbCI6ImluYTI1ODhAZ2V0cy1pbmZvLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJpbmEyNTg4QGdldHMtaW5mby5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.NEtTCIDzmbI-OZOXfpgmpZX9zN0bQ0oRHkaeNWr9k_nkRpkt4ZCBSozPTPl1mldxs9awc7Ay2zpIWOoeVrbVRNBnBzZ0HMPyGTqUWpWq4ZWwIrzG5966g59U5U2jMNAxxkRb8UntRgdht4VNT82rttb9Opdg1pE41h_XcoxzPtThJ5UUsGQNvNAsMp6cvKybQDrK_Towd6kSTXYI3hq66v9NnZzJYOrkxvdedNWf6KmVe8LGGiCJHh7NjmXiQmHC1lOs5-sPDhbzwGzDcssFp58cXMuXaPt6t5hDk17lP4aOP2w8ke4GrBk-tjQG7T6C6MyrvdYHNvi9Q8E4uZ2SIg';
-
-	if ( envValues.release ) {
-		token = '';
-	}
+	let token = ''; //
 
 	try {
 		let cookies = req.get( 'cookie' );
 
-		token = cookie.parse( cookies ).__session;
+		token = cookie.parse( cookies ).__session || '';
 	} catch ( e ) {
 		//token = undefined;
 	}
+
+	console.info( 'token', token );
+
+	if ( ShortcutFunction.trim( token ).length < 1 ) {
+
+
+		//if ( !envValues.release ) {
+		/*token =
+			'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzI1OTI2OTEsInVzZXJfaWQiOiJibktjVlZhaUlhVWYzZGFWTU5UVEs1Z0g0aGYxIiwic3ViIjoiYm5LY1ZWYWlJYVVmM2RhVk1OVFRLNWdINGhmMSIsImlhdCI6MTU3MjU5MjY5NSwiZXhwIjoxNTczMTk3NDk1LCJlbWFpbCI6ImluYTI1ODhAZ2V0cy1pbmZvLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJpbmEyNTg4QGdldHMtaW5mby5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.NEtTCIDzmbI-OZOXfpgmpZX9zN0bQ0oRHkaeNWr9k_nkRpkt4ZCBSozPTPl1mldxs9awc7Ay2zpIWOoeVrbVRNBnBzZ0HMPyGTqUWpWq4ZWwIrzG5966g59U5U2jMNAxxkRb8UntRgdht4VNT82rttb9Opdg1pE41h_XcoxzPtThJ5UUsGQNvNAsMp6cvKybQDrK_Towd6kSTXYI3hq66v9NnZzJYOrkxvdedNWf6KmVe8LGGiCJHh7NjmXiQmHC1lOs5-sPDhbzwGzDcssFp58cXMuXaPt6t5hDk17lP4aOP2w8ke4GrBk-tjQG7T6C6MyrvdYHNvi9Q8E4uZ2SIg';*/
+		//}
+
+	}
+
+
+	/*
+	token =
+		'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzI1OTI2OTEsInVzZXJfaWQiOiJibktjVlZhaUlhVWYzZGFWTU5UVEs1Z0g0aGYxIiwic3ViIjoiYm5LY1ZWYWlJYVVmM2RhVk1OVFRLNWdINGhmMSIsImlhdCI6MTU3MjU5MjY5NSwiZXhwIjoxNTczMTk3NDk1LCJlbWFpbCI6ImluYTI1ODhAZ2V0cy1pbmZvLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJpbmEyNTg4QGdldHMtaW5mby5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.NEtTCIDzmbI-OZOXfpgmpZX9zN0bQ0oRHkaeNWr9k_nkRpkt4ZCBSozPTPl1mldxs9awc7Ay2zpIWOoeVrbVRNBnBzZ0HMPyGTqUWpWq4ZWwIrzG5966g59U5U2jMNAxxkRb8UntRgdht4VNT82rttb9Opdg1pE41h_XcoxzPtThJ5UUsGQNvNAsMp6cvKybQDrK_Towd6kSTXYI3hq66v9NnZzJYOrkxvdedNWf6KmVe8LGGiCJHh7NjmXiQmHC1lOs5-sPDhbzwGzDcssFp58cXMuXaPt6t5hDk17lP4aOP2w8ke4GrBk-tjQG7T6C6MyrvdYHNvi9Q8E4uZ2SIg';
+		*/
+
 	return token;
 };
 
@@ -295,7 +309,7 @@ exports.runFileContentsUpload = async function ( FileSplitArray = [], newDocRef,
 		//return uploadFileContentIdArray;
 	}
 
-	returnJson.uploadFileContentIdArray = uploadFileContentIdArray;
+	returnJson.list = uploadFileContentIdArray;
 	return returnJson;
 };
 
@@ -439,9 +453,10 @@ exports.runFileUpload = async function ( fileInfo = {}, firestore ) {
 
 		//開始上傳分塊,並取回分塊的id陣列
 		let FileContentsUploadReturnJson = await this.runFileContentsUpload( fileSplitArray, newDocRef );
-		let fileContentsIdArray = FileContentsUploadReturnJson.fileContentsIdArray;
+		console.info( 'FileContentsUploadReturnJson =============', FileContentsUploadReturnJson );
+		let fileContentsIdArray = FileContentsUploadReturnJson.list;
 
-		//console.info( 'fileContentsIdArray =============', fileContentsIdArray )
+
 
 		if ( fileContentsIdArray.length < 1 ) {
 			//上傳分塊不正常

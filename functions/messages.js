@@ -7,7 +7,7 @@ const ShortcutFunction = require( './shortcut_function' );
 const envValues = require( './env_values' );
 const users = require( './users' );
 const htmlencode = require( 'js-htmlencode' );
-const cookie = require( 'cookie' );
+//const cookie = require( 'cookie' );
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const helmet = require( 'helmet' );
@@ -135,7 +135,13 @@ app.all( '*', async ( req, res ) => {
 
 			case 'user': //臨時用來取得登入者資料的//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 				//console.info( '/user', req.body );
-				returnJson = await getUserData( req );
+				try {
+					// @ts-ignore
+					returnJson = await getUserData( req );
+				} catch ( error1 ) {
+					console.warn( '/user', error1 );
+				}
+
 				break;
 
 				/*
@@ -184,7 +190,7 @@ async function getUserData( req ) {
 
 		let uid = req.body.uid || '';
 
-		console.info( 'uid', uid );
+		console.info( 'uid -> "'.concat( uid, '"' ) );
 
 		switch ( uid ) {
 			case undefined:
@@ -218,14 +224,27 @@ async function getUserData( req ) {
 				break;
 		}
 
-		let loginUserData = await users.authVerfyGetUserData();
+		let loginUserData = {
+			'uid': 'bnKcVVaiIaUf3daVMNTTK5gH4hf1'
+		};
+
+		try {
+			loginUserData = await users.authVerfyGetUserData( req );
+		} catch ( error ) {
+			console.info( ' getUserData  loginUserData  error : ', error );
+		}
+
+
+
+		//console.info( 'loginUserData', loginUserData );
+
 		uid = loginUserData.uid || '';
 		if ( uid.length < 1 ) {
 			returnJson.error = '沒有登入,無法取得個人公開資訊';
 			return returnJson;
 		}
 
-		loginUserData.success = true;
+		//loginUserData.success = true;
 		return loginUserData;
 
 	} catch ( error ) {
@@ -574,6 +593,8 @@ async function messageReport( req, messageId = '' ) { //, messageIdChecked = fal
 
 		messageId = messageId || req.body.messageId || '';
 
+		console.info( ' messageReport messageId', messageId );
+
 		//messageId = ShortcutFunction.trim( messageId );
 
 
@@ -644,25 +665,33 @@ async function softDeleteMessage( req, messageId = '' ) { //, messageIdChecked =
 
 		messageId = messageId || req.body.messageId || '';
 
+		messageId = ShortcutFunction.trim( messageId );
+
+		console.info( 'softDeleteMessage messageId =============>', messageId );
+
 
 		if ( messageId.length < 1 ) {
-			returnJson.error = '沒有訊息id';
+			returnJson.error = '沒有訊息id  1111';
 			return returnJson;
 		}
 
 		let docSnapshot = await firestore.collection( 'messages' ).doc( messageId ).get();
 
 		if ( !docSnapshot.exists ) {
-			returnJson.error = '沒有此id的訊息';
+			returnJson.error = '沒有此id的訊息   2222';
 			return returnJson;
 		}
 
 		let data = docSnapshot.data();
-		switch ( Number.parseInt( data.softDelete, 10 ) ) {
+
+		console.info( 'data.softDelete 33333333333', data.softDelete );
+
+		switch ( Number.parseInt( data.softDelete, 10 ) || -2 ) {
+
 			case -1: //管理員刪除(全域)
 			case 0: //用戶回收(全域刪除)
 			case 1: //用戶刪除(對自己隱藏)
-				returnJson.error = '沒有此id的訊息';
+				returnJson.error = '沒有此id的訊息  3333';
 				return returnJson;
 		} //sw
 
@@ -674,6 +703,11 @@ async function softDeleteMessage( req, messageId = '' ) { //, messageIdChecked =
 
 		if ( !ShortcutFunction.haveEntityValue( userData.uid ) ) {
 			return userData;
+		}
+
+		if ( userData.uid !== data.uid ) {
+			returnJson.error = '非訊息本人,不能刪除,請用檢舉  4444';
+			return returnJson;
 		}
 
 		returnJson.messageId = data.uid;
@@ -688,11 +722,13 @@ async function softDeleteMessage( req, messageId = '' ) { //, messageIdChecked =
 			let act = Number.parseInt( req.body.deleteAction, 10 );
 
 			if ( act < 1 ) {
+
 				let re = await docSnapshot.ref.update( {
 					softDelete: 0
 				} ); //, { merge: true }
 
 				returnJson.deleteAction = 0;
+				returnJson.success = true;
 				return ShortcutFunction.realtimePush( returnJson );
 
 			} else {
@@ -701,12 +737,14 @@ async function softDeleteMessage( req, messageId = '' ) { //, messageIdChecked =
 				} ); //, { merge: true }
 
 				returnJson.deleteAction = 1;
-				//returnJson.success = true;
+				returnJson.success = true;
 				return ShortcutFunction.realtimePush( returnJson );
 			} //act
 
 
 		} //uid==uid
+
+		/////////////////////////////////////////////////////////////////////
 
 		//Manager
 		if ( Number.parseInt( userData.Manager, 10 ) > 0 ) {
@@ -714,7 +752,7 @@ async function softDeleteMessage( req, messageId = '' ) { //, messageIdChecked =
 				softDelete: -1
 			} ); //, { merge: true }
 			returnJson.deleteAction = -1;
-			//returnJson.success = true;
+			returnJson.success = true;
 			return ShortcutFunction.realtimePush( returnJson );
 		}
 
@@ -861,6 +899,13 @@ async function runCreateMessage( req ) {
 		//returnJson.success = pushRefKey.length > 0;
 
 		//再到realtime livePush
+
+		//let userData = await users.authVerfyGetUserData( req );
+
+		newMessage.displayName = userData.displayName || 'noname XD';
+		newMessage.avatar = userData.headPictureUri || userData.avatar;
+
+
 		newMessage.action = 'newMessage';
 		newMessage.file = fileInfo1.fileContent;
 
