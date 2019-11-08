@@ -10,7 +10,7 @@ const functions = require('firebase-functions');
 // const rp = require( 'request-promise' );
 // const users = require( './users' );
 // =======
-const longsingShortcutFunction = require('./shortcut_function');
+const ShortcutFunction = require('./shortcut_function');
 const envValues = require('././env_values');
 const cookie = require('cookie');
 const rp = require('request-promise');
@@ -34,7 +34,7 @@ const {
 // });
 
 //const admin = myfunc.fadmin( mycfg.cert );
-const admin = longsingShortcutFunction.lazyFirebaseAdmin(envValues.cert);
+const admin = ShortcutFunction.lazyFirebaseAdmin(envValues.cert);
 
 // const admin = require("firebase-admin");
 // const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
@@ -397,7 +397,6 @@ app.post('/login', function (req, res) {
 });
 
 app.post('/logout', function (req, res) {
-    console.log(req.body);
     let cookies = req.get('cookie') || '__session=';
     if (cookies) {
         firebase.auth().signOut().then(function () {
@@ -423,18 +422,36 @@ app.get('/verifySessionCookie', async function (req, res) {
     if (cookies) {
         let sessionCookie = cookie.parse(cookies).__session;
         console.log('verifySessionCookie - ', sessionCookie);
-        admin.auth().verifySessionCookie(
-            sessionCookie, true)
-            .then((decodedClaims) => {
-                console.log('Auth - verifySessionCookie success : ', decodedClaims);
-                res.json({success: true})
-            })
-            .catch(error => {
-                console.log('Auth - verifySessionCookie false : ', error);
-                res.json({success: false})
-            });
+        if (await verifySessionCookie(sessionCookie)) {
+            res.json({success: true});
+        } else {
+            res.json({success: false});
+        }
+        // admin.auth().verifySessionCookie(
+        //     sessionCookie, true)
+        //     .then((decodedClaims) => {
+        //         console.log('Auth - verifySessionCookie success : ', decodedClaims);
+        //         res.json({success: true})
+        //     })
+        //     .catch(error => {
+        //         console.log('Auth - verifySessionCookie false : ', error);
+        //         res.json({success: false})
+        //     });
     }
 });
+
+async function verifySessionCookie(sessionCookie) {
+    admin.auth().verifySessionCookie(
+        sessionCookie, true)
+        .then((decodedClaims) => {
+            console.log('Auth - verifySessionCookie success : ', decodedClaims);
+            return true;
+        })
+        .catch(error => {
+            console.log('Auth - verifySessionCookie false : ', error);
+            return false;
+        });
+}
 
 /**
  * Line login , reference from :
@@ -610,7 +627,7 @@ app.post('/getUserInfo', async (req, res) => {
             res.status(200).json(returnJson);
         }
 
-        let firestore = longsingShortcutFunction.lazyFirebaseAdmin().firestore();
+        let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
 
         let docRef = firestore
             .collection('users')
@@ -680,21 +697,21 @@ async function getUserProfile(userId) {
 
         if (userIdStr.length < 1) {
             console.warn('firebaseGetUserData no userId : ', userId);
-            returnJson.stats = 0;
+            // returnJson.userStats = 0;
             returnJson.uid = userId;
             returnJson.success = false;
             return returnJson;
         }
 
-        let firestore = longsingShortcutFunction.lazyFirebaseAdmin().firestore();
+        let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
         let doc = await firestore.collection('users').doc(userIdStr).get();
         if (!doc.exists) {
             console.log('No such document!');
-            returnJson.stats = 0;
+            returnJson.userStats = 0;
             returnJson.success = true;
         } else {
             returnJson.data = doc.data();
-            returnJson.stats = doc.data().stats;
+            returnJson.userStats = doc.data().userStats;
             returnJson.success = true;
         }
         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
@@ -703,6 +720,108 @@ async function getUserProfile(userId) {
         console.warn('firebaseGetUserData', error);
         returnJson.success = false;
     }
+}
+
+app.post('/modifyUserProfile', async function (req, res) {
+    try {
+        let cookies = req.get('cookie') || '__session=';
+        let uid = req.body.uid;
+        if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+        let nowTimestamp = ShortcutFunction.timestampUTCmsInt();
+        let firestoreUser = await getUserProfile(uid);
+        let data = {};
+        console.log(",.asdldfkalsklfdaklasdfllkl");
+        console.log(firestoreUser.userStats);
+        switch (firestoreUser.userStats) {
+            case 0: //新會員
+                if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
+                    res.status(400).json({success: false, message: 'missing info'});
+                data.createTime = nowTimestamp;
+                data.updateTime = nowTimestamp;
+                data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
+                data.name = req.body.name;                  //only new user can set name(real name), none changeable value
+                data.phone = req.body.phone;
+                data.email = req.body.email;
+                data.birthday = req.body.birthday;          //only new user can set birthday, none changeable value
+                if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+                data.userStats = 1;
+                console.log("new user profile : ", uid);
+                break;
+            case 1: //一般會員
+                break;
+            case 2: //大神
+                break;
+            case 3: //鎖帳號會員
+                res.status(400).json({success: false, message: 'blocked user'});
+                break;
+            case 9: //管理員
+                break;
+            default:
+                throw 'LINE channel ID mismatched';
+        }
+        if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
+        if (req.body.email) data.email = req.body.email;
+        if (req.body.phone) data.phone = req.body.phone;
+        if (req.body.signature) data.signature = req.body.signature;
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        if (true) { //開發中暫停驗證sessionCookie
+            // if (await verifySessionCookie(sessionCookie)) {
+            let sessionCookie = cookie.parse(cookies).__session;
+            let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+            firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
+                console.log('Added document with ID: ', ref);
+                res.json({success: true, result: ref});
+            }).catch(e => {
+                console.log('Added document with error: ', e);
+                res.json({success: false, message: "update failed"});
+            });
+            // res.json({success: true, result: writeResult});
+        } else {
+            res.json({success: false, message: "not login"});
+        }
+    } catch (e) {
+        console.log('Added document with error: ', e);
+        res.json({success: false, message: "profile faild"});
+    }
+});
+
+async function uploadAvatar() {
+    console.log("compress avatar to 100*100?");
+    return "https://uploaded.firestorage.avatar.jpg";
+    // let returnJson = {
+    //     success: false,
+    //     uid: userId
+    // };
+    // try {
+    //     // let userIdStr = userId.toString().trim();
+    //     let userIdStr = userId;
+    //     console.log("get firestore user : ", userIdStr);
+    //
+    //     if (userIdStr.length < 1) {
+    //         console.warn('firebaseGetUserData no userId : ', userId);
+    //         returnJson.userStats = 0;
+    //         returnJson.uid = userId;
+    //         returnJson.success = false;
+    //         return returnJson;
+    //     }
+    //
+    //     let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+    //     let doc = await firestore.collection('users').doc(userIdStr).get();
+    //     if (!doc.exists) {
+    //         console.log('No such document!');
+    //         returnJson.userStats = 0;
+    //         returnJson.success = true;
+    //     } else {
+    //         returnJson.data = doc.data();
+    //         returnJson.userStats = doc.data().stats;
+    //         returnJson.success = true;
+    //     }
+    //     console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+    //     return await returnJson;
+    // } catch (error) {
+    //     console.warn('firebaseGetUserData', error);
+    //     returnJson.success = false;
+    // }
 }
 
 module.exports = functions.https.onRequest(app);
