@@ -1,6 +1,5 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
 	<head>
 		<meta charset="utf-8" />
 		<title>
@@ -10,50 +9,60 @@
 			#messagePool {
 				width: 100%;
 				height: 500px;
-				background-color: #EEE;
+				background-color: #eee;
+				overflow: auto;
 			}
 
 			textarea {
 				width: 300px;
 				height: 100px;
 			}
+
+			.avatar {
+				width: 50px;
+				height: 50px;
+			}
+
+			.msg {
+				display: flex;
+			}
 		</style>
 	</head>
 
-	<body onLoad="init();">
+	<body onload="init();">
 		<div id="messagePool">
 			<div id="" class="message">123</div>
 			<div id="" class="message">234</div>
 		</div>
-		<img id="file_see" width="200" height="200"></img>
-		<video width="200" height="200" id="file_media" controls>
-			<source src="" id="media_file">
+		<img id="img_see" width="100" height="100" />
+		<video width="100" height="100" id="video_see" controls>
+			<source src="" id="media_file" />
 		</video>
-		<audio id="file_audio" preload="auto" controls>
-			<source id="audio_file" src="">
+		<audio id="audio_see" preload="auto" controls>
+			<source id="audio_file" src="" />
 		</audio>
-		<br>
+		<br />
 		點選的訊息ID
-		<input type="text" id="replyMessageId" readonly="readonly" />
-		<input type="button" id="bt_clear" value="清除選擇" />
-		<br>
-		<br>
+		<input type="text" id="selectMessageId" readonly="readonly" />
+		<input type="button" id="bt_clearId" value="清除選擇Id" />
+		<br />
+		<br />
 		<input type="button" id="bt_delete0" value="刪除選擇的訊息(全域)" />
 		<input type="button" id="bt_delete_1" value="管理員權限刪除文章" />
 		<input type="button" id="bt_delete1" value="對自己隱藏選擇的訊息" />
-		<br>
+		<br />
 		<input type="button" id="bt_report" value="檢舉選擇的訊息" />
 		<input type="button" id="bt_report_1" value="取消檢舉訊息" />
 		<br />
 		是否夾帶檔案
 		<input type="file" id="fileUpload" />
 		<input type="text" id="fileSize" readonly="readonly" value="檔案大小" maxlength="100" size="15" />
-		<br />
+		<input type="button" id="bt_clearFile" value="清除選擇file" /><br />
 		發送內容
 		<textarea id="messageContent" maxlength="1000" wrap="soft">123 </textarea>
 
-		<input type="button" id="bt_send" value="發送新訊息" onClick="send();" /><br>回應的error<textarea id="messageContent" maxlength="1000" wrap="soft"> 123</textarea><br><br>取得特定訊息(不是讀取快取而是發出POST拿)<textarea id="messageContent" maxlength="1000" wrap="soft"> </textarea><br />
-		<br /></p>
+		<input type="button" id="bt_send" value="發送新訊息" /><br />回應的error<textarea id="returnError" maxlength="1000" wrap="soft"> 123</textarea><br /><br />取得特定訊息(不是讀取快取而是發出POST拿)<textarea id="oneMessage" maxlength="1000" wrap="soft"> </textarea><br />
+		<br />
 	</body>
 
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -62,136 +71,178 @@
 	<script src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
 
 	<script type="text/javascript">
-
-	const url = 'https://sport19y0715.firebaseapp.com/messages/'; //prfx
+		const url = "https://sport19y0715.firebaseapp.com/messages/"; //prfx
 
 		var rtdb; //Realtime database
 		//let fsdb; //Cloud Firestore
 
 		var userData = {};
 
-		var fileContent = ''; //當有選取檔案,這裡就會有內容,用於上傳
+		var fileUrl = "";
+		var fileContent = ""; //當有選取檔案,這裡就會有內容,用於上傳
 
-		var roundDecimal = function ( val, precision )
-			{
-				return Math.round( Math.round( val * Math.pow( 10, ( precision || 0 ) + 1 ) ) / 10 ) / Math.pow( 10, ( precision || 0 ) );
+		var roundDecimal = function(val, precision) {
+			return Math.round(Math.round(val * Math.pow(10, (precision || 0) + 1)) / 10) / Math.pow(10, precision || 0);
+		};
+
+		function unToDef(inp, def) {
+			if (inp === undefined) {
+				return def;
 			}
 
-			function timeStampYMDhmsA( timeStamp) {
-				return moment( timeStamp ).format( 'YYYY-MM-DD h:mm:ss A' );
+			if (inp === null) {
+				return def;
 			}
 
-		function kmb(size=0) {
-
-			let ans={};
-			ans.size = Number.parseInt( size );
-			if (size>0) {
-				if (ans.size <=1024) {
-					ans.unit='B';
-					return ans;
-				}
-
-				ans.size= roundDecimal( ans.size*0.001,2);
-
-					if ( ans.size <= 1024 )
-				{
-					ans.unit = 'KB';
-					return ans;
-				}
-
-				ans.size = roundDecimal( ans.size * 0.001, 2 );
-				ans.unit = 'MB';
-
-				return ans;
-
-			}
-
-				ans.size=-1;
-				ans.error='異常輸入';
-
+			return inp;
 		}
 
-		function messageToElement( message) {
+		function timeStampYMDhmsA(timeStamp) {
+			return moment(timeStamp).format("YYYY-MM-DD A h:mm:ss");
+		}
+
+		function kmb(size = 0) {
+			let ans = {};
+			ans.size = Number.parseInt(size);
+			if (size > 0) {
+				if (ans.size <= 1024) {
+					ans.unit = "B";
+					return ans;
+				}
+
+				ans.size = roundDecimal(ans.size * 0.001, 2);
+
+				if (ans.size <= 1024) {
+					ans.unit = "KB";
+					return ans;
+				}
+
+				ans.size = roundDecimal(ans.size * 0.001, 2);
+				ans.unit = "MB";
+
+				return ans;
+			}
+
+			ans.size = -1;
+			ans.error = "異常輸入";
+		}
+
+		function messageToElement(message) {
 			strArr = [];
-			strArr.push( '<div id="' );
-			strArr.push( message.messageId );
-			strArr.push( '" >"' );
+			strArr.push('<div class="msg" id="');
+			strArr.push(message.messageId);
+			strArr.push('" >');
 
-			strArr.push( timeStampYMDhmsA( message.appearTimestamp ).replace( 'AM', '早上' ).replace( 'PM', '下午' ) );
-			strArr.push( ' ' );
-			strArr.push( message.displayName );//
-			strArr.push( ' : ' );//
+			let avatar = unToDef(message.headPictureUri, "");
+			if (avatar.toString().length < 1) {
+				avatar = unToDef(message.avatar, "");
+			}
+			//<img class="avatar" src="" ></img>
 
-			strArr.push( message.message );//
+			if (avatar.length > 0) {
+				strArr.push('<img class="avatar" src="');
+				strArr.push(avatar);
+				strArr.push('" ></img>');
+			}
 
-			if ( message.file.length > 0 )
-			{
+			strArr.push(" ");
+			strArr.push(unToDef(message.displayName, "沒有用戶名稱")); //
+			strArr.push(' : "');
+			strArr.push(message.message); //
+			strArr.push('"');
+			strArr.push(" ");
 
-				let fileSize = kmb( message.file.length );
+			try {
+				let msgFile = message.file || "";
+				if (msgFile.length > 0) {
+					let fileSize = kmb(msgFile.length);
 
-				if ( fileSize.size > 0 )
-				{
-					strArr.push( ' 夾帶檔案: ' );//
-					strArr.push( fileName );
-					strArr.push( ' : ' );
-					strArr.push( fileSize.size );
-					strArr.push( fileSize.unit );
-				}//if size
+					if (fileSize.size > 0) {
+						strArr.push("夾帶檔案:"); //
+						let fileName = unToDef(message.fileName, "");
+						if (fileName.length < 1) {
+							fileName = "未知檔名";
+						}
 
-			}//if length
+						strArr.push(fileName);
+						strArr.push(" ");
+						strArr.push(fileSize.size);
+						strArr.push(fileSize.unit);
+						strArr.push("(");
+						strArr.push(msgFile.substr(0, 10));
+						strArr.push(")");
+						strArr.push(" ");
+					} //if fileSize.size
+				} //if file.length
+			} catch (err4) {
+				console.warn(err4);
+			}
 
-			strArr.push( '</div>' );
+			strArr.push(
+				timeStampYMDhmsA(message.appearTimestamp)
+					.replace("AM", "早上")
+					.replace("PM", "下午")
+			);
+
+			strArr.push("</div>");
 
 			return strArr;
 		}
 
-		function newMessageAppend( message ) {
-				$( '#messagePool' ).append(  messageToElement( message).join( '' ));//插入到最後
+		function newMessageAppend(message) {
+			$("#messagePool").append(messageToElement(message).join("")); //插入到最後
+		} //newMessageAppend
 
-		}//newMessageAppend
+		function tempHashReolaceToMesageId(message) {
+			//當有一個暫時性的訊息
 
-		function replaceMessageId( message ) {//當有一個暫時性的訊息
+			let tempHashs = $("#".concat(message.tempHash));
 
-			var cnt =$( '#'.concat( message.tempHash )).size();
-			if (cnt >0) {
-				$( '#'.concat( message.tempHash )).attr('id',message.messageId);//把暫時性的訊息元素id換成正式訊息id
-			}else{
-				newMessageAppend( message );//沒有暫時性的元素,所以把這個訊息插入到最後
+			//var cnt = $("#".concat(message.tempHash)).size();
+			if (tempHashs.length > 0) {
+				$("#".concat(message.tempHash)).attr("id", message.messageId); //把暫時性的訊息元素id換成正式訊息id
+			} else {
+				console.info("no tempHashs , run newMessageAppend");
+				newMessageAppend(message); //沒有暫時性的元素,所以把這個訊息插入到最後
 			}
-
 		}
 
-		function oldMessagePrepend( message ) {
-			$( '#messagePool' ).prepend(  messageToElement( message ).join( '' ) ); //插入到最前
+		function oldMessagePrepend(message) {
+			console.info("oldMessagePrepend");
+			console.info(message);
+			$("#messagePool").prepend(messageToElement(message).join("")); //插入到最前
 		}
 
-		function delMessage( sv ) {
+		function delMessage(sv) {
+			let msgId2 = "#".concat(sv.messageId);
+			console.info("sv msgId2");
+			console.info(msgId2);
 
-			switch ( sv.deleteAction ) {//軟刪除狀態;
-
-				case -1://-1:管理員刪除(回收),
-					$( "#".concat( sv.messageId ) ).remove();
+			switch (
+				sv.deleteAction //軟刪除狀態;
+			) {
+				case -1: //-1:管理員刪除(回收),
+					$("#".concat(sv.messageId)).remove();
 					break;
 
-				case 0://0用戶刪除(回收,大家全部不能看),
-					$( "#".concat( sv.messageId ) ).remove();
+				case 0: //0用戶刪除(回收,大家全部不能看),
+					$("#".concat(sv.messageId)).remove();
 					break;
 
-				case 1://1用戶刪除(自己不能看,其他人可以看)
-					if ( sv.uid == userData.uid ) {
-						$( "#".concat( sv.messageId ) ).remove();
+				case 1: //1用戶刪除(自己不能看,其他人可以看)
+					if (sv.uid === userData.uid) {
+						$("#".concat(sv.messageId)).remove();
 					}
 					break;
 
 				default:
-					console.warn( '未定義的刪除訊息' );
-					console.warn( sv );
+					console.warn("未定義的刪除訊息");
+					console.warn(sv);
 					break;
 			}
-
 		}
 
-		function trim(str='') {
+		function trim(str = "") {
 			switch (str) {
 				case undefined:
 				case null:
@@ -199,19 +250,19 @@
 				case false:
 				case NaN:
 				case Infinity:
-				return '';
-				break;
-
+					return "";
+					break;
 			}
-			return str.toString().replace( /^\s+|\s+$/g, '' );
+			return str.toString().replace(/^\s+|\s+$/g, "");
 		}
 
 		function init2() {
+			console.info("init2();");
 
 			const firebaseConfig = {
-				apiKey: 'd23e597f8c957a12606f4b77bde670dbafe0182f',
-				authDomain: 'sport19y0715.web.app',
-				projectId: 'sport19y0715',
+				apiKey: "d23e597f8c957a12606f4b77bde670dbafe0182f",
+				authDomain: "sport19y0715.web.app",
+				projectId: "sport19y0715",
 				databaseURL: "https://sport19y0715.firebaseio.com",
 				storageBucket: "sport19y0715.appspot.com",
 				appId: "1:179049951227:web:15b2ae874d653216",
@@ -219,166 +270,451 @@
 			};
 
 			try {
-				firebase.initializeApp( firebaseConfig );
+				firebase.initializeApp(firebaseConfig);
 			} catch (error) {
-				console.warn( error);
+				console.warn(error);
 			}
-
-
 
 			rtdb = firebase.database(); //Realtime database
 
 			//fsdb = firebase.firestore(); //Cloud Firestore
 
 			//設定監聽realtime資料庫的
-			rtdb.ref( '/livePush' ).limitToLast( 10 ).on( 'value', function ( snapshot ) {
+			rtdb.ref("/livePush")
+				.limitToLast(1)
+				.on("value", function(snapshot) {
+					//監聽之後這邊的行為是收到資料的行為.
+					let svList = snapshot.val(); //你收到的內容,不穩定的json格式
+					//console.info(sv);
 
-				//監聽之後這邊的行為是收到資料的行為.
-				let sv = snapshot.val(); //你收到的內容,不穩定的json格式
-				console.info( sv );
+					//array.forEach(element => {});
 
+					for (const key in svList) {
+						try {
+							let sv = svList[key];
+							console.info(sv);
+							//前端行為邏輯在此...
+							switch (sv.action) {
+								//檢查這是什麼狀態訊息
+								case "newMessage": //新訊息
+									if (sv.uid == userData.uid) {
+										console.info("tempHashReolaceToMesageId");
+										tempHashReolaceToMesageId(sv);
+									} else {
+										console.info("newMessageAppend");
+										newMessageAppend(sv);
+									}
+									break;
 
-				//前端行為邏輯在此...
-				switch ( sv.type ) {
-					//檢查這是什麼狀態訊息
-					case 'newMessage': //新訊息
-						if ( sv.uid==userData.uid) {
-							replaceMessageId(sv);
-						}else{
-							newMessageAppend(sv);
-						}
-						break;
+								case "deleteMessage": //刪除訊息(只對用戶自己刪除/隱藏)
+									console.info("delMessage");
+									delMessage(sv);
+									break;
+							}
+						} catch (errfor) {
+							console.warn(errfor);
+						} //try
+					} //for
+				});
 
-					case 'delMessage': //刪除訊息(只對用戶自己刪除/隱藏)
-						delMessage(sv);
-						break;
+			$.post(
+				url.concat("last"),
+				{
+					channel: "public"
+					//deleteAction: 1
+				},
+				function(data) {
+					//獲得回傳
+					//console.info("last");
+					//console.info(data);
+					try {
+						//$("#oneMessage").val(JSON.stringify(data, null, "  "));
+						//$("#returnError").val(data.error);
+						data.list.forEach(msg => {
+							oldMessagePrepend(msg);
+						});
+					} catch (err3) {
+						console.warn(err3);
+					} //try
 				}
-
-			} );
+			);
 
 			/*
-						//取得過去的狀態訊息50筆//參考,不使用
-						rtdb.ref('/message').limitToLast(50).once('value', function(snapshot) {
+		//取得過去的狀態訊息50筆//參考,不使用
+		rtdb.ref('/message').limitToLast(50).once('value', function(snapshot) {
 
-								let sv=snapshot.val();//你收到的內容,不穩定的json格式
-								console.info( sv );
+		let sv=snapshot.val();//你收到的內容,不穩定的json格式
+		console.info( sv );
 
-								//前端行為邏輯在此...
+		//前端行為邏輯在此...
 
-							});*/
+		});*/
 
-			$( '#fileUpload' ).change( function () {
+			//
+
+			$("#bt_clearId").click(function() {
+				$("#selectMessageId").val("");
+			});
+
+			$("#bt_clearFile").click(function() {
+				$("#fileUpload").val("");
+				$("#fileUpload").change();
+				//$("#fileSize").val("");
+			});
+
+			$("#fileUpload").change(function() {
 				//監聽上傳按鈕的事件
-				console.info( 'fileUpload change' );
+				console.info("fileUpload change");
 
-				fileContent = ''; //先清空
+				fileContent = ""; //先清空
 
-				let fi_path = $( '#fileUpload' ).val();
-				if (
-					fi_path !== ''
-				) {
+				let fi_path = $("#fileUpload").val();
+				if (fi_path !== "") {
 					//fi_path=$.('#fi_send').val();
 					//有檔案路徑
 
 					try {
 						//有可能失敗,必須try
 
-						let fileUrl = $( '#fi_send' )[ 0 ].files[ 0 ]; //檔案uri,給檔案物件讀取用的
+						//let file0 = $( "#fileUpload" )[ 0 ].files[ 0 ];
 
-						//console.info(f);
+						//console.info('$("#fileUpload")[0].files[0]');
+						//console.info($("#fileUpload")[0].files[0]);
 
-						let fr = new FileReader; //檔案讀取物件
-						r.onload = function ( e ) {
+						fileUrl = $("#fileUpload")[0].files[0] || ""; //檔案uri,給檔案物件讀取用的
+
+						let FileReader0 = new FileReader(); //檔案讀取物件
+						FileReader0.onload = function(e) {
 							//讀取成功的行為
 
 							try {
-								fileContent = str_def( e.target.result, '' );
+								console.info("FileReader onload>>>>");
+								console.info(e);
+								fileContent = e.currentTarget.result || "";
+								$("#img_see").attr("src", fileContent || "");
+								$("#fileSize").val(fileContent.length);
 
-							} catch ( e4 ) {
-								$( '#fileUpload' ).val( '' ); //失敗就清空
-								console.warn( e4 );
+								//fileContent = str_def(e.currentTarget.result, "");
+							} catch (e4) {
+								console.warn(e4);
+								$("#fileUpload").val(""); //失敗就清空
+								$("#fileUpload").change();
 							}
 						};
 
-						fr.readAsDataURL( fileUrl ); //真的讀取
-
-					} catch ( e3 ) {
-						$( '#fi_send' ).val( '' ); //失敗就清空
-						console.warn( e3 );
+						FileReader0.readAsDataURL(fileUrl); //真的讀取
+					} catch (e3) {
+						console.warn(e3);
+						$("#fileUpload").val(""); //失敗就清空
+						$("#fileUpload").change();
 					}
-
+				} else {
+					$("#fileSize").val("");
 				}
+			});
 
-			} );
+			$("#bt_delete0").click(function() {
+				try {
+					console.info("#bt_delete0 clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("delete"),
+							{
+								messageId: msgId,
+								deleteAction: 0
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			$("#bt_delete1").click(function() {
+				try {
+					console.info("#bt_delete1 clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("delete"),
+							{
+								messageId: msgId,
+								deleteAction: 1
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			$("#bt_delete_1").click(function() {
+				try {
+					console.info("#bt_delete_1 clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("delete"),
+							{
+								messageId: msgId,
+								deleteAction: -1
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			$("#bt_report").click(function() {
+				try {
+					console.info("#bt_report clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("report"),
+							{
+								messageId: msgId,
+								reportAction: 1
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			$("#bt_report_1").click(function() {
+				try {
+					console.info("#bt_report_1 clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("report"),
+							{
+								messageId: msgId,
+								reportAction: -1
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			//bt_send
+			$("#bt_send").click(function() {
+				try {
+					console.info("#bt_send clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					//let msgId = $("#selectMessageId").val();
+					//$("#selectMessageId").val(msgId);
+					//if (msgId.length > 0) {
+					$.post(
+						url.concat("create"),
+						{
+							channel: "public",
+							tempHash: userData.uid.concat(new Date().getTime()),
+							message: $("#messageContent").val() || "",
+							replyMessageId: $("#selectMessageId").val() || "",
+							file: fileContent || "",
+							fileName: $("#fileUpload").val()
+						},
+						function(data) {
+							//獲得回傳
+							console.info(data);
+							try {
+								$("#oneMessage").val(JSON.stringify(data, null, "  "));
+								$("#returnError").val(data.error);
+							} catch (err3) {
+								console.warn(err3);
+							} //try
+						}
+					);
+					//}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
+
+			$("#messagePool").on("click", ".msg", function() {
+				try {
+					console.info("#messagePool .msg clk ");
+					//console.info(this);
+					//console.info($(this).attr("id"));
+					let msgId = $(this).attr("id") || "";
+					$("#selectMessageId").val(msgId);
+					if (msgId.length > 0) {
+						$.post(
+							url.concat("get"),
+							{
+								messageId: msgId
+							},
+							function(data) {
+								//獲得回傳
+								console.info(data);
+								try {
+									$("#oneMessage").val(JSON.stringify(data, null, "  "));
+									$("#returnError").val(data.error);
+								} catch (err3) {
+									console.warn(err3);
+								} //try
+							}
+						);
+					}
+				} catch (err) {
+					console.warn(err);
+				}
+			});
 
 			function send() {
-				let messageContent = $( '#messageContent' ).val(); //;
+				let messageContent = $("#messageContent").val(); //;
 
-				if ( $.trim( messageContent ).concat( fileContent ).length > 0 ) {
+				if ($.trim(messageContent).concat(fileContent).length > 0) {
 					// 有文字 或是 有檔案 才送出
-					let re = $.trim( $( '#re_hash' ) ); //如果是回應文章就會有hash
+					let re = $.trim($("#re_hash")); //如果是回應文章就會有hash
 
-					$.post( '/creat', {
+					$.post(
+						"/creat",
+						{
 							uhash: mydata.uhash, //發送者hash
 							re_hash: re, //回文hash
 							send_message: msg,
 							send_file: fileContent
 						},
-						function ( data ) {
+						function(data) {
 							//獲得回傳
-						} );
-
+						}
+					);
 				} else {
-					alert( '沒有 內文 也沒有 夾帶檔案 ,不處理' );
+					alert("沒有 內文 也沒有 夾帶檔案 ,不處理");
 				}
 			}
 		}
 
 		function init() {
-
 			//初始化行為
-
+			console.info("init();");
 
 			//先檢查登入並拿到登入資料
-			let xhr = new XMLHttpRequest();
-			xhr.open( 'POST', '/'.concat( 'user' ), true );
-			xhr.setRequestHeader( 'Content-type', 'application/json' );
-			let params = {};
-			xhr.onreadystatechange = function () {
 
+			$.post(url.concat("user"), {}, function(data) {
+				//獲得回傳
 				try {
+					let getJson = data; // JSON.parse( xhr.responseText );
+					console.info(getJson);
+					//
 
-					if ( xhr.readyState == 4 ) {
+					if ($.trim(getJson.uid).length > 0) {
+						userData = getJson;
 
-						let getJson = JSON.parse( xhr.responseText );
-						console.info( userData );
-						//
-
-						if ( $.trim( getJson.uid ).length > 0 ) {
-
-							userData = getJson;
-
-							console.info( '登入身分是: '.concat( getJson.displayName ) );
-						} else {
-							console.warn( '登入失敗: '.concat( getJson.error ) );
-						}
-
-
-
-					} //if
-
-				} catch ( err ) {
-					console.warn( err );
+						console.info("登入身分是: ".concat(userData.uid));
+					} else {
+						console.warn("登入失敗: ".concat(getJson.error));
+					}
+				} catch (err) {
+					console.warn(err);
 				} //try
 
-				init2(); //不管有沒有登入,都繼續初始化
+				init2();
+			});
 
-			} //onreadystatechange
+			/*
+					let xhr = new XMLHttpRequest();
+					xhr.open("POST", "/".concat("user"), true);
+					xhr.setRequestHeader("Content-type", "application/json");
+					let params = {};
+					xhr.onreadystatechange = function() {
+						try {
+							if (xhr.readyState == 4) {
+								let getJson = JSON.parse(xhr.responseText);
+								console.info(userData);
+								//
 
-			xhr.send( JSON.stringify( params ) );
+								if ($.trim(getJson.uid).length > 0) {
+									userData = getJson;
 
+									console.info("登入身分是: ".concat(getJson.displayName));
+								} else {
+									console.warn("登入失敗: ".concat(getJson.error));
+								}
+							} //if
+						} catch (err) {
+							console.warn(err);
+						} //try
 
+						init2(); //不管有沒有登入,都繼續初始化
+					}; //onreadystatechange
+
+					xhr.send(JSON.stringify(params));
+					*/
 		}
 	</script>
-
 </html>
