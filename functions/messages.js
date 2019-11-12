@@ -296,7 +296,7 @@ async function getUserData( req ) {
 		}
 
 		let loginUserData = {
-			uid: "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
+			// uid: "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
 		};
 
 		try {

@@ -146,7 +146,7 @@ exports.authVerfyGetUserData = async function ( req ) {
 
 	try {
 		//造假用戶資料===========================================================
-		return await this.usersGetData( 'bnKcVVaiIaUf3daVMNTTK5gH4hf1' );
+		// return await this.usersGetData( 'bnKcVVaiIaUf3daVMNTTK5gH4hf1' );
 
 
 		//==================================================================================
@@ -157,6 +157,7 @@ exports.authVerfyGetUserData = async function ( req ) {
 		//ShortcutFunction.firebaseGetAdmin(envValues.cert);
 		//console.info('firebaseAdmin', firebaseAdmin);
 		let DecodedIdToken1 = await firebaseAdmin.auth().verifySessionCookie( firebaseSession, true );
+		console.log(DecodedIdToken1);
 
 		/* 取得的資料結構
 		DecodedIdToken1 => {
