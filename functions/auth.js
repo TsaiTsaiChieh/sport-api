@@ -371,28 +371,24 @@ app.post('/login', function (req, res) {
     let expiresIn = 60 * 60 * 24 * 7 * 1000;
     admin.auth().createSessionCookie(token, {expiresIn})
         .then(async function (sessionCookie) {
-            let options = {maxAge: expiresIn, httpOnly: true};
-            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
-            res.cookie('__session', sessionCookie, options);
-
             let firestoreUser = await getUserProfile(uid);
+
             returnJson.success = true;
             if (firestoreUser) {
                 console.log("firestoreUser exist");
                 returnJson.uid = firestoreUser.uid;
-                returnJson.userStats = firestoreUser.stats;
+                returnJson.userStats = firestoreUser.userStats;
                 returnJson.userInfo = firestoreUser.data;
-            } else {
-                returnJson.userStats = 0;
-                console.log("firestoreUser exist not");
             }
-            console.log("ready login");
+            let options = {maxAge: expiresIn, httpOnly: true};
+            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            res.cookie('__session', sessionCookie, options);
             res.json(returnJson)
         })
         .catch(function (error) {
             console.log('Error login user: \n\t', error);
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.status(400).json({success: false})
+            res.json({success: false})
         });
 });
 
@@ -418,9 +414,12 @@ app.get('/signIn', function (req, res) {
 
 app.get('/verifySessionCookie', async function (req, res) {
     let cookies = req.get('cookie') || '__session=';
+    console.log("111111")
+    console.log(cookies)
     res.setHeader('Access-Control-Allow-Origin', '*');
-    if (cookies) {
-        let sessionCookie = cookie.parse(cookies).__session;
+    console.log("2222222")
+    let sessionCookie = cookie.parse(cookies).__session;
+    if (sessionCookie) {
         console.log('verifySessionCookie - ', sessionCookie);
         if (await verifySessionCookie(sessionCookie)) {
             res.json({success: true});
@@ -437,6 +436,9 @@ app.get('/verifySessionCookie', async function (req, res) {
         //         console.log('Auth - verifySessionCookie false : ', error);
         //         res.json({success: false})
         //     });
+    } else {
+        console.log('Auth - verifySessionCookie success : cookie missing');
+        res.json({success: false})
     }
 });
 

@@ -70,6 +70,8 @@
         let url = '/auth/verifySessionCookie';
         http.open('GET', url, true);
         http.onreadystatechange = function () {
+            // alert(http.readyState)
+            // alert(http.status)
             if (http.readyState == 4 && http.status == 200) {
                 let res = JSON.parse(http.responseText);
                 if (res.success == true) {
