@@ -414,10 +414,7 @@ app.get('/signIn', function (req, res) {
 
 app.get('/verifySessionCookie', async function (req, res) {
     let cookies = req.get('cookie') || '__session=';
-    console.log("111111")
-    console.log(cookies)
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log("2222222")
     let sessionCookie = cookie.parse(cookies).__session;
     if (sessionCookie) {
         console.log('verifySessionCookie - ', sessionCookie);
@@ -442,8 +439,8 @@ app.get('/verifySessionCookie', async function (req, res) {
     }
 });
 
-async function verifySessionCookie(sessionCookie) {
-    admin.auth().verifySessionCookie(
+const verifySessionCookie = async (sessionCookie) => {
+    await admin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
             console.log('Auth - verifySessionCookie success : ', decodedClaims);
@@ -453,7 +450,23 @@ async function verifySessionCookie(sessionCookie) {
             console.log('Auth - verifySessionCookie false : ', error);
             return false;
         });
-}
+};
+// async function verifySessionCookie(sessionCookie) {
+//     console.log("......verify")
+//     await admin.auth().verifySessionCookie(
+//         sessionCookie, true)
+//         .then((decodedClaims) => {
+//             console.log("......verify2")
+//             console.log('Auth - verifySessionCookie success : ', decodedClaims);
+//             return true;
+//         })
+//         .catch(error => {
+//             console.log("......verify3")
+//             console.log('Auth - verifySessionCookie false : ', error);
+//             return false;
+//         });
+//     console.log("......verify4")
+// }
 
 /**
  * Line login , reference from :
@@ -614,53 +627,52 @@ app.post('/verifyToken', async (req, res) => {
 });
 
 app.post('/getUserInfo', async (req, res) => {
-    let userId = req.body.uid;
     let returnJson = {
         success: false,
-        uid: userId
+        uid: req.body.userId
     };
     try {
-        let userIdStr = userId.toString().trim();
+        // let userIdStr = userId.toString().trim();
+        let userIdStr = req.body.userId;
+        console.log("get firestore user : ", userIdStr);
 
         if (userIdStr.length < 1) {
             console.warn('firebaseGetUserData no userId : ', userId);
-            returnJson.stat = 0;
+            // returnJson.userStats = 0;
             returnJson.uid = userId;
-            res.status(200).json(returnJson);
+            returnJson.success = false;
+            res.json(returnJson);
         }
 
         let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-
-        let docRef = firestore
-            .collection('users')
-            .doc(userIdStr)
-            .get();
-        //docSnapshot.exists
-
-        let data = {};
-
-        let userExists = docRef.exists;
-
-        if (userExists) {
-            data = docRef.data();
-            returnJson.stat = 1;
+        let doc = await firestore.collection('users').doc(userIdStr).get();
+        if (!doc.exists) {
+            console.log('No such document!');
+            returnJson.userStats = 0;
+            returnJson.success = true;
         } else {
-            returnJson.stat = 0;
-            //return returnJson;
+            returnJson.data = doc.data();
+            returnJson.userStats = doc.data().userStats;
+            returnJson.success = true;
+            let create = doc.createTime;
+            console.log("createTime...:", (JSON.stringify(create, null, '\t')));
+            console.log("createTime...:", (create.seconds));
+            console.log("createTime...:", (create.nanoseconds));
+            let update = doc.updateTime;
+            console.log("updateTime...:", (JSON.stringify(update, null, '\t')));
+            console.log("updateTime...:", (update.seconds));
+            console.log("updateTime...:", (update.nanoseconds));
+            console.log("id...:", (doc.ref));
+            console.log("id...2:", (doc.ref._path.segments));
+            console.log("id...3:", (doc.id));
+            console.log(`Retrieved data: ${JSON.stringify(doc, null, '\t')}`);
         }
-        returnJson.data = data;
-
-        returnJson.success = true;
-        //doc = this.setNoValue(docSnapshot.data(), {});
+        console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+        res.json(returnJson);
     } catch (error) {
         console.warn('firebaseGetUserData', error);
-        returnJson.stat = error;
+        res.json({success: false});
     }
-
-    //let cityRef = db.collection('cities').doc('SF');
-    //let getDoc = cityRef.get()
-    console.log('getFirestoreUser\n', returnJson);
-    res.status(200).json(returnJson);
 });
 
 //Line Login v2.1 https://github.com/jirawatee/LINE-Login-x-Firebase-Android/blob/master/functions/index.js
@@ -715,6 +727,8 @@ async function getUserProfile(userId) {
             returnJson.data = doc.data();
             returnJson.userStats = doc.data().userStats;
             returnJson.success = true;
+            console.log("createTime...:", doc.createTime)
+            console.log(`Retrieved data: ${JSON.stringify(doc)}`);
         }
         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
         return await returnJson;
@@ -727,48 +741,59 @@ async function getUserProfile(userId) {
 app.post('/modifyUserProfile', async function (req, res) {
     try {
         let cookies = req.get('cookie') || '__session=';
-        let uid = req.body.uid;
-        if (!uid) res.status(400).json({success: false, message: 'missing uid'});
-        let nowTimestamp = ShortcutFunction.timestampUTCmsInt();
-        let firestoreUser = await getUserProfile(uid);
-        let data = {};
-        console.log(",.asdldfkalsklfdaklasdfllkl");
-        console.log(firestoreUser.userStats);
-        switch (firestoreUser.userStats) {
-            case 0: //新會員
-                if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
-                    res.status(400).json({success: false, message: 'missing info'});
-                data.createTime = nowTimestamp;
-                data.updateTime = nowTimestamp;
-                data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
-                data.name = req.body.name;                  //only new user can set name(real name), none changeable value
-                data.phone = req.body.phone;
-                data.email = req.body.email;
-                data.birthday = req.body.birthday;          //only new user can set birthday, none changeable value
-                if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
-                data.userStats = 1;
-                console.log("new user profile : ", uid);
-                break;
-            case 1: //一般會員
-                break;
-            case 2: //大神
-                break;
-            case 3: //鎖帳號會員
-                res.status(400).json({success: false, message: 'blocked user'});
-                break;
-            case 9: //管理員
-                break;
-            default:
-                throw 'LINE channel ID mismatched';
-        }
-        if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
-        if (req.body.email) data.email = req.body.email;
-        if (req.body.phone) data.phone = req.body.phone;
-        if (req.body.signature) data.signature = req.body.signature;
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        if (true) { //開發中暫停驗證sessionCookie
-            // if (await verifySessionCookie(sessionCookie)) {
-            let sessionCookie = cookie.parse(cookies).__session;
+        // if (true) { //開發中暫停驗證sessionCookie
+        let sessionCookie = cookie.parse(cookies).__session;
+        if (verifySessionCookie(sessionCookie)) {
+            let uid = req.body.uid;
+            if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+            // get updateTime,createTime from firestore document original function
+            // doc.createTime,doc.updateTime
+            // {
+            //       "_seconds": 1573540134,
+            //       "_nanoseconds": 604604000
+            // }
+            // let nowTimestamp = ShortcutFunction.timestampUTCmsInt();
+            let firestoreUser = await getUserProfile(uid);
+            let data = {};
+            console.log(firestoreUser.userStats);
+            switch (firestoreUser.userStats) {
+                case 0: //新會員
+                    if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
+                        res.status(400).json({success: false, message: 'missing info'});
+                    // data.createTime = nowTimestamp;
+                    // data.updateTime = nowTimestamp;
+                    data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
+                    data.name = req.body.name;                  //only new user can set name(real name), none changeable value
+                    data.phone = req.body.phone;
+                    data.email = req.body.email;
+                    data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
+                    if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+                    data.userStats = 1;
+                    data.signature = "";
+                    data.blockMessage = 0;
+                    data.denys = [];
+                    data.coin = 0;  //搞幣
+                    data.dividend = 0;  //搞紅利
+                    data.ingot = 0; //搞錠
+                    break;
+                case 1: //一般會員
+                    break;
+                case 2: //大神
+                    break;
+                case 3: //鎖帳號會員
+                    res.status(400).json({success: false, message: 'blocked user'});
+                    break;
+                case 9: //管理員
+                    break;
+                default:
+                    throw 'LINE channel ID mismatched';
+            }
+            if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
+            if (req.body.email) data.email = req.body.email;
+            if (req.body.phone) data.phone = req.body.phone;
+            if (req.body.signature) data.signature = req.body.signature;
+            res.setHeader('Access-Control-Allow-Origin', '*');
+
             let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
             firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                 console.log('Added document with ID: ', ref);
