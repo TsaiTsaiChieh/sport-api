@@ -762,6 +762,7 @@ app.post('/modifyUserProfile', async function (req, res) {
                         res.status(400).json({success: false, message: 'missing info'});
                     // data.createTime = nowTimestamp;
                     // data.updateTime = nowTimestamp;
+                    data.uid = uid;
                     data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
                     data.name = req.body.name;                  //only new user can set name(real name), none changeable value
                     data.phone = req.body.phone;
