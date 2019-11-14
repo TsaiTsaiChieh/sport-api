@@ -20,10 +20,10 @@ const users = require('./users');
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 const express = require("express");
-const {
-    google
-} = require('googleapis');
+const {google} = require('googleapis');
 
+// const router = express.Router();
+const expressValidator = require('express-validator');
 
 // const admin = require("firebase-admin");
 // const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
@@ -48,10 +48,22 @@ const firebase = require('firebase');
 
 firebase.initializeApp(envValues.firebaseConfig);
 
-const app = express();
+const app = express.Router();
 app.use(express.json());
+app.use(expressValidator());
 
 // app.disable("x-powered-by");
+
+
+app.use(function (req, res, next) {
+
+    // 輸出記錄訊息至終端機
+    console.log("middle test....", req.method, req.url);
+
+    // 繼續路由處理
+    next();
+});
+
 app.post('/api', (req, res) => {
     console.log("api....");
     res.json({
@@ -196,7 +208,7 @@ app.post('/phoneRegister', (req, res) => {
     const registerPhone = req.body.registerPhone;
     const registerPassword = req.body.registerPassword;
     const confirmPassword = req.body.confirmPassword;
-    console.log(registerPhone)
+    console.log(registerPhone);
 
     if (!registerPhone) return res.status(400).json({
         success: false,
@@ -414,7 +426,7 @@ app.get('/signIn', function (req, res) {
 
 app.get('/verifySessionCookie', async function (req, res) {
     let cookies = req.get('cookie') || '__session=';
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     let sessionCookie = cookie.parse(cookies).__session;
     if (sessionCookie) {
         console.log('verifySessionCookie - ', sessionCookie);
@@ -627,6 +639,15 @@ app.post('/verifyToken', async (req, res) => {
 });
 
 app.post('/getUserInfo', async (req, res) => {
+    let cookies = req.get('cookie') || '__session=';
+    // if (true) { //開發中暫停驗證sessionCookie
+    let sessionCookie = cookie.parse(cookies).__session;
+    console.log("session cookie ", sessionCookie)
+    if (!verifySessionCookie(sessionCookie)) {
+        console.log(",,,,,")
+        res.json({success: true});
+    }
+
     let returnJson = {
         success: false,
         uid: req.body.userId
@@ -851,5 +872,45 @@ async function uploadAvatar() {
     //     returnJson.success = false;
     // }
 }
+
+
+app.all('/lineLoginHandler', (req, res) => {
+    req.checkBody('access_token').notEmpty();
+
+    const lineAccessToken = req.body.access_token;
+
+    req.getValidationResult().then(result => {
+        console.info('validating requested data.');
+
+        if (!result.isEmpty()) {
+            return res.status(400).json({
+                error: result.array()
+            });
+        }
+    }).then((error) => {
+        if (error) {
+            console.error(error);
+            throw new Error('validating request Error');
+        }
+        console.info('validated. (result OK)');
+        return Promise.resolve();
+
+    }).then(() => {
+        // const line_login_util = require('./lineLoginUtil');
+        // return line_login_util.createFirebaseCustomToken(lineAccessToken);
+        console.log(lineAccessToken);
+
+        // }).then((firebaseCustomToken) => {
+        //     const result = {
+        //         firebase_token: firebaseCustomToken,
+        //     };
+        //     return res.status(200).json(result);
+        return res.status(400).json({success: lineAccessToken});
+    }).catch(error => {
+        console.error('Error: ', error);
+        return res.status(500).json({error: error});
+    });
+});
+
 
 module.exports = functions.https.onRequest(app);
