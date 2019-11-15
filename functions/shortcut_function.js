@@ -41,6 +41,9 @@ const users = require( "./users" );
 //const htmlencode = require('js-htmlencode');
 
 exports.trim = function ( string = "" ) {
+
+	//let stype = typeof ( string );
+	string = ( string || '' ).toString();
 	return string.replace( /^\s+|\s+$/g, "" );
 };
 
@@ -152,14 +155,15 @@ exports.cookieGet__session = function ( req ) {
 	let token = ""; //
 
 	try {
-		let cookies = req.get( "cookie" );
+		let cookies = req.get( "cookie" ) || '';
 
-		token = cookie.parse( cookies ).__session || "";
+		return cookie.parse( cookies ).__session || '';
 	} catch ( e ) {
-		//token = undefined;
+		console.warn( 'cookieGet__session   catchcatchcatchcatch', e );
+		return '';
 	}
 
-	console.info( "token", token );
+	console.info( "cookieGet__session >>>>>>>  token", token );
 
 	if ( ShortcutFunction.trim( token ).length < 1 ) {
 		//if ( !envValues.release ) {
@@ -240,6 +244,7 @@ exports.stringSplitToArray = function ( string = "", splitLength = 1 ) {
 	return Array.from( string );
 };
 
+/*
 async function asyncAwaitSeridArrayDemo() {
 	const files = []; //await getFilePaths();
 
@@ -249,6 +254,7 @@ async function asyncAwaitSeridArrayDemo() {
 		console.log( contents );
 	}
 }
+*/
 
 exports.runFileContentsUpload = async function ( FileSplitArray = [], newDocRef, firestore ) {
 	let uploadFileContentIdArray = [];
@@ -538,7 +544,7 @@ exports.realtimePush = async function ( pushData = {}, channel = "public", subPa
 	return returnJson;
 };
 
-exports.getOneMessage = async function ( req, messageId2 = "", again = true ) {
+exports.getOneMessage = async function ( inputJson, messageId2 = "", again = true ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -554,13 +560,13 @@ exports.getOneMessage = async function ( req, messageId2 = "", again = true ) {
 		let messageId = this.trim( messageId2 || "" );
 
 		if ( messageId.length < 1 ) {
-			if ( !ShortcutFunction.haveEntityValue( req.body.messageId ) ) {
+			if ( !ShortcutFunction.haveEntityValue( inputJson.body.messageId ) ) {
 				returnJson.error = "沒有訊息編號";
 				console.info( "getOneMessage 1111111111111", returnJson );
 				return returnJson;
 			}
 
-			messageId = this.trim( req.body.messageId || "" );
+			messageId = this.trim( inputJson.body.messageId || "" );
 		}
 
 		if ( messageId.length < 1 ) {
@@ -603,7 +609,7 @@ exports.getOneMessage = async function ( req, messageId2 = "", again = true ) {
 				//break;
 
 			case 1: //用戶刪除(對自己隱藏)
-				var userData = await users.authVerfyGetUserData( req );
+				var userData = await users.userIdToUserData( inputJson.idToken.uid );
 
 				if ( data.uid === userData.uid ) {
 					//如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
@@ -615,12 +621,12 @@ exports.getOneMessage = async function ( req, messageId2 = "", again = true ) {
 		}
 
 		//取得訊息作者資料補進去
-		let messageUser = await users.usersGetData( data.uid );
+		let messageUser = await users.userIdToUserData( data.uid );
 
 		console.info( "getOneMessage messageUser 7777777777777777", messageUser );
 		data.messageId = messageId;
 		data.displayName = messageUser.displayName;
-		data.headPictureUri = messageUser.headPictureUri;
+		data.avatar = messageUser.avatar;
 
 		delete data.softDelete; //隱藏刪除狀態
 		delete data.reports; //隱藏檢舉清單
@@ -639,10 +645,7 @@ exports.getOneMessage = async function ( req, messageId2 = "", again = true ) {
 	return returnJson;
 };
 
-
-
-
-exports.getOneFile = async function ( req, param2 = '' ) {
+exports.getOneFile = async function ( inputJson, param2 = '' ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -653,7 +656,7 @@ exports.getOneFile = async function ( req, param2 = '' ) {
 	try {
 		console.info( "getOneFile" );
 
-		let body = req.body;
+		let body = inputJson.body;
 
 		let fileId = this.trim( body.fileId || param2 || "" );
 
@@ -708,4 +711,49 @@ exports.getOneFile = async function ( req, param2 = '' ) {
 	//let getDoc = cityRef.get()
 
 	return returnJson;
+};
+
+
+
+exports.__sessionToDecodedIdToken = async ( __session, firebaseAdmin ) => {
+
+	try {
+
+		let decodedIdToken = await firebaseAdmin.auth().verifySessionCookie(
+			__session, true );
+
+		console.info( '__sessionToDecodedIdToken  decodedIdToken   >>>>>>', decodedIdToken );
+
+		//{
+		//	"success": true,
+		//	"userData": {
+		//		"email": "ina2588@gets-info.com",
+		//		"displayName": "路人甲bnKcVVaiIaUf3daVMNTTK5gH4hf1",
+		//		"avatar": "data:image/png;base64,",
+		//		"uid": "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
+		//	}
+		//}
+
+		return decodedIdToken;
+
+	} catch ( error ) {
+		console.warn( '__sessionToDecodedIdToken  Auth - verifySessionCookie false : ', error );
+		return {
+			error: error
+		};
+	}
+	return {};
+
+	/*
+	await admin.auth().verifySessionCookie(
+			sessionCookie, true )
+		.then( ( decodedClaims ) => {
+			console.info( 'Auth - verifySessionCookie success : ', decodedClaims );
+			return true;
+		} )
+		.catch( error => {
+			console.warn( 'Auth - verifySessionCookie false : ', error );
+			return false;
+		} );
+		*/
 };

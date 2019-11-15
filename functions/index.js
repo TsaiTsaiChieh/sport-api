@@ -5,7 +5,7 @@ const auth = require( './auth' );
 const sports = require( './sports' );
 const messages = require( './messages' );
 
-const helmet = require( 'helmet' );
+
 const cors = require( 'cors' );
 
 
@@ -14,8 +14,10 @@ const bodyParser = require( 'body-parser' );
 const app = express();
 
 app.use( cors() );
-//app.use( helmet() );
 app.disable( 'x-powered-by' );
+const helmet = require( 'helmet' );
+//app.use( helmet() );
+
 //app.use( helmet.xssFilter() )
 //app.use( helmet.frameguard() )
 
