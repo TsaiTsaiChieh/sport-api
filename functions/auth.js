@@ -20,9 +20,7 @@ const users = require('./users');
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 const express = require("express");
-const {
-    google
-} = require('googleapis');
+const {google} = require('googleapis');
 
 
 // const admin = require("firebase-admin");
