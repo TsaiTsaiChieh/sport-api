@@ -22,5 +22,6 @@ exports.lineConfig = {
     tokenURL: "https://api.line.me/oauth2/v2.1/token",
     verifyURL: "https://api.line.me/oauth2/v2.1/verify",
     channelID: "1576253248",
-    channelSecre: "e4a91d4e33e26967fa6c267292bd06ec"
+    channelSecret: "e4a91d4e33e26967fa6c267292bd06ec",
+    callbackURL:"https://sport19y0715.web.app/auth/lineLoginHandler"
 };

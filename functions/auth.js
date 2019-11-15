@@ -49,14 +49,33 @@ firebase.initializeApp(envValues.firebaseConfig);
 const app = express();
 app.use(express.json());
 
+const session = require("express-session");
+const session_options_line = {
+    secret: envValues.lineConfig.channelSecret,
+    resave: false,
+    saveUninitialized: false
+};
+const line_login = require("line-login");
+app.use(session(session_options_line));
+
+const lineLogin = new line_login({
+    channel_id: envValues.lineConfig.channelID,
+    channel_secret: envValues.lineConfig.channelSecret,
+    callback_url: envValues.lineConfig.callbackURL,
+    scope: "openid profile email",
+    prompt: "consent",
+    bot_prompt: "normal"
+});
+
+app.use("/line_login", lineLogin.auth());
 // app.disable("x-powered-by");
-app.post('/api', (req, res) => {
+app.all('/api', (req, res) => {
     console.log("api....");
     res.json({
         message: 'Hello API2'
     });
     // return res.status(200);
-    // res.status(200).send("hello");
+    res.status(200).send("hello");
 });
 
 // http://localhost:5000/rextest-ded68/us-central1/api/auth/emailRegister
@@ -849,51 +868,64 @@ async function uploadAvatar() {
     // }
 }
 
-app.all('/lineLoginHandler', (req, res) => {
-    req.checkBody('access_token').notEmpty();
-
-    const lineAccessToken = req.query.code;
-    const lineState = req.query.state;
-    console.log(lineAccessToken);
-
-    // }).then((firebaseCustomToken) => {
-    //     const result = {
-    //         firebase_token: firebaseCustomToken,
-    //     };
-    //     return res.status(200).json(result);
-    return res.status(400).json({success: true, access_token: lineAccessToken, state: lineState});
-
-    // req.getValidationResult().then(result => {
-    //     console.info('validating requested data.');
-    //
-    //     if (!result.isEmpty()) {
-    //         return res.status(400).json({
-    //             error: result.array()
-    //         });
-    //     }
-    // }).then((error) => {
-    //     if (error) {
-    //         console.error(error);
-    //         throw new Error('validating request Error');
-    //     }
-    //     console.info('validated. (result OK)');
-    //     return Promise.resolve();
-    //
-    // }).then(() => {
-    //     // const line_login_util = require('./lineLoginUtil');
-    //     // return line_login_util.createFirebaseCustomToken(lineAccessToken);
-    //     console.log(lineAccessToken);
-    //
-    //     // }).then((firebaseCustomToken) => {
-    //     //     const result = {
-    //     //         firebase_token: firebaseCustomToken,
-    //     //     };
-    //     //     return res.status(200).json(result);
-    //     return res.status(400).json({success: true, access_token: lineAccessToken, state: lineState});
-    // }).catch(error => {
-    //     console.error('Error: ', error);
-    //     return res.status(500).json({error: error});
-    // });
-});
-
+// app.all('/lineLoginHandler', (req, res) => {
+//     // req.checkBody('access_token').notEmpty();
+//
+//     const lineAccessToken = req.query.code;
+//     const lineState = req.query.state;
+//     console.log(lineAccessToken);
+//
+//     // }).then((firebaseCustomToken) => {
+//     //     const result = {
+//     //         firebase_token: firebaseCustomToken,
+//     //     };
+//     //     return res.status(200).json(result);
+//     return res.status(200).json({success: true, access_token: lineAccessToken, state: lineState});
+//
+//     // req.getValidationResult().then(result => {
+//     //     console.info('validating requested data.');
+//     //
+//     //     if (!result.isEmpty()) {
+//     //         return res.status(400).json({
+//     //             error: result.array()
+//     //         });
+//     //     }
+//     // }).then((error) => {
+//     //     if (error) {
+//     //         console.error(error);
+//     //         throw new Error('validating request Error');
+//     //     }
+//     //     console.info('validated. (result OK)');
+//     //     return Promise.resolve();
+//     //
+//     // }).then(() => {
+//     //     // const line_login_util = require('./lineLoginUtil');
+//     //     // return line_login_util.createFirebaseCustomToken(lineAccessToken);
+//     //     console.log(lineAccessToken);
+//     //
+//     //     // }).then((firebaseCustomToken) => {
+//     //     //     const result = {
+//     //     //         firebase_token: firebaseCustomToken,
+//     //     //     };
+//     //     //     return res.status(200).json(result);
+//     //     return res.status(400).json({success: true, access_token: lineAccessToken, state: lineState});
+//     // }).catch(error => {
+//     //     console.error('Error: ', error);
+//     //     return res.status(500).json({error: error});
+//     // });
+// });
+app.use('/lineLoginHandler', lineLogin.callback(
+    (req, res, next, token_response) => {
+        // Success callback
+        const lineAccessToken = req.query.code;
+        const lineState = req.query.state;
+        console.log("lineLoginHandler.....",lineAccessToken);
+        res.json({access: lineAccessToken, state: lineState, response: token_response});
+    },
+    (req, res, next, error) => {
+        // Failure callback
+        console.log("lineLoginHandler.....error");
+        res.status(400).json(error);
+    }
+));
 module.exports = functions.https.onRequest(app);

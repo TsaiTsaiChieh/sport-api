@@ -29,8 +29,8 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "siphash": "^1.1.0",
-    "express-validator":"^5.3.1"
-
+    "express-validator":"^5.3.1",
+    "line-login":"^1.0.14"
   },
   "devDependencies": {
     "eslint": "^5.12.0",
