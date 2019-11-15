@@ -12,7 +12,6 @@ const QRCode = require( 'qrcode' );
 
 let a = "";
 
-
 exports.stringToQRcodeUri = async function ( string = '' ) {
 	//用字串產生QR CODE圖片
 	let uri = '';
@@ -29,20 +28,18 @@ exports.stringToQRcodeUri = async function ( string = '' ) {
 exports.usersMergeData = async function ( dataJson ) {
 	//用合併的方式存入資料庫
 	let returnJson = {
-		success: false
+		success: false //,
+			//history: []
+			,
+		functionName: 'usersMergeData'
 	};
 
 	try {
 
-		if ( !ShortcutFunction.haveEntityValue( dataJson.uid ) ) {
+		dataJson.uid = ShortcutFunction.trim( dataJson.uid );
+
+		if ( dataJson.uid.length < 1 ) {
 			returnJson.error = 'usersMergeData uid不存在,無法存入,需要重新登入';
-			return returnJson;
-		}
-
-		let uid = ShortcutFunction.trim( dataJson.uid );
-
-		if ( uid.length < 1 ) {
-			returnJson.error = 'usersMergeData uid空字串,無法存入,需要重新登入';
 			return returnJson;
 		}
 
@@ -58,32 +55,32 @@ exports.usersMergeData = async function ( dataJson ) {
 		returnJson.writeResult = writeResult;
 		returnJson.success = true;
 
-		//console.info( 'usersMergeData info :', returnJson );
 	} catch ( error ) {
 		console.warn( 'usersMergeData error', error );
 		returnJson.error = error;
 		console.info( 'dataJson : ', dataJson );
 	}
 
-	return returnJson;
+	let userData = await this.userIdToUserData( dataJson.uid );
+	returnJson.success = true;
+	userData.history = returnJson;
+
+	return userData;
 };
 
-exports.usersGetData = async function ( uid = '', userEmail = '' ) {
+exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email = '' ) {
 	let returnJson = {
-		success: false,
-		//uid: uid
+		success: false //,
+			//history: []
+			,
+		functionName: 'userIdToUserData'
 	};
 	try {
-		if ( !ShortcutFunction.haveEntityValue( uid ) ) {
-			returnJson.error = 'usersGetData uid 不存在,需要重新登入';
-			console.warn( returnJson.error );
-			return returnJson;
-		}
 
-		uid = ShortcutFunction.trim( uid );
+		returnJson.uid = ShortcutFunction.trim( uid ); //uid.toString(); //
 
-		if ( uid.length < 1 ) {
-			returnJson.error = 'usersGetData uid 空字串,需要重新登入';
+		if ( returnJson.uid.length < 1 ) {
+			returnJson.error = '沒有 uid ';
 			console.warn( returnJson.error );
 			return returnJson;
 		}
@@ -92,42 +89,61 @@ exports.usersGetData = async function ( uid = '', userEmail = '' ) {
 
 		let docRef = await firestore
 			.collection( 'users' )
-			.doc( uid )
+			.doc( returnJson.uid )
 			.get();
 
-		if ( docRef.exists ) {
-			let userData1 = docRef.data();
+		let userData1 = docRef.data();
+
+		//returnJson.history.push( userData1 || 'userData1 undefined' );
+
+		if ( userData1 !== undefined ) {
+
+			userData1.uid = userData1.uid || '';
+			userData1.email = userData1.email || '';
+			userData1.displayName = userData1.displayName || '';
+			userData1.createTime = userData1.createTime || '';
+			userData1.avatar = userData1.avatar || '';
+
+			userData1.functionName = 'userIdToUserData';
 			userData1.success = true;
+
 			return userData1;
+
 			//returnJson.userData = docRef.data();
 			//returnJson.success = true;
 			//return returnJson;
 		}
 
-		//users沒有這個用戶資料,開始填充
-		//let timestamp1 = ShortcutFunction.timestampUTCmsInt();
-		let mergeData = {
-			uid: uid,
-			email: userEmail,
-			displayName: htmlencode.htmlEncode( 'new_'.concat( uid ) ),
-			headPictureUri: await this.stringToQRcodeUri( 'new_'.concat( uid ) ),
-			appearTimestamp: ShortcutFunction.timestampUTCmsInt()
-		};
+		if ( isNewAppend ) {
+			//users沒有這個用戶資料,開始填充
+			let mergeData = {
+				uid: uid || '',
+				email: email || '',
+				birthday: -1,
+				name: '',
+				phone: '',
+				userStats: 0,
+				signature: '',
+				coin: 0,
+				dividend: 0,
+				ingot: 0,
+				displayName: htmlencode.htmlEncode( 'new_'.concat( uid ) ),
+				avatar: await this.stringToQRcodeUri( 'new_'.concat( uid ) ), //
+				createTime: ShortcutFunction.timestampUTCmsInt()
+			};
 
-		let mergeReturnJson = await this.usersMergeData( mergeData );
+			let mergeReturn = await this.usersMergeData( mergeData ); //
+			returnJson.success = true;
 
-		if ( !mergeReturnJson.success ) {
-			return mergeReturnJson;
+			mergeReturn.history = returnJson;
+			return mergeReturn;
 		}
 
-		mergeData.success = true;
-		return mergeData;
+		returnJson.userData = userData1;
+		returnJson.error = 'userIdToUserData 不應該執行至此';
 
-		//returnJson.userData = mergeData;
-		//returnJson.success = true;
-		//return returnJson;
 	} catch ( error ) {
-		console.warn( 'usersGetData error', error );
+		console.warn( 'userIdToUserData error', error );
 		returnJson.error = error;
 	}
 
@@ -135,29 +151,58 @@ exports.usersGetData = async function ( uid = '', userEmail = '' ) {
 };
 
 
-exports.authVerfyGetUserData = async function ( req ) {
+exports._authVerfyGetUserData = async function ( inputJson = {} ) {
 	//從auth區取得用戶資料
-	//console.info('run authVerfyGetUserData :');
+	console.info( 'run authVerfyGetUserData :' );
 
 
 	let returnJson = {
-		success: false
+		success: false //,
+			//	history: []
+			,
+		functionName: 'authVerfyGetUserData'
 	};
 
 	try {
 		//造假用戶資料===========================================================
-		// return await this.usersGetData( 'bnKcVVaiIaUf3daVMNTTK5gH4hf1' );
+		//
 
+		returnJson.firebaseSession = inputJson.__session || ''; //ShortcutFunction.cookieGet__session( req ) || ''; //|| 'error'
 
-		//==================================================================================
-		let firebaseSession = ShortcutFunction.cookieGet__session( req );
-		console.info( 'firebaseSession', firebaseSession );
+		console.info( 'authVerfyGetUserData cookieGet__session>>>>>>', returnJson.firebaseSession );
 
 		let firebaseAdmin = ShortcutFunction.lazyFirebaseAdmin( envValues.cert ); //
-		//ShortcutFunction.firebaseGetAdmin(envValues.cert);
-		//console.info('firebaseAdmin', firebaseAdmin);
-		let DecodedIdToken1 = await firebaseAdmin.auth().verifySessionCookie( firebaseSession, true );
-		console.log(DecodedIdToken1);
+
+		try {
+
+			returnJson.DecodedIdToken1 = await firebaseAdmin.auth().verifySessionCookie( returnJson.firebaseSession, true );
+		} catch ( error2 ) {
+			returnJson.error2 = error2;
+
+			//造假
+			returnJson.userData = await this.usersGetData( returnJson.DecodedIdToken1.uid, returnJson.DecodedIdToken1.email );
+			returnJson.success = true;
+			return returnJson;
+			//造假
+		}
+
+		if ( returnJson.DecodedIdToken1 === undefined ) {
+			//造假
+			returnJson.userData = await this.usersGetData( returnJson.DecodedIdToken1.uid, returnJson.DecodedIdToken1.email );
+			returnJson.success = true;
+			return returnJson; //造假
+
+
+			returnJson.error = 'DecodedIdToken1 不存在,需要重新登入';
+			console.warn( 'authVerfyGetUserData  returnJson', returnJson );
+			return returnJson;
+		}
+
+
+
+		//returnJson.history.push( returnJson.DecodedIdToken1 );
+
+		console.info( 'authVerfyGetUserData   DecodedIdToken1 >>>>>>>>>>>>>>>>>', returnJson );
 
 		/* 取得的資料結構
 		DecodedIdToken1 => {
@@ -184,26 +229,43 @@ exports.authVerfyGetUserData = async function ( req ) {
 
 		//stringToQRcodeUri(uid)
 
-		if ( !ShortcutFunction.haveEntityValue( DecodedIdToken1.uid ) ) {
+		if ( !ShortcutFunction.haveEntityValue( returnJson.DecodedIdToken1.uid ) ) {
+			//造假
+			returnJson.userData = await this.usersGetData( returnJson.DecodedIdToken1.uid, returnJson.DecodedIdToken1.email );
+			returnJson.success = true;
+			return returnJson; //造假
+
+			//return returnJson.DecodedIdToken1;
 			returnJson.error = 'DecodedIdToken1.uid 不存在,需要重新登入';
-			console.warn( returnJson.error );
+			console.warn( 'authVerfyGetUserData  returnJson', returnJson );
 			return returnJson;
 		}
 
-		let uid = ShortcutFunction.trim( DecodedIdToken1.uid );
+		let uid = ShortcutFunction.trim( returnJson.DecodedIdToken1.uid || '' );
 
 		if ( uid.length < 1 ) {
+
 			returnJson.error = 'DecodedIdToken1.uid 空字串,需要重新登入';
-			console.warn( returnJson.error );
+			console.warn( 'authVerfyGetUserData  returnJson', returnJson );
 			return returnJson;
+			//console.warn( returnJson.error );
+			//return returnJson;
 		}
 
 		//用這個登入的uid去users取得用戶資料
-		let userData = await this.usersGetData( DecodedIdToken1.uid, DecodedIdToken1.email );
+		returnJson.userData = await this.usersGetData( returnJson.DecodedIdToken1.uid, returnJson.DecodedIdToken1.email );
 
 		//console.info( 'authVerfyGetUserData userData', userData );
 
-		return userData;
+		//if ( userData.history ) {
+		//	userData.history.push( returnJson.history );
+		//	} else {
+		//	userData.history = returnJson.history; //.push( returnJson.DecodedIdToken1 );
+		//	}
+
+		returnJson.success = true;
+
+		return returnJson; //userData;
 		//returnJson.block = null || false;
 
 		//returnJson.success = true;
