@@ -2,45 +2,18 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const functions = require('firebase-functions');
-//const myfunc = require( './myfunc' );
-// <<<<<<< Updated upstream
-// const longsingShortcutFunction = require( './shortcut_function' );
-// const envValues = require( '././env_values' );
-// const cookie = require( 'cookie' );
-// const rp = require( 'request-promise' );
-// const users = require( './users' );
-// =======
 const ShortcutFunction = require('./shortcut_function');
 const envValues = require('././env_values');
 const cookie = require('cookie');
 const rp = require('request-promise');
-const users = require('./users');
-// >>>>>>> Stashed changes
+const jwt = require("jsonwebtoken");
+const secure_compare = require("secure-compare");
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 const express = require("express");
 const {google} = require('googleapis');
-
-
-// const admin = require("firebase-admin");
-// const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
-//
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     databaseURL: "https://sport19y0715.firebaseio.com"
-// });
-
-//const admin = myfunc.fadmin( mycfg.cert );
 const admin = ShortcutFunction.lazyFirebaseAdmin(envValues.cert);
-
-// const admin = require("firebase-admin");
-// const serviceAccount = require("./auth/sport19y0715-d23e597f8c95.json");
-
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     databaseURL: "https://sport19y0715.firebaseio.com"
-// });
 
 const firebase = require('firebase');
 
@@ -397,8 +370,8 @@ app.post('/login', function (req, res) {
                 returnJson.userStats = firestoreUser.userStats;
                 returnJson.userInfo = firestoreUser.data;
             }
-            let options = {maxAge: expiresIn, httpOnly: true};
-            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            // let options = {maxAge: expiresIn, httpOnly: true};
+            let options = {maxAge: expiresIn, httpOnly: true, secure: true};
             res.cookie('__session', sessionCookie, options);
             res.json(returnJson)
         })
@@ -440,16 +413,6 @@ app.get('/verifySessionCookie', async function (req, res) {
         } else {
             res.json({success: false});
         }
-        // admin.auth().verifySessionCookie(
-        //     sessionCookie, true)
-        //     .then((decodedClaims) => {
-        //         console.log('Auth - verifySessionCookie success : ', decodedClaims);
-        //         res.json({success: true})
-        //     })
-        //     .catch(error => {
-        //         console.log('Auth - verifySessionCookie false : ', error);
-        //         res.json({success: false})
-        //     });
     } else {
         console.log('Auth - verifySessionCookie success : cookie missing');
         res.json({success: false})
@@ -547,35 +510,43 @@ function generateLineApiRequest(apiEndpoint, lineAccessToken) {
  * reference from https://github.com/firebase/functions-samples/blob/master/line-auth/functions/index.js
  * @returns {Promise<UserRecord>} The Firebase user record in a promise.
  */
-async function getFirebaseUser(lineMid, lineAccessToken) {
-    // Generate Firebase user's uid based on LINE's mid
-    const firebaseUid = `line:${lineMid}`;
-
-    // LINE's get user profile API endpoint
-    const getProfileOptions = generateLineApiRequest(envValues.lineConfig.profileURL, lineAccessToken);
-
-    try {
-        const response = await admin.auth().getUser(firebaseUid);
-        // Parse user profile from LINE's get user profile API response
-        const displayName = response.displayName;
-        const photoURL = response.pictureUrl;
-
-        console.log('Create new Firebase user for LINE user mid = "', lineMid, '"');
-        // Create a new Firebase user with LINE profile and return it
-        return admin.auth().createUser({
-            uid: firebaseUid,
-            displayName: displayName,
-            photoURL: photoURL,
-        });
-    } catch (error) {
-        // If user does not exist, fetch LINE profile and create a Firebase new user with it
-        if (error.code === 'auth/user-not-found') {
-            return rp(getProfileOptions);
-        }
-        // If error other than auth/user-not-found occurred, fail the whole login process
-        throw error;
-    }
-}
+// async function getFirebaseUser(lineMid, lineAccessToken) {
+//     // Generate Firebase user's uid based on LINE's mid
+//     const firebaseUid = `line:${lineMid}`;
+//
+//     // LINE's get user profile API endpoint
+//     const getProfileOptions = generateLineApiRequest(envValues.lineConfig.profileURL, lineAccessToken);
+//
+//     try {
+//         const response = await admin.auth().getUser(lineMid);
+//         // Parse user profile from LINE's get user profile API response
+//         const displayName = response.displayName;
+//         const photoURL = response.pictureUrl;
+//         const email = response.email;
+//
+//         console.log('Create new Firebase user for LINE user mid = "', lineMid, '"');
+//         // Create a new Firebase user with LINE profile and return it
+//         return admin.auth().createUser({
+//             uid: lineMid,
+//             displayName: displayName,
+//             photoURL: photoURL,
+//             email: email
+//         });
+//     } catch (error) {
+//         // If user does not exist, fetch LINE profile and create a Firebase new user with it
+//         if (error.code === 'auth/user-not-found') {
+//             return admin.auth().createUser({
+//                 uid: lineMid,
+//                 displayName: displayName,
+//                 photoURL: photoURL,
+//                 email: email
+//             });
+//             // return rp(getProfileOptions);
+//         }
+//         // If error other than auth/user-not-found occurred, fail the whole login process
+//         throw error;
+//     }
+// }
 
 /**
  * Verify LINE access token and return a custom auth token allowing signing-in
@@ -914,18 +885,93 @@ async function uploadAvatar() {
 //     //     return res.status(500).json({error: error});
 //     // });
 // });
-app.use('/lineLoginHandler', lineLogin.callback(
-    (req, res, next, token_response) => {
-        // Success callback
+// app.use('/lineLoginHandler', lineLogin.callback(
+//     (req, res, next, token_response) => {
+//         // Success callback
+//         const lineAccessToken = req.query.code;
+//         const lineState = req.query.state;
+//         console.log("lineLoginHandler.....",lineAccessToken);
+//         res.json({access: lineAccessToken, state: lineState, test:"123",response: token_response});
+//         return next()
+//     },
+//     (req, res, next, error) => {
+//         // Failure callback
+//         console.log("lineLoginHandler.....error",req.query.code);
+//         res.status(400).json(error);
+//         return next()
+//     }
+// ));
+
+function getFirebaseUser(accessToken) {
+    // const firebaseUid = `line:${body.id}`;
+    const firebaseUid = accessToken.id_token.sub;
+
+    return admin.auth().getUser(firebaseUid).then(function (userRecord) {
+        return userRecord;
+    }).catch((error) => {
+        if (error.code === 'auth/user-not-found') {
+            return admin.auth().createUser({
+                uid: firebaseUid,
+                displayName: accessToken.id_token.name,
+                photoURL: accessToken.id_token.picture,
+                email: accessToken.id_token.email
+            });
+        }
+        return Promise.reject(error);
+    });
+}
+
+app.all('/lineLoginHandler', (req, res) => {
         const lineAccessToken = req.query.code;
         const lineState = req.query.state;
-        console.log("lineLoginHandler.....",lineAccessToken);
-        res.json({access: lineAccessToken, state: lineState, response: token_response});
-    },
-    (req, res, next, error) => {
-        // Failure callback
-        console.log("lineLoginHandler.....error");
-        res.status(400).json(error);
+
+        if (!secure_compare(req.session.line_login_state, lineState)) {
+            res.status(500).send({error: 'login failed!'});
+        }
+
+        // https://api.line.me/oauth2/v2.1/token
+        lineLogin.issue_access_token(lineAccessToken).then((token_response) => {
+            let decoded_id_token;
+            try {
+                decoded_id_token = jwt.verify(
+                    token_response.id_token,
+                    envValues.lineConfig.channelSecret,
+                    {
+                        audience: envValues.lineConfig.channelID,
+                        issuer: "https://access.line.me",
+                        algorithms: ["HS256"]
+                    }
+                );
+                console.log("id token verification succeeded.");
+                token_response.id_token = decoded_id_token;
+
+                if (!secure_compare(decoded_id_token.nonce, req.session.line_login_nonce)) {
+                    res.status(500).send({error: 'login failed!'});
+                }
+
+                lineLogin.verify_access_token(token_response.access_token).then((verify_response) => {
+                    if (verify_response.client_id !== envValues.lineConfig.channelID) {
+                        return Promise.reject(new Error('Line channel ID mismatched'));
+                    }
+                    getFirebaseUser(token_response).then(userRecord => {
+                        admin.auth().createCustomToken(userRecord.uid).then(token => {
+                            const expiresIn = 60 * 5 * 1000;
+                            const options = {
+                                maxAge: expiresIn,
+                            };
+                            res.cookie('auth_token', token, options);
+                            res.redirect(307, 'https://sport19y0715.web.app/line_login.html');
+                        })
+                    }).catch(function (err) {
+                        console.log("id token verification failed.", err);
+                        res.status(500).send({error: 'login failed!'});
+                    })
+                })
+            } catch (exception) {
+                console.log("id token verification failed.");
+                res.status(500).send({error: 'login failed!'});
+            }
+        });
     }
-));
+);
 module.exports = functions.https.onRequest(app);

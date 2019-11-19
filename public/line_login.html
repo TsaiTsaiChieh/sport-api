@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Firebase Authentication UI templete ver.0717</title>
+    <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth.css"/>
+    <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+    <script src="/__/firebase/6.6.1/firebase-auth.js"></script>
+    <script src="/__/firebase/init.js"></script>
+</head>
+
+<body>
+<script type="text/javascript">
+
+    window.onload = function () {
+
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length == 2) return parts.pop().split(";").shift();
+        }
+
+
+        function signIn() {
+            let token = getCookie("auth_token");
+            firebase.auth().signInWithCustomToken(token)
+                .then(function () {
+                    window.opener = null;
+                    window.close();
+                })
+                .catch(function (error) {
+                    let errorCode = error.code;
+                    let errorMessage = error.message;
+                    console.log(errorCode);
+                    console.log(errorMessage);
+                    alert("login failed");
+                    window.opener = null;
+                    window.close();
+                });
+        }
+
+        signIn();
+    };
+
+
+</script>
+</body>
+
+</html>
