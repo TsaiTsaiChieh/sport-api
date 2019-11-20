@@ -407,14 +407,15 @@ app.get('/verifySessionCookie', async function (req, res) {
     let sessionCookie = cookie.parse(cookies).__session;
     if (sessionCookie) {
         console.log('verifySessionCookie - ', sessionCookie);
-        if (await verifySessionCookie(sessionCookie)) {
+        // let isVerified = verifySessionCookie(sessionCookie);
+        if (verifySessionCookie(sessionCookie)) {
             res.json({success: true});
         } else {
             res.json({success: false});
         }
     } else {
         console.log('Auth - verifySessionCookie success : cookie missing');
-        res.json({success: false})
+        res.json({success: false});
     }
 });
 
