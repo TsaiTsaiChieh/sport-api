@@ -633,6 +633,7 @@ function getFirebaseUser(accessToken) {
     }).catch((error) => {
         if (error.code === 'auth/user-not-found') {
             return admin.auth().createUser({
+                identifier: "Line",
                 uid: firebaseUid,
                 displayName: accessToken.id_token.name,
                 photoURL: accessToken.id_token.picture,
