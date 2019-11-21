@@ -30,12 +30,14 @@
 		</style>
 	</head>
 
-	<body onload="init();">
+	<body onload="init2();">
 		<div id="messagePool">
 			<div id="" class="message">123</div>
 			<div id="" class="message">234</div>
 		</div>
 		<img id="img_see" width="100" height="100" />
+		<img id="img_see2" width="100" height="100" />
+		<img id="img_see3" width="100" height="100" />
 		<video width="100" height="100" id="video_see" controls>
 			<source src="" id="media_file" />
 		</video>
@@ -67,20 +69,30 @@
 	</body>
 
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-	<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
 	<script src="https://raw.githubusercontent.com/jedisct1/siphash-js/master/lib/siphash.js.min"></script>
 	<script src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
+
 
 	<script type="text/javascript">
 		const url = '/messages/'; // location.host.concat( '/messages/' ); //prfx //https://sport19y0715.firebaseapp.com/messages/ // "https://sport19y0715.web.app"
 
+		var firebaseAuth;
 		var rtdb; //Realtime database
 		//let fsdb; //Cloud Firestore
+		var authUserData; //直接前端驗證的用戶資料,有uid
 
-		var userData = {};
+		var userData = {}; //post到後端拿用戶資料,比較完整
 
-		var fileUrl = "";
-		var fileContent = ""; //當有選取檔案,這裡就會有內容,用於上傳
+		var fileUrl5T = ""; //準備傳到後端的檔案網址
+		var fileContent; //當有選取檔案,這裡就會有內容,用於上傳
+		var fileName = '';
+		var fileType = '';
+
+		var storage5t;
+		//var File1 = "";//C:\fakepath\login1..jpg //不可信的臨時路徑
+		//var fileBuffer; //當有選取檔案,這裡就會有內容,用於上傳
+		//fileBuffer.byteLength//真實大小
 
 		var roundDecimal = function ( val, precision ) {
 			return Math.round( Math.round( val * Math.pow( 10, ( precision || 0 ) + 1 ) ) / 10 ) / Math.pow( 10, precision || 0 );
@@ -104,7 +116,7 @@
 
 		function kmb( size = 0 ) {
 			let ans = {};
-			ans.size = Number.parseInt( size );
+			ans.size = Number.parseInt( size, 10 ) || 0;
 			if ( size > 0 ) {
 				if ( ans.size <= 1024 ) {
 					ans.unit = "B";
@@ -126,6 +138,7 @@
 
 			ans.size = -1;
 			ans.error = "異常輸入";
+			return ans;
 		}
 
 		function messageToElement( message ) {
@@ -156,24 +169,24 @@
 			try {
 				let msgFile = message.file || "";
 				if ( msgFile.length > 0 ) {
-					let fileSize = kmb( msgFile.length );
+					let sizeUnit = kmb( msgFile.length );
 
-					if ( fileSize.size > 0 ) {
-						strArr.push( "夾帶檔案:" ); //
-						let fileName = unToDef( message.fileName, "" );
-						if ( fileName.length < 1 ) {
-							fileName = "未知檔名";
-						}
+					//if ( fileSize.size > 0 ) {
+					strArr.push( "夾帶檔案:" ); //
+					let fileName = unToDef( message.fileName, "" );
+					if ( fileName.length < 1 ) {
+						fileName = "未知檔名";
+					}
 
-						strArr.push( fileName );
-						strArr.push( " " );
-						strArr.push( fileSize.size );
-						strArr.push( fileSize.unit );
-						strArr.push( "(" );
-						strArr.push( msgFile.substr( 0, 10 ) );
-						strArr.push( ")" );
-						strArr.push( " " );
-					} //if fileSize.size
+					strArr.push( fileName );
+					strArr.push( " " );
+					strArr.push( sizeUnit.size );
+					strArr.push( sizeUnit.unit );
+					strArr.push( "(" );
+					strArr.push( msgFile.substr( 0, 10 ) );
+					strArr.push( ")" );
+					strArr.push( " " );
+					//} //if fileSize.size
 				} //if file.length
 			} catch ( err4 ) {
 				console.warn( err4 );
@@ -231,7 +244,7 @@
 					break;
 
 				case 1: //1用戶刪除(自己不能看,其他人可以看)
-					if ( sv.uid === userData.uid ) {
+					if ( sv.uid === authUserData.uid ) {
 						$( "#".concat( sv.messageId ) ).remove();
 					}
 					break;
@@ -257,18 +270,385 @@
 			return str.toString().replace( /^\s+|\s+$/g, "" );
 		}
 
+
+		function upClear() {
+			console.info( 'upClear' );
+
+
+			fileUrl5T = ""; //準備傳到後端的檔案網址
+			//var fileContent = ""; //當有選取檔案,這裡就會有內容,用於上傳
+
+			fileType = '';
+
+			fileContent = undefined;
+			fileName = '';
+			$( "#fileSize" ).val( "" );
+			$( "#fileUpload" ).val( "" );
+
+			$( '#img_see2' ).attr( 'src', '' );
+			$( '#img_see' ).attr( 'src', '' );
+			//$( "#fileUpload" ).change();
+		}
+
+		function fileToBase64( File1 ) {
+			console.info( 'fileToBase64' );
+			let FileReaderBase64 = new FileReader(); //檔案讀取物件//注意,base64不會自動轉回bin,所以不要用base64上傳
+			FileReaderBase64.onload = function ( e ) {
+				//讀取成功的行為
+
+				try {
+					console.info( "FileReaderBase64 onload>>>>" );
+					//console.info( '"'.concat( e, '"' ) ); //e.toString().substr( 0, 30 )
+
+					fileName = File1.name;
+
+					/*
+					let fileNameSub = '.hex';
+					let idot = fileName.lastIndexOf( '.' );
+					if ( idot > -1 ) {
+						fileNameSub = fileName.substr( idot ); //取原始副檔名
+					}
+					*/
+
+					/*
+					if ( fileContent.length > 50 * 1024 * 1024 ) {
+						alert( '檔案太大,無法上傳' );
+						return;
+					}
+					*/
+
+					let fbase64 = e.currentTarget.result || '';
+
+					//fileContent = e.currentTarget.result || "";
+					$( "#img_see" ).attr( "src", e.currentTarget.result );
+					//$( "#fileSize" ).val( kmb( fileContent.length ) );
+
+					//fileContent = str_def(e.currentTarget.result, "");
+
+					let base64SplitStr = ";base64,"; //base64檔案內容切割與合併用
+
+					let idx = fbase64.indexOf( base64SplitStr );
+
+					if ( idx > -1 ) {
+						fileType = fbase64.substr( 0, idx );
+					} else {
+						fileType = '';
+					}
+
+					let datac = 'data:';
+
+					let idx0 = fileType.indexOf( datac );
+
+					if ( idx0 > -1 ) {
+						fileType = fileType.substr( idx0 + datac.length );
+					}
+
+
+
+
+				} catch ( errFileReaderBase64 ) {
+					console.warn( errFileReaderBase64 );
+					upClear();
+				}
+			};
+
+			FileReaderBase64.readAsDataURL( File1 ); //真的讀取
+		} //fileToBase64
+
+		function fileToBuffer( File1 ) {
+			console.info( 'fileToBuffer' );
+
+			let FileReaderBuffer = new FileReader(); //檔案讀取物件
+			FileReaderBuffer.onload = function ( e ) {
+
+				try {
+					console.info( "FileReaderBuffer onload>>>>" );
+
+					fileBuffer = e.currentTarget.result; //buffer格式內容,
+					console.info( fileBuffer );
+
+					if ( fileBuffer.byteLength < 1 ) { //沒有內容
+						console.warn( '檔案沒有內容,不允許上傳' );
+						upClear(); //失敗就清空
+						return;
+					}
+
+					if ( fileBuffer.byteLength > 50 * 1024 * 1024 ) {
+						console.warn( '檔案超過50MB,不允許上傳' );
+						upClear(); //失敗就清空
+						return;
+					}
+
+					console.info( 'fileBuffer : ' );
+					console.info( fileBuffer );
+
+					fileContent = fileBuffer;
+					fileName = File1.name;
+
+					let sizeUnit = kmb( fileBuffer.byteLength );
+
+					$( "#fileSize" ).val( ''.concat( sizeUnit.size, sizeUnit.unit ) );
+
+					fileToBase64( File1 );
+
+					return;
+
+					/*
+					fileContent = fileBuffer;
+						fileName=File1.name;
+						let fileNameSub='.hex';
+
+						let idot=fileName.lastIndexOf('.');
+						if (idot>-1) {
+						fileNameSub=fileName.substr(idot);//取原始副檔名
+						}
+
+						let timeNow=new Date();
+
+						let storageRef = storage5t.ref( 'uploadTemp/'.concat( uid, '/', timeNow.getTime(),fileName2 ) ); //5T區域路徑
+
+						let uploadTask = storageRef.put( fileBuffer );
+
+						uploadTask.on( 'state_changed', function ( snapshot ) {
+						// Observe state change events such as progress, pause, and resume
+						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+						let progress = 0;
+
+						if ( snapshot.bytesTransferred > 0 ) {
+						Math.roundDecimal
+						progress = Math.ceil( ( snapshot.bytesTransferred / snapshot.totalBytes ) * 100 ); // RoundFloat;
+						}
+
+						console.info( 'progress = '.concat( progress, ' %' ) );
+
+						switch ( snapshot.state ) {
+						case firebase.storage.TaskState.PAUSED: // or 'paused'
+						console.info( 'Upload is paused' );
+						break;
+						case firebase.storage.TaskState.RUNNING: // or 'running'
+						console.info( 'Upload is running' );
+						break;
+						}
+						}, function ( errorUploadTask ) {
+						//非同步錯誤訊息
+						console.warn( errorUploadTask );
+						}, function () {
+						//非同步完成行為
+
+						uploadTask.snapshot.ref.getDownloadURL().then( function ( downloadURL ) {
+						try {
+						console.info( 'File URL = '.concat( downloadURL ) );
+						//範例:https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/test%2Fpoe%E5%A4%A9%E8%B3%A6%E6%8F%9B%E7%AE%97.jpg?alt=media&token=d829d412-c7d6-4635-8294-5c3fcab6e84b
+						//注意https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/test%2Fpoe%E5%A4%A9%E8%B3%A6%E6%8F%9B%E7%AE%97.jpg 至此,內容是資訊JSON不是檔案內容.
+						//要加上 ?alt=media&token=... 之後才是圖片內容
+
+						$( '#pic2' ).attr( 'src', downloadURL );
+						} catch ( errorGetDownloadURL ) {
+						console.warn( errorGetDownloadURL );
+						}
+
+						} ); //uploadTask.snapshot.ref.getDownloadURL().then
+
+						} ); //uploadTask.on
+
+						*/
+
+
+				} catch ( errorFileReaderBuffer ) {
+					console.warn( errorFileReaderBuffer );
+					upClear(); //失敗就清空
+				} //try errorFileReaderBuffer
+			}; //FileReaderBuffer.onload
+
+			FileReaderBuffer.readAsArrayBuffer( File1 ); //Buffer
+		} //fileToBuffer
+
+		function sendPost( fileUrl = '' ) {
+			console.info( 'sendPost' );
+			try {
+				let xhr = new XMLHttpRequest();
+				xhr.open( "POST", url.concat( "create" ), true );
+				xhr.setRequestHeader( "Content-type", "application/json" );
+				xhr.withCredentials = true;
+				//let params = {};
+				xhr.onreadystatechange = function () {
+					try {
+						if ( xhr.readyState == 4 && xhr.status == 200 ) {
+
+							//
+							console.info( xhr.response );
+							let getJson = JSON.parse( xhr.response );
+							$( "#oneMessage" ).val( JSON.stringify( getJson, null, " " ) );
+							$( "#returnError" ).val( getJson.error );
+
+						} //if
+					} catch ( err ) {
+						console.warn( err );
+					} //try
+
+
+				}; //onreadystatechange
+
+				postData = {
+					channelId: "public",
+					tempHash: new Date().getTime().toString().concat( authUserData.uid || '' ),
+					message: $( "#messageContent" ).val() || "",
+					replyMessageId: $( "#selectMessageId" ).val() || ""
+				}
+
+
+				//fileUrl5T = ""; //準備傳到後端的檔案網址
+				//fileContent; //當有選取檔案,這裡就會有內容,用於上傳
+				//fileName = '';
+				//fileType = '';
+				if ( fileUrl.length > 0 ) {
+					postData.file = fileUrl;
+					postData.fileName = fileName || '';
+					postData.fileType = fileType || '';
+				}
+
+				xhr.send( JSON.stringify( postData ) );
+
+
+				/*
+				$.post(
+				url.concat( "create" ), {
+				channelId: "public",
+				tempHash: ( authUserData.uid || '' ).toString().concat( new Date().getTime() ),
+				message: $( "#messageContent" ).val() || "",
+				replyMessageId: $( "#selectMessageId" ).val() || "",
+				file: fileContent || "",
+				fileName: $( "#fileUpload" ).val()
+				},
+				function ( data ) {
+				//獲得回傳
+				console.info( data );
+				try {
+				$( "#oneMessage" ).val( JSON.stringify( data, null, " " ) );
+				$( "#returnError" ).val( getJson.error );
+				} catch ( err3 ) {
+				console.warn( err3 );
+				} //try
+				}
+				);
+				*/
+				//}
+			} catch ( error ) {
+				console.warn( error );
+			}
+		}
+
+		function upToPost() {
+			try {
+				console.info( 'upToPost' );
+
+				if ( fileContent.byteLength > 0 ) { //fileContent可能undefined
+
+
+					console.info( 'fileName : ' );
+					console.info( fileName );
+
+					let fileNameSub = '.tmp';
+
+
+					let idot = fileName.lastIndexOf( '.' );
+					if ( idot > -1 ) {
+						fileNameSub = fileName.substr( idot ); //取原始副檔名
+					}
+
+
+
+					console.info( 'fileContent : ' );
+					console.info( fileContent );
+
+					let timeNow = new Date();
+
+					let path = 'uploadTemp/'.concat( userData.uid, '/', timeNow.getTime(), fileNameSub );
+					console.info( 'path='.concat( path ) );
+
+					let storageRef = storage5t.ref( path ); //5T區域路徑
+
+					let uploadTask = storageRef.put( fileContent );
+
+					uploadTask.on( 'state_changed', function ( snapshot ) {
+						// Observe state change events such as progress, pause, and resume
+						// Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+						let progress = 0;
+
+						if ( snapshot.bytesTransferred > 0 ) {
+							Math.roundDecimal
+							progress = Math.ceil( ( snapshot.bytesTransferred / snapshot.totalBytes ) * 100 ); // RoundFloat;
+						}
+
+						console.info( 'progress = '.concat( progress, ' %' ) );
+
+						switch ( snapshot.state ) {
+							case firebase.storage.TaskState.PAUSED: // or 'paused'
+								console.info( 'Upload is paused' );
+								break;
+							case firebase.storage.TaskState.RUNNING: // or 'running'
+								console.info( 'Upload is running' );
+								break;
+						}
+					}, function ( errorUploadTask ) {
+						//非同步錯誤訊息
+						console.warn( errorUploadTask );
+					}, function () {
+						//非同步完成行為
+
+						uploadTask.snapshot.ref.getDownloadURL().then( function ( downloadURL ) {
+							try {
+
+								console.info( 'File URL = '.concat( downloadURL ) );
+								//範例:https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/test%2Fpoe%E5%A4%A9%E8%B3%A6%E6%8F%9B%E7%AE%97.jpg?alt=media&token=d829d412-c7d6-4635-8294-5c3fcab6e84b
+								//注意https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/test%2Fpoe%E5%A4%A9%E8%B3%A6%E6%8F%9B%E7%AE%97.jpg 至此,內容是資訊JSON不是檔案內容.
+								//要加上 ?alt=media&token=... 之後才是圖片內容
+
+								fileUrl5T = downloadURL;
+
+								$( '#img_see2' ).attr( 'src', downloadURL );
+
+								sendPost( downloadURL );
+							} catch ( errorGetDownloadURL ) {
+								console.warn( errorGetDownloadURL );
+							}
+
+						} ); //uploadTask.snapshot.ref.getDownloadURL().then
+
+					} ); //uploadTask.on
+
+				} //if >0
+				else {
+					sendPost();
+				}
+			} catch ( error ) {
+
+			}
+		}
+
 		function init2() {
 			console.info( "init2();" );
 
 			const firebaseConfig = {
-				apiKey: "d23e597f8c957a12606f4b77bde670dbafe0182f",
-				authDomain: "sport19y0715.web.app",
-				projectId: "sport19y0715",
+				apiKey: "AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo",
+				authDomain: "sport19y0715.firebaseapp.com",
 				databaseURL: "https://sport19y0715.firebaseio.com",
+				projectId: "sport19y0715",
 				storageBucket: "sport19y0715.appspot.com",
-				appId: "1:179049951227:web:15b2ae874d653216",
-				messagingSenderId: "179049951227"
+				messagingSenderId: "179049951227",
+				appId: "1:179049951227:web:15b2ae874d653216"
 			};
+
+			/*
+			const firebaseConfig = {
+			apiKey: "d23e597f8c957a12606f4b77bde670dbafe0182f",
+			authDomain: "sport19y0715.web.app",
+			projectId: "sport19y0715",
+			databaseURL: "https://sport19y0715.firebaseio.com",
+			storageBucket: "sport19y0715.appspot.com",
+			appId: "1:179049951227:web:15b2ae874d653216",
+			messagingSenderId: "179049951227"
+			};*/
 
 			try {
 				firebase.initializeApp( firebaseConfig );
@@ -276,7 +656,29 @@
 				console.warn( error );
 			}
 
+			firebaseAuth = firebase.auth();
+			//firebaseAuth.languageCode = 'zh-TW';
+			firebaseAuth.useDeviceLanguage();
+			firebaseAuth.onAuthStateChanged( function ( user ) {
+				//不經過後端,只用前端達成的用戶驗證資料,只有uid可用
+
+				authUserData = user;
+
+				console.info( 'onAuthStateChanged >>> user' );
+				console.info( authUserData );
+
+				if ( authUserData.uid ) { //如果有登入的uid,就取得其他用戶資料
+					getUserDataX();
+				} else {
+					//這裡是沒有登入的行為
+				}
+
+
+			} );
+
 			rtdb = firebase.database(); //Realtime database
+
+			storage5t = firebase.storage();
 
 			//fsdb = firebase.firestore(); //Cloud Firestore
 
@@ -298,7 +700,7 @@
 							switch ( sv.action ) {
 								//檢查這是什麼狀態訊息
 								case "newMessage": //新訊息
-									if ( sv.uid == userData.uid ) {
+									if ( sv.uid == authUserData.uid ) {
 										console.info( "tempHashReolaceToMesageId" );
 										tempHashReolaceToMesageId( sv );
 									} else {
@@ -354,18 +756,18 @@
 					console.warn( err );
 				} //try
 
-				//init2(); //不管有沒有登入,都繼續初始化
+
 			}; //onreadystatechange
 
 			xhr.send( JSON.stringify( {
-				channel: "public"
+				channelId: "public"
 			} ) );
 
 
 			/*
 			$.post(
 				url.concat( "last" ), {
-					channel: "public"
+					channelId: "public"
 					//deleteAction: 1
 				},
 				function ( data ) {
@@ -396,67 +798,116 @@
 
 		});*/
 
-			//
-
 			$( "#bt_clearId" ).click( function () {
 				$( "#selectMessageId" ).val( "" );
 			} );
 
 			$( "#bt_clearFile" ).click( function () {
-				$( "#fileUpload" ).val( "" );
-				$( "#fileUpload" ).change();
-				//$("#fileSize").val("");
+				upClear();
 			} );
 
 			$( "#fileUpload" ).change( function () {
 				//監聽上傳按鈕的事件
 				console.info( "fileUpload change" );
 
-				fileContent = ""; //先清空
+				fileContent = undefined; //先清空
 
 				let fi_path = $( "#fileUpload" ).val();
-				if ( fi_path !== "" ) {
-					//fi_path=$.('#fi_send').val();
-					//有檔案路徑
+				if ( fi_path.length < 1 ) {
 
-					try {
-						//有可能失敗,必須try
 
-						//let file0 = $( "#fileUpload" )[ 0 ].files[ 0 ];
-
-						//console.info('$("#fileUpload")[0].files[0]');
-						//console.info($("#fileUpload")[0].files[0]);
-
-						fileUrl = $( "#fileUpload" )[ 0 ].files[ 0 ] || ""; //檔案uri,給檔案物件讀取用的
-
-						let FileReader0 = new FileReader(); //檔案讀取物件
-						FileReader0.onload = function ( e ) {
-							//讀取成功的行為
-
-							try {
-								console.info( "FileReader onload>>>>" );
-								console.info( e );
-								fileContent = e.currentTarget.result || "";
-								$( "#img_see" ).attr( "src", fileContent || "" );
-								$( "#fileSize" ).val( fileContent.length );
-
-								//fileContent = str_def(e.currentTarget.result, "");
-							} catch ( e4 ) {
-								console.warn( e4 );
-								$( "#fileUpload" ).val( "" ); //失敗就清空
-								$( "#fileUpload" ).change();
-							}
-						};
-
-						FileReader0.readAsDataURL( fileUrl ); //真的讀取
-					} catch ( e3 ) {
-						console.warn( e3 );
-						$( "#fileUpload" ).val( "" ); //失敗就清空
-						$( "#fileUpload" ).change();
-					}
+					upClear();
 				} else {
-					$( "#fileSize" ).val( "" );
+
+
 				}
+
+				try {
+					//有可能失敗,必須try
+					//fi_path=$.('#fi_send').val();
+					//有檔案路徑,不可信的臨時路徑
+
+					File1 = $( "#fileUpload" )[ 0 ].files[ 0 ] || ""; //檔案uri,給檔案物件讀取用的
+
+					fileToBuffer( File1 ); //=>fileContent=>fileToBase64(File1)
+
+
+
+					/*
+											let FileReaderBuffer = new FileReader(); //檔案讀取物件
+											FileReaderBuffer.onload = function ( e ) {
+
+												try {
+													//console.info( "FileReaderBuffer onload>>>>" );
+
+													fileBuffer = e.currentTarget.result; //buffer格式內容,
+
+													if ( fileBuffer.byteLength < 1 ) {
+														//沒有內容
+														console.warn( 'fileBuffer 沒有內容' );
+														upClear(); //失敗就清空
+														return;
+													} //if <1
+
+													//有內容,byteLength是真實有效長度,byteLength不存在表示讀取失敗,
+
+													if ( fileBuffer.byteLength > 50 * 1024 * 1024 ) { //檔案大於50MB,放棄
+														console.warn( '檔案大於50MB,不允許上傳' );
+														upClear(); //失敗就清空
+														return;
+													}
+
+													fileContent = fileBuffer;
+
+
+
+												} catch ( errorFileReaderBuffer ) {
+													console.warn( errorFileReaderBuffer );
+													//upClear(); //失敗就清空
+												} //try errorFileReaderBuffer
+											}; //FileReaderBuffer.onload
+
+											FileReaderBuffer.readAsArrayBuffer( File1 ); //Buffer
+
+
+											//==========================================================
+
+											let FileReaderBase64 = new FileReader(); //檔案讀取物件//注意,base64不會自動轉回bin,所以不要用base64上傳
+											FileReaderBase64.onload = function ( e ) {
+												//讀取成功的行為
+
+												try {
+													console.info( "FileReader onload>>>>" );
+													console.info( e );
+
+													if ( fileContent.length > 50 * 1024 * 1024 ) {
+														alert( '檔案太大,無法上傳' );
+														return;
+													}
+
+													//fileContent = e.currentTarget.result || "";
+													$( "#img_see" ).attr( "src", e.currentTarget.result || "" );
+													$( "#fileSize" ).val( kmb( fileContent.length ) );
+
+													//fileContent = str_def(e.currentTarget.result, "");
+												} catch ( errFileReaderBase64 ) {
+													console.warn( errFileReaderBase64 );
+													$( "#fileUpload" ).val( "" ); //失敗就清空
+													$( "#fileUpload" ).change();
+												}
+											};
+
+											FileReaderBase64.readAsDataURL( File1 ); //真的讀取
+											//FileReaderBase64.readAsArrayBuffer
+					*/
+
+
+				} catch ( e3 ) {
+					console.warn( e3 );
+					upClear();
+				}
+
+
 			} );
 
 			$( "#bt_delete0" ).click( function () {
@@ -492,7 +943,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -558,7 +1009,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -624,7 +1075,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -688,7 +1139,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -751,7 +1202,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -787,69 +1238,15 @@
 			$( "#bt_send" ).click( function () {
 				try {
 					console.info( "#bt_send clk " );
-					//console.info(this);
-					//console.info($(this).attr("id"));
-					//let msgId = $("#selectMessageId").val();
-					//$("#selectMessageId").val(msgId);
-					//if (msgId.length > 0) {
+
+					//非同步
+					//先上傳檔案
+					upToPost();
+					//再發送post
 
 
-					let xhr = new XMLHttpRequest();
-					xhr.open( "POST", url.concat( "create" ), true );
-					xhr.setRequestHeader( "Content-type", "application/json" );
-					xhr.withCredentials = true;
-					//let params = {};
-					xhr.onreadystatechange = function () {
-						try {
-							if ( xhr.readyState == 4 && xhr.status == 200 ) {
-
-								//
-								console.info( xhr.response );
-								let getJson = JSON.parse( xhr.response );
-								$( "#oneMessage" ).val( JSON.stringify( getJson, null, " " ) );
-								$( "#returnError" ).val( getJson.error );
-
-							} //if
-						} catch ( err ) {
-							console.warn( err );
-						} //try
-
-						//init2(); //不管有沒有登入,都繼續初始化
-					}; //onreadystatechange
-
-					xhr.send( JSON.stringify( {
-						channel: "public",
-						tempHash: ( userData.uid || '' ).toString().concat( new Date().getTime() ),
-						message: $( "#messageContent" ).val() || "",
-						replyMessageId: $( "#selectMessageId" ).val() || "",
-						file: fileContent || "",
-						fileName: $( "#fileUpload" ).val()
-					} ) );
 
 
-					/*
-					$.post(
-						url.concat( "create" ), {
-							channel: "public",
-							tempHash: ( userData.uid || '' ).toString().concat( new Date().getTime() ),
-							message: $( "#messageContent" ).val() || "",
-							replyMessageId: $( "#selectMessageId" ).val() || "",
-							file: fileContent || "",
-							fileName: $( "#fileUpload" ).val()
-						},
-						function ( data ) {
-							//獲得回傳
-							console.info( data );
-							try {
-								$( "#oneMessage" ).val( JSON.stringify( data, null, "  " ) );
-								$( "#returnError" ).val( getJson.error );
-							} catch ( err3 ) {
-								console.warn( err3 );
-							} //try
-						}
-					);
-					*/
-					//}
 				} catch ( err ) {
 					console.warn( err );
 				}
@@ -880,6 +1277,8 @@
 									let getJson = JSON.parse( xhr.response );
 
 									$( "#oneMessage" ).val( JSON.stringify( getJson, null, " " ) );
+									$( "#img_see3" ).attr( 'src', url.concat( 'file', '/', getJson.fileUploadId ) );
+
 									$( "#returnError" ).val( getJson.error );
 
 
@@ -888,7 +1287,7 @@
 								console.warn( err );
 							} //try
 
-							//init2(); //不管有沒有登入,都繼續初始化
+
 						}; //onreadystatechange
 
 						xhr.send( JSON.stringify( {
@@ -945,7 +1344,7 @@
 							console.warn( err );
 						} //try
 
-						//init2(); //不管有沒有登入,都繼續初始化
+
 					}; //onreadystatechange
 
 					xhr.send( JSON.stringify( {
@@ -975,6 +1374,7 @@
 			}
 		}
 
+
 		function getUserDataJ() {
 
 			$.ajax( {
@@ -996,7 +1396,7 @@
 						if ( $.trim( userData1.uid || '' ).length > 0 ) {
 							userData = userData1;
 
-							console.info( "登入身分是: ".concat( userData.uid ) );
+							console.info( "登入身分是: ".concat( authUserData.uid ) );
 						} else {
 							//console.warn( "登入失敗: ".concat( getJson.error ) );
 						}
@@ -1009,6 +1409,7 @@
 			} );
 
 		}
+
 
 		function getUserDataX( m = 'GET' ) {
 			let xhr = new XMLHttpRequest();
@@ -1036,7 +1437,7 @@
 					console.warn( err );
 				} //try
 
-				//init2(); //不管有沒有登入,都繼續初始化
+
 			}; //onreadystatechange
 
 			xhr.send( JSON.stringify( {} ) );
@@ -1047,11 +1448,38 @@
 			//初始化行為
 			console.info( "init();" );
 
-			getUserDataX(); //先檢查登入並拿到登入資料
+			//getUserDataX(); //先檢查登入並拿到登入資料
 
 			init2();
 
 		}
+
+		//File1 = $( "#fileUpload" )[ 0 ].files[ 0 ] || ""; //檔案uri,給檔案物件讀取用的
+		//$( "#fileUpload" )[ 0 ] => '<input name="fileUpload" type="file" id="fileUpload">'
+
+		//$( "#fileUpload" )[ 0 ].files => FileList 
+		//{
+		// 0: File
+		// {
+		// lastModified: 1573457761550
+		// lastModifiedDate: Mon Nov 11 2019 15:36:01 GMT+0800 (台北標準時間) {}
+		// name: "01.jpg"
+		// size: 255574
+		// type: "image/jpeg"
+		// webkitRelativePath: ""
+		// }
+		// , length: 1
+		//}
+
+		//$( "#fileUpload" )[ 0 ].files[ 0 ] = > File
+		//{
+		// lastModified: 1573457761550
+		// lastModifiedDate: Mon Nov 11 2019 15:36:01 GMT+0800 (台北標準時間) {}
+		// name: "01.jpg"
+		// size: 255574
+		// type: "image/jpeg"
+		// webkitRelativePath: ""
+		//}
 	</script>
 
 </html>
