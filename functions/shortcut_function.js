@@ -22,14 +22,17 @@ const moment = require( "moment" ); //https://www.npmjs.com/package/moment
 const ShortcutFunction = require( "./shortcut_function" );
 const envValues = require( "./env_values" );
 const ShortcutHash = require( "./shortcut_hash" );
-
-const Buffer = require( 'buffer' ).Buffer
+const FileType = require( 'file-type' );
+const Buffer = require( 'buffer' );
+const farmhash = require( 'farmhash' );
 
 const htmlencode = require( "js-htmlencode" ); //用這個才不會把emoji編碼成亂碼
 
 const users = require( "./users" );
 
-//const { Storage } = require('@google-cloud/storage');
+const {
+	Storage
+} = require( '@google-cloud/storage' );
 
 //const admin = require('firebase-admin');
 //const functions = require('firebase-functions');
@@ -99,7 +102,7 @@ exports.setNoValue = function ( input, output ) {
 	return output;
 };
 
-exports.lazyFirebaseAdmin = function ( certStringOrPath = "", databaseURL = "https://sport19y0715.firebaseio.com" ) {
+exports.lazyFirebaseAdmin = function ( certStringOrPath = "", databaseURL = envValues.firebaseConfig.databaseURL ) {
 	databaseURL = this.setNoValue( databaseURL, "" );
 
 	//admin.initializeApp(functions.config().firebase);//on firebase
@@ -387,7 +390,180 @@ exports.fileCheckAndReplace = function ( fileContent = "", fileType = "" ) {
 	return returnJson;
 };
 
-exports.runFileUpload = async function ( fileInfo = {}, firestore ) {
+exports.runFileUpload5t = async function ( fileUrl = '', firestore ) {
+	let returnJson = {
+		success: false
+	};
+
+	try {
+		fileUrl = fileUrl.toString();
+		returnJson.fileUrl = fileUrl;
+
+		//前置網址
+		let prePath = envValues.firebaseConfig.storageBucket.concat( '/o/' );
+		let idx_pre = fileUrl.lastIndexOf( prePath );
+
+		if ( idx_pre > -1 ) { //網址有效
+			fileUrl = fileUrl.substr( idx_pre + prePath.length ); //去掉前置網址,留下中間路徑
+		} else {
+			returnJson.error = '無效檔案網址';
+			return returnJson;
+		}
+
+		//網址後參數
+		let idx_pama = fileUrl.indexOf( '?' );
+		if ( idx_pama > -1 ) {
+			fileUrl = fileUrl.substr( 0, idx_pama ); //去掉後面參數
+		}
+
+		if ( fileUrl.length < 1 ) { //路徑0長度
+			returnJson.error = '無效檔案網址';
+			return returnJson;
+		} // if >0
+
+		fileUrl = decodeURIComponent( fileUrl ); //必須處理%編碼
+		returnJson.decodeURIComponent = fileUrl;
+
+		const storage5t = new Storage( {
+			'keyFilename': envValues.cert,
+			'projectId': envValues.firebaseConfig.projectId
+		} );
+
+		let bucket1 = storage5t.bucket( envValues.firebaseConfig.storageBucket ); //用專案資訊取得儲存桶
+
+		let bucketFile1 = bucket1.file( fileUrl );
+
+		//console.info( 'bucketFile1.id >>>>>>>>>>>>>> \n', bucketFile1.id );
+		let buckeFile1isExists = ( await bucketFile1.exists() )[ 0 ];
+		if ( !buckeFile1isExists ) {
+			returnJson.error = '無效檔案網址';
+			return returnJson;
+		}
+
+		let bfileBuffer = ( await bucketFile1.download() )[ 0 ]; //VVVVVV
+		//returnJson.bfileBuffer = bfileBuffer; //VVVVVVV
+
+		returnJson.sipHash = ShortcutHash.BufferToSipHashHex( bfileBuffer ) || '';
+		returnJson.farmHash = ShortcutHash.farmHashToInt( bfileBuffer ) || '';
+
+		returnJson.fileType = 'application/octet-stream'; //stream是未知格式的預設
+		returnJson.fileSubName = 'tmp'; //預設的未知格式的副檔名
+
+		try {
+			let fType = FileType( bfileBuffer ); // or undefined
+			//{
+			//"ext": "jpg",
+			//"mime": "image/jpeg"
+			//}
+
+			returnJson.fileType = fType.mime || returnJson.fileType;
+			returnJson.fileSubName = fType.ext || returnJson.fileSubName;
+		} catch ( error ) {
+			returnJson.warn = '解析檔案內容格式失敗';
+		}
+
+		delete returnJson.bfileBuffer;
+
+		let fileUploadId = ''.concat( returnJson.farmHash, '_', returnJson.sipHash ); //用hash建立fileUploadId
+		returnJson.fileUploadId = fileUploadId;
+
+		//console.info( 'fileUploadId >>>>>>>>>>>>>> ', fileUploadId );
+
+		//確認正確位置是否有檔案
+		let path2 = ''.concat( envValues.sharefilePath5T, fileUploadId, '.', returnJson.fileSubName ); //正式位置路徑
+		//let buckeFile2 = ;
+		console.info( 'path2 >>>>>>>>>>>>>> ', path2 );
+
+		firestore = this.setNoValue( firestore, this.lazyFirebaseAdmin().firestore() );
+
+		let buckeFile2 = bucket1.file( path2 ); //不要encodeURIComponent
+
+		console.info( 'buckeFile2.id >>>>>>>>>>>>>> \n', buckeFile2.id );
+
+		let buckeFile2isExists = ( await buckeFile2.exists() )[ 0 ];
+
+		console.info( 'buckeFile2isExists >>>>>>>>>>>>>> ', buckeFile2isExists );
+
+
+		if ( buckeFile2isExists ) { //檔案存在,殺掉暫存檔
+			let deleteStat = await bucketFile1.delete();
+		} else { //不存在,移動到正式位置
+			await bucketFile1.move( buckeFile2 ); //先移動到正式位置
+			//console.info( 'moveStat >>>>>>>>>>>>> \n', moveStat );
+			await buckeFile2.setMetadata( {
+				contentType: returnJson.fileType
+			} );
+
+		}
+		//let metadata2 = ( await buckeFile2.getMetadata() )[ 0 ];
+
+		//取得檔案資訊
+		let doc = await firestore
+			.collection( "uploadFiles" )
+			.doc( fileUploadId )
+			.get();
+
+		let data = doc.data();
+
+		//let endTimestamp =
+
+		let uploadFileData = {
+			endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ) //更新存活時間
+		};
+
+
+		if ( data === undefined ) { //資料庫沒有紀錄,補充紀錄
+			let metadata2 = ( await buckeFile2.getMetadata() )[ 0 ];
+
+			uploadFileData.fileUploadId = fileUploadId;
+			uploadFileData.fileFarmHash = returnJson.farmHash;
+			uploadFileData.fileSipHash = returnJson.sipHash;
+			uploadFileData.fileType = returnJson.fileType;
+			uploadFileData.fileSubName = returnJson.fileSubName;
+			uploadFileData.fileSize = metadata2.size
+			//,	bucketPath: path2
+
+		} // if undefined
+
+		//更新存入uploadFiles
+		let docRef = firestore.collection( 'uploadFiles' ).doc( fileUploadId );
+
+		returnJson.DocRef = docRef;
+
+		let setWithOptions = await docRef.set( uploadFileData, {
+			merge: true
+		} );
+
+		returnJson.setWithOptions = setWithOptions;
+
+		//再次取出來
+		doc = await firestore
+			.collection( "uploadFiles" )
+			.doc( fileUploadId )
+			.get();
+
+		data = doc.data();
+
+
+		returnJson.success = true;
+		data.history = returnJson;
+
+		//returnJson.fileData = data;
+
+		data.success = true;
+
+		return data;
+
+	} catch ( error ) {
+		console.warn( "runFileUpload error  error  error  error  \n", error );
+		returnJson.error = error;
+	}
+
+	return returnJson;
+};
+
+/*
+exports.__runFileUpload = async function ( fileInfo = {}, firestore ) {
 	let returnJson = {
 		success: false
 	};
@@ -500,25 +676,28 @@ exports.runFileUpload = async function ( fileInfo = {}, firestore ) {
 	return returnJson;
 };
 
-exports.ParseInt = function ( input, defineValue, numberSystem = 10 ) {
-	if ( Number.isInteger( input ) ) {
+exports.__ParseInt = function ( input, defineValue, numberSystem = 10 ) {
+	if ( Number.isInteger( input.toString() ) ) {
 		return parseInt( input.toString(), numberSystem );
 	}
 
 	return defineValue;
 };
+*/
 
-exports.realtimePush = async function ( pushData = {}, channel = "public", subPath1 = "livePush" ) {
-	channel = pushData.channel || channel || "public";
+exports.realtimePush = async function ( pushData = {}, channelId = "public", subPath1 = "livePush" ) {
+
 
 	let returnJson = {
 		success: false,
 		subPath1: subPath1,
-		channel: channel,
 		pushData: pushData
 	};
 
 	try {
+		channelId = pushData.channelId || channelId || "public";
+		returnJson.channelId = channelId;
+
 		let replyMessageId = this.trim( pushData.replyMessageId || "" );
 		if ( replyMessageId.length > 0 ) {
 			console.info( "replyMessageId", replyMessageId );
@@ -526,7 +705,7 @@ exports.realtimePush = async function ( pushData = {}, channel = "public", subPa
 			console.info( "replyMessage", returnJson.replyMessage );
 		}
 
-		let firebaseAdmin = this.lazyFirebaseAdmin( envValues.cert, "https://sport19y0715.firebaseio.com" );
+		let firebaseAdmin = this.lazyFirebaseAdmin( envValues.cert );
 
 		let push = firebaseAdmin
 			.database()
@@ -544,7 +723,7 @@ exports.realtimePush = async function ( pushData = {}, channel = "public", subPa
 	return returnJson;
 };
 
-exports.getOneMessage = async function ( inputJson, messageId2 = "", again = true ) {
+exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -595,7 +774,7 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "", again = tru
 			return returnJson;
 		}
 
-		switch ( Number.parseInt( data.softDelete, 10 ) || 999 ) {
+		switch ( Number.parseInt( data.softDelete, 10 ) || 2 ) {
 			case -1: //管理員刪除(全域)
 				returnJson.error = "沒有此訊息";
 				console.info( "getOneMessage 4444444444444", returnJson );
@@ -631,10 +810,34 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "", again = tru
 		delete data.softDelete; //隱藏刪除狀態
 		delete data.reports; //隱藏檢舉清單
 
+		let fileUploadId = data.fileUploadId || '';
+
+		//if ( fileUploadId.length > 0 ) {
+		let fireJson = this.getOneShareFile( undefined, fileUploadId ); //失敗也沒關係,用空值填充
+		//{
+		//fileUploadId: fileUploadId,
+		//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
+		//	fileFarmHash: returnJson.farmHash,
+		//	fileSipHash: returnJson.sipHash,
+		//	fileType: returnJson.fileType,
+		//	fileSubName: returnJson.fileSubName,
+		//	fileSize: metadata2.size
+		//}
+
+		//if ( fireJson.success ) {
+		data.fileType = fireJson.fileType || '';
+		data.fileSize = fireJson.fileSize || 0;
+		data.fileSubName = fireJson.fileSubName || '';
+		data.fileFarmHash = fireJson.fileFarmHash || '';
+		data.fileSipHash = fireJson.fileSipHash || '';
+		//} //if fireJson.success
+
+		//} //if fileUploadId.length > 0
+
 		data.success = true;
 		return data;
 		//returnJson.list = data;
-		returnJson.success = true;
+		//returnJson.success = true;
 	} catch ( error ) {
 		returnJson.error = error;
 	}
@@ -645,7 +848,7 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "", again = tru
 	return returnJson;
 };
 
-exports.getOneFile = async function ( inputJson, param2 = '' ) {
+exports.getOneShareFile = async function ( inputJson, fileUploadId2 = '', needBuffer = false ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -658,10 +861,100 @@ exports.getOneFile = async function ( inputJson, param2 = '' ) {
 
 		let body = inputJson.body;
 
-		let fileId = this.trim( body.fileId || param2 || "" );
+		let fileUploadId = this.trim( body.fileUploadId || fileUploadId2 || "" );
 
-		if ( fileId.length < 1 ) {
-			returnJson.error = '沒有檔案編號fileIdId';
+		if ( fileUploadId.length < 1 ) {
+			returnJson.error = '沒有檔案編號fileUploadId';
+			return returnJson;
+		}
+
+		let firestore = this.lazyFirebaseAdmin().firestore();
+
+		let doc = await firestore
+			.collection( "uploadFiles" )
+			.doc( fileUploadId )
+			.get();
+
+		//console.info("doc >>>>>>>>", doc);
+
+		let data = doc.data();
+		//uploadFileData = {
+		//fileUploadId: fileUploadId,
+		//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
+		//	fileFarmHash: returnJson.farmHash,
+		//	fileSipHash: returnJson.sipHash,
+		//	fileType: returnJson.fileType,
+		//	fileSubName: returnJson.fileSubName,
+		//	fileSize: metadata2.size
+		//	//,	bucketPath: path2
+		//	buffer
+		//}
+
+		if ( data === undefined ) {
+			returnJson.error = '檔案不存在';
+			return returnJson;
+		}
+
+		//needBuffer需要返回檔案內容
+
+		if ( needBuffer ) {
+			//更新存活時間
+			let oldDocRef = firestore.collection( "uploadFiles" ).doc( fileUploadId );
+
+			let updateStat = await oldDocRef.update( {
+				end_timestamp: this.timestampUTCmsInt( 100 )
+			} ); //, { merge: true }
+			//returnJson.updateStat = updateStat;
+			//更新存活時間完成
+
+			const storage5t = new Storage( {
+				keyFilename: envValues.cert,
+				projectId: envValues.firebaseConfig.projectId
+			} );
+
+			let bucket1 = storage5t.bucket( envValues.firebaseConfig.storageBucket );
+
+			let buckeFile1 = bucket1.file( ''.concat( envValues.sharefilePath5T, fileUploadId, '.', data.fileSubName ) );
+
+			data.buffer = ( await buckeFile1.download() )[ 0 ];
+		}
+
+		returnJson.success = true;
+
+		data.success = true;
+		data.history = returnJson;
+
+		//returnJson.buffer = Buffer.from( base64, 'base64' );
+
+		return data;
+	} catch ( error ) {
+		console.warn( 'getOneFile', error );
+		returnJson.error = error;
+	}
+
+	//let cityRef = db.collection('cities').doc('SF');
+	//let getDoc = cityRef.get()
+
+	return returnJson;
+};
+
+exports.__getOneFile = async function ( inputJson, param2 = '' ) {
+	//只取一個訊息
+	//userId = userId.toString();
+
+	let returnJson = {
+		success: false
+	};
+
+	try {
+		console.info( "getOneFile" );
+
+		let body = inputJson.body;
+
+		let fileUploadId = this.trim( body.fileUploadId || param2 || "" );
+
+		if ( fileUploadId.length < 1 ) {
+			returnJson.error = '沒有檔案編號fileUploadId';
 			return returnJson;
 		}
 
@@ -670,7 +963,7 @@ exports.getOneFile = async function ( inputJson, param2 = '' ) {
 		//組合檔案
 		let Snapshot = await firestore
 			.collection( "uploadFileContents" )
-			.where( "fileUploadId", "==", fileId )
+			.where( "fileUploadId", "==", fileUploadId )
 			.orderBy( "sequence" ) //
 			.get();
 
@@ -698,6 +991,7 @@ exports.getOneFile = async function ( inputJson, param2 = '' ) {
 		returnJson.file = base64;
 
 
+		// @ts-ignore
 		returnJson.buffer = Buffer.from( base64, 'base64' );
 
 		return returnJson;
@@ -715,12 +1009,12 @@ exports.getOneFile = async function ( inputJson, param2 = '' ) {
 
 
 
-exports.__sessionToDecodedIdToken = async ( __session, firebaseAdmin ) => {
+exports.sessionToDecodedIdToken = async ( __session = '', firebaseAdmin ) => {
 
 	try {
 
 		let decodedIdToken = await firebaseAdmin.auth().verifySessionCookie(
-			__session, true );
+			__session, true ) || {};
 
 		console.info( '__sessionToDecodedIdToken  decodedIdToken   >>>>>>', decodedIdToken );
 
@@ -757,3 +1051,50 @@ exports.__sessionToDecodedIdToken = async ( __session, firebaseAdmin ) => {
 		} );
 		*/
 };
+
+exports.clearTempFile = async function ( timeSec = -100 ) {
+	let returnJson = {
+		success: false,
+	}; //最終輸出
+
+
+	try {
+		const storage5t = new Storage( {
+			keyFilename: envValues.cert,
+			projectId: envValues.firebaseConfig.projectId
+		} );
+
+		let bucket1 = storage5t.bucket( envValues.firebaseConfig.storageBucket );
+
+
+
+		//let buckeFile1 = bucket1.file( envValues.sharefilePath5T.concat( fileUploadId, '.', data.fileSubName ) );
+
+
+
+		const options = {
+			prefix: 'uploadTemp',
+			delimiter: '/'
+		};
+
+		// Lists files in the bucket, filtered by a prefix
+		const files = ( await bucket1.getFiles( options ) )[ 0 ];
+
+		//console.log( 'Files:' );
+		files.forEach( file => {
+			//console.log( file.name );
+			//file.getMetadata();
+		} );
+
+
+
+
+		//Metadata = ( await buckeFile1.getMetadata() )[ 0 ];
+
+
+
+	} catch ( errorclearTempFile ) {
+		console.warn( errorclearTempFile );
+	}
+
+}
