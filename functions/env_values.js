@@ -15,7 +15,8 @@ exports.firebaseConfig = {
 
 exports.projectId = 'sport19y0715';
 
-exports.base64test = 'data:image/png;base64,...';
+exports.sharefilePath5T = 'share_files/'; //目前聊天室的檔案(5T區域)放置的有效資料夾,前端則是放到'uploadTemp/'
+//exports.base64test = 'data:image/png;base64,...';
 
 exports.lineConfig = {
     profileURL: "https://api.line.me/v2/profile",
