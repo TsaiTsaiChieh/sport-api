@@ -85,6 +85,8 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			return returnJson;
 		}
 
+		let FirebaseAdmin = ShortcutFunction.lazyFirebaseAdmin();
+
 		let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
 
 		let docRef = await firestore
@@ -96,6 +98,9 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 
 		//returnJson.history.push( userData1 || 'userData1 undefined' );
 
+
+		//let CustomToken = await FirebaseAdmin.auth().createCustomToken( uid ) || '';
+
 		if ( userData1 !== undefined ) {
 
 			userData1.uid = userData1.uid || '';
@@ -105,6 +110,7 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			userData1.avatar = userData1.avatar || '';
 
 			userData1.functionName = 'userIdToUserData';
+			//userData1.CustomToken = CustomToken;
 			userData1.success = true;
 
 			return userData1;
@@ -136,6 +142,7 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			returnJson.success = true;
 
 			mergeReturn.history = returnJson;
+			//mergeReturn.CustomToken = CustomToken;
 			return mergeReturn;
 		}
 
