@@ -799,7 +799,7 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 			return userData;
 		}*/
 
-		let act = Number.parseInt( inputJson.body.deleteAction, 10 ) || 2;
+		let act = Number.parseInt( inputJson.body.deleteAction, 10 );
 
 		switch ( act ) {
 			case -1:
@@ -840,7 +840,7 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 			}
 		}
 
-		act = Number.parseInt( inputJson.body.deleteAction, 10 ) || 2;
+		//act = Number.parseInt( inputJson.body.deleteAction, 10 ) || 2;
 
 		if ( data.uid === userData.uid ) {
 			//自己的訊息
