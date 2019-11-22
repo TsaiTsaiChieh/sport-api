@@ -623,6 +623,9 @@ async function runReportMessage( inputJson, messageId = "" ) {
 	};
 
 	try {
+		messageId = inputJson.body.messageId || messageId || '';
+
+
 		if ( messageId.length < 1 ) {
 			returnJson.error = "沒有訊息id";
 			returnJson.inputJson = inputJson;
@@ -750,7 +753,7 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 	};
 
 	try {
-		messageId = messageId || inputJson.body.messageId || "";
+		messageId = inputJson.body.messageId || messageId || "";
 
 		messageId = ShortcutFunction.trim( messageId );
 
