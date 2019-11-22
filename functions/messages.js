@@ -76,7 +76,7 @@ app.post( "/", async ( req, res ) => {
 } );*/
 
 
-async function reqToInputJson( req ) {
+function reqToInputJson( req ) {
 	let returnJson = {
 		success: false,
 		body: req.body || {},
@@ -114,7 +114,7 @@ app.get( "/input/**", async ( req, res ) => {
 	};
 
 	try {
-		returnJson = await reqToInputJson( req );
+		returnJson = reqToInputJson( req );
 
 		returnJson.cookies = req.get( "cookie" );
 		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -134,7 +134,7 @@ app.post( "/input", async ( req, res ) => {
 	};
 
 	try {
-		returnJson = await reqToInputJson( req );
+		returnJson = reqToInputJson( req );
 
 		returnJson.cookies = req.get( "cookie" );
 		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -177,7 +177,7 @@ async function messageLast( req, res ) {
 	};
 
 	try {
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 
 		try {
 			inputJson.cookies = req.get( "cookie" );
@@ -208,7 +208,7 @@ app.post( "/create", async ( req, res ) => {
 	};
 
 	try {
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -234,7 +234,7 @@ app.post( "/report", async ( req, res ) => {
 	};
 
 	try {
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -260,7 +260,7 @@ app.post( "/delete", async ( req, res ) => {
 	};
 
 	try {
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -287,7 +287,7 @@ async function messageGetOne( req, res ) {
 
 	try {
 
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -321,7 +321,7 @@ async function messageFile( req, res ) {
 
 	try {
 
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
@@ -362,7 +362,7 @@ async function messageUser( req, res ) {
 
 	try {
 
-		let inputJson = await reqToInputJson( req );
+		let inputJson = reqToInputJson( req );
 		try {
 			inputJson.cookies = req.get( "cookie" );
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
