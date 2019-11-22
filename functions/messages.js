@@ -71,860 +71,343 @@ app.post( "/", async ( req, res ) => {
 		returnJson.error = errorHttpPOST;
 	}
 
-	res.json( ShortcutFunction.clearJson( returnJson ) );
+	res.json( returnJson );
 
 } );*/
 
-//空行為,回應建議-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
 
+async function reqToInputJson( req ) {
 	let returnJson = {
 		success: false,
+		body: req.body || {},
+		__session: '',
+		idToken: {}
+
 	};
-
 	try {
-
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-
-
-
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-
-
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//list": //列出聊天室列表-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//last": //最後N筆聊天訊息-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//create": //新訊息,回應訊息-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//report": //檢舉-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//delete": //隱藏/回收/刪除訊息-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//get": ////取得特定訊息,只要一筆訊息-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//file-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-//user": //臨時用來取得登入者資料的-----------------------------------------------------------------------------
-app.post( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-
-
-	} catch ( errorHttpPOST ) {
-		returnJson.error = errorHttpPOST;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-
-} );
-
-
-
-
-
-//get===========================================================================
-/*
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-*/
-
-//空行為,回應建議-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//list": //列出聊天室列表-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//last": //最後N筆聊天訊息-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//create": //新訊息,回應訊息-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//report": //檢舉-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//delete": //隱藏/回收/刪除訊息-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//get": ////取得特定訊息,只要一筆訊息-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//file-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-//user": //臨時用來取得登入者資料的-----------------------------------------------------------------------------
-app.get( "/", async ( req, res ) => {
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-	} catch ( errorHttpGET ) {
-		//console.error('errorHttpGET',errorHttpGET)
-		returnJson.error = errorHttpGET;
-	}
-
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-} );
-
-
-
-
-
-
-
-
-
-
-
-//============================================================================
-app.all( "*", async ( req, res ) => {
-	//'*' 可以用 '/:a/:b/**' 的方式匹配req.params.?變數,但在此不好用,自行切割解析
-
-	let returnJson = {
-		success: false,
-	};
-
-	try {
-		//returnJson.method = req.method; //post,get;
-		//let cookie__session = ShortcutFunction.cookieGet__session( req );
-		//let body = req.body || {};
-		let inputJson = {
-			body: req.body || {},
-			__session: '',
-			idToken: {},
-			method: req.method || 'req.method unknow'
-		};
-
-		try {
-			inputJson.cookies = req.get( "cookie" );
-
-			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-		} catch ( error ) {
-			inputJson.cookieERROR = error;
-		}
-
-		//inputJson;
-		inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
-		//{
-		//	"success": true,
-		//	"userData": {
-		//		"email": "ina2588@gets-info.com",
-		//		"displayName": "路人甲bnKcVVaiIaUf3daVMNTTK5gH4hf1",
-		//		"avatar": "data:image/png;base64,",
-		//		"uid": "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
-		//	}
-		//}
-
-		console.info( 'inputJson >>>>> ', inputJson );
-
-		//res.json( inputJson );
-		//return;
-
-		switch ( req.method ) {
-			case "GET":
-				//break;
-			case "POST":
-				break;
-
-			default:
-				//post,get以外的行為直接403
-				res.status( 403 ).send( "" );
-				//res.end();
-				return;
-				//break;
-		} //sw
-
-		//let userData = ( await users.authVerfyGetUserData( req ) ).userData; //不一定有登入,要檢查uid
-
-		//	userData=>{
-		//		"success": true,
-		//		"userData": {
-		//			"email": "ina2588@gets-info.com",
-		//			"displayName": "路人甲bnKcVVaiIaUf3daVMNTTK5gH4hf1",
-		//			"avatar": "data:image/png;base64,",
-		//			"uid": "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
-		//		}
-		//	}
-
-		//console.info( 'req.params :', req.params ); // /:act1/:act2
-		//console.info( 'req.query :', req.body ); // all use
-		//console.info( 'req.query :', req.query ); // all use
-		//console.info( 'req.headers :', req.headers ); //no use
-
+		returnJson.method = req.method || 'unknow';
 		//returnJson.params = req.params;
-		//req.query=?...
-		//req.headers
-
 		let paramArray = req.params[ 0 ] //網址後面,實測已經有decodeURI(),不用再次decodeURI()
 			.split( "/" ) //切割,注意 '//' 和第一個 '/' 造成空字串
 			.filter( param => param.length > 0 ); //留下非空字串
 		//returnJson.paramArray = paramArray;
 
-		let param1 = ShortcutFunction.unEntityValueToDef( paramArray[ 0 ], "" );
-		let param2 = ShortcutFunction.unEntityValueToDef( paramArray[ 1 ], "" );
-
-		/*
-		if ( param1.length < 1 && action2.length > 0 ) {
-			returnJson.error = '參數錯誤,請檢查網址';
-			res.status( 200 ).json( returnJson );
-			return;
-		}*/
-
-		switch ( param1.toLowerCase() ) {
-
-			case 'input':
-				// @ts-ignore
-				returnJson = inputJson;
-				break;
-
-			case "": //空行為,回應建議vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				returnJson.error = "請下令操作行為:/list/last/create/report/delete/get/user";
-				break;
-
-			case "list": //列出聊天室列表vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				returnJson.list = [];
-				returnJson.list.push( "public" );
-				returnJson.success = true;
-				break;
-
-			case "last": //最後N筆聊天訊息vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				returnJson = await lastMessages( inputJson );
-				//returnJson.success = true;
-				//res.status( 200 ).json( returnJson );
-				//return;
-				break;
-
-			case "create": //新訊息,回應訊息vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				// @ts-ignore
-				returnJson = await runCreateMessage( inputJson );
-				//res.status( 200 ).json( returnJson );
-				//docRef.id
-				break;
-
-			case "report": //檢舉vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				//console.info( 'run report );
-				returnJson = await messageReport( inputJson );
-				//returnJson.success = true;
-				//console.info( returnJson );
-				//res.status( 200 ).json( returnJson );
-				//return;
-				break;
-
-			case "delete": //隱藏/回收/刪除訊息,
-				returnJson = await softDeleteMessage( inputJson ); //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				break;
-
-			case "get": ////取得特定訊息,只要一筆訊息
-				// @ts-ignore
-				returnJson = await ShortcutFunction.getOneMessage( inputJson );
-				if ( returnJson.replyMessageId ) {
-					returnJson.replyMessage = await ShortcutFunction.getOneMessage( undefined, returnJson.replyMessageId );
-				}
-				break;
-
-			case 'file':
-				try {
-					let returnJson = await ShortcutFunction.getOneShareFile( inputJson, param2, true );
-					//uploadFileData = {
-					//fileUploadId: fileUploadId,
-					//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
-					//	fileFarmHash: returnJson.farmHash,
-					//	fileSipHash: returnJson.sipHash,
-					//	fileType: returnJson.fileType,
-					//	fileSubName: returnJson.fileSubName,
-					//	fileSize: metadata2.size
-					//	//,	bucketPath: path2
-					//	buffer
-					//	success = true;
-					//	history = returnJson;
-					//}
-					if ( returnJson.success ) {
-						let fileType = returnJson.fileType || '';
-
-						if ( fileType.length > 0 ) {
-							res.setHeader( 'Content-Type', fileType );
-						}
-						res.send( returnJson.buffer );
-						//res.end(  );
-						return;
-					}
-
-					//var img = new Buffer( returnJson.file, 'base64' );
-
-					//res.setHeader( 'Content-disposition', 'attachment; filename=dramaticpenguin.MOV' );
-					//res.setHeader( 'Content-disposition', 'attachment; filename=01.jpg' );
-
-					//res.append(field)
-
-					/*
-					res.writeHead( 200, {
-						'Content-disposition': 'attachment; filename=01.jpg',
-						'Content-Type': 'image/jpeg',
-						'Content-Length': returnJson.buffer.length
-					} );
-					*/
-
-					//returnJson.buffer
+		returnJson.param1 = ShortcutFunction.unEntityValueToDef( paramArray[ 0 ], "" );
+		returnJson.param2 = ShortcutFunction.unEntityValueToDef( paramArray[ 1 ], "" );
 
 
-				} catch ( error1 ) {
-					console.warn( '/file', error1 );
-					returnJson.error = error1;
-				}
 
-				break;
-
-			case "user": //臨時用來取得登入者資料的//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-				console.info( inputJson );
-				try {
-					let uid = inputJson.body.uid || inputJson.idToken.uid || '';
-					returnJson.inputJson = inputJson;
-
-					let returnJson2 = await users.userIdToUserData( uid );
-					returnJson.success = true;
-					returnJson2.history = returnJson;
-					// @ts-ignore
-					returnJson = returnJson2;
-				} catch ( error1 ) {
-					returnJson.error = error1;
-				}
-
-				break;
-
-				/*
-					_schema
-						if ( envValues.release ) {
-							//營運時不顯示
-							break;
-						}*/
-
-			default:
-				//其他,直接返回403
-				res.status( 403 ).send( "" );
-				return;
-				//returnJson = await getOneMessage( req );
-				//res.status( 200 ).json( returnJson );
-				//return;
-				break;
-		} //sw
-
-		//res.status(200).send('');//txt
-		//res.status(200).json(returnJson);
-		//returnJson.success = true;
+		returnJson.success = true;
 	} catch ( error ) {
-		console.warn( error.stack );
-		//res.status(200).send(error.stack); //txt
 		returnJson.error = error;
 	}
 
-	res.json( ShortcutFunction.clearJson( returnJson ) );
-	//res.status(200)...
+	return returnJson;
+}
 
-	//return next();
 
-	//res.end();
+
+//input,顯示輸入的參數,測試用-----------------------------------------------------------------------------
+app.get( "/input/**", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		returnJson = await reqToInputJson( req );
+
+		returnJson.cookies = req.get( "cookie" );
+		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+		returnJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( returnJson.__session, firebaseAdmin ) || {};
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
 } );
+
+app.post( "/input", async ( req, res ) => {
+
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		returnJson = await reqToInputJson( req );
+
+		returnJson.cookies = req.get( "cookie" );
+		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+		returnJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( returnJson.__session, firebaseAdmin ) || {};
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
+
+//list": //列出聊天室列表-----------------------------------------------------------------------------
+function messageList( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	returnJson.list = [];
+	returnJson.list.push( "public" );
+	returnJson.success = true;
+
+	res.json( returnJson );
+}
+app.get( "/list", ( req, res ) => {
+
+	messageList( req, res );
+
+} );
+app.post( "/list", ( req, res ) => {
+
+	messageList( req, res );
+
+} );
+
+//last": //最後N筆聊天訊息-----------------------------------------------------------------------------
+async function messageLast( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		let inputJson = await reqToInputJson( req );
+
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+
+		returnJson = await lastMessages( inputJson );
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+}
+app.get( "/last", messageLast );
+app.post( "/last", messageLast );
+
+
+//create": //新訊息,回應訊息-----------------------------------------------------------------------------
+
+app.post( "/create", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+		returnJson = await runCreateMessage( inputJson );
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
+
+//report": //檢舉-----------------------------------------------------------------------------
+app.post( "/report", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+		returnJson = await runReportMessage( inputJson );
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
+
+//delete": //隱藏/回收/刪除訊息-----------------------------------------------------------------------------
+app.post( "/delete", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+		returnJson = await softDeleteMessage( inputJson );
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
+
+//get": ////取得特定訊息,只要一筆訊息-----------------------------------------------------------------------------
+async function messageGetOne( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+		returnJson = await ShortcutFunction.getOneMessage( inputJson, inputJson.param2 );
+
+		if ( returnJson.replyMessageId.length > 0 ) {
+			returnJson.replyMessage = await ShortcutFunction.getOneMessage( undefined, returnJson.replyMessageId );
+		}
+
+		//returnJson.success = true;
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+}
+app.post( "/get", messageGetOne );
+app.get( "/get", messageGetOne );
+
+//file-----------------------------------------------------------------------------
+async function messageFile( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+
+		let returnJson = await ShortcutFunction.getOneShareFile( inputJson, inputJson.param1 || inputJson.param2, true );
+
+		if ( returnJson.success ) {
+			let fileType = returnJson.fileType || '';
+
+			if ( fileType.length > 0 ) {
+				res.setHeader( 'Content-Type', fileType );
+			}
+			res.send( returnJson.buffer );
+			//res.end(  );
+			return;
+		}
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+}
+app.post( "/file", messageFile );
+app.get( "/file/**", messageFile );
+
+//user": //臨時用來取得登入者資料的-----------------------------------------------------------------------------
+
+async function messageUser( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+
+		let inputJson = await reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" );
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin ) || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
+
+		let uid = inputJson.body.uid || inputJson.idToken.uid || inputJson.param1 || inputJson.param2 || '';
+
+		let returnJson2 = await users.userIdToUserData( uid );
+
+		returnJson.success = true;
+		returnJson.inputJson = inputJson;
+
+		returnJson2.history = returnJson;
+
+		returnJson = returnJson2;
+		returnJson.uid = uid;
+
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+}
+
+app.post( "/user", messageUser );
+app.get( "/user/**", messageUser );
+app.get( "/user/", messageUser );
+app.get( "/user", messageUser );
+
+
+
+//空行為,回應建議-----------------------------------------------------------------------------
+function doNothing( req, res ) {
+	res.json( {
+		success: false,
+		error: "請下令操作行為:/list/last/create/report/delete/get/user"
+	} );
+}
+app.get( "/", doNothing );
+app.post( "/", doNothing );
+
 
 module.exports = firebaseFunctions.https.onRequest( app );
 
@@ -965,17 +448,7 @@ async function lastMessages( inputJson ) {
 		console.info( "lastMessages limit=", limit );
 		console.info( "lastMessages utcJump=", utcJump );
 
-		if ( !ShortcutFunction.haveEntityValue( inputJson.body.channelId ) ) {
-			returnJson.error = "沒有輸入頻道(channelId),至少輸入為public'";
-			return returnJson;
-		}
-
-		let channelId = ShortcutFunction.trim( inputJson.body.channelId );
-
-		if ( channelId.length < 1 ) {
-			returnJson.error = "沒有輸入頻道(channelId),至少輸入為public";
-			return returnJson;
-		}
+		let channelId = inputJson.body.channelId || 'public';
 
 		//userId = ShortcutFunction.setNoValue(userId, '');
 		//utcJump = ShortcutFunction.setNoValue(parseInt(utcJump, 10), -1); //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
@@ -1142,7 +615,7 @@ async function lastMessages( inputJson ) {
 
 //delete myobj.a;
 //檢舉訊息=============================================================================
-async function messageReport( inputJson, messageId = "" ) {
+async function runReportMessage( inputJson, messageId = "" ) {
 	//, messageIdChecked = false
 
 	let returnJson = {
@@ -1158,7 +631,7 @@ async function messageReport( inputJson, messageId = "" ) {
 
 		let uid = inputJson.idToken.uid || '';
 		if ( uid === '' ) {
-			returnJson.error = 'messageReport >>>> inputJson.idToken.uid不存在';
+			returnJson.error = 'runReportMessage >>>> inputJson.idToken.uid不存在';
 			returnJson.inputJson = inputJson;
 			return returnJson;
 		}
@@ -1166,7 +639,7 @@ async function messageReport( inputJson, messageId = "" ) {
 		let userData = await users.userIdToUserData( uid );
 		uid = userData.uid || '';
 		if ( !userData.uid ) {
-			returnJson.error = 'messageReport  >>>>>  userData.uid不存在';
+			returnJson.error = 'runReportMessage  >>>>>  userData.uid不存在';
 			returnJson.userData = userData;
 			return returnJson;
 		}
@@ -1182,7 +655,7 @@ async function messageReport( inputJson, messageId = "" ) {
 
 		messageId = messageId || inputJson.body.messageId || "";
 
-		console.info( " messageReport messageId", messageId );
+		console.info( " runReportMessage messageId", messageId );
 
 		//messageId = ShortcutFunction.trim( messageId );
 
@@ -1202,13 +675,13 @@ async function messageReport( inputJson, messageId = "" ) {
 		switch ( Number.parseInt( msgData.softDelete, 10 ) || 2 ) {
 			case -1: //管理員刪除(全域)
 				returnJson.error = "沒有此訊息";
-				console.info( "messageReport 4444444444444", returnJson );
+				console.info( "runReportMessage 4444444444444", returnJson );
 				return returnJson;
 				//break;
 
 			case 0: //用戶回收(全域刪除)
 				returnJson.error = "沒有此訊息";
-				console.info( "messageReport 5555555555555555", returnJson );
+				console.info( "runReportMessage 5555555555555555", returnJson );
 				return returnJson;
 				//break;
 
@@ -1216,7 +689,7 @@ async function messageReport( inputJson, messageId = "" ) {
 				if ( msgData.uid === userData.uid ) {
 					//如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
 					returnJson.error = "沒有此訊息";
-					console.info( "messageReport 66666666666", returnJson );
+					console.info( "runReportMessage 66666666666", returnJson );
 					return returnJson;
 				}
 				break;
@@ -1226,7 +699,7 @@ async function messageReport( inputJson, messageId = "" ) {
 
 		if ( msgData.uid === uid ) { //訊息作者就是自己,
 			returnJson.error = "你無法檢舉自己的訊息,但是你可以選擇刪除或是回收";
-			console.info( "messageReport 777777777777", returnJson );
+			console.info( "runReportMessage 777777777777", returnJson );
 			return returnJson;
 		}
 
@@ -1259,7 +732,7 @@ async function messageReport( inputJson, messageId = "" ) {
 		returnJson.writeTime = arrUnion.writeTime;
 		returnJson.success = true;
 	} catch ( error ) {
-		console.warn( "messageReport error", error );
+		console.warn( "runReportMessage error", error );
 		returnJson.error = error;
 	}
 
@@ -1394,7 +867,7 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 
 		returnJson.error = "你沒有權限刪除此訊息,請使用檢舉";
 	} catch ( error ) {
-		console.warn( "messageReport error", error );
+		console.warn( "runReportMessage error", error );
 		returnJson.error = error;
 	}
 
@@ -1455,7 +928,7 @@ async function runCreateMessage( inputJson ) {
 
 		let uid = inputJson.idToken.uid || '';
 		if ( uid === '' ) {
-			returnJson.error = 'messageReport >>>> inputJson.idToken.uid不存在';
+			returnJson.error = 'runReportMessage >>>> inputJson.idToken.uid不存在';
 			returnJson.inputJson = inputJson;
 			return returnJson;
 		}
@@ -1463,7 +936,7 @@ async function runCreateMessage( inputJson ) {
 		let userData = await users.userIdToUserData( uid );
 		uid = userData.uid || '';
 		if ( !userData.uid ) {
-			returnJson.error = 'messageReport  >>>>>  userData.uid不存在';
+			returnJson.error = 'runReportMessage  >>>>>  userData.uid不存在';
 			returnJson.userData = userData;
 			return returnJson;
 		}
