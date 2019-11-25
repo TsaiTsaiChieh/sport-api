@@ -43,11 +43,15 @@ const {
 
 //const htmlencode = require('js-htmlencode');
 
-exports.trim = function ( string = "" ) {
+exports.trim = function ( string ) {
+
+	if ( !Number.isNaN( string ) ) {
+		return ''.concat( string ).replace( /^\s+|\s+$/g, "" );
+	}
 
 	//let stype = typeof ( string );
-	string = ( string || '' ).toString();
-	return string.replace( /^\s+|\s+$/g, "" );
+	let string2 = string || '';
+	return ''.concat( string2 ).replace( /^\s+|\s+$/g, "" );
 };
 
 exports.haveEntityValue = function ( input ) {
@@ -201,8 +205,13 @@ exports.clearJson = function ( json = {} ) {
 	return json;
 }; //send_json
 
-exports.timestampUTCmsInt = function ( changeDays = 0 ) {
-	let Days = parseInt( changeDays.toString() ) || 0;
+exports.timestampUTCmsInt = function ( changeDays ) {
+	let Days = 0;
+	if ( !Number.isNaN( changeDays ) ) {
+		Days = parseInt( changeDays );
+	}
+
+
 	if ( Days > 0 || Days < 0 ) {
 		return moment()
 			.add( Days, "days" )
@@ -211,11 +220,18 @@ exports.timestampUTCmsInt = function ( changeDays = 0 ) {
 	return moment().valueOf();
 };
 
-exports.timestampUTCmsSconds = function ( changeSconds = 0 ) {
-	let Days = parseInt( changeSconds.toString() ) || 0;
-	if ( Days > 0 || Days < 0 ) {
+exports.timestampUTCmsSconds = function ( changeSconds ) {
+
+
+	let Sconds = 0;
+	if ( !Number.isNaN( changeSconds ) ) {
+		Sconds = parseInt( changeSconds );
+	}
+
+	//let Days = parseInt( changeSconds.toString() ) || 0;
+	if ( Sconds > 0 || Sconds < 0 ) {
 		return moment()
-			.add( Days, "seconds" )
+			.add( Sconds, "seconds" )
 			.valueOf();
 	}
 	return moment().valueOf();
@@ -338,7 +354,7 @@ exports.fileCheckAndReplace = function ( fileContent = "", fileType = "" ) {
 			return returnJson;
 		}
 
-		fileContent = returnJson.fileContent.toString(); //避免非字串問題
+		fileContent = ''.concat( returnJson.fileContent ); //避免非字串問題
 
 		if ( this.trim( fileContent ).length < 1 ) {
 			//內容長度為零
@@ -348,7 +364,9 @@ exports.fileCheckAndReplace = function ( fileContent = "", fileType = "" ) {
 			return returnJson;
 		}
 
-		fileType = this.trim( returnJson.fileType );
+		fileType = returnJson.fileType || '';
+		fileType = this.trim( fileType );
+
 
 		if ( fileContent.indexOf( this.base64SplitStr ) > 0 ) {
 			//這是一個base64檔案,並且有檔案格式在前
@@ -485,16 +503,20 @@ exports.runFileUpload5t = async function ( fileUrl = '', firestore ) {
 		console.info( 'buckeFile2isExists >>>>>>>>>>>>>> ', buckeFile2isExists );
 
 
-		if ( buckeFile2isExists ) { //檔案存在,殺掉暫存檔
-			let deleteStat = await bucketFile1.delete();
-		} else { //不存在,移動到正式位置
-			await bucketFile1.move( buckeFile2 ); //先移動到正式位置
+		if ( !buckeFile2isExists ) { //不存在,移動到正式位置
+			let moveStat = await bucketFile1.move( buckeFile2 ); //先移動到正式位置
 			//console.info( 'moveStat >>>>>>>>>>>>> \n', moveStat );
-			await buckeFile2.setMetadata( {
+			let setStat = await buckeFile2.setMetadata( {
 				contentType: returnJson.fileType
 			} );
-
 		}
+
+		try {
+			let deleteStat = await bucketFile1.delete(); //殺掉暫存檔
+		} catch ( errorDeleteStat ) {
+			//刪除失敗就算了
+		}
+
 		//let metadata2 = ( await buckeFile2.getMetadata() )[ 0 ];
 
 		//取得檔案資訊
@@ -698,7 +720,8 @@ exports.realtimePush = async function ( pushData = {}, channelId = "public", sub
 		channelId = pushData.channelId || channelId || "public";
 		returnJson.channelId = channelId;
 
-		let replyMessageId = this.trim( pushData.replyMessageId || "" );
+		let replyMessageId = pushData.replyMessageId || "";
+		replyMessageId = this.trim( replyMessageId );
 		if ( replyMessageId.length > 0 ) {
 			console.info( "replyMessageId", replyMessageId );
 			returnJson.replyMessage = await this.getOneMessage( {}, replyMessageId );
@@ -723,7 +746,7 @@ exports.realtimePush = async function ( pushData = {}, channelId = "public", sub
 	return returnJson;
 };
 
-exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
+exports.getOneMessage = async function ( inputJson = {}, messageId2 = "" ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -736,7 +759,9 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 
 		//let body = req.body;
 
-		let messageId = this.trim( messageId2 || "" );
+		let messageId = messageId2 || "";
+		messageId = this.trim( messageId2 );
+
 
 		if ( messageId.length < 1 ) {
 			if ( !ShortcutFunction.haveEntityValue( inputJson.body.messageId ) ) {
@@ -745,11 +770,14 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 				return returnJson;
 			}
 
-			messageId = this.trim( inputJson.body.messageId || "" );
+			messageId = inputJson.body.messageId || "";
+
+			messageId = this.trim( messageId );
 		}
 
 		if ( messageId.length < 1 ) {
-			messageId = ShortcutFunction.trim( messageId2 || "" );
+			messageId = messageId2 || "";
+			messageId = ShortcutFunction.trim( messageId );
 		}
 
 		if ( messageId.length < 1 ) {
@@ -774,7 +802,12 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 			return returnJson;
 		}
 
-		switch ( Number.parseInt( data.softDelete, 10 ) || 2 ) {
+		let softDelete = 2;
+		if ( !Number.isNaN( data.softDelete ) ) {
+			Number.parseInt( data.softDelete, 10 );
+		}
+
+		switch ( softDelete ) {
 			case -1: //管理員刪除(全域)
 				returnJson.error = "沒有此訊息";
 				console.info( "getOneMessage 4444444444444", returnJson );
@@ -813,7 +846,8 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 		let fileUploadId = data.fileUploadId || '';
 
 		//if ( fileUploadId.length > 0 ) {
-		let fireJson = this.getOneShareFile( undefined, fileUploadId ); //失敗也沒關係,用空值填充
+		let fireJson = await this.getOneShareFile( undefined, fileUploadId ); //失敗也沒關係,用空值填充
+		console.info( 'getOneMessage   getOneShareFile 888888888888888888\n', fireJson );
 		//{
 		//fileUploadId: fileUploadId,
 		//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
@@ -830,6 +864,8 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 		data.fileSubName = fireJson.fileSubName || '';
 		data.fileFarmHash = fireJson.fileFarmHash || '';
 		data.fileSipHash = fireJson.fileSipHash || '';
+
+		console.info( 'getOneMessage   getOneShareFile data  999999999999999999 \n', data );
 		//} //if fireJson.success
 
 		//} //if fileUploadId.length > 0
@@ -848,7 +884,7 @@ exports.getOneMessage = async function ( inputJson, messageId2 = "" ) {
 	return returnJson;
 };
 
-exports.getOneShareFile = async function ( inputJson, fileUploadId2 = '', needBuffer = false ) {
+exports.getOneShareFile = async function ( inputJson = {}, fileUploadId2 = '', needBuffer = false ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -859,9 +895,11 @@ exports.getOneShareFile = async function ( inputJson, fileUploadId2 = '', needBu
 	try {
 		console.info( "getOneFile" );
 
-		let body = inputJson.body;
+		let body = inputJson.body || {};
 
-		let fileUploadId = this.trim( body.fileUploadId || fileUploadId2 || "" );
+		let fileUploadId = body.fileUploadId || fileUploadId2 || "";
+
+		fileUploadId = this.trim( fileUploadId );
 
 		if ( fileUploadId.length < 1 ) {
 			returnJson.error = '沒有檔案編號fileUploadId';
@@ -878,6 +916,7 @@ exports.getOneShareFile = async function ( inputJson, fileUploadId2 = '', needBu
 		//console.info("doc >>>>>>>>", doc);
 
 		let data = doc.data();
+		console.info( 'getOneShareFile >>>>>>>>>>>>>>>\n', data );
 		//uploadFileData = {
 		//fileUploadId: fileUploadId,
 		//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
@@ -938,7 +977,7 @@ exports.getOneShareFile = async function ( inputJson, fileUploadId2 = '', needBu
 	return returnJson;
 };
 
-exports.__getOneFile = async function ( inputJson, param2 = '' ) {
+exports.__getOneFile = async function ( inputJson = {}, param2 = '' ) {
 	//只取一個訊息
 	//userId = userId.toString();
 
@@ -951,7 +990,8 @@ exports.__getOneFile = async function ( inputJson, param2 = '' ) {
 
 		let body = inputJson.body;
 
-		let fileUploadId = this.trim( body.fileUploadId || param2 || "" );
+		let fileUploadId = body.fileUploadId || param2 || "";
+		fileUploadId = this.trim( fileUploadId );
 
 		if ( fileUploadId.length < 1 ) {
 			returnJson.error = '沒有檔案編號fileUploadId';
