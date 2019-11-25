@@ -679,7 +679,7 @@
 				console.info( 'onAuthStateChanged >>> user' );
 				console.info( authUserData );
 
-				if ( authUserData.uid ) { //如果有登入的uid,就取得其他用戶資料
+				if ( ( authUserData.uid !== undefined ) || ( authUserData.uid !== null ) ) { //如果有登入的uid,就取得其他用戶資料
 					getUserDataX();
 				} else {
 					//這裡是沒有登入的行為
