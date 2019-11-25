@@ -59,7 +59,7 @@ app.post( "/", async ( req, res ) => {
 		};
 
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 		} catch ( error ) {
 			inputJson.cookieERROR = error;
@@ -116,7 +116,7 @@ async function messageInput( req, res ) {
 	try {
 		returnJson = reqToInputJson( req );
 
-		returnJson.cookies = req.get( "cookie" );
+		returnJson.cookies = req.get( "cookie" ) || '';
 		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 		returnJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( returnJson.__session, firebaseAdmin );
 		returnJson.idToken = returnJson.idToken || {};
@@ -197,7 +197,7 @@ app.post( "/create", async ( req, res ) => {
 	try {
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
@@ -224,7 +224,7 @@ app.post( "/report", async ( req, res ) => {
 	try {
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
@@ -251,7 +251,7 @@ app.post( "/delete", async ( req, res ) => {
 	try {
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
@@ -279,7 +279,7 @@ async function messageGetOne( req, res ) {
 
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
@@ -316,7 +316,7 @@ async function messageFile( req, res ) {
 
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
@@ -358,7 +358,7 @@ async function messageUser( req, res ) {
 
 		let inputJson = reqToInputJson( req );
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
 			inputJson.idToken = inputJson.idToken || {};
