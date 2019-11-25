@@ -114,7 +114,7 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			userData1.signature = userData1.signature || '';
 			userData1.phone = userData1.phone || '';
 
-			userData1.denys = userData1.phone || [];
+			userData1.denys = userData1.denys || [];
 
 			userData1.coin = userData1.coin || 0;
 			userData1.dividend = userData1.dividend || 0;
