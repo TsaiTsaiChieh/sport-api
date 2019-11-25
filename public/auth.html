@@ -13,17 +13,31 @@
 <body>
 <div id="firebaseui-auth-container"></div>
 <div>
-<!--    <button type="button" onclick="lineLogin()">Line Login</button>-->
-    <a href="/auth/line_login"
-       target="_blank"><img src="line_login_btn.png"></a>
+    <!--    <button type="button" onclick="lineLogin()">Line Login</button>-->
+    <a href="/auth/line_login" target="_blank"><img src="line_login_btn.png"></a>
     <button type="button" onclick="logout()">登出</button>
 </div>
 <script type="text/javascript">
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+        expire_days = 1; // 過期日期(天)
+        let d = new Date();
+        d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toGMTString();
+        // document.cookie = "name=test" + "; " + expires + '; domain=blog.longwin.com.tw; path=/';
+        document.cookie = "refCode=" + refCode + "; " + expires;
+        // alert(document.cookie)
+    }
+
+
     const uiConfig = {
         //rediect URL after login success
         signInSuccessUrl: '/auth.html',
         signInOptions: [{
             provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+            customParameters: {code: 'test'},
             defaultCountry: 'TW',
             requireDisplayName: true,
             recaptchaParameters: {

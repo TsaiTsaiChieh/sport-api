@@ -8,6 +8,8 @@ const cookie = require('cookie');
 const rp = require('request-promise');
 const jwt = require("jsonwebtoken");
 const secure_compare = require("secure-compare");
+const cookieParser = require("cookie-parser");
+
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -21,6 +23,7 @@ firebase.initializeApp(envValues.firebaseConfig);
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 const session = require("express-session");
 const session_options_line = {
@@ -349,10 +352,11 @@ app.post('/sendSMS', function (req, res) {
     res.json({"test": "test"})
 });
 
-app.post('/login', function (req, res) {
+app.post('/login', async (req, res) => {
     let returnJson = {success: false};
     let token = req.body.token;
     let uid = req.body.uid;
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (!token) {
         console.log('Error login user: missing token');
         return res.status(400).json(returnJson);
@@ -369,8 +373,8 @@ app.post('/login', function (req, res) {
                 returnJson.userStats = firestoreUser.userStats;
                 returnJson.userInfo = firestoreUser.data;
             }
-            // let options = {maxAge: expiresIn, httpOnly: true};
-            let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+            let options = {maxAge: expiresIn, httpOnly: true};
+            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
             res.cookie('__session', sessionCookie, options);
             res.json(returnJson)
         })
@@ -527,9 +531,6 @@ async function getUserProfile(userId) {
 
         if (userIdStr.length < 1) {
             console.warn('firebaseGetUserData no userId : ', userId);
-            // returnJson.userStats = 0;
-            returnJson.uid = userId;
-            returnJson.success = false;
             return returnJson;
         }
 
@@ -539,11 +540,10 @@ async function getUserProfile(userId) {
             console.log('No such document!');
             returnJson.userStats = 0;
             returnJson.success = true;
-        } else {
             returnJson.data = doc.data();
-            returnJson.userStats = doc.data().userStats;
+            // returnJson.userStats = doc.data().userStats;
             returnJson.success = true;
-            console.log("createTime...:", doc.createTime)
+            console.log("createTime...:", doc.createTime);
             console.log(`Retrieved data: ${JSON.stringify(doc)}`);
         }
         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
@@ -556,9 +556,11 @@ async function getUserProfile(userId) {
 
 app.post('/modifyUserProfile', async function (req, res) {
     try {
+        console.log("user profile .. ",req.cookies);
         let cookies = req.get('cookie') || '__session=';
         // if (true) { //開發中暫停驗證sessionCookie
         let sessionCookie = cookie.parse(cookies).__session;
+        console.log("user profile .. ",sessionCookie);
         if (verifySessionCookie(sessionCookie)) {
             let uid = req.body.uid;
             if (!uid) res.status(400).json({success: false, message: 'missing uid'});
@@ -582,6 +584,28 @@ app.post('/modifyUserProfile', async function (req, res) {
                     data.coin = 0;  //搞幣
                     data.dividend = 0;  //搞紅利
                     data.ingot = 0; //搞錠
+                    data.title = "一般會員";
+                    data.point = 0;
+                    let refCookies = req.get('cookie') || 'refCode=';
+                    console.log(",.,,  ",req.cookies.__session);
+                    let refCode = cookie.parse(refCookies).refCode;
+                    console.log(",.,,222  ",refCode)
+                    if (refCode) {
+                        // regist from friend referral code
+                        console.log("refCode....", refCode);
+                        let referrer = await getUserProfile(refCode);
+                        if (referrer.data) {
+                            // process Ref Point
+                            // deny if refer each other
+                            if (referrer.data.referrer !== uid && refCode !== uid) {
+                                data.point = 999;
+                                data.referrer = refCode;
+                            }
+                        }
+                        res.clearCookie('refCode');
+                    } else {
+                        console.log("none refCode........");
+                    }
                     break;
                 case 1: //一般會員
                     break;
@@ -599,6 +623,19 @@ app.post('/modifyUserProfile', async function (req, res) {
             if (req.body.email) data.email = req.body.email;
             if (req.body.phone) data.phone = req.body.phone;
             if (req.body.signature) data.signature = req.body.signature;
+            let refCode = req.body.refCode;
+            if (refCode && !data.referrer) {
+                let referrer = await getUserProfile(refCode);
+                if (referrer.data) {
+                    // process Ref Point
+                    // deny if refer each other
+                    console.log("set refCode : ", refCode);
+                    if (referrer.data.referrer !== uid && refCode !== uid) {
+                        data.point = 999;
+                        data.referrer = refCode;
+                    }
+                }
+            }
             res.setHeader('Access-Control-Allow-Origin', '*');
 
             let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
@@ -618,6 +655,107 @@ app.post('/modifyUserProfile', async function (req, res) {
         res.json({success: false, message: "profile faild"});
     }
 });
+// app.post('/modifyUserProfile', async function (req, res) {
+//     try {
+//         console.log("user profile .. ", req.cookies);
+//         let cookies = req.get('cookie') || '__session=';
+//         // if (true) { //開發中暫停驗證sessionCookie
+//         let sessionCookie = cookie.parse(cookies).__session;
+//         await verifySessionCookie(sessionCookie).then(async isVerify => {
+//             console.log("verify session cookie ", isVerify);
+//             if (!isVerify) res.json({success: false, result: "not verify"});
+//             let uid = req.body.uid;
+//             if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+//             let firestoreUser = await getUserProfile(uid);
+//             let data = {};
+//             console.log(firestoreUser.userStats);
+//             switch (firestoreUser.userStats) {
+//                 case 0: //新會員
+//                     if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
+//                         res.status(400).json({success: false, message: 'missing info'});
+//                     data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
+//                     data.name = req.body.name;                  //only new user can set name(real name), none changeable value
+//                     data.phone = req.body.phone;
+//                     data.email = req.body.email;
+//                     data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
+//                     if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+//                     data.userStats = 1;
+//                     data.signature = "";
+//                     data.blockMessage = 0;
+//                     data.denys = [];
+//                     data.coin = 0;  //搞幣
+//                     data.dividend = 0;  //搞紅利
+//                     data.ingot = 0; //搞錠
+//                     data.title = "一般會員";
+//                     data.point = 0;
+//                     let refCookies = req.get('cookie') || 'refCode=';
+//                     console.log(",.,,  ", req.cookies.__session);
+//                     let refCode = cookie.parse(refCookies).refCode;
+//                     console.log(",.,,222  ", refCode)
+//                     if (refCode) {
+//                         // regist from friend referral code
+//                         console.log("refCode....", refCode);
+//                         let referrer = await getUserProfile(refCode);
+//                         if (referrer.data) {
+//                             // process Ref Point
+//                             // deny if refer each other
+//                             if (referrer.data.referrer !== uid && refCode !== uid) {
+//                                 data.point = 999;
+//                                 data.referrer = refCode;
+//                             }
+//                         }
+//                         res.clearCookie('refCode');
+//                     } else {
+//                         console.log("none refCode........");
+//                     }
+//                     break;
+//                 case 1: //一般會員
+//                     break;
+//                 case 2: //大神
+//                     break;
+//                 case 3: //鎖帳號會員
+//                     res.status(400).json({success: false, message: 'blocked user'});
+//                     break;
+//                 case 9: //管理員
+//                     break;
+//                 default:
+//                     throw 'LINE channel ID mismatched';
+//             }
+//             if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
+//             if (req.body.email) data.email = req.body.email;
+//             if (req.body.phone) data.phone = req.body.phone;
+//             if (req.body.signature) data.signature = req.body.signature;
+//             let refCode = req.body.refCode;
+//             if (refCode && !data.referrer) {
+//                 let referrer = await getUserProfile(refCode);
+//                 if (referrer.data) {
+//                     // process Ref Point
+//                     // deny if refer each other
+//                     console.log("set refCode : ", refCode);
+//                     if (referrer.data.referrer !== uid && refCode !== uid) {
+//                         data.point = 999;
+//                         data.referrer = refCode;
+//                     }
+//                 }
+//             }
+//             res.setHeader('Access-Control-Allow-Origin', '*');
+//
+//             let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+//             firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
+//                 console.log('Added document with ID: ', ref);
+//                 res.json({success: true, result: ref});
+//             }).catch(e => {
+//                 console.log('Added document with error: ', e);
+//                 res.json({success: false, message: "update failed"});
+//             });
+//         });
+//
+//         // res.json({success: true, result: writeResult});
+//     } catch (e) {
+//         console.log('Added document with error: ', e);
+//         res.json({success: false, message: "profile faild"});
+//     }
+// });
 
 async function uploadAvatar() {
     console.log("compress avatar to 100*100?");
