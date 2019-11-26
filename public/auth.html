@@ -22,14 +22,17 @@
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
     if (refCode) {
-        expire_days = 1; // 過期日期(天)
-        let d = new Date();
-        d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
-        let expires = "expires=" + d.toGMTString();
-        // document.cookie = "name=test" + "; " + expires + '; domain=blog.longwin.com.tw; path=/';
-        document.cookie = "refCode=" + refCode + "; " + expires;
-        // alert(document.cookie)
+        localStorage.setItem('refCode', refCode)
     }
+    // if (refCode) {
+    //     expire_days = 1; // 過期日期(天)
+    //     let d = new Date();
+    //     d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
+    //     let expires = "expires=" + d.toGMTString();
+    //     // document.cookie = "name=test" + "; " + expires + '; domain=blog.longwin.com.tw; path=/';
+    //     document.cookie = "refCode=" + refCode + "; " + expires;
+    //     // alert(document.cookie)
+    // }
 
 
     const uiConfig = {
