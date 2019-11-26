@@ -720,6 +720,8 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 
 		//messageId = ShortcutFunction.trim( messageId );
 
+		returnJson.messageId = messageId;
+
 
 		let DocRef = firestore.collection( "messages" ).doc( messageId );
 
@@ -820,12 +822,16 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 
 		messageId = ShortcutFunction.trim( messageId );
 
+
+
 		console.info( "softDeleteMessage messageId =============>", messageId );
 
 		if ( messageId.length < 1 ) {
 			returnJson.error = "沒有訊息id  1111";
 			return returnJson;
 		}
+
+		returnJson.messageId = messageId;
 
 		let docSnapshot = await firestore
 			.collection( "messages" )
