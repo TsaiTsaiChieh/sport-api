@@ -46,7 +46,16 @@ const lineLogin = new line_login({
 app.use("/line_login", lineLogin.auth());
 // app.disable("x-powered-by");
 app.all('/api', (req, res) => {
+    console.log(JSON.stringify(req.cookies, null, '\t'));
+    let refCookies = req.get('cookie') || 'refCode=';
+    let refCode = cookie.parse(refCookies).refCode;
+    console.log(refCode)
     console.log("api....");
+    const options = {
+        maxAge: 1000 * 2 * 60,
+        httpOnly: true
+    };
+    res.cookie('api_test', "api_test", options);
     res.json({
         message: 'Hello API2'
     });
@@ -412,7 +421,7 @@ app.get('/verifySessionCookie', async function (req, res) {
     if (sessionCookie) {
         console.log('verifySessionCookie - ', sessionCookie);
         // let isVerified = verifySessionCookie(sessionCookie);
-        if (verifySessionCookie(sessionCookie)) {
+        if (await verifySessionCookie(sessionCookie) === true) {
             res.json({success: true});
         } else {
             res.json({success: false});
@@ -424,16 +433,18 @@ app.get('/verifySessionCookie', async function (req, res) {
 });
 
 const verifySessionCookie = async (sessionCookie) => {
+    let isVerify = false;
     await admin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
+            isVerify = true;
             console.log('Auth - verifySessionCookie success : ', decodedClaims);
-            return true;
         })
         .catch(error => {
             console.log('Auth - verifySessionCookie false : ', error);
             return false;
         });
+    return isVerify;
 };
 
 // Generate a Request option to access LINE APIs
@@ -519,51 +530,86 @@ app.post('/getUserInfo', async (req, res) => {
 
 // module.exports = functions.https.onRequest(app);
 
+// async function getUserProfile(userId) {
+//     console.log("get user...");
+//     let returnJson = {
+//         success: false,
+//         uid: userId
+//     };
+//     try {
+//         // let userIdStr = userId.toString().trim();
+//         let userIdStr = userId;
+//         console.log("get firestore user : ", userIdStr);
+//
+//         if (userIdStr.length < 1) {
+//             console.warn('firebaseGetUserData no userId : ', userId);
+//             return returnJson;
+//         }
+//
+//         let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+//         let doc = firestore.collection('users').doc(userIdStr).get();
+//         if (!doc.exists) {
+//             console.log('No such document!');
+//             returnJson.userStats = 0;
+//             returnJson.success = true;
+//             console.log("createTime...:", doc.createTime);
+//             console.log(`Retrieved data: ${JSON.stringify(doc)}`);
+//         }else{
+//             console.log("yes such document!...:", doc.createTime);
+//             returnJson.data = doc.data();
+//             returnJson.userStats = doc.data().userStats;
+//             returnJson.success = true;
+//             console.log(`Retrieved data: ${JSON.stringify(doc)}`);
+//         }
+//         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+//         return returnJson;
+//     } catch (error) {
+//         console.warn('firebaseGetUserData', error);
+//         returnJson.success = false;
+//     }
+// }
 async function getUserProfile(userId) {
     let returnJson = {
         success: false,
         uid: userId
     };
-    try {
-        // let userIdStr = userId.toString().trim();
-        let userIdStr = userId;
-        console.log("get firestore user : ", userIdStr);
+    // let userIdStr = userId.toString().trim();
+    let userIdStr = userId;
+    if (userIdStr.length < 1) {
+        console.warn('firebaseGetUserData no userId : ', userId);
+        return returnJson;
+    }
 
-        if (userIdStr.length < 1) {
-            console.warn('firebaseGetUserData no userId : ', userId);
-            return returnJson;
-        }
-
-        let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-        let doc = await firestore.collection('users').doc(userIdStr).get();
-        if (!doc.exists) {
+    let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+    await firestore.collection('users').doc(userIdStr).get().then(userRecord => {
+        if (!userRecord.exists) {
             console.log('No such document!');
             returnJson.userStats = 0;
             returnJson.success = true;
-            returnJson.data = doc.data();
-            // returnJson.userStats = doc.data().userStats;
+        } else {
+            console.log("document found!", userRecord.createTime);
+            returnJson.data = userRecord.data();
+            returnJson.userStats = returnJson.data.userStats;
             returnJson.success = true;
-            console.log("createTime...:", doc.createTime);
-            console.log(`Retrieved data: ${JSON.stringify(doc)}`);
+            // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
         }
         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
-        return await returnJson;
-    } catch (error) {
-        console.warn('firebaseGetUserData', error);
+    }).catch(err => {
+        console.warn('firebaseGetUserData', err);
         returnJson.success = false;
-    }
+    });
+    return returnJson;
 }
 
 app.post('/modifyUserProfile', async function (req, res) {
     try {
-        console.log("user profile .. ",req.cookies);
-        let cookies = req.get('cookie') || '__session=';
+        let uid = req.body.uid;
+        if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+        console.log("user profile .. ", JSON.stringify(req.cookies, null, '\t'));
         // if (true) { //開發中暫停驗證sessionCookie
-        let sessionCookie = cookie.parse(cookies).__session;
-        console.log("user profile .. ",sessionCookie);
-        if (verifySessionCookie(sessionCookie)) {
-            let uid = req.body.uid;
-            if (!uid) res.status(400).json({success: false, message: 'missing uid'});
+        let sessionCookie = req.cookies.__session;
+        let refCode = req.cookies.refCode;
+        if (await verifySessionCookie(sessionCookie) === true) {
             let firestoreUser = await getUserProfile(uid);
             let data = {};
             console.log(firestoreUser.userStats);
@@ -586,10 +632,6 @@ app.post('/modifyUserProfile', async function (req, res) {
                     data.ingot = 0; //搞錠
                     data.title = "一般會員";
                     data.point = 0;
-                    let refCookies = req.get('cookie') || 'refCode=';
-                    console.log(",.,,  ",req.cookies.__session);
-                    let refCode = cookie.parse(refCookies).refCode;
-                    console.log(",.,,222  ",refCode)
                     if (refCode) {
                         // regist from friend referral code
                         console.log("refCode....", refCode);
@@ -608,16 +650,20 @@ app.post('/modifyUserProfile', async function (req, res) {
                     }
                     break;
                 case 1: //一般會員
+                    console.log("normal user");
                     break;
                 case 2: //大神
+                    console.log("godlike user");
                     break;
                 case 3: //鎖帳號會員
+                    console.log("blocked user");
                     res.status(400).json({success: false, message: 'blocked user'});
                     break;
                 case 9: //管理員
+                    console.log("manager user");
                     break;
                 default:
-                    throw 'LINE channel ID mismatched';
+                    throw 'userStats error';
             }
             if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
             if (req.body.email) data.email = req.body.email;
@@ -648,7 +694,7 @@ app.post('/modifyUserProfile', async function (req, res) {
             });
             // res.json({success: true, result: writeResult});
         } else {
-            res.json({success: false, message: "not login"});
+            res.json({success: false, message: "1not login"});
         }
     } catch (e) {
         console.log('Added document with error: ', e);
