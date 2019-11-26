@@ -49,7 +49,7 @@ app.all('/api', (req, res) => {
     console.log(JSON.stringify(req.cookies, null, '\t'));
     let refCookies = req.get('cookie') || 'refCode=';
     let refCode = cookie.parse(refCookies).refCode;
-    console.log(refCode)
+    console.log(refCode);
     console.log("api....");
     const options = {
         maxAge: 1000 * 2 * 60,
@@ -445,29 +445,6 @@ const verifySessionCookie = async (sessionCookie) => {
         });
     return isVerify;
 };
-const verifySessionCookie2 = async (sessionCookie) => {
-    let isVerify = {};
-    await admin.auth().verifySessionCookie(
-        sessionCookie, true)
-        .then((decodedClaims) => {
-            isVerify = decodedClaims;
-            console.log('Auth - verifySessionCookie success : ', decodedClaims);
-
-        })
-        .catch(error => {
-            console.log('Auth - verifySessionCookie false : ', error);
-        });
-    return isVerify;
-};
-
-// Generate a Request option to access LINE APIs
-function generateLineApiRequest(apiEndpoint, lineAccessToken) {
-    return {
-        url: apiEndpoint,
-        headers: {'Authorization': `Bearer ${lineAccessToken}`},
-        json: true,
-    };
-}
 
 
 app.post('/getUserInfo', async (req, res) => {
@@ -519,68 +496,6 @@ app.post('/getUserInfo', async (req, res) => {
     }
 });
 
-//Line Login v2.1 https://github.com/jirawatee/LINE-Login-x-Firebase-Android/blob/master/functions/index.js
-
-// function generateFirebaseToken(lineMid) {
-//     var firebaseUid = 'line:' + lineMid;
-//     var additionalClaims = {
-//         provider: 'LINE'
-//     };
-//     return firebase.auth().createCustomToken(firebaseUid);
-// }
-
-// app.get('/sendWelcomeMail')
-
-// const userCreated = functions.auth.user()
-//     .onCreate((event) => {
-//         console.log('新增使用者');
-//
-//         const user = event.data;
-//
-//         return user;
-//     });
-// app.listen(5000,()=> console.log('Server started on port 5000'));
-
-// module.exports = functions.https.onRequest(app);
-
-// async function getUserProfile(userId) {
-//     console.log("get user...");
-//     let returnJson = {
-//         success: false,
-//         uid: userId
-//     };
-//     try {
-//         // let userIdStr = userId.toString().trim();
-//         let userIdStr = userId;
-//         console.log("get firestore user : ", userIdStr);
-//
-//         if (userIdStr.length < 1) {
-//             console.warn('firebaseGetUserData no userId : ', userId);
-//             return returnJson;
-//         }
-//
-//         let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-//         let doc = firestore.collection('users').doc(userIdStr).get();
-//         if (!doc.exists) {
-//             console.log('No such document!');
-//             returnJson.userStats = 0;
-//             returnJson.success = true;
-//             console.log("createTime...:", doc.createTime);
-//             console.log(`Retrieved data: ${JSON.stringify(doc)}`);
-//         }else{
-//             console.log("yes such document!...:", doc.createTime);
-//             returnJson.data = doc.data();
-//             returnJson.userStats = doc.data().userStats;
-//             returnJson.success = true;
-//             console.log(`Retrieved data: ${JSON.stringify(doc)}`);
-//         }
-//         console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
-//         return returnJson;
-//     } catch (error) {
-//         console.warn('firebaseGetUserData', error);
-//         returnJson.success = false;
-//     }
-// }
 async function getUserProfile(userId) {
     let returnJson = {
         success: false,
@@ -615,112 +530,6 @@ async function getUserProfile(userId) {
     return returnJson;
 }
 
-// app.post('/modifyUserProfile', async function (req, res) {
-//     try {
-//         // let uid = req.body.uid;
-//         // if (!uid) res.status(400).json({success: false, message: 'missing uid'});
-//         console.log("user profile .. ", JSON.stringify(req.cookies, null, '\t'));
-//         // if (true) { //開發中暫停驗證sessionCookie
-//         let sessionCookie = req.cookies.__session;
-//         let refCode = req.cookies.refCode;
-//         // refCode regular expression test
-//         // /^[a-zA-Z0-9]{28}$/g.test(refCode)
-//         // /^[U][a-f0-9]{32}$/g.test(refCode)
-//
-//         console.log("................");
-//         console.log(req.cookies.refCode);
-//         if (await verifySessionCookie2(sessionCookie) === true) {
-//             let firestoreUser = await getUserProfile(uid);
-//             let data = {};
-//             console.log(firestoreUser.userStats);
-//             switch (firestoreUser.userStats) {
-//                 case 0: //新會員
-//                     if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
-//                         res.status(400).json({success: false, message: 'missing info'});
-//                     data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
-//                     data.name = req.body.name;                  //only new user can set name(real name), none changeable value
-//                     data.phone = req.body.phone;
-//                     data.email = req.body.email;
-//                     data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-//                     if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
-//                     data.userStats = 1;
-//                     data.signature = "";
-//                     data.blockMessage = 0;
-//                     data.denys = [];
-//                     data.coin = 0;  //搞幣
-//                     data.dividend = 0;  //搞紅利
-//                     data.ingot = 0; //搞錠
-//                     data.title = "一般會員";
-//                     data.point = 0;
-//                     if (refCode) {
-//                         // regist from friend referral code
-//                         console.log("refCode....", refCode);
-//                         let referrer = await getUserProfile(refCode);
-//                         if (referrer.data) {
-//                             // process Ref Point
-//                             // deny if refer each other
-//                             if (referrer.data.referrer !== uid && refCode !== uid) {
-//                                 data.point = 999;
-//                                 data.referrer = refCode;
-//                             }
-//                         }
-//                         res.clearCookie('refCode');
-//                     } else {
-//                         console.log("none refCode........");
-//                     }
-//                     break;
-//                 case 1: //一般會員
-//                     console.log("normal user");
-//                     break;
-//                 case 2: //大神
-//                     console.log("godlike user");
-//                     break;
-//                 case 3: //鎖帳號會員
-//                     console.log("blocked user");
-//                     res.status(400).json({success: false, message: 'blocked user'});
-//                     break;
-//                 case 9: //管理員
-//                     console.log("manager user");
-//                     break;
-//                 default:
-//                     throw 'userStats error';
-//             }
-//             if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
-//             if (req.body.email) data.email = req.body.email;
-//             if (req.body.phone) data.phone = req.body.phone;
-//             if (req.body.signature) data.signature = req.body.signature;
-//             let refCode = req.body.refCode;
-//             if (refCode && !data.referrer) {
-//                 let referrer = await getUserProfile(refCode);
-//                 if (referrer.data) {
-//                     // process Ref Point
-//                     // deny if refer each other
-//                     console.log("set refCode : ", refCode);
-//                     if (referrer.data.referrer !== uid && refCode !== uid) {
-//                         data.point = 999;
-//                         data.referrer = refCode;
-//                     }
-//                 }
-//             }
-//             res.setHeader('Access-Control-Allow-Origin', '*');
-//
-//             let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-//             firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
-//                 console.log('Added document with ID: ', ref);
-//                 res.json({success: true, result: ref});
-//             }).catch(e => {
-//                 console.log('Added document with error: ', e);
-//                 res.json({success: false, message: "update failed"});
-//             });
-//             // res.json({success: true, result: writeResult});
-//         } else {
-//             res.json({success: false, message: "1not login"});
-//         }
-//     } catch (e) {
-//         console.log('Added document with error: ', e);
-//         res.json({success: false, message: "profile faild"});
-//     }
-// });
 app.post('/modifyUserProfile', async function (req, res) {
     let sessionCookie = req.cookies.__session;
     admin.auth().verifySessionCookie(
@@ -819,112 +628,6 @@ app.post('/modifyUserProfile', async function (req, res) {
             res.json({success: false, message: "verifySessionCookie failed"});
         });
 });
-// app.post('/modifyUserProfile', async function (req, res) {
-//     try {
-//         console.log("user profile .. ", req.cookies);
-//         let cookies = req.get('cookie') || '__session=';
-//         // if (true) { //開發中暫停驗證sessionCookie
-//         let sessionCookie = cookie.parse(cookies).__session;
-//         await verifySessionCookie(sessionCookie).then(async isVerify => {
-//             console.log("verify session cookie ", isVerify);
-//             if (!isVerify) res.json({success: false, result: "not verify"});
-//             let uid = req.body.uid;
-//             if (!uid) res.status(400).json({success: false, message: 'missing uid'});
-//             let firestoreUser = await getUserProfile(uid);
-//             let data = {};
-//             console.log(firestoreUser.userStats);
-//             switch (firestoreUser.userStats) {
-//                 case 0: //新會員
-//                     if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
-//                         res.status(400).json({success: false, message: 'missing info'});
-//                     data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
-//                     data.name = req.body.name;                  //only new user can set name(real name), none changeable value
-//                     data.phone = req.body.phone;
-//                     data.email = req.body.email;
-//                     data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-//                     if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
-//                     data.userStats = 1;
-//                     data.signature = "";
-//                     data.blockMessage = 0;
-//                     data.denys = [];
-//                     data.coin = 0;  //搞幣
-//                     data.dividend = 0;  //搞紅利
-//                     data.ingot = 0; //搞錠
-//                     data.title = "一般會員";
-//                     data.point = 0;
-//                     let refCookies = req.get('cookie') || 'refCode=';
-//                     console.log(",.,,  ", req.cookies.__session);
-//                     let refCode = cookie.parse(refCookies).refCode;
-//                     console.log(",.,,222  ", refCode)
-//                     if (refCode) {
-//                         // regist from friend referral code
-//                         console.log("refCode....", refCode);
-//                         let referrer = await getUserProfile(refCode);
-//                         if (referrer.data) {
-//                             // process Ref Point
-//                             // deny if refer each other
-//                             if (referrer.data.referrer !== uid && refCode !== uid) {
-//                                 data.point = 999;
-//                                 data.referrer = refCode;
-//                             }
-//                         }
-//                         res.clearCookie('refCode');
-//                     } else {
-//                         console.log("none refCode........");
-//                     }
-//                     break;
-//                 case 1: //一般會員
-//                     break;
-//                 case 2: //大神
-//                     break;
-//                 case 3: //鎖帳號會員
-//                     res.status(400).json({success: false, message: 'blocked user'});
-//                     break;
-//                 case 9: //管理員
-//                     break;
-//                 default:
-//                     throw 'LINE channel ID mismatched';
-//             }
-//             if (req.body.avatar) data.avatar = await uploadAvatar(req.body.avatar);
-//             if (req.body.email) data.email = req.body.email;
-//             if (req.body.phone) data.phone = req.body.phone;
-//             if (req.body.signature) data.signature = req.body.signature;
-//             let refCode = req.body.refCode;
-//             if (refCode && !data.referrer) {
-//                 let referrer = await getUserProfile(refCode);
-//                 if (referrer.data) {
-//                     // process Ref Point
-//                     // deny if refer each other
-//                     console.log("set refCode : ", refCode);
-//                     if (referrer.data.referrer !== uid && refCode !== uid) {
-//                         data.point = 999;
-//                         data.referrer = refCode;
-//                     }
-//                 }
-//             }
-//             res.setHeader('Access-Control-Allow-Origin', '*');
-//
-//             let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-//             firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
-//                 console.log('Added document with ID: ', ref);
-//                 res.json({success: true, result: ref});
-//             }).catch(e => {
-//                 console.log('Added document with error: ', e);
-//                 res.json({success: false, message: "update failed"});
-//             });
-//         });
-//
-//         // res.json({success: true, result: writeResult});
-//     } catch (e) {
-//         console.log('Added document with error: ', e);
-//         res.json({success: false, message: "profile faild"});
-//     }
-// });
-
-async function uploadAvatar() {
-    console.log("compress avatar to 100*100?");
-    return "https://uploaded.firestorage.avatar.jpg";
-}
 
 
 function getFirebaseUser(accessToken) {
