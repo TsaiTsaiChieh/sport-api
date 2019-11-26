@@ -411,7 +411,7 @@ async function messageUser( req, res ) {
 			delete returnJson2.coin;
 			delete returnJson2.dividend;
 			delete returnJson2.ingot;
-			delete returnJson2.denys;
+			//delete returnJson2.denys;
 		}
 
 		returnJson.success = true;
@@ -451,9 +451,6 @@ app.post( "/", doNothing );
 module.exports = firebaseFunctions.https.onRequest( app );
 
 
-
-
-//===============================================================================
 //列表============================================================================
 async function lastMessages( inputJson = {} ) {
 	let returnJson = {
@@ -466,17 +463,19 @@ async function lastMessages( inputJson = {} ) {
 		//, utcJump = -1, limit = 50
 
 		//req.query
-		let limit = Number.parseInt( inputJson.body.limit, 10 ) || 50; //筆數預設值
-		if ( limit > 200 ) {
-			limit = 200; //筆數上限
-		}
-		if ( limit < 1 ) {
-			limit = 1; //筆數下限
-		}
-
+		let limit = 50; //筆數預設值
 		let utcJump = -1; //跳過訊息的時間位置,默認-1=不存在
-		if ( !Number.isNaN( inputJson.body.utcJump ) ) {
-			utcJump = Number.parseInt( inputJson.body.utcJump, 10 );
+
+		if ( inputJson.body !== undefined ) {
+			limit = ShortcutFunction.IntfromAny( inputJson.body.limit, 50 );
+			if ( limit > 200 ) {
+				limit = 200; //筆數上限
+			}
+			if ( limit < 1 ) {
+				limit = 1; //筆數下限
+			}
+
+			utcJump = ShortcutFunction.IntfromAny( inputJson.body.utcJump, -1 );
 		}
 
 		//let userData = await users.authVerfyGetUserData( inputJson ); //不一定有登入,要檢查uid
@@ -544,10 +543,7 @@ async function lastMessages( inputJson = {} ) {
 
 				//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
 
-				let softDelete = 2;
-				if ( !Number.isNaN( data.softDelete ) ) {
-					softDelete = Number.parseInt( data.softDelete, 10 );
-				}
+				let softDelete = ShortcutFunction.IntfromAny( data.softDelete, 2 );
 
 				switch ( softDelete ) {
 					case -1: //管理員刪除(全域)
@@ -586,9 +582,11 @@ async function lastMessages( inputJson = {} ) {
 				//取得訊息作者資料補進去
 				let messageUser = await users.userIdToUserData( msg1.uid );
 
-				msg1.avatar = messageUser.avatar || '';
-				msg1.displayName = messageUser.displayName || "";
-				msg1.replyMessageId = msg1.replyMessageId || '';
+				msg1.avatar = messageUser.avatar || ''; //大頭照
+				msg1.displayName = messageUser.displayName || ""; //顯示名稱
+				msg1.title = messageUser.title || ""; //大神頭銜,稱號
+				msg1.replyMessageId = msg1.replyMessageId || ''; //回應的訊息編號
+
 				if ( msg1.replyMessageId.length > 0 ) {
 					msg1.replyMessage = await ShortcutFunction.getOneMessage( undefined, msg1.replyMessageId );
 				} else {
@@ -607,8 +605,8 @@ async function lastMessages( inputJson = {} ) {
 						"displayName": "",
 						"avatar": "",
 						"replyMessageId": "" //不會再往回查,只有回文Id
-
 					}
+
 				}
 
 				//msg1.uid = msg1.uid || '';
@@ -627,6 +625,18 @@ async function lastMessages( inputJson = {} ) {
 				//msg1.fileSize = fileJson.fileSize || 0;
 				//msg1.fileName = fileJson.fileName || '';
 				//}
+
+				msg1.fileURL = '';
+				try {
+					if ( msg1.fileUploadId.length > 0 ) {
+						//
+						msg1.fileURL = '/messages/file/'.concat( msg1.fileUploadId );
+					}
+				} catch ( error ) {
+					//
+				}
+
+
 
 				listArray[ i ] = msg1;
 			} catch ( errorForReturnArray ) {
@@ -670,7 +680,8 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 	};
 
 	try {
-		messageId = inputJson.body.messageId || messageId || '';
+		let inputJsonBody = inputJson.body || {};
+		messageId = inputJsonBody.messageId || messageId || '';
 
 
 		if ( messageId.length < 1 ) {
@@ -696,14 +707,14 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 
 		let disableTime = Number.parseInt( userData.messageDisableTime, 10 ) || -1; //被禁止的期限
 		if ( disableTime > -1 ) {
-			let timeNow = ShortcutFunction.timestampUTCmsInt();
+			let timeNow = ShortcutFunction.timestampUTCmsInt(); //取得現在時間UTC數字
 			if ( disableTime > timeNow ) {
 				returnJson.error = "你已被停權中,無法使用檢舉功能";
 				return returnJson;
 			}
 		}
 
-		messageId = messageId || inputJson.body.messageId || "";
+		messageId = messageId || inputJsonBody.messageId || "";
 
 		console.info( " runReportMessage messageId", messageId );
 
@@ -721,10 +732,7 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 			return returnJson;
 		}
 
-		let softDelete = 2;
-		if ( !Number.isNaN( msgData.softDelete ) ) {
-			softDelete = Number.parseInt( msgData.softDelete, 10 );
-		}
+		let softDelete = ShortcutFunction.IntfromAny( msgData.softDelete, 2 );
 
 		//紀錄存在,檢查是否已經被軟刪除
 		switch ( softDelete ) {
@@ -760,14 +768,11 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 
 		//至此,檢查檢舉還是取消檢舉
 
-		let act = 1; //預設為檢舉
-		if ( !Number.isNaN( msgData.softDelete ) ) {
-			act = Number.parseInt( inputJson.body.reportAction, 10 );
-		}
+		let act = ShortcutFunction.IntfromAny( inputJsonBody.reportAction, 1 ); //預設為檢舉
 
 		returnJson.reportAction = act;
 
-		if ( act < 0 ) { //取消檢舉
+		if ( act < 1 ) { //取消檢舉
 			let fvUn1 = firebaseAdmin.firestore.FieldValue.arrayRemove( userData.uid );
 
 			let arrRm = await DocRef.update( {
@@ -808,7 +813,10 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 	};
 
 	try {
-		messageId = inputJson.body.messageId || messageId || "";
+
+		let inputJsonBody = inputJson.body || {};
+
+		messageId = inputJsonBody.messageId || messageId || "";
 
 		messageId = ShortcutFunction.trim( messageId );
 
@@ -833,33 +841,17 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 
 		console.info( "data.softDelete 33333333333", data.softDelete );
 
-		let softDelete = 2;
-		if ( !Number.isNaN( data.softDelete ) ) {
-			softDelete = Number.parseInt( data.softDelete, 10 );
-		}
+		let softDelete = ShortcutFunction.IntfromAny( data.softDelete, 2 );
 
 		switch ( softDelete ) {
 			case -1: //管理員刪除(全域)
 			case 0: //用戶回收(全域刪除)
 			case 1: //用戶刪除(對自己隱藏)
-				returnJson.error = "沒有此id的訊息  3333";
+				returnJson.error = "沒有此id的訊息  444444";
 				return returnJson;
 		} //sw
 
-
-
-		////////////////////////////////////
-		/*
-		let userData = await users.authVerfyGetUserData( inputJson );
-		if ( !userData.success ) {
-			return userData;
-		}
-
-		if ( !ShortcutFunction.haveEntityValue( userData.uid ) ) {
-			return userData;
-		}*/
-
-		let act = Number.parseInt( inputJson.body.deleteAction, 10 );
+		let act = ShortcutFunction.IntfromAny( inputJsonBody.deleteAction, 2 );
 
 		switch ( act ) {
 			case -1:
@@ -871,25 +863,25 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 			default:
 				//攔截並顯示錯誤訊息
 				returnJson.error = "deleteAction參數錯誤,有效值為-1:管理員/0:用戶回收(全域刪除)/1:用戶刪除(對自己隱藏)";
-				returnJson.deleteAction = inputJson.body.deleteAction;
+				returnJson.deleteAction = act;
 				return returnJson;
 				break;
 		}
 
-		let userData = await users.userIdToUserData( inputJson.idToken.uid );
+		let idToken1 = inputJson.idToken || {};
+
+		let userData = await users.userIdToUserData( idToken1.uid );
 
 		returnJson.action = "deleteMessage";
 		returnJson.messageId = data.uid || '';
 		returnJson.uid = userData.uid || '';
 		returnJson.displayName = userData.displayName || '';
 		returnJson.avatar = userData.avatar;
+		returnJson.title = userData.title;
 		returnJson.appearTimestamp = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
 
 		//Manager管理權限刪除
-		let userStats = 0;
-		if ( !Number.isNaN( userData.userStats ) ) {
-			userStats = Number.parseInt( userData.userStats, 10 );
-		}
+		let userStats = ShortcutFunction.IntfromAny( userData.userStats, 0 );
 
 		if ( userStats === 9 ) { //
 			if ( data.uid !== userData.uid ) {
@@ -899,13 +891,12 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 				} ); //, { merge: true }
 				returnJson.uid = "manager";
 				returnJson.displayName = "manager";
+				returnJson.title = 'manager';
 				returnJson.deleteAction = -1;
 				returnJson.success = true;
 				return await ShortcutFunction.realtimePush( returnJson );
 			}
 		}
-
-		//act = Number.parseInt( inputJson.body.deleteAction, 10 ) || 2;
 
 		if ( data.uid === userData.uid ) {
 			//自己的訊息
@@ -1018,10 +1009,7 @@ async function runCreateMessage( inputJson = {} ) {
 		}
 
 		//檢查是否黑名單中
-		let blackTime = -1;
-		if ( !Number.isNaN( userData.blockMessage ) ) {
-			blackTime = Number.parseInt( userData.blockMessage, 10 );
-		}
+		let blackTime = ShortcutFunction.IntfromAny( userData.blockMessage, -1 );
 
 		if ( blackTime > 0 ) {
 			let timeNow = ShortcutFunction.timestampUTCmsInt();
@@ -1036,7 +1024,7 @@ async function runCreateMessage( inputJson = {} ) {
 
 		let newMessage = {
 			uid: userData.uid,
-			channelId: body.channelId,
+			channelId: body.channelId || 'public',
 			createTime: ShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
 			tempHash: body.tempHash, //發送端的臨時唯一編號
 			message: '' //htmlencode.htmlEncode( body.message ), //訊息本體
@@ -1136,9 +1124,16 @@ async function runCreateMessage( inputJson = {} ) {
 
 		//再到livePush
 		newMessage.action = "newMessage";
-		newMessage.displayName = userData.displayName || userData.uid;
-		newMessage.avatar = userData.avatar || "";
+		newMessage.displayName = userData.displayName || userData.uid; //用戶顯示名稱
+		newMessage.avatar = userData.avatar || ""; //大頭照
+		newMessage.title = userData.title || ""; //大神頭銜
 		newMessage.replyMessageId = newMessage.replyMessageId || '';
+
+		try {
+			newMessage.replyMessage = await ShortcutFunction.getOneMessage( undefined, newMessage.replyMessageId );
+		} catch ( error2 ) {
+			console.info( 'newMessage.replyMessage = await this.getOneMessage( undefined, newMessage.replyMessageId );', error2 );
+		}
 
 		//newMessage.file = '';
 		//newMessage.fileType = '';
@@ -1151,6 +1146,15 @@ async function runCreateMessage( inputJson = {} ) {
 		newMessage.fileSubName = returnJson.uploadFileReturnJson.fileSubName || '';
 		newMessage.fileName = newMessage.fileName || '';
 		//}
+
+		try {
+			if ( newMessage.fileUploadId.length > 0 ) {
+				newMessage.fileURL = '/messages/file/'.concat( newMessage.fileUploadId );
+			}
+		} catch ( error ) {
+			newMessage.fileURL = '';
+		}
+
 
 		let realtimePushReturnJson = await ShortcutFunction.realtimePush( newMessage );
 		returnJson.success = true;

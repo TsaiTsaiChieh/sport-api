@@ -1,3 +1,5 @@
+/* eslint-disable no-fallthrough */
+/* eslint-disable no-duplicate-case */
 /* eslint-disable no-unreachable */
 /* eslint-disable no-empty */
 /* eslint-disable no-unused-vars */
@@ -45,45 +47,117 @@ const {
 
 exports.trim = function ( string ) {
 
-	if ( !Number.isNaN( string ) ) {
-		return ''.concat( string ).replace( /^\s+|\s+$/g, "" );
+	// Undefined "undefined"
+	// Null "object"
+	// Boolean "boolean"
+	// Number "number"
+	// String "string"
+	// 主機端物件( 由 JS 執行環境提供 ) 視實作方式而異
+	// Function 物件( 實作 ECMA - 262 所定義的[ [ Call ] ] )
+	// "function"
+	// E4X XML 物件 "xml"
+	// E4X XMLList 物件 "xml"
+	// 所有其它物件 "object"
+	//類型 '"xml"' 無法和類型 '"string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function"'
+
+	let i1 = Symbol( 1 );
+	i1.toString();
+
+
+	let type1 = typeof ( string );
+
+	switch ( type1 ) {
+		case "object":
+			if ( string !== null ) {
+				return string;
+			}
+			case "undefined":
+			case "boolean":
+				return '';
+
+				// @ts-ignore
+			case "xml":
+			case "symbol":
+			case "function":
+				return string;
+
+			case "number":
+				try {
+					let i = Number.parseFloat( string );
+					if ( Number.isNaN( i ) ) {
+						return '';
+					}
+
+					if ( i === Infinity ) {
+						return '';
+					}
+				} catch ( error ) {
+					//
+				}
+				//return string;
+
+				//case "string":
+				//case "bigint":
+				default:
+					//return ''.concat( string ).replace( /^\s+|\s+$/g, "" );
+					break;
 	}
 
-	//let stype = typeof ( string );
-	let string2 = string || '';
-	return ''.concat( string2 ).replace( /^\s+|\s+$/g, "" );
+	return ''.concat( string ).replace( /^\s+|\s+$/g, "" );
 };
 
 exports.haveEntityValue = function ( input ) {
-	switch ( typeof input ) {
-		case "number":
-		case "string":
-			return true;
+	//是否有實體的數值,是否算非實體,NaN算非實體,Infinity非實體
+
+	let type1 = typeof ( input );
+
+	switch ( type1 ) {
+		case "object":
+			return input !== null;
 
 		case "undefined":
 		case "boolean":
 			return false;
-	} //sw
 
-	switch ( input ) {
-		case undefined:
-		case null:
-		case true:
-		case false:
-		case NaN:
-		case Infinity:
-			return false;
-	} //sw
+		case "number":
+			try {
+				let i = Number.parseFloat( input );
+				if ( Number.isNaN( i ) ) { //NaN 非實體
+					return false;
+				}
+
+				if ( i === Infinity ) { //Infinity 非實體
+					return false;
+				}
+
+			} catch ( error ) {
+				//
+			}
+
+			//case "symbol": //實體 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+
+			// @ts-ignore
+			//case "xml":  //實體
+
+			//case "function"://非值
+
+			//case "string"://實體
+			//case "bigint"://實體
+			//default:
+			//return ''.concat( string ).replace( /^\s+|\s+$/g, "" );
+			//return false;
+			break;
+	}
 
 	return true;
 };
 
-exports.unEntityValueToDef = function ( input, defineValue ) {
+exports.unEntityValueToDef = function ( input, def ) {
 	if ( this.haveEntityValue( input ) ) {
 		return input;
 	}
 
-	return defineValue;
+	return def;
 };
 
 exports.haveValue = function ( input ) {
@@ -99,11 +173,48 @@ exports.haveValue = function ( input ) {
 	return true;
 };
 
-exports.setNoValue = function ( input, output ) {
-	if ( this.haveValue( input ) ) {
-		return input;
+exports.setNoValue = function ( input, def ) {
+
+	if ( input === undefined ) {
+		return def;
 	}
-	return output;
+
+	if ( input === null ) {
+		return def;
+	}
+
+	return input;
+};
+
+exports.IntfromAny = function ( any, def = 0, decimal = 10 ) {
+	let i = def;
+
+	i = Number.parseInt( any, decimal );
+	if ( Number.isNaN( i ) ) {
+		return def;
+	}
+
+	if ( i === Infinity ) {
+		return def;
+	}
+
+	return i;
+};
+
+exports.FloatfromAny = function ( any, def = 0 ) {
+	let i = def;
+
+	i = Number.parseFloat( any );
+
+	if ( Number.isNaN( i ) ) {
+		return def;
+	}
+
+	if ( i === Infinity ) {
+		return def;
+	}
+
+	return i;
 };
 
 exports.lazyFirebaseAdmin = function ( certStringOrPath = "", databaseURL = envValues.firebaseConfig.databaseURL ) {
@@ -206,13 +317,10 @@ exports.clearJson = function ( json = {} ) {
 }; //send_json
 
 exports.timestampUTCmsInt = function ( changeDays ) {
-	let Days = 0;
-	if ( !Number.isNaN( changeDays ) ) {
-		Days = parseInt( changeDays );
-	}
 
+	let Days = this.IntfromAny( changeDays, 0 );
 
-	if ( Days > 0 || Days < 0 ) {
+	if ( Days !== 0 ) {
 		return moment()
 			.add( Days, "days" )
 			.valueOf();
@@ -223,13 +331,9 @@ exports.timestampUTCmsInt = function ( changeDays ) {
 exports.timestampUTCmsSconds = function ( changeSconds ) {
 
 
-	let Sconds = 0;
-	if ( !Number.isNaN( changeSconds ) ) {
-		Sconds = parseInt( changeSconds );
-	}
+	let Sconds = this.IntfromAny( changeSconds, 0 );
 
-	//let Days = parseInt( changeSconds.toString() ) || 0;
-	if ( Sconds > 0 || Sconds < 0 ) {
+	if ( Sconds !== 0 ) {
 		return moment()
 			.add( Sconds, "seconds" )
 			.valueOf();
@@ -837,8 +941,9 @@ exports.getOneMessage = async function ( inputJson = {}, messageId2 = "" ) {
 
 		console.info( "getOneMessage messageUser 7777777777777777", messageUser );
 		data.messageId = messageId;
-		data.displayName = messageUser.displayName;
-		data.avatar = messageUser.avatar;
+		data.displayName = messageUser.displayName || '';
+		data.avatar = messageUser.avatar || '';
+		data.title = messageUser.title || '';
 
 		delete data.softDelete; //隱藏刪除狀態
 		delete data.reports; //隱藏檢舉清單
@@ -864,6 +969,11 @@ exports.getOneMessage = async function ( inputJson = {}, messageId2 = "" ) {
 		data.fileSubName = fireJson.fileSubName || '';
 		data.fileFarmHash = fireJson.fileFarmHash || '';
 		data.fileSipHash = fireJson.fileSipHash || '';
+		data.fileURL = '';
+		if ( fileUploadId.length > 0 ) {
+			data.fileURL = '/messages/file/'.concat( fileUploadId );
+		}
+
 
 		console.info( 'getOneMessage   getOneShareFile data  999999999999999999 \n', data );
 		//} //if fireJson.success
