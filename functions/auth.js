@@ -10,7 +10,6 @@ const jwt = require("jsonwebtoken");
 const secure_compare = require("secure-compare");
 const cookieParser = require("cookie-parser");
 
-
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 const express = require("express");
@@ -239,7 +238,6 @@ app.post('/phoneRegister', (req, res) => {
         });
 });
 
-
 // https://stackoverflow.com/questions/46893766/firebase-auth-signinwithphonenumber-express-on-node-js
 app.post('/phoneToken', (req, res) => {
     firebase.auth().settings.appVerificationDisabledForTesting = false;
@@ -364,48 +362,50 @@ app.post('/sendSMS', function (req, res) {
 app.post('/login', async (req, res) => {
     let returnJson = {success: false};
     let token = req.body.token;
-    let uid = req.body.uid;
+    // let uid = req.body.uid;
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!token) {
         console.log('Error login user: missing token');
         return res.status(400).json(returnJson);
     }
-    let expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {expiresIn})
-        .then(async function (sessionCookie) {
-            let firestoreUser = await getUserProfile(uid);
-
-            returnJson.success = true;
-            if (firestoreUser) {
-                console.log("firestoreUser exist");
-                returnJson.uid = firestoreUser.uid;
-                returnJson.userStats = firestoreUser.userStats;
-                returnJson.userInfo = firestoreUser.data;
-            }
-            let options = {maxAge: expiresIn, httpOnly: true};
-            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
-            res.cookie('__session', sessionCookie, options);
-            res.json(returnJson)
-        })
-        .catch(function (error) {
-            console.log('Error login user: \n\t', error);
-            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: false})
+    admin.auth().verifyIdToken(token)
+        .then((decodedIdToken) => {
+            // Create session cookie and set it.
+            let expiresIn = 60 * 60 * 24 * 7 * 1000;
+            admin.auth().createSessionCookie(token, {expiresIn})
+                .then(async function (sessionCookie) {
+                    let firestoreUser = await getUserProfile(decodedIdToken.uid);
+                    returnJson.success = true;
+                    if (firestoreUser) {
+                        console.log("firestoreUser exist");
+                        returnJson.uid = firestoreUser.uid;
+                        returnJson.userStats = firestoreUser.userStats;
+                        returnJson.userInfo = firestoreUser.data;
+                    }
+                    let options = {maxAge: expiresIn, httpOnly: true};
+                    // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+                    res.cookie('__session', sessionCookie, options);
+                    res.json(returnJson)
+                })
+                .catch(function (error) {
+                    console.log('Error login user: \n\t', error);
+                    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                    res.json({success: false})
+                });
         });
 });
 
 app.post('/logout', function (req, res) {
-    let cookies = req.get('cookie') || '__session=';
-    if (cookies) {
-        firebase.auth().signOut().then(function () {
-            console.log('logout out user');
-            res.clearCookie('__session');
-            // res.setHeader('Access-Control-Allow-Origin', '*');
-            res.json({success: true});
-        }).catch(function (error) {
-            // An error happened.
-        });
-    }
+    res.clearCookie('__session');
+    firebase.auth().signOut().then(function () {
+        console.log('logout out user');
+        // res.setHeader('Access-Control-Allow-Origin', '*');
+        res.json({success: true});
+    }).catch(function (error) {
+        console.log('logout out user failed : ', error);
+        res.json({success: false});
+        // An error happened.
+    });
 });
 
 app.get('/signIn', function (req, res) {
@@ -415,21 +415,19 @@ app.get('/signIn', function (req, res) {
 });
 
 app.get('/verifySessionCookie', async function (req, res) {
-    let cookies = req.get('cookie') || '__session=';
+    let sessionCookie = req.cookies.__session;
     res.setHeader('Access-Control-Allow-Origin', '*');
-    let sessionCookie = cookie.parse(cookies).__session;
-    if (sessionCookie) {
-        console.log('verifySessionCookie - ', sessionCookie);
-        // let isVerified = verifySessionCookie(sessionCookie);
-        if (await verifySessionCookie(sessionCookie) === true) {
+    if (!sessionCookie) res.json({success: false});
+    await admin.auth().verifySessionCookie(
+        sessionCookie, true)
+        .then((decodedClaims) => {
+            console.log('Auth - verifySessionCookie success : ', decodedClaims);
             res.json({success: true});
-        } else {
+        })
+        .catch(error => {
+            console.log('Auth - verifySessionCookie false : ', error);
             res.json({success: false});
-        }
-    } else {
-        console.log('Auth - verifySessionCookie success : cookie missing');
-        res.json({success: false});
-    }
+        });
 });
 
 const verifySessionCookie = async (sessionCookie) => {
@@ -445,7 +443,6 @@ const verifySessionCookie = async (sessionCookie) => {
         });
     return isVerify;
 };
-
 
 app.post('/getUserInfo', async (req, res) => {
     let returnJson = {
@@ -628,7 +625,6 @@ app.post('/modifyUserProfile', async function (req, res) {
             res.json({success: false, message: "verifySessionCookie failed"});
         });
 });
-
 
 function getFirebaseUser(accessToken) {
     // const firebaseUid = `line:${body.id}`;

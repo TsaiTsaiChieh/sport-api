@@ -109,9 +109,8 @@
         let http = new XMLHttpRequest();
         let url = '/auth/login';
         let token = firebase.auth().currentUser.ma;
-        let uid = firebase.auth().currentUser.uid;
-        if (token && uid) {
-            let params = JSON.stringify({uid: uid, token: token});
+        if (token) {
+            let params = JSON.stringify({token: token});
             // let params = "params=" + JSON.stringify({uid: uid, token: token});
             http.open('POST', url, true);
             http.setRequestHeader('Content-type', 'application/json');
