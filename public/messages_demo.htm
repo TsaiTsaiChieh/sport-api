@@ -542,7 +542,17 @@
 			try {
 				console.info( 'upToPost' );
 
-				if ( fileContent.byteLength > 0 ) { //fileContent可能undefined
+				console.info( fileContent );
+
+				let Length = 0;
+
+				if ( fileContent !== undefined ) {
+					Length = fileContent.byteLength;
+				}
+
+
+
+				if ( Length > 0 ) { //fileContent可能undefined
 
 
 					console.info( 'fileName : ' );
@@ -608,6 +618,7 @@
 
 								$( '#img_see2' ).attr( 'src', downloadURL );
 
+								console.info( 'sendPost( downloadURL );' );
 								sendPost( downloadURL );
 							} catch ( errorGetDownloadURL ) {
 								console.warn( errorGetDownloadURL );
@@ -619,6 +630,7 @@
 
 				} //if >0
 				else {
+					console.info( 'sendPost();' );
 					sendPost();
 				}
 			} catch ( error ) {
@@ -667,7 +679,7 @@
 				console.info( 'onAuthStateChanged >>> user' );
 				console.info( authUserData );
 
-				if ( authUserData.uid ) { //如果有登入的uid,就取得其他用戶資料
+				if ( ( authUserData.uid !== undefined ) || ( authUserData.uid !== null ) ) { //如果有登入的uid,就取得其他用戶資料
 					getUserDataX();
 				} else {
 					//這裡是沒有登入的行為

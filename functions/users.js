@@ -53,6 +53,7 @@ exports.usersMergeData = async function ( dataJson ) {
 		} );
 
 		returnJson.writeResult = writeResult;
+
 		returnJson.success = true;
 
 	} catch ( error ) {
@@ -108,10 +109,25 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			userData1.displayName = userData1.displayName || '';
 			userData1.createTime = userData1.createTime || '';
 			userData1.avatar = userData1.avatar || '';
+			userData1.name = userData1.name || '';
+
+			userData1.userStats = userData1.userStats || 0;
+			userData1.signature = userData1.signature || '';
+			userData1.title = userData1.title || '';
+			userData1.phone = userData1.phone || '';
+
+			userData1.denys = userData1.denys || [];
+
+			userData1.coin = userData1.coin || 0;
+			userData1.dividend = userData1.dividend || 0;
+			userData1.ingot = userData1.ingot || 0;
+			userData1.point = userData1.point || 0;
 
 			userData1.functionName = 'userIdToUserData';
 			//userData1.CustomToken = CustomToken;
 			userData1.success = true;
+
+			userData1.blockMessage = ShortcutFunction.IntfromAny( userData1.blockMessage, -1 );
 
 			return userData1;
 
@@ -130,9 +146,13 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 				phone: '',
 				userStats: 0,
 				signature: '',
+				title: '',
 				coin: 0,
 				dividend: 0,
 				ingot: 0,
+				point: 0,
+				blockMessage: -1,
+				//denys:[],
 				displayName: htmlencode.htmlEncode( 'new_'.concat( uid ) ),
 				avatar: await this.stringToQRcodeUri( 'new_'.concat( uid ) ), //
 				createTime: ShortcutFunction.timestampUTCmsInt()
@@ -142,12 +162,12 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 			returnJson.success = true;
 
 			mergeReturn.history = returnJson;
-			//mergeReturn.CustomToken = CustomToken;
+			mergeReturn.success = true;
 			return mergeReturn;
 		}
 
-		returnJson.userData = userData1;
-		returnJson.error = 'userIdToUserData 不應該執行至此';
+		//returnJson.userData = userData1;
+		returnJson.error = '用戶資料不存在';
 
 	} catch ( error ) {
 		console.warn( 'userIdToUserData error', error );
@@ -248,7 +268,8 @@ exports._authVerfyGetUserData = async function ( inputJson = {} ) {
 			return returnJson;
 		}
 
-		let uid = ShortcutFunction.trim( returnJson.DecodedIdToken1.uid || '' );
+		let uid = returnJson.DecodedIdToken1.uid || '';
+		uid = ShortcutFunction.trim( uid );
 
 		if ( uid.length < 1 ) {
 

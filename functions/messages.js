@@ -60,7 +60,7 @@ app.post( "/", async ( req, res ) => {
 		};
 
 		try {
-			inputJson.cookies = req.get( "cookie" );
+			inputJson.cookies = req.get( "cookie" ) || '';
 			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
 		} catch ( error ) {
 			inputJson.cookieERROR = error;
@@ -76,83 +76,61 @@ app.post( "/", async ( req, res ) => {
 
 } );*/
 
-function reqToInputJson(req) {
-  // console.dir('測試', req, { depth: null });
-  // console.log('測試><', req.params[0], '><...');
-  // console.log('測試><', req.method, '><...');
-  let returnJson = {
-    success: false,
-    body: req.body || {},
-    __session: '',
-    idToken: {}
-  };
-  try {
-    returnJson.method = req.method || 'unknow';
-    //returnJson.params = req.params;
-    let paramArray = req.params[0] //網址後面,實測已經有decodeURI(),不用再次decodeURI()
-      .split('/') //切割,注意 '//' 和第一個 '/' 造成空字串
-      .filter(param => param.length > 0); //留下非空字串
-    //returnJson.paramArray = paramArray;
 
-    returnJson.param1 = ShortcutFunction.unEntityValueToDef(paramArray[0], '');
-    returnJson.param2 = ShortcutFunction.unEntityValueToDef(paramArray[1], '');
+function reqToInputJson( req ) {
+	let returnJson = {
+		success: false,
+		body: req.body || {},
+		__session: '',
+		idToken: {}
 
-    returnJson.success = true;
-  } catch (error) {
-    returnJson.error = error;
-  }
+	};
+	try {
+		returnJson.method = req.method || 'unknow';
+		//returnJson.params = req.params;
+		let params = req.params[ 0 ] || '';
+		let paramArray = params //網址後面,實測已經有decodeURI(),不用再次decodeURI()
+			.split( "/" ) //切割,注意 '//' 和第一個 '/' 造成空字串
+			.filter( param => param.length > 0 ); //留下非空字串
+		//returnJson.paramArray = paramArray;
 
-  return returnJson;
+		returnJson.param1 = ShortcutFunction.unEntityValueToDef( paramArray[ 0 ], "" );
+		returnJson.param2 = ShortcutFunction.unEntityValueToDef( paramArray[ 1 ], "" );
+
+		returnJson.success = true;
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	return returnJson;
 }
 
 //input,顯示輸入的參數,測試用-----------------------------------------------------------------------------
-app.get('/input/**', async (req, res) => {
-  let returnJson = {
-    success: false
-  };
 
-  try {
-    returnJson = reqToInputJson(req);
+async function messageInput( req, res ) {
+	let returnJson = {
+		success: false,
+	};
 
-    returnJson.cookies = req.get('cookie');
-    returnJson.__session =
-      cookie.parse(returnJson.cookies).__session ||
-      'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-    returnJson.idToken =
-      (await ShortcutFunction.sessionToDecodedIdToken(
-        returnJson.__session,
-        firebaseAdmin
-      )) || {};
-  } catch (error) {
-    returnJson.error = error;
-  }
+	try {
+		returnJson = reqToInputJson( req );
 
-  res.json(returnJson);
-});
+		returnJson.cookies = req.get( "cookie" ) || '';
+		returnJson.__session = cookie.parse( returnJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+		returnJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( returnJson.__session, firebaseAdmin );
+		returnJson.idToken = returnJson.idToken || {};
+	} catch ( error ) {
+		returnJson.error = error;
+	}
 
-app.post('/input', async (req, res) => {
-  let returnJson = {
-    success: false
-  };
+	res.json( returnJson );
+}
 
-  try {
-    returnJson = reqToInputJson(req);
+app.get( "/input/**", messageInput );
+app.get( "/input/", messageInput );
+app.get( "/input", messageInput );
 
-    returnJson.cookies = req.get('cookie');
-    returnJson.__session =
-      cookie.parse(returnJson.cookies).__session ||
-      'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-    returnJson.idToken =
-      (await ShortcutFunction.sessionToDecodedIdToken(
-        returnJson.__session,
-        firebaseAdmin
-      )) || {};
-  } catch (error) {
-    returnJson.error = error;
-  }
-
-  res.json(returnJson);
-});
+app.post( "/input", messageInput );
 
 //list": //列出聊天室列表-----------------------------------------------------------------------------
 function messageList(req, res) {
@@ -174,264 +152,276 @@ app.post('/list', (req, res) => {
 });
 
 //last": //最後N筆聊天訊息-----------------------------------------------------------------------------
-async function messageLast(req, res) {
-  let returnJson = {
-    success: false
-  };
+async function messageLast( req, res ) {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
+	try {
+		let inputJson = reqToInputJson( req );
 
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    returnJson = await lastMessages(inputJson);
-  } catch (error) {
-    returnJson.error = error;
-  }
 
-  res.json(returnJson);
+		returnJson = await lastMessages( inputJson );
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
 }
 app.get('/last', messageLast);
 app.post('/last', messageLast);
 
 //create": //新訊息,回應訊息-----------------------------------------------------------------------------
 
-app.post('/create', async (req, res) => {
-  let returnJson = {
-    success: false
-  };
+app.post( "/create", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    returnJson = await runCreateMessage(inputJson);
-  } catch (error) {
-    returnJson.error = error;
-  }
+		returnJson = await runCreateMessage( inputJson );
 
-  res.json(returnJson);
-});
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
 
 //report": //檢舉-----------------------------------------------------------------------------
-app.post('/report', async (req, res) => {
-  let returnJson = {
-    success: false
-  };
+app.post( "/report", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    returnJson = await runReportMessage(inputJson);
-  } catch (error) {
-    returnJson.error = error;
-  }
+		returnJson = await runReportMessage( inputJson );
 
-  res.json(returnJson);
-});
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
 
 //delete": //隱藏/回收/刪除訊息-----------------------------------------------------------------------------
-app.post('/delete', async (req, res) => {
-  let returnJson = {
-    success: false
-  };
+app.post( "/delete", async ( req, res ) => {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    returnJson = await softDeleteMessage(inputJson);
-  } catch (error) {
-    returnJson.error = error;
-  }
+		returnJson = await softDeleteMessage( inputJson );
 
-  res.json(returnJson);
-});
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+
+} );
 
 //get": ////取得特定訊息,只要一筆訊息-----------------------------------------------------------------------------
-async function messageGetOne(req, res) {
-  let returnJson = {
-    success: false
-  };
+async function messageGetOne( req, res ) {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
 
-    returnJson = await ShortcutFunction.getOneMessage(
-      inputJson,
-      inputJson.param2
-    );
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    if (returnJson.replyMessageId.length > 0) {
-      returnJson.replyMessage = await ShortcutFunction.getOneMessage(
-        undefined,
-        returnJson.replyMessageId
-      );
-    }
+		returnJson = await ShortcutFunction.getOneMessage( inputJson, inputJson.param2 );
 
-    //returnJson.success = true;
-  } catch (error) {
-    returnJson.error = error;
-  }
+		if ( returnJson.replyMessageId.length > 0 ) {
+			returnJson.replyMessage = await ShortcutFunction.getOneMessage( undefined, returnJson.replyMessageId );
+		}
 
-  res.json(returnJson);
+		//returnJson.success = true;
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
 }
-app.post('/get', messageGetOne);
-app.get('/get', messageGetOne);
+app.post( "/get", messageGetOne );
+app.get( "/get", messageGetOne );
+app.get( "/get/", messageGetOne );
+app.get( "/get/**", messageGetOne );
 
 //file-----------------------------------------------------------------------------
-async function messageFile(req, res) {
-  let returnJson = {
-    success: false
-  };
+async function messageFile( req, res ) {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
 
-    let returnJson = await ShortcutFunction.getOneShareFile(
-      inputJson,
-      inputJson.param1 || inputJson.param2,
-      true
-    );
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    if (returnJson.success) {
-      let fileType = returnJson.fileType || '';
 
-      if (fileType.length > 0) {
-        res.setHeader('Content-Type', fileType);
-      }
-      res.send(returnJson.buffer);
-      //res.end(  );
-      return;
-    }
-  } catch (error) {
-    returnJson.error = error;
-  }
+		let returnJson = await ShortcutFunction.getOneShareFile( inputJson, inputJson.param1 || inputJson.param2, true );
 
-  res.json(returnJson);
+		if ( returnJson.success ) {
+			let fileType = returnJson.fileType || '';
+
+			if ( fileType.length > 0 ) {
+				res.setHeader( 'Content-Type', fileType );
+			}
+			res.send( returnJson.buffer );
+			//res.end(  );
+			return;
+		}
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
 }
 app.post('/file', messageFile);
 app.get('/file/**', messageFile);
 
 //user": //臨時用來取得登入者資料的-----------------------------------------------------------------------------
 
-async function messageUser(req, res) {
-  let returnJson = {
-    success: false
-  };
+async function messageUser( req, res ) {
+	let returnJson = {
+		success: false,
+	};
 
-  try {
-    let inputJson = reqToInputJson(req);
-    try {
-      inputJson.cookies = req.get('cookie');
-      inputJson.__session =
-        cookie.parse(inputJson.cookies).__session ||
-        'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
-      inputJson.idToken =
-        (await ShortcutFunction.sessionToDecodedIdToken(
-          inputJson.__session,
-          firebaseAdmin
-        )) || {};
-    } catch (cookiesError) {
-      inputJson.cookiesError = cookiesError;
-    }
+	try {
 
-    let uid =
-      inputJson.body.uid ||
-      inputJson.idToken.uid ||
-      inputJson.param1 ||
-      inputJson.param2 ||
-      '';
+		let inputJson = reqToInputJson( req );
+		try {
+			inputJson.cookies = req.get( "cookie" ) || '';
+			inputJson.__session = cookie.parse( inputJson.cookies ).__session || 'cookie.parse( cookies ).__session error'; //ShortcutFunction.cookieGet__session( req ) || 'cookieGet__session error';
+			inputJson.idToken = await ShortcutFunction.sessionToDecodedIdToken( inputJson.__session, firebaseAdmin );
+			inputJson.idToken = inputJson.idToken || {};
+		} catch ( cookiesError ) {
+			inputJson.cookiesError = cookiesError;
+		}
 
-    let returnJson2 = await users.userIdToUserData(uid);
+		let body = inputJson.body || {};
 
-    returnJson.success = true;
-    returnJson.inputJson = inputJson;
+		let uidMy = inputJson.idToken.uid || ''; //查詢者本人或是沒登入
 
-    returnJson2.history = returnJson;
+		let uidQuery = body.uid || inputJson.param1 || inputJson.param2 || inputJson.idToken.uid || ''; //要查的用戶
 
-    returnJson = returnJson2;
-    returnJson.uid = uid;
-  } catch (error) {
-    returnJson.error = error;
-  }
+		console.info( '/user  inputJson   >>>>>>>>>>>>>>>>>>>>>>\n', inputJson );
 
-  res.json(returnJson);
+		if ( ''.concat( uidQuery ).length < 1 ) {
+			returnJson.error = '沒有輸入要查詢的uid或是用戶沒有登入';
+			returnJson.inputJson = inputJson;
+			return returnJson;
+		}
+
+		let returnJson2 = await users.userIdToUserData( uidQuery );
+
+		let needDel = true; //刪除隱私資料標記
+
+		if ( uidQuery !== uidMy ) { //如果查詢者不是查自己,也不是管理員,隱藏不該公開的訊息
+
+			if ( ''.concat( uidMy ).length > 0 ) { //有登入
+
+				let myData = await users.userIdToUserData( uidMy );
+
+				if ( myData.userStats === 9 ) { //是管理員,所以可以看,不必刪除
+					needDel = false;
+				}
+
+			}
+
+		} else { //是自己,所以可以看,不必刪除
+			needDel = false;
+		}
+
+		console.info( 'uidMy,uidQuery='.concat( uidMy, ',', uidQuery, ',' ) );
+
+		if ( needDel ) {
+			delete returnJson2.userStats;
+			delete returnJson2.name;
+			delete returnJson2.phone;
+			delete returnJson2.blockMessage;
+			delete returnJson2.denys;
+			delete returnJson2.coin;
+			delete returnJson2.dividend;
+			delete returnJson2.ingot;
+			//delete returnJson2.denys;
+		}
+
+		returnJson.success = true;
+		returnJson.inputJson = inputJson;
+
+		returnJson2.history = returnJson;
+
+		returnJson = returnJson2;
+		returnJson.uid = uidQuery;
+
+
+	} catch ( error ) {
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
 }
 
 app.post('/user', messageUser);
@@ -446,17 +436,47 @@ function doNothing(req, res) {
     error: '請下令操作行為:/list/last/create/report/delete/get/user'
   });
 }
-app.get('/', doNothing);
-app.post('/', doNothing);
+app.get( "/", doNothing );
+app.post( "/", doNothing );
 
-module.exports = firebaseFunctions.https.onRequest(app);
 
-//===============================================================================
+module.exports = firebaseFunctions.https.onRequest( app );
+
+
 //列表============================================================================
-async function lastMessages(inputJson) {
-  let returnJson = {
-    success: false
-  };
+async function lastMessages( inputJson = {} ) {
+	let returnJson = {
+		success: false
+	};
+
+	try {
+		console.info( "run lastMessages" );
+
+		//, utcJump = -1, limit = 50
+
+		//req.query
+		let limit = 50; //筆數預設值
+		let utcJump = -1; //跳過訊息的時間位置,默認-1=不存在
+
+		if ( inputJson.body !== undefined ) {
+			limit = ShortcutFunction.IntfromAny( inputJson.body.limit, 50 );
+			if ( limit > 200 ) {
+				limit = 200; //筆數上限
+			}
+			if ( limit < 1 ) {
+				limit = 1; //筆數下限
+			}
+
+			utcJump = ShortcutFunction.IntfromAny( inputJson.body.utcJump, -1 );
+		}
+
+		//let userData = await users.authVerfyGetUserData( inputJson ); //不一定有登入,要檢查uid
+		//console.info( "lastMessages userData=", userData );
+
+		let userId = inputJson.idToken.uid || ''; //userData.uid || ""; //登入者id
+		//if ( ShortcutFunction.haveEntityValue( userData.uid ) ) {
+		//	userId = ShortcutFunction.trim( userData.uid );
+		//}
 
   try {
     console.info('run lastMessages');
@@ -472,315 +492,314 @@ async function lastMessages(inputJson) {
       limit = 1; //筆數下限
     }
 
-    let utcJump = Number.parseInt(inputJson.body.utcJump, 10) || -1; //跳過訊息的時間位置
+		//limit = ShortcutFunction.setNoValue(parseInt(limit, 10), 50); //無法辨識則默認50筆,上限200//parseInt(來源, 10進制)
 
-    //let userData = await users.authVerfyGetUserData( inputJson ); //不一定有登入,要檢查uid
-    //console.info( "lastMessages userData=", userData );
+		//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收,大家全部不能看),1用戶刪除(自己不能看,其他人可以看),無設定/其他值:正常顯示
+		//-1=管理員刪除 的訊息都不要
+		//0=用戶回收 的訊息都不要
 
-    let userId = inputJson.idToken.uid || ''; //userData.uid || ""; //登入者id
-    //if ( ShortcutFunction.haveEntityValue( userData.uid ) ) {
-    //	userId = ShortcutFunction.trim( userData.uid );
-    //}
+		//where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
+		//.where('hide_stat', '==', 0) // .where('hide_stat', '>', 1);//where難用,放棄,手動過濾
 
-    console.info('lastMessages limit=', limit);
-    console.info('lastMessages utcJump=', utcJump);
+		let collection = firestore.collection( "messages" ).where( "channelId", "==", channelId ); //
+		if ( utcJump > 0 ) {
+			//跳過訊息的時間位置
+			// @ts-ignore
+			collection = collection.where( "createTime", "<=", utcJump );
+		}
 
-    let channelId = inputJson.body.channelId || 'public';
+		let Snapshot = await collection //
+			.orderBy( "createTime", "desc" ) //
+			.limit( limit + 50 ) //額外取得50筆紀錄,避免過濾後筆數不足
+			.get();
 
-    //userId = ShortcutFunction.setNoValue(userId, '');
-    //utcJump = ShortcutFunction.setNoValue(parseInt(utcJump, 10), -1); //這是訊息的日期時間(UTC格式),有值表示要定位/跳過取值,-1表示沒有跳過
+		console.info( "Snapshot.size=================", Snapshot.size );
 
-    //limit = ShortcutFunction.setNoValue(parseInt(limit, 10), 50); //無法辨識則默認50筆,上限200//parseInt(來源, 10進制)
+		//let count = 0;
+		let limit1 = limit - 1; //0~49=50;49=50-1;
 
-    //999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收,大家全部不能看),1用戶刪除(自己不能看,其他人可以看),無設定/其他值:正常顯示
-    //-1=管理員刪除 的訊息都不要
-    //0=用戶回收 的訊息都不要
+		//let last_utc = -1;
 
-    //where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
-    //.where('hide_stat', '==', 0) // .where('hide_stat', '>', 1);//where難用,放棄,手動過濾
+		//console.info( 'lastMessages Snapshot.size=', Snapshot.size );
 
-    let collection = firestore
-      .collection('messages')
-      .where('channelId', '==', channelId); //
-    if (utcJump > 0) {
-      //跳過訊息的時間位置
-      // @ts-ignore
-      collection = collection.where('createTime', '<=', utcJump);
-    }
+		//var messageArray = []; //返回的訊息陣列
+		let listArray = [];
 
-    let Snapshot = await collection //
-      .orderBy('createTime', 'desc') //
-      .limit(limit + 50) //額外取得50筆紀錄,避免過濾後筆數不足
-      .get();
+		Snapshot.forEach(
+			function ( doc ) {
+				if ( listArray.length >= limit ) {
+					//如果取得筆數符合需求筆數數量.
+					console.info( "終止迴圈" );
+					return true; //終止迴圈
+				} //if limit1
 
-    console.info('Snapshot.size=================', Snapshot.size);
+				let data = doc.data(); //每一筆訊息,(不能await)
 
-    //let count = 0;
-    let limit1 = limit - 1; //0~49=50;49=50-1;
+				console.info( "lastMessages doc >>>>>>>>>>>> ", doc );
 
-    //let last_utc = -1;
+				//last_utc = ShortcutFunction.setNoValue(data.createTime, last_utc);
 
-    //console.info( 'lastMessages Snapshot.size=', Snapshot.size );
+				//999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
 
-    //var messageArray = []; //返回的訊息陣列
-    let listArray = [];
+				let softDelete = ShortcutFunction.IntfromAny( data.softDelete, 2 );
 
-    Snapshot.forEach(
-      doc => {
-        if (listArray.length >= limit) {
-          //如果取得筆數符合需求筆數數量.
-          console.info('終止迴圈');
-          return true; //終止迴圈
-        } //if limit1
+				switch ( softDelete ) {
+					case -1: //管理員刪除(全域)
+					case 0: //用戶回收(全域刪除)
+						//以上狀態的訊息都不要
+						break;
 
-        let data = doc.data(); //每一筆訊息,(不能await)
+					case 1: //用戶刪除(對自己隱藏)
+						if ( data.uid === userId ) {
+							//如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
+							break;
+						}
 
-        console.info('lastMessages doc >>>>>>>>>>>> ', doc);
+						//沒設定,正常顯示
+						//case undefined:
+						//case null:
+						//case NaN:
+						//case Infinity:
+						//case 2:
+						default:
+							delete data.softDelete; //去掉刪除狀態
+							delete data.reports; //刪除被檢舉數量
+							data.messageId = doc.id || doc.ref.id || '';
+							listArray.push( data ); //真正要的訊息,放到陣列準備輸出.
+							break;
+				} //sw
+			} //for func
+		); //Snapshot for
 
-        //last_utc = ShortcutFunction.setNoValue(data.createTime, last_utc);
+		console.info( "lastMessages   listArray   1111111111", listArray );
 
-        //999:軟刪除狀態;-1:管理員刪除(回收),0用戶刪除(回收),1用戶刪除(其他人可以看),無設定:正常顯示
+		for ( const i in listArray ) {
+			try {
+				let msg1 = listArray[ i ];
 
-        switch (Number.parseInt(data.softDelete, 10) || 2) {
-          case -1: //管理員刪除(全域)
-          case 0: //用戶回收(全域刪除)
-            //以上狀態的訊息都不要
-            break;
+				//取得訊息作者資料補進去
+				let messageUser = await users.userIdToUserData( msg1.uid );
 
-          case 1: //用戶刪除(對自己隱藏)
-            if (data.uid === userId) {
-              //如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
-              break;
-            }
+				msg1.avatar = messageUser.avatar || ''; //大頭照
+				msg1.displayName = messageUser.displayName || ""; //顯示名稱
+				msg1.title = messageUser.title || ""; //大神頭銜,稱號
+				msg1.replyMessageId = msg1.replyMessageId || ''; //回應的訊息編號
 
-          //沒設定,正常顯示
-          //case undefined:
-          //case null:
-          //case NaN:
-          //case Infinity:
-          //case 2:
-          default:
-            delete data.softDelete; //去掉刪除狀態
-            delete data.reports; //刪除被檢舉數量
-            data.messageId = doc.id || doc.ref.id || '';
-            listArray.push(data); //真正要的訊息,放到陣列準備輸出.
-            break;
-        } //sw
-      } //for func
-    ); //Snapshot for
+				if ( msg1.replyMessageId.length > 0 ) {
+					msg1.replyMessage = await ShortcutFunction.getOneMessage( undefined, msg1.replyMessageId );
+				} else {
+					msg1.replyMessage = {
+						"success": false,
+						"channelId": "",
+						"createTime": '',
+						"message": "",
+						"fileName": "",
+						"tempHash": "",
+						"fileUploadId": "",
+						"fileType": "",
+						"uid": "",
+						"fileSize": 0,
+						"messageId": "",
+						"displayName": "",
+						"avatar": "",
+						"replyMessageId": "" //不會再往回查,只有回文Id
+					}
 
-    console.info('lastMessages   listArray   1111111111', listArray);
+				}
 
-    for (const i in listArray) {
-      try {
-        let msg1 = listArray[i];
+				//msg1.uid = msg1.uid || '';
+				//msg1.messageId = msg1.messageId || '';
+				//msg1.displayName = msg1.displayName
+				//msg1.avatar = msg1.avatar
+				//msg1.channelId = msg1.channelId || '';
+				//msg1.createTime = msg1.createTime || '';
+				//msg1.message = msg1.message || '';
+				//msg1.tempHash = msg1.tempHash || '';
 
-        //取得訊息作者資料補進去
-        let messageUser = await users.userIdToUserData(msg1.uid);
+				//if ( msg1.fileUploadId.length > 0 ) {
+				//let fileJson = await this.getOneShareFile( undefined, msg1.fileUploadId );
+				//msg1.fileUploadId = fileJson.fileUploadId || '';
+				//msg1.fileType = fileJson.fileType || '';
+				//msg1.fileSize = fileJson.fileSize || 0;
+				//msg1.fileName = fileJson.fileName || '';
+				//}
 
-        msg1.avatar = messageUser.avatar || '';
-        msg1.displayName = messageUser.displayName || '';
-        msg1.replyMessageId = msg1.replyMessageId || '';
-        if (msg1.replyMessageId.length > 0) {
-          msg1.replyMessage = await ShortcutFunction.getOneMessage(
-            undefined,
-            msg1.replyMessageId
-          );
-        } else {
-          msg1.replyMessage = {
-            success: false,
-            channelId: '',
-            createTime: '',
-            message: '',
-            fileName: '',
-            tempHash: '',
-            fileUploadId: '',
-            fileType: '',
-            uid: '',
-            fileSize: 0,
-            messageId: '',
-            displayName: '',
-            avatar: '',
-            replyMessageId: '' //不會再往回查,只有回文Id
-          };
-        }
+				msg1.fileURL = '';
+				try {
+					if ( msg1.fileUploadId.length > 0 ) {
+						//
+						msg1.fileURL = '/messages/file/'.concat( msg1.fileUploadId );
+					}
+				} catch ( error ) {
+					//
+				}
 
-        //msg1.uid = msg1.uid || '';
-        //msg1.messageId = msg1.messageId || '';
-        //msg1.displayName = msg1.displayName
-        //msg1.avatar = msg1.avatar
-        //msg1.channelId = msg1.channelId || '';
-        //msg1.createTime = msg1.createTime || '';
-        //msg1.message = msg1.message || '';
-        //msg1.tempHash = msg1.tempHash || '';
 
-        //if ( msg1.fileUploadId.length > 0 ) {
-        //let fileJson = await this.getOneShareFile( undefined, msg1.fileUploadId );
-        //msg1.fileUploadId = fileJson.fileUploadId || '';
-        //msg1.fileType = fileJson.fileType || '';
-        //msg1.fileSize = fileJson.fileSize || 0;
-        //msg1.fileName = fileJson.fileName || '';
-        //}
 
-        listArray[i] = msg1;
-      } catch (errorForReturnArray) {
-        console.warn('lastMessages errorForReturnArray', errorForReturnArray);
-      }
-    }
+				listArray[ i ] = msg1;
+			} catch ( errorForReturnArray ) {
+				console.warn( "lastMessages errorForReturnArray", errorForReturnArray );
+			}
+		}
 
-    console.info('lastMessages   returnArray   2222222222222222', listArray);
+		console.info( "lastMessages   returnArray   2222222222222222", listArray );
 
-    //let userDataArray = []; // 臨時用戶資料表
+		//let userDataArray = []; // 臨時用戶資料表
 
-    if (userId.length > 0) {
-      //userDataArray[ userId ] = userData; //把用戶自己加入臨時用戶表
-    }
+		if ( userId.length > 0 ) {
+			//userDataArray[ userId ] = userData; //把用戶自己加入臨時用戶表
+		}
 
-    //let FindUserJson = await dataArrayFindUserArray( returnArray, userDataArray );
-    //returnArray = FindUserJson.dataArray;
+		//let FindUserJson = await dataArrayFindUserArray( returnArray, userDataArray );
+		//returnArray = FindUserJson.dataArray;
 
-    //console.info( 'lastMessages returnJson=======================', returnJson );
+		//console.info( 'lastMessages returnJson=======================', returnJson );
 
-    returnJson.list = listArray;
+		returnJson.list = listArray;
 
-    //console.warn( 'lastMessages returnJson : 222222222222222222', returnJson );
+		//console.warn( 'lastMessages returnJson : 222222222222222222', returnJson );
 
-    returnJson.success = true;
-  } catch (error) {
-    returnJson.error = error;
-    console.warn('lastMessages error : ', error);
-  }
-  //return returnArray;
-  return returnJson; //re
+		returnJson.success = true;
+	} catch ( error ) {
+		returnJson.error = error;
+		console.warn( "lastMessages error : ", error );
+	}
+	//return returnArray;
+	return returnJson; //re
 }
 
 //delete myobj.a;
 //檢舉訊息=============================================================================
-async function runReportMessage(inputJson, messageId = '') {
-  //, messageIdChecked = false
+async function runReportMessage( inputJson = {}, messageId = "" ) {
+	//, messageIdChecked = false
 
-  let returnJson = {
-    success: false
-  };
+	let returnJson = {
+		success: false
+	};
 
-  try {
-    messageId = inputJson.body.messageId || messageId || '';
+	try {
+		let inputJsonBody = inputJson.body || {};
+		messageId = inputJsonBody.messageId || messageId || '';
 
-    if (messageId.length < 1) {
-      returnJson.error = '沒有訊息id';
-      returnJson.inputJson = inputJson;
-      return returnJson;
-    }
 
-    let uid = inputJson.idToken.uid || '';
-    if (uid === '') {
-      returnJson.error = 'runReportMessage >>>> inputJson.idToken.uid不存在';
-      returnJson.inputJson = inputJson;
-      return returnJson;
-    }
+		if ( messageId.length < 1 ) {
+			returnJson.error = "沒有訊息id";
+			returnJson.inputJson = inputJson;
+			return returnJson;
+		}
 
-    let userData = await users.userIdToUserData(uid);
-    uid = userData.uid || '';
-    if (!userData.uid) {
-      returnJson.error = 'runReportMessage  >>>>>  userData.uid不存在';
-      returnJson.userData = userData;
-      return returnJson;
-    }
+		let uid = inputJson.idToken.uid || '';
+		if ( uid === '' ) {
+			returnJson.error = 'runReportMessage >>>> inputJson.idToken.uid不存在';
+			returnJson.inputJson = inputJson;
+			return returnJson;
+		}
 
-    let disableTime = Number.parseInt(userData.messageDisableTime, 10) || -1; //被禁止的期限
-    if (disableTime > -1) {
-      let timeNow = ShortcutFunction.timestampUTCmsInt();
-      if (disableTime > timeNow) {
-        returnJson.error = '你已被停權中,無法使用檢舉功能';
-        return returnJson;
-      }
-    }
+		let userData = await users.userIdToUserData( uid );
+		uid = userData.uid || '';
+		if ( !userData.uid ) {
+			returnJson.error = 'runReportMessage  >>>>>  userData.uid不存在';
+			returnJson.userData = userData;
+			return returnJson;
+		}
 
-    messageId = messageId || inputJson.body.messageId || '';
+		let disableTime = Number.parseInt( userData.messageDisableTime, 10 ) || -1; //被禁止的期限
+		if ( disableTime > -1 ) {
+			let timeNow = ShortcutFunction.timestampUTCmsInt(); //取得現在時間UTC數字
+			if ( disableTime > timeNow ) {
+				returnJson.error = "你已被停權中,無法使用檢舉功能";
+				return returnJson;
+			}
+		}
 
-    console.info(' runReportMessage messageId', messageId);
+		messageId = messageId || inputJsonBody.messageId || "";
 
-    //messageId = ShortcutFunction.trim( messageId );
+		console.info( " runReportMessage messageId", messageId );
 
-    let DocRef = firestore.collection('messages').doc(messageId);
+		//messageId = ShortcutFunction.trim( messageId );
 
-    let docSnapshot = await DocRef.get();
+		returnJson.messageId = messageId;
 
-    let msgData = docSnapshot.data();
 
-    if (msgData === undefined) {
-      returnJson.error = '沒有此id的訊息';
-      return returnJson;
-    }
+		let DocRef = firestore.collection( "messages" ).doc( messageId );
 
-    //紀錄存在,檢查是否已經被軟刪除
-    switch (Number.parseInt(msgData.softDelete, 10) || 2) {
-      case -1: //管理員刪除(全域)
-        returnJson.error = '沒有此訊息';
-        console.info('runReportMessage 4444444444444', returnJson);
-        return returnJson;
-      //break;
+		let docSnapshot = await DocRef.get();
 
-      case 0: //用戶回收(全域刪除)
-        returnJson.error = '沒有此訊息';
-        console.info('runReportMessage 5555555555555555', returnJson);
-        return returnJson;
-      //break;
+		let msgData = docSnapshot.data();
 
-      case 1: //用戶刪除(對自己隱藏)
-        if (msgData.uid === userData.uid) {
-          //如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
-          returnJson.error = '沒有此訊息';
-          console.info('runReportMessage 66666666666', returnJson);
-          return returnJson;
-        }
-        break;
-    }
+		if ( msgData === undefined ) {
+			returnJson.error = "沒有此id的訊息";
+			return returnJson;
+		}
 
-    //至此,沒有被軟刪除,己查檢舉者是否訊息作者
+		let softDelete = ShortcutFunction.IntfromAny( msgData.softDelete, 2 );
 
-    if (msgData.uid === uid) {
-      //訊息作者就是自己,
-      returnJson.error = '你無法檢舉自己的訊息,但是你可以選擇刪除或是回收';
-      console.info('runReportMessage 777777777777', returnJson);
-      return returnJson;
-    }
+		//紀錄存在,檢查是否已經被軟刪除
+		switch ( softDelete ) {
+			case -1: //管理員刪除(全域)
+				returnJson.error = "沒有此訊息";
+				console.info( "runReportMessage 4444444444444", returnJson );
+				return returnJson;
+				//break;
 
-    //至此,檢查檢舉還是取消檢舉
+			case 0: //用戶回收(全域刪除)
+				returnJson.error = "沒有此訊息";
+				console.info( "runReportMessage 5555555555555555", returnJson );
+				return returnJson;
+				//break;
 
-    let act = Number.parseInt(inputJson.body.reportAction, 10) || 1; //預設為檢舉
+			case 1: //用戶刪除(對自己隱藏)
+				if ( msgData.uid === userData.uid ) {
+					//如果是隱藏自己的訊息,並且就是自己的訊息,就不要了.
+					returnJson.error = "沒有此訊息";
+					console.info( "runReportMessage 66666666666", returnJson );
+					return returnJson;
+				}
+				break;
+		}
 
-    returnJson.reportAction = act;
+		//至此,沒有被軟刪除,己查檢舉者是否訊息作者
 
-    if (act < 0) {
-      //取消檢舉
-      let fvUn1 = firebaseAdmin.firestore.FieldValue.arrayRemove(userData.uid);
+		if ( msgData.uid === uid ) { //訊息作者就是自己,
+			returnJson.error = "你無法檢舉自己的訊息,但是你可以選擇刪除或是回收";
+			console.info( "runReportMessage 777777777777", returnJson );
+			return returnJson;
+		}
 
-      let arrRm = await DocRef.update({
-        reports: fvUn1
-      });
+		//至此,檢查檢舉還是取消檢舉
 
-      returnJson.writeTime = arrRm.writeTime;
+		let act = ShortcutFunction.IntfromAny( inputJsonBody.reportAction, 1 ); //預設為檢舉
 
-      returnJson.success = true;
+		returnJson.reportAction = act;
 
-      return returnJson;
-    }
+		if ( act < 1 ) { //取消檢舉
+			let fvUn1 = firebaseAdmin.firestore.FieldValue.arrayRemove( userData.uid );
 
-    //檢舉
-    let fvAdd1 = firebaseAdmin.firestore.FieldValue.arrayUnion(userData.uid);
-    let arrUnion = await DocRef.update({
-      reports: fvAdd1
-    });
+			let arrRm = await DocRef.update( {
+				reports: fvUn1
+			} );
 
-    returnJson.writeTime = arrUnion.writeTime;
-    returnJson.success = true;
-  } catch (error) {
-    console.warn('runReportMessage error', error);
-    returnJson.error = error;
-  }
+			returnJson.writeTime = arrRm.writeTime;
 
-  return returnJson;
+			returnJson.success = true;
+
+			return returnJson;
+		}
+
+		//檢舉
+		let fvAdd1 = firebaseAdmin.firestore.FieldValue.arrayUnion( userData.uid );
+		let arrUnion = await DocRef.update( {
+			reports: fvAdd1
+		} );
+
+		returnJson.writeTime = arrUnion.writeTime;
+		returnJson.success = true;
+	} catch ( error ) {
+		console.warn( "runReportMessage error", error );
+		returnJson.error = error;
+	}
+
+	return returnJson;
 }
 
 //用戶刪除(自己隱藏)訊息
@@ -789,16 +808,26 @@ async function runReportMessage(inputJson, messageId = '') {
 async function softDeleteMessage(inputJson, messageId = '') {
   //, messageIdChecked = false
 
-  let returnJson = {
-    success: false
-  };
+	try {
 
-  try {
-    messageId = inputJson.body.messageId || messageId || '';
+		let inputJsonBody = inputJson.body || {};
+
+		messageId = inputJsonBody.messageId || messageId || "";
+
+		messageId = ShortcutFunction.trim( messageId );
+
+
+
+		console.info( "softDeleteMessage messageId =============>", messageId );
 
     messageId = ShortcutFunction.trim(messageId);
 
-    console.info('softDeleteMessage messageId =============>', messageId);
+		returnJson.messageId = messageId;
+
+		let docSnapshot = await firestore
+			.collection( "messages" )
+			.doc( messageId )
+			.get();
 
     if (messageId.length < 1) {
       returnJson.error = '沒有訊息id  1111';
@@ -812,326 +841,332 @@ async function softDeleteMessage(inputJson, messageId = '') {
 
     let data = docSnapshot.data();
 
-    if (data === undefined) {
-      returnJson.error = '沒有此id的訊息   2222';
-      return returnJson;
-    }
+		let softDelete = ShortcutFunction.IntfromAny( data.softDelete, 2 );
 
-    console.info('data.softDelete 33333333333', data.softDelete);
+		switch ( softDelete ) {
+			case -1: //管理員刪除(全域)
+			case 0: //用戶回收(全域刪除)
+			case 1: //用戶刪除(對自己隱藏)
+				returnJson.error = "沒有此id的訊息  444444";
+				return returnJson;
+		} //sw
 
-    switch (Number.parseInt(data.softDelete, 10) || 2) {
-      case -1: //管理員刪除(全域)
-      case 0: //用戶回收(全域刪除)
-      case 1: //用戶刪除(對自己隱藏)
-        returnJson.error = '沒有此id的訊息  3333';
-        return returnJson;
-    } //sw
+		let act = ShortcutFunction.IntfromAny( inputJsonBody.deleteAction, 2 );
 
-    ////////////////////////////////////
-    /*
-		let userData = await users.authVerfyGetUserData( inputJson );
-		if ( !userData.success ) {
-			return userData;
+		switch ( act ) {
+			case -1:
+			case 0:
+			case 1:
+				//往下執行
+				break;
+
+			default:
+				//攔截並顯示錯誤訊息
+				returnJson.error = "deleteAction參數錯誤,有效值為-1:管理員/0:用戶回收(全域刪除)/1:用戶刪除(對自己隱藏)";
+				returnJson.deleteAction = act;
+				return returnJson;
+				break;
 		}
 
-		if ( !ShortcutFunction.haveEntityValue( userData.uid ) ) {
-			return userData;
-		}*/
+		let idToken1 = inputJson.idToken || {};
 
-    let act = Number.parseInt(inputJson.body.deleteAction, 10);
+		let userData = await users.userIdToUserData( idToken1.uid );
 
-    switch (act) {
-      case -1:
-      case 0:
-      case 1:
-        //往下執行
-        break;
+		returnJson.action = "deleteMessage";
+		returnJson.messageId = data.uid || '';
+		returnJson.uid = userData.uid || '';
+		returnJson.displayName = userData.displayName || '';
+		returnJson.avatar = userData.avatar;
+		returnJson.title = userData.title;
+		returnJson.appearTimestamp = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
 
-      default:
-        //攔截並顯示錯誤訊息
-        returnJson.error =
-          'deleteAction參數錯誤,有效值為-1:管理員/0:用戶回收(全域刪除)/1:用戶刪除(對自己隱藏)';
-        returnJson.deleteAction = inputJson.body.deleteAction;
-        return returnJson;
-        break;
-    }
+		//Manager管理權限刪除
+		let userStats = ShortcutFunction.IntfromAny( userData.userStats, 0 );
 
-    let userData = await users.userIdToUserData(inputJson.idToken.uid);
+		if ( userStats === 9 ) { //
+			if ( data.uid !== userData.uid ) {
+				//不是本人訊息,用管理權限刪除
+				let re = await docSnapshot.ref.update( {
+					softDelete: -1
+				} ); //, { merge: true }
+				returnJson.uid = "manager";
+				returnJson.displayName = "manager";
+				returnJson.title = 'manager';
+				returnJson.deleteAction = -1;
+				returnJson.success = true;
+				return await ShortcutFunction.realtimePush( returnJson );
+			}
+		}
 
-    returnJson.action = 'deleteMessage';
-    returnJson.messageId = data.uid || '';
-    returnJson.uid = userData.uid || '';
-    returnJson.displayName = userData.displayName || '';
-    returnJson.avatar = userData.avatar;
-    returnJson.appearTimestamp = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
+		if ( data.uid === userData.uid ) {
+			//自己的訊息
+			if ( act === 0 ) {
+				//0=用戶回收(全域刪除)
+				let re = await docSnapshot.ref.update( {
+					softDelete: 0
+				} ); //, { merge: true }
 
-    //Manager管理權限刪除
-    if (!(Number.parseInt(userData.userStats, 10) === 9)) {
-      //
-      if (data.uid !== userData.uid) {
-        //不是本人訊息,用管理權限刪除
-        let re = await docSnapshot.ref.update({
-          softDelete: -1
-        }); //, { merge: true }
-        returnJson.uid = 'manager';
-        returnJson.displayName = 'manager';
-        returnJson.deleteAction = -1;
-        returnJson.success = true;
-        return await ShortcutFunction.realtimePush(returnJson);
-      }
-    }
+				returnJson.deleteAction = 0;
+				returnJson.success = true;
 
-    //act = Number.parseInt( inputJson.body.deleteAction, 10 ) || 2;
+				return await ShortcutFunction.realtimePush( returnJson );
+			}
 
-    if (data.uid === userData.uid) {
-      //自己的訊息
-      if (act === 0) {
-        //0=用戶回收(全域刪除)
-        let re = await docSnapshot.ref.update({
-          softDelete: 0
-        }); //, { merge: true }
+			if ( act === 1 ) {
+				//1=用戶刪除(對自己隱藏)
+				let re = await docSnapshot.ref.update( {
+					softDelete: 1
+				} ); //, { merge: true }
 
-        returnJson.deleteAction = 0;
-        returnJson.success = true;
+				returnJson.deleteAction = 1;
+				returnJson.success = true;
+				return await ShortcutFunction.realtimePush( returnJson );
+			} //act
+		} //uid==uid
 
-        return await ShortcutFunction.realtimePush(returnJson);
-      }
+		returnJson.error = "你沒有權限刪除此訊息,請使用檢舉";
+	} catch ( error ) {
+		console.warn( "runReportMessage error", error );
+		returnJson.error = error;
+	}
 
-      if (act === 1) {
-        //1=用戶刪除(對自己隱藏)
-        let re = await docSnapshot.ref.update({
-          softDelete: 1
-        }); //, { merge: true }
-
-        returnJson.deleteAction = 1;
-        returnJson.success = true;
-        return await ShortcutFunction.realtimePush(returnJson);
-      } //act
-    } //uid==uid
-
-    returnJson.error = '你沒有權限刪除此訊息,請使用檢舉';
-  } catch (error) {
-    console.warn('runReportMessage error', error);
-    returnJson.error = error;
-  }
-
-  return returnJson;
+	return returnJson;
 }
 //新增,回應訊息(上傳檔案)============================================================
-async function runCreateMessage(inputJson) {
-  //, userData = {}
-  //新訊息 //, re_hash, fi, ftype
-  //let utc = firestore.ServerValue.TIMESTAMP;
+async function runCreateMessage( inputJson = {} ) {
+	//, userData = {}
+	//新訊息 //, re_hash, fi, ftype
+	//let utc = firestore.ServerValue.TIMESTAMP;
 
-  let returnJson = {
-    success: false
-  };
+	let returnJson = {
+		success: false
+	};
 
-  console.info('runCreateMessage');
+	console.info( "runCreateMessage" );
 
-  //return returnJson;
+	//return returnJson;
 
-  try {
-    let body = inputJson.body;
-    //channelId: "public",
-    //tempHash: new Date().getTime().toString().concat( authUserData.uid || '' ),
-    //message: $( "#messageContent" ).val() || "",
-    //replyMessageId: $( "#selectMessageId" ).val() || ""
-    //postData.file = fileUrl;
-    //postData.fileName = fileName || '';
-    //postData.fileType = fileType || '';
-    //console.info( 'inputJson.body >>>>>>>>>>>>>>>>>>>>>\n', inputJson.body );
+	try {
+		let body = inputJson.body || {};
+		//channelId: "public",
+		//tempHash: new Date().getTime().toString().concat( authUserData.uid || '' ),
+		//message: $( "#messageContent" ).val() || "",
+		//replyMessageId: $( "#selectMessageId" ).val() || ""
+		//postData.file = fileUrl;
+		//postData.fileName = fileName || '';
+		//postData.fileType = fileType || '';
+		console.info( 'runCreateMessage    inputJson.body 11111111111111111111111\n', inputJson.body );
 
-    let message2 = ShortcutFunction.trim(body.message || '');
 
-    body.file = ShortcutFunction.trim(body.file || '');
+		let message2 = body.message || "";
+		message2 = ShortcutFunction.trim( message2 );
 
-    //let messageLength = body.message.length;
+		body.file = body.file || "";
+		body.file = ShortcutFunction.trim( body.file );
 
-    if (message2.length + body.file.length < 1) {
-      //沒有內文或是檔案
-      returnJson.error = '沒有訊息內容或是檔案';
-      return returnJson;
-    }
+		//let messageLength = body.message.length;
 
-    body.tempHash = ShortcutFunction.trim(body.tempHash || '');
+		console.info( 'message2.length + body.file.length 22222222222222222222222\n', message2.length + body.file.length );
 
-    if (body.tempHash.length < 4) {
-      returnJson.error = '沒有臨時hash';
-      return returnJson;
-    }
+		let fileLength = body.file.length || 0;
+		let messageLength = message2.length || 0;
 
-    body.channelId = body.channelId || 'public';
+		if ( ( messageLength + fileLength ) < 1 ) {
+			//沒有內文或是檔案
+			returnJson.error = "沒有訊息內容或是檔案";
+			return returnJson;
+		}
 
-    if (ShortcutFunction.trim(body.channelId).length < 1) {
-      returnJson.error = 'channelId';
-      return returnJson;
-    }
+		body.tempHash = body.tempHash || "";
+		body.tempHash = ShortcutFunction.trim( body.tempHash );
 
-    let uid = inputJson.idToken.uid || '';
-    if (uid === '') {
-      returnJson.error = 'runReportMessage >>>> inputJson.idToken.uid不存在';
-      returnJson.inputJson = inputJson;
-      return returnJson;
-    }
+		if ( body.tempHash.length < 4 ) {
+			returnJson.error = "沒有臨時hash";
+			return returnJson;
+		}
 
-    let userData = await users.userIdToUserData(uid);
-    uid = userData.uid || '';
-    if (!userData.uid) {
-      returnJson.error = 'runReportMessage  >>>>>  userData.uid不存在';
-      returnJson.userData = userData;
-      return returnJson;
-    }
+		body.channelId = body.channelId || "public";
 
-    //檢查是否黑名單中
-    let blackTime = Number.parseInt(userData.blockMessage, 10) || -1;
-    if (blackTime > 0) {
-      let timeNow = ShortcutFunction.timestampUTCmsInt();
-      if (timeNow < blackTime) {
-        //還在禁言中
-        returnJson.error = '用戶已經被禁止使用聊天室功能';
-        return returnJson;
-      }
-    }
+		if ( ShortcutFunction.trim( body.channelId ).length < 1 ) {
+			returnJson.error = "channelId錯誤";
+			return returnJson;
+		}
 
-    //至此,訊息本體,用戶身分功能都有效
 
-    let newMessage = {
-      uid: userData.uid,
-      channelId: body.channelId,
-      createTime: ShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
-      tempHash: body.tempHash, //發送端的臨時唯一編號
-      message: '' //htmlencode.htmlEncode( body.message ), //訊息本體
-    };
+		let uid = inputJson.idToken.uid || '';
+		if ( uid === '' ) {
+			returnJson.error = 'runReportMessage  inputJson.idToken.uid不存在';
+			returnJson.inputJson = inputJson;
+			return returnJson;
+		}
 
-    body.replyMessageId = ShortcutFunction.trim(body.replyMessageId || '');
+		let userData = await users.userIdToUserData( uid );
+		uid = userData.uid || '';
+		if ( !userData.uid ) {
+			returnJson.error = 'runReportMessage  userData.uid不存在';
+			returnJson.userData = userData;
+			return returnJson;
+		}
 
-    if (body.replyMessageId.length > 0) {
-      //有回應訊息的id
-      newMessage.replyMessageId = body.replyMessageId;
-    }
+		//檢查是否黑名單中
+		let blackTime = ShortcutFunction.IntfromAny( userData.blockMessage, -1 );
 
-    //檢查夾帶檔案
-    //body.file = fileUrl;//file: "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/uploadTemp%2FzmPF5Aht60Y6GdBbGnrOSlWcgV53%2F1574142826572.jpg?alt=media&token=e3f49912-7e7c-43c4-a494-5ca5fd001d54
-    //https: //firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/uploadTemp%2FzmPF5Aht60Y6GdBbGnrOSlWcgV53%2F1574142826572.jpg?alt=media&token=e3f49912-7e7c-43c4-a494-5ca5fd001d54
-    //body.fileName = fileName || '';
-    //body.fileType = fileType || '';
+		if ( blackTime > 0 ) {
+			let timeNow = ShortcutFunction.timestampUTCmsInt();
+			if ( timeNow < blackTime ) {
+				//還在禁言中
+				returnJson.error = "用戶已經被禁止使用聊天室功能";
+				return returnJson;
+			}
+		}
 
-    //let fileType = 'application/octet-stream';
-    //let fileSubName = 'tmp';
+		//至此,訊息本體,用戶身分功能都有效
 
-    let uploadFileReturnJson = await ShortcutFunction.runFileUpload5t(
-      body.file
-    );
-    returnJson.uploadFileReturnJson = uploadFileReturnJson;
-    if (uploadFileReturnJson.success) {
-      //uploadFileReturnJson.fileData:
-      //{
-      //	fileUploadId: fileUploadId,
-      //	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
-      //	fileFarmHash: returnJson.farmHash,
-      //	fileSipHash: returnJson.sipHash,
-      //	fileType: returnJson.fileType,
-      //	fileSubName: returnJson.fileSubName,
-      //	fileSize: metadata2.size,
-      //	bucketPath: path2
-      //}
+		let newMessage = {
+			uid: userData.uid,
+			channelId: body.channelId || 'public',
+			createTime: ShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
+			tempHash: body.tempHash, //發送端的臨時唯一編號
+			message: '' //htmlencode.htmlEncode( body.message ), //訊息本體
+		};
 
-      newMessage.fileUploadId = uploadFileReturnJson.fileUploadId;
-      newMessage.fileName = htmlencode.htmlEncode(
-        body.fileName || 'unknow.tmp'
-      );
+		body.replyMessageId = body.replyMessageId || "";
+		body.replyMessageId = ShortcutFunction.trim( body.replyMessageId );
 
-      console.info(
-        'newMessage.fileName>>>>>>>>>>>>>>>>>>>>>>>>>\n',
-        newMessage.fileName
-      );
-    } else if (body.file.length < 1) {
-      //沒有夾帶檔案或是夾帶失敗,再次檢查訊息,沒有訊息內容就失敗
-      returnJson.error = '沒有訊息內容或是檔案.'; //.concat( returnJson.error || '' );
-      return returnJson;
-    }
+		if ( body.replyMessageId.length > 0 ) { //有回應訊息的id
+			newMessage.replyMessageId = body.replyMessageId;
+		}
 
-    //至此,有檔案或是有內容
-    //先到messages
-    newMessage.message = htmlencode.htmlEncode(body.message); //訊息本體,需要編碼才能存入
+		//檢查夾帶檔案
+		//body.file = fileUrl;//file: "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/uploadTemp%2FzmPF5Aht60Y6GdBbGnrOSlWcgV53%2F1574142826572.jpg?alt=media&token=e3f49912-7e7c-43c4-a494-5ca5fd001d54
+		//https: //firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/uploadTemp%2FzmPF5Aht60Y6GdBbGnrOSlWcgV53%2F1574142826572.jpg?alt=media&token=e3f49912-7e7c-43c4-a494-5ca5fd001d54
+		//body.fileName = fileName || '';
+		//body.fileType = fileType || '';
 
-    if (ShortcutFunction.haveEntityValue(body.replyMessageId)) {
-      //回應文章編號
-      newMessage.replyMessageId = body.replyMessageId;
-    }
+		//let fileType = 'application/octet-stream';
+		//let fileSubName = 'tmp';
 
-    newMessage.createTime = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
-    let m1 = 1024 * 1024; //1MB
+		let uploadFileReturnJson = await ShortcutFunction.runFileUpload5t( body.file );
+		returnJson.uploadFileReturnJson = uploadFileReturnJson;
+		if ( uploadFileReturnJson.success ) {
+			//uploadFileReturnJson.fileData:
+			//{
+			//	fileUploadId: fileUploadId,
+			//	endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ),
+			//	fileFarmHash: returnJson.farmHash,
+			//	fileSipHash: returnJson.sipHash,
+			//	fileType: returnJson.fileType,
+			//	fileSubName: returnJson.fileSubName,
+			//	fileSize: metadata2.size,
+			//	bucketPath: path2
+			//}
 
-    for (const key in newMessage) {
-      if (key.toString().length > m1) {
-        returnJson.error = key.concat('鍵長度超過1MB');
-        return returnJson;
-      }
+			newMessage.fileUploadId = uploadFileReturnJson.fileUploadId;
+			newMessage.fileName = body.fileName || "unknow.tmp";
+			newMessage.fileName = htmlencode.htmlEncode( newMessage.fileName );
 
-      if (newMessage[key].toString().length > m1) {
-        returnJson.error = key.concat('值長度超過1MB');
-        return returnJson;
-      }
-    }
+			console.info( 'newMessage.fileName>>>>>>>>>>>>>>>>>>>>>>>>>\n', newMessage.fileName );
 
-    let docRef = await firestore.collection('messages').add(newMessage); //docRef
-    //docRef.id//此訊息的唯一編號
+		} else if ( messageLength < 1 ) {
+			//沒有夾帶檔案或是夾帶失敗,再次檢查訊息,沒有訊息內容就失敗
+			returnJson.error = "沒有訊息內容或是檔案."; //.concat( returnJson.error || '' );
+			return returnJson;
+		}
 
-    /*
+		//至此,有檔案或是有內容
+		//先到messages
+		newMessage.message = htmlencode.htmlEncode( body.message ); //訊息本體,需要編碼才能存入
+
+		if ( ShortcutFunction.haveEntityValue( body.replyMessageId ) ) {
+			//回應文章編號
+			newMessage.replyMessageId = body.replyMessageId;
+		}
+
+		newMessage.createTime = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
+		let m1 = 1024 * 1024; //1MB
+
+		for ( const key in newMessage ) {
+			if ( key.toString().length > m1 ) {
+				returnJson.error = key.concat( "鍵長度超過1MB" );
+				return returnJson;
+			}
+
+			if ( newMessage[ key ].toString().length > m1 ) {
+				returnJson.error = key.concat( "值長度超過1MB" );
+				return returnJson;
+			}
+		}
+
+		let docRef = await firestore.collection( "messages" ).add( newMessage ); //docRef
+		//docRef.id//此訊息的唯一編號
+
+		/*
 		if (!ShortcutFunction.haveEntityValue(docRef.id)) {
 			returnJson.error = "firestore存檔失敗,沒有得到錯誤訊息,請檢查post資料整體大小是否超過10MB,或是任意key:value的大小超過1MB";
 			return returnJson;
 		}
 		*/
 
-    let messageId = ShortcutFunction.trim(docRef.id || '');
+		let messageId = docRef.id || "";
+		messageId = ShortcutFunction.trim( messageId );
 
-    if (messageId.length < 1) {
-      returnJson.error = 'firestore存檔失敗,沒有得到messageId(docRef.id)';
-      return returnJson;
-    }
-    let WriteResult = await docRef.update({
-      messageId: messageId
-    });
+		if ( messageId.length < 1 ) {
+			returnJson.error = "firestore存檔失敗,沒有得到messageId(docRef.id)";
+			return returnJson;
+		}
+		let WriteResult = await docRef.update( {
+			messageId: messageId
+		} );
 
-    //把訊息id補回到記錄內
-    returnJson.messageId = messageId;
-    newMessage.messageId = messageId;
+		//把訊息id補回到記錄內
+		returnJson.messageId = messageId;
+		newMessage.messageId = messageId;
 
-    //再到livePush
-    newMessage.action = 'newMessage';
-    newMessage.displayName = userData.displayName || userData.uid;
-    newMessage.avatar = userData.avatar || '';
-    newMessage.replyMessageId = newMessage.replyMessageId || '';
+		//再到livePush
+		newMessage.action = "newMessage";
+		newMessage.displayName = userData.displayName || userData.uid; //用戶顯示名稱
+		newMessage.avatar = userData.avatar || ""; //大頭照
+		newMessage.title = userData.title || ""; //大神頭銜
+		newMessage.replyMessageId = newMessage.replyMessageId || '';
 
-    //newMessage.file = '';
-    //newMessage.fileType = '';
-    //newMessage.fileSubName = '';
-    //newMessage.fileName = '';
+		try {
+			newMessage.replyMessage = await ShortcutFunction.getOneMessage( undefined, newMessage.replyMessageId );
+		} catch ( error2 ) {
+			console.info( 'newMessage.replyMessage = await this.getOneMessage( undefined, newMessage.replyMessageId );', error2 );
+		}
 
-    //if ( returnJson.uploadFileReturnJson.success ) {
-    newMessage.fileUploadId =
-      returnJson.uploadFileReturnJson.fileUploadId || '';
-    newMessage.fileType = returnJson.uploadFileReturnJson.fileType || '';
-    newMessage.fileSubName = returnJson.uploadFileReturnJson.fileSubName || '';
-    newMessage.fileName = newMessage.fileName || '';
-    //}
+		//newMessage.file = '';
+		//newMessage.fileType = '';
+		//newMessage.fileSubName = '';
+		//newMessage.fileName = '';
 
-    let realtimePushReturnJson = await ShortcutFunction.realtimePush(
-      newMessage
-    );
-    returnJson.success = true;
-    realtimePushReturnJson.history = returnJson;
+		//if ( returnJson.uploadFileReturnJson.success ) {
+		newMessage.fileUploadId = returnJson.uploadFileReturnJson.fileUploadId || '';
+		newMessage.fileType = returnJson.uploadFileReturnJson.fileType || '';
+		newMessage.fileSubName = returnJson.uploadFileReturnJson.fileSubName || '';
+		newMessage.fileName = newMessage.fileName || '';
+		//}
 
-    return realtimePushReturnJson;
-  } catch (error) {
-    console.warn('createMessage error', error);
-    returnJson.error = error;
-  }
+		try {
+			if ( newMessage.fileUploadId.length > 0 ) {
+				newMessage.fileURL = '/messages/file/'.concat( newMessage.fileUploadId );
+			}
+		} catch ( error ) {
+			newMessage.fileURL = '';
+		}
 
-  return returnJson;
+
+		let realtimePushReturnJson = await ShortcutFunction.realtimePush( newMessage );
+		returnJson.success = true;
+		realtimePushReturnJson.history = returnJson;
+
+		return realtimePushReturnJson;
+	} catch ( error ) {
+		console.warn( "createMessage error", error );
+		returnJson.error = error;
+	}
+
+	return returnJson;
 }
 
 /*
