@@ -77,9 +77,6 @@ app.post( "/", async ( req, res ) => {
 } );*/
 
 function reqToInputJson(req) {
-  // console.dir('測試', req, { depth: null });
-  // console.log('測試><', req.params[0], '><...');
-  // console.log('測試><', req.method, '><...');
   let returnJson = {
     success: false,
     body: req.body || {},
