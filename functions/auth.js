@@ -6,10 +6,9 @@ const ShortcutFunction = require('./shortcut_function');
 const envValues = require('././env_values');
 const cookie = require('cookie');
 const rp = require('request-promise');
-const jwt = require("jsonwebtoken");
-const secure_compare = require("secure-compare");
-const cookieParser = require("cookie-parser");
-
+const jwt = require('jsonwebtoken');
+const secure_compare = require('secure-compare');
+const cookieParser = require('cookie-parser');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -46,21 +45,21 @@ const lineLogin = new line_login({
 app.use('/line_login', lineLogin.auth());
 // app.disable("x-powered-by");
 app.all('/api', (req, res) => {
-    console.log(JSON.stringify(req.cookies, null, '\t'));
-    let refCookies = req.get('cookie') || 'refCode=';
-    let refCode = cookie.parse(refCookies).refCode;
-    console.log(refCode);
-    console.log("api....");
-    const options = {
-        maxAge: 1000 * 2 * 60,
-        httpOnly: true
-    };
-    res.cookie('api_test', "api_test", options);
-    res.json({
-        message: 'Hello API2'
-    });
-    // return res.status(200);
-    res.status(200).send("hello");
+  console.log(JSON.stringify(req.cookies, null, '\t'));
+  let refCookies = req.get('cookie') || 'refCode=';
+  let refCode = cookie.parse(refCookies).refCode;
+  console.log(refCode);
+  console.log('api....');
+  const options = {
+    maxAge: 1000 * 2 * 60,
+    httpOnly: true
+  };
+  res.cookie('api_test', 'api_test', options);
+  res.json({
+    message: 'Hello API2'
+  });
+  // return res.status(200);
+  res.status(200).send('hello');
 });
 
 // http://localhost:5000/rextest-ded68/us-central1/api/auth/emailRegister
@@ -110,7 +109,7 @@ app.post('/emailRegister', (req, res) => {
         password: registerPassword
         // displayName:displayName
       })
-      .then(userRecord => {
+      .then((userRecord) => {
         // See the UserRecord reference doc for the contents of userRecord.
         // var uid = userRecord.uid;
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -120,7 +119,7 @@ app.post('/emailRegister', (req, res) => {
         });
         console.log('Successfully created new user:', userRecord.uid);
       })
-      .catch(error => {
+      .catch((error) => {
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.json({
           success: false,
@@ -155,17 +154,17 @@ app.post('/email', (req, res) => {
   firebase
     .auth()
     .signInWithEmailAndPassword(loginEmail, loginPassword)
-    .then(user => {
+    .then((user) => {
       user.user
         .getIdToken()
-        .then(idToken => {
+        .then(function(idToken) {
           const expiresIn = 60 * 60 * 24 * 7 * 1000;
           admin
             .auth()
             .createSessionCookie(idToken, {
               expiresIn
             })
-            .then(sessionCookie => {
+            .then(function(sessionCookie) {
               const options = {
                 maxAge: expiresIn,
                 httpOnly: true,
@@ -178,7 +177,7 @@ app.post('/email', (req, res) => {
               });
               console.log('Successfully login user : ', user.user.uid);
             })
-            .catch(error => {
+            .catch(function(error) {
               res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
               res.json({
                 success: false,
@@ -187,7 +186,7 @@ app.post('/email', (req, res) => {
               console.log('Error login user : createSessionCookie\n\t', error);
             });
         })
-        .catch(error => {
+        .catch(function(error) {
           res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           res.json({
             success: false,
@@ -196,7 +195,7 @@ app.post('/email', (req, res) => {
           console.log('Error login user: idToken\n\t', error);
         });
     })
-    .catch(error => {
+    .catch((error) => {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.json({
         success: false,
@@ -238,7 +237,7 @@ app.post('/phoneRegister', (req, res) => {
     .createUser({
       phoneNumber: registerPhone
     })
-    .then(userRecord => {
+    .then((userRecord) => {
       // See the UserRecord reference doc for the contents of userRecord.
       const uid = userRecord.uid;
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -248,7 +247,7 @@ app.post('/phoneRegister', (req, res) => {
       });
       console.log('Successfully created new user:', uid);
     })
-    .catch(error => {
+    .catch((error) => {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.json({
         success: false,
@@ -281,17 +280,17 @@ app.post('/phoneToken', (req, res) => {
   firebase
     .auth()
     .signInWithPhoneNumber(loginPhone, appVerifier)
-    .then(user => {
+    .then((user) => {
       user.user
         .getIdToken()
-        .then(idToken => {
+        .then(function(idToken) {
           const expiresIn = 60 * 60 * 24 * 7 * 1000;
           admin
             .auth()
             .createSessionCookie(idToken, {
               expiresIn
             })
-            .then(sessionCookie => {
+            .then(function(sessionCookie) {
               const options = {
                 maxAge: expiresIn,
                 httpOnly: true,
@@ -305,7 +304,7 @@ app.post('/phoneToken', (req, res) => {
               });
               console.log('Successfully login user : ', user.user.uid);
             })
-            .catch(error => {
+            .catch(function(error) {
               res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
               res.json({
                 success: false,
@@ -314,7 +313,7 @@ app.post('/phoneToken', (req, res) => {
               console.log('Error login user : createSessionCookie\n\t', error);
             });
         })
-        .catch(error => {
+        .catch(function(error) {
           res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           res.json({
             success: false,
@@ -323,7 +322,7 @@ app.post('/phoneToken', (req, res) => {
           console.log('Error login user: idToken\n\t', error);
         });
     })
-    .catch(error => {
+    .catch((error) => {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.json({
         success: false,
@@ -346,7 +345,7 @@ app.post('/phone', (req, res) => {
     .createSessionCookie(token, {
       expiresIn
     })
-    .then(sessionCookie => {
+    .then((sessionCookie) => {
       let options = {
         maxAge: expiresIn,
         httpOnly: true,
@@ -358,7 +357,7 @@ app.post('/phone', (req, res) => {
         message: '登入成功'
       });
     })
-    .catch(error => {
+    .catch((error) => {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.json({
         success: false,
@@ -388,36 +387,38 @@ app.post('/sendSMS', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    let returnJson = {success: false};
-    let token = req.body.token;
-    let uid = req.body.uid;
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!token) {
-        console.log('Error login user: missing token');
-        return res.status(400).json(returnJson);
-    }
-    let expiresIn = 60 * 60 * 24 * 7 * 1000;
-    admin.auth().createSessionCookie(token, {expiresIn})
-        .then(async function (sessionCookie) {
-            let firestoreUser = await getUserProfile(uid);
+  let returnJson = { success: false };
+  let token = req.body.token;
+  let uid = req.body.uid;
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (!token) {
+    console.log('Error login user: missing token');
+    return res.status(400).json(returnJson);
+  }
+  let expiresIn = 60 * 60 * 24 * 7 * 1000;
+  admin
+    .auth()
+    .createSessionCookie(token, { expiresIn })
+    .then(async (sessionCookie) => {
+      let firestoreUser = await getUserProfile(uid);
 
-            returnJson.success = true;
-            if (firestoreUser) {
-                console.log("firestoreUser exist");
-                returnJson.uid = firestoreUser.uid;
-                returnJson.userStats = firestoreUser.userStats;
-                returnJson.userInfo = firestoreUser.data;
-            }
-            let options = {maxAge: expiresIn, httpOnly: true};
-            // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
-            res.cookie('__session', sessionCookie, options);
-            res.json(returnJson)
-        })
-        .catch(function (error) {
-            console.log('Error login user: \n\t', error);
-            res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.json({success: false})
-        });
+      returnJson.success = true;
+      if (firestoreUser) {
+        console.log('firestoreUser exist');
+        returnJson.uid = firestoreUser.uid;
+        returnJson.userStats = firestoreUser.userStats;
+        returnJson.userInfo = firestoreUser.data;
+      }
+      let options = { maxAge: expiresIn, httpOnly: true };
+      // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+      res.cookie('__session', sessionCookie, options);
+      res.json(returnJson);
+    })
+    .catch((error) => {
+      console.log('Error login user: \n\t', error);
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.json({ success: false });
+    });
 });
 
 app.post('/logout', (req, res) => {
@@ -426,13 +427,13 @@ app.post('/logout', (req, res) => {
     firebase
       .auth()
       .signOut()
-      .then(() => {
+      .then(function() {
         console.log('logout out user');
         res.clearCookie('__session');
         // res.setHeader('Access-Control-Allow-Origin', '*');
         res.json({ success: true });
       })
-      .catch(error => {
+      .catch(function(error) {
         // An error happened.
       });
   }
@@ -447,18 +448,15 @@ app.get('/signIn', (req, res) => {
     });
 });
 
-app.get('/verifySessionCookie', async function (req, res) {
-    let cookies = req.get('cookie') || '__session=';
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    let sessionCookie = cookie.parse(cookies).__session;
-    if (sessionCookie) {
-        console.log('verifySessionCookie - ', sessionCookie);
-        // let isVerified = verifySessionCookie(sessionCookie);
-        if (await verifySessionCookie(sessionCookie) === true) {
-            res.json({success: true});
-        } else {
-            res.json({success: false});
-        }
+app.get('/verifySessionCookie', async (req, res) => {
+  let cookies = req.get('cookie') || '__session=';
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  let sessionCookie = cookie.parse(cookies).__session;
+  if (sessionCookie) {
+    console.log('verifySessionCookie - ', sessionCookie);
+    // let isVerified = verifySessionCookie(sessionCookie);
+    if ((await verifySessionCookie(sessionCookie)) === true) {
+      res.json({ success: true });
     } else {
       res.json({ success: false });
     }
@@ -468,20 +466,20 @@ app.get('/verifySessionCookie', async function (req, res) {
   }
 });
 
-const verifySessionCookie = async (sessionCookie) => {
-    let isVerify = false;
-    await admin.auth().verifySessionCookie(
-        sessionCookie, true)
-        .then((decodedClaims) => {
-            isVerify = true;
-            console.log('Auth - verifySessionCookie success : ', decodedClaims);
-        })
-        .catch(error => {
-            console.log('Auth - verifySessionCookie false : ', error);
-        });
-    return isVerify;
+const verifySessionCookie = async sessionCookie => {
+  let isVerify = false;
+  await admin
+    .auth()
+    .verifySessionCookie(sessionCookie, true)
+    .then(decodedClaims => {
+      isVerify = true;
+      console.log('Auth - verifySessionCookie success : ', decodedClaims);
+    })
+    .catch(error => {
+      console.log('Auth - verifySessionCookie false : ', error);
+    });
+  return isVerify;
 };
-
 
 app.post('/getUserInfo', async (req, res) => {
   let returnJson = {
@@ -541,138 +539,172 @@ app.post('/getUserInfo', async (req, res) => {
 });
 
 async function getUserProfile(userId) {
-    let returnJson = {
-        success: false,
-        uid: userId
-    };
-    // let userIdStr = userId.toString().trim();
-    let userIdStr = userId;
-    if (userIdStr.length < 1) {
-        console.warn('firebaseGetUserData no userId : ', userId);
-        return returnJson;
-    }
-
-    let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-    await firestore.collection('users').doc(userIdStr).get().then(userRecord => {
-        if (!userRecord.exists) {
-            console.log('No such document!');
-            returnJson.userStats = 0;
-            returnJson.success = true;
-        } else {
-            console.log("document found!", userRecord.createTime);
-            returnJson.data = userRecord.data();
-            returnJson.userStats = returnJson.data.userStats;
-            returnJson.success = true;
-            // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
-        }
-        console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
-    }).catch(err => {
-        console.warn('firebaseGetUserData', err);
-        returnJson.success = false;
-    });
-    console.log('No such document! 2');
+  let returnJson = {
+    success: false,
+    uid: userId
+  };
+  // let userIdStr = userId.toString().trim();
+  let userIdStr = userId;
+  if (userIdStr.length < 1) {
+    console.warn('firebaseGetUserData no userId : ', userId);
     return returnJson;
+  }
+
+  let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+  await firestore
+    .collection('users')
+    .doc(userIdStr)
+    .get()
+    .then(userRecord => {
+      if (!userRecord.exists) {
+        console.log('No such document!');
+        returnJson.userStats = 0;
+        returnJson.success = true;
+      } else {
+        console.log('document found!', userRecord.createTime);
+        returnJson.data = userRecord.data();
+        returnJson.userStats = returnJson.data.userStats;
+        returnJson.success = true;
+        // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
+      }
+      console.log(
+        'getFirestoreUser : ',
+        userIdStr,
+        '\n',
+        JSON.stringify(returnJson, null, '\t')
+      );
+    })
+    .catch(err => {
+      console.warn('firebaseGetUserData', err);
+      returnJson.success = false;
+    });
+  console.log('No such document! 2');
+  return returnJson;
 }
 
-app.post('/modifyUserProfile', async function (req, res) {
-    let sessionCookie = req.cookies.__session;
-    admin.auth().verifySessionCookie(
-        sessionCookie, true)
-        .then((decodedClaims) => {
-            console.log('Auth - verifySessionCookie success : ', decodedClaims);
-            let uid = decodedClaims.uid;
-            getUserProfile(uid).then(async firestoreUser => {
-                let data = {};
-                switch (firestoreUser.userStats) {
-                    case 0: //新會員
-                        if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
-                            res.status(400).json({success: false, message: 'missing info'});
-                        data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
-                        data.name = req.body.name;                  //only new user can set name(real name), none changeable value
-                        data.phone = req.body.phone;
-                        data.email = req.body.email;
-                        data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-                        if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
-                        data.userStats = 1;
-                        data.signature = "";
-                        data.blockMessage = 0;
-                        data.denys = [];
-                        data.coin = 0;  //搞幣
-                        data.dividend = 0;  //搞紅利
-                        data.ingot = 0; //搞錠
-                        data.title = "一般會員";
-                        data.point = 0;
-                        break;
-                    case 1: //一般會員
-                        console.log("normal user");
-                        break;
-                    case 2: //大神
-                        console.log("godlike user");
-                        break;
-                    case 3: //鎖帳號會員
-                        console.log("blocked user");
-                        res.status(400).json({success: false, message: 'blocked user'});
-                        break;
-                    case 9: //管理員
-                        console.log("manager user");
-                        break;
-                    default:
-                        throw 'userStats error';
-                }
-                if (req.body.avatar) data.avatar = req.body.avatar;
-                if (req.body.email) data.email = req.body.email;
-                if (req.body.phone) data.phone = req.body.phone;
-                if (req.body.signature) data.signature = req.body.signature;
-                let refCode = req.body.refCode;
-                if (refCode) {
-                    // refCode regular expression test
-                    // /^[a-zA-Z0-9]{28}$/g.test(refCode)
-                    // /^[U][a-f0-9]{32}$/g.test(refCode)
-                    if (/^[a-zA-Z0-9]{28}$/g.test(refCode) === true || /^[U][a-f0-9]{32}$/g.test(refCode) === true) {
-                        await getUserProfile(refCode).then(referrer => {
-                            if (referrer.data) {
-                                // process Ref Point
-                                // deny if refer each other
-                                console.log("set refCode : ", refCode);
-                                if (referrer.data.referrer !== uid && refCode !== uid) {
-                                    if (firestoreUser.userStats === 0) {
-                                        console.log("set refCode give point: ", refCode);
-                                        data.point = 333;
-                                        data.referrer = refCode;
-                                    } else {
-                                        if (!firestoreUser.data.referrer) {
-                                            data.point = 666;
-                                            data.referrer = refCode;
-                                        }
-                                    }
-                                }
-                            }
-                        });
+app.post('/modifyUserProfile', async (req, res) => {
+  let sessionCookie = req.cookies.__session;
+  admin
+    .auth()
+    .verifySessionCookie(sessionCookie, true)
+    .then(decodedClaims => {
+      console.log('Auth - verifySessionCookie success : ', decodedClaims);
+      let uid = decodedClaims.uid;
+      getUserProfile(uid)
+        .then(async firestoreUser => {
+          let data = {};
+          switch (firestoreUser.userStats) {
+            case 0: //新會員
+              if (
+                !req.body.displayName ||
+                !req.body.name ||
+                !req.body.phone ||
+                !req.body.email ||
+                !req.body.birthday
+              )
+                res
+                  .status(400)
+                  .json({ success: false, message: 'missing info' });
+              data.displayName = req.body.displayName; //only new user can set displayName, none changeable value
+              data.name = req.body.name; //only new user can set name(real name), none changeable value
+              data.phone = req.body.phone;
+              data.email = req.body.email;
+              data.birthday = admin.firestore.Timestamp.fromDate(
+                new Date(req.body.birthday)
+              ); //only new user can set birthday, none changeable value
+              if (!req.body.avatar)
+                data.avatar = 'https://this.is.defaultAvatar.jpg';
+              data.userStats = 1;
+              data.signature = '';
+              data.blockMessage = 0;
+              data.denys = [];
+              data.coin = 0; //搞幣
+              data.dividend = 0; //搞紅利
+              data.ingot = 0; //搞錠
+              data.title = '一般會員';
+              data.point = 0;
+              break;
+            case 1: //一般會員
+              console.log('normal user');
+              break;
+            case 2: //大神
+              console.log('godlike user');
+              break;
+            case 3: //鎖帳號會員
+              console.log('blocked user');
+              res.status(400).json({ success: false, message: 'blocked user' });
+              break;
+            case 9: //管理員
+              console.log('manager user');
+              break;
+            default:
+              throw 'userStats error';
+          }
+          if (req.body.avatar) data.avatar = req.body.avatar;
+          if (req.body.email) data.email = req.body.email;
+          if (req.body.phone) data.phone = req.body.phone;
+          if (req.body.signature) data.signature = req.body.signature;
+          let refCode = req.body.refCode;
+          if (refCode) {
+            // refCode regular expression test
+            // /^[a-zA-Z0-9]{28}$/g.test(refCode)
+            // /^[U][a-f0-9]{32}$/g.test(refCode)
+            if (
+              /^[a-zA-Z0-9]{28}$/g.test(refCode) === true ||
+              /^[U][a-f0-9]{32}$/g.test(refCode) === true
+            ) {
+              await getUserProfile(refCode).then(referrer => {
+                if (referrer.data) {
+                  // process Ref Point
+                  // deny if refer each other
+                  console.log('set refCode : ', refCode);
+                  if (referrer.data.referrer !== uid && refCode !== uid) {
+                    if (firestoreUser.userStats === 0) {
+                      console.log('set refCode give point: ', refCode);
+                      data.point = 333;
+                      data.referrer = refCode;
+                    } else {
+                      if (!firestoreUser.data.referrer) {
+                        data.point = 666;
+                        data.referrer = refCode;
+                      }
                     }
+                  }
                 }
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
+              });
+            }
+          }
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          console.log(
+            'user profile updated : ',
+            JSON.stringify(data, null, '\t')
+          );
 
-                let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
-                firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
-                    console.log('Added document with ID: ', ref);
-                    res.json({success: true, result: ref});
-                }).catch(e => {
-                    console.log('Added document with error: ', e);
-                    res.json({success: false, message: "update failed"});
-                });
-                // res.json({success: true, result: writeResult});
-            }).catch(error => {
-                console.log('Auth - getUserProfile false : ', error);
-                res.json({success: false, message: "getUserProfile failed"});
+          let firestore = ShortcutFunction.lazyFirebaseAdmin().firestore();
+          firestore
+            .collection('users')
+            .doc(uid)
+            .set(data, { merge: true })
+            .then(ref => {
+              console.log('Added document with ID: ', ref);
+              res.json({ success: true, result: ref });
+            })
+            .catch(e => {
+              console.log('Added document with error: ', e);
+              res.json({ success: false, message: 'update failed' });
             });
+          // res.json({success: true, result: writeResult});
         })
         .catch(error => {
-            console.log('Auth - verifySessionCookie false : ', error);
-            res.json({success: false, message: "verifySessionCookie failed"});
+          console.log('Auth - getUserProfile false : ', error);
+          res.json({ success: false, message: 'getUserProfile failed' });
         });
+    })
+    .catch(error => {
+      console.log('Auth - verifySessionCookie false : ', error);
+      res.json({ success: false, message: 'verifySessionCookie failed' });
+    });
 });
-
 
 function getFirebaseUser(accessToken) {
   // const firebaseUid = `line:${body.id}`;
@@ -681,7 +713,7 @@ function getFirebaseUser(accessToken) {
   return admin
     .auth()
     .getUser(firebaseUid)
-    .then(userRecord => {
+    .then((userRecord) => {
       return userRecord;
     })
     .catch(error => {
@@ -746,7 +778,7 @@ app.get('/lineLoginHandler', (req, res) => {
                   );
                 });
             })
-            .catch(err => {
+            .catch((err) => {
               console.log('id token verification failed.', err);
               res.status(500).send({ error: 'login failed!' });
             });
