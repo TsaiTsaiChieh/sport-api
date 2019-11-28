@@ -31,7 +31,8 @@
     "siphash": "^1.1.0",
     "express-validator": "^5.3.1",
     "line-login": "^1.0.14",
-    "file-type": "^12.4.0"
+    "file-type": "^12.4.0",
+    "cookie-parser": "^1.4.4"
   },
   "devDependencies": {
     "eslint": "^5.12.0",
