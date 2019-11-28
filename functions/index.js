@@ -3,7 +3,7 @@ const functions = require('firebase-functions');
 const express = require('express');
 const auth = require('./auth');
 const sports = require('./sports');
-const messages_tsai = require('./messages_tsai');
+const messages_tsai = require('./router/messages_tsai');
 const messages = require('./messages');
 
 const cors = require('cors');
