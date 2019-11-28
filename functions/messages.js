@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 const firebaseFunctions = require( "firebase-functions" );
 const ShortcutFunction = require( "./shortcut_function" );
-const envValues = require( "./env_values" );
+const envValues = require( "./Configs/env_values" );
 const users = require( "./users" );
 const htmlencode = require( "js-htmlencode" );
 const cookie = require( 'cookie' );

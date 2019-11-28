@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 
 const functions = require( 'firebase-functions' );
-const envValues = require( '././env_values' );
+const envValues = require( './Configs/env_values' );
 const longsingShortcutFunction = require( './shortcut_function' );
 const longsingShortcutHash = require( './shortcut_hash' );
 const htmlencode = require( 'htmlencode' );

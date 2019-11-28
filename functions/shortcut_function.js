@@ -22,7 +22,7 @@ const cookie = require( "cookie" );
 const moment = require( "moment" ); //https://www.npmjs.com/package/moment
 //const util = require( 'util' );
 const ShortcutFunction = require( "./shortcut_function" );
-const envValues = require( "./env_values" );
+const envValues = require( "./Configs/env_values" );
 const ShortcutHash = require( "./shortcut_hash" );
 const FileType = require( 'file-type' );
 const Buffer = require( 'buffer' );
@@ -223,6 +223,7 @@ exports.lazyFirebaseAdmin = function ( certStringOrPath = "", databaseURL = envV
 	//admin.initializeApp(functions.config().firebase);//on firebase
 
 	if ( !admin.apps.length ) {
+		console.log("firebase admin not init yet....");
 		//表示尚未初始化
 
 		let inf = {
@@ -251,7 +252,9 @@ exports.lazyFirebaseAdmin = function ( certStringOrPath = "", databaseURL = envV
 					break;
 			} //sw
 		} //else
-	} //if
+	} else{
+		console.log("firebase admin already init....");
+	}
 
 	//admin.firestore()
 

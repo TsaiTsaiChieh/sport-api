@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-vars */
 //const admin = require( 'firebase-admin' );
 //const functions = require( 'firebase-functions' );
-const envValues = require( '././env_values' );
+const envValues = require( './Configs/env_values' );
 const ShortcutFunction = require( './shortcut_function' );
 //const ShortcutHash = require( './shortcut_hash' );
 const htmlencode = require( 'js-htmlencode' );
