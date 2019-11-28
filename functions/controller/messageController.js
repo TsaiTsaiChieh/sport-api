@@ -5,12 +5,12 @@ const sc = require('../shortcut_function');
 
 // All error handling is not complete yet
 
-function getMessageWithKey(req, res) {
-  let { key } = req.params;
+function getMessageWithId(req, res) {
+  let { id } = req.params;
   messageModel
-    .getMessageWithKey(key)
+    .getMessageWithId(id)
     .then(function(body) {
-      console.log('getMessageWithKey content:');
+      console.log('getMessageWithId content:');
       console.log(body);
       res.json(body);
     })
@@ -36,9 +36,9 @@ function postMessage(req, res) {
 }
 
 function deleteMessage(req, res) {
-  let { key } = req.params;
+  let { id } = req.params;
   messageModel
-    .deleteMessage(key)
+    .deleteMessage(id)
     .then(function(body) {
       console.log(body);
       res.send(body);
@@ -48,4 +48,4 @@ function deleteMessage(req, res) {
       res.send(err);
     });
 }
-module.exports = { getMessageWithKey, postMessage, deleteMessage };
+module.exports = { getMessageWithId, postMessage, deleteMessage };

@@ -5,10 +5,10 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 const collectionName = 'messages';
 
-function getMessageWithKey(key) {
+function getMessageWithId(id) {
   return new Promise(function(resolve, reject) {
     db.collection(collectionName)
-      .doc(key)
+      .doc(id)
       .get()
       .then(function(snapshot) {
         const data = snapshot.data();
@@ -27,7 +27,7 @@ function getMessageWithKey(key) {
         resolve(body);
       })
       .catch(function(err) {
-        console.log(`getMessageWithKey error happened: ${err}`);
+        console.log(`getMessageWithId error happened: ${err}`);
         reject(err);
       });
   });
@@ -48,13 +48,13 @@ function postMessage(req) {
       });
   });
 }
-function deleteMessage(key) {
+function deleteMessage(Id) {
   return new Promise(function(resolve, reject) {
     db.collection(collectionName)
-      .doc(key)
+      .doc(Id)
       .delete()
       .then(function() {
-        resolve(`Delete ${key} in messages collection successful.`);
+        resolve(`Delete ${Id} in messages collection successful.`);
       })
       .catch(function(err) {
         console.log(`deleteMessage error: ${err}`);
@@ -62,4 +62,4 @@ function deleteMessage(key) {
       });
   });
 }
-module.exports = { getMessageWithKey, postMessage, deleteMessage };
+module.exports = { getMessageWithId, postMessage, deleteMessage };

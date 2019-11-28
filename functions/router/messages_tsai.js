@@ -8,7 +8,7 @@ router.get('/list', (req, res) => {
   let data = { success: true, list: ['public'] };
   res.json(data);
 });
-router.get('/:key', MessageController.getMessageWithKey);
+router.get('/:id', MessageController.getMessageWithId);
 router.post('/', MessageController.postMessage);
-router.delete('/:key', MessageController.deleteMessage);
+router.delete('/:id', MessageController.deleteMessage);
 module.exports = router;
