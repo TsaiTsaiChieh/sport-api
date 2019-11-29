@@ -772,7 +772,7 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 		}
 
 		let messageDisableTime = userData.messageDisableTime || {};
-		let disableTime = ShortcutFunction.IntfromAny( messageDisableTime._seconds, -1 ); //被禁止的期限
+		let disableTime = ShortcutFunction.IntfromAny( messageDisableTime.seconds, -1 ); //被禁止的期限
 
 
 		if ( disableTime > 0 ) {
@@ -1088,7 +1088,7 @@ async function runCreateMessage( inputJson = {} ) {
 
 		//檢查是否黑名單中
 		let blackTime = userData.blockMessage || {}; //ShortcutFunction.IntfromAny( userData.blockMessage, -1 );
-		let seconds = ShortcutFunction.IntfromAny( blackTime._seconds, -1 );
+		let seconds = ShortcutFunction.IntfromAny( blackTime.seconds, -1 );
 
 		if ( seconds > 0 ) {
 
