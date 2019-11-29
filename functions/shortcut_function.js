@@ -14,6 +14,8 @@ return this.setNoValue(inp,'ok2');
 */
 
 const admin = require( "firebase-admin" );
+const fieldValue = admin.firestore.FieldValue;
+const firebaseTime = admin.firestore.Timestamp;
 const functions = require( "firebase-functions" );
 const fs = require( "fs" );
 
@@ -631,12 +633,12 @@ exports.runFileUpload5t = async function ( fileUrl = '', firestore ) {
 
 		let data = doc.data();
 
-		//let endTimestamp =
+		//let endTimestamp1 = ;
+		//let firebaseEndTimestamp1 = this.jsTimeTOfireBaseTime( ShortcutFunction.timestampUTCmsInt( 7 ) );
 
 		let uploadFileData = {
-			endTimestamp: ShortcutFunction.timestampUTCmsInt( 100 ) //更新存活時間
+			endTimestamp: this.jsTimeTOfireBaseTime( ShortcutFunction.timestampUTCmsInt( 7 ) ) //ShortcutFunction.timestampUTCmsInt( 100 ) //更新存活時間
 		};
-
 
 		if ( data === undefined ) { //資料庫沒有紀錄,補充紀錄
 			let metadata2 = ( await buckeFile2.getMetadata() )[ 0 ];
@@ -687,6 +689,48 @@ exports.runFileUpload5t = async function ( fileUrl = '', firestore ) {
 
 	return returnJson;
 };
+
+
+
+exports.jsTimeTOfireBaseTime = function ( msTimeInt = 0 ) {
+
+	return firebaseTime.fromDate( new Date( msTimeInt ) );
+}
+
+exports.fireBaseTimeToJsTimeFloat = function ( firebaseTimeJson = {} ) {
+	//returnJson = {};
+
+	let seconds = this.IntfromAny( firebaseTimeJson.seconds, 0 );
+	let nanoseconds = this.IntfromAny( firebaseTimeJson.nanoseconds, 0 );
+
+	let msFloat = ( seconds * 1000 ) + ( nanoseconds * 0.000001 );
+	return msFloat;
+}
+
+exports.fireBaseTimeToJsTime = function ( firebaseTimeJson = {} ) {
+	return Math.ceil( this.fireBaseTimeToJsTimeFloat( firebaseTimeJson ) );
+}
+
+
+// {
+// 	"_seconds": 1573194036, //UTC格式(秒),前端用let a=new Date( _seconds ) 即可使用
+// 	"_nanoseconds": 370000000 //奈秒時間,組合使用
+// }
+
+// js Date().getTime() = 1574992723666 //UTC格式(微秒)
+
+// 差異與交換:
+
+// 	//firebase時間格式 轉 js微秒格式
+// 	js UTC = Math.ceil( ( _seconds * 1000 ) + math.round( _nanoseconds * 0.000001 ) )
+
+// //js微秒時間轉firebase時間格式
+// let jsUTC = Date().getTime();
+// let firebaseTime = {};
+// let jsTimeFloat = jsUTC * 0.001;
+// firebaseTime._seconds = Math.ceil( jsTimeFloat );
+// firebaseTime._nanoseconds = ( jsTimeFloat - firebaseTime._seconds ) * 100000
+
 
 /*
 exports.__runFileUpload = async function ( fileInfo = {}, firestore ) {
@@ -826,11 +870,13 @@ exports.realtimePush = async function ( pushData = {}, channelId = "public", sub
 
 		let replyMessageId = pushData.replyMessageId || "";
 		replyMessageId = this.trim( replyMessageId );
+
+		/*
 		if ( replyMessageId.length > 0 ) {
 			console.info( "replyMessageId", replyMessageId );
 			returnJson.replyMessage = await this.getOneMessage( {}, replyMessageId );
 			console.info( "replyMessage", returnJson.replyMessage );
-		}
+		}*/
 
 		let firebaseAdmin = this.lazyFirebaseAdmin( envValues.cert );
 
@@ -899,12 +945,18 @@ exports.getOneMessage = async function ( inputJson = {}, messageId2 = "" ) {
 
 		let data = docSnapshot.data();
 
+
+
 		if ( data === undefined ) {
 			returnJson.error = "沒有此訊息 333333333333333";
 			//console.info( "getOneMessage 3333333333333333", returnJson );
 			returnJson.messageId = messageId;
 			return returnJson;
 		}
+
+		console.info( 'getOneMessage >>>>>>>>>>>>>>>>>>>>\n', data );
+
+
 
 		let softDelete = 2;
 		if ( !Number.isNaN( data.softDelete ) ) {
@@ -975,7 +1027,7 @@ exports.getOneMessage = async function ( inputJson = {}, messageId2 = "" ) {
 		}
 
 
-		console.info( 'getOneMessage   getOneShareFile data  999999999999999999 \n', data );
+		console.info( 'getOneMessage  getOneShareFile data  999999999999999999 \n', data );
 		//} //if fireJson.success
 
 		//} //if fileUploadId.length > 0
@@ -1051,7 +1103,7 @@ exports.getOneShareFile = async function ( inputJson = {}, fileUploadId2 = '', n
 			let oldDocRef = firestore.collection( "uploadFiles" ).doc( fileUploadId );
 
 			let updateStat = await oldDocRef.update( {
-				end_timestamp: this.timestampUTCmsInt( 100 )
+				end_timestamp: this.jsTimeTOfireBaseTime( this.timestampUTCmsInt( 7 ) )
 			} ); //, { merge: true }
 			//returnJson.updateStat = updateStat;
 			//更新存活時間完成

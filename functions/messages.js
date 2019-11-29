@@ -2,14 +2,24 @@
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
+const admin = require( "firebase-admin" );
+const fieldValue = admin.firestore.FieldValue;
+const firebaseTime = admin.firestore.Timestamp;
+const functions = require( "firebase-functions" );
+
 const firebaseFunctions = require( "firebase-functions" );
+
 const ShortcutFunction = require( "./shortcut_function" );
+
 const envValues = require( "./env_values" );
 const users = require( "./users" );
 const htmlencode = require( "js-htmlencode" );
 const cookie = require( 'cookie' );
 const FileType = require( 'file-type' );
 const Buffer = require( "buffer" );
+
+
+
 
 const express = require( "express" );
 const app = express();
@@ -178,6 +188,7 @@ async function messageLast( req, res ) {
 		returnJson = await lastMessages( inputJson );
 
 	} catch ( error ) {
+		console.warn( error );
 		returnJson.error = error;
 	}
 
@@ -185,6 +196,53 @@ async function messageLast( req, res ) {
 }
 app.get( "/last", messageLast );
 app.post( "/last", messageLast );
+
+async function timelist( req, res ) {
+	let returnJson = {
+		success: false,
+	};
+
+	try {
+		//let firestore = this.lazyFirebaseAdmin().firestore();
+
+		//組合檔案
+		let Snapshot = await firestore
+			.collection( "messages" )
+			//.where( "fileUploadId", "==", fileUploadId )
+			.orderBy( "messageId", "desc" ) //
+			.limit( 50 )
+			.get();
+
+		let alist = Array();
+
+		Snapshot.forEach(
+			function ( doc ) {
+				let data = doc.data();
+
+				//console.info( 'data>>>>>>>>>', data );
+
+				alist.push( data.messageId );
+				//data.
+
+			} //doc
+		); //forEach
+
+
+		returnJson.list = alist;
+
+	} catch ( error ) {
+		console.info( 'time', error );
+		returnJson.error = error;
+	}
+
+	res.json( returnJson );
+}
+
+
+app.post( "/time", timelist );
+app.get( "/time", timelist );
+app.get( "/time/", timelist );
+app.get( "/time/**", timelist );
 
 
 //create": //新訊息,回應訊息-----------------------------------------------------------------------------
@@ -502,12 +560,19 @@ async function lastMessages( inputJson = {} ) {
 
 		//where:鏈接多個 where() 方法來創建更具體的查詢（邏輯 AND）。但是，要將等式運算符 (==) 與範圍運算符或 array-contains 子句（<、<=、>、>= 或 array-contains）結合使用，請務必創建復合索引
 		//.where('hide_stat', '==', 0) // .where('hide_stat', '>', 1);//where難用,放棄,手動過濾
+		// 始終先指定您的orderBy * 參數
+		// 使用limitToFirst從列表頂部讀取（ 升序排列）
+		// 使用limitToLast從列表底部讀取（ 降序排列）
+		// 如果您使用limitToFirst， 請使用startAt從列表的中間開始讀取。 否則， limitToFirst將默認從列表的頂部開始讀取。
+		// 如果您使用limitToLast， 請使用endAt從列表的中間開始讀取。 否則， limitToLast將默認為從列表的底部開始讀取。
+		// 不要將limitToFirst與endAt配對。 它只是“ 附加” 查詢。
+		// 不要將limitToLast與startAt配對。 它只是“ 附加” 查詢。
 
 		let collection = firestore.collection( "messages" ).where( "channelId", "==", channelId ); //
 		if ( utcJump > 0 ) {
 			//跳過訊息的時間位置
 			// @ts-ignore
-			collection = collection.where( "createTime", "<=", utcJump );
+			collection = collection.where( "createTime.seconds", "<=", utcJump );
 		}
 
 		let Snapshot = await collection //
@@ -593,7 +658,7 @@ async function lastMessages( inputJson = {} ) {
 					msg1.replyMessage = {
 						"success": false,
 						"channelId": "",
-						"createTime": '',
+						"createTime": {},
 						"message": "",
 						"fileName": "",
 						"tempHash": "",
@@ -663,6 +728,7 @@ async function lastMessages( inputJson = {} ) {
 
 		returnJson.success = true;
 	} catch ( error ) {
+		console.warn( error );
 		returnJson.error = error;
 		console.warn( "lastMessages error : ", error );
 	}
@@ -705,10 +771,16 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 			return returnJson;
 		}
 
-		let disableTime = Number.parseInt( userData.messageDisableTime, 10 ) || -1; //被禁止的期限
-		if ( disableTime > -1 ) {
-			let timeNow = ShortcutFunction.timestampUTCmsInt(); //取得現在時間UTC數字
-			if ( disableTime > timeNow ) {
+		let messageDisableTime = userData.messageDisableTime || {};
+		let disableTime = ShortcutFunction.IntfromAny( messageDisableTime._seconds, -1 ); //被禁止的期限
+
+
+		if ( disableTime > 0 ) {
+
+			let timeNow = firebaseTime.now(); //ShortcutFunction.timestampUTCmsInt() * 0.001; //取得現在時間UTC數字
+			//let timeNow = fieldValue.serverTimestamp();
+
+			if ( disableTime > timeNow.seconds ) {
 				returnJson.error = "你已被停權中,無法使用檢舉功能";
 				return returnJson;
 			}
@@ -781,7 +853,7 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 				reports: fvUn1
 			} );
 
-			returnJson.writeTime = arrRm.writeTime;
+			//returnJson.writeTime = arrRm.writeTime;
 
 			returnJson.success = true;
 
@@ -794,7 +866,7 @@ async function runReportMessage( inputJson = {}, messageId = "" ) {
 			reports: fvAdd1
 		} );
 
-		returnJson.writeTime = arrUnion.writeTime;
+		//returnJson.writeTime = arrUnion.writeTime;
 		returnJson.success = true;
 	} catch ( error ) {
 		console.warn( "runReportMessage error", error );
@@ -884,7 +956,7 @@ async function softDeleteMessage( inputJson, messageId = "" ) {
 		returnJson.displayName = userData.displayName || '';
 		returnJson.avatar = userData.avatar;
 		returnJson.title = userData.title;
-		returnJson.appearTimestamp = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
+		returnJson.appearTimestamp = firebaseTime.now(); //fieldValue.serverTimestamp(); //ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
 
 		//Manager管理權限刪除
 		let userStats = ShortcutFunction.IntfromAny( userData.userStats, 0 );
@@ -1015,11 +1087,13 @@ async function runCreateMessage( inputJson = {} ) {
 		}
 
 		//檢查是否黑名單中
-		let blackTime = ShortcutFunction.IntfromAny( userData.blockMessage, -1 );
+		let blackTime = userData.blockMessage || {}; //ShortcutFunction.IntfromAny( userData.blockMessage, -1 );
+		let seconds = ShortcutFunction.IntfromAny( blackTime._seconds, -1 );
 
-		if ( blackTime > 0 ) {
-			let timeNow = ShortcutFunction.timestampUTCmsInt();
-			if ( timeNow < blackTime ) {
+		if ( seconds > 0 ) {
+
+			let timeNow = firebaseTime.now(); // fieldValue.serverTimestamp(); //ShortcutFunction.timestampUTCmsInt();
+			if ( timeNow.seconds < seconds ) {
 				//還在禁言中
 				returnJson.error = "用戶已經被禁止使用聊天室功能";
 				return returnJson;
@@ -1028,10 +1102,13 @@ async function runCreateMessage( inputJson = {} ) {
 
 		//至此,訊息本體,用戶身分功能都有效
 
+
+		//let timestamp = firebase.firestore.FieldValue.serverTimestamp;
+
 		let newMessage = {
 			uid: userData.uid,
 			channelId: body.channelId || 'public',
-			createTime: ShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
+			createTime: firebaseTime.now(), // fieldValue.serverTimestamp(), //ShortcutFunction.timestampUTCmsInt(), //收到訊息的時間
 			tempHash: body.tempHash, //發送端的臨時唯一編號
 			message: '' //htmlencode.htmlEncode( body.message ), //訊息本體
 		};
@@ -1088,7 +1165,7 @@ async function runCreateMessage( inputJson = {} ) {
 			newMessage.replyMessageId = body.replyMessageId;
 		}
 
-		newMessage.createTime = ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
+		newMessage.createTime = firebaseTime.now(); // fieldValue.serverTimestamp(); // ShortcutFunction.timestampUTCmsInt(); //現在時間,utc,ms.
 		let m1 = 1024 * 1024; //1MB
 
 		for ( const key in newMessage ) {
@@ -1120,23 +1197,39 @@ async function runCreateMessage( inputJson = {} ) {
 			returnJson.error = "firestore存檔失敗,沒有得到messageId(docRef.id)";
 			return returnJson;
 		}
+
+		//把得到的messageId放到記錄內,方便查詢
 		let WriteResult = await docRef.update( {
 			messageId: messageId
 		} );
 
+
+		//重新取出紀錄
+		//let reget = await docRef.get();
+		//let data2 = reget.data();
+		let data2 = await ShortcutFunction.getOneMessage( undefined, messageId );
+
+		if ( data2.success !== true ) {
+			data2.history = returnJson;
+			return data2;
+		}
+
+		data2.action = "newMessage";
+
 		//把訊息id補回到記錄內
-		returnJson.messageId = messageId;
-		newMessage.messageId = messageId;
+		//returnJson.messageId = messageId;
+		//newMessage.messageId = messageId;
 
 		//再到livePush
-		newMessage.action = "newMessage";
-		newMessage.displayName = userData.displayName || userData.uid; //用戶顯示名稱
-		newMessage.avatar = userData.avatar || ""; //大頭照
-		newMessage.title = userData.title || ""; //大神頭銜
-		newMessage.replyMessageId = newMessage.replyMessageId || '';
+		//newMessage.action = "newMessage";
+		//newMessage.displayName = userData.displayName || userData.uid; //用戶顯示名稱
+		//newMessage.avatar = userData.avatar || ""; //大頭照
+		//newMessage.title = userData.title || ""; //大神頭銜
+		//newMessage.replyMessageId = newMessage.replyMessageId || '';
 
 		try {
-			newMessage.replyMessage = await ShortcutFunction.getOneMessage( undefined, newMessage.replyMessageId );
+			//newMessage
+			data2.replyMessage = await ShortcutFunction.getOneMessage( undefined, data2.replyMessageId );
 		} catch ( error2 ) {
 			console.info( 'newMessage.replyMessage = await this.getOneMessage( undefined, newMessage.replyMessageId );', error2 );
 		}
@@ -1147,24 +1240,24 @@ async function runCreateMessage( inputJson = {} ) {
 		//newMessage.fileName = '';
 
 		//if ( returnJson.uploadFileReturnJson.success ) {
-		newMessage.fileUploadId = returnJson.uploadFileReturnJson.fileUploadId || '';
-		newMessage.fileType = returnJson.uploadFileReturnJson.fileType || '';
-		newMessage.fileSubName = returnJson.uploadFileReturnJson.fileSubName || '';
-		newMessage.fileName = newMessage.fileName || '';
+		//newMessage.fileUploadId = returnJson.uploadFileReturnJson.fileUploadId || '';
+		//newMessage.fileType = returnJson.uploadFileReturnJson.fileType || '';
+		//newMessage.fileSubName = returnJson.uploadFileReturnJson.fileSubName || '';
+		//newMessage.fileName = newMessage.fileName || '';
 		//}
 
 		try {
-			if ( newMessage.fileUploadId.length > 0 ) {
-				newMessage.fileURL = '/messages/file/'.concat( newMessage.fileUploadId );
+			//newMessage
+			if ( data2.fileUploadId.length > 0 ) {
+				data2.fileURL = '/messages/file/'.concat( newMessage.fileUploadId );
 			}
 		} catch ( error ) {
-			newMessage.fileURL = '';
+			data2.fileURL = '';
 		}
 
-
-		let realtimePushReturnJson = await ShortcutFunction.realtimePush( newMessage );
-		returnJson.success = true;
-		realtimePushReturnJson.history = returnJson;
+		let realtimePushReturnJson = await ShortcutFunction.realtimePush( data2 ); //newMessage
+		//returnJson.success = true;
+		realtimePushReturnJson.history = data2; //returnJson;
 
 		return realtimePushReturnJson;
 	} catch ( error ) {

@@ -2,11 +2,13 @@
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
-//const admin = require( 'firebase-admin' );
+const admin = require( 'firebase-admin' );
 //const functions = require( 'firebase-functions' );
 const envValues = require( '././env_values' );
 const ShortcutFunction = require( './shortcut_function' );
 //const ShortcutHash = require( './shortcut_hash' );
+const fieldValue = admin.firestore.FieldValue;
+const firebaseTime = admin.firestore.Timestamp;
 const htmlencode = require( 'js-htmlencode' );
 const QRCode = require( 'qrcode' );
 
@@ -155,7 +157,7 @@ exports.userIdToUserData = async function ( uid = '', isNewAppend = false, email
 				//denys:[],
 				displayName: htmlencode.htmlEncode( 'new_'.concat( uid ) ),
 				avatar: await this.stringToQRcodeUri( 'new_'.concat( uid ) ), //
-				createTime: ShortcutFunction.timestampUTCmsInt()
+				createTime: firebaseTime.now() // ShortcutFunction.timestampUTCmsInt()
 			};
 
 			let mergeReturn = await this.usersMergeData( mergeData ); //
