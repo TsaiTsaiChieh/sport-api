@@ -8,6 +8,7 @@ const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
 
 router.get('/', (req, res) => {
         const lineAccessToken = req.query.code;
+        res.setHeader('Access-Control-Allow-Origin', '*');
         // const lineState = req.query.state;
 
         // https://api.line.me/oauth2/v2.1/token`

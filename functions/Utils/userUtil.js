@@ -5,19 +5,20 @@ const firestore = shortcutFunction.lazyFirebaseAdmin().firestore();
 
 exports.getFirebaseUser = function (accessToken) {
     // const firebaseUid = `line:${body.id}`;
-    const firebaseUid = accessToken.id_token.sub;
+    const firebaseUid = accessToken.id_token.sub.toString();
 
     return admin.auth().getUser(firebaseUid).then(function (userRecord) {
         return userRecord;
     }).catch((error) => {
+        let userJson = {
+            identifier: "Line",
+            uid: firebaseUid,
+            displayName: accessToken.id_token.name,
+            photoURL: accessToken.id_token.picture,
+            email: accessToken.id_token.email
+        };
         if (error.code === 'auth/user-not-found') {
-            return admin.auth().createUser({
-                identifier: "Line",
-                uid: firebaseUid,
-                displayName: accessToken.id_token.name,
-                photoURL: accessToken.id_token.picture,
-                email: accessToken.id_token.email
-            });
+            return admin.auth().createUser(userJson);
         }
         return Promise.reject(error);
     });

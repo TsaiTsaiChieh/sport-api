@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const userUtils = require('../Utils/userUtil');
 const shortcutFunction = require('../shortcut_function');
+const envValues = require('../Configs/env_values');
 const firestore = shortcutFunction.lazyFirebaseAdmin().firestore();
+const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
 
-router.post('/modifyUserProfile', async function (req, res) {
+router.post('/', async function (req, res) {
     let sessionCookie = req.cookies.__session;
     admin.auth().verifySessionCookie(
         sessionCookie, true)

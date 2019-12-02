@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const envValues = require('../Configs/env_values');
-const firebase = require('firebase');
+// const envValues = require('../Configs/env_values');
+// const firebase = require('firebase');
+//
+// firebase.initializeApp(envValues.firebaseConfig);
 
-firebase.initializeApp(envValues.firebaseConfig);
+const envValues = require('../Configs/env_values');
+const shortcutFunction = require('../shortcut_function');
+const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
 
 router.post('/', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.clearCookie('__session');
+    admin.auth().logout
     firebase.auth().signOut().then(function () {
         console.log('logout out user');
         // res.setHeader('Access-Control-Allow-Origin', '*');
