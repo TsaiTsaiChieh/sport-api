@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../util/modules');
 
+// like messages/get
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -73,19 +74,22 @@ function postMessage(req) {
       });
   });
 }
-function deleteMessage(Id) {
-  return new Promise(function(resolve, reject) {
-    modules.firestore
-      .collection(collectionName)
-      .doc(Id)
-      .delete()
-      .then(function() {
-        resolve(`Delete ${Id} in messages collection successful.`);
-      })
-      .catch(function(err) {
-        console.log(`deleteMessage error: ${err}`);
-        reject(err);
-      });
+// like /message/delete
+function deleteMessageWithId(id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const messageSnapshot = await modules.getSnapshot('messages', id);
+      const message = messageSnapshot.data();
+      // console.log(message);
+      // if message did not exist, it would return undefined
+      if (!message) {
+        reject({ code: 404, error: 'This message id does not exist' });
+      }
+      resolve(`Delete id:${id} in messages collection successful`);
+    } catch (err) {
+      console.log(err);
+      reject(err);
+    }
   });
 }
-module.exports = { getMessageWithId, postMessage, deleteMessage };
+module.exports = { getMessageWithId, postMessage, deleteMessageWithId };

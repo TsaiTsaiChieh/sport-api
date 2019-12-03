@@ -10,5 +10,5 @@ router.get('/list', (req, res) => {
 });
 router.get('/:id', MessageController.getMessageWithId);
 router.post('/', MessageController.postMessage);
-router.delete('/:id', MessageController.deleteMessage);
+router.delete('/:id', MessageController.deleteMessageWithId);
 module.exports = router;

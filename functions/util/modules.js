@@ -8,4 +8,10 @@ function getSnapshot(collection, id) {
     .doc(id)
     .get();
 }
-module.exports = { firebaseAdmin, firestore, getSnapshot };
+function createError(code, error) {
+  const err = {};
+  err.code = code;
+  err.error = error;
+  return err;
+}
+module.exports = { firebaseAdmin, firestore, getSnapshot, createError };
