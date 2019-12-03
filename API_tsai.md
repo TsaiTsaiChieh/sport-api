@@ -57,9 +57,10 @@
 - **Request Example:**
   `https://[Host_Name]/messages_tsai/S84shEIh7P1OL6l05Cuh` for 一則訊息<br>
 - **Success Response: 200**
-  | Field | Type | Description |
-  | ------ | ------ | ------------------------------------------------------------------------------------- |
-  | data | Array | Array of `Message Object` |
+
+  | Field | Type  | Description               |
+  | ----- | ----- | ------------------------- |
+  | data  | Array | Array of `Message Object` |
 
 - **Success Response Example:**
 
@@ -94,9 +95,6 @@
 
 - Error Description:
 
-| Code | Response                                  |
-| ---- | ----------------------------------------- |
-| 405  | Wrong request is not allowed in pet table |
-| 500  | Query error in pet Table                  |
+(Not handle carefully)
 
 ---
