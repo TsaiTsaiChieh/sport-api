@@ -1,45 +1,70 @@
 /* eslint-disable promise/always-return */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
-const admin = require('firebase-admin');
-const db = admin.firestore();
-const collectionName = 'messages';
+const modules = require('../util/modules');
 
 function getMessageWithId(id) {
-  return new Promise(function(resolve, reject) {
-    db.collection(collectionName)
-      .doc(id)
-      .get()
-      .then(function(snapshot) {
-        const data = snapshot.data();
-        const body = {};
-        body.data = {
-          channelId: data.channelId,
-          createTime: data.createTime,
-          fileName: data.fileName,
-          fileUploadId: data.fileUploadId,
-          message: data.message,
-          messageId: data.messageId,
-          replyMessageId: data.replyMessageId,
-          tempHash: data.tempHash,
-          uid: data.uid
+  return new Promise(async function(resolve, reject) {
+    try {
+      const body = {};
+      const messageSnapshot = await modules.getSnapshot('messages', id);
+      const message = messageSnapshot.data();
+      const userSnapshot = await modules.getSnapshot('users', message.uid);
+      const user = userSnapshot.data();
+      // get file
+      if (message.fileUploadId) {
+        const fileSnapshot = await modules.getSnapshot(
+          'uploadFiles',
+          message.fileUploadId
+        );
+        const file = fileSnapshot.data();
+        body.file = {
+          id: message.fileUploadId,
+          name: message.fileName,
+          size: file.fileSize,
+          type: file.fileSubName,
+          farmHash: file.fileFarmHash,
+          sipHash: file.fileSipHash
         };
-        resolve(body);
-      })
-      .catch(function(err) {
-        console.log(`getMessageWithId error happened: ${err}`);
-        reject(err);
-      });
+      }
+      // get messages
+      body.message = {
+        channelId: message.channelId,
+        messageId: message.messageId,
+        replyMessageId: message.replyMessageId,
+        message: message.message,
+        tempHash: message.tempHash,
+        createTime: {
+          seconds: message.createTime._seconds,
+          nanoseconds: message.createTime._nanoseconds
+        }
+      };
+      // get user
+      body.user = {
+        uid: user.uid,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        title: user.title
+      };
+      resolve(body);
+    } catch (err) {
+      console.log(err);
+      reject(err);
+    }
   });
 }
 
+// like messages/create
 function postMessage(req) {
   return new Promise(function(resolve, reject) {
-    let { channelId, message, replyMessageId } = req.body;
-    db.collection(collectionName)
+    let { channel, message, replyMessageId } = req.body;
+    modules.firestore
+      .collection(collectionName)
       .add({ channelId, message, replyMessageId })
       .then(function(data) {
-        console.log('這', data._path);
+        const body = {};
+        body.data = {};
+        console.log('這', data._path.segments[1]);
         resolve(data);
       })
       .catch(function(err) {
@@ -50,7 +75,8 @@ function postMessage(req) {
 }
 function deleteMessage(Id) {
   return new Promise(function(resolve, reject) {
-    db.collection(collectionName)
+    modules.firestore
+      .collection(collectionName)
       .doc(Id)
       .delete()
       .then(function() {

@@ -1,10 +1,8 @@
 /* eslint-disable promise/always-return */
 /* eslint-disable prefer-arrow-callback */
 const messageModel = require('../model/messageModel');
-const sc = require('../shortcut_function');
 
 // All error handling is not complete yet
-
 function getMessageWithId(req, res) {
   let { id } = req.params;
   messageModel
