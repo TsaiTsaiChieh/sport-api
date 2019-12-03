@@ -6,6 +6,8 @@
   - [Message Object](#Message-Object)
   - [User Object](#User-Object)
   - [File Object](#File-Object)
+- [Messages APIs](#Adoption-APIs)
+  - [Get Single Message](#Get-Single-Message)
 
 ### Response Object
 
@@ -94,6 +96,37 @@
 ```
 
 - Error Description:
+
+(Not handle carefully)
+
+---
+
+### Soft Delete Message
+
+- **End Point:** `/messages_tsai/:id`
+- **Method:** `DELETE`
+- **Query Parameters:**
+
+| Field        | Type   | Description                                                                                                                |
+| ------------ | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| :id          | String | id for message                                                                                                             |
+| deleteAction | Int    | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see), 2: normal display |
+
+- **Request Example:**
+  `https://[Host_Name]/messages_tsai/E2NZeCsXu1rsiNo5CKva` for 軟刪除一則訊息<br>
+- **Success Response: 200**
+- **Success Response Example:**
+
+```JSON
+"Delete id:E2NZeCsXu1rsiNo5CKva in messages collection successful"
+```
+
+- Error Description:
+
+| Code | Response                                |
+| ---- | --------------------------------------- |
+| 404  | This message id does not exist          |
+| 406  | Delete action request is not acceptable |
 
 (Not handle carefully)
 
