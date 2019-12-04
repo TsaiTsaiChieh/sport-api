@@ -9,7 +9,7 @@ const messages = require('./messages');
 const cors = require('cors');
 
 const bodyParser = require('body-parser');
-
+const cookieParser = require('cookie-parser');
 const app = express();
 
 app.use(cors());
@@ -33,7 +33,7 @@ app.use(
 );
 
 app.use(express.json());
-
+app.use(cookieParser());
 app.use('/sports', sports);
 app.use('/messages', messages);
 app.use('/auth', auth);
