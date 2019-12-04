@@ -8,6 +8,7 @@
   - [File Object](#File-Object)
 - [Messages APIs](#Adoption-APIs)
   - [Get Single Message](#Get-Single-Message)
+  - [Soft Delete Message](#Soft-Delete-Message)
 
 ### Response Object
 
@@ -107,26 +108,29 @@
 - **Method:** `DELETE`
 - **Query Parameters:**
 
-| Field        | Type   | Description                                                                                                                |
-| ------------ | ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| :id          | String | id for message                                                                                                             |
-| deleteAction | Int    | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see), 2: normal display |
+| Field        | Type   | Description                                                                                             |
+| ------------ | ------ | ------------------------------------------------------------------------------------------------------- |
+| :id          | String | id for message                                                                                          |
+| deleteAction | Int    | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see) |
 
 - **Request Example:**
-  `https://[Host_Name]/messages_tsai/E2NZeCsXu1rsiNo5CKva` for 軟刪除一則訊息<br>
+  `https://[Host_Name]/messages_tsai/VmJFUfMjEV3NaZjOqg6e` for 軟刪除一則訊息<br>
 - **Success Response: 200**
 - **Success Response Example:**
 
 ```JSON
-"Delete id:E2NZeCsXu1rsiNo5CKva in messages collection successful"
+"Delete id: VmJFUfMjEV3NaZjOqg6e in messages collection successful"
 ```
 
 - Error Description:
 
 | Code | Response                                |
 | ---- | --------------------------------------- |
+| 401  | Unauthorized request                    |
+| 403  | Forbidden, please use report function   |
 | 404  | This message id does not exist          |
 | 406  | Delete action request is not acceptable |
+| 409  | Message had been deleted                |
 
 (Not handle carefully)
 
