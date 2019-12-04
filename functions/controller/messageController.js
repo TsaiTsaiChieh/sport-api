@@ -35,27 +35,28 @@ function postMessage(req, res) {
 }
 
 function deleteMessageWithId(req, res) {
-  let { id } = req.params;
+  const args = {};
+  args.messageId = req.params.id;
+  args.token = req.token;
   let deleteAction = Number.parseInt(req.body.deleteAction);
-  if (isNaN(deleteAction)) {
+  if (isNaN(deleteAction) || Math.abs(deleteAction) > 1) {
     const err = modules.createError(
       406,
       'Delete action request is not acceptable'
     );
-    res.status(err.code);
-    res.send(err.error);
+    res.status(err.code).send(err.error);
     return;
   }
+  args.deleteAction = deleteAction;
   messageModel
-    .deleteMessageWithId(id)
+    .deleteMessageWithId(args)
     .then(function(body) {
       // console.log(body);
       res.json(body);
     })
     .catch(function(err) {
       // console.log(err);
-      res.status(err.code);
-      res.send(err.error);
+      res.status(err.code).send(err.error);
     });
 }
 module.exports = { getMessageWithId, postMessage, deleteMessageWithId };

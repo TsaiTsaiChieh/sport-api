@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express();
+const verification = require('../util/verification');
 
 const MessageController = require('../controller/messageController');
 
@@ -10,5 +11,10 @@ router.get('/list', (req, res) => {
 });
 router.get('/:id', MessageController.getMessageWithId);
 router.post('/', MessageController.postMessage);
-router.delete('/:id', MessageController.deleteMessageWithId);
+router.delete(
+  '/:id',
+  verification.token,
+  MessageController.deleteMessageWithId
+);
+// router.delete('/:id', MessageController.deleteMessageWithId);
 module.exports = router;
