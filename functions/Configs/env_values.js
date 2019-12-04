@@ -1,6 +1,5 @@
 exports.release = false;
 
-// exports.cert = '../../sport19y0715-d23e597f8c95.json';
 exports.cert = './auth/sport19y0715-d23e597f8c95.json';
 
 exports.firebaseConfig = {
@@ -24,5 +23,5 @@ exports.lineConfig = {
     verifyURL: "https://api.line.me/oauth2/v2.1/verify",
     channelID: "1576253248",
     channelSecret: "e4a91d4e33e26967fa6c267292bd06ec",
-    callbackURL:"https://sport19y0715.web.app/auth/lineLoginHandler"
+    callbackURL: "https://sport19y0715.web.app/auth/lineLoginHandler"
 };

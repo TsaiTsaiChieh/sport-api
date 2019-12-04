@@ -20,6 +20,6 @@ const lineLogin = new line_login({
 
 router.use(session(session_options_line));
 
-router.use("/", lineLogin.auth());
+router.get("/", lineLogin.auth());
 
 module.exports = router;

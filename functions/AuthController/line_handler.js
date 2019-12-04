@@ -5,6 +5,15 @@ const envValues = require('../Configs/env_values');
 const userUtils = require('../Utils/userUtil');
 const shortcutFunction = require('../shortcut_function');
 const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
+const line_login = require("line-login");
+const lineLogin = new line_login({
+    channel_id: envValues.lineConfig.channelID,
+    channel_secret: envValues.lineConfig.channelSecret,
+    callback_url: envValues.lineConfig.callbackURL,
+    scope: "openid profile email",
+    prompt: "consent",
+    bot_prompt: "normal"
+});
 
 router.get('/', (req, res) => {
         const lineAccessToken = req.query.code;
@@ -38,12 +47,10 @@ router.get('/', (req, res) => {
                     }
                     userUtils.getFirebaseUser(token_response).then(userRecord => {
                         admin.auth().createCustomToken(userRecord.uid).then(token => {
-                            const expiresIn = 60 * 5 * 1000;
-                            const options = {
-                                maxAge: expiresIn,
-                            };
+                            const expiresIn = 3 * 60 * 1000;
+                            const options = {maxAge: expiresIn, httpOnly: true, secure: true};
                             res.cookie('auth_token', token, options);
-                            res.redirect(307, 'https://sport19y0715.web.app/line_login.html');
+                            return res.redirect(307, 'https://sport19y0715.web.app/line_login.html');
                         })
                     }).catch(function (err) {
                         console.log("id token verification failed.", err);
@@ -52,7 +59,7 @@ router.get('/', (req, res) => {
                 })
             } catch (exception) {
                 console.log("id token verification failed.");
-                res.status(500).send({error: 'login failed!'});
+                return res.status(500).send({error: 'login failed!'});
             }
         });
     }

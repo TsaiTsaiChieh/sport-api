@@ -28,15 +28,15 @@ router.post('/', async (req, res) => {
                         returnJson.userStats = firestoreUser.userStats;
                         returnJson.userInfo = firestoreUser.data;
                     }
-                    let options = {maxAge: expiresIn, httpOnly: true};
-                    // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+                    // let options = {maxAge: expiresIn, httpOnly: true};
+                    let options = {maxAge: expiresIn, httpOnly: true, secure: true};
                     res.cookie('__session', sessionCookie, options);
-                    res.json(returnJson)
+                    return res.json(returnJson)
                 })
                 .catch(function (error) {
                     console.log('Error login user: \n\t', error);
                     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                    res.json({success: false})
+                    return res.json({success: false})
                 });
         });
 });
