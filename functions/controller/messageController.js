@@ -3,6 +3,23 @@
 const modules = require('../util/modules');
 const messageModel = require('../model/messageModel');
 
+function getLastMessage(req, res) {
+  const { channelId, limit, offset } = req.query;
+  const args = {};
+  channelId ? (args.channelId = channelId) : (args.channelId = 'public');
+  args.limit = limit;
+  args.offset = offset;
+  // console.log('here', args.channelId);
+
+  messageModel
+    .getLastMessage(args)
+    .then(function(body) {
+      res.json({ limit, offset });
+    })
+    .catch(function(err) {
+      res.status(500).send(err);
+    });
+}
 // All error handling is not complete yet
 function getMessageWithId(req, res) {
   let { id } = req.params;
@@ -57,4 +74,9 @@ function deleteMessageWithId(req, res) {
       res.status(err.code).send(err.error);
     });
 }
-module.exports = { getMessageWithId, postMessage, deleteMessageWithId };
+module.exports = {
+  getMessageWithId,
+  postMessage,
+  deleteMessageWithId,
+  getLastMessage
+};

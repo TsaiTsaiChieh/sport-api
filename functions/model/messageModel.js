@@ -3,6 +3,24 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../util/modules');
 
+// like messages/last
+function getLastMessage(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      let messageCollection = modules.firestore.collection('messages');
+      messageCollection.where('channelId', '==', args.channelId);
+      messageCollection.get().then(function(data) {
+        data.forEach(doc => {
+          // console.log('getLastMessage', doc.data());
+        });
+      });
+      resolve('ok');
+    } catch (error) {
+      console.log(err);
+      reject(err);
+    }
+  });
+}
 // like messages/get
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
@@ -132,4 +150,9 @@ function deleteMessageWithId(args) {
     }
   });
 }
-module.exports = { getMessageWithId, postMessage, deleteMessageWithId };
+module.exports = {
+  getMessageWithId,
+  postMessage,
+  deleteMessageWithId,
+  getLastMessage
+};
