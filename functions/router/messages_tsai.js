@@ -9,7 +9,7 @@ router.get('/list', (req, res) => {
   let data = { success: true, list: ['public'] };
   res.json(data);
 });
-router.get('/:id', MessageController.getMessageWithId);
+router.get('/:id', verification.token, MessageController.getMessageWithId);
 router.post('/', MessageController.postMessage);
 router.delete(
   '/:id',

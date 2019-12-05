@@ -14,8 +14,7 @@ function getMessageWithId(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(500);
-      res.send(err);
+      res.status(500).send(err);
     });
 }
 
@@ -29,8 +28,7 @@ function postMessage(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(500);
-      res.send(err);
+      res.status(500).send(err);
     });
 }
 
