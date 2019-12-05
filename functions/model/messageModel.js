@@ -7,64 +7,49 @@ const modules = require('../util/modules');
 function getLastMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let messageCollection = modules.firestore.collection('messages');
-      messageCollection.where('channelId', '==', args.channelId);
-      messageCollection.get().then(function(data) {
-        data.forEach(doc => {
-          // console.log('getLastMessage', doc.data());
-        });
+      // console.log(args.limit, args.offset);
+      const messageCollection = await modules.firestore
+        .collection('messages')
+        .where('channelId', '==', args.channelId)
+        .orderBy('createTime', 'desc')
+        .limit(args.limit)
+        .offset(args.offset)
+        .get();
+      const messages = [];
+      messageCollection.forEach(async function(doc) {
+        const data = doc.data();
+        const messageSnapshot = await modules.getSnapshot(
+          'messages',
+          data.messageId
+        );
+        const message = messageSnapshot.data();
+        const userSnapshot = await modules.getSnapshot('users', message.uid);
+        const user = userSnapshot.data();
+        const body = await repackageMessageData(message, user);
+        messages.push(body);
       });
-      resolve('ok');
-    } catch (error) {
+      // await Promise.all(messages);
+      // console.log(messages);
+
+      resolve(messages);
+    } catch (err) {
       console.log(err);
       reject(err);
     }
   });
 }
+
 // like messages/get
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const body = {};
       const messageSnapshot = await modules.getSnapshot('messages', id);
       const message = messageSnapshot.data();
       const userSnapshot = await modules.getSnapshot('users', message.uid);
       const user = userSnapshot.data();
-      // get file
-      if (message.fileUploadId) {
-        const fileSnapshot = await modules.getSnapshot(
-          'uploadFiles',
-          message.fileUploadId
-        );
-        const file = fileSnapshot.data();
-        body.file = {
-          id: message.fileUploadId,
-          name: message.fileName,
-          size: file.fileSize,
-          type: file.fileSubName,
-          farmHash: file.fileFarmHash,
-          sipHash: file.fileSipHash
-        };
-      }
-      // get messages
-      body.message = {
-        channelId: message.channelId,
-        messageId: message.messageId,
-        replyMessageId: message.replyMessageId,
-        message: message.message,
-        tempHash: message.tempHash,
-        createTime: {
-          seconds: message.createTime._seconds,
-          nanoseconds: message.createTime._nanoseconds
-        }
-      };
-      // get user
-      body.user = {
-        uid: user.uid,
-        displayName: user.displayName,
-        avatar: user.avatar,
-        title: user.title
-      };
+      const body = repackageMessageData(message, user);
+      console.log('es', body);
+
       resolve(body);
     } catch (err) {
       console.log(err);
@@ -150,6 +135,48 @@ function deleteMessageWithId(args) {
     }
   });
 }
+
+async function repackageMessageData(message, user) {
+  const body = {};
+  // get file
+  if (message.fileUploadId) {
+    const fileSnapshot = await modules.getSnapshot(
+      'uploadFiles',
+      message.fileUploadId
+    );
+    const file = fileSnapshot.data();
+    body.file = {
+      id: message.fileUploadId,
+      name: message.fileName,
+      size: file.fileSize,
+      type: file.fileSubName,
+      farmHash: file.fileFarmHash,
+      sipHash: file.fileSipHash
+    };
+  }
+  // get messages
+  body.message = {
+    channelId: message.channelId,
+    messageId: message.messageId,
+    replyMessageId: message.replyMessageId,
+    message: message.message,
+    tempHash: message.tempHash,
+    createTime: {
+      seconds: message.createTime._seconds,
+      nanoseconds: message.createTime._nanoseconds
+    }
+  };
+  // get user
+  // should be handle user not found error
+  body.user = {
+    uid: user.uid,
+    displayName: user.displayName,
+    avatar: user.avatar,
+    title: user.title
+  };
+  return body;
+}
+
 module.exports = {
   getMessageWithId,
   postMessage,

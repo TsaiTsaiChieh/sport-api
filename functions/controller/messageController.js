@@ -7,14 +7,15 @@ function getLastMessage(req, res) {
   const { channelId, limit, offset } = req.query;
   const args = {};
   channelId ? (args.channelId = channelId) : (args.channelId = 'public');
-  args.limit = limit;
-  args.offset = offset;
+  offset ? (args.offset = Number.parseInt(offset)) : (args.offset = 0);
+  limit ? (args.limit = Number.parseInt(limit)) : (args.limit = 50);
+
   // console.log('here', args.channelId);
 
   messageModel
     .getLastMessage(args)
     .then(function(body) {
-      res.json({ limit, offset });
+      res.json(body);
     })
     .catch(function(err) {
       res.status(500).send(err);

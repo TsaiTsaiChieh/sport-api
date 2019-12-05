@@ -537,7 +537,7 @@ async function lastMessages(inputJson = {}) {
     if (utcJump > 0) {
       //跳過訊息的時間位置
       // @ts-ignore
-      collection = collection.where('createTime', '<=', utcJump);
+      collection = collection.where('createTime', '>=', utcJump);
     }
 
     let Snapshot = await collection //
