@@ -14,7 +14,7 @@
 <div id="firebaseui-auth-container"></div>
 <div>
     <!--    <button type="button" onclick="lineLogin()">Line Login</button>-->
-    <a href="/auth/line_login" target="_blank"><img src="line_login_btn.png"></a>
+    <a href="/auth/lineLogin" target="_blank"><img src="line_login_btn.png"></a>
     <button type="button" onclick="logout()">登出</button>
 </div>
 <script type="text/javascript">
@@ -130,35 +130,12 @@
         }
     }
 
-    function lineLogin() {
-        // firebase.auth().signInWithCustomToken()
-        // firebase.auth().signInWithCredential();
-        let http = new XMLHttpRequest();
-        // let url = '/auth/login';
-        // let url = 'http://localhost:5001/sport19y0715/us-central1/auth/login';
-        let url = '/auth/login';
-        // let params = 'token=' + firebase.auth().currentUser.refreshToken;
-        let params = 'token=' + firebase.auth().currentUser.ma;
-        http.open('POST', url, true);
-        http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        http.onreadystatechange = function () {
-            if (http.readyState == 4 && http.status == 200) {
-                let res = JSON.parse(http.responseText);
-                if (res.success == true) {
-                    alert('登入成功');
-                } else {
-                    alert('登入失敗');
-                }
-            }
-        };
-        http.send(params);
-    }
-
     function logout() {
         firebase.auth().signOut().then(function () {
             let http = new XMLHttpRequest();
             let url = '/auth/logout';
             http.open('POST', url, true);
+            firebase.auth().signOut()
             http.onreadystatechange = function () {
                 if (http.readyState === 4) {
                     let res = JSON.parse(http.responseText);

@@ -1,14 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const userUtils = require('../Utils/userUtil');
-const shortcutFunction = require('../shortcut_function');
-const envValues = require('../Configs/env_values');
-const firestore = shortcutFunction.lazyFirebaseAdmin().firestore();
-const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
+const userUtils = require('../../util/userUtil');
+const modules = require('../../util/modules');
+const firebaseAdmin = modules.firebaseAdmin;
 
-router.post('/', async function (req, res) {
+async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
-    admin.auth().verifySessionCookie(
+    firebaseAdmin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
             console.log('Auth - verifySessionCookie success : ', decodedClaims);
@@ -23,7 +19,7 @@ router.post('/', async function (req, res) {
                         data.name = req.body.name;                  //only new user can set name(real name), none changeable value
                         data.phone = req.body.phone;
                         data.email = req.body.email;
-                        data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
+                        data.birthday = modules.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
                         if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
                         data.userStats = 1;
                         data.signature = "";
@@ -85,7 +81,7 @@ router.post('/', async function (req, res) {
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
 
-                firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
+                modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                     console.log('Added document with ID: ', ref);
                     res.json({success: true, result: ref});
                 }).catch(e => {
@@ -102,6 +98,6 @@ router.post('/', async function (req, res) {
             console.log('Auth - verifySessionCookie false : ', error);
             res.json({success: false, message: "verifySessionCookie failed"});
         });
-});
+}
 
-module.exports = router;
+module.exports = modifyUserProfile;

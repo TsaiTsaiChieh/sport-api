@@ -1,13 +1,11 @@
-const shortcutFunction = require('../shortcut_function');
-const envValues = require('../Configs/env_values');
-const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
-const firestore = shortcutFunction.lazyFirebaseAdmin().firestore();
+const modules = require('./modules');
+const firebaseAdmin = modules.firebaseAdmin;
 
 exports.getFirebaseUser = function (accessToken) {
     // const firebaseUid = `line:${body.id}`;
     const firebaseUid = accessToken.id_token.sub.toString();
 
-    return admin.auth().getUser(firebaseUid).then(function (userRecord) {
+    return firebaseAdmin.auth().getUser(firebaseUid).then(function (userRecord) {
         return userRecord;
     }).catch((error) => {
         let userJson = {
@@ -18,7 +16,7 @@ exports.getFirebaseUser = function (accessToken) {
             email: accessToken.id_token.email
         };
         if (error.code === 'auth/user-not-found') {
-            return admin.auth().createUser(userJson);
+            return firebaseAdmin.auth().createUser(userJson);
         }
         return Promise.reject(error);
     });
@@ -36,7 +34,7 @@ exports.getUserProfile = async function (userId) {
         return returnJson;
     }
 
-    await firestore.collection('users').doc(userIdStr).get().then(userRecord => {
+    await modules.firestore.collection('users').doc(userIdStr).get().then(userRecord => {
         if (!userRecord.exists) {
             console.log('No such document!');
             returnJson.userStats = 0;

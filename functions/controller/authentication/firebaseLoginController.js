@@ -1,11 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const envValues = require('../Configs/env_values');
-const shortcutFunction = require('../shortcut_function');
-const admin = shortcutFunction.lazyFirebaseAdmin(envValues.cert);
-const userUtils = require('../Utils/userUtil');
+const userUtils = require('../../util/userUtil');
+const modules = require('../../util/modules');
+const firebaseAdmin = modules.firebaseAdmin;
 
-router.post('/', async (req, res) => {
+async function firebaseLogin(req, res) {
     let returnJson = {success: false};
     let token = req.body.token;
     // let uid = req.body.uid;
@@ -14,11 +11,11 @@ router.post('/', async (req, res) => {
         console.log('Error login user: missing token');
         return res.status(400).json(returnJson);
     }
-    admin.auth().verifyIdToken(token)
+    firebaseAdmin.auth().verifyIdToken(token)
         .then((decodedIdToken) => {
             // Create session cookie and set it.
             let expiresIn = 60 * 60 * 24 * 7 * 1000;
-            admin.auth().createSessionCookie(token, {expiresIn})
+            firebaseAdmin.auth().createSessionCookie(token, {expiresIn})
                 .then(async function (sessionCookie) {
                     let firestoreUser = await userUtils.getUserProfile(decodedIdToken.uid);
                     returnJson.success = true;
@@ -39,5 +36,6 @@ router.post('/', async (req, res) => {
                     return res.json({success: false})
                 });
         });
-});
-module.exports = router;
+}
+
+module.exports = firebaseLogin;
