@@ -14,14 +14,14 @@
 
 - #### `Message Object`
 
-| Field          | Type   | Description                                             |
-| -------------- | ------ | ------------------------------------------------------- |
-| messageId      | String | Message id                                              |
-| channelId      | String | Channel id, currently public                            |
-| replyMessageId | String | Reply message id                                        |
-| message        | String | Message content                                         |
-| tempHash       | String | Generated from front-end which is a unique random value |
-| createTime     | Object | Create time, includes seconds and nanoseconds field     |
+  | Field          | Type   | Description                                             |
+  | -------------- | ------ | ------------------------------------------------------- |
+  | messageId      | String | Message id                                              |
+  | channelId      | String | Channel id, currently public                            |
+  | replyMessageId | String | Reply message id                                        |
+  | message        | String | Message content                                         |
+  | tempHash       | String | Generated from front-end which is a unique random value |
+  | createTime     | Object | Create time, includes seconds and nanoseconds field     |
 
 - #### `User Object`
 
@@ -52,18 +52,21 @@
 - **End Point:** `/messages_tsai/:id`
 - **Method:** `GET`
 - **Query Parameters:**
+  | Field | Type | Description |
+  | ----- | ------ | -------------- |
+  | :id | String | id for message |
 
-| Field | Type   | Description    |
-| ----- | ------ | -------------- |
-| :id   | String | id for message |
+- **Request Cookies:**
+  | Field | Type | Description |
+  | ----------- | ------ | ----------------------------- |
+  | \_\_session | String | cookies for user verification |
 
 - **Request Example:**
   `https://[Host_Name]/messages_tsai/S84shEIh7P1OL6l05Cuh` for 一則訊息<br>
 - **Success Response: 200**
-
-  | Field | Type  | Description               |
+  | Field | Type | Description |
   | ----- | ----- | ------------------------- |
-  | data  | Array | Array of `Message Object` |
+  | data | Array | Array of `Message Object` |
 
 - **Success Response Example:**
 
@@ -97,8 +100,11 @@
 ```
 
 - Error Description:
+  | Code | Response |
+  | ---- | -------------------- |
+  | 401 | Unauthorized request |
 
-(Not handle carefully)
+  (Not handle carefully)
 
 ---
 
@@ -107,11 +113,19 @@
 - **End Point:** `/messages_tsai/:id`
 - **Method:** `DELETE`
 - **Query Parameters:**
+  | Field | Type | Description |
+  | ----- | ------ | -------------- |
+  | :id | String | id for message |
 
-| Field        | Type   | Description                                                                                             |
-| ------------ | ------ | ------------------------------------------------------------------------------------------------------- |
-| :id          | String | id for message                                                                                          |
-| deleteAction | Int    | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see) |
+- **Request Cookies:**
+  | Field | Type | Description |
+  | ----------- | ------ | ----------------------------- |
+  | \_\_session | String | cookies for user verification |
+
+- **Request Body:**
+  | Field | Type | Description |
+  | ------------ | ---- | ------------------------------------------------------------------------------------------------------- |
+  | deleteAction | Int | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see) |
 
 - **Request Example:**
   `https://[Host_Name]/messages_tsai/VmJFUfMjEV3NaZjOqg6e` for 軟刪除一則訊息<br>
@@ -123,14 +137,13 @@
 ```
 
 - Error Description:
-
-| Code | Response                                |
-| ---- | --------------------------------------- |
-| 401  | Unauthorized request                    |
-| 403  | Forbidden, please use report function   |
-| 404  | This message id does not exist          |
-| 406  | Delete action request is not acceptable |
-| 409  | Message had been deleted                |
+  | Code | Response |
+  | ---- | --------------------------------------- |
+  | 401 | Unauthorized request |
+  | 403 | Forbidden, please use report function |
+  | 404 | This message id does not exist |
+  | 406 | Delete action request is not acceptable |
+  | 409 | Message had been deleted |
 
 (Not handle carefully)
 
