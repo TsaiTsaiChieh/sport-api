@@ -13,6 +13,23 @@ const lineLogin = new line_login({
     bot_prompt: "normal"
 });
 
+/**
+ * @api {get} /auth/lineLogin Line Authentication
+ * @apiVersion 1.0.0
+ * @apiName lineLogin
+ * @apiGroup Auth
+ * @apiPermission none
+ *
+ * @apiSuccess {cookie} token auth token from Line SDK
+ *
+ * @apiSuccessExample Success-Response:
+ *     redirect callback URL(line_login.html) to signInWithCustomToken
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Auth Failed
+ */
+
+// call from Line SDK
 function loginHandler(req, res) {
     const lineAccessToken = req.query.code;
     if (!lineAccessToken) return res.status(401).send({error: 'login failed!'});
