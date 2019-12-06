@@ -16,6 +16,7 @@ function getLastMessage(args) {
         .offset(args.offset)
         .get();
       const messages = [];
+
       messageCollection.forEach(async function(doc) {
         const data = doc.data();
         const messageSnapshot = await modules.getSnapshot(
@@ -27,11 +28,11 @@ function getLastMessage(args) {
         const user = userSnapshot.data();
         const body = await repackageMessageData(message, user);
         messages.push(body);
+        await Promise.all(messages);
+        if (messages.length === args.limit) {
+          resolve(orderByCreateTime(await maskMessages(messages, args.token)));
+        }
       });
-      // await Promise.all(messages);
-      // console.log(messages);
-
-      resolve(messages);
     } catch (err) {
       console.log(err);
       reject(err);
@@ -138,6 +139,20 @@ function deleteMessageWithId(args) {
 
 async function repackageMessageData(message, user) {
   const body = {};
+  // get messages
+  body.message = {
+    channelId: message.channelId,
+    messageId: message.messageId,
+    replyMessageId: message.replyMessageId,
+    message: message.message,
+    softDelete:
+      message.softDelete || message.softDelete === 0 ? message.softDelete : 2, // 之後 create Message softDelete=2
+    tempHash: message.tempHash,
+    createTime: {
+      seconds: message.createTime._seconds,
+      nanoseconds: message.createTime._nanoseconds
+    }
+  };
   // get file
   if (message.fileUploadId) {
     const fileSnapshot = await modules.getSnapshot(
@@ -154,18 +169,6 @@ async function repackageMessageData(message, user) {
       sipHash: file.fileSipHash
     };
   }
-  // get messages
-  body.message = {
-    channelId: message.channelId,
-    messageId: message.messageId,
-    replyMessageId: message.replyMessageId,
-    message: message.message,
-    tempHash: message.tempHash,
-    createTime: {
-      seconds: message.createTime._seconds,
-      nanoseconds: message.createTime._nanoseconds
-    }
-  };
   // get user
   // should be handle user not found error
   body.user = {
@@ -176,7 +179,33 @@ async function repackageMessageData(message, user) {
   };
   return body;
 }
+function orderByCreateTime(messages) {
+  return messages.sort(function(ele1, ele2) {
+    return ele1.message.createTime.seconds < ele2.message.createTime.seconds
+      ? 1
+      : -1;
+  });
+}
 
+async function maskMessages(messages, token) {
+  // get user uid from token info
+  const userSnapshot = await modules.getSnapshot('users', token.uid);
+  const user = userSnapshot.data();
+
+  messages.forEach(function(ele) {
+    const softDelete = Number.parseInt(ele.message.softDelete);
+    if (softDelete === -1) {
+      ele.message.message = '訊息已被管理員刪除';
+    } else if (softDelete === 0) {
+      ele.message.message = '訊息已被刪除';
+    } else if (ele.user.uid === user.uid) {
+      if (softDelete === 1) {
+        ele.message.message = '訊息已被隱藏';
+      }
+    }
+  });
+  return messages;
+}
 module.exports = {
   getMessageWithId,
   postMessage,

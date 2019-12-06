@@ -9,7 +9,7 @@ function getLastMessage(req, res) {
   channelId ? (args.channelId = channelId) : (args.channelId = 'public');
   offset ? (args.offset = Number.parseInt(offset)) : (args.offset = 0);
   limit ? (args.limit = Number.parseInt(limit)) : (args.limit = 50);
-
+  args.token = req.token; // get from verification middleware
   // console.log('here', args.channelId);
 
   messageModel
@@ -53,7 +53,7 @@ function postMessage(req, res) {
 function deleteMessageWithId(req, res) {
   const args = {};
   args.messageId = req.params.id;
-  args.token = req.token;
+  args.token = req.token; // get from verification middleware
   let deleteAction = Number.parseInt(req.body.deleteAction);
   if (isNaN(deleteAction) || Math.abs(deleteAction) > 1) {
     const err = modules.createError(
