@@ -4,6 +4,7 @@ const firebaseAdmin = modules.firebaseAdmin;
 
 async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
+    if (!sessionCookie) return res.status(401).json({success: false, message: "authentication failed"});
     firebaseAdmin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
@@ -19,7 +20,7 @@ async function modifyUserProfile(req, res) {
                         data.name = req.body.name;                  //only new user can set name(real name), none changeable value
                         data.phone = req.body.phone;
                         data.email = req.body.email;
-                        data.birthday = modules.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
+                        data.birthday = firebaseAdmin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
                         if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
                         data.userStats = 1;
                         data.signature = "";
@@ -39,8 +40,7 @@ async function modifyUserProfile(req, res) {
                         break;
                     case 3: //鎖帳號會員
                         console.log("blocked user");
-                        res.status(400).json({success: false, message: 'blocked user'});
-                        break;
+                        return res.status(400).json({success: false, message: 'blocked user'});
                     case 9: //管理員
                         console.log("manager user");
                         break;
@@ -83,20 +83,20 @@ async function modifyUserProfile(req, res) {
 
                 modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                     console.log('Added document with ID: ', ref);
-                    res.json({success: true, result: ref});
+                    return res.status(200).json({success: true, result: ref});
                 }).catch(e => {
                     console.log('Added document with error: ', e);
-                    res.json({success: false, message: "update failed"});
+                    return res.status(400).json({success: false, message: "update failed"});
                 });
                 // res.json({success: true, result: writeResult});
             }).catch(error => {
                 console.log('Auth - getUserProfile false : ', error);
-                res.json({success: false, message: "getUserProfile failed"});
+                res.status(500).json({success: false, message: "getUserProfile failed"});
             });
         })
         .catch(error => {
             console.log('Auth - verifySessionCookie false : ', error);
-            res.json({success: false, message: "verifySessionCookie failed"});
+            res.status(401).json({success: false, message: "verifySessionCookie failed"});
         });
 }
 

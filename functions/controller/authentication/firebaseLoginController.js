@@ -9,7 +9,7 @@ async function firebaseLogin(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!token) {
         console.log('Error login user: missing token');
-        return res.status(400).json(returnJson);
+        return res.status(401).json(returnJson);
     }
     firebaseAdmin.auth().verifyIdToken(token)
         .then((decodedIdToken) => {
@@ -28,12 +28,12 @@ async function firebaseLogin(req, res) {
                     // let options = {maxAge: expiresIn, httpOnly: true};
                     let options = {maxAge: expiresIn, httpOnly: true, secure: true};
                     res.cookie('__session', sessionCookie, options);
-                    return res.json(returnJson)
+                    return res.status(200).json(returnJson)
                 })
                 .catch(function (error) {
                     console.log('Error login user: \n\t', error);
                     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                    return res.json({success: false})
+                    return res.status(401).json({success: false})
                 });
         });
 }

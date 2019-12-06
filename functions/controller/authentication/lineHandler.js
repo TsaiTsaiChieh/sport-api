@@ -15,6 +15,7 @@ const lineLogin = new line_login({
 
 function loginHandler(req, res) {
     const lineAccessToken = req.query.code;
+    if (!lineAccessToken) return res.status(401).send({error: 'login failed!'});
     res.setHeader('Access-Control-Allow-Origin', '*');
     // const lineState = req.query.state;
 
@@ -49,7 +50,7 @@ function loginHandler(req, res) {
                         // const options = {maxAge: expiresIn, httpOnly: true, secure: true};
                         const options = {maxAge: expiresIn, secure: true};
                         res.cookie('auth_token', token, options);
-                        return res.redirect(307, 'https://sport19y0715.web.app/line_login.html');
+                        return res.redirect(307, envValues.indexURL + 'line_login.html');
                     })
                 }).catch(function (err) {
                     console.log("id token verification failed.", err);
@@ -58,7 +59,7 @@ function loginHandler(req, res) {
             })
         } catch (exception) {
             console.log("id token verification failed.");
-            return res.status(500).send({error: 'login failed!'});
+            return res.status(401).send({error: 'login failed!'});
         }
     });
 }
