@@ -135,7 +135,7 @@
             let http = new XMLHttpRequest();
             let url = '/auth/logout';
             http.open('POST', url, true);
-            firebase.auth().signOut()
+            firebase.auth().signOut();
             http.onreadystatechange = function () {
                 if (http.readyState === 4) {
                     let res = JSON.parse(http.responseText);

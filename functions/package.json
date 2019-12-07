@@ -6,7 +6,8 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "grunt": "grunt"
   },
   "engines": {
     "node": "10"
@@ -42,7 +43,9 @@
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-plugin-promise": "^4.2.1",
-    "firebase-functions-test": "^0.1.7"
+    "firebase-functions-test": "^0.1.7",
+    "grunt": "^1.0.4",
+    "grunt-apidoc": "^0.11.0"
   },
   "private": true
 }

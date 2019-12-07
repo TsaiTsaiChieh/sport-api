@@ -1,6 +1,31 @@
 const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
 
+/**
+ * @api {get} /auth/verifySessionCookie Verify Session Cookie
+ * @apiVersion 1.0.0
+ * @apiName VerifySessionCookie
+ * @apiGroup Auth
+ * @apiPermission login user
+ *
+ * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
+ *
+ * @apiSuccess {Boolean} success verify result success
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "success": "true"
+ *     }
+ *
+ * @apiError TokenMissing session cookie not exist.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Token Missing
+ *     {
+ *       "success": "false"
+ *     }
+ */
 async function verifySessionCookie(req, res) {
     let sessionCookie = req.cookies.__session;
     if (!sessionCookie) return res.status(200).json({success: false, message: "authentication failed"});
