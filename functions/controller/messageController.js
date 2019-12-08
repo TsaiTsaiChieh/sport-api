@@ -2,6 +2,8 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../util/modules');
 const messageModel = require('../model/messageModel');
+
+// All error handling is not complete yet
 /**
  * @api {get} /user/getUserProfile get User Profile
  * @apiVersion 1.0.0
@@ -167,11 +169,27 @@ function getLastMessage(req, res) {
       res.status(500).send(err);
     });
 }
-// All error handling is not complete yet
+
 function getMessageWithId(req, res) {
-  let { id } = req.params;
+  const schema = {
+    type: 'object',
+    required: ['limit', 'offset'],
+    properties: {
+      limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      offset: { type: 'integer', minimum: 0, default: 0 },
+      channelId: { type: 'string', default: 'public' }
+    }
+  };
+  const { id } = req.params;
+  const args = {};
+  id ? (args.id = id) : '';
+  const valid = modules.ajv.validate(schema, args);
+  if (!valid) {
+    res.status(400).send(modules.ajv.errors);
+  }
+
   messageModel
-    .getMessageWithId(id)
+    .getMessageWithId(args.id)
     .then(function(body) {
       // console.log('getMessageWithId content:');
       // console.log(body);
