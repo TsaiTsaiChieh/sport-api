@@ -1,7 +1,7 @@
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const Ajv = require('ajv');
-const ajv = new Ajv({ allErrors: true });
+const ajv = new Ajv({ allErrors: true, useDefaults: true });
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
