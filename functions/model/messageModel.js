@@ -181,20 +181,6 @@ async function repackageMessageData(message, user, replyFlag) {
     const replyUser = replyUserSnapshot.data();
     if (replyFlag === 1)
       body.reply = await repackageMessageData(replyMessage, replyUser, 0);
-
-    // body.reply = {
-    //   messageId: message.replyMessageId,
-    //   message: message.message,
-    //   softDelete:
-    //     replyMessage.softDelete || replyMessage.softDelete === 0
-    //       ? replyMessage.softDelete
-    //       : 2, // 之後 create Message softDelete=2
-    //   tempHash: replyMessage.tempHash,
-    //   createTime: {
-    //     seconds: replyMessage.createTime._seconds,
-    //     nanoseconds: replyMessage.createTime._nanoseconds
-    //   }
-    // };
   }
 
   // get file
