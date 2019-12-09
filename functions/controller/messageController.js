@@ -5,7 +5,7 @@ const messageModel = require('../model/messageModel');
 
 // All error handling is not complete yet
 /**
- * @api {get} /user/getUserProfile get User Profile
+ * @api {get} /messages_tsai/:id get User Profile
  * @apiVersion 1.0.0
  * @apiName get messages
  * @apiGroup Messages
@@ -149,17 +149,17 @@ function getLastMessage(req, res) {
       channelId: { type: 'string', default: 'public' }
     }
   };
-  const { channelId, limit, offset } = req.query;
-  const args = {};
 
-  channelId ? args.channelId : '';
-  limit ? (args.limit = Number.parseFloat(limit)) : '';
-  offset ? (args.offset = Number.parseFloat(offset)) : '';
+  const args = {};
+  req.query.channelId ? args.channelId : '';
+  req.query.limit ? (args.limit = Number.parseFloat(req.query.limit)) : '';
+  req.query.offset ? (args.offset = Number.parseFloat(req.query.offset)) : '';
   args.token = req.token; // get from verification middleware
   const valid = modules.ajv.validate(schema, args);
   if (!valid) {
     res.status(400).send(modules.ajv.errors);
   }
+
   messageModel
     .getLastMessage(args)
     .then(function(body) {
@@ -173,26 +173,23 @@ function getLastMessage(req, res) {
 function getMessageWithId(req, res) {
   const schema = {
     type: 'object',
-    required: ['limit', 'offset'],
+    required: ['id'],
     properties: {
-      limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
-      offset: { type: 'integer', minimum: 0, default: 0 },
-      channelId: { type: 'string', default: 'public' }
+      id: { type: 'string' }
     }
   };
-  const { id } = req.params;
+
   const args = {};
-  id ? (args.id = id) : '';
+  req.params.id ? (args.id = req.params.id) : '';
   const valid = modules.ajv.validate(schema, args);
   if (!valid) {
     res.status(400).send(modules.ajv.errors);
+    return;
   }
 
   messageModel
     .getMessageWithId(args.id)
     .then(function(body) {
-      // console.log('getMessageWithId content:');
-      // console.log(body);
       res.json(body);
     })
     .catch(function(err) {
@@ -215,19 +212,27 @@ function postMessage(req, res) {
 }
 
 function deleteMessageWithId(req, res) {
+  const schema = {
+    type: 'object',
+    required: ['id', 'deleteAction'],
+    properties: {
+      id: { type: 'string' },
+      deleteAction: { type: 'integer', minimum: -1, maximum: 1 }
+    }
+  };
   const args = {};
-  args.messageId = req.params.id;
+  req.params.id ? (args.id = req.params.id) : '';
+  req.body.deleteAction || req.body.deleteAction === 0
+    ? (args.deleteAction = Number.parseFloat(req.body.deleteAction))
+    : '';
   args.token = req.token; // get from verification middleware
-  let deleteAction = Number.parseInt(req.body.deleteAction);
-  if (isNaN(deleteAction) || Math.abs(deleteAction) > 1) {
-    const err = modules.createError(
-      406,
-      'Delete action request is not acceptable'
-    );
-    res.status(err.code).send(err.error);
+
+  const valid = modules.ajv.validate(schema, args);
+  
+  if (!valid) {
+    res.status(400).send(modules.ajv.errors);
     return;
   }
-  args.deleteAction = deleteAction;
   messageModel
     .deleteMessageWithId(args)
     .then(function(body) {

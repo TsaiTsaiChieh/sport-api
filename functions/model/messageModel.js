@@ -80,12 +80,10 @@ function postMessage(req) {
 }
 // like /message/delete
 function deleteMessageWithId(args) {
+
   return new Promise(async function(resolve, reject) {
     try {
-      const messageSnapshot = await modules.getSnapshot(
-        'messages',
-        args.messageId
-      );
+      const messageSnapshot = await modules.getSnapshot('messages', args.id);
       const message = messageSnapshot.data();
       // if message did not exist, it would return undefined
       if (!message) {
@@ -103,7 +101,7 @@ function deleteMessageWithId(args) {
       if (args.deleteAction === 0 || args.deleteAction === 1) {
         if (args.token.uid === message.uid) {
           // if sender is the same user
-          await modules.getDoc('messages', args.messageId).update({
+          await modules.getDoc('messages', args.id).update({
             softDelete: args.deleteAction
           });
         } else if (args.token.uid !== message.uid) {
@@ -118,7 +116,7 @@ function deleteMessageWithId(args) {
           );
           const user = userSnapshot.data();
           if (user.userStats === 9) {
-            await modules.getDoc('messages', args.messageId).update({
+            await modules.getDoc('messages', args.id).update({
               softDelete: args.deleteAction
             });
           }
@@ -129,7 +127,7 @@ function deleteMessageWithId(args) {
           error: 'Forbidden, please use report function'
         });
       }
-      resolve(`Delete id: ${args.messageId} in messages collection successful`);
+      resolve(`Delete id: ${args.id} in messages collection successful`);
     } catch (err) {
       console.log(err);
       reject(err);
