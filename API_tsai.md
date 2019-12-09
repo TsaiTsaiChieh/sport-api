@@ -53,18 +53,22 @@
 - **End Point:** `/messages_tsai/:id`
 - **Method:** `GET`
 - **Query Parameters:**
+
   | Field | Type | Description |
   | ----- | ------ | -------------- |
   | :id | String | id for message |
 
 - **Request Cookies:**
+
   | Field | Type | Description |
   | ----------- | ------ | ----------------------------- |
   | \_\_session | String | cookies for user verification |
 
 - **Request Example:**
+
   `https://[Host_Name]/messages_tsai/S84shEIh7P1OL6l05Cuh` for 一則訊息<br>
 - **Success Response: 200**
+
   | Field | Type | Description |
   | ----- | ----- | ------------------------- |
   | data | Array | Array of `Message Object` |
@@ -114,6 +118,7 @@
 - **End Point:** `/messages_tsai/?`
 - **Method:** `GET`
 - **Query Parameters:**
+
   | Field | Type | Description |
   | ----- | ------ | -------------- |
   | ?limit | String | limit for message |
@@ -121,6 +126,7 @@
   | ?channelId | String | channelId for channel id, default is public |
 
 * **Request Cookies:**
+
   | Field | Type | Description |
   | ----------- | ------ | ----------------------------- |
   | \_\_session | String | cookies for user verification |
@@ -131,6 +137,7 @@
   `https://[Host_Name]/messages_tsai?limit=5&offset=0` for 最後 n 筆聊天訊息
 
 * **Success Response: 200**
+
   | Field | Type | Description |
   | ----- | ----- | ------------------------- |
   | data | Array | Array of `Message Object` |
@@ -267,21 +274,25 @@
 - **End Point:** `/messages_tsai/:id`
 - **Method:** `DELETE`
 - **Query Parameters:**
+
   | Field | Type | Description |
   | ----- | ------ | -------------- |
   | :id | String | id for message |
 
 - **Request Cookies:**
+
   | Field | Type | Description |
   | ----------- | ------ | ----------------------------- |
   | \_\_session | String | cookies for user verification |
 
 - **Request Body:**
+
   | Field | Type | Description |
   | ------------ | ---- | ------------------------------------------------------------------------------------------------------- |
   | deleteAction | Int | -1: admin delete, 0: sender delete(No one can see), 1:sender delete(sender can not see, others can see) |
 
 - **Request Example:**
+
   `https://[Host_Name]/messages_tsai/VmJFUfMjEV3NaZjOqg6e` for 軟刪除一則訊息<br>
 - **Success Response: 200**
 - **Success Response Example:**
