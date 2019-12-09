@@ -35,5 +35,5 @@ app.use(express.json());
 app.use('/auth', require('./router/authentication'));
 app.use('/user', require('./router/user'));
 app.use('/messages_tsai', messages_tsai);
-// app.use('/messages', require('./Deprecated/messages'));
+app.use('/messages', require('./Deprecated/messages'));
 exports.api = functions.https.onRequest(app);
