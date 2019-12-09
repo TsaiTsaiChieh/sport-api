@@ -35,7 +35,7 @@ function getLastMessage(args) {
       });
     } catch (err) {
       console.log(err);
-      reject(err);
+      reject({ code: 500, error: err });
     }
   });
 }
@@ -46,15 +46,28 @@ function getMessageWithId(id) {
     try {
       const messageSnapshot = await modules.getSnapshot('messages', id);
       const message = messageSnapshot.data();
-      const userSnapshot = await modules.getSnapshot('users', message.uid);
-      const user = userSnapshot.data();
-      const body = repackageMessageData(message, user);
-      console.log('es', body);
-
+      let body = {};
+      if (message) {
+        const userSnapshot = await modules.getSnapshot('users', message.uid);
+        const user = userSnapshot.data();
+        if (user) {
+          body = repackageMessageData(message, user);
+        } else {
+          reject({
+            code: 400,
+            error: 'This user did does not exist (輸入的使用者 uid 不存在)'
+          });
+        }
+      } else {
+        reject({
+          code: 400,
+          error: 'This message id does not exist (輸入的訊息 id 不存在)'
+        });
+      }
       resolve(body);
     } catch (err) {
       console.log(err);
-      reject(err);
+      reject({ code: 500, error: err });
     }
   });
 }
@@ -74,13 +87,12 @@ function postMessage(req) {
       })
       .catch(function(err) {
         console.log(err);
-        reject(err);
+        reject({ code: 500, error: err });
       });
   });
 }
 // like /message/delete
 function deleteMessageWithId(args) {
-
   return new Promise(async function(resolve, reject) {
     try {
       const messageSnapshot = await modules.getSnapshot('messages', args.id);
@@ -130,7 +142,7 @@ function deleteMessageWithId(args) {
       resolve(`Delete id: ${args.id} in messages collection successful`);
     } catch (err) {
       console.log(err);
-      reject(err);
+      reject({ code: 500, error: err });
     }
   });
 }

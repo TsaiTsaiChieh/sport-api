@@ -166,7 +166,7 @@ function getLastMessage(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(500).send(err);
+      res.status(err.code).send(err.error);
     });
 }
 
@@ -193,7 +193,7 @@ function getMessageWithId(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(500).send(err);
+      res.status(err.code).send(err.error);
     });
 }
 
@@ -207,7 +207,7 @@ function postMessage(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(500).send(err);
+      res.status(err.code).send(err.error);
     });
 }
 
@@ -228,7 +228,7 @@ function deleteMessageWithId(req, res) {
   args.token = req.token; // get from verification middleware
 
   const valid = modules.ajv.validate(schema, args);
-  
+
   if (!valid) {
     res.status(400).send(modules.ajv.errors);
     return;
@@ -240,7 +240,6 @@ function deleteMessageWithId(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      // console.log(err);
       res.status(err.code).send(err.error);
     });
 }
