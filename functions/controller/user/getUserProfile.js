@@ -4,7 +4,7 @@ const firebaseAdmin = modules.firebaseAdmin;
 
 
 /**
- * @api {post} /user/getUserProfile get User Profile
+ * @api {post} /user/getUserProfile Get User Profile
  * @apiVersion 1.0.0
  * @apiName getUserProfile
  * @apiGroup User
@@ -18,29 +18,46 @@ const firebaseAdmin = modules.firebaseAdmin;
  *  HTTP/1.1 200 OK
  {
     "success": true,
-    "uid": "Udbbbc6e025a2c2b217cf9a3df1482c04",
+    "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
     "data": {
+        "coin": 0,
+        "signature": "簽名檔",
+        "status": "1",
+        "email": "req@email.com",
+        "name": "真名",
+        "point": "",
+        "displayName": "測試displayName",
+        "denys": [],
+        "titles": [
+            {
+                "rank": 1,
+                "league": "MLB",
+                "sport": 16
+            },
+            {
+                "rank": 3,
+                "league": "CPBL",
+                "sport": 16
+            }
+        ],
+        "defaultTitle": {
+            "rank": 1,
+            "league": "MLB",
+            "sport": 16
+        },
         "blockMessage": 0,
         "ingot": 0,
-        "avatar": "https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg",
+        "avatar": "https://uploaded.firestorage.avatar.jpg",
+        "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
         "birthday": {
-            "_seconds": 1573184036,
+            "_seconds": 1573194036,
             "_nanoseconds": 370000000
         },
-        "phone": "+886999999123",
+        "phone": "+886999999999",
         "dividend": 0,
-        "referrer": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
-        "coin": 0,
-        "userStats": 1,
-        "signature": "簽名檔3",
-        "email": "test3q@email.com",
-        "name": "真名line",
-        "point": 333,
-        "title": "一般會員",
-        "displayName": "測試line",
-        "denys": []
+        "referrer": "bnKcVVaiIaUf3daVMNTTK5gH4hf1"
     },
-    "userStats": 1
+    "status": "1"
 }
  *
  * @apiError TokenMissing session cookie not exist.
@@ -59,7 +76,7 @@ async function getUserProfile(req, res) {
         .then((decodedClaims) => {
             console.log('getUserProfile - verifySessionCookie success : ', decodedClaims);
             let uid = decodedClaims.uid;
-            userUtils.getUserProfile(uid).then(async firestoreUser => {
+            userUtils.getUserProfile(uid).then(firestoreUser => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 return res.status(200).json(firestoreUser)
             }).catch(error => {

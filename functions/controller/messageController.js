@@ -18,7 +18,7 @@ const messageModel = require('../model/messageModel');
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  [
-    {
+ {
         "message": {
             "channelId": "public",
             "messageId": "pOCYGzwhs98kgKuqzgAN",
@@ -45,7 +45,7 @@ const messageModel = require('../model/messageModel');
             "avatar": "https://uploaded.firestorage.avatar.jpg"
         }
     },
-    {
+ {
         "message": {
             "channelId": "public",
             "messageId": "S84shEIh7P1OL6l05Cuh",
@@ -72,7 +72,7 @@ const messageModel = require('../model/messageModel');
             "avatar": "https://uploaded.firestorage.avatar.jpg"
         }
     },
-    {
+ {
         "message": {
             "channelId": "public",
             "messageId": "6y4Wang3BG8ITciLU77C",
@@ -91,7 +91,7 @@ const messageModel = require('../model/messageModel');
             "avatar": "https://uploaded.firestorage.avatar.jpg"
         }
     },
-    {
+ {
         "message": {
             "channelId": "public",
             "messageId": "VmJFUfMjEV3NaZjOqg6e",
@@ -110,7 +110,7 @@ const messageModel = require('../model/messageModel');
             "title": "一般會員"
         }
     },
-    {
+ {
         "message": {
             "channelId": "public",
             "messageId": "viain91ufYhx6reEVQNq",
@@ -129,12 +129,12 @@ const messageModel = require('../model/messageModel');
             "avatar": "https://uploaded.firestorage.avatar.jpg"
         }
     }
-]
+ ]
  *
  * @apiError TokenMissing session cookie not exist.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Bad Request 
+ *     HTTP/1.1 400 Bad Request
  *     Check request parameters
  *     HTTP/1.1 401 Unauthorized
  *     missing token
@@ -161,13 +161,13 @@ function getLastMessage(req, res) {
   }
 
   messageModel
-    .getLastMessage(args)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).send(err.error);
-    });
+      .getLastMessage(args)
+      .then(function(body) {
+        res.json(body);
+      })
+      .catch(function(err) {
+        res.status(err.code).send(err.error);
+      });
 }
 
 function getMessageWithId(req, res) {
@@ -188,27 +188,27 @@ function getMessageWithId(req, res) {
   }
 
   messageModel
-    .getMessageWithId(args.id)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).send(err.error);
-    });
+      .getMessageWithId(args.id)
+      .then(function(body) {
+        res.json(body);
+      })
+      .catch(function(err) {
+        res.status(err.code).send(err.error);
+      });
 }
 
 function postMessage(req, res) {
   console.log('post messages 在這');
   messageModel
-    .postMessage(req)
-    .then(function(body) {
-      console.log('postMessage content:');
-      // console.log(body);
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).send(err.error);
-    });
+      .postMessage(req)
+      .then(function(body) {
+        console.log('postMessage content:');
+        // console.log(body);
+        res.json(body);
+      })
+      .catch(function(err) {
+        res.status(err.code).send(err.error);
+      });
 }
 
 function deleteMessageWithId(req, res) {
@@ -223,8 +223,8 @@ function deleteMessageWithId(req, res) {
   const args = {};
   req.params.id ? (args.id = req.params.id) : '';
   req.body.deleteAction || req.body.deleteAction === 0
-    ? (args.deleteAction = Number.parseFloat(req.body.deleteAction))
-    : '';
+      ? (args.deleteAction = Number.parseFloat(req.body.deleteAction))
+      : '';
   args.token = req.token; // get from verification middleware
 
   const valid = modules.ajv.validate(schema, args);
@@ -234,14 +234,14 @@ function deleteMessageWithId(req, res) {
     return;
   }
   messageModel
-    .deleteMessageWithId(args)
-    .then(function(body) {
-      // console.log(body);
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).send(err.error);
-    });
+      .deleteMessageWithId(args)
+      .then(function(body) {
+        // console.log(body);
+        res.json(body);
+      })
+      .catch(function(err) {
+        res.status(err.code).send(err.error);
+      });
 }
 module.exports = {
   getMessageWithId,

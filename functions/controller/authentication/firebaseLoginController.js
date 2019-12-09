@@ -53,7 +53,7 @@ async function firebaseLogin(req, res) {
                         returnJson.userInfo = firestoreUser.data;
                     }
                     // let options = {maxAge: expiresIn, httpOnly: true};
-                    let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+                    let options = {maxAge: expiresIn, httpOnly: true};
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })

@@ -1,18 +1,19 @@
+const express = require('express');
+const router = express.Router();
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
-const firebaseAdmin = modules.firebaseAdmin;
+const admin = modules.firebaseAdmin;
 
-async function modifyUserProfile(req, res) {
+router.post('/modifyUserProfile', async function (req, res) {
     let sessionCookie = req.cookies.__session;
-    if (!sessionCookie) return res.status(401).json({success: false, message: "authentication failed"});
-    firebaseAdmin.auth().verifySessionCookie(
+    admin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
             console.log('Auth - verifySessionCookie success : ', decodedClaims);
             let uid = decodedClaims.uid;
             userUtils.getUserProfile(uid).then(async firestoreUser => {
                 let data = {};
-                switch (firestoreUser.userStats) {
+                switch (firestoreUser.status) {
                     case 0: //新會員
                         if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
                             res.status(400).json({success: false, message: 'missing info'});
@@ -20,9 +21,9 @@ async function modifyUserProfile(req, res) {
                         data.name = req.body.name;                  //only new user can set name(real name), none changeable value
                         data.phone = req.body.phone;
                         data.email = req.body.email;
-                        data.birthday = firebaseAdmin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
+                        data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
                         if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
-                        data.userStats = 1;
+                        data.status = 1;
                         data.signature = "";
                         data.blockMessage = 0;
                         data.denys = [];
@@ -40,12 +41,13 @@ async function modifyUserProfile(req, res) {
                         break;
                     case 3: //鎖帳號會員
                         console.log("blocked user");
-                        return res.status(400).json({success: false, message: 'blocked user'});
+                        res.status(400).json({success: false, message: 'blocked user'});
+                        break;
                     case 9: //管理員
                         console.log("manager user");
                         break;
                     default:
-                        throw 'userStats error';
+                        throw 'user status error';
                 }
                 if (req.body.avatar) data.avatar = req.body.avatar;
                 if (req.body.email) data.email = req.body.email;
@@ -63,7 +65,7 @@ async function modifyUserProfile(req, res) {
                                 // deny if refer each other
                                 console.log("set refCode : ", refCode);
                                 if (referrer.data.referrer !== uid && refCode !== uid) {
-                                    if (firestoreUser.userStats === 0) {
+                                    if (firestoreUser.status === 0) {
                                         console.log("set refCode give point: ", refCode);
                                         data.point = 333;
                                         data.referrer = refCode;
@@ -83,21 +85,21 @@ async function modifyUserProfile(req, res) {
 
                 modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                     console.log('Added document with ID: ', ref);
-                    return res.status(200).json({success: true, result: ref});
+                    res.json({success: true, result: ref});
                 }).catch(e => {
                     console.log('Added document with error: ', e);
-                    return res.status(400).json({success: false, message: "update failed"});
+                    res.json({success: false, message: "update failed"});
                 });
                 // res.json({success: true, result: writeResult});
             }).catch(error => {
                 console.log('Auth - getUserProfile false : ', error);
-                res.status(500).json({success: false, message: "getUserProfile failed"});
+                res.json({success: false, message: "getUserProfile failed"});
             });
         })
         .catch(error => {
             console.log('Auth - verifySessionCookie false : ', error);
-            res.status(401).json({success: false, message: "verifySessionCookie failed"});
+            res.json({success: false, message: "verifySessionCookie failed"});
         });
-}
+});
 
-module.exports = modifyUserProfile;
+module.exports = router;
