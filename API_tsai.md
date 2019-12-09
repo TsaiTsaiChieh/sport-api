@@ -293,10 +293,10 @@
 - Error Description:
   | Code | Response |
   | ---- | --------------------------------------- |
+  | 400 | Bad request |
   | 401 | Unauthorized request |
   | 403 | Forbidden, please use report function |
   | 404 | This message id does not exist |
-  | 406 | Delete action request is not acceptable |
   | 409 | Message had been deleted |
 
 (Not handle carefully)
