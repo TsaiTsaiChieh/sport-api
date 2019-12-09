@@ -26,7 +26,7 @@ function getLastMessage(args) {
         const message = messageSnapshot.data();
         const userSnapshot = await modules.getSnapshot('users', message.uid);
         const user = userSnapshot.data();
-        const body = await repackageMessageData(message, user);
+        const body = await repackageMessageData(message, user, 1);
         messages.push(body);
         await Promise.all(messages);
 
@@ -152,13 +152,13 @@ function deleteMessageWithId(args) {
   });
 }
 
-async function repackageMessageData(message, user) {
+async function repackageMessageData(message, user, replyFlag) {
   const body = {};
   // get messages
   body.message = {
     channelId: message.channelId,
     messageId: message.messageId,
-    replyMessageId: message.replyMessageId,
+    // replyMessageId: message.replyMessageId,
     message: message.message,
     softDelete:
       message.softDelete || message.softDelete === 0 ? message.softDelete : 2, // 之後 create Message softDelete=2
@@ -168,6 +168,35 @@ async function repackageMessageData(message, user) {
       nanoseconds: message.createTime._nanoseconds
     }
   };
+  if (message.replyMessageId) {
+    const replyMessageSnapshot = await modules.getSnapshot(
+      'messages',
+      message.replyMessageId
+    );
+    const replyMessage = replyMessageSnapshot.data();
+    const replyUserSnapshot = await modules.getSnapshot(
+      'users',
+      message.replyUid
+    );
+    const replyUser = replyUserSnapshot.data();
+    if (replyFlag === 1)
+      body.reply = await repackageMessageData(replyMessage, replyUser, 0);
+
+    // body.reply = {
+    //   messageId: message.replyMessageId,
+    //   message: message.message,
+    //   softDelete:
+    //     replyMessage.softDelete || replyMessage.softDelete === 0
+    //       ? replyMessage.softDelete
+    //       : 2, // 之後 create Message softDelete=2
+    //   tempHash: replyMessage.tempHash,
+    //   createTime: {
+    //     seconds: replyMessage.createTime._seconds,
+    //     nanoseconds: replyMessage.createTime._nanoseconds
+    //   }
+    // };
+  }
+
   // get file
   if (message.fileUploadId) {
     const fileSnapshot = await modules.getSnapshot(
@@ -186,12 +215,24 @@ async function repackageMessageData(message, user) {
   }
   // get user
   // should be handle user not found error
+  // console.log('test', user.titles[0].ballType, user.titles[0].grade);
+
   body.user = {
     uid: user.uid,
     displayName: user.displayName,
     avatar: user.avatar,
-    title: user.title
+    signature: user.signature,
+    status: Number.parseInt(user.status),
+    title: user.title,
+    point: user.point
   };
+  if (user.titles) {
+    body.user.titles = user.titles;
+    if (user.defaultTitle) {
+      body.user.defaultTitle = user.defaultTitle;
+    }
+  }
+
   return body;
 }
 function orderByCreateTime(messages) {

@@ -139,7 +139,16 @@ const messageModel = require('../model/messageModel');
  *     HTTP/1.1 401 Unauthorized
  *     missing token
  */
-function getLastMessage(req, res) {
+async function getLastMessage(req, res) {
+  // if user login get the user info
+  const session = req.cookies.__session;
+
+  let decodedIdToken;
+  if (session) {
+    decodedIdToken = await modules.firebaseAdmin
+      .auth()
+      .verifySessionCookie(session, true);
+  }
   const schema = {
     type: 'object',
     required: ['limit', 'offset'],
@@ -154,7 +163,8 @@ function getLastMessage(req, res) {
   req.query.channelId ? args.channelId : '';
   req.query.limit ? (args.limit = Number.parseFloat(req.query.limit)) : '';
   req.query.offset ? (args.offset = Number.parseFloat(req.query.offset)) : '';
-  args.token = req.token; // get from verification middleware
+  args.token = decodedIdToken; // get from verifySessionCookie
+
   const valid = modules.ajv.validate(schema, args);
   if (!valid) {
     res.status(400).send(modules.ajv.errors);
@@ -199,6 +209,7 @@ function getMessageWithId(req, res) {
 
 function postMessage(req, res) {
   console.log('post messages 在這');
+
   messageModel
     .postMessage(req)
     .then(function(body) {
