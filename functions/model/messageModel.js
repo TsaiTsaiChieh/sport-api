@@ -29,8 +29,13 @@ function getLastMessage(args) {
         const body = await repackageMessageData(message, user);
         messages.push(body);
         await Promise.all(messages);
+
         if (messages.length === args.limit) {
-          resolve(orderByCreateTime(await maskMessages(messages, args.token)));
+          if (args.token)
+            resolve(
+              orderByCreateTime(await maskMessages(messages, args.token))
+            );
+          else resolve(orderByCreateTime(messages));
         }
       });
     } catch (err) {
