@@ -105,6 +105,7 @@
 ```
 
 - Error Description:
+
   | Code | Response |
   | ---- | -------------------- |
   | 401 | Unauthorized request |
@@ -261,6 +262,7 @@
 ```
 
 - Error Description:
+
   | Code | Response |
   | ---- | -------------------- |
   | 401 | Unauthorized request |
@@ -302,6 +304,7 @@
 ```
 
 - Error Description:
+
   | Code | Response |
   | ---- | --------------------------------------- |
   | 400 | Bad request |
@@ -315,6 +318,7 @@
 ---
 
 URL Path
+
 | Origin | Method | RESTful | Description |
 | ----------- | ------ |------ | ----------------------------- |
 | /message/get | `GET` | /messages/:id | 取得特定訊息 |
