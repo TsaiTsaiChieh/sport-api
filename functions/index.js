@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
-const messages_tsai = require('./router/messages_tsai');
+const messages_tsai = require('./router/messages');
 const cors = require('cors');
 
 const bodyParser = require('body-parser');
@@ -34,6 +34,7 @@ app.use(express.json());
 
 app.use('/auth', require('./router/authentication'));
 app.use('/user', require('./router/user'));
-app.use('/messages_tsai', messages_tsai);
-app.use('/messages', require('./Deprecated/messages'));
+// app.use('/messages', messages_tsai);
+app.use('/messages', messages_tsai);
+app.use('/messages_temp', require('./Deprecated/messages'));
 exports.api = functions.https.onRequest(app);
