@@ -8,7 +8,6 @@ router.get('/list', (req, res) => {
   let data = { success: true, list: ['public'] };
   res.json(data);
 });
-// router.get('/?', MessageController.getLastMessage);
 router.get('/?', require('../controller/message/getLastMessag'));
 router.get(
   '/:id',
