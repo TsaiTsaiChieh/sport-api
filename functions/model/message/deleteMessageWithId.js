@@ -53,6 +53,7 @@ function deleteMessageWithId(args) {
         });
       }
       resolve(`Delete id: ${args.id} in messages collection successful`);
+      modules.database.ref('livePush').push({action: 'deleteMessage', messageId: message.messageId});// not for sure
     } catch (err) {
       console.log(err);
       reject({ code: 500, error: err });

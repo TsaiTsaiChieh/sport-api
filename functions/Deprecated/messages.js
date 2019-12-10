@@ -1010,7 +1010,8 @@ async function softDeleteMessage(inputJson, messageId = '') {
 
         returnJson.deleteAction = 0;
         returnJson.success = true;
-
+        
+        
         return await ShortcutFunction.realtimePush(returnJson);
       }
 
@@ -1022,10 +1023,11 @@ async function softDeleteMessage(inputJson, messageId = '') {
 
         returnJson.deleteAction = 1;
         returnJson.success = true;
+        console.log('這這',returnJson);
         return await ShortcutFunction.realtimePush(returnJson);
       } //act
     } //uid==uid
-
+    
     returnJson.error = '你沒有權限刪除此訊息,請使用檢舉';
   } catch (error) {
     console.warn('runReportMessage error', error);

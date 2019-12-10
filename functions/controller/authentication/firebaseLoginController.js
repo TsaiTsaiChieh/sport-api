@@ -43,7 +43,7 @@ async function firebaseLogin(req, res) {
             // Create session cookie and set it.
             let expiresIn = 60 * 60 * 24 * 7 * 1000;
             firebaseAdmin.auth().createSessionCookie(token, {expiresIn})
-                .then(async function (sessionCookie) {
+                .then(async (sessionCookie) => {
                     let firestoreUser = await userUtils.getUserProfile(decodedIdToken.uid);
                     returnJson.success = true;
                     if (firestoreUser) {
@@ -52,17 +52,17 @@ async function firebaseLogin(req, res) {
                         returnJson.userStats = firestoreUser.userStats;
                         returnJson.userInfo = firestoreUser.data;
                     }
-                    // let options = {maxAge: expiresIn, httpOnly: true};
-                    let options = {maxAge: expiresIn, httpOnly: true, secure: true};
+                    let options = {maxAge: expiresIn, httpOnly: true};
+                    // let options = {maxAge: expiresIn, httpOnly: true, secure: true};
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })
-                .catch(function (error) {
+                .catch((error) => {
                     console.log('Error login user: \n\t', error);
                     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
                     return res.status(401).json({success: false})
                 });
-        }).catch(function (error) {
+        }).catch((error) => {
         console.log('Error login user: \n\t', error);
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(401).json({success: false})
