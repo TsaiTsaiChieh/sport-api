@@ -1,12 +1,11 @@
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
-const messages_tsai = require('./router/messages_tsai');
+const messages_tsai = require('./router/messages');
 const cors = require('cors');
 
-
 const bodyParser = require('body-parser');
-const cookieParser = require("cookie-parser");
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -19,18 +18,23 @@ app.use(helmet());
 app.use(helmet.xssFilter());
 app.use(helmet.frameguard());
 
-app.use(bodyParser.urlencoded({
+app.use(
+  bodyParser.urlencoded({
     limit: '50mb',
     extended: true
-}));
-app.use(bodyParser.json({
+  })
+);
+app.use(
+  bodyParser.json({
     limit: '50mb'
-}));
+  })
+);
 
 app.use(express.json());
 
 app.use('/auth', require('./router/authentication'));
 app.use('/user', require('./router/user'));
-app.use('/messages_tsai', messages_tsai);
-//app.use('/test', require('./test'));
+// app.use('/messages', messages_tsai);
+app.use('/messages', messages_tsai);
+app.use('/messages_temp', require('./Deprecated/messages'));
 exports.api = functions.https.onRequest(app);

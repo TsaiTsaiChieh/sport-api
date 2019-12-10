@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express();
 const verification = require('../util/verification');
-
 const MessageController = require('../controller/messageController');
 
 // Just test
@@ -9,13 +8,17 @@ router.get('/list', (req, res) => {
   let data = { success: true, list: ['public'] };
   res.json(data);
 });
-router.get('/?', verification.token, MessageController.getLastMessage);
-router.get('/:id', verification.token, MessageController.getMessageWithId);
-router.post('/', MessageController.postMessage);
+// router.get('/?', MessageController.getLastMessage);
+router.get('/?', require('../controller/message/getLastMessag'));
+router.get(
+  '/:id',
+  verification.token,
+  require('../controller/message/getMessageWithId')
+);
+router.post('/', verification.token, MessageController.postMessage);
 router.delete(
   '/:id',
   verification.token,
-  MessageController.deleteMessageWithId
+  require('../controller/message/deleteMessageWithId')
 );
-// router.delete('/:id', MessageController.deleteMessageWithId);
 module.exports = router;

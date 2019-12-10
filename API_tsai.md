@@ -10,6 +10,9 @@
   - [Get Single Message](#Get-Single-Message)
   - [Get Messages](#Get-Messages)
   - [Soft Delete Message](#Soft-Delete-Message)
+- [Code Book](#Cook-book)
+  - [Rank](#Rank)
+  - [Sport](#Sport)
 
 ### Response Object
 
@@ -331,3 +334,33 @@ URL Path
 | /message/delete | `DELETE` | /messages/:id                                  | 刪除訊息           |
 | /messages/file  | `GET`    | /file/:id                                      | 取得一個上傳檔案   |
 | /messages/user  | `GET`    | /user/                                         | 取得一個用戶的資料 |
+
+---
+
+### Code Book
+
+- #### Rank
+
+| Int | Description |
+| --- | ----------- |
+| 1   | 鑽石大神    |
+| 2   | 白金大神    |
+| 3   | 黃牌大神    |
+| 4   | 銀牌大神    |
+| 5   | 銅牌大神    |
+
+- #### Sport
+
+| Int | Description |
+| --- | ----------- |
+| 16  | 棒球        |
+| 18  | 籃球        |
+| 17  | 冰球        |
+| 1   | 足球        |
+
+- #### league
+
+| String | Description |
+| ------ | ----------- |
+| MLB    | 美國職棒    |
+| CPBL   | 中華職棒    |
