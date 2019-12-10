@@ -47,7 +47,7 @@ const admin = modules.firebaseAdmin;
     "message": "getUserProfile failed"
  }
  */
-router.post('/modifyUserProfile', async function (req, res) {
+async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
     admin.auth().verifySessionCookie(
         sessionCookie, true)
@@ -144,6 +144,7 @@ router.post('/modifyUserProfile', async function (req, res) {
             console.log('Auth - verifySessionCookie false : ', error);
             res.status(401).json({success: false, message: "verifySessionCookie failed"});
         });
-});
+}
 
-module.exports = router;
+
+module.exports = modifyUserProfile;
