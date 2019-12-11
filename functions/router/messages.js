@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express();
 const verification = require('../util/verification');
+const modules = require('../util/modules');
 const MessageController = require('../controller/messageController');
 
 // Just test
-router.get('/list', (req, res) => {
-  let data = { success: true, list: ['public'] };
-  res.json(data);
+router.get('/list', async (req, res) => {
+  // let data = { success: true, list: ['public'] };
+  // res.json(data);
+  const messageSnapshot = await modules.getSnapshot(
+    'chat_public',
+    'XPrNaAWujYedEw3XMJZg'
+  );
+  console.log(messageSnapshot.data());
 });
 router.get('/?', require('../controller/message/getLastMessag'));
 router.get(
@@ -14,7 +20,11 @@ router.get(
   verification.token,
   require('../controller/message/getMessageWithId')
 );
-router.post('/', verification.token, MessageController.postMessage);
+router.post(
+  '/',
+  verification.token,
+  require('../controller/message/createMessage')
+);
 router.delete(
   '/:id',
   verification.token,

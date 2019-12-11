@@ -1,7 +1,33 @@
 const modules = require('../util/modules');
 const folder = 'share_files';
 const day = 7;
-async function repackageMessageData(message, user, replyFlag) {
+function repackageUserData(user) {
+  return {
+    uid: user.uid,
+    displayName: user.displayName,
+    avatar: user.avatar,
+    status: user.status,
+    point: user.point,
+    titles: user.titles,
+    defaultTitle: user.defaultTitle,
+    signature: user.signature
+  };
+  // return body;
+}
+function repackageMessageData(message) {
+  // same as insertData from model/createMessage.js
+  return {
+    channelId: message.channelId,
+    message: message.message,
+    type: message.type,
+    hash: message.hash,
+    createTime: message.createTime,
+    messageId: message.messageId,
+    softDelete: message.softDelete,
+    user: message.user
+  };
+}
+async function repackageMessageDataWithFlag(message, user, replyFlag) {
   const body = {};
   // get messages
   body.message = {
@@ -9,7 +35,9 @@ async function repackageMessageData(message, user, replyFlag) {
     messageId: message.messageId,
     message: message.message,
     softDelete:
-      message.softDelete || message.softDelete === 0 ? Number.parseInt(message.softDelete) : 2, // 之後 create Message softDelete=2
+      message.softDelete || message.softDelete === 0
+        ? Number.parseInt(message.softDelete)
+        : 2, // 之後 create Message softDelete=2
     tempHash: message.tempHash,
     createTime: {
       seconds: message.createTime._seconds,
@@ -28,35 +56,42 @@ async function repackageMessageData(message, user, replyFlag) {
     );
     const replyUser = replyUserSnapshot.data();
     if (replyFlag === 1)
-      body.reply = await repackageMessageData(replyMessage, replyUser, 0);
+      body.reply = await repackageMessageDataWithFlag(
+        replyMessage,
+        replyUser,
+        0
+      );
   }
 
   // get file
   if (message.fileUploadId) {
     // get storage
     try {
-      const file = modules.bucket.file(`${folder}/${message.fileUploadId}.${message.fileSubname}`);
+      const file = modules.bucket.file(
+        `${folder}/${message.fileUploadId}.${message.fileSubname}`
+      );
       const getFile = await file.get();
       let contentType = getFile[0].metadata.contentType;
       const config = {
         action: 'read',
-        expires: new Date(Date.now()+day*24*60*60*1000) 
+        expires: new Date(Date.now() + day * 24 * 60 * 60 * 1000)
       };
       const fileUrl = await file.getSignedUrl(config);
       body.file = {
         id: message.fileUploadId,
         name: message.fileName,
-        fileSubname: contentType.substr(contentType.indexOf('/')+1)
-      }
+        fileSubname: contentType.substr(contentType.indexOf('/') + 1)
+      };
       body.message.type = 'file';
-      body.message.fileSubname = contentType.substr(contentType.indexOf('/')+1);
+      body.message.fileSubname = contentType.substr(
+        contentType.indexOf('/') + 1
+      );
       body.message.message = fileUrl[0];
     } catch (err) {
       console.log(err);
       body.file = {};
       // Although the error occurs here, the program will continue to run unless return
     }
-    
   }
   // get user
   // should be handle user not found error
@@ -105,4 +140,10 @@ async function maskMessages(messages, token) {
   });
   return messages;
 }
-module.exports = { repackageMessageData, orderByCreateTime, maskMessages };
+module.exports = {
+  repackageMessageDataWithFlag,
+  orderByCreateTime,
+  maskMessages,
+  repackageUserData,
+  repackageMessageData
+};
