@@ -75,7 +75,7 @@
 
 
 	<script type="text/javascript">
-		const url = '/messages/'; // location.host.concat( '/messages/' ); //prfx //https://sport19y0715.firebaseapp.com/messages/ // "https://sport19y0715.web.app"
+		const url = '/messages_temp/'; // location.host.concat( '/messages/' ); //prfx //https://sport19y0715.firebaseapp.com/messages/ // "https://sport19y0715.web.app"
 
 		var firebaseAuth;
 		var rtdb; //Realtime database
@@ -696,7 +696,7 @@
 
 			//設定監聽realtime資料庫的
 			rtdb.ref( "/livePush" )
-				.limitToLast( 1 )
+				.limitToLast( 50 )
 				.on( "value", function ( snapshot ) {
 					//監聽之後這邊的行為是收到資料的行為.
 					let svList = snapshot.val(); //你收到的內容,不穩定的json格式

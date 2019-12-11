@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Firebase Authentication UI templete ver.0717</title>
+    <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth.css"/>
+    <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+</head>
+
+<body>
+<div id="firebaseui-auth-container"></div>
+<div id="chat">
+
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    const firebaseConfig = {
+        apiKey: "AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo",
+        authDomain: "sport19y0715.firebaseapp.com",
+        databaseURL: "https://sport19y0715.firebaseio.com",
+        projectId: "sport19y0715",
+        storageBucket: "sport19y0715.appspot.com",
+        messagingSenderId: "179049951227",
+        appId: "1:179049951227:web:15b2ae874d653216"
+    };
+    firebase.initializeApp(firebaseConfig);
+    let public_chat = firebase.database().ref("/livePush");
+    public_chat.limitToLast(50).on("value", function (snapshot) {
+        // console.log(JSON.stringify(snapshot.val(), null, " "));
+        console.log(snapshot.val());
+        console.log(Object.keys(snapshot.val()).length);
+    });
+</script>
+</body>
+
+</html>

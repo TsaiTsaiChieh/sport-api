@@ -83,24 +83,21 @@ exports.getUserProfile = async function (userId) {
 
 // Unique collections: uniqueName,uniqueEmail,uniquePhone
 exports.checkUniqueCollection = async function (collection, value) {
-    const collections = ['uniqueName', 'uniqueEmail', 'uniquePhone'];
     let returnJson = {
         success: false,
         isExist: true
     };
-    if (collections.indexOf(collection) >= 0) {
-        try {
-            const nameCollection = await modules.firestore.collection(collection).doc(value).get();
-            if (nameCollection.exists) {
-                returnJson.success = true;
-                returnJson.isExist = true;
-            } else {
-                returnJson.success = true;
-                returnJson.isExist = false;
-            }
-        } catch (e) {
-            console.log(e);
+    try {
+        const nameCollection = await modules.firestore.collection(collection).doc(value).get();
+        if (nameCollection.exists) {
+            returnJson.success = true;
+            returnJson.isExist = true;
+        } else {
+            returnJson.success = true;
+            returnJson.isExist = false;
         }
+    } catch (e) {
+        console.log(e);
     }
     return returnJson;
 };
