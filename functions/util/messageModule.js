@@ -1,12 +1,12 @@
 const modules = require('../util/modules');
 const folder = 'share_files';
+const day = 7;
 async function repackageMessageData(message, user, replyFlag) {
   const body = {};
   // get messages
   body.message = {
     channelId: message.channelId,
     messageId: message.messageId,
-    // replyMessageId: message.replyMessageId,
     message: message.message,
     softDelete:
       message.softDelete || message.softDelete === 0 ? Number.parseInt(message.softDelete) : 2, // 之後 create Message softDelete=2
@@ -38,12 +38,19 @@ async function repackageMessageData(message, user, replyFlag) {
       const file = modules.bucket.file(`${folder}/${message.fileUploadId}.${message.fileSubname}`);
       const getFile = await file.get();
       let contentType = getFile[0].metadata.contentType;
+      const config = {
+        action: 'read',
+        expires: new Date(Date.now()+day*24*60*60*1000) 
+      };
+      const fileUrl = await file.getSignedUrl(config);
       body.file = {
         id: message.fileUploadId,
         name: message.fileName,
-        size: getFile[0].metadata.size,
-        fileSubname:  contentType.substr(contentType.indexOf('/')+1)
+        fileSubname: contentType.substr(contentType.indexOf('/')+1)
       }
+      body.message.type = 'file';
+      body.message.fileSubname = contentType.substr(contentType.indexOf('/')+1);
+      body.message.message = fileUrl[0];
     } catch (err) {
       console.log(err);
       body.file = {};
