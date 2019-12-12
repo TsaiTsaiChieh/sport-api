@@ -10,6 +10,7 @@ function repackageUserData(user) {
     point: user.point,
     titles: user.titles,
     defaultTitle: user.defaultTitle,
+    blockMessage: user.blockMessage,
     signature: user.signature
   };
   // return body;
@@ -17,13 +18,13 @@ function repackageUserData(user) {
 function repackageMessageData(message) {
   // same as insertData from model/createMessage.js
   return {
-    channelId: message.channelId,
-    message: message.message,
-    type: message.type,
-    hash: message.hash,
+    channelId: message.message.channelId,
+    message: message.message.message,
+    type: message.message.type,
+    tempHash: message.message.tempHash,
     createTime: message.createTime,
-    messageId: message.messageId,
-    softDelete: message.softDelete,
+    messageId: message.message.messageId,
+    softDelete: message.message.softDelete,
     user: message.user
   };
 }

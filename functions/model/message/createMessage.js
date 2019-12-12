@@ -8,6 +8,7 @@ function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const insertData = {};
+      insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
       // get insert doc id
       const messageDoc = modules.firestore
         .collection(`chat_${args.message.channelId}`)
@@ -18,17 +19,15 @@ function createMessage(args) {
         process.env.usersCollection,
         args.token.uid
       );
-
       // Q: if user not exist?
       const user = messageModule.repackageUserData(userSnapshot.data());
-      // get reply message info
+      // get reply message info (future can be written as function)
       if (args.reply) {
         const messageSnapshot = await modules.getSnapshot(
           `chat_${args.message.channelId}`,
           args.reply.messageId
         );
-        // const message = messageSnapshot.data();
-        // messageId not exist
+        // messageId not exist return 400 error
         if (!messageSnapshot.data()) {
           reject({ code: 400, error: 'message/file not exist' });
           return;
@@ -37,23 +36,22 @@ function createMessage(args) {
           messageSnapshot.data()
         );
         insertData.reply = reply;
-        // console.log(replyMessage);
       }
-      insertData.channelId = args.message.channelId;
-      insertData.message = args.message.message;
-      insertData.type = args.message.type;
-      insertData.hash = args.message.hash;
-      insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
-      insertData.messageId = messageId;
-      insertData.softDelete = 2; // 2 is default and normal
+      insertData.message = {
+        channelId: args.message.channelId,
+        message: args.message.message,
+        type: args.message.type,
+        tempHash: args.message.tempHash,
+        messageId: messageId,
+        softDelete: 2 // 2 is default and normal
+      };
       insertData.user = user;
-      // insertData.reply = reply;
-
-      console.log(insertData);
-
-      // let ad = await messageDoc.set(insertData);
-      // console.log(ad);
-
+      // add message data to firestore & realtime
+      messageDoc.set(insertData);
+      modules.database
+        .ref(`chat_${args.message.channelId}`)
+        .child(messageId)
+        .set(insertData);
       resolve(insertData);
     } catch (err) {
       console.log('錯誤發生', err);

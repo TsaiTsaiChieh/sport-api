@@ -10,7 +10,7 @@ function createMessage(req, res) {
     properties: {
       message: {
         type: 'object',
-        required: ['channelId', 'message', 'type', 'hash'],
+        required: ['channelId', 'message', 'type', 'tempHash'],
         properties: {
           channelId: {
             type: 'string',
@@ -21,10 +21,10 @@ function createMessage(req, res) {
           },
           type: {
             type: 'string',
-            enum: ['string', 'file'] // message type
+            enum: ['text', 'image/jpeg', 'image/png', 'video/mp4'] // message type
           },
-          hash: {
-            hash: 'string'
+          tempHash: {
+            type: 'string'
           }
         }
       },
