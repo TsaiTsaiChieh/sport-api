@@ -13,7 +13,9 @@
 <body>
 <div id="firebaseui-auth-container"></div>
 <div id="chat">
-
+    <input type="file" id="fileButton" value="upload">
+    <button type="button" onclick="getonce()">get once</button>
+    <div id="test"></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script type="text/javascript">
@@ -27,12 +29,55 @@
         appId: "1:179049951227:web:15b2ae874d653216"
     };
     firebase.initializeApp(firebaseConfig);
-    let public_chat = firebase.database().ref("/livePush");
-    public_chat.limitToLast(50).on("value", function (snapshot) {
+    let storage = firebase.storage();
+    let fileButton = document.getElementById("fileButton");
+    fileButton.addEventListener("change", async function (e) {
+        let file = e.target.files[0];
+        let storageRef = firebase.storage().ref('photo/' + file.name);
+        const result = await storageRef.put(file);
+        const url = await result.ref.getDownloadURL();
+        console.log(result);
+        console.log(' * new url', url);
+        // console.log(JSON.stringify( result, null, " " ));
+    });
+    let firstKnownKey;
+    // let public_chat = firebase.database().ref("/livePush");
+    let public_chat = firebase.database().ref("/chat_public");
+    public_chat.orderByChild("createTime").limitToLast(20).on("child_added", function (snapshot) {
+        // console.log(".,,", snapshot.key)
+        // console.log("prevChildKey.,,", prevChildKey)
+        // $('#test').addChild(snapshot);
         // console.log(JSON.stringify(snapshot.val(), null, " "));
         console.log(snapshot.val());
-        console.log(Object.keys(snapshot.val()).length);
+        // console.log(Object.keys(snapshot.val()).length);
     });
+    // public_chat.orderByKey().limitToLast(20).on("child_added", function (snapshot, prevChildKey) {
+    //     if (!firstKnownKey) {
+    //         firstKnownKey = snapshot.key;
+    //     }
+    //     console.log(".,,", snapshot.key)
+    //     console.log("prevChildKey.,,", prevChildKey)
+    //     // $('#test').addChild(snapshot);
+    //     // console.log(JSON.stringify(snapshot.val(), null, " "));
+    //     console.log(snapshot.val());
+    //     console.log(Object.keys(snapshot.val()).length);
+    // });
+
+    function getonce() {
+        alert("kkk")
+        let http = new XMLHttpRequest()
+        let url = '/user/checkUnique'
+        http.open('POST', url, true)
+        http.setRequestHeader('Content-type', 'application/json');
+        // let params = JSON.stringify({uid: uid, token: token});
+        const params = JSON.stringify({type: 'uniqueName', value: "123"})
+        console.log(params)
+        http.onreadystatechange = () => {
+            let res = JSON.parse(http.responseText)
+            console.log(res)
+        }
+        http.send(params)
+    }
 </script>
 </body>
 

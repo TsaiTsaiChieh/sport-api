@@ -56,6 +56,7 @@ async function modifyUserProfile(req, res) {
             let uid = decodedClaims.uid;
             userUtils.getUserProfile(uid).then(async firestoreUser => {
                 let data = {};
+                let nowTimeStamp = admin.firestore.Timestamp.now();
                 switch (firestoreUser.status) {
                     case 0: //新會員
                         if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
@@ -68,7 +69,8 @@ async function modifyUserProfile(req, res) {
                         if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
                         data.status = 1;
                         data.signature = "";
-                        data.blockMessage = admin.firestore.Timestamp.now();
+                        data.blockMessage = nowTimeStamp;
+                        data.createTime = nowTimeStamp;
                         data.denys = [];
                         data.coin = 0;  //搞幣
                         data.dividend = 0;  //搞紅利
@@ -97,6 +99,7 @@ async function modifyUserProfile(req, res) {
                 if (req.body.email) data.email = req.body.email;
                 if (req.body.phone) data.phone = req.body.phone;
                 if (req.body.signature) data.signature = req.body.signature;
+                data.updateTime = nowTimeStamp;
                 let refCode = req.body.refCode;
                 if (refCode) {
                     // refCode regular expression test
@@ -126,7 +129,6 @@ async function modifyUserProfile(req, res) {
                 }
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
-
                 modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                     console.log('Added document with ID: ', ref);
                     res.json({success: true, result: ref});

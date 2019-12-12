@@ -9,7 +9,10 @@ const modules = require('../../util/modules');
  * @apiGroup User
  * @apiPermission none
  *
- * @apiSuccess {JSON} user User Profile JSON
+ * @apiParam (Request body) {String} type uniqueName,uniqueEmail,uniquePhone
+ * @apiParam (Request body) {String} value string value of name, email or phone number
+ *
+ * @apiSuccess {JSON} result api result
  *
  * @apiSuccessExample exist:
  *  HTTP/1.1 200 OK
