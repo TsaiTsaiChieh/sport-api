@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 const folder = 'share_files';
 const day = 7;
+
 function repackageUserData(user) {
   return {
     uid: user.uid,
