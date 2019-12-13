@@ -28,6 +28,7 @@
         messagingSenderId: "179049951227",
         appId: "1:179049951227:web:15b2ae874d653216"
     };
+
     firebase.initializeApp(firebaseConfig);
     let storage = firebase.storage();
     let fileButton = document.getElementById("fileButton");
@@ -43,14 +44,40 @@
     let firstKnownKey;
     // let public_chat = firebase.database().ref("/livePush");
     let public_chat = firebase.database().ref("/chat_public");
-    public_chat.orderByChild("createTime").limitToLast(20).on("child_added", function (snapshot) {
-        // console.log(".,,", snapshot.key)
-        // console.log("prevChildKey.,,", prevChildKey)
-        // $('#test').addChild(snapshot);
-        // console.log(JSON.stringify(snapshot.val(), null, " "));
-        console.log(snapshot.val());
-        // console.log(Object.keys(snapshot.val()).length);
+    // public_chat.orderByChild("createTime/_seconds").limitToLast(20).on("child_added", function (snapshot) {
+    //     console.log(snapshot.key,snapshot.val());
+    // });
+    public_chat.orderByChild("createTime/_seconds").on("child_changed", function (snapshot) {
+        console.log(snapshot.key,snapshot.val());
     });
+
+    public_chat
+        .orderByChild('createTime/_seconds')
+        .limitToLast(20)
+        .once('value', function (snapshot) {
+            console.log(snapshot.val());
+            snapshot.forEach(function (record) {
+                // console.log(record.key);
+                console.log(record.key,record.val());
+            });
+            // console.log(".,,", snapshot.key)
+            // console.log("prevChildKey.,,", prevChildKey)
+            // $('#test').addChild(snapshot);
+            // console.log(JSON.stringify(snapshot.val(), null, " "));
+            // console.log(snapshot.val());
+            // console.log(Object.keys(snapshot.val()).length);
+        });
+    // public_chat
+    //     .orderByChild('createTime/_seconds')
+    //     .limitToLast(1)
+    //     .on('value', function (snapshot) {
+    //         // console.log(".,,", snapshot.key)
+    //         // console.log("prevChildKey.,,", prevChildKey)
+    //         // $('#test').addChild(snapshot);
+    //         // console.log(JSON.stringify(snapshot.val(), null, " "));
+    //         console.log('><',snapshot.key, snapshot.val());
+    //         // console.log(Object.keys(snapshot.val()).length);
+    //     });
     // public_chat.orderByKey().limitToLast(20).on("child_added", function (snapshot, prevChildKey) {
     //     if (!firstKnownKey) {
     //         firstKnownKey = snapshot.key;
