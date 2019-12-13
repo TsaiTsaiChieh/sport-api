@@ -1,5 +1,4 @@
-exports.indexURL = "https://chat-api.doinfo.cc/";
-// exports.indexURL = "https://sport19y0715.web.app/";
+exports.indexURL = "https://sport19y0715.web.app/";
 exports.release = false;
 
 // exports.cert = './auth/sport19y0715-d23e597f8c95.json';

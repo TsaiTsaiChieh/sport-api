@@ -27,7 +27,11 @@ function getLastMessage(args) {
         const message = messageSnapshot.data();
         const userSnapshot = await modules.getSnapshot('users', message.uid);
         const user = userSnapshot.data();
-        const body = await messageModule.repackageMessageData(message, user, 1);
+        const body = await messageModule.repackageMessageDataWithFlag(
+          message,
+          user,
+          1
+        );
 
         messages.push(body);
         await Promise.all(messages);

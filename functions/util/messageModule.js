@@ -1,124 +1,120 @@
 const modules = require('../util/modules');
+const folder = 'share_files';
+const day = 7;
 
-async function repackageMessageData(message, user, replyFlag) {
+function repackageUserData(user) {
+  return {
+    uid: user.uid,
+    displayName: user.displayName,
+    avatar: user.avatar,
+    status: user.status,
+    point: user.point,
+    titles: user.titles,
+    defaultTitle: user.defaultTitle,
+    blockMessage: user.blockMessage,
+    signature: user.signature
+  };
+  // return body;
+}
+function repackageMessageData(message) {
+  // same as insertData from model/createMessage.js
+  return {
+    channelId: message.message.channelId,
+    message: message.message.message,
+    type: message.message.type,
+    tempHash: message.message.tempHash,
+    createTime: message.createTime,
+    messageId: message.message.messageId,
+    softDelete: message.message.softDelete,
+    user: message.user
+  };
+}
+async function repackageMessageDataWithFlag(message, user, replyFlag) {
   const body = {};
   // get messages
   body.message = {
     channelId: message.channelId,
     messageId: message.messageId,
-    // replyMessageId: message.replyMessageId,
     message: message.message,
     softDelete:
-      message.softDelete || message.softDelete === 0 ? message.softDelete : 2, // 之後 create Message softDelete=2
+      message.softDelete || message.softDelete === 0
+        ? Number.parseInt(message.softDelete)
+        : 2, // 之後 create Message softDelete=2
     tempHash: message.tempHash,
     createTime: {
       seconds: message.createTime._seconds,
       nanoseconds: message.createTime._nanoseconds
     }
   };
-  // if (message.replyMessageId) {
-  //   const replyMessageSnapshot = await modules.getSnapshot(
-  //     'messages',
-  //     message.replyMessageId
-  //   );
-  //   const replyMessage = replyMessageSnapshot.data();
-  //   const replyUserSnapshot = await modules.getSnapshot(
-  //     'users',
-  //     message.replyUid
-  //   );
-  //   const replyUser = replyUserSnapshot.data();
-  //   if (replyFlag === 1)
-  //     body.reply = await repackageMessageData(replyMessage, replyUser, 0);
-  // }
+  if (message.replyMessageId) {
+    const replyMessageSnapshot = await modules.getSnapshot(
+      'messages',
+      message.replyMessageId
+    );
+    const replyMessage = replyMessageSnapshot.data();
+    const replyUserSnapshot = await modules.getSnapshot(
+      'users',
+      message.replyUid
+    );
+    const replyUser = replyUserSnapshot.data();
+    if (replyFlag === 1)
+      body.reply = await repackageMessageDataWithFlag(
+        replyMessage,
+        replyUser,
+        0
+      );
+  }
 
   // get file
   if (message.fileUploadId) {
-    console.log();
-
-    const fileSnapshot = await modules.getSnapshot(
-      'uploadFiles',
-      message.fileUploadId
-    );
-    const file = fileSnapshot.data();
-    body.file = {
-      id: message.fileUploadId,
-      name: message.fileName,
-      size: file.fileSize,
-      type: file.fileSubName,
-      farmHash: file.fileFarmHash,
-      sipHash: file.fileSipHash
-    };
+    // get storage
+    try {
+      const file = modules.bucket.file(
+        `${folder}/${message.fileUploadId}.${message.fileSubname}`
+      );
+      const getFile = await file.get();
+      let contentType = getFile[0].metadata.contentType;
+      const config = {
+        action: 'read',
+        expires: new Date(Date.now() + day * 24 * 60 * 60 * 1000)
+      };
+      const fileUrl = await file.getSignedUrl(config);
+      body.file = {
+        id: message.fileUploadId,
+        name: message.fileName,
+        fileSubname: contentType.substr(contentType.indexOf('/') + 1)
+      };
+      body.message.type = 'file';
+      body.message.fileSubname = contentType.substr(
+        contentType.indexOf('/') + 1
+      );
+      body.message.message = fileUrl[0];
+    } catch (err) {
+      console.log(err);
+      body.file = {};
+      // Although the error occurs here, the program will continue to run unless return
+    }
   }
   // get user
   // should be handle user not found error
-  // console.log('test', user.titles[0].ballType, user.titles[0].grade);
-
-  // body.user = {
-  //   uid: user.uid,
-  //   displayName: user.displayName,
-  //   avatar: user.avatar,
-  //   signature: user.signature,
-  //   status: Number.parseInt(user.status),
-  //   title: user.title,
-  //   point: user.point
-  // };
-  // if (user.titles) {
-  //   body.user.titles = user.titles;
-  //   if (user.defaultTitle) {
-  //     body.user.defaultTitle = user.defaultTitle;
-  //   }
-  // }
-  // get storage
-
-  // let a = getFileFromStorage('1319352721_ff119049eb625324.jpg');
-
-  // console.log('test.....內部', a);
-  // let a = modules.gcs.Bucket('my-custom-bucket');
-  // console.log('這', a);
-  // console.log('這', functions.config().firebase.storageBucket);
-  // console.log(getFileFromStorage());
-  // modules.firebaseAdmin
-  //   .storage()
-  //   .bucket('my-custom-bucket')
-  //   .files() // .getFiles('test')
-  //   .then(result => {
-  //     console.log('這', result);
-  //     // res.send(result);
-  //   })
-  //   .catch(err => console.log('Error getting document', err));
-  // modules.bucket.getFiles(
-  //   {
-  //     versions: true
-  //   },
-  //   (err, files) => {
-  //     // Each file is scoped to its generation.
-  //     console.log('這', files);
-  //   }
-  // );
-  try {
-    // const files = modules.bucket.files;
-    const [files] = await modules.bucket.getFiles();
-    console.log('這', files);
-  } catch (error) {
-    console.log('錯誤發生', error);
+  body.user = {
+    uid: user.uid,
+    displayName: user.displayName,
+    avatar: user.avatar,
+    signature: user.signature,
+    status: Number.parseInt(user.status),
+    title: user.title,
+    point: user.point
+  };
+  if (user.titles) {
+    body.user.titles = user.titles;
+    if (user.defaultTitle) {
+      body.user.defaultTitle = user.defaultTitle;
+    }
   }
-
   return body;
 }
 
-async function getFileFromStorage(fileName) {
-  let bucket;
-  try {
-    bucket = await modules.firebaseAdmin.storage().bucket('sport19y0715');
-    // .file('1319352721_ff119049eb625324.jpg');
-    // .getFiles(fileName);
-    console.log('在這', bucket);
-
-    return bucket;
-  } catch (error) {
-    console.log('錯誤 happen....', error);
-  }
-}
 function orderByCreateTime(messages) {
   return messages.sort((ele1, ele2) => {
     return ele1.message.createTime.seconds < ele2.message.createTime.seconds
@@ -146,4 +142,10 @@ async function maskMessages(messages, token) {
   });
   return messages;
 }
-module.exports = { repackageMessageData, orderByCreateTime, maskMessages };
+module.exports = {
+  repackageMessageDataWithFlag,
+  orderByCreateTime,
+  maskMessages,
+  repackageUserData,
+  repackageMessageData
+};

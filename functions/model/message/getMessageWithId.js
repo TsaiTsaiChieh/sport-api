@@ -14,7 +14,7 @@ function getMessageWithId(id) {
         const userSnapshot = await modules.getSnapshot('users', message.uid);
         const user = userSnapshot.data();
         if (user) {
-          body = messageModule.repackageMessageData(message, user, 0);
+          body = messageModule.repackageMessageDataWithFlag(message, user, 0);
         } else {
           reject({
             code: 400,

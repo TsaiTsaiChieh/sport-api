@@ -101,7 +101,7 @@ async function firebaseLogin(req, res) {
             // Create session cookie and set it.
             let expiresIn = 60 * 60 * 24 * 7 * 1000;
             firebaseAdmin.auth().createSessionCookie(token, {expiresIn})
-                .then(async function (sessionCookie) {
+                .then(async (sessionCookie) => {
                     let firestoreUser = await userUtils.getUserProfile(decodedIdToken.uid);
                     returnJson.success = true;
                     returnJson.status = 0;
@@ -116,12 +116,12 @@ async function firebaseLogin(req, res) {
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })
-                .catch(function (error) {
+                .catch((error) => {
                     console.log('Error login user: \n\t', error);
                     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
                     return res.status(401).json({success: false})
                 });
-        }).catch(function (error) {
+        }).catch((error) => {
         console.log('Error login user: \n\t', error);
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(401).json({success: false})
