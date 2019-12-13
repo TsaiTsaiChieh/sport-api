@@ -78,7 +78,6 @@ function createMessage(args) {
         .ref(`chat_${args.message.channelId}`)
         .child(messageId)
         .set(insertData);
-      // resolve('ok');
       resolve(insertData);
     } catch (err) {
       console.log('錯誤發生', err);
