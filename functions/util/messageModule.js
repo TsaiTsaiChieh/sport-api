@@ -102,7 +102,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
     displayName: user.displayName,
     avatar: user.avatar,
     signature: user.signature,
-    status: Number.parseInt(user.status),
+    role: Number.parseInt(user.role),
     title: user.title,
     point: user.point
   };

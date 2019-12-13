@@ -2,7 +2,6 @@ const express = require('express');
 const router = express();
 const verification = require('../util/verification');
 const modules = require('../util/modules');
-const MessageController = require('../controller/messageController');
 
 // Just test
 router.get('/list', async (req, res) => {
