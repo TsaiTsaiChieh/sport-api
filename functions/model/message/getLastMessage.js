@@ -19,31 +19,37 @@ function getLastMessage(args) {
       const messages = [];
 
       messageCollection.forEach(async function(doc) {
-        const data = doc.data();
-        const messageSnapshot = await modules.getSnapshot(
-          'messages',
-          data.messageId
-        );
-        const message = messageSnapshot.data();
-        const userSnapshot = await modules.getSnapshot('users', message.uid);
-        const user = userSnapshot.data();
-        const body = await messageModule.repackageMessageDataWithFlag(
-          message,
-          user,
-          1
-        );
+        try {
+          const data = doc.data();
+          const messageSnapshot = await modules.getSnapshot(
+            'messages',
+            data.messageId
+          );
+          const message = messageSnapshot.data();
+          const userSnapshot = await modules.getSnapshot('users', message.uid);
+          const user = userSnapshot.data();
+          const body = await messageModule.repackageMessageDataWithFlag(
+            message,
+            user,
+            1
+          );
 
-        messages.push(body);
-        await Promise.all(messages);
+          messages.push(body);
+          await Promise.all(messages);
 
-        if (messages.length === args.limit) {
-          if (args.token)
-            resolve(
-              messageModule.orderByCreateTime(
-                await messageModule.maskMessages(messages, args.token)
-              )
-            );
-          else resolve(messageModule.orderByCreateTime(messages));
+          if (messages.length === args.limit) {
+            if (args.token)
+              resolve(
+                messageModule.orderByCreateTime(
+                  await messageModule.maskMessages(messages, args.token)
+                )
+              );
+            else resolve(messageModule.orderByCreateTime(messages));
+          }
+        } catch (err) {
+          console.log(err);
+          reject(new Error(err));
+          // reject({ code: 500, error: err });
         }
       });
     } catch (err) {
