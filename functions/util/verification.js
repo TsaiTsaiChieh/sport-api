@@ -21,7 +21,7 @@ async function token(req, res, next) {
     // };
     req.token = decodedIdToken;
   } catch (err) {
-    res.status(401).json('Unauthorized');
+    res.status(401).json({ code: 401, error: 'Unauthorized' });
     return;
   }
   next();
