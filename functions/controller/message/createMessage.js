@@ -3,9 +3,77 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/createMessage');
 
+function createMessage(req, res) {
+  const schema = {
+    type: 'object',
+    required: ['message'],
+    properties: {
+      message: {
+        type: 'object',
+        required: ['channelId', 'message', 'type', 'tempHash'],
+        properties: {
+          channelId: {
+            type: 'string',
+            enum: ['public'] // enum possible channel name
+          },
+          message: {
+            type: 'string'
+          },
+          type: {
+            type: 'string',
+            enum: ['text', 'image/jpeg', 'image/png', 'video/mp4'] // message type
+          },
+          tempHash: {
+            type: 'string'
+          }
+        },
+        if: {
+          properties: {
+            type: {
+              enum: ['image/jpeg', 'image/png', 'video/mp4']
+            }
+          }
+        },
+        then: {
+          properties: {
+            message: {
+              type: 'string',
+              format: 'url'
+            }
+          }
+        }
+      },
+      reply: {
+        type: 'object',
+        required: ['messageId'],
+        properties: {
+          messageId: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  };
+  const valid = modules.ajv.validate(schema, req.body);
+  if (!valid) {
+    res.status(400).json(modules.ajv.errors);
+    return;
+  }
+  req.body.token = req.token;
+  messageModel(req.body)
+    .then(function(body) {
+      res.json(body);
+    })
+    .catch(function(err) {
+      res.status(err.code).json(err);
+    });
+}
+
+module.exports = createMessage;
 /**
  * @api {post} /messages createMessge
  * @apiVersion 1.0.0
+ * @apiDescription The front-end can only listen to the realtime database and ignore the results of successful JSON responses, and the data structure of the realtime database can refer to the Success-Response of this document
  * @apiName Create or reply a message/file
  * @apiGroup Messages
  * @apiPermission login user with completed data
@@ -19,18 +87,26 @@ const messageModel = require('../../model/message/createMessage');
  * @apiParam {Object} [reply] optional reply message id
  * @apiParam {String} [reply.messageId] reply message id
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {JSON} Request-Example
  * {
  *    "message": {
  *		    "channelId": "public",
  *		    "message": "test123",
  *		    "type": "text",
  *		    "tempHash": "1575015219932zmPF5Aht60Y6GdBbGnrOSlWcgV53"
- *     }
- *     ,
+ *     },
  *     "reply": {
  *	      "messageId": "dPqN20XQnbWNRLNr5Ohe"
  *      }
+ * }
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *    "message": {
+ *		    "channelId": "public",
+ *		    "message": "test123",
+ *		    "type": "text",
+ *		    "tempHash": "1575015219932zmPF5Aht60Y6GdBbGnrOSlWcgV53"
+ *       }
  * }
  * @apiSuccess {Object} createTime firebase format, contain seconds and nanoseconds
  * @apiSuccess {Object} message message data
@@ -59,7 +135,7 @@ const messageModel = require('../../model/message/createMessage');
  * @apiSuccess {String[]} [user.titles] titles obtained by user
  * @apiSuccess {String} user.uid user unique id, firebase automated generated
  * 
- * @apiSuccessExample {JSON} Success-Response:
+ * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
       "createTime": {
@@ -146,12 +222,59 @@ const messageModel = require('../../model/message/createMessage');
     }
 }
  *
- * @apiError 400 Bad request
- * @apiError 401 Unauthorized request
- * @apiError 500 Unauthorized request
+ @apiSuccessExample {JSON} Success-Response
+ *  HTTP/1.1 200 OK
+ * {
+      "createTime": {
+          "_seconds": 1576222331,
+          "_nanoseconds": 597000000
+    },
+    "message": {
+        "channelId": "public",
+        "message": "test123",
+        "type": "text",
+        "tempHash": "1575015219932zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+        "messageId": "8XufH5Z7dsalpApMPmFZ",
+        "softDelete": 2
+    },
+    "user": {
+        "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+        "displayName": "愛心喵",
+        "avatar": "https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg",
+        "role": 1,
+        "point": 250,
+        "titles": [
+            {
+                "rank": 1,
+                "league": "MLB",
+                "sport": 16
+            },
+            {
+                "rank": 3,
+                "league": "CPBL",
+                "sport": 16
+            }
+        ],
+        "defaultTitle": {
+            "league": "MLB",
+            "sport": 16,
+            "rank": 1
+        },
+        "blockMessage": {
+            "_seconds": 1575907200,
+            "_nanoseconds": 0
+        },
+        "signature": "下輩子當貓好了"
+    }
+}
+ * @apiError 400 Bad Request
+ * @apiError 401 Unauthorized
+ * @apiError 403 Forbidden
+ * @apiError 404 Not Found
+ * @apiError 500 Internal Server Error
  *
- * @apiErrorExample {String} Error-Response:
- * HTTP/1.1 400 Bad request
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 400 Bad Request
  * [
    {
         "keyword": "enum",
@@ -179,59 +302,63 @@ const messageModel = require('../../model/message/createMessage');
         "message": "should be equal to one of the allowed values"
     }
 ]
- */
-function createMessage(req, res) {
-  const schema = {
-    type: 'object',
-    required: ['message'],
-    properties: {
-      message: {
-        type: 'object',
-        required: ['channelId', 'message', 'type', 'tempHash'],
-        properties: {
-          channelId: {
-            type: 'string',
-            enum: ['public'] // enum possible channel name
-          },
-          message: {
-            type: 'string'
-          },
-          type: {
-            type: 'string',
-            enum: ['text', 'image/jpeg', 'image/png', 'video/mp4'] // message type
-          },
-          tempHash: {
-            type: 'string'
-          }
-        }
-      },
-      reply: {
-        type: 'object',
-        required: ['messageId'],
-        properties: {
-          messageId: {
-            type: 'string'
-          }
-          // uid: {
-          //   type: 'string'
-          // }
-        }
-      }
+ * 
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+    {
+        "keyword": "format",
+        "dataPath": ".message.message",
+        "schemaPath": "#/properties/message/then/properties/message/format",
+        "params": {
+            "format": "url"
+        },
+        "message": "should match format \"url\""
+    },
+    {
+        "keyword": "if",
+        "dataPath": ".message",
+        "schemaPath": "#/properties/message/if",
+        "params": {
+            "failingKeyword": "then"
+        },
+        "message": "should match \"then\" schema"
     }
-  };
-  const valid = modules.ajv.validate(schema, req.body);
-  if (!valid) {
-    res.status(400).send(modules.ajv.errors);
-    return;
-  }
-  req.body.token = req.token;
-  messageModel(req.body)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).send(err.error);
-    });
+]
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 401 Unauthorized
+ * {
+    "code": 401,
+    "error": "Unauthorized"
 }
-
-module.exports = createMessage;
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 403 Forbidden
+ * {
+    "code": 403,
+    "error": "user had been muted"
+}
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 403 Forbidden
+ * {
+    "code": 403,
+    "error": "can not reply message which deleted by user himself/herself"
+}
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": 404,
+    "error": "user not found"
+}
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": 404,
+    "error": "message/file not found"
+}
+ * @apiErrorExample {JSON} Error-Response
+ * HTTP/1.1 500 Internal Server Error
+ * {
+    "code": 500,
+    "error": {}
+}
+ */
