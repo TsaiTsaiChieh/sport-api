@@ -71,7 +71,7 @@ function createMessage(req, res) {
 
 module.exports = createMessage;
 /**
- * @api {post} /messages createMessge
+ * @api {post} /messages createMessage
  * @apiVersion 1.0.0
  * @apiDescription The front-end can only listen to the realtime database and ignore the results of successful JSON responses, and the data structure of the realtime database can refer to the Success-Response of this document
  * @apiName Create or reply a message/file
@@ -273,7 +273,7 @@ module.exports = createMessage;
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error
  *
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [
    {
@@ -303,7 +303,7 @@ module.exports = createMessage;
     }
 ]
  * 
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [
     {
@@ -325,40 +325,41 @@ module.exports = createMessage;
         "message": "should match \"then\" schema"
     }
 ]
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 401-Response
  * HTTP/1.1 401 Unauthorized
  * {
     "code": 401,
     "error": "Unauthorized"
 }
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
     "error": "user had been muted"
 }
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
     "error": "can not reply message which deleted by user himself/herself"
 }
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
  * {
     "code": 404,
     "error": "user not found"
 }
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
  * {
     "code": 404,
     "error": "message/file not found"
 }
- * @apiErrorExample {JSON} Error-Response
+ * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {
     "code": 500,
     "error": {}
 }
+
  */
