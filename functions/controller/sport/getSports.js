@@ -8,7 +8,7 @@ const modules = require('../../util/modules');
  * @apiGroup Sport
  * @apiPermission None
  *
- * @apiSuccess {JSON} user User Profile JSON
+ * @apiSuccess {JSON} Available List of Sports and Leagues
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
@@ -117,16 +117,12 @@ const modules = require('../../util/modules');
  * @apiErrorExample Error-Response:
      *     HTTP/1.1 500 Internal Server Error
  */
-async function getSport(req, res) {
-    let returnJson = {
-        success: false,
-        isExist: true
-    };
+async function getSports(req, res) {
+    let returnJson = {};
     try {
         const snapshot = await modules.firestore.collection('sports').get();
-        returnJson = {};
         snapshot.forEach(function (doc) {
-            console.log("...", doc.id, " => ", doc.data());
+            // console.log("...", doc.id, " => ", doc.data());
             returnJson[doc.id]= doc.data();
         });
 
@@ -134,7 +130,7 @@ async function getSport(req, res) {
         console.log(e);
         return res.status(500);
     }
-    res.status(200).json(returnJson);
+    return res.status(200).json(returnJson);
 }
 
-module.exports = getSport;
+module.exports = getSports;
