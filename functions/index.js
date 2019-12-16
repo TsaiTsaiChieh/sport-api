@@ -34,5 +34,6 @@ app.use(express.json());
 app.use('/auth', require('./router/authentication'));
 app.use('/user', require('./router/user'));
 app.use('/messages', require('./router/messages'));
+app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 exports.api = functions.https.onRequest(app);

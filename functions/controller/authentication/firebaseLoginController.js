@@ -95,6 +95,7 @@ async function firebaseLogin(req, res) {
         console.log('Error login user: missing token');
         return res.status(401).json(returnJson);
     }
+
     firebaseAdmin.auth().verifyIdToken(token)
     // eslint-disable-next-line promise/always-return
         .then((decodedIdToken) => {
@@ -104,13 +105,17 @@ async function firebaseLogin(req, res) {
                 .then(async (sessionCookie) => {
                     let firestoreUser = await userUtils.getUserProfile(decodedIdToken.uid);
                     returnJson.success = true;
-                    returnJson.status = 0;
-                    if (firestoreUser) {
-                        console.log("firestoreUser exist");
+                    if (firestoreUser.uid) {
                         returnJson.uid = firestoreUser.uid;
-                        returnJson.status = firestoreUser.status;
-                        returnJson.data = firestoreUser.data;
+                    } else {
+                        return res.status(401).json({success: false})
                     }
+                    if (firestoreUser.status) {
+                        returnJson.status = firestoreUser.status;
+                    } else {
+                        returnJson.status = 0;
+                    }
+                    returnJson.data = firestoreUser.data;
                     // let options = {maxAge: expiresIn, httpOnly: true};
                     let options = {maxAge: expiresIn, httpOnly: true};
                     res.cookie('__session', sessionCookie, options);

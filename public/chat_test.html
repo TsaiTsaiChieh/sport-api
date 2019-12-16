@@ -30,6 +30,8 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+
+    //firestorage upload example
     let storage = firebase.storage();
     let fileButton = document.getElementById("fileButton");
     fileButton.addEventListener("change", async function (e) {
@@ -41,14 +43,15 @@
         console.log(' * new url', url);
         // console.log(JSON.stringify( result, null, " " ));
     });
-    let messageSize = 200;
-    let messageTotalSize = 20;
-    let firstMessageTime;
+
+    //firebase realtime examle
+    let messageSize = 200;      //頁面刷新預載訊息數日一十田土
+    let messageTotalSize = 20;  //回滾訊數息量
+    let firstMessageTime;       // for filter
     let messages;
-    // let public_chat = firebase.database().ref("/livePush");
     let public_chat = firebase.database().ref("/chat_public");
     public_chat.orderByChild("createTime/_seconds").limitToLast(1).on("child_added", function (snapshot) {
-        console.log(snapshot.key,snapshot.val());
+        console.log(snapshot.key, snapshot.val());
     });
     public_chat.limitToLast(messageTotalSize).orderByChild("createTime/_seconds").on("child_changed", function (snapshot) {
         console.log(snapshot.key, snapshot.val());
@@ -62,8 +65,8 @@
                 temp1.push(record.val().createTime._seconds);
                 console.log(record.key, record.val());
             });
-            firstMessageTime = temp1[0] -1;
-            console.log(temp1[0],firstMessageTime)
+            firstMessageTime = temp1[0] - 1;
+            console.log(temp1[0], firstMessageTime)
         });
 
     function getonce() {
@@ -75,30 +78,14 @@
                     temp1.push(record.val().createTime._seconds);
                     console.log(record.key, record.val());
                 });
-                firstMessageTime = temp1[0] -1;
+                firstMessageTime = temp1[0] - 1;
                 messageTotalSize += temp1.length;
-                console.log("message size",messageTotalSize)
+                console.log("message size", messageTotalSize)
                 public_chat.limitToLast(messageTotalSize).orderByChild("createTime/_seconds").on("child_changed", function (snapshot) {
                     console.log(snapshot.key, snapshot.val());
                 });
             });
     }
-
-    // function getonce() {
-    //     alert("kkk")
-    //     let http = new XMLHttpRequest()
-    //     let url = '/user/checkUnique'
-    //     http.open('POST', url, true)
-    //     http.setRequestHeader('Content-type', 'application/json');
-    //     // let params = JSON.stringify({uid: uid, token: token});
-    //     const params = JSON.stringify({type: 'uniqueName', value: "123"})
-    //     console.log(params);
-    //     http.onreadystatechange = () => {
-    //         let res = JSON.parse(http.responseText)
-    //         console.log(res)
-    //     }
-    //     http.send(params)
-    // }
 </script>
 </body>
 
