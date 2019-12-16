@@ -8,7 +8,7 @@ const modules = require('../../util/modules');
  * @apiGroup Sport
  * @apiPermission None
  *
- * @apiSuccess {JSON} Available List of Sports and Leagues
+ * @apiSuccess {JSON} result Available List of Sports and Leagues
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK

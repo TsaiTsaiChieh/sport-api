@@ -8,7 +8,7 @@ const modules = require('../../util/modules');
  * @apiGroup User
  * @apiPermission None
  *
- * @apiSuccess {JSON} Available List of Ranks
+ * @apiSuccess {JSON} result Available List of Ranks
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
