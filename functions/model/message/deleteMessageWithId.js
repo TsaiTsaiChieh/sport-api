@@ -2,60 +2,105 @@
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
-// const messageModule = require('../../util/messageModule');
+const day = 1;
 
 // like /message/delete
 function deleteMessageWithId(args) {
   return new Promise(async function(resolve, reject) {
+    // -1: admin delete, 0: user retract, 1: user delete
     try {
-      const messageSnapshot = await modules.getSnapshot('messages', args.id);
+      const messageSnapshot = await modules.getSnapshot(
+        `chat_${args.channelId}`,
+        args.messageId
+      );
       const message = messageSnapshot.data();
-      // if message did not exist, it would return undefined
-      if (!message) {
-        reject({
-          code: 404,
-          error: 'This message id does not exist (輸入的訊息 id 不存在)'
-        });
-      }
-      // 1,-1,0
-      if (Math.abs(message.softDelete) <= 1) {
-        reject({ code: 409, error: 'Message had been deleted (訊息已被刪除)' });
-        // resolve(message.softDelete);
-      }
-
-      if (args.deleteAction === 0 || args.deleteAction === 1) {
-        if (args.token.uid === message.uid) {
-          // if sender is the same user
-          await modules.getDoc('messages', args.id).update({
-            softDelete: args.deleteAction
-          });
-        } else if (args.token.uid !== message.uid) {
-          reject({
-            code: 403,
-            error: 'Forbidden, please use report function'
-          });
-        } else if (args.deleteAction === -1) {
-          const userSnapshot = await modules.getSnapshot(
-            'users',
-            args.token.uid
-          );
-          const user = userSnapshot.data();
-          if (user.userStats === 9) {
-            await modules.getDoc('messages', args.id).update({
-              softDelete: args.deleteAction
-            });
-          }
-        }
-      } else {
+      console.log(message.createTime._seconds);
+      if (
+        message.createTime._seconds * 1000 + day * 24 * 60 * 60 * 1000 <
+        Date.now()
+      ) {
         reject({
           code: 403,
-          error: 'Forbidden, please use report function'
+          error: 'message/file not found'
         });
+      } else {
+        console.log('未超過');
       }
-      resolve(`Delete id: ${args.id} in messages collection successful`);
-      modules.database
-        .ref('livePush')
-        .push({ action: 'deleteMessage', messageId: message.messageId }); // not for sure
+      // if message did not exist, it would return undefined
+      // if (!message) {
+      //   reject({
+      //     code: 404,
+      //     error: 'message/file not found'
+      //   });
+      //   return;
+      // }
+      // // -1, 0
+      // if (message.message.softDelete <= 0) {
+      //   reject({ code: 410, error: 'message/file had been deleted' });
+      //   return;
+      // }
+      // // 若使用者要收回(0) 或要刪除(1)，必須要本人
+      // if (args.deleteAction === 0 || args.deleteAction === 1) {
+      //   if (args.token.uid === message.user.uid) {
+      //     // if sender is the same user
+      //     if (message.message.softDelete === 1) {
+      //       // same user want to delete/retract again
+      //       reject({ code: 410, error: 'message/file had been deleted' });
+      //       return;
+      //     }
+      //     // if (args.deleteAction === 0 && message.createTime) {
+
+      //     // }
+      //     await modules
+      //       .getDoc(`chat_${args.channelId}`, args.messageId)
+      //       .set(
+      //         { message: { softDelete: args.deleteAction } },
+      //         { merge: true }
+      //       ); // when update a map, it will overwrite
+      //   } else if (args.token.uid !== message.user.uid) {
+      //     reject({
+      //       code: 403,
+      //       error: 'Forbidden, please use report function'
+      //     });
+      //     return;
+      //   }
+      // } else if (args.deleteAction === -1) {
+      //   const userSnapshot = await modules.getSnapshot(
+      //     process.env.usersCollection,
+      //     args.token.uid
+      //   );
+      //   const user = userSnapshot.data();
+      //   if (user.status === 9) {
+      //     await modules
+      //       .getDoc(`chat_${args.channelId}`, args.messageId)
+      //       .set(
+      //         { message: { softDelete: args.deleteAction } },
+      //         { merge: true }
+      //       );
+      //   }
+      // }
+
+      // if (args.deleteAction <= 0) {
+      //   // udpate realtime database
+      //   modules.database
+      //     .ref(`chat_${args.channelId}`)
+      //     .child(args.messageId)
+      //     .child('message')
+      //     .update({
+      //       message:
+      //         args.deleteAction === 0
+      //           ? '無法讀取原始訊息'
+      //           : '此留言已被管理員移除',
+      //       softDelete: args.deleteAction
+      //     });
+      // }
+      // } else {
+      //   reject({
+      //     code: 403,
+      //     error: 'Forbidden, please use report function'
+      //   });
+      // }
+      resolve(`Delete message id: ${args.messageId} successful`);
     } catch (err) {
       console.log(err);
       reject({ code: 500, error: err });
