@@ -1,6 +1,9 @@
 {
   "rules": {
     ".read": true,
-    ".write": false
+    ".write": false,
+    "chat_public": {
+      ".indexOn": "createTime/_seconds"
+    }
   }
 }
