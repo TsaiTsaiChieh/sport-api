@@ -4,43 +4,71 @@ const firebaseAdmin = modules.firebaseAdmin;
 
 
 /**
- * @api {post} /user/getUserProfile get User Profile
+ * @api {post} /user/getUserProfile Get User Profile
  * @apiVersion 1.0.0
  * @apiName getUserProfile
  * @apiGroup User
  * @apiPermission login user
  *
- * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
+ * @apiParam (Request cookie) {JWT} __session token generate from firebase Admin SDK
  *
- * @apiSuccess {JSON} success verify result success
+ * @apiSuccess {JSON} user User Profile JSON
+ *
+ * @apiSuccessExample New User:
+ *  HTTP/1.1 200 OK
+ {
+    "success": true,
+    "uid": "lz3c3ju6G0TilDOdgCQt4I7I8ep1",
+    "status": 0
+ }
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  {
     "success": true,
-    "uid": "Udbbbc6e025a2c2b217cf9a3df1482c04",
+    "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
     "data": {
-        "blockMessage": 0,
+        "blockMessage": {
+            "_seconds": 1575907200,
+            "_nanoseconds": 0
+        },
         "ingot": 0,
         "avatar": "https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg",
+        "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
         "birthday": {
-            "_seconds": 1573184036,
+            "_seconds": 1573194036,
             "_nanoseconds": 370000000
         },
         "phone": "+886999999123",
         "dividend": 0,
-        "referrer": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+        "referrer": "bnKcVVaiIaUf3daVMNTTK5gH4hf1",
         "coin": 0,
-        "userStats": 1,
-        "signature": "簽名檔3",
+        "signature": "簽名檔33",
+        "status": 1,
         "email": "test3q@email.com",
-        "name": "真名line",
-        "point": 333,
-        "title": "一般會員",
-        "displayName": "測試line",
-        "denys": []
+        "name": "真名",
+        "point": 250,
+        "displayName": "測試displayName",
+        "denys": [],
+        "titles": [
+            {
+                "rank": 1,
+                "league": "MLB",
+                "sport": 16
+            },
+            {
+                "rank": 3,
+                "league": "CPBL",
+                "sport": 16
+            }
+        ],
+        "defaultTitle": {
+            "rank": 1,
+            "league": "MLB",
+            "sport": 16
+        }
     },
-    "userStats": 1
+    "status": 1
 }
  *
  * @apiError TokenMissing session cookie not exist.
@@ -59,7 +87,7 @@ async function getUserProfile(req, res) {
         .then((decodedClaims) => {
             console.log('getUserProfile - verifySessionCookie success : ', decodedClaims);
             let uid = decodedClaims.uid;
-            userUtils.getUserProfile(uid).then(async firestoreUser => {
+            userUtils.getUserProfile(uid).then(firestoreUser => {
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 return res.status(200).json(firestoreUser)
             }).catch(error => {
