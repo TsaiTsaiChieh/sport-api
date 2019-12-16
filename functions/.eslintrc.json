@@ -6,6 +6,7 @@
   "plugins": ["promise"],
   "extends": "eslint:recommended",
   "rules": {
+    // "max-len": ["error", { "code": 120 }],
     // Removed rule "disallow the use of console" from recommended eslint rules
     "no-console": "off",
 
@@ -31,7 +32,7 @@
     "consistent-return": 1,
 
     // Warn if no return statements in callbacks of array methods
-    "array-callback-return": 1,
+    // "array-callback-return": 1,
 
     // Require the use of === and !==
     "eqeqeq": 2,

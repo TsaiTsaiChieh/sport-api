@@ -17,12 +17,12 @@ function createMessage(args) {
       );
       /* step1: check if user exists */
       if (!userSnapshot.exists) {
-        reject({ code: 400, error: 'user not exist' });
+        reject({ code: 404, error: 'user not found' });
         return;
       }
       /* step2: check user block message time */
       if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
-        reject({ code: 400, error: 'user had been muted' });
+        reject({ code: 403, error: 'user had been muted' });
         return;
       }
       /* step3: get reply message info (future can be written as function) */
@@ -37,7 +37,7 @@ function createMessage(args) {
           !messageSnapshot.data() ||
           messageSnapshot.data().message.softDelete <= 0
         ) {
-          reject({ code: 400, error: 'message/file not exist' });
+          reject({ code: 404, error: 'message/file not found' });
           return;
         }
         /* deny user reply the message which deleted by user himself/herself */
@@ -46,7 +46,7 @@ function createMessage(args) {
           messageSnapshot.data().message.softDelete === 1
         ) {
           reject({
-            code: 400,
+            code: 403,
             error: 'can not reply message which deleted by user himself/herself'
           });
           return;
@@ -80,8 +80,9 @@ function createMessage(args) {
         .set(insertData);
       resolve(insertData);
     } catch (err) {
-      console.log('錯誤發生', err);
+      console.log('error happened...', err);
       reject({ code: 500, error: err });
+      return;
     }
   });
 }

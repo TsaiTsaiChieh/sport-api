@@ -69,3 +69,6 @@ package-lock.json
 .idea/
 .DS_Store
 .BAK
+
+# tsaichieh add
+/public/test.html

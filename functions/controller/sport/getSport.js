@@ -10,68 +10,112 @@ const modules = require('../../util/modules');
  *
  * @apiSuccess {JSON} user User Profile JSON
  *
- * @apiSuccessExample New User:
- *  HTTP/1.1 200 OK
- {
-    "success": true,
-    "uid": "lz3c3ju6G0TilDOdgCQt4I7I8ep1",
-    "status": 0
- }
- *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  {
-    "success": true,
-    "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
-    "data": {
-        "blockMessage": {
-            "_seconds": 1575907200,
-            "_nanoseconds": 0
-        },
-        "ingot": 0,
-        "avatar": "https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg",
-        "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
-        "birthday": {
-            "_seconds": 1573194036,
-            "_nanoseconds": 370000000
-        },
-        "phone": "+886999999123",
-        "dividend": 0,
-        "referrer": "bnKcVVaiIaUf3daVMNTTK5gH4hf1",
-        "coin": 0,
-        "signature": "簽名檔33",
-        "status": 1,
-        "email": "test3q@email.com",
-        "name": "真名",
-        "point": 250,
-        "displayName": "測試displayName",
-        "denys": [],
-        "titles": [
-            {
-                "rank": 1,
-                "league": "MLB",
-                "sport": 16
+    "baseball": {
+        "id": 16,
+        "name": "棒球",
+        "leagues": {
+            "KBO": {
+                "eng": "Korea Baseball Organization",
+                "name": "韓國職棒",
+                "description": "韓國棒球委員會"
             },
-            {
-                "rank": 3,
-                "league": "CPBL",
-                "sport": 16
+            "MLB": {
+                "eng": "美國職業棒球大聯盟",
+                "name": "MLB",
+                "description": "美國職業棒球大聯盟"
+            },
+            "NPB": {
+                "eng": "Nippon Professional Baseball",
+                "name": "日本職棒",
+                "description": "社團法人日本野球機構"
+            },
+            "ABL": {
+                "eng": "Australian Baseball League",
+                "name": "澳洲職棒",
+                "description": "澳洲棒球聯盟"
+            },
+            "CPBL": {
+                "eng": "Chinese Professional Baseball League",
+                "name": "中華職棒",
+                "description": "中華職業棒球大聯盟"
+            },
+            "LMB": {
+                "eng": "Liga Mexicana de Beisbol",
+                "name": "墨西哥職棒",
+                "description": "墨西哥棒球聯盟"
             }
-        ],
-        "defaultTitle": {
-            "rank": 1,
-            "league": "MLB",
-            "sport": 16
         }
     },
-    "status": 1
+    "basketball": {
+        "id": 18,
+        "name": "籃球",
+        "leagues": {
+            "SBL": {
+                "eng": "Super Basketball League",
+                "name": "SBL",
+                "description": "超級籃球聯賽"
+            },
+            "JPBL": {
+                "eng": "Basketball Japan League",
+                "name": "日本職籃",
+                "description": "日本職業籃球聯盟"
+            },
+            "KBL": {
+                "eng": "Korean Basketball League",
+                "name": "韓國職籃",
+                "description": "韓國籃球聯賽"
+            },
+            "NBL": {
+                "eng": "National Basketball League",
+                "name": "澳洲職籃",
+                "description": "澳大利亞國家籃球聯賽"
+            },
+            "NBA": {
+                "eng": "National Basketball Association",
+                "name": "NBA",
+                "description": "美國職業籃球聯賽"
+            },
+            "WNBA": {
+                "eng": "Women's National Basketball Association",
+                "name": "WNBA",
+                "description": "國家女子籃球協會"
+            },
+            "CBA": {
+                "eng": "Chinese Basketball Association",
+                "name": "中國職籃",
+                "description": "中國男子籃球職業聯賽"
+            }
+        }
+    },
+    "ice_hockey": {
+        "name": "冰球",
+        "leagues": {
+            "NHL": {
+                "eng": "National Hockey League",
+                "name": "NHL",
+                "description": "國家冰球聯盟"
+            }
+        },
+        "id": 17
+    },
+    "soccer": {
+        "leagues": {
+            "ALL": {
+                "name": "足球"
+            }
+        },
+        "id": 1,
+        "name": "足球"
+    }
 }
  *
- * @apiError TokenMissing session cookie not exist.
+ * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 401 Token Missing
- *     missing token
+     *     HTTP/1.1 500 Internal Server Error
  */
 async function getSport(req, res) {
     let returnJson = {
@@ -80,83 +124,17 @@ async function getSport(req, res) {
     };
     try {
         const snapshot = await modules.firestore.collection('sports').get();
-        // console.log("exisit",nameCollection.exists);
-        console.log(snapshot.docs.map(doc => doc.data()));
-        const documents = [];
-        snapshot.forEach(doc => {
-            documents[doc.id] = doc.data();
-        });
-
-        console.log("documents", documents);
-        const promises = [];
-        returnJson.data = snapshot;
+        returnJson = {};
         snapshot.forEach(function (doc) {
-            // doc.data() is never undefined for query doc snapshots
             console.log("...", doc.id, " => ", doc.data());
-            console.log("...", doc.id);
-            const temp = modules.firestore.collection('sports/' + doc.id + '/league').get();
-            // const temp = modules.firestore.collection('sports').doc(doc.id).collection('league').get();
-            promises.push(temp);
+            returnJson[doc.id]= doc.data();
         });
-        const tempSnap = await Promise.all(promises);
-        // tempSnap.forEach(function (doc) {
-        //     // doc.data() is never undefined for query doc snapshots
-        //     console.log(doc.data());
-        // });
-        console.log("tempsA", tempSnap.length);
-        tempSnap.forEach(doc => {
-            console.log(doc)
-            doc.forEach(function (doc1) {
-                // doc.data() is never undefined for query doc snapshots
-                console.log("...", doc1.id, " => ", doc1.data());
-            });
-        })
 
     } catch (e) {
         console.log(e);
+        return res.status(500);
     }
-    res.json(returnJson);
+    res.status(200).json(returnJson);
 }
-
-
-// async function getSport(req, res) {
-//     let returnJson = {
-//         success: false,
-//         isExist: true
-//     };
-//     try {
-//         const snapshot = await modules.firestore.collection('sports').doc('baseball').collection('league').get();
-//         console.log(snapshot.docs.map(doc => doc.data()));
-//         const documents = [];
-//         snapshot.forEach(doc => {
-//             documents[doc.id] = doc.data();
-//         });
-//         //
-//         console.log(documents);
-//     } catch (e) {
-//         console.log(e);
-//     }
-//     res.json(returnJson);
-// }
-
-
-// async function getSport(req, res) {
-//     let returnJson = {
-//         success: false,
-//         isExist: true
-//     };
-//     try {
-//         const markers = [];
-//         const test = await modules.firestore.collection('sports').get();
-//         test.docs.forEach(doc => {
-//             markers.push(doc.data());
-//         });
-//         console.log(markers);
-//     } catch (e) {
-//         console.log(e);
-//     }
-//     res.json(returnJson);
-// }
-
 
 module.exports = getSport;
