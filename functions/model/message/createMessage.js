@@ -11,10 +11,7 @@ function createMessage(args) {
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
 
       /* get user according token */
-      const userSnapshot = await modules.getSnapshot(
-        process.env.usersCollection,
-        args.token.uid
-      );
+      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       /* step1: check if user exists */
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });

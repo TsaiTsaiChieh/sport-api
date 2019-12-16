@@ -1,4 +1,3 @@
-const dotenv = require('dotenv').config();
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const Ajv = require('ajv');
@@ -6,11 +5,11 @@ const ajv = new Ajv({ allErrors: true, useDefaults: true });
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
-  // storageBucket: 'sport19y0715.appspot.com'
-  storageBucket: process.env.storageBucket
+  storageBucket: envValues.firebaseConfig.storageBucket
 });
-const bucket = firebaseAdmin.storage().bucket(process.env.storageBucket);
-// const bucket = firebaseAdmin.storage().bucket('sport19y0715.appspot.com');
+const bucket = firebaseAdmin
+  .storage()
+  .bucket(envValues.firebaseConfig.storageBucket);
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 function getSnapshot(collection, id) {
@@ -34,7 +33,6 @@ function createError(code, error) {
   return err;
 }
 module.exports = {
-  dotenv,
   firebaseAdmin,
   firestore,
   getSnapshot,
