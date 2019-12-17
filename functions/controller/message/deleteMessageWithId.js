@@ -45,7 +45,7 @@ module.exports = deleteMessageWithId;
  * @apiPermission login user with completed data
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
- * @apiParam {String} message.channelId currently only `public`, may increase in the future
+ * @apiParam {String} channelId currently only `public`, may increase in the future
  * @apiParam {Number} deleteAction delete action for message, only accept `-1` (admin delete), `0` (user retract), `1` (user delete)
  *
  * @apiParamExample {JSON} Request-Example
