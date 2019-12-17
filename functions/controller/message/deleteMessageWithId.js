@@ -30,7 +30,7 @@ function deleteMessageWithId(req, res) {
       res.json(body);
     })
     .catch(function(err) {
-      res.status(err.code).send(err);
+      res.status(err.code).json(err);
     });
 }
 
