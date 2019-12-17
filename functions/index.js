@@ -30,7 +30,7 @@ app.use(
 );
 
 app.use(express.json());
-
+app.use('/admin', require('./router/admin'));
 app.use('/auth', require('./router/authentication'));
 app.use('/user', require('./router/user'));
 app.use('/messages', require('./router/messages'));
