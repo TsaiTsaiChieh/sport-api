@@ -1,6 +1,8 @@
 const express = require('express');
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
+const firebase = require('firebase');
+const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 firebaseAdmin.initializeApp({
@@ -36,6 +38,7 @@ function createError(code, error) {
 module.exports = {
   express,
   firebaseAdmin,
+  firebase,
   firestore,
   getSnapshot,
   createError,
@@ -43,5 +46,6 @@ module.exports = {
   ajv,
   bucket,
   database,
-  addDataInCollection
+  addDataInCollection,
+  moment
 };
