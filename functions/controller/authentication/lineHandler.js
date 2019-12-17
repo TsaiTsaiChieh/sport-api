@@ -65,7 +65,8 @@ function loginHandler(req, res) {
                     firebaseAdmin.auth().createCustomToken(userRecord.uid).then(token => {
                         const expiresIn = 3 * 60 * 1000;
                         // const options = {maxAge: expiresIn, httpOnly: true, secure: true};
-                        const options = {maxAge: expiresIn, secure: true};
+                        // const options = {maxAge: expiresIn, secure: true};
+                        const options = {maxAge: expiresIn, httpOnly: true, secure: true, domain: envValues.domain};
                         res.cookie('auth_token', token, options);
                         return res.redirect(307, envValues.indexURL + 'line_login.html');
                     })

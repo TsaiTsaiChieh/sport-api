@@ -114,11 +114,11 @@ async function modifyUserProfile(req, res) {
                                 if (referrer.data.referrer !== uid && refCode !== uid) {
                                     if (firestoreUser.status === 0) {
                                         console.log("set refCode give point: ", refCode);
-                                        data.point = 333;
+                                        data.point = 0;
                                         data.referrer = refCode;
                                     } else {
                                         if (!firestoreUser.data.referrer) {
-                                            data.point = 666;
+                                            data.point = 0;
                                             data.referrer = refCode;
                                         }
                                     }

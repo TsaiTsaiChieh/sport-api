@@ -1,6 +1,7 @@
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
+const envValues = require('../../config/env_values');
 
 /**
  * @api {post} /auth/login create session cookie
@@ -87,6 +88,7 @@ const firebaseAdmin = modules.firebaseAdmin;
  *     }
  */
 async function firebaseLogin(req, res) {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     let returnJson = {success: false};
     let token = req.body.token;
     // let uid = req.body.uid;
@@ -117,18 +119,17 @@ async function firebaseLogin(req, res) {
                     }
                     returnJson.data = firestoreUser.data;
                     // let options = {maxAge: expiresIn, httpOnly: true};
-                    let options = {maxAge: expiresIn, httpOnly: true};
+                    // es.cookie('name', 'tobi', { domain: '.example.com', path: '/admin', secure: true })
+                    let options = {maxAge: expiresIn, httpOnly: true, domain: envValues.domain};
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })
                 .catch((error) => {
                     console.log('Error login user: \n\t', error);
-                    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
                     return res.status(401).json({success: false})
                 });
         }).catch((error) => {
         console.log('Error login user: \n\t', error);
-        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(401).json({success: false})
     });
 }

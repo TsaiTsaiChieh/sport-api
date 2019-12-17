@@ -1,3 +1,5 @@
+const ssr = require('./server/index.js');
+
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
@@ -18,15 +20,14 @@ app.use(helmet.xssFilter());
 app.use(helmet.frameguard());
 
 app.use(
-  bodyParser.urlencoded({
-    limit: '50mb',
-    extended: true
-  })
+    bodyParser.urlencoded({
+        limit: '50mb', extended: true
+    })
 );
 app.use(
-  bodyParser.json({
-    limit: '50mb'
-  })
+    bodyParser.json({
+        limit: '50mb'
+    })
 );
 
 app.use(express.json());
@@ -37,3 +38,5 @@ app.use('/messages', require('./router/messages'));
 app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 exports.api = functions.https.onRequest(app);
+
+exports.ssr = functions.https.onRequest(ssr.app);
