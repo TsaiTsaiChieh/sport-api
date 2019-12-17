@@ -1,3 +1,4 @@
+const express = require('express');
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const Ajv = require('ajv');
@@ -33,6 +34,7 @@ function createError(code, error) {
   return err;
 }
 module.exports = {
+  express,
   firebaseAdmin,
   firestore,
   getSnapshot,
