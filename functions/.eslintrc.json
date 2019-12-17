@@ -77,7 +77,7 @@
     "no-throw-literal": 2,
 
     // Require using Error objects as Promise rejection reasons
-    "prefer-promise-reject-errors": 2,
+    // "prefer-promise-reject-errors": 2,
 
     // Enforce “for” loop update clause moving the counter in the right direction
     "for-direction": 2,
