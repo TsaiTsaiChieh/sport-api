@@ -32,7 +32,11 @@ module.exports = muted;
 /**
  * @api {post} /admin/muted mutedUser
  * @apiVersion 1.0.0
- * @apiDescription Admin muted user with uid
+ * @apiDescription 管理員禁止某使用者發言，需要使用者登入且為管理員身份，管理員不能禁自己的發言，也不能禁其他管理員的發言
+ * 
+ * 禁第一次，使用者一天內不能發言；禁第二次，三天內不能發言；禁第三次，七天內不能發言，再禁第四次以上，則使用者永久不能發言
+ * 
+ * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
  * @apiName Muted user
  * @apiGroup Admin
  * @apiPermission admin
@@ -42,20 +46,18 @@ module.exports = muted;
  *
  * @apiParamExample {JSON} Request-Example
  * {
- *     "channelId": "public",
- *     "deleteAction": 1
+ *     "uid": "aaabnKcVVaiIaUf3daVMNTTK5gH4hf1"
  * }
  * 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *    "Delete message id: 24rzsNJ4DsikbpmfwPGg successful"
+ *    "Muted user: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1 successful, this user had been muted 5 times"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 403 Forbidden
  * @apiError 404 Not Found
- * @apiError 410 Gone
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample {JSON} 400-Response
@@ -82,25 +84,13 @@ module.exports = muted;
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
-    "error": "message/file can only be retracted within one day"
-}
- * @apiErrorExample {JSON} 403-Response
- * HTTP/1.1 403 Forbidden
- * {
-    "code": 403,
-    "error": "forbidden, please use report function"
+    "error": "forbidden, admin cannot mute other admin or himself/herself"
 }
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
  * {
     "code": 404,
-    "error": "message/file not found"
-}
- * @apiErrorExample {JSON} 410-Response
- * HTTP/1.1 410 Gone
- * {
-    "code": 410,
-    "error": "message/file had been deleted'"
+    "error": "user not found"
 }
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error

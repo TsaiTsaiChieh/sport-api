@@ -10,9 +10,15 @@ function muted(args) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
+      /* step2: check if user is an admin or himself/herself */
       const user = userSnapshot.data();
-      console.log(user.blockCount);
-
+      if (user.status === 9) {
+        reject({
+          code: 403,
+          error: 'forbidden, admin cannot mute other admin or himself/herself'
+        });
+        return;
+      }
       if (!user.blockCount) {
         const expired = modules.moment().add(1, 'days');
         userDoc.set(
@@ -24,7 +30,7 @@ function muted(args) {
           },
           { merge: true }
         );
-      } else if (Number.parseInt(user.blockCount) < 4) {
+      } else if (user.blockCount < 3) {
         let expired = 0;
         switch (user.blockCount) {
           case 1:
@@ -43,12 +49,26 @@ function muted(args) {
           },
           { merge: true }
         );
+      } else if (user.blockCount >= 3) {
+        userDoc.set(
+          {
+            blockCount: user.blockCount + 1,
+            blockMessage: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(modules.moment().add(100, 'years'))
+            )
+          },
+          { merge: true }
+        );
       }
+      resolve(
+        `Muted user: ${
+          args.uid
+        } successful, this user had been muted ${user.blockCount + 1} times`
+      );
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
     }
-    resolve(args);
   });
 }
 
