@@ -19,6 +19,7 @@ function muted(args) {
         });
         return;
       }
+      // blockCount default is 0, so this logic can combine
       if (!user.blockCount) {
         const expired = modules.moment().add(1, 'days');
         userDoc.set(
