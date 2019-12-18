@@ -8,4 +8,10 @@ router.post(
   verification.admin,
   require('../controller/admin/mutedController')
 );
+router.post(
+  '/givePoints',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/givePointsController.js')
+);
 module.exports = router;
