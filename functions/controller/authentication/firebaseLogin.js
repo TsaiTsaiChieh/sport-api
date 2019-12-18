@@ -88,7 +88,6 @@ const envValues = require('../../config/env_values');
  *     }
  */
 async function firebaseLogin(req, res) {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     let returnJson = {success: false};
     let token = req.body.token;
     // let uid = req.body.uid;
@@ -120,7 +119,9 @@ async function firebaseLogin(req, res) {
                     returnJson.data = firestoreUser.data;
                     // let options = {maxAge: expiresIn, httpOnly: true};
                     // es.cookie('name', 'tobi', { domain: '.example.com', path: '/admin', secure: true })
+                    // res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
                     let options = {maxAge: expiresIn, httpOnly: true, domain: envValues.domain};
+                    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })

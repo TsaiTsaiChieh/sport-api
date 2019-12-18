@@ -24,6 +24,8 @@
 
         function signIn() {
             let token = getCookie("auth_token");
+            console.log("....")
+            console.log(token)
             firebase.auth().signInWithCustomToken(token)
                 .then(function () {
                     window.opener = null;

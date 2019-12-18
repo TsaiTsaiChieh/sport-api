@@ -1,4 +1,5 @@
-exports.indexURL = "https://chat-api.doninfo.cc/";
+exports.indexURL = "https://chat-api.doinfo.cc/";
+
 exports.domain = '.doinfo.cc';
 exports.release = false;
 

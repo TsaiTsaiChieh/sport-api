@@ -22,7 +22,7 @@ router.use(session(session_options_line));
 
 router.get("/lineLogin", lineLogin.auth());
 router.get("/lineLoginHandler", require('../controller/authentication/lineHandler'));
-router.post('/login', require('../controller/authentication/firebaseLoginController'));
+router.post('/login', require('../controller/authentication/firebaseLogin'));
 router.get('/logout', require('../controller/authentication/logout'));
 router.get('/verifySessionCookie', require('../controller/authentication/verifySessionCookie'));
 

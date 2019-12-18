@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;
@@ -78,6 +77,8 @@ async function modifyUserProfile(req, res) {
                         data.titles = [];
                         data.defaultTitle = {};
                         data.point = 0;
+                        data.blockCount = 0;
+                        data.accuseCredit = 20; //檢舉信用值預設20，limit 100
                         break;
                     case 1: //一般會員
                         console.log("normal user");
