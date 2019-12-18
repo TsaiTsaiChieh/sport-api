@@ -12,6 +12,12 @@ router.post(
   '/givePoints',
   verification.token,
   verification.admin,
-  require('../controller/admin/givePointsController.js')
+  require('../controller/admin/givePointsController')
+);
+router.post(
+  '/giveTitle',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/giveTitleController')
 );
 module.exports = router;
