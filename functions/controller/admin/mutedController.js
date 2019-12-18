@@ -52,7 +52,7 @@ module.exports = muted;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *    "Muted user: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1 successful, this user had been muted 5 times"
+ *    "data": "Muted user: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1 successful, this user had been muted 5 times"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized

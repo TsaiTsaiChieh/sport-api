@@ -60,11 +60,11 @@ function muted(args) {
           { merge: true }
         );
       }
-      resolve(
-        `Muted user: ${
+      resolve({
+        data: `Muted user: ${
           args.uid
         } successful, this user had been muted ${user.blockCount + 1} times`
-      );
+      });
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
