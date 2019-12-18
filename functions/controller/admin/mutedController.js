@@ -37,7 +37,7 @@ module.exports = muted;
  * 禁第一次，使用者一天內不能發言；禁第二次，三天內不能發言；禁第三次，七天內不能發言，再禁第四次以上，則使用者永久不能發言
  * 
  * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
- * @apiName Muted User
+ * @apiName mutedUser
  * @apiGroup Admin
  * @apiPermission admin
  *

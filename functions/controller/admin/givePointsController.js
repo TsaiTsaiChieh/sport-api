@@ -41,7 +41,7 @@ module.exports = givePoints;
  * @apiDescription 管理員給使用者點數
  * 
  * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
- * @apiName Give Points
+ * @apiName givePoints
  * @apiGroup Admin
  * @apiPermission admin
  *
