@@ -1,4 +1,3 @@
-const express = require('express');
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;

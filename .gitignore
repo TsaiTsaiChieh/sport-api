@@ -72,3 +72,5 @@ package-lock.json
 
 # tsaichieh add
 /public/test.html
+
+/public/apidoc

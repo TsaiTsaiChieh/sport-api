@@ -3,11 +3,11 @@ const modules = require('../../util/modules');
 
 
 /**
- * @api {get} /user/checkUnique Check Unique profile
+ * @api {post} /user/accuse Accuse user
  * @apiVersion 1.0.0
- * @apiName checkUnique
+ * @apiName accuse
  * @apiGroup User
- * @apiPermission none
+ * @apiPermission login user
  *
  * @apiParam (Request body) {String} type uniqueName,uniqueEmail,uniquePhone
  * @apiParam (Request body) {String} value string value of name, email or phone number
