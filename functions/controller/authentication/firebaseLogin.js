@@ -91,7 +91,7 @@ async function firebaseLogin(req, res) {
     let returnJson = {success: false};
     let token = req.body.token;
     // let uid = req.body.uid;
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     if (!token) {
         console.log('Error login user: missing token');
         return res.status(401).json(returnJson);
@@ -106,31 +106,41 @@ async function firebaseLogin(req, res) {
                 .then(async (sessionCookie) => {
                     let firestoreUser = await userUtils.getUserProfile(decodedIdToken.uid);
                     returnJson.success = true;
-                    if (firestoreUser.uid) {
-                        returnJson.uid = firestoreUser.uid;
-                    } else {
-                        return res.status(401).json({success: false})
-                    }
-                    if (firestoreUser.status) {
-                        returnJson.status = firestoreUser.status;
+                    returnJson.status = 0;
+                    if (firestoreUser) {
+                        console.log("firestoreUser exist");
+                        if (firestoreUser.uid) {
+                            returnJson.uid = firestoreUser.uid;
+                        } else {
+                            return res.status(401).json({success: false})
+                        }
+                        if (firestoreUser.status) {
+                            returnJson.status = firestoreUser.status;
+                            returnJson.data = firestoreUser.data;
+                        }
                     } else {
                         returnJson.status = 0;
                     }
                     returnJson.data = firestoreUser.data;
                     // let options = {maxAge: expiresIn, httpOnly: true};
-                    // es.cookie('name', 'tobi', { domain: '.example.com', path: '/admin', secure: true })
-                    // res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-                    let options = {maxAge: expiresIn, httpOnly: true, domain: envValues.domain};
-                    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+                    let options = {
+                        maxAge: expiresIn,
+                        httpOnly: true,
+                        sameSite: 'none',
+                        // domain: envValues.domain
+                    };
+
                     res.cookie('__session', sessionCookie, options);
                     return res.status(200).json(returnJson)
                 })
                 .catch((error) => {
                     console.log('Error login user: \n\t', error);
+                    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
                     return res.status(401).json({success: false})
                 });
         }).catch((error) => {
         console.log('Error login user: \n\t', error);
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(401).json({success: false})
     });
 }

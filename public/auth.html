@@ -18,7 +18,8 @@
     <button type="button" onclick="logout()">登出</button>
 </div>
 <script type="text/javascript">
-    const apiURL = 'https://chat-api.doinfo.cc';
+    const apiURL = '';
+    // const apiURL = 'https://chat-api.doinfo.cc';
 
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -38,7 +39,7 @@
 
     const uiConfig = {
         //rediect URL after login success
-        signInSuccessUrl: 'https://chat-api.doinfo.cc/auth.html',
+        signInSuccessUrl: '/auth.html',
         signInOptions: [{
             provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
             customParameters: {code: 'test'},
