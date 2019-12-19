@@ -116,7 +116,7 @@ module.exports = giveTitle;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
- * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 黃牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神 
+ * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神 
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
  * @apiParam {String} league user league, enum pair: [16(`ABL`, `CPBL`, `KBO`, `LMB`, `MLB`, `NPB`), 18(`CBA`, `JPBL`, `KBL`, `NBA`, `NBL`, `SBL`, `WNBA`), 17(`NHL`), 1(`ALL`)]
  * 
