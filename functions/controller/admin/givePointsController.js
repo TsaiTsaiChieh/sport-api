@@ -9,8 +9,7 @@ function givePoints(req, res) {
         type: 'string'
       },
       points: {
-        type: 'integer',
-        minimum: 1
+        type: 'integer'
       }
     }
   };
@@ -67,17 +66,15 @@ module.exports = givePoints;
  *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
- * [
+ * [[
     {
-        "keyword": "minimum",
+        "keyword": "type",
         "dataPath": ".points",
-        "schemaPath": "#/properties/points/minimum",
+        "schemaPath": "#/properties/points/type",
         "params": {
-            "comparison": ">=",
-            "limit": 1,
-            "exclusive": false
+            "type": "integer"
         },
-        "message": "should be >= 1"
+        "message": "should be integer"
     }
 ]
  * 
