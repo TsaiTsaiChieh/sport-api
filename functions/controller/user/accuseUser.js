@@ -5,7 +5,7 @@ const admin = modules.firebaseAdmin;
 /**
  * @api {post} /user/accuse Accuse user
  * @apiVersion 1.0.0
- * @apiName accuse
+ * @apiName accuseUser
  * @apiGroup User
  * @apiPermission login user
  *
@@ -15,7 +15,7 @@ const admin = modules.firebaseAdmin;
  *
  * @apiSuccess {JSON} result api result
  *
- * @apiSuccessExample exist:
+ * @apiSuccessExample success:
  *  HTTP/1.1 200 OK
  {
     "success": true,
@@ -35,19 +35,19 @@ const admin = modules.firebaseAdmin;
  */
 async function accuseUser(req, res) {
     try {
+        if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
         const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
-        if (!accuserSnapshot.exists) return res.status(400);
+        if (!accuserSnapshot.exists) return res.status(400).send();
         const accuser = await accuserSnapshot.data();
-        if (accuser.status < 1) return res.status(400);
-        if (accuser.uid === req.token.uid) return res.status(400);
+        if (accuser.status < 1) return res.status(400).send();
         const defendant = req.body.defendant;
+        if (accuser.uid === defendant) return res.status(400).send();
         const reason = req.body.reason;
         const evidence = req.body.evidence;
         const accuseCredit = accuser.accuseCredit ? accuser.accuseCredit : 0;
         const nowTimeStamp = admin.firestore.Timestamp.now();
-        const accuserUID = accuser.uid;
         let event = {};
-        event[accuserUID] = {
+        event[accuser.uid] = {
             accuser: accuser.uid,
             createTime: nowTimeStamp,
             credit: accuseCredit,

@@ -29,4 +29,5 @@ router.delete(
     verification.token,
     require('../controller/message/deleteMessageWithId')
 );
+router.post('/accuse/', verification.token, require('../controller/message/accuseMessage'));
 module.exports = router;
