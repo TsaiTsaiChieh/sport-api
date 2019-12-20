@@ -20,4 +20,10 @@ router.post(
   verification.admin,
   require('../controller/admin/giveTitleController')
 );
+router.delete(
+  '/deleteTitle',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/deleteTitleController')
+);
 module.exports = router;

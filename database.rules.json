@@ -1,8 +1,13 @@
 {
   "rules": {
-    ".read": true,
+    ".read": false,
     ".write": false,
     "chat_public": {
+      ".read": true,
+      ".indexOn": "createTime/_seconds"
+    },
+    "chat_test": {
+      ".read": true,
       ".indexOn": "createTime/_seconds"
     }
   }

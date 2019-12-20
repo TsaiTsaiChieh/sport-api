@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
-const giveTitleModel = require('../../model/admin/giveTitleModel');
+const deleteTitleModel = require('../../model/admin/deleteTitleModel');
 
-function giveTitle(req, res) {
+function deleteTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
@@ -93,7 +93,7 @@ function giveTitle(req, res) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
-  giveTitleModel(req.body)
+  deleteTitleModel(req.body)
     .then(function(body) {
       res.json(body);
     })
@@ -102,15 +102,15 @@ function giveTitle(req, res) {
     });
 }
 
-module.exports = giveTitle;
+module.exports = deleteTitle;
 
 /**
- * @api {post} /admin/giveTitle Give Title
+ * @api {delete} /admin/deleteTitle Delete Title
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜
  * 
  * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
- * @apiName giveTitle
+ * @apiName deleteTitle
  * @apiGroup Admin
  * @apiPermission admin
  *
@@ -123,7 +123,7 @@ module.exports = giveTitle;
  *
  * @apiParamExample {JSON} Request-Example
  * {
- *     "uid": "6t0bRabntZ5fRFczvfij",
+ *     "uid": "aaabnKcVVaiIaUf3daVMNTTK5gH4hf1",
  *     "rank": 1,
  *     "sport": 16,
  *     "league": "ABL"
@@ -132,11 +132,10 @@ module.exports = giveTitle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 16 ABL] successful"
+ *     "data": "Delete user: 6t0bRabntZ5fRFczvfij, title:[3 16 KBO] successful"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
- * @apiError 403 Forbidden
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error
  *
