@@ -124,31 +124,32 @@ async function loginHandler(req, res) {
         const token = await firebaseAdmin.auth().createCustomToken(userRecord.uid);
         // const token = await userRecord.getIdToken();
         console.log("3..", token);
+        return res.json({token: token});
         // const decodedIdToken = await firebaseAdmin.auth().verifyIdToken(token);
-        const sessionCookie = await firebaseAdmin.auth().createSessionCookie(token, {expiresIn});
-        console.log("4..", sessionCookie);
-        const firestoreUser = await userUtils.getUserProfile(userRecord.uid);
-        console.log("5..", firestoreUser);
-        returnJson.success = true;
-        if (firestoreUser.uid) {
-            returnJson.uid = firestoreUser.uid;
-        } else {
-            return res.status(401).json({success: false})
-        }
-        if (firestoreUser.status) {
-            returnJson.status = firestoreUser.status;
-        } else {
-            returnJson.status = 0;
-        }
-        returnJson.data = firestoreUser.data;
-        // let options = {maxAge: expiresIn, httpOnly: true};
-        // es.cookie('name', 'tobi', { domain: '.example.com', path: '/admin', secure: true })
+        // const sessionCookie = await firebaseAdmin.auth().createSessionCookie(token, {expiresIn});
+        // console.log("4..", sessionCookie);
+        // const firestoreUser = await userUtils.getUserProfile(userRecord.uid);
+        // console.log("5..", firestoreUser);
+        // returnJson.success = true;
+        // if (firestoreUser.uid) {
+        //     returnJson.uid = firestoreUser.uid;
+        // } else {
+        //     return res.status(401).json({success: false})
+        // }
+        // if (firestoreUser.status) {
+        //     returnJson.status = firestoreUser.status;
+        // } else {
+        //     returnJson.status = 0;
+        // }
+        // returnJson.data = firestoreUser.data;
+        // // let options = {maxAge: expiresIn, httpOnly: true};
+        // // es.cookie('name', 'tobi', { domain: '.example.com', path: '/admin', secure: true })
+        // // res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+        // // let options = {maxAge: expiresIn, httpOnly: true, domain: envValues.domain};
+        // let options = {maxAge: expiresIn};
         // res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-        // let options = {maxAge: expiresIn, httpOnly: true, domain: envValues.domain};
-        let options = {maxAge: expiresIn};
-        res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-        res.cookie('__session', sessionCookie, options);
-        return res.status(200).json(returnJson)
+        // res.cookie('__session', sessionCookie, options);
+        // return res.status(200).json(returnJson)
     } catch (exception) {
         console.log("id token verification failed.", exception);
         return res.status(401).send({error: 'login failed!'});
