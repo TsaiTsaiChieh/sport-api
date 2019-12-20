@@ -1,0 +1,101 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>test_realtime</title>
+
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  </head>
+  <style>
+    .chat_message {
+      margin-top: 150px;
+      margin-left: 150px;
+      width: 500px;
+      height: 500px;
+      /* border: 1px solid red; */
+      /* background: black; */
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .message {
+      padding: 10px;
+      background: green;
+      color: white;
+    }
+  </style>
+  <body>
+    <div class="chat_message"></div>
+    <!-- js code-->
+    <script>
+      const firebaseConfig = {
+        apiKey: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
+        authDomain: 'sport19y0715.firebaseapp.com',
+        databaseURL: 'https://sport19y0715.firebaseio.com',
+        projectId: 'sport19y0715',
+        storageBucket: 'sport19y0715.appspot.com',
+        messagingSenderId: '179049951227',
+        appId: '1:179049951227:web:15b2ae874d653216'
+      };
+      firebase.initializeApp(firebaseConfig);
+      // console.log(firebase);
+      // let public_chat = firebase.database().ref('/chat_public');
+      let chat_test = firebase.database().ref('/chat_test/');
+      let chat_message = document.querySelector('.chat_message');
+      chat_test
+        .orderByChild('createTime/_seconds')
+        .once('value', function(snapshot) {
+          snapshot.forEach(function(record) {
+            let message = document.createElement('p');
+            message.setAttribute('class', 'message');
+            message.innerHTML = `${record.key}: ${
+              record.val().message.message
+            }(${record.val().message.softDelete})`;
+            chat_message.append(message);
+            console.log(record.key, record.val().message.message);
+          });
+        });
+
+      // firebase
+      //   .database()
+      //   .ref('/chat_test/0CmJgPDdevGQDztfC5kw')
+      //   .once('value', function(snapshot) {
+      //     console.log(snapshot.key);
+      //   });
+      // chat_test
+      //   .orderByChild('createTime/_seconds')
+      //   .limitToLast(5)
+      //   .on('child_changed', function(snapshot) {
+      //     console.log(snapshot.key, snapshot.val() + 'ss');
+      //   });
+      let messageSize = 200; //頁面刷新預載訊息數日一十田土
+      let messageTotalSize = 20; //回滾訊數息量
+      let firstMessageTime; // for filter
+      let messages;
+      function getonce() {
+        public_chat
+          // .endAt(firstMessageTime)
+          .orderByChild('createTime/_seconds')
+          .limitToLast(messageSize)
+          .once('value', async function(snapshot) {
+            let temp1 = [];
+            snapshot.forEach(function(record) {
+              // console.log(record.key);
+              temp1.push(record.val().createTime._seconds);
+              console.log(record.key, record.val());
+            });
+            firstMessageTime = temp1[0] - 1;
+            messageTotalSize += temp1.length;
+            console.log('message size', messageTotalSize);
+            public_chat
+              .limitToLast(messageTotalSize)
+              .orderByChild('createTime/_seconds')
+              .on('child_changed', function(snapshot) {
+                console.log(snapshot.key, snapshot.val() + 'ss');
+              });
+          });
+      }
+      // getonce();
+    </script>
+  </body>
+</html>
