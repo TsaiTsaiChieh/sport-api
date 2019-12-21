@@ -127,7 +127,7 @@ async function firebaseLogin(req, res) {
                         maxAge: expiresIn,
                         httpOnly: true,
                         sameSite: 'none',
-                        // domain: envValues.domain
+                        domain: envValues.domain
                     };
 
                     res.cookie('__session', sessionCookie, options);
