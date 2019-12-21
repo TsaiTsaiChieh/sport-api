@@ -59,6 +59,7 @@ async function modifyUserProfile(req, res) {
                     case 0: //新會員
                         if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
                             res.status(400).json({success: false, message: 'missing info'});
+                        data.uid = uid;
                         data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
                         data.name = req.body.name;                  //only new user can set name(Actual name), none changeable value
                         data.phone = req.body.phone;
@@ -78,6 +79,11 @@ async function modifyUserProfile(req, res) {
                         data.point = 0;
                         data.blockCount = 0;
                         data.accuseCredit = 20; //檢舉信用值預設20，limit 100
+                        admin.auth().updateUser(uid,{
+                            email:req.body.email,
+                            phoneNumber:req.body.phone,
+                            displayName:req.body.displayName
+                        });
                         break;
                     case 1: //一般會員
                         console.log("normal user");
@@ -95,7 +101,12 @@ async function modifyUserProfile(req, res) {
                     default:
                         throw 'user status error';
                 }
-                if (req.body.avatar) data.avatar = req.body.avatar;
+                if (req.body.avatar) {
+                    data.avatar = req.body.avatar;
+                    admin.auth().updateUser(uid,{
+                        photoURL:req.body.avatar
+                    });
+                }
                 if (req.body.email) data.email = req.body.email;
                 if (req.body.phone) data.phone = req.body.phone;
                 if (req.body.signature) data.signature = req.body.signature;
