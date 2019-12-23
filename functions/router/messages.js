@@ -5,13 +5,13 @@ const modules = require('../util/modules');
 
 // Just test
 router.get('/list', async (req, res) => {
-  // let data = { success: true, list: ['public'] };
-  // res.json(data);
-  const messageSnapshot = await modules.getSnapshot(
-      'chat_public',
-      'XPrNaAWujYedEw3XMJZg'
-  );
-  console.log(messageSnapshot.data());
+  let data = { success: true, list: ['public'] };
+  res.json(data);
+//   const messageSnapshot = await modules.getSnapshot(
+//       'chat_public',
+//       'XPrNaAWujYedEw3XMJZg'
+//   );
+//   console.log(messageSnapshot.data());
 });
 router.get('/?', require('../controller/message/getLastMessag'));
 router.get(
