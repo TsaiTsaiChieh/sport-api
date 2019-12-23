@@ -1,25 +1,17 @@
 {
   "rules": {
-    // ".read": false,
+    ".read": true,
     ".write": "auth !== null",
     "chat_public": {
-      ".read": true,
+      // ".read": true,
       ".indexOn": "createTime/_seconds"
     }, 
     "chat_test": {
-      // ".read": true, 
-      // "$a": {
-      //   "read": true,
-      // }
-      ".indexOn": "createTime/_seconds",
-      // ".read": "data.child('message').val() === 2",
-      ".write": "data.child('message/softDelete').val() === 2",
-      // "$a": {".read": true},
-      ".read": true
-      // ".write": "data.child('message').child('softDelete').val() === 2"
-      // ".read": "data.child('message/softDelete').val() == 2"
-      // ".read": "data.child('user').child('uid').val() === auth.uid && data.child('message').child('softDelete').val() !== 1"
-       // ".read": "data.child('message').child('softDelete').val() != 2"
+      // ".read": true,
+      // ".write": "auth !== null",
+      "$messageId": {
+        ".read": "data.child('message').child('softDelete').val() === 1",
+      }
     }
-  } // for root
+  } 
 }
