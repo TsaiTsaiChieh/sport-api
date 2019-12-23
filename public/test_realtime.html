@@ -40,7 +40,7 @@
       <h3 class="single_1">get single message 1 (自己隱藏)</h3>
       <h3 class="single_2">get single message 2 (正常顯示)</h3>
     </div>
-    
+    <input type="file" id="fileButton" value="upload">
     <!-- js code-->
     <script>
       const firebaseConfig = {
@@ -99,47 +99,18 @@
             chat_message_single_2.append(message);
         });
 
-      // firebase
-      //   .database()
-      //   .ref('/chat_test/0CmJgPDdevGQDztfC5kw')
-      //   .once('value', function(snapshot) {
-      //     console.log(snapshot.key);
-      //   });
-      // chat_test
-      //   .orderByChild('createTime/_seconds')
-      //   .limitToLast(5)
-      //   .on('child_changed', function(snapshot) {
-      //     console.log(snapshot.key, snapshot.val() + 'ss');
-      //   });
-      let messageSize = 200; //頁面刷新預載訊息數日一十田土
-      let messageTotalSize = 20; //回滾訊數息量
-      let firstMessageTime; // for filter
-      let messages;
-      function getonce() {
-        public_chat
-          // .endAt(firstMessageTime)
-          .orderByChild('createTime/_seconds')
-          .limitToLast(messageSize)
-          .once('value', async function(snapshot) {
-            let temp1 = [];
-            snapshot.forEach(function(record) {
-              // console.log(record.key);
-              temp1.push(record.val().createTime._seconds);
-              console.log(record.key, record.val());
-            });
-            firstMessageTime = temp1[0] - 1;
-            messageTotalSize += temp1.length;
-            console.log('message size', messageTotalSize);
-            public_chat
-              .limitToLast(messageTotalSize)
-              .orderByChild('createTime/_seconds')
-              .on('child_changed', function(snapshot) {
-                console.log(snapshot.key, snapshot.val() + 'ss');
-              });
-          });
-      }
-      
-      // getonce();
+      //firestorage upload example
+    let storage = firebase.storage();
+    let fileButton = document.getElementById("fileButton");
+    fileButton.addEventListener("change", async function (e) {
+        let file = e.target.files[0];
+        let storageRef = firebase.storage().ref('photo/' + file.name);
+        const result = await storageRef.put(file);
+        const url = await result.ref.getDownloadURL();
+        console.log('result:',result);
+        console.log(' * new url:...', url);
+        // console.log(JSON.stringify( result, null, " " ));
+    });
     </script>
   </body>
 </html>
