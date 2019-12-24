@@ -33,7 +33,7 @@ const lineLogin = new line_login({
 function loginHandler(req, res) {
     const lineAccessToken = req.query.code;
     if (!lineAccessToken) return res.status(401).send({error: 'login failed!'});
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     // const lineState = req.query.state;
 
     // https://api.line.me/oauth2/v2.1/token`

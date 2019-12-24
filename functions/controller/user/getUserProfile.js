@@ -88,7 +88,7 @@ async function getUserProfile(req, res) {
             console.log('getUserProfile - verifySessionCookie success : ', decodedClaims);
             let uid = decodedClaims.uid;
             userUtils.getUserProfile(uid).then(firestoreUser => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
+                // res.setHeader('Access-Control-Allow-Origin', '*');
                 return res.status(200).json(firestoreUser)
             }).catch(error => {
                 console.log('getUserProfile - getUserProfile false : ', error);

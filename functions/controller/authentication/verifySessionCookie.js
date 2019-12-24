@@ -35,7 +35,7 @@ function verifySessionCookie(req, res) {
 
     console.log("verify cookie ....",sessionCookie);
     if (!sessionCookie) return res.status(200).json({success: false, message: "authentication failed"});
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     if (!sessionCookie) return res.json({success: false});
     firebaseAdmin.auth().verifySessionCookie(sessionCookie, true)
         .then((decodedClaims) => {

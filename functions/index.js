@@ -11,24 +11,35 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 app.use(cookieParser());
-app.use(cors());
 app.disable('x-powered-by');
 const helmet = require('helmet');
 app.use(helmet());
-
 app.use(helmet.xssFilter());
-app.use(helmet.frameguard());
 
+app.use(helmet.frameguard());
 app.use(
     bodyParser.urlencoded({
         limit: '50mb', extended: true
     })
 );
+
 app.use(
     bodyParser.json({
         limit: '50mb'
     })
 );
+const whitelist = ['https://chat.doinfo.cc', 'http://localhost:5000', 'http://localhost:8080'];
+const corsOptions = {
+    origin: function (origin, callback) {
+        console.log("origin....", origin);
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+};
+app.use(cors());
 
 app.use(express.json());
 app.use('/admin', require('./router/admin'));

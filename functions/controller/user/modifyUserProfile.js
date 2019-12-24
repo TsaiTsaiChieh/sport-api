@@ -47,6 +47,7 @@ const admin = modules.firebaseAdmin;
  */
 async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
+    if (!sessionCookie) return res.status(401).send();
     admin.auth().verifySessionCookie(
         sessionCookie, true)
         .then((decodedClaims) => {
@@ -57,15 +58,54 @@ async function modifyUserProfile(req, res) {
                 let nowTimeStamp = admin.firestore.Timestamp.now();
                 switch (firestoreUser.status) {
                     case 0: //新會員
-                        if (!req.body.displayName || !req.body.name || !req.body.phone || !req.body.email || !req.body.birthday)
-                            res.status(400).json({success: false, message: 'missing info'});
+                        const args = {};
+                        args.displayName = req.body.displayName;
+                        args.name = req.body.name;
+                        args.phone = req.body.phone;
+                        args.email = req.body.email;
+                        args.birthday = req.body.birthday;
+                        args.avatar = req.body.avatar;
+                        args.signature = req.body.signature;
+                        const schema = {
+                            type: 'object',
+                            required: ['displayName', 'name', 'phone', 'email', 'birthday'],
+                            properties: {
+                                displayName: {type: 'string', minLength: 4, maxLength: 15},
+                                name: {type: 'string', minLength: 4, maxLength: 10},
+                                phone: {type: 'string', minLength: 10, maxLength: 15},
+                                email: {type: 'string', format: 'email'},
+                                birthday: {type: 'integer'},
+                                avatar: {type: 'string', format: 'url'},
+                                signature: {type: 'string', maxLength: 50}
+                            }
+                        };
+                        const valid = modules.ajv.validate(schema, args);
+                        if (!valid) return res.status(400).json(modules.ajv.errors);
+                        const uniqueNameSnapshot = await modules.firestore.collection('uniqueName').doc(args.displayName).get();
+                        if (uniqueNameSnapshot.exists) {
+                            return res.status(400).json({success: false, message: 'displayName exists'});
+                        } else {
+                            modules.firestore.collection('uniqueName').doc(args.displayName).set({uid: uid});
+                        }
+                        const uniqueEmailSnapshot = await modules.firestore.collection('uniqueEmail').doc(args.email).get();
+                        if (uniqueEmailSnapshot.exists) {
+                            return res.status(400).json({success: false, message: 'email exists'});
+                        } else {
+                            modules.firestore.collection('uniqueEmail').doc(args.email).set({uid: uid});
+                        }
+                        const uniquePhoneSnapshot = await modules.firestore.collection('uniquePhone').doc(args.phone).get();
+                        if (uniquePhoneSnapshot.exists) {
+                            return res.status(400).json({success: false, message: 'phone exists'});
+                        } else {
+                            modules.firestore.collection('uniquePhone').doc(args.phone).set({uid: uid});
+                        }
                         data.uid = uid;
-                        data.displayName = req.body.displayName;    //only new user can set displayName, none changeable value
-                        data.name = req.body.name;                  //only new user can set name(Actual name), none changeable value
-                        data.phone = req.body.phone;
-                        data.email = req.body.email;
+                        data.displayName = args.displayName;    //only new user can set displayName, none changeable value
+                        data.name = args.name;                  //only new user can set name(Actual name), none changeable value
+                        data.phone = args.phone;
+                        data.email = args.email;
                         data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-                        if (!req.body.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+                        if (!args.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
                         data.status = 1;
                         data.signature = "";
                         data.blockMessage = nowTimeStamp;
@@ -79,10 +119,10 @@ async function modifyUserProfile(req, res) {
                         data.point = 0;
                         data.blockCount = 0;
                         data.accuseCredit = 20; //檢舉信用值預設20，limit 100
-                        admin.auth().updateUser(uid,{
-                            email:req.body.email,
-                            phoneNumber:req.body.phone,
-                            displayName:req.body.displayName
+                        admin.auth().updateUser(uid, {
+                            email: req.body.email,
+                            phoneNumber: req.body.phone,
+                            displayName: req.body.displayName
                         });
                         break;
                     case 1: //一般會員
@@ -103,12 +143,12 @@ async function modifyUserProfile(req, res) {
                 }
                 if (req.body.avatar) {
                     data.avatar = req.body.avatar;
-                    admin.auth().updateUser(uid,{
-                        photoURL:req.body.avatar
+                    admin.auth().updateUser(uid, {
+                        photoURL: req.body.avatar
                     });
                 }
-                if (req.body.email) data.email = req.body.email;
-                if (req.body.phone) data.phone = req.body.phone;
+                // if (req.body.email) data.email = req.body.email;
+                // if (req.body.phone) data.phone = req.body.phone;
                 if (req.body.signature) data.signature = req.body.signature;
                 data.updateTime = nowTimeStamp;
                 let refCode = req.body.refCode;
@@ -138,24 +178,24 @@ async function modifyUserProfile(req, res) {
                         });
                     }
                 }
-                res.setHeader('Access-Control-Allow-Origin', '*');
+                // res.setHeader('Access-Control-Allow-Origin', '*');
                 console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
                 modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
                     console.log('Added document with ID: ', ref);
-                    res.json({success: true, result: ref});
+                    return res.json({success: true, result: ref});
                 }).catch(e => {
                     console.log('Added document with error: ', e);
-                    res.status(500).json({success: false, message: "update failed"});
+                    return res.status(500).json({success: false, message: "update failed"});
                 });
                 // res.json({success: true, result: writeResult});
             }).catch(error => {
                 console.log('Auth - getUserProfile false : ', error);
-                res.status(500).json({success: false, message: "getUserProfile failed"});
+                return res.status(500).json({success: false, message: "getUserProfile failed"});
             });
         })
         .catch(error => {
             console.log('Auth - verifySessionCookie false : ', error);
-            res.status(401).json({success: false, message: "verifySessionCookie failed"});
+            return res.status(401).json({success: false, message: "verifySessionCookie failed"});
         });
 }
 

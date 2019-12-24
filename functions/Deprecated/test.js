@@ -26,6 +26,29 @@ async function test2() {
     console.log(temp.data());
 }
 
-test2()
+async function test3() {
+    // const uniqueName = modules.firestore.collection('uniqueName').doc('測試2').add({uid: '111'});
+    const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({uid13: '1111'}, {merge: true});
+    console.log(uniqueName)
+}
 
+async function test4() {
+    const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({uid13: '1111'}, {merge: true});
+    console.log(uniqueName)
+}
+
+
+const schema = {
+    type: 'object',
+    required: ['avatar'],
+    properties: {
+        avatar: {type: 'string', format: 'url'}
+    }
+};
+
+// const avatar = 'https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg';
+//
+// const valid = modules.ajv.validate(schema, {avatar: avatar});
+//
+// console.log(valid)
 
