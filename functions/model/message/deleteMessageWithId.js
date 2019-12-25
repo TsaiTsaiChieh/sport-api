@@ -47,6 +47,7 @@ function deleteMessageWithId(args) {
               code: 403,
               error: 'message/file can only be retracted within one day'
             });
+            return;
           }
           await modules
             .getDoc(`chat_${args.channelId}`, args.messageId)
@@ -76,7 +77,7 @@ function deleteMessageWithId(args) {
             );
         }
       }
-
+      // if 0, -1 => mask message
       if (args.deleteAction <= 0) {
         // udpate realtime database
         modules.database
@@ -88,6 +89,16 @@ function deleteMessageWithId(args) {
               args.deleteAction === 0
                 ? '無法讀取原始訊息'
                 : '此留言已被管理員移除',
+            softDelete: args.deleteAction
+          });
+      }
+      // if 1, just change softDelete
+      if (args.deleteAction === 1) {
+        modules.database
+          .ref(`chat_${args.channelId}`)
+          .child(args.messageId)
+          .child('message')
+          .update({
             softDelete: args.deleteAction
           });
       }

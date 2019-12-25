@@ -26,4 +26,5 @@ router.delete(
   verification.admin,
   require('../controller/admin/deleteTitleController')
 );
+router.post('/addAdmin',verification.token,require('../controller/admin/addAdminController'));
 module.exports = router;
