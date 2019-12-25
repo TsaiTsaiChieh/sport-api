@@ -19,6 +19,7 @@ const admin = modules.firebaseAdmin;
  * @apiParam (Request body) {Number} birthday birthday UTC timestamp (Non changeable)
  * @apiParam (Request body) {String} signature signature
  * @apiParam (Request body) {String} refCode UID of referrer (Non changeable)
+ * @apiParam (Request body) {JSON} title default title example : {"league":"MLB","rank":1,"sport":16}
  *
  *
  * @apiSuccess {JSON} result Execute Result
@@ -28,12 +29,51 @@ const admin = modules.firebaseAdmin;
  {
     "success": true,
     "result": {
-        "_writeTime": {
-            "_seconds": 1575946694,
-            "_nanoseconds": 556654000
-        }
+        "success": true,
+        "uid": "M2c2lEcZ5YRcldxv3SzY0rTdFCB3",
+        "data": {
+            "blockMessage": {
+                "_seconds": 1577260223,
+                "_nanoseconds": 241000000
+            },
+            "ingot": 0,
+            "avatar": "https://i.imgur.com/EUAd2ht.jpg",
+            "uid": "M2c2lEcZ5YRcldxv3SzY0rTdFCB3",
+            "birthday": {
+                "_seconds": 1543182036,
+                "_nanoseconds": 370000000
+            },
+            "phone": "+886999999993",
+            "dividend": 0,
+            "referrer": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+            "coin": 0,
+            "signature": "世界很快我很慢",
+            "status": 1,
+            "blockCount": 0,
+            "email": "rex@gets-info.com",
+            "name": "rex",
+            "point": 0,
+            "accuseCredit": 20,
+            "displayName": "qqqq",
+            "denys": [],
+            "titles": [],
+            "createTime": {
+                "_seconds": 1577260223,
+                "_nanoseconds": 241000000
+            },
+            "defaultTitle": {
+                "rank": 1,
+                "league": "MLB",
+                "sport": 16
+            },
+            "updateTime": {
+                "_seconds": 1577261258,
+                "_nanoseconds": 329000000
+            }
+        },
+        "status": 1
     }
- }
+}
  *
  *
  * @apiError TokenMissing session cookie not exist.
@@ -174,9 +214,10 @@ async function modifyUserProfile(req, res) {
                 }
                 // res.setHeader('Access-Control-Allow-Origin', '*');
                 console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
-                modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(ref => {
+                modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(async ref => {
+                    const result = await userUtils.getUserProfile(uid);
                     console.log('Added document with ID: ', ref);
-                    return res.json({success: true, result: ref});
+                    return res.json({success: true, result: result});
                 }).catch(e => {
                     console.log('Added document with error: ', e);
                     return res.status(500).json({success: false, message: "update failed"});
