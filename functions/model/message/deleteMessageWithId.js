@@ -47,6 +47,7 @@ function deleteMessageWithId(args) {
               code: 403,
               error: 'message/file can only be retracted within one day'
             });
+            return;
           }
           await modules
             .getDoc(`chat_${args.channelId}`, args.messageId)
