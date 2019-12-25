@@ -33,6 +33,19 @@ const admin = modules.firebaseAdmin;
  */
 async function accuseMessage(req, res) {
     try {
+        const args = {};
+        args.messageId = req.body.messageId;
+        args.channelId = req.body.channelId;
+        const schema = {
+            type: 'object',
+            required: ['messageId', 'channelId'],
+            properties: {
+                messageId: {type: 'string', minLength: 20, maxLength: 20},
+                channelId: {type: 'string'}
+            }
+        };
+        const valid = modules.ajv.validate(schema, args);
+        if (!valid) return res.status(400).json(modules.ajv.errors);
         if (!req.body.messageId || !req.body.channelId) return res.status(400).send();
         const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
         if (!accuserSnapshot.exists) return res.status(400).send();

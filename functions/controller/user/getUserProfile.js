@@ -79,8 +79,6 @@ const firebaseAdmin = modules.firebaseAdmin;
  */
 async function getUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
-    console.log("test...");
-    console.log(sessionCookie);
     if (!sessionCookie) return res.status(401).send("missing token");
     firebaseAdmin.auth().verifySessionCookie(
         sessionCookie, true)

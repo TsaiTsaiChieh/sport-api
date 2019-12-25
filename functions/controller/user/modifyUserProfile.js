@@ -47,6 +47,7 @@ const admin = modules.firebaseAdmin;
  */
 async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
+    // console.log("session Cookie...", sessionCookie);
     if (!sessionCookie) return res.status(401).send();
     admin.auth().verifySessionCookie(
         sessionCookie, true)
@@ -70,8 +71,8 @@ async function modifyUserProfile(req, res) {
                             type: 'object',
                             required: ['displayName', 'name', 'phone', 'email', 'birthday'],
                             properties: {
-                                displayName: {type: 'string', minLength: 4, maxLength: 15},
-                                name: {type: 'string', minLength: 4, maxLength: 10},
+                                displayName: {type: 'string', minLength: 2, maxLength: 15},
+                                name: {type: 'string', minLength: 2, maxLength: 10},
                                 phone: {type: 'string', minLength: 10, maxLength: 15},
                                 email: {type: 'string', format: 'email'},
                                 birthday: {type: 'integer'},
@@ -82,21 +83,13 @@ async function modifyUserProfile(req, res) {
                         const valid = modules.ajv.validate(schema, args);
                         if (!valid) return res.status(400).json(modules.ajv.errors);
                         const uniqueNameSnapshot = await modules.firestore.collection('uniqueName').doc(args.displayName).get();
-                        if (uniqueNameSnapshot.exists) {
-                            return res.status(400).json({success: false, message: 'displayName exists'});
+                        const uniqueEmailSnapshot = await modules.firestore.collection('uniqueEmail').doc(args.email).get();
+                        const uniquePhoneSnapshot = await modules.firestore.collection('uniquePhone').doc(args.phone).get();
+                        if (uniqueNameSnapshot.exists || uniqueEmailSnapshot.exists || uniquePhoneSnapshot.exists) {
+                            return res.status(400).json({success: false, message: 'user name , email or phone exists'});
                         } else {
                             modules.firestore.collection('uniqueName').doc(args.displayName).set({uid: uid});
-                        }
-                        const uniqueEmailSnapshot = await modules.firestore.collection('uniqueEmail').doc(args.email).get();
-                        if (uniqueEmailSnapshot.exists) {
-                            return res.status(400).json({success: false, message: 'email exists'});
-                        } else {
                             modules.firestore.collection('uniqueEmail').doc(args.email).set({uid: uid});
-                        }
-                        const uniquePhoneSnapshot = await modules.firestore.collection('uniquePhone').doc(args.phone).get();
-                        if (uniquePhoneSnapshot.exists) {
-                            return res.status(400).json({success: false, message: 'phone exists'});
-                        } else {
                             modules.firestore.collection('uniquePhone').doc(args.phone).set({uid: uid});
                         }
                         data.uid = uid;

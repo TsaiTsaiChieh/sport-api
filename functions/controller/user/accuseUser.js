@@ -35,15 +35,27 @@ const admin = modules.firebaseAdmin;
  */
 async function accuseUser(req, res) {
     try {
-        if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
+        const args = {};
+        args.defendant = req.body.defendant;
+        args.reason = req.body.reason;
+        args.evidence = req.body.evidence;
+        const schema = {
+            type: 'object',
+            required: ['defendant', 'reason', 'evidence'],
+            properties: {
+                defendant: {type: 'string', minLength: 28, maxLength: 33},
+                reason: {type: 'string', minLength: 2, maxLength: 50},
+                evidence: {type: 'string', format: 'url'}
+            }
+        };
+        const valid = modules.ajv.validate(schema, args);
+        if (!valid) return res.status(400).json(modules.ajv.errors);
+        // if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
         const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
         if (!accuserSnapshot.exists) return res.status(400).send();
         const accuser = await accuserSnapshot.data();
         if (accuser.status < 1) return res.status(400).send();
-        const defendant = req.body.defendant;
-        if (accuser.uid === defendant) return res.status(400).send();
-        const reason = req.body.reason;
-        const evidence = req.body.evidence;
+        if (accuser.uid === args.defendant) return res.status(400).send();
         const accuseCredit = accuser.accuseCredit ? accuser.accuseCredit : 0;
         const nowTimeStamp = admin.firestore.Timestamp.now();
         let event = {};
@@ -51,11 +63,11 @@ async function accuseUser(req, res) {
             accuser: accuser.uid,
             createTime: nowTimeStamp,
             credit: accuseCredit,
-            evidence: evidence,
-            reason: reason,
+            evidence: args.evidence,
+            reason: args.reason,
             status: 0
         };
-        modules.firestore.collection('accuse_users').doc(defendant).set(event, {merge: true}).then(ref => {
+        modules.firestore.collection('accuse_users').doc(args.defendant).set(event, {merge: true}).then(ref => {
             console.log('Added document with ID: ', ref);
             return res.status(200).json({success: true, result: ref});
         }).catch(e => {

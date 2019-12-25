@@ -37,9 +37,11 @@ const corsOptions = {
         } else {
             callback(new Error('Not allowed by CORS'))
         }
+
+
     }
 };
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use('/admin', require('./router/admin'));
