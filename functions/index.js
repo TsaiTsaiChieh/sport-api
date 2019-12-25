@@ -31,7 +31,6 @@ app.use(
 const whitelist = ['https://chat.doinfo.cc', 'http://localhost:5000', 'http://localhost:8080'];
 const corsOptions = {
     origin: function (origin, callback) {
-        console.log("origin....", origin);
         if (whitelist.indexOf(origin) !== -1 || !origin) {
             callback(null, true)
         } else {

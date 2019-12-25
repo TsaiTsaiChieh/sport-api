@@ -138,7 +138,7 @@ async function modifyUserProfile(req, res) {
                         data.phone = args.phone;
                         data.email = args.email;
                         data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-                        if (!args.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+                        // if (!args.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
                         data.status = 1;
                         data.signature = "";
                         data.blockMessage = nowTimeStamp;
