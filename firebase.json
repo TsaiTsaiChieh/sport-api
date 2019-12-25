@@ -58,7 +58,8 @@
           "function": "ssr"
         }
       ]
-    },{
+    },
+    {
       "site": "api-doinfo-cc-0002",
       "public": "public",
       "ignore": [
@@ -87,7 +88,8 @@
           "function": "api"
         }
       ]
-    },{
+    },
+    {
       "site": "admin-doinfo-cc-0001",
       "public": "public",
       "ignore": [

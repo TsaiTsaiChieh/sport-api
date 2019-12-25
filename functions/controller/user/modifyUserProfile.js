@@ -143,6 +143,7 @@ async function modifyUserProfile(req, res) {
                 // if (req.body.email) data.email = req.body.email;
                 // if (req.body.phone) data.phone = req.body.phone;
                 if (req.body.signature) data.signature = req.body.signature;
+                if (req.body.title) data.defaultTitle = req.body.title;
                 data.updateTime = nowTimeStamp;
                 let refCode = req.body.refCode;
                 if (refCode) {

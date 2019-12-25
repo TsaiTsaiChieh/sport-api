@@ -33,7 +33,7 @@ function verifySessionCookie(req, res) {
     // const cookies = req.get('cookie') || '__session=';
     // const sessionCookie = cookie.parse(cookies).__session;
 
-    console.log("verify cookie ....",sessionCookie);
+    console.log("verify cookie ....", sessionCookie);
     if (!sessionCookie) return res.status(200).json({success: false, message: "authentication failed"});
     // res.setHeader('Access-Control-Allow-Origin', '*');
     if (!sessionCookie) return res.json({success: false});
