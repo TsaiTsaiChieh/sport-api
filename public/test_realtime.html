@@ -40,7 +40,11 @@
       <h3 class="single_1">get single message 1 (自己隱藏)</h3>
       <h3 class="single_2">get single message 2 (正常顯示)</h3>
     </div>
+<<<<<<< HEAD
 
+=======
+    <input type="file" id="fileButton" value="upload">
+>>>>>>> tsaichieh
     <!-- js code-->
     <script>
       const firebaseConfig = {
@@ -101,6 +105,7 @@
             chat_message_single_2.append(message);
         });
 
+<<<<<<< HEAD
       // firebase
       //   .database()
       //   .ref('/chat_test/0CmJgPDdevGQDztfC5kw')
@@ -142,6 +147,20 @@
       }
 
       // getonce();
+=======
+      //firestorage upload example
+    let storage = firebase.storage();
+    let fileButton = document.getElementById("fileButton");
+    fileButton.addEventListener("change", async function (e) {
+        let file = e.target.files[0];
+        let storageRef = firebase.storage().ref('photo/' + file.name);
+        const result = await storageRef.put(file);
+        const url = await result.ref.getDownloadURL();
+        console.log('result:',result);
+        console.log(' * new url:...', url);
+        // console.log(JSON.stringify( result, null, " " ));
+    });
+>>>>>>> tsaichieh
     </script>
   </body>
 </html>
