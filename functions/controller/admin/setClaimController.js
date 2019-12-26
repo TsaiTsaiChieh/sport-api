@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const setCustomModel = require('../../model/admin/setClaimModel');
+const setClaimModel = require('../../model/admin/setClaimModel');
 
 async function setClaim(req, res) {
   const schema = {
@@ -28,8 +28,9 @@ async function setClaim(req, res) {
   }
   args.token = req.token;
   try {
-    res.json(await setCustomModel(args));
+    res.json(await setClaimModel(args));
   } catch (err) {
+    console.log('err....', err);
     res.status(err.code).json(err);
   }
 }
