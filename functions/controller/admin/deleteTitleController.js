@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const deleteTitleModel = require('../../models/admin/deleteTitleModel');
+const deleteTitleModel = require('../../model/admin/deleteTitleModel');
 
 function deleteTitle(req, res) {
   const schema = {

@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const setClaimModel = require('../../models/admin/setClaimModel');
+const setClaimModel = require('../../model/admin/setClaimModel');
 
 async function setClaim(req, res) {
   const schema = {

@@ -1,5 +1,5 @@
 // const modules = require('../../util/modules');
-const setClaimModel = require('../../models/admin/getClaimModel');
+const setClaimModel = require('../../model/admin/getClaimModel');
 
 async function getClaim(req, res) {
   try {

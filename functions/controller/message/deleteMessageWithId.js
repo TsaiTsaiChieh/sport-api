@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
-const messageModel = require('../../models/message/deleteMessageWithId');
+const messageModel = require('../../model/message/deleteMessageWithId');
 
 function deleteMessageWithId(req, res) {
   const schema = {
