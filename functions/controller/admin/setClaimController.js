@@ -1,8 +1,8 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const setCustomModel = require('../../model/admin/setClaimsModel');
+const setCustomModel = require('../../model/admin/setClaimModel');
 
-async function setClaims(req, res) {
+async function setClaim(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'role'],
@@ -34,4 +34,4 @@ async function setClaims(req, res) {
   }
 }
 
-module.exports = setClaims;
+module.exports = setClaim;
