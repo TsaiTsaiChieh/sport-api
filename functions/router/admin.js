@@ -26,10 +26,12 @@ router.delete(
   verification.admin,
   require('../controller/admin/deleteTitleController')
 );
+
+// can comment out verification.admin, if auth is not allowed
 router.post(
   '/setClaim',
   verification.token,
-
+  verification.admin,
   require('../controller/admin/setClaimController')
 );
 
