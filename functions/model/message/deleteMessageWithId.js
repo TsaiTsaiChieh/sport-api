@@ -63,12 +63,9 @@ function deleteMessageWithId(args) {
           return;
         }
       } else if (args.deleteAction === -1) {
-        const userSnapshot = await modules.getSnapshot(
-          process.env.usersCollection,
-          args.token.uid
-        );
+        const userSnapshot = await modules.getSnapshot('users', args.token.uid);
         const user = userSnapshot.data();
-        if (user.status === 9) {
+        if (user.status >= 9) {
           await modules
             .getDoc(`chat_${args.channelId}`, args.messageId)
             .set(
