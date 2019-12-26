@@ -10,10 +10,10 @@ function setClaim(args) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
-
       modules.firebaseAdmin
         .auth()
         .setCustomUserClaims(args.uid, { role: args.role });
+      userDoc.update({ status: args.role });
       resolve({
         data: `Set user: ${args.uid} as role: ${args.role} successfully`
       });
