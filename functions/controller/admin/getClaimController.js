@@ -26,9 +26,9 @@ async function getClaim(req, res) {
 module.exports = getClaim;
 
 /**
- * @api {get}} /admin/getClaim/:uid Get Claim
+ * @api {get} /admin/getClaim/:uid Get Claim
  * @apiVersion 1.0.0
- * @apiDescription 管理員查看使用者權限等級
+ * @apiDescription 管理員查看使用者權限等級 by Tsai-Chieh
  * 
  * （注意：請使用此使用者 uid: isyoDyVSJBXtD3G7sp9pLW5de7n1）
  * @apiName getClaim
@@ -39,14 +39,14 @@ module.exports = getClaim;
  * @apiParam {String} uid user uid
  *
  * @apiParamExample {Number} uid Users unique ID
- * 
- * @apiSuccessExample {JSON} Request-Example
  * {
  *    "id": isyoDyVSJBXtD3G7sp9pLW5de7n1
  * }
+ * @apiSuccessExample {JSON} Request-Example
+ * 
  *  HTTP/1.1 200 OK
  * {
- *     "role": 2
+ *     "role": 9
  * }
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
