@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 
-function setCustomClaims(args) {
+function setClaims(args) {
   return new Promise(async function(resolve, reject) {
     /* Step 1: check if user exists */
     try {
@@ -23,4 +23,4 @@ function setCustomClaims(args) {
   });
 }
 
-module.exports = setCustomClaims;
+module.exports = setClaims;

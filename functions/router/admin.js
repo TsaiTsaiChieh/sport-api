@@ -27,9 +27,9 @@ router.delete(
   require('../controller/admin/deleteTitleController')
 );
 router.post(
-  '/setCustomClaims',
+  '/setClaims',
   verification.token,
-  require('../controller/admin/setCustomClaimsController')
+  require('../controller/admin/setClaimsController')
 );
 
 module.exports = router;
