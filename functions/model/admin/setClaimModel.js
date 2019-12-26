@@ -15,7 +15,7 @@ function setClaim(args) {
         .setCustomUserClaims(args.uid, { role: args.role });
       userDoc.update({ status: args.role });
       resolve({
-        data: `Set user: ${args.uid} as role: ${args.role} successfully`
+        data: `set user: ${args.uid} as role: ${args.role} successfully`
       });
     } catch (err) {
       reject({ code: 500, error: err });
