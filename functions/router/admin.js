@@ -26,5 +26,10 @@ router.delete(
   verification.admin,
   require('../controller/admin/deleteTitleController')
 );
-router.post('/addAdmin',verification.token,require('../controller/admin/addAdminController'));
+router.post(
+  '/setCustomClaims',
+  verification.token,
+  require('../controller/admin/setCustomClaimsController')
+);
+
 module.exports = router;
