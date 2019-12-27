@@ -147,7 +147,7 @@ module.exports = giveTitle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 16 ABL] successful"
+ *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 1 足球] successful"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
@@ -157,19 +157,19 @@ module.exports = giveTitle;
  *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
- * [
+ * [[
     {
         "keyword": "enum",
         "dataPath": ".league",
         "schemaPath": "#/allOf/0/then/properties/league/enum",
         "params": {
             "allowedValues": [
-                "ABL",
-                "CPBL",
-                "KBO",
-                "LMB",
+                "中國職棒",
+                "墨西哥職棒",
+                "韓國職棒",
                 "MLB",
-                "NPB"
+                "日本職棒",
+                "澳洲職棒"
             ]
         },
         "message": "should be equal to one of the allowed values"
