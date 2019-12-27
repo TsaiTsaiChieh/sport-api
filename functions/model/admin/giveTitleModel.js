@@ -20,7 +20,11 @@ function giveTitleModel(args) {
           sport: args.sport
         });
         // set default title
-        userDoc.set({ titles, defaultTitle: titles[0] }, { merge: true });
+        userDoc.set(
+          { titles, defaultTitle: titles[0], status: 2 },
+          { merge: true }
+        );
+        modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
         resolve({
           data: `Given user: ${args.uid} a title: [${args.rank} ${args.sport} ${args.league}] successful`
         });
@@ -65,7 +69,9 @@ function giveTitleModel(args) {
           sport: args.sport
         });
       }
-      userDoc.set({ titles }, { merge: true });
+      // status 2 is good like
+      userDoc.set({ titles, status: 2 }, { merge: true });
+      modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
       resolve({
         data: `Given user: ${args.uid} a title: [${args.rank} ${args.sport} ${args.league}] successful`
       });
