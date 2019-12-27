@@ -33,7 +33,15 @@ function giveTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['ABL', 'CPBL', 'KBO', 'LMB', 'MLB', 'NPB']
+              // enum: ['ABL', 'CPBL', 'KBO', 'LMB', 'MLB', 'NPB']
+              enum: [
+                '中華職棒',
+                '墨西哥職棒',
+                '韓國職棒',
+                'MLB',
+                '日本職棒',
+                '澳洲職棒'
+              ]
             }
           }
         }
@@ -49,7 +57,15 @@ function giveTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['CBA', 'JPBL', 'KBL', 'NBA', 'NBL', 'SBL', 'WNBA']
+              enum: [
+                'SBL',
+                '日本職籃',
+                '韓國職籃',
+                '澳洲職籃',
+                'NBA',
+                'WNBA',
+                '中國職籃'
+              ]
             }
           }
         }
@@ -81,7 +97,7 @@ function giveTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['ALL']
+              enum: ['足球']
             }
           }
         }
@@ -108,7 +124,7 @@ module.exports = giveTitle;
  * @api {post} /admin/giveTitle Give Title
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜
- * 
+ *
  * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
  * @apiName giveTitle
  * @apiGroup Admin
@@ -116,11 +132,10 @@ module.exports = giveTitle;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
- * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神 
+ * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
- * @apiParam {String} league user league, enum pair: [16(`ABL`, `CPBL`, `KBO`, `LMB`, `MLB`, `NPB`), 18(`CBA`, `JPBL`, `KBL`, `NBA`, `NBL`, `SBL`, `WNBA`), 17(`NHL`), 1(`ALL`)]
- * 
- *
+ * @apiParam {String} league user league, enum pair: [16(`中華職棒`, `墨西哥職棒`, `韓國職棒`, `MLB`, `日本職棒`, `澳洲職棒`), 18(`SBL`, `日本職籃`, `韓國職籃`, `澳洲職籃`, `NBA`, `WNBA`, `中國職籃`), 17(`NHL`), 1(`足球`)]
+
  * @apiParamExample {JSON} Request-Example
  * {
  *     "uid": "6t0bRabntZ5fRFczvfij",
@@ -128,11 +143,11 @@ module.exports = giveTitle;
  *     "sport": 16,
  *     "league": "ABL"
  * }
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 16 ABL] successful"
+ *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 1 足球] successful"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
@@ -142,19 +157,19 @@ module.exports = giveTitle;
  *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
- * [
+ * [[
     {
         "keyword": "enum",
         "dataPath": ".league",
         "schemaPath": "#/allOf/0/then/properties/league/enum",
         "params": {
             "allowedValues": [
-                "ABL",
-                "CPBL",
-                "KBO",
-                "LMB",
+                "中華職棒",
+                "墨西哥職棒",
+                "韓國職棒",
                 "MLB",
-                "NPB"
+                "日本職棒",
+                "澳洲職棒"
             ]
         },
         "message": "should be equal to one of the allowed values"
@@ -169,7 +184,7 @@ module.exports = giveTitle;
         "message": "should match \"then\" schema"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 401-Response
  * HTTP/1.1 401 Unauthorized
  * {

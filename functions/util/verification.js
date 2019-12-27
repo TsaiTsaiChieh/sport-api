@@ -32,7 +32,7 @@ async function admin(req, res, next) {
   try {
     const userSnapshot = await modules.getSnapshot('users', req.token.uid);
     const user = userSnapshot.data();
-    if (user.status === 9) {
+    if (user.status >= 9) {
       req.admin = true;
       req.adminUid = req.token.uid;
       return next();

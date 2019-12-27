@@ -26,5 +26,19 @@ router.delete(
   verification.admin,
   require('../controller/admin/deleteTitleController')
 );
-router.post('/addAdmin',verification.token,require('../controller/admin/addAdminController'));
+
+// can comment out verification.admin, if auth is not allowed
+router.post(
+  '/setClaim',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/setClaimController')
+);
+
+router.get(
+  '/getClaim/:uid',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/getClaimController')
+);
 module.exports = router;
