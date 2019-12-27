@@ -157,6 +157,7 @@ async function modifyUserProfile(req, res) {
                             phoneNumber: req.body.phone,
                             displayName: req.body.displayName
                         });
+                        admin.auth().setCustomUserClaims(uid, {role: 1});
                         break;
                     case 1: //一般會員
                         console.log("normal user");
