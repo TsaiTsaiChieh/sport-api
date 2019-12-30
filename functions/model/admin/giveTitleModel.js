@@ -26,7 +26,14 @@ function giveTitleModel(args) {
         );
         modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
         resolve({
-          data: `Given user: ${args.uid} a title: [${args.rank} ${args.sport} ${args.league}] successful`
+          uid: args.uid,
+          title: [
+            {
+              rank: args.rank,
+              sport: args.sport,
+              league: args.league
+            }
+          ]
         });
         return;
       }
@@ -73,7 +80,14 @@ function giveTitleModel(args) {
       userDoc.set({ titles, status: 2 }, { merge: true });
       modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
       resolve({
-        data: `Given user: ${args.uid} a title: [${args.rank} ${args.sport} ${args.league}] successful`
+        uid: args.uid,
+        title: [
+          {
+            rank: args.rank,
+            sport: args.sport,
+            league: args.league
+          }
+        ]
       });
     } catch (err) {
       console.log('error happened...', err);

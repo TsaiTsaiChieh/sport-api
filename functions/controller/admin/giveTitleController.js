@@ -147,8 +147,16 @@ module.exports = giveTitle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Given user: 6t0bRabntZ5fRFczvfij a title: [1 1 足球] successful"
- * }
+ *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
+ *    "title": [
+ *        {
+ *              "rank": 5,
+ *              "sport": 16,
+ *              "league": "中華職棒"
+ *        }
+ *     ]
+ *  }
+ * 
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 403 Forbidden
