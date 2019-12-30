@@ -12,10 +12,9 @@ function getTitlesAndPoints(args) {
       }
       const user = userSnapshot.data();
       let titles = user.titles ? user.titles : [];
-
-      return resolve({
+      resolve({
         uid: args.uid,
-        points: user.points,
+        point: user.point,
         titles: titles
       });
     } catch (err) {
