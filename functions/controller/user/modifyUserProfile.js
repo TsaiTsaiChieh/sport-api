@@ -27,52 +27,53 @@ const admin = modules.firebaseAdmin;
  * @apiSuccessExample New User:
  *  HTTP/1.1 200 OK
  {
-    "success": true,
-    "result": {
+    "refPoints": 200,
+    "data": {
         "success": true,
-        "uid": "M2c2lEcZ5YRcldxv3SzY0rTdFCB3",
+        "uid": "sfoepr8QRORSUfs8tZFa3zO7SN23",
         "data": {
             "blockMessage": {
-                "_seconds": 1577260223,
-                "_nanoseconds": 241000000
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
             },
             "ingot": 0,
             "avatar": "https://i.imgur.com/EUAd2ht.jpg",
-            "uid": "M2c2lEcZ5YRcldxv3SzY0rTdFCB3",
+            "uid": "sfoepr8QRORSUfs8tZFa3zO7SN23",
             "birthday": {
                 "_seconds": 1543182036,
                 "_nanoseconds": 370000000
             },
-            "phone": "+886999999993",
+            "phone": "+886999999999",
             "dividend": 0,
-            "referrer": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+            "referrer": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
+            "points": 200,
             "coin": 0,
             "signature": "世界很快我很慢",
             "status": 1,
             "blockCount": 0,
             "email": "rex@gets-info.com",
             "name": "rex",
-            "point": 0,
             "accuseCredit": 20,
             "displayName": "qqqq",
             "denys": [],
             "titles": [],
             "createTime": {
-                "_seconds": 1577260223,
-                "_nanoseconds": 241000000
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
             },
             "defaultTitle": {
-                "rank": 1,
                 "league": "MLB",
-                "sport": 16
+                "sport": 16,
+                "rank": 1
             },
             "updateTime": {
-                "_seconds": 1577261258,
-                "_nanoseconds": 329000000
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
             }
         },
         "status": 1
-    }
+    },
+    "success": true
 }
  *
  *
@@ -149,7 +150,7 @@ async function modifyUserProfile(req, res) {
                         data.ingot = 0; //搞錠
                         data.titles = [];
                         data.defaultTitle = {};
-                        data.points = 0;
+                        data.point = 0;
                         data.blockCount = 0;
                         data.accuseCredit = 20; //檢舉信用值預設20，limit 100
                         admin.auth().updateUser(uid, {
@@ -186,6 +187,7 @@ async function modifyUserProfile(req, res) {
                 if (req.body.signature) data.signature = req.body.signature;
                 if (req.body.title) data.defaultTitle = req.body.title;
                 data.updateTime = nowTimeStamp;
+                let resultJson = {};
                 let refCode = req.body.refCode;
                 if (refCode) {
                     // refCode regular expression test
@@ -200,11 +202,12 @@ async function modifyUserProfile(req, res) {
                                 if (referrer.data.referrer !== uid && refCode !== uid) {
                                     if (firestoreUser.status === 0) {
                                         console.log("set refCode give point: ", refCode);
-                                        data.points = 0;
+                                        data.point = 200;
                                         data.referrer = refCode;
+                                        resultJson.refPoints = data.points;
                                     } else {
                                         if (!firestoreUser.data.referrer) {
-                                            data.points = 0;
+                                            data.point = 0;
                                             data.referrer = refCode;
                                         }
                                     }
@@ -217,8 +220,10 @@ async function modifyUserProfile(req, res) {
                 console.log("user profile updated : ", JSON.stringify(data, null, '\t'));
                 modules.firestore.collection('users').doc(uid).set(data, {merge: true}).then(async ref => {
                     const result = await userUtils.getUserProfile(uid);
+                    resultJson.data = result;
+                    resultJson.success = true;
                     console.log('Added document with ID: ', ref);
-                    return res.json({success: true, result: result});
+                    return res.status(200).json(resultJson);
                 }).catch(e => {
                     console.log('Added document with error: ', e);
                     return res.status(500).json({success: false, message: "update failed"});
