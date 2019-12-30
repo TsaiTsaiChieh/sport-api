@@ -31,28 +31,26 @@ async function getTitlesAndPoints(req, res) {
 module.exports = getTitlesAndPoints;
 
 /**
- * @api {get} /admin/getTitlesAndPoints/ Set Claim
+ * @api {get} /admin/getTitlesAndPoints/:uid Get Titles And Points
  * @apiVersion 1.0.0
  * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
  * 
- * （注意：請使用此使用者 uid: lz3c3ju6G0TilDOdgCQt4I7I8ep1）
- * @apiName setClaim
+ * @apiName getTitlesAndPoints
  * @apiGroup Admin
  * @apiPermission admin
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
- * @apiParam {Integer} role user uid, `-1`: locked, `0`: sinup but not complete profile, `1`: normal, `2`: god like, `9`: admin
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": isyoDyVSJBXtD3G7sp9pLW5de7n1,
- *    "role": 2
+ *    "id": ssa8LE669NbzsNpjXcCCDsdVmxj2
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
  * {
- *    "data": "set user: lz3c3ju6G0TilDOdgCQt4I7I8ep1 as role: 1 successfully"
+ *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
+ *    "currentPoints": 77
  * }
  * 
  * @apiError 401 Unauthorized
