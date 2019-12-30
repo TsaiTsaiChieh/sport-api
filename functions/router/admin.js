@@ -41,4 +41,11 @@ router.get(
   verification.admin,
   require('../controller/admin/getClaimController')
 );
+
+router.get(
+  '/getTitlesAndPoints/:uid',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/getTitlesAndPointsController')
+);
 module.exports = router;
