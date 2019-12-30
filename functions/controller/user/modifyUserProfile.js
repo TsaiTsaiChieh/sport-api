@@ -150,7 +150,7 @@ async function modifyUserProfile(req, res) {
                         data.ingot = 0; //搞錠
                         data.titles = [];
                         data.defaultTitle = {};
-                        data.points = 0;
+                        data.point = 0;
                         data.blockCount = 0;
                         data.accuseCredit = 20; //檢舉信用值預設20，limit 100
                         admin.auth().updateUser(uid, {
@@ -202,12 +202,12 @@ async function modifyUserProfile(req, res) {
                                 if (referrer.data.referrer !== uid && refCode !== uid) {
                                     if (firestoreUser.status === 0) {
                                         console.log("set refCode give point: ", refCode);
-                                        data.points = 200;
+                                        data.point = 200;
                                         data.referrer = refCode;
                                         resultJson.refPoints = data.points;
                                     } else {
                                         if (!firestoreUser.data.referrer) {
-                                            data.points = 0;
+                                            data.point = 0;
                                             data.referrer = refCode;
                                         }
                                     }
