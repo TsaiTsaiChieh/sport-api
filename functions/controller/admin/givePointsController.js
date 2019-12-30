@@ -39,7 +39,7 @@ module.exports = givePoints;
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者點數
  * 
- * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
+ * （注意：請使用測試使用者 uid: 40lFV6SJAVYpw0zZbIuUp7gL9Py2
  * @apiName givePoints
  * @apiGroup Admin
  * @apiPermission admin
@@ -50,15 +50,17 @@ module.exports = givePoints;
  *
  * @apiParamExample {JSON} Request-Example
  * {
- *     "uid": "aaabnKcVVaiIaUf3daVMNTTK5gH4hf1",
+ *     "uid": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
  *     "points": 200
  * }
  * 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Given user: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1 150 successful, now user has 400 points"
+ *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
+ *    "currentPoints": 77
  * }
+ * 
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found

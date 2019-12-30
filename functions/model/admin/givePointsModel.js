@@ -12,11 +12,10 @@ function givePoints(args) {
       }
       const user = userSnapshot.data();
       const userPoints = user.point ? user.point : 0;
-      userDoc.update({ point: userPoints + args.points });
+      userDoc.update({ points: userPoints + args.points });
       resolve({
-        data: `Given user: ${args.uid} ${
-          args.points
-        } successful, now user has ${userPoints + args.points} points`
+        uid: args.uid,
+        currentPoints: userPoints + args.points
       });
     } catch (err) {
       console.log('error happened...', err);
