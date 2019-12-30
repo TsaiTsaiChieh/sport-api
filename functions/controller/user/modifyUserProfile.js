@@ -27,7 +27,7 @@ const admin = modules.firebaseAdmin;
  * @apiSuccessExample New User:
  *  HTTP/1.1 200 OK
  {
-    "refPoints": 200,
+    "refPoint": 200,
     "data": {
         "success": true,
         "uid": "sfoepr8QRORSUfs8tZFa3zO7SN23",
@@ -46,7 +46,7 @@ const admin = modules.firebaseAdmin;
             "phone": "+886999999999",
             "dividend": 0,
             "referrer": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
-            "points": 200,
+            "point": 200,
             "coin": 0,
             "signature": "世界很快我很慢",
             "status": 1,
@@ -154,8 +154,8 @@ async function modifyUserProfile(req, res) {
                         data.blockCount = 0;
                         data.accuseCredit = 20; //檢舉信用值預設20，limit 100
                         admin.auth().updateUser(uid, {
-                            email: req.body.email,
-                            phoneNumber: req.body.phone,
+                            // email: req.body.email,
+                            // phoneNumber: req.body.phone,
                             displayName: req.body.displayName
                         });
                         admin.auth().setCustomUserClaims(uid, {role: 1});
@@ -204,7 +204,7 @@ async function modifyUserProfile(req, res) {
                                         console.log("set refCode give point: ", refCode);
                                         data.point = 200;
                                         data.referrer = refCode;
-                                        resultJson.refPoints = data.points;
+                                        resultJson.refPoint = data.point;
                                     } else {
                                         if (!firestoreUser.data.referrer) {
                                             data.point = 0;
