@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 
-function givePoints(args) {
+function getTitlesAndPoints(args) {
   return new Promise(async function(resolve, reject) {
     /* step 1: check if user exists */
     try {
@@ -11,16 +11,17 @@ function givePoints(args) {
         return;
       }
       const user = userSnapshot.data();
-      const userPoints = user.point ? user.point : 0;
-      userDoc.update({ points: userPoints + args.points });
-      resolve({
+      let titles = user.titles ? user.titles : [];
+
+      return resolve({
         uid: args.uid,
-        currentPoints: userPoints + args.points
+        points: user.points,
+        titles: titles
       });
     } catch (err) {
       console.log('error happened...', err);
-      reject({ coder: 500, error: err });
+      reject({ code: 500, error: err });
     }
   });
 }
-module.exports = givePoints;
+module.exports = getTitlesAndPoints;
