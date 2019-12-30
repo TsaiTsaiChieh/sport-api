@@ -11,8 +11,8 @@ function givePoints(args) {
         return;
       }
       const user = userSnapshot.data();
-      const userPoints = user.points ? user.points : 0;
-      userDoc.update({ points: userPoints + args.points });
+      const userPoints = user.point ? user.point : 0;
+      userDoc.update({ point: userPoints + args.points });
       resolve({
         uid: args.uid,
         currentPoints: userPoints + args.points
