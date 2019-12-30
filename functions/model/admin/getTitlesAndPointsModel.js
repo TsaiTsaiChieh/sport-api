@@ -16,7 +16,7 @@ function getTitlesAndPoints(args) {
       return resolve({
         uid: args.uid,
         points: user.points,
-        titles: user.titles
+        titles: titles
       });
     } catch (err) {
       console.log('error happened...', err);

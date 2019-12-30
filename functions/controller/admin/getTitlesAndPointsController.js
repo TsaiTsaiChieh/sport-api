@@ -50,7 +50,19 @@ module.exports = getTitlesAndPoints;
  *  HTTP/1.1 200 OK
  * {
  *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
- *    "currentPoints": 77
+ *    "points": 77,
+ *    "titles": [
+ *        {
+ *            "rank": 1,
+ *            "league": "足球",
+ *            "sport": 1
+ *        },
+ *        {
+ *            "rank": 5,
+ *            "league": "中華職棒",
+ *            "sport": 16
+ *         }
+ *     ]
  * }
  * 
  * @apiError 401 Unauthorized
