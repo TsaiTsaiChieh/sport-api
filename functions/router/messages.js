@@ -16,7 +16,7 @@ router.get('/list', async (req, res) => {
 // router.get('/test', async (req, res) => {
 //   let uid = '40lFV6SJAVYpw0zZbIuUp7gL9Py2';
 //   let id = ['JrMbGsx9NA1Lr8IIOdK5', '2yp0R129DR7DaivZv4uq'];
-//   let result = await modules.database.ref(`/mask_message/${uid}`).set({
+//   let result = await modules.database.ref(`/mask_message/${uid}/test`).set({
 //     messageId: id
 //   });
 //   res.send(result);
