@@ -29,14 +29,14 @@ function deleteMessageWithId(args) {
         return;
       }
       // 若使用者要收回(0) 或要刪除(1)，必須要本人
-      if (args.deleteAction === 0 || args.deleteAction === 1) {
+      if (args.deleteAction === 0) {
         if (args.token.uid === message.user.uid) {
           // if sender is the same user
-          if (message.message.softDelete === 1) {
-            // same user want to delete/retract again
-            reject({ code: 410, error: 'message/file had been deleted' });
-            return;
-          }
+          // if (message.message.softDelete === 1) {
+          //   // same user want to delete/retract again
+          //   reject({ code: 410, error: 'message/file had been deleted' });
+          //   return;
+          // }
           // user retract logic
           if (
             args.deleteAction === 0 &&
@@ -89,15 +89,24 @@ function deleteMessageWithId(args) {
             softDelete: args.deleteAction
           });
       }
-      // if 1, just change softDelete
+      // before: if 1, just change softDelete
+      // now: update mask_message
       if (args.deleteAction === 1) {
+        // modules.database
+        //   .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
+        //   .set(args.messageId);
         modules.database
-          .ref(`chat_${args.channelId}`)
+          .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
           .child(args.messageId)
-          .child('message')
-          .update({
-            softDelete: args.deleteAction
-          });
+          .set(1);
+        // .set(args.messageId);
+        // modules.database
+        //   .ref(`chat_${args.channelId}`)
+        //   .child(args.messageId)
+        //   .child('message')
+        //   .update({
+        //     softDelete: args.deleteAction
+        //   });
       }
       resolve(`Delete message id: ${args.messageId} successful`);
     } catch (err) {
