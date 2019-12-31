@@ -115,15 +115,22 @@
       // 一進來
       firebase
         .database()
-        .ref(`/mask_message/${uid}`)
+        .ref(`/mask_message/${uid}/test`)
         .once('value', function(snapshot) {
           let data = snapshot.val();
-          console.log(data.messageId);
-          data.messageId.forEach(function(ele) {
-            console.log(ele);
+          console.log(data);
+          for (const ele in data) {
+            // console.log(ele);
             document.querySelector(`.message_${ele}`).style.display = 'none';
-          });
+          }
+          // console.log(data.messageId);
+          // data.forEach(function(ele) {
+          //   console.log('....', ele);
+          //   document.querySelector(`.message_${ele}`).style.display = 'none';
+          // });
         });
+      console.log(uid);
+
       // firebase
       //   .database()
       //   .ref('/chat_test/0CmJgPDdevGQDztfC5kw')
