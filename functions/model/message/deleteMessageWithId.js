@@ -32,11 +32,11 @@ function deleteMessageWithId(args) {
       if (args.deleteAction === 0 || args.deleteAction === 1) {
         if (args.token.uid === message.user.uid) {
           // if sender is the same user
-          if (message.message.softDelete === 1) {
-            // same user want to delete/retract again
-            reject({ code: 410, error: 'message/file had been deleted' });
-            return;
-          }
+          // if (message.message.softDelete === 1) {
+          //   // same user want to delete/retract again
+          //   reject({ code: 410, error: 'message/file had been deleted' });
+          //   return;
+          // }
           // user retract logic
           if (
             args.deleteAction === 0 &&
@@ -55,13 +55,14 @@ function deleteMessageWithId(args) {
               { message: { softDelete: args.deleteAction } },
               { merge: true }
             ); // when update a map, it will overwrite
-        } else if (args.token.uid !== message.user.uid) {
-          reject({
-            code: 403,
-            error: 'forbidden, please use report function'
-          });
-          return;
         }
+        // else if (args.token.uid !== message.user.uid) {
+        //   reject({
+        //     code: 403,
+        //     error: 'forbidden, please use report function'
+        //   });
+        //   return;
+        // }
       } else if (args.deleteAction === -1) {
         const userSnapshot = await modules.getSnapshot('users', args.token.uid);
         const user = userSnapshot.data();
@@ -89,15 +90,24 @@ function deleteMessageWithId(args) {
             softDelete: args.deleteAction
           });
       }
-      // if 1, just change softDelete
+      // before: if 1, just change softDelete
+      // now: update mask_message
       if (args.deleteAction === 1) {
+        // modules.database
+        //   .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
+        //   .set(args.messageId);
         modules.database
-          .ref(`chat_${args.channelId}`)
+          .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
           .child(args.messageId)
-          .child('message')
-          .update({
-            softDelete: args.deleteAction
-          });
+          .set(1);
+        // .set(args.messageId);
+        // modules.database
+        //   .ref(`chat_${args.channelId}`)
+        //   .child(args.messageId)
+        //   .child('message')
+        //   .update({
+        //     softDelete: args.deleteAction
+        //   });
       }
       resolve(`Delete message id: ${args.messageId} successful`);
     } catch (err) {
