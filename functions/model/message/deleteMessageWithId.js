@@ -29,7 +29,7 @@ function deleteMessageWithId(args) {
         return;
       }
       // 若使用者要收回(0) 或要刪除(1)，必須要本人
-      if (args.deleteAction === 0 || args.deleteAction === 1) {
+      if (args.deleteAction === 0) {
         if (args.token.uid === message.user.uid) {
           // if sender is the same user
           // if (message.message.softDelete === 1) {
@@ -55,14 +55,13 @@ function deleteMessageWithId(args) {
               { message: { softDelete: args.deleteAction } },
               { merge: true }
             ); // when update a map, it will overwrite
+        } else if (args.token.uid !== message.user.uid) {
+          reject({
+            code: 403,
+            error: 'forbidden, please use report function'
+          });
+          return;
         }
-        // else if (args.token.uid !== message.user.uid) {
-        //   reject({
-        //     code: 403,
-        //     error: 'forbidden, please use report function'
-        //   });
-        //   return;
-        // }
       } else if (args.deleteAction === -1) {
         const userSnapshot = await modules.getSnapshot('users', args.token.uid);
         const user = userSnapshot.data();
