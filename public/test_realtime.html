@@ -66,14 +66,15 @@
       // let user = firebase.auth().currentUser;
       let user = firebase.auth().currentUser;
 
-      let uid = 'zmPF5Aht60Y6GdBbGnrOSlWcgV53';
+      let uid = '40lFV6SJAVYpw0zZbIuUp7gL9Py2';
 
       chat_test
         .orderByChild('createTime/_seconds')
         .once('value', function(snapshot) {
           snapshot.forEach(function(record) {
             let message = document.createElement('p');
-            message.setAttribute('class', 'message');
+            console.log(record.key);
+            message.setAttribute('class', `message message_${record.key}`);
             message.innerHTML = `${record.key}: ${
               record.val().message.message
             } (${record.val().message.softDelete})`;
@@ -109,7 +110,20 @@
           } (${snapshot.val().message.softDelete})`;
           chat_message_single_2.append(message);
         });
+      // let id = ['JrMbGsx9NA1Lr8IIOdK5', '2yp0R129DR7DaivZv4uq'];
 
+      // 一進來
+      firebase
+        .database()
+        .ref(`/mask_message/${uid}`)
+        .once('value', function(snapshot) {
+          let data = snapshot.val();
+          console.log(data.messageId);
+          data.messageId.forEach(function(ele) {
+            console.log(ele);
+            document.querySelector(`.message_${ele}`).style.display = 'none';
+          });
+        });
       // firebase
       //   .database()
       //   .ref('/chat_test/0CmJgPDdevGQDztfC5kw')
