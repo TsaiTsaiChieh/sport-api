@@ -113,15 +113,18 @@
       // let id = ['JrMbGsx9NA1Lr8IIOdK5', '2yp0R129DR7DaivZv4uq'];
 
       // 一進來
+      let all = document.querySelector('.all');
       firebase
         .database()
-        .ref(`/mask_message/${uid}/test`)
+        .ref(`/mask_message/${uid}/chat_public`)
         .once('value', function(snapshot) {
           let data = snapshot.val();
           console.log(data);
           for (const ele in data) {
             // console.log(ele);
-            document.querySelector(`.message_${ele}`).style.display = 'none';
+            // document.querySelector(`.message_${ele}`).style.display = 'none';
+            chat_message.parentElement.removeChild(`.message_${ele}`);
+            // document.querySelector(`.message_${ele}`).remove;
           }
           // console.log(data.messageId);
           // data.forEach(function(ele) {
