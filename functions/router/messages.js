@@ -13,14 +13,19 @@ router.get('/list', async (req, res) => {
   //   );
   //   console.log(messageSnapshot.data());
 });
-// router.get('/test', async (req, res) => {
-//   let uid = '40lFV6SJAVYpw0zZbIuUp7gL9Py2';
-//   let id = ['JrMbGsx9NA1Lr8IIOdK5', '2yp0R129DR7DaivZv4uq'];
-//   let result = await modules.database.ref(`/mask_message/${uid}/test`).set({
-//     messageId: id
-//   });
-//   res.send(result);
-// });
+router.get('/test', async (req, res) => {
+  // request:league_id（球種）, day(哪天比賽), page
+  try {
+    // just example data, league_id is 1 (football)
+    const result = await modules.axios.get(
+      'https://betsapi.com/api-doc/samples/bet365_upcoming.json'
+    );
+    console.log(result.data);
+    res.send(result.data);
+  } catch (err) {
+    console.log(err);
+  }
+});
 router.get('/?', require('../controller/message/getLastMessag'));
 router.get(
   '/:id',
