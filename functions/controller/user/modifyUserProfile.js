@@ -1,6 +1,7 @@
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;
+const envValues = require('../config/env_values');
 
 
 /**
@@ -290,8 +291,8 @@ async function modifyUserProfile(req, res) {
             data.name = args.name;                  //only new user can set name(Actual name), none changeable value
             data.phone = args.phone;
             data.email = args.email;
-            data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday)); //only new user can set birthday, none changeable value
-            // if (!args.avatar) data.avatar = "https://this.is.defaultAvatar.jpg";
+            data.birthday = admin.firestore.Timestamp.fromDate(new Date(req.body.birthday));
+            if (!args.avatar) data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
             data.status = 1;
             data.signature = "";
             data.blockMessage = nowTimeStamp;

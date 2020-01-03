@@ -51,10 +51,13 @@ const schema = {
 // const valid = modules.ajv.validate(schema, {avatar: avatar});
 //
 // console.log(valid)
-firebaseAdmin.auth().setCustomUserClaims('a91tJzXQvhQf9CejoLIPt4ol8zp1', {admin: true}).then(test => {
-    console.log('ok');
-    console.log(test);
+// firebaseAdmin.auth().setCustomUserClaims('a91tJzXQvhQf9CejoLIPt4ol8zp1', {admin: true}).then(test => {
+//     console.log('ok');
+//     console.log(test);
+//
+//     // The new custom claims will propagate to the user's ID token the
+//     // next time a new one is issued.
+// });
 
-    // The new custom claims will propagate to the user's ID token the
-    // next time a new one is issued.
-});
+const envValues = require('../config/env_values');
+console.log(`${envValues.productURL}statics/default-profile-avatar.jpg`);
