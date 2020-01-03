@@ -70,12 +70,18 @@ function createMessage(args) {
       };
       insertData.user = user;
       /* add message data to firestore & realtime */
-      messageDoc.set(insertData);
-      modules.database
-        .ref(`chat_${args.message.channelId}`)
-        .child(messageId)
-        .set(insertData);
-      resolve(insertData);
+      let result = await messageDoc.set(insertData);
+      console.log(result);
+      if (result) {
+        modules.database
+          .ref(`chat_${args.message.channelId}`)
+          .child(messageId)
+          .set(insertData);
+        resolve(insertData);
+      } else {
+        reject({ code: 500, error: 'insert firestore failed' });
+        return;
+      }
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });

@@ -5,6 +5,7 @@ const firebase = require('firebase');
 const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
+const axios = require('axios');
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
@@ -47,5 +48,6 @@ module.exports = {
   bucket,
   database,
   addDataInCollection,
-  moment
+  moment,
+  axios
 };

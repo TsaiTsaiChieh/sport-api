@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const getTitlesAndPointsModel = require('../../model/admin/getTitlesAndPointsModel');
+const getTitlesAndPointsModel = require('../../model/user/getTitlesAndPointsModel');
 
 async function getTitlesAndPoints(req, res) {
   const schema = {
@@ -31,26 +31,24 @@ async function getTitlesAndPoints(req, res) {
 module.exports = getTitlesAndPoints;
 
 /**
- * @api {get} /admin/getTitlesAndPoints/:uid Get Titles And Points
- * @apiVersion 1.0.0
- * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
+ * @api {get} /user/getTitlesAndPoints/:uid Get Titles And Points
+ * @apiVersion 1.0.1
+ * @apiDescription 看使用者的的頭銜和點數 by Tsai-Chieh
  * 
  * @apiName getTitlesAndPoints
- * @apiGroup Admin
- * @apiPermission admin
+ * @apiGroup User
  *
- * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": ssa8LE669NbzsNpjXcCCDsdVmxj2
+ *    "uid": X6umtiqFyRfcuJiKfjsFXrWqICc2
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
  * {
- *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
- *    "points": 77,
+ *    "uid": "X6umtiqFyRfcuJiKfjsFXrWqICc2",
+ *    "points": 4,
  *    "titles": [
  *        {
  *            "rank": 1,
