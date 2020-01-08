@@ -18,27 +18,30 @@ app.use(helmet.xssFilter());
 
 app.use(helmet.frameguard());
 app.use(
-    bodyParser.urlencoded({
-        limit: '50mb', extended: true
-    })
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true
+  })
 );
 
 app.use(
-    bodyParser.json({
-        limit: '50mb'
-    })
+  bodyParser.json({
+    limit: '50mb'
+  })
 );
-const whitelist = ['https://chat.doinfo.cc', 'http://localhost:5000', 'http://localhost:8080'];
+const whitelist = [
+  'https://chat.doinfo.cc',
+  'http://localhost:5000',
+  'http://localhost:8080'
+];
 const corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1 || !origin) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-
-
+  origin: function(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
+  }
 };
 app.use(cors(corsOptions));
 
@@ -49,6 +52,12 @@ app.use('/user', require('./router/user'));
 app.use('/messages', require('./router/messages'));
 app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
-exports.api = functions.https.onRequest(app);
 
+exports.scheduledFunction = functions.pubsub
+  .schedule('*/10 * * * *')
+  .onRun(require('./pubsub/updateTest'));
+exports.scheduledSportEvent = functions.pubsub
+  .schedule('*/10 * * * *')
+  .onRun(require('./pubsub/updateUpcomingEvent'));
+exports.api = functions.https.onRequest(app);
 exports.ssr = functions.https.onRequest(ssr.app);
