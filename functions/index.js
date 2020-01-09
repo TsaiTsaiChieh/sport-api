@@ -54,10 +54,12 @@ app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 
 exports.scheduledFunction = functions.pubsub
-  .schedule('*/10 * * * *')
+  .schedule('0 0 * * *')
+  .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/updateTest'));
-exports.scheduledSportEvent = functions.pubsub
-  .schedule('*/10 * * * *')
-  .onRun(require('./pubsub/updateUpcomingEvent'));
+exports.cronUpcoming = functions.pubsub
+  .schedule('0 0 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/getUpcomingEvent'));
 exports.api = functions.https.onRequest(app);
 exports.ssr = functions.https.onRequest(ssr.app);
