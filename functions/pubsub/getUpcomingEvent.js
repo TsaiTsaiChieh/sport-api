@@ -60,7 +60,7 @@ async function getUpcomingSportEvent(sport_ids) {
     // console.log(
     //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
     // );
-    return body;
+    return events;
   } catch (error) {
     console.log(
       'error happened in updateUpcomingEvent axios function by Tsai-Chieh',
