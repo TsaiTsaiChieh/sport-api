@@ -45,9 +45,7 @@ async function getUpcomingSportEvent(sport_ids) {
         }
     }
 
-    const body = {};
-    // body.pager = data.pager;
-    let result = repackage(events);
+    events = repackage(events);
     for (let i = 0; i < events.length; i++) {
       let ele = events[i];
       modules.firebase
