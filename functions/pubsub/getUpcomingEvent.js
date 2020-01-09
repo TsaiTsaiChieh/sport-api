@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 const modules = require('../util/modules');
 // dummy data
 const data = require('./upcoming_baseketball.json');
@@ -26,14 +27,36 @@ async function getUpcomingSportEvent(sport_ids) {
     // const { data } = await modules.axios(
     //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}&page=1`
     // );
-
-    console.log(data);
-
-    // console.log(data);
+    let events = [];
+    // league loop
+    for (let i = 0; i < league_id.length; i++) {
+      let { data } = await modules.axios(
+        `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=1`
+      );
+      events.push(data.results);
+      // page loop
+      totalPage = Math.ceil(data.pager.total / data.pager.per_page);
+      if (totalPage > 1)
+        for (let j = 2; j <= totalPage; j++) {
+          data = await modules.axios(
+            `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=${j}`
+          );
+          events.push(data.results);
+        }
+    }
 
     const body = {};
-    body.pager = data.pager;
-    body.events = repackage(data.results);
+    // body.pager = data.pager;
+    let result = repackage(events);
+    for (let i = 0; i < events.length; i++) {
+      let ele = events[i];
+      modules.firebase
+        .collection('sport_test')
+        .doc(ele.sport_id)
+        .collection(ele.league_id)
+        .doc(ele.id)
+        .set(ele);
+    }
     // console.log(
     //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
     // );
