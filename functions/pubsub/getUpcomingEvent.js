@@ -8,13 +8,12 @@ const token = '35388-8IqMa0NK19LJVY';
 async function getUpcomingEvent(req, res) {
   // const sport_ids = [];
   let result = await getUpcomingSportEvent();
-  console.log(result);
+  // console.log(result);
   res.json(result);
 }
 
 async function getUpcomingSportEvent(sport_ids) {
   try {
-    // let date = '20200109';
     // tomorrow
     let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
       .toISOString()
@@ -28,36 +27,58 @@ async function getUpcomingSportEvent(sport_ids) {
     //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}&page=1`
     // );
     let events = [];
+    // for real data
     // league loop
-    for (let i = 0; i < league_id.length; i++) {
-      let { data } = await modules.axios(
-        `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=1`
-      );
-      events.push(data.results);
-      // page loop
-      totalPage = Math.ceil(data.pager.total / data.pager.per_page);
-      if (totalPage > 1)
-        for (let j = 2; j <= totalPage; j++) {
-          data = await modules.axios(
-            `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=${j}`
-          );
-          events.push(data.results);
-        }
-    }
+    // for (let i = 0; i < league_id.length; i++) {
+    //   let { data } = await modules.axios(
+    //     `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=1`
+    //   );
+    //   events.push(data.results);
+    //   // page loop
+    //   totalPage = Math.ceil(data.pager.total / data.pager.per_page);
+    //   if (totalPage > 1)
+    //     for (let j = 2; j <= totalPage; j++) {
+    //       data = await modules.axios(
+    //         `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id[i]}&day=${date}&page=${j}`
+    //       );
+    //       events.push(data.results);
+    //     }
+    // }
 
+    // events = repackage(events);
+    // for (let i = 0; i < events.length; i++) {
+    //   let ele = events[i];
+    //   modules.firebase
+    //     .collection('sport_test')
+    //     .doc(ele.sport_id)
+    //     .collection(ele.league_id)
+    //     .doc(ele.id)
+    //     .set(ele);
+    // }
+    // // console.log(
+    // //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
+    // // );
+    // return events;
+
+    // for dummy data
+    for (let i = 0; i < data.results.length; i++) {
+      events.push(data.results[i]);
+    }
     events = repackage(events);
     for (let i = 0; i < events.length; i++) {
       let ele = events[i];
-      modules.firebase
+      ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
+        new Date(Number.parseInt(ele.time) * 1000)
+      );
+      // console.log(ele);
+
+      await modules.firestore
         .collection('sport_test')
         .doc(ele.sport_id)
-        .collection(ele.league_id)
+        .collection(ele.league.id)
         .doc(ele.id)
         .set(ele);
     }
-    // console.log(
-    //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
-    // );
     return events;
   } catch (error) {
     console.log(
@@ -69,7 +90,7 @@ async function getUpcomingSportEvent(sport_ids) {
 
 function repackage(data) {
   data.forEach(function(ele) {
-    if (ele.time_stats) delete ele.time_stats;
+    if (ele.time_status) delete ele.time_status;
     if (!ele.ss) delete ele.ss; // ss always null
   });
   return data;
