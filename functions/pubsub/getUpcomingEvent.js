@@ -1,9 +1,10 @@
 const modules = require('../util/modules');
-
+// dummy data
+const data = require('./upcoming_baseketball.json');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = '35388-8IqMa0NK19LJVY';
-async function updateUpcomingEvent(req, res) {
+async function getUpcomingEvent(req, res) {
   // const sport_ids = [];
   let result = await getUpcomingSportEvent();
   console.log(result);
@@ -20,13 +21,22 @@ async function getUpcomingSportEvent(sport_ids) {
       .replace(/-/g, '');
 
     let sport_id = 18;
-    let league_id = 2274;
-    const { data } = await modules.axios(
-      `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
-    );
+    // NBA(2274), SBL(8251), WNBA(244), NBL(1714), CBA(2319), KBL(2148), JBL
+    let league_id = [2274, 8251, 244, 1714, 2319, 2148, 1298, 1543, 2630];
+    // const { data } = await modules.axios(
+    //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}&page=1`
+    // );
+
+    console.log(data);
+
+    // console.log(data);
+
     const body = {};
     body.pager = data.pager;
     body.events = repackage(data.results);
+    // console.log(
+    //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
+    // );
     return body;
   } catch (error) {
     console.log(
@@ -43,4 +53,4 @@ function repackage(data) {
   });
   return data;
 }
-module.exports = updateUpcomingEvent;
+module.exports = getUpcomingEvent;
