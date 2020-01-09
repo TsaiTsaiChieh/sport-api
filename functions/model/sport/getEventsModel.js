@@ -26,7 +26,7 @@ function getEvents(args) {
         modules.firestore
           .collection('sport_events')
           .doc(battles[i].sport_id)
-          .collection(battles[i].league.id)
+          .collection(battles[i].league_id)
           .doc(body.battles[i].id)
           .set(body.battles[i]);
       }
