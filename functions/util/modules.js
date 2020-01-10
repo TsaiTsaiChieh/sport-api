@@ -36,6 +36,12 @@ function createError(code, error) {
   err.error = error;
   return err;
 }
+
+// database name general setting
+const db = {
+  sport_events: 'sport_test'
+};
+
 module.exports = {
   express,
   firebaseAdmin,
@@ -49,5 +55,6 @@ module.exports = {
   database,
   addDataInCollection,
   moment,
-  axios
+  axios,
+  db
 };
