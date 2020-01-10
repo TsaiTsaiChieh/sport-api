@@ -58,7 +58,7 @@ async function getUpcomingSportEvent(sport_ids) {
     //     .doc(ele.sport_id)
     //     .collection(ele.league_id)
     //     .doc(ele.id)
-    //     .set(ele, { merge: ture });
+    //     .set(ele, { merge: true });
     // }
     // // console.log(
     // //   `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_id}&day=${date}`
@@ -84,7 +84,7 @@ async function getUpcomingSportEvent(sport_ids) {
         .doc(ele.sport_id)
         .collection(ele.league.id)
         .doc(ele.id)
-        .set(ele, { merge: ture });
+        .set(ele, { merge: true });
     }
     return events;
   } catch (error) {
