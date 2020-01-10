@@ -6,6 +6,7 @@ const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
+const betsToken = envValues.betsToken;
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
@@ -39,7 +40,7 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  sport_events: 'sport_test'
+  sport_18: 'sport_baseketball'
 };
 
 module.exports = {
@@ -56,5 +57,6 @@ module.exports = {
   addDataInCollection,
   moment,
   axios,
-  db
+  db,
+  betsToken
 };
