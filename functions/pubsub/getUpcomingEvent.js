@@ -70,6 +70,12 @@ async function getUpcomingSportEvent(sport_ids) {
       events.push(data.results[i]);
     }
     events = repackage(events);
+    // add dummy data for virtual documents
+    // ref: https://stackoverflow.com/questions/47043651/this-document-does-not-exist-and-will-not-appear-in-queries-or-snapshots-but-id
+    // modules.firestore
+    //   .collection(modules.db.sport_events)
+    //   .doc(data.results[0].sport_id)
+    //   .set({ name: 'baseketball' });
     for (let i = 0; i < events.length; i++) {
       let ele = events[i];
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
@@ -79,10 +85,19 @@ async function getUpcomingSportEvent(sport_ids) {
       ele.status = 2;
       // console.log(ele);
 
+      // await modules.firestore
+      //   .collection(modules.db.sport_events)
+      //   .doc(ele.sport_id)
+      //   .collection(ele.league.id)
+      //   .doc(ele.id)
+      //   .set(ele, { merge: true });
+      // await modules.firestore
+      //   .collection(modules.db.sport_events)
+      //   .doc(ele.sport_id)
+      //   .collection(ele.id)
+      //   .add(ele, { merge: true });
       await modules.firestore
         .collection(modules.db.sport_events)
-        .doc(ele.sport_id)
-        .collection(ele.league.id)
         .doc(ele.id)
         .set(ele, { merge: true });
     }
