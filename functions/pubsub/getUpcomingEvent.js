@@ -83,21 +83,9 @@ async function getUpcomingSportEvent(sport_ids) {
       );
       // event status: end(0), inplay(1), upcoming(2)
       ele.status = 2;
-      // console.log(ele);
 
-      // await modules.firestore
-      //   .collection(modules.db.sport_events)
-      //   .doc(ele.sport_id)
-      //   .collection(ele.league.id)
-      //   .doc(ele.id)
-      //   .set(ele, { merge: true });
-      // await modules.firestore
-      //   .collection(modules.db.sport_events)
-      //   .doc(ele.sport_id)
-      //   .collection(ele.id)
-      //   .add(ele, { merge: true });
       await modules.firestore
-        .collection(modules.db.sport_events)
+        .collection(modules.db.sport_18)
         .doc(ele.id)
         .set(ele, { merge: true });
     }
