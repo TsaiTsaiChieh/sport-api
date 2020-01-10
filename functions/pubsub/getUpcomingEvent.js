@@ -47,9 +47,14 @@ async function getUpcomingSportEvent(sport_ids) {
 
     // events = repackage(events);
     // for (let i = 0; i < events.length; i++) {
-    //   let ele = events[i];
+    // let ele = events[i];
+    // ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
+    //   new Date(Number.parseInt(ele.time) * 1000)
+    // );
+    // event status: end(0), inplay(1), upcoming(2)
+    // ele.status = 2;
     //   modules.firebase
-    //     .collection('sport_test')
+    //     .collection(modules.db.sport_events)
     //     .doc(ele.sport_id)
     //     .collection(ele.league_id)
     //     .doc(ele.id)
@@ -70,10 +75,12 @@ async function getUpcomingSportEvent(sport_ids) {
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
         new Date(Number.parseInt(ele.time) * 1000)
       );
+      // event status: end(0), inplay(1), upcoming(2)
+      ele.status = 2;
       // console.log(ele);
 
       await modules.firestore
-        .collection('sport_test')
+        .collection(modules.db.sport_events)
         .doc(ele.sport_id)
         .collection(ele.league.id)
         .doc(ele.id)
