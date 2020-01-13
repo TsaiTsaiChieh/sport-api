@@ -8,4 +8,6 @@ router.get('/events', require('../controller/sport/getEventsController'));
 router.get('/testUpcoming', require('../pubsub/getUpcomingEvent'));
 // for test lineup
 router.get('/testLineups', require('../pubsub/getLineups'));
+// for testing handicap
+router.get('/testOdds', require('../pubsub/getHandicap'));
 module.exports = router;
