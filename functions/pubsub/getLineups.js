@@ -7,7 +7,6 @@ async function getLineups(req, res) {
   const upcomingEventsSnapshot = await modules.firestore
     .collection(modules.db.sport_18)
     .get();
-  console.log(modules.betsToken);
 
   upcomingEventsSnapshot.docs.forEach(async function(doc) {
     let ele = doc.data();
