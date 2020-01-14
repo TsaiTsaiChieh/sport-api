@@ -3,7 +3,7 @@ const modules = require('../util/modules');
 // dummy data
 // const data = require('./upcoming_baseketball.json');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
-const oddsURL = 'https://api.betsapi.com/v2/event/odds';
+// const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = modules.betsToken;
 // async function getUpcomingEvent(req, res) {
 async function getUpcomingEvent() {
@@ -21,8 +21,8 @@ async function getUpcomingEvent() {
   ];
   let result = await getUpcomingSportEvent(sport_id, baseketball_leagues);
   console.log(result);
-  return result;
   // res.json(result);
+  return result;
 }
 
 async function getUpcomingSportEvent(sport_id, league_ids) {
@@ -109,7 +109,7 @@ function pushData(events, data) {
 function repackage(data) {
   data.forEach(function(ele) {
     if (ele.time_status) delete ele.time_status;
-    if (!ele.ss) delete ele.ss; //// ss always null
+    if (!ele.ss) delete ele.ss; // ss always null
   });
   return data;
 }
