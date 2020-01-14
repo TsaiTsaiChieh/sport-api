@@ -60,6 +60,8 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
         new Date(Number.parseInt(ele.time) * 1000)
       );
+      // handicap flag
+      ele.handicapFlag = 0;
 
       // event status: end(0), inplay(1), upcoming(2)
       ele.status = 2;
