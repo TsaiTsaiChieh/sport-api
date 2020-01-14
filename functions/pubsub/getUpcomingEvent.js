@@ -69,7 +69,7 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
         .set(ele, { merge: true });
     }
     // return events;
-    const message = `Get incoming events in ${modules.db.sport_18} successful by Tsai-Chieh`;
+    const message = `URL: ${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_ids[0]}&day=${date}, get incoming events in ${modules.db.sport_18} successful by Tsai-Chieh`;
     return message;
 
     // for dummy data

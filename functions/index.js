@@ -58,7 +58,7 @@ exports.scheduledFunction = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/updateTest'));
 exports.cronUpcoming = functions.pubsub
-  .schedule('0 0 * * *')
+  .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/getUpcomingEvent'));
 exports.api = functions.https.onRequest(app);
