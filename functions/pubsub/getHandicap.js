@@ -1,7 +1,8 @@
 const modules = require('../util/modules');
 const oddsSummaryURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const intervals = [16, 10, 8, 6];
-async function main(req, res) {
+// async function main(req, res) {
+async function main() {
   try {
     // updateEvent();
     const eventsRef = modules.firestore.collection(modules.db.sport_18);
