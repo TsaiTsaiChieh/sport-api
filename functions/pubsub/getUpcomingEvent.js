@@ -59,11 +59,10 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
         new Date(Number.parseInt(ele.time) * 1000)
       );
-      // spread flag
+      // flag setting
       ele.spreadFlag = 0;
-      // totals flag
       ele.totalsFlag = 0;
-
+      ele.intervalStatus = 0;
       // event status: end(0), inplay(1), upcoming(2)
       ele.status = 2;
       await modules.firestore
