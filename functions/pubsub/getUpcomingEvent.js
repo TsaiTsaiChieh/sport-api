@@ -3,7 +3,6 @@ const modules = require('../util/modules');
 // dummy data
 // const data = require('./upcoming_baseketball.json');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
-// const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = modules.betsToken;
 // async function getUpcomingEvent(req, res) {
 async function getUpcomingEvent() {
@@ -60,8 +59,10 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
         new Date(Number.parseInt(ele.time) * 1000)
       );
-      // handicap flag
-      ele.handicapFlag = 0;
+      // spread flag
+      ele.spreadFlag = 0;
+      // totals flag
+      ele.totalsFlag = 0;
 
       // event status: end(0), inplay(1), upcoming(2)
       ele.status = 2;
