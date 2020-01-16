@@ -54,11 +54,11 @@ app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 
 exports.cronUpcoming = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('0 7 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/getUpcomingEvent'));
 exports.cronHandicap = functions.pubsub
-  .schedule('0/10 0 * * *')
+  .schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/getHandicap'));
 exports.api = functions.https.onRequest(app);
