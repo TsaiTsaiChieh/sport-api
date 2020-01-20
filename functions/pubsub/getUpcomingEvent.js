@@ -27,10 +27,18 @@ async function getUpcomingEvent() {
 async function getUpcomingSportEvent(sport_id, league_ids) {
   try {
     // tomorrow
-    let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      .toISOString()
+    // let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    //   .toISOString()
+    //   .slice(0, 10)
+    //   .replace(/-/g, '');
+    let date = modules
+      .moment()
+      .add(1, 'days')
+      .format()
       .slice(0, 10)
       .replace(/-/g, '');
+    console.log(date);
+
     let events = [];
     // for real data
     // league loop
