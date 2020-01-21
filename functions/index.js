@@ -53,13 +53,13 @@ app.use('/messages', require('./router/messages'));
 app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 
-exports.scheduledFunction = functions.pubsub
-  .schedule('0 0 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/updateTest'));
 exports.cronUpcoming = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('0 7 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/getUpcomingEvent'));
+exports.cronHandicap = functions.pubsub
+  .schedule('*/30 * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/getHandicap'));
 exports.api = functions.https.onRequest(app);
 exports.ssr = functions.https.onRequest(ssr.app);

@@ -3,7 +3,6 @@ const modules = require('../util/modules');
 // dummy data
 // const data = require('./upcoming_baseketball.json');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
-// const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = modules.betsToken;
 // async function getUpcomingEvent(req, res) {
 async function getUpcomingEvent() {
@@ -28,10 +27,18 @@ async function getUpcomingEvent() {
 async function getUpcomingSportEvent(sport_id, league_ids) {
   try {
     // tomorrow
-    let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      .toISOString()
+    // let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    //   .toISOString()
+    //   .slice(0, 10)
+    //   .replace(/-/g, '');
+    let date = modules
+      .moment()
+      .add(1, 'days')
+      .format()
       .slice(0, 10)
       .replace(/-/g, '');
+    console.log(date);
+
     let events = [];
     // for real data
     // league loop
@@ -60,9 +67,10 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
       ele.time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
         new Date(Number.parseInt(ele.time) * 1000)
       );
-      // handicap flag
-      ele.handicapFlag = 0;
-
+      // flag setting
+      ele.spreadFlag = 0;
+      ele.totalsFlag = 0;
+      ele.intervalStatus = 0;
       // event status: end(0), inplay(1), upcoming(2)
       ele.status = 2;
       await modules.firestore
