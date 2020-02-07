@@ -7,13 +7,47 @@
   </head>
   <body>
     <form
-      action="/messages/createFile"
       method="POST"
+      action="messages/createFile"
       enctype="multipart/form-data"
     >
       Picture or Video
-      <input type="file" accept=" video/*" class="main" name="main" /><br />
-      <button type="submit">Send</button>
+      <input
+        type="file"
+        accept="image/*,video/*"
+        class="main"
+        name="main"
+        multiple
+      /><br />
+      <button type="submit" onclick="putCookie()" id="mybtn">
+        Send
+      </button>
     </form>
+    <script>
+      function setCookie(name, value) {
+        var today = new Date();
+        var expiry = new Date(today.getTime() + 30 * 24 * 3600 * 1000); // plus 30 days
+        document.cookie =
+          name +
+          '=' +
+          escape(value) +
+          '; path=/; expires=' +
+          expiry.toGMTString();
+      }
+      function putCookie() {
+        //this should set the UserName cookie to the proper value;
+        setCookie(
+          '__session',
+          'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJuYW1lIjoi6JSh6YeH5r2UIiwicGljdHVyZSI6Imh0dHBzOi8vbGg2Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tWi1pWXhOMktaS1UvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUNIaTNyY0xpU0htdk1la2cwX1pqLUpqMWVVV1huTmZhQS9waG90by5qcGciLCJyb2xlIjo5LCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzgwMzkyNDEsInVzZXJfaWQiOiI0MGxGVjZTSkFWWXB3MHpaYkl1VXA3Z0w5UHkyIiwic3ViIjoiNDBsRlY2U0pBVllwdzB6WmJJdVVwN2dMOVB5MiIsImlhdCI6MTU4MDcwNDYyNywiZXhwIjoxNTgxMzA5NDI3LCJlbWFpbCI6ImplY2ljYTE5NkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjExMjU3NjY1ODczNDkzNzkwNzA4MiJdLCJlbWFpbCI6WyJqZWNpY2ExOTZAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.pAvQogCH3DZB9Ul4G37dVy2syRefDN_9xvw0xYuxogLh0Qv-f5GmlbxzuR2XtUHmZQX0xlPpVPIyB_lU2uZksSeF-WSvQyOdB_6aU81IgyYBwp1dJeYIwvd0QfWvqws6bK9IBNfxYS_GIHX-vJpNQ-Wtw2aOe_t_ZzMM5GTbhPrZF5WIx7YwceyqeGfZvQKwB-T8lhW4q7UzW09zqjfRkH0ggiy3FkbpNXLC9xYg5nY8fVSDOsnLwsntY-YJzJlUUCnJvJY9A5c8oiz4ysNALKw7OSU2XoyeGGKrUMQmxB6zJPrvXy_W_S72B_40CCh-2FPbzVGkFy2WqLV3MQSqFA'
+        );
+        return true;
+      }
+
+      document
+        .getElementById('mybtn')
+        .addEventListener('click', function(event) {
+          // event.preventDefault();
+        });
+    </script>
   </body>
 </html>
