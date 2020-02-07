@@ -7,6 +7,13 @@ const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
+const Busboy = require('busboy');
+const uuidv1 = require('uuid/v1'); // for unique id generation
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const fileType = require('file-type');
+
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
@@ -58,5 +65,11 @@ module.exports = {
   moment,
   axios,
   db,
-  betsToken
+  betsToken,
+  Busboy,
+  uuidv1,
+  path,
+  os,
+  fs,
+  fileType
 };
