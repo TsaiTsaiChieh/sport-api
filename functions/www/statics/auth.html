@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Firebase Authentication UI templete ver.0717</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth__zh_tw.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.2.0/firebase-ui-auth.css"/>
+    <script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-auth.js"></script>
+    <script src="/statics/firebase-init.js"></script>
+
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"
+    >
+    </script>
+    <style>
+        .bg {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            overflow: scroll;
+        }
+        .dialog {
+            position: absolute;
+            left: 50%;
+            top: 50px;
+            margin-bottom: 50px;
+            padding-top: 20px;
+            transform: translate(-50%, 0);
+            display: inline-block;
+            background-color: #fff;
+            text-align: center;
+        }
+        #loader {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        .line-link {
+            display: inline-block;
+            vertical-align: top;
+            width: 100%;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .firebaseui-idp-text {
+            white-space: nowrap;
+        }
+    </style>
+    <link rel="stylesheet" href="/statics/loading.css">
+</head>
+
+<body>
+<div class="bg">
+    <div class="dialog">
+        <div class="firebaseui-card-content">
+            <a class="line-link" href="https://chat-api.doinfo.cc/auth/lineLogin" target="_blank">
+                <button
+                class="firebaseui-idp-button mdl-button mdl-js-button mdl-button--raised firebaseui-idp-phone firebaseui-id-idp-button"
+                style="background-color: #02bd7e"
+                >
+                <span class="firebaseui-idp-icon-wrapper">
+                    <img class="firebaseui-idp-icon" alt="" src="/statics/line-icon.png">
+                </span>
+                <span class="firebaseui-idp-text firebaseui-idp-text-long">
+                    使用 Line 登入
+                </span>
+                <span class="firebaseui-idp-text firebaseui-idp-text-short">Line</span>
+                </button>
+            </a>
+        </div>
+        <div id="firebaseui-auth-container"></div>
+    </div>
+</div>
+<div id="loader">
+    <div class="wrapper">
+        <img class="logo" src="/statics/loading-text-1.png" alt="">
+        <a class="btn" href="/">
+            <img class="logo" src="/statics/loading-text-2.png" alt="">
+        </a>
+    </div>
+</div>
+<script>
+$('.dialog .line-link').click(function () {
+    $('#loader').show()
+})
+</script>
+<script type="text/javascript">
+    const apiURL = 'https://chat-api.doinfo.cc';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+        localStorage.setItem('refCode', refCode)
+    }
+    // if (refCode) {
+    //     expire_days = 1; // 過期日期(天)
+    //     let d = new Date();
+    //     d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
+    //     let expires = "expires=" + d.toGMTString();
+    //     // document.cookie = "name=test" + "; " + expires + '; domain=blog.longwin.com.tw; path=/';
+    //     document.cookie = "refCode=" + refCode + "; " + expires;
+    //     // alert(document.cookie)
+    // }
+
+
+    const uiConfig = {
+        signInFlow: 'popup',
+        callbacks: {
+            signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+                $('#loader').show()
+                return true;
+            },
+            uiShown: function() {
+                $('#loader').hide()
+            }
+        },
+        //rediect URL after login success
+        signInSuccessUrl: 'https://chat.doinfo.cc/',
+        signInOptions: [{
+            provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+            customParameters: {code: 'test'},
+            defaultCountry: 'TW',
+            requireDisplayName: true,
+            recaptchaParameters: {
+                type: 'image',
+                size: 'invisible',
+                badge: 'bottomleft'
+            }
+        },
+            {
+                provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                requireDisplayName: false
+            },
+            {
+                provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                requireDisplayName: false
+            },
+            {
+                provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                scopes: [
+                    'public_profile',
+                    'email',
+                    'user_likes',
+                    'user_friends'
+                ],
+                customParameters: {
+                    // Forces password re-entry.
+                    auth_type: 'reauthenticate'
+                }
+            },
+        ],
+        tosUrl: '/',   //《服務條款》
+        privacyPolicyUrl: '/'  //《隱私權政策》。
+    };
+
+    // Initialize the FirebaseUI Widget using Firebase..
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+
+    
+
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) VerifySessionCookie(user);
+    });
+
+    function VerifySessionCookie(user) {
+        let http = new XMLHttpRequest();
+        let url = apiURL+'/auth/verifySessionCookie';
+        http.open('GET', url, true);
+        http.onreadystatechange = function () {
+            // alert(http.readyState)
+            // alert(http.status)
+            if (http.readyState == 4 && http.status == 200) {
+                let res = JSON.parse(http.responseText);
+                if (res.success == true) {
+                    // 登入成功
+                    console.log(res);
+                    window.location.replace('/');
+                } else {
+                    //  沒有SessionCookie執行login(), createSessionCookie
+                    login();
+                }
+            }
+        };
+        http.send();
+    }
+
+    function login() {
+        let http = new XMLHttpRequest();
+        let url = apiURL+'/auth/login';
+        let token = firebase.auth().currentUser.ma;
+        if (token) {
+            let params = JSON.stringify({token: token});
+            // let params = "params=" + JSON.stringify({uid: uid, token: token});
+            http.open('POST', url, true);
+            http.setRequestHeader('Content-type', 'application/json');
+            // http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            http.onreadystatechange = function () {
+                if (http.readyState == 4 && http.status == 200) {
+                    let res = JSON.parse(http.responseText);
+                    if (res.success == true) {
+                        // alert('登入成功');
+                        window.location.replace('/');
+                    } else {
+                        alert('登入失敗');
+                    }
+                }
+            };
+            console.log(params);
+            http.send(params);
+        }
+    }
+
+    function logout() {
+        firebase.auth().signOut().then(function () {
+            let http = new XMLHttpRequest();
+            let url = apiURL+'/auth/logout';
+            http.open('GET', url, true);
+            firebase.auth().signOut();
+            http.onreadystatechange = function () {
+                if (http.readyState === 4) {
+                    let res = JSON.parse(http.responseText);
+                    if (res.success == true) {
+                        alert('登出成功');
+                    } else {
+                        // alert('登出失敗');
+                    }
+                }
+            };
+            http.send();
+        }).catch(function (error) {
+            // console.log(error)
+        });
+    }
+</script>
+</body>
+
+</html>
