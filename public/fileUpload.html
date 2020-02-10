@@ -19,6 +19,8 @@
         name="main"
         multiple
       /><br />
+      Channel
+      <input type="text" class="channelId" name="channelId" />
       <button type="submit" onclick="putCookie()" id="mybtn">
         Send
       </button>
@@ -38,16 +40,20 @@
         //this should set the UserName cookie to the proper value;
         setCookie(
           '__session',
-          'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJuYW1lIjoi6JSh6YeH5r2UIiwicGljdHVyZSI6Imh0dHBzOi8vbGg2Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tWi1pWXhOMktaS1UvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUNIaTNyY0xpU0htdk1la2cwX1pqLUpqMWVVV1huTmZhQS9waG90by5qcGciLCJyb2xlIjo5LCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzgwMzkyNDEsInVzZXJfaWQiOiI0MGxGVjZTSkFWWXB3MHpaYkl1VXA3Z0w5UHkyIiwic3ViIjoiNDBsRlY2U0pBVllwdzB6WmJJdVVwN2dMOVB5MiIsImlhdCI6MTU4MDcwNDYyNywiZXhwIjoxNTgxMzA5NDI3LCJlbWFpbCI6ImplY2ljYTE5NkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjExMjU3NjY1ODczNDkzNzkwNzA4MiJdLCJlbWFpbCI6WyJqZWNpY2ExOTZAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.pAvQogCH3DZB9Ul4G37dVy2syRefDN_9xvw0xYuxogLh0Qv-f5GmlbxzuR2XtUHmZQX0xlPpVPIyB_lU2uZksSeF-WSvQyOdB_6aU81IgyYBwp1dJeYIwvd0QfWvqws6bK9IBNfxYS_GIHX-vJpNQ-Wtw2aOe_t_ZzMM5GTbhPrZF5WIx7YwceyqeGfZvQKwB-T8lhW4q7UzW09zqjfRkH0ggiy3FkbpNXLC9xYg5nY8fVSDOsnLwsntY-YJzJlUUCnJvJY9A5c8oiz4ysNALKw7OSU2XoyeGGKrUMQmxB6zJPrvXy_W_S72B_40CCh-2FPbzVGkFy2WqLV3MQSqFA'
+          'eyJhbGciOiJSUzI1NiIsImtpZCI6InNrSUJOZyJ9.eyJpc3MiOiJodHRwczovL3Nlc3Npb24uZmlyZWJhc2UuZ29vZ2xlLmNvbS9zcG9ydDE5eTA3MTUiLCJuYW1lIjoi6JSh6YeH5r2UIiwicGljdHVyZSI6Imh0dHBzOi8vbGg2Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tWi1pWXhOMktaS1UvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUNIaTNyY0xpU0htdk1la2cwX1pqLUpqMWVVV1huTmZhQS9waG90by5qcGciLCJyb2xlIjo5LCJhdWQiOiJzcG9ydDE5eTA3MTUiLCJhdXRoX3RpbWUiOjE1NzgwMzkyNDEsInVzZXJfaWQiOiI0MGxGVjZTSkFWWXB3MHpaYkl1VXA3Z0w5UHkyIiwic3ViIjoiNDBsRlY2U0pBVllwdzB6WmJJdVVwN2dMOVB5MiIsImlhdCI6MTU4MTMxNDA3OSwiZXhwIjoxNTgxOTE4ODc5LCJlbWFpbCI6ImplY2ljYTE5NkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjExMjU3NjY1ODczNDkzNzkwNzA4MiJdLCJlbWFpbCI6WyJqZWNpY2ExOTZAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.aQXP5stU_j4kz31NRndumExu2pmEyPBTATU3NgdaQQHO4vLp3ip8hpAXIhSaFaBf9V7s8tcML3pl70sZOW_-8UBRn2lngtLTxHPOF6TAkRaFKQgjUZjrH3ORf74aDCG00hMFD2TgcM7paU-tCOZmORt8ElbcAcaWO9qJjloRYB-5806uaRCItOxqQFd3Dn3do-SLGKCyuD004lYNn0CLf0iGTPzwiG01nwaYBMf1yN1nU-XFvMzO4YPdQG__vnYCY0gYbAGXyNgiMRGhtPah8GMhqWoJL8QGIzOm9QzhIzvDMMREqkeE6qpsCpyeo-l4u3cpP9ud98iz9NZiW2EBfQ'
         );
         return true;
       }
 
-      document
-        .getElementById('mybtn')
-        .addEventListener('click', function(event) {
-          // event.preventDefault();
-        });
+      // document
+      //   .getElementById('mybtn')
+      //   .addEventListener('click', function(event) {
+      //     // event.preventDefault();
+      //   });
+
+      window.addEventListener('load', function(event) {
+        document.querySelector('.channelId').value = 'public';
+      });
     </script>
   </body>
 </html>
