@@ -5,7 +5,7 @@ const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
 
-const bodyParser = require('body-parser');
+let bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -24,10 +24,12 @@ app.use(
     extended: true
   })
 );
+// app.use(express.bodyParser({ limit: '50mb' }));
 app.use(
   bodyParser.urlencoded({
     limit: '50mb',
-    extended: true
+    extended: true,
+    parameterLimit: 50000
   })
 );
 
