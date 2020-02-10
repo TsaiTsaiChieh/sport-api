@@ -13,6 +13,9 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const fileType = require('file-type');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -71,5 +74,6 @@ module.exports = {
   path,
   os,
   fs,
-  fileType
+  fileType,
+  ffmpeg
 };
