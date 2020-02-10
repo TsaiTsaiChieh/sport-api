@@ -17,6 +17,13 @@ app.use(helmet());
 app.use(helmet.xssFilter());
 
 app.use(helmet.frameguard());
+
+app.use(
+  bodyParser.json({
+    limit: '50mb',
+    extended: true
+  })
+);
 app.use(
   bodyParser.urlencoded({
     limit: '50mb',
@@ -24,11 +31,6 @@ app.use(
   })
 );
 
-app.use(
-  bodyParser.json({
-    limit: '50mb'
-  })
-);
 const whitelist = [
   'https://chat.doinfo.cc',
   'http://localhost:5000',
