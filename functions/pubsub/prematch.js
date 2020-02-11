@@ -34,6 +34,7 @@ async function prematch() {
       'error happened in pubsub/prematch function by Tsai-Chieh',
       error
     );
+    return error;
   }
 }
 function repackagePreMatch(ele, league) {
