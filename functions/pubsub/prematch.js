@@ -4,11 +4,12 @@ const modules = require('../util/modules');
 const api_key = '48v65d232xsk2am8j6yu693v';
 
 // Just for NBA now
-async function prematch(req, res) {
+// async function prematch(req, res) {
+async function prematch() {
   // const { date } = req.query;
   const date = modules
     .moment()
-    .subtract(1, 'days')
+    // .subtract(1, 'days')
     .format('YYYY-MM-DD');
   const year = date.substring(0, 4);
   const month = date.substring(5, 7);
@@ -24,9 +25,10 @@ async function prematch(req, res) {
         .doc(ele.id)
         .set(repackagePreMatch(ele, data.league), { merge: true });
     });
-    const result = `Daily Schedule on ${date} successful, URL: ${URL}`;
-    // return result;
-    res.json(result);
+    const result = `Daily Schedule on ${date} +1 successful, URL: ${URL}`;
+    console.log(result);
+    return result;
+    // res.json(result);
   } catch (error) {
     console.log(
       'error happened in pubsub/prematch function by Tsai-Chieh',
@@ -36,11 +38,13 @@ async function prematch(req, res) {
 }
 function repackagePreMatch(ele, league) {
   data = {};
+  data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
+    new Date()
+  );
   data.status = ele.status;
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(ele.scheduled)
   );
-
   data.league = {
     id: league.id,
     name: league.name,
