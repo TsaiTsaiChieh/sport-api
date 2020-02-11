@@ -38,13 +38,6 @@ router.post(
   verification.token,
   require('../controller/message/createMessage')
 );
-router.post(
-  '/createFile',
-  verification.token,
-  middlewares.busboyProcessor,
-  middlewares.upload2bucket,
-  require('../controller/message/createFile')
-);
 router.delete(
   '/:id',
   verification.token,
