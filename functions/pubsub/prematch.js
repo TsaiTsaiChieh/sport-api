@@ -6,9 +6,13 @@ const api_key = '48v65d232xsk2am8j6yu693v';
 // Just for NBA now
 async function prematch(req, res) {
   // const { date } = req.query;
-  // const year = date.substring(0, 4);
-  // const month = date.substring(5, 7);
-  // const day = date.substring(8, 10);
+  const date = modules
+    .moment()
+    .subtract(1, 'days')
+    .format('YYYY-MM-DD');
+  const year = date.substring(0, 4);
+  const month = date.substring(5, 7);
+  const day = date.substring(8, 10);
 
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/${day}/schedule.json?api_key=${api_key}`;
@@ -20,7 +24,7 @@ async function prematch(req, res) {
         .doc(ele.id)
         .set(repackagePreMatch(ele, data.league), { merge: true });
     });
-    const result = `URL: ${URL}, get Daily Schedule successful.`;
+    const result = `Daily Schedule on ${date} successful, URL: ${URL}`;
     // return result;
     res.json(result);
   } catch (error) {
