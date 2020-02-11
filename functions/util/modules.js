@@ -50,7 +50,8 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  sport_18: 'sport_baseketball'
+  // sport_18: 'sport_baseketball'
+  sport_18: 'radar_basketball'
 };
 
 module.exports = {

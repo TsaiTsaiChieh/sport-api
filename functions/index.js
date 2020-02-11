@@ -55,10 +55,13 @@ app.use('/messages', require('./router/messages'));
 app.use('/sport', require('./router/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 
+// for test pubsub endpoint
+app.use('/radar/prematch', require('./pubsub/prematch'));
+
 exports.cronUpcoming = functions.pubsub
   .schedule('0 7 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/getUpcomingEvent'));
+  .onRun(require('./pubsub/prematch'));
 exports.cronHandicap = functions.pubsub
   .schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
