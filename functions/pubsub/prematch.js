@@ -9,6 +9,7 @@ async function prematch() {
   // const { date } = req.query;
   const date = modules
     .moment()
+    .add(1, 'days')
     // .subtract(1, 'days')
     .format('YYYY-MM-DD');
   const year = date.substring(0, 4);
@@ -39,6 +40,8 @@ async function prematch() {
 }
 function repackagePreMatch(ele, league) {
   data = {};
+  data.id = ele.id;
+  data.sr_id = ele.sr_id;
   data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date()
   );
