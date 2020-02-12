@@ -15,6 +15,8 @@ const fs = require('fs');
 const fileType = require('file-type');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
+const https = require('https');
+
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 firebaseAdmin.initializeApp({
@@ -76,5 +78,6 @@ module.exports = {
   os,
   fs,
   fileType,
-  ffmpeg
+  ffmpeg,
+  https
 };
