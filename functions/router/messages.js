@@ -28,6 +28,11 @@ router.get('/test', async (req, res) => {
 });
 router.get('/?', require('../controller/message/getLastMessag'));
 router.get(
+  '/convert',
+  verification.token,
+  require('../controller/message/convertMov')
+);
+router.get(
   '/:id',
   verification.token,
   require('../controller/message/getMessageWithId')
@@ -37,6 +42,7 @@ router.post(
   verification.token,
   require('../controller/message/createMessage')
 );
+
 router.delete(
   '/:id',
   verification.token,
@@ -47,4 +53,5 @@ router.post(
   verification.token,
   require('../controller/message/accuseMessage')
 );
+
 module.exports = router;
