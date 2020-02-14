@@ -18,6 +18,8 @@ async function prematch() {
 
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/${day}/schedule.json?api_key=${api_key}`;
+  // const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/13/schedule.json?api_key=${api_key}`;
+
   try {
     const { data } = await modules.axios(URL);
     data.games.forEach(function(ele) {
@@ -25,11 +27,8 @@ async function prematch() {
         .collection(modules.db.sport_18)
         .doc(ele.id)
         .set(repackagePreMatch(ele, data.league), { merge: true });
+      console.log(`match_id: ${ele.id}`);
     });
-    const result = `Daily Schedule on ${date} +1 successful, URL: ${URL}`;
-    console.log(result);
-    return result;
-    // res.json(result);
   } catch (error) {
     console.log(
       'error happened in pubsub/prematch function by Tsai-Chieh',
@@ -37,6 +36,10 @@ async function prematch() {
     );
     return error;
   }
+  const result = `Daily Schedule on ${date} +1 successful, URL: ${URL}`;
+  console.log(result);
+  return result;
+  // res.json(result);
 }
 function repackagePreMatch(ele, league) {
   data = {};
