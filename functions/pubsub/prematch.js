@@ -6,7 +6,6 @@ const api_key = '48v65d232xsk2am8j6yu693v';
 // Just for NBA now
 // async function prematch(req, res) {
 async function prematch() {
-  // const { date } = req.query;
   const date = modules
     .moment()
     .add(1, 'days')
@@ -18,7 +17,7 @@ async function prematch() {
 
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/${day}/schedule.json?api_key=${api_key}`;
-  // const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/13/schedule.json?api_key=${api_key}`;
+  // const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/14/schedule.json?api_key=${api_key}`;
 
   try {
     const { data } = await modules.axios(URL);
@@ -42,9 +41,10 @@ async function prematch() {
   // res.json(result);
 }
 function repackagePreMatch(ele, league) {
+  console.log('in repackagePreMatch...', ele);
   data = {};
   data.id = ele.id;
-  data.sr_id = ele.sr_id;
+  // data.sr_id = ele.sr_id;
   data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date()
   );
@@ -60,15 +60,18 @@ function repackagePreMatch(ele, league) {
   data.home = {
     name: ele.home.name,
     alias: ele.home.alias,
-    id: ele.home.id,
-    sr_id: ele.home.sr_id
+    id: ele.home.id
   };
+
   data.away = {
     name: ele.away.name,
     alias: ele.away.alias,
-    id: ele.away.id,
-    sr_id: ele.away.sr_id
+    id: ele.away.id
+    // sr_id: ele.away.sr_id
   };
+  if (ele.home.sr_id) data.home.sr_id = ele.home.sr_id;
+  if (ele.away.sr_id) data.away.sr_id = ele.away.sr_id;
+  if (ele.sr_id) data.sr_id = ele.sr_id;
   return data;
 }
 module.exports = prematch;
