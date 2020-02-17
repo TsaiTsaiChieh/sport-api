@@ -27,11 +27,12 @@ router.get('/test', async (req, res) => {
   }
 });
 router.get('/?', require('../controller/message/getLastMessag'));
-router.get(
-  '/convert',
-  verification.token,
-  require('../controller/message/convertMov')
-);
+// router.get(
+//   '/convert'
+//   verification.token,
+//   require('../controller/message/convertMov')
+// );
+router.post('/convert', require('../controller/message/converter'));
 router.get(
   '/:id',
   verification.token,
