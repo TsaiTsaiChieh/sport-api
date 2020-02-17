@@ -1,4 +1,4 @@
-const ssr = require('./server/index.js');
+// const ssr = require('./server/index.js');
 
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
@@ -67,4 +67,4 @@ exports.cronHandicap = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/getHandicap'));
 exports.api = functions.https.onRequest(app);
-exports.ssr = functions.https.onRequest(ssr.app);
+// exports.ssr = functions.https.onRequest(ssr.app);
