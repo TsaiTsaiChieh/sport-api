@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 
 async function converter(req, res) {
   // console.log(req.body);
-  download(req.body.URL, './test.mov', res)
+  download(req.body.URL, './uploads/test.mov', res)
     .then(function(body) {
       return res.json(body);
     })
@@ -18,7 +18,7 @@ function download(url, dest, cb) {
         response.pipe(file);
         file.on('finish', function() {
           // file.close(cb); // close() is async, call cb after close completes.
-          convert(dest, './test.mp4', function(err) {
+          convert(dest, './uploads/test.mp4', function(err) {
             if (!err) {
               console.log('conversion complete');
               modules.fs.unlinkSync(dest);
