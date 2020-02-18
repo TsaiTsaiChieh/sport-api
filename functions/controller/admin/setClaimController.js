@@ -52,13 +52,13 @@ module.exports = setClaim;
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": "isyoDyVSJBXtD3G7sp9pLW5de7n1",
+ *    "id": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "role": 2
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
  * {
- *    "data": "set user: isyoDyVSJBXtD3G7sp9pLW5de7n1 as role: 1 successfully"
+ *    "data": "set user: eIQXtxPrBFPW5daGMcJSx4AicAQ2 as role: 1 successfully"
  * }
  * 
  * @apiError 401 Unauthorized
