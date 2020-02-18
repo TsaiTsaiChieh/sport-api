@@ -46,10 +46,9 @@ async function accuseMessage(req, res) {
         };
         const valid = modules.ajv.validate(schema, args);
         if (!valid) return res.status(400).json(modules.ajv.errors);
-        if (!req.body.messageId || !req.body.channelId) return res.status(400).send();
         const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
         if (!accuserSnapshot.exists) return res.status(400).send();
-        const messageSnapshot = await modules.getSnapshot(req.body.channelId, req.body.messageId);
+        const messageSnapshot = await modules.getSnapshot(`chat_${args.channelId}`, args.messageId);
         if (!messageSnapshot.exists) return res.status(400).send();
         const accuser = await accuserSnapshot.data();
         const message = await messageSnapshot.data();

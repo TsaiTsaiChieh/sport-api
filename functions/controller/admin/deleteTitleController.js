@@ -33,7 +33,14 @@ function deleteTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['ABL', 'CPBL', 'KBO', 'LMB', 'MLB', 'NPB']
+              enum: [
+                '中華職棒',
+                '墨西哥職棒',
+                '韓國職棒',
+                'MLB',
+                '日本職棒',
+                '澳洲職棒'
+              ]
             }
           }
         }
@@ -49,7 +56,15 @@ function deleteTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['CBA', 'JPBL', 'KBL', 'NBA', 'NBL', 'SBL', 'WNBA']
+              enum: [
+                'SBL',
+                '日本職籃',
+                '韓國職籃',
+                '澳洲職籃',
+                'NBA',
+                'WNBA',
+                '中國職籃'
+              ]
             }
           }
         }
@@ -81,7 +96,7 @@ function deleteTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['ALL']
+              enum: ['足球']
             }
           }
         }
@@ -107,9 +122,9 @@ module.exports = deleteTitle;
 /**
  * @api {delete} /admin/deleteTitle Delete Title
  * @apiVersion 1.0.0
- * @apiDescription 管理員給使用者頭銜
+ * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
  * 
- * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
+ * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName deleteTitle
  * @apiGroup Admin
  * @apiPermission admin
@@ -118,12 +133,12 @@ module.exports = deleteTitle;
  * @apiParam {String} uid user uid
  * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神 
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
- * @apiParam {String} league user league, enum pair: [16(`ABL`, `CPBL`, `KBO`, `LMB`, `MLB`, `NPB`), 18(`CBA`, `JPBL`, `KBL`, `NBA`, `NBL`, `SBL`, `WNBA`), 17(`NHL`), 1(`ALL`)]
+ * @apiParam {String} league user league, enum pair: [16(`中華職棒`, `墨西哥職棒`, `韓國職棒`, `MLB`, `日本職棒`, `澳洲職棒`), 18(`SBL`, `日本職籃`, `韓國職籃`, `澳洲職籃`, `NBA`, `WNBA`, `中國職籃`), 17(`NHL`), 1(`足球`)]
  * 
  *
  * @apiParamExample {JSON} Request-Example
  * {
- *     "uid": "aaabnKcVVaiIaUf3daVMNTTK5gH4hf1",
+ *     "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *     "rank": 1,
  *     "sport": 16,
  *     "league": "ABL"
@@ -132,7 +147,7 @@ module.exports = deleteTitle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *     "data": "Delete user: 6t0bRabntZ5fRFczvfij, title:[3 16 KBO] successful"
+ *     "data": "Delete user: eIQXtxPrBFPW5daGMcJSx4AicAQ2, title:[3 16 KBO] successful"
  * }
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized

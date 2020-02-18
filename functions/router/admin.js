@@ -41,4 +41,5 @@ router.get(
   verification.admin,
   require('../controller/admin/getClaimController')
 );
+
 module.exports = router;

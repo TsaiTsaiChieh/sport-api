@@ -79,7 +79,7 @@ module.exports = createMessage;
 /**
  * @api {post} /messages createMessage
  * @apiVersion 1.0.0
- * @apiDescription The front-end can only listen to the realtime database and ignore the results of successful JSON responses, and the data structure of the realtime database can refer to the Success-Response of this document
+ * @apiDescription The front-end can only listen to the realtime database and ignore the results of successful JSON responses, and the data structure of the realtime database can refer to the Success-Response of this document by Tsai-Chieh
  * @apiName Create or reply a message/file
  * @apiGroup Messages
  * @apiPermission login user with completed data

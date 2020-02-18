@@ -1,0 +1,341 @@
+{
+  "success": 1,
+  "results": {
+    "home": {
+      "startinglineup": [
+        {
+          "player": {
+            "id": "821598",
+            "name": "Lester Hudson",
+            "cc": "us"
+          },
+          "shirtnumber": "0",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621724",
+            "name": "Cheng Jia",
+            "cc": "cn"
+          },
+          "shirtnumber": "23",
+          "pos": "C"
+        },
+        {
+          "player": {
+            "id": "1622571",
+            "name": "Jingyu Li",
+            "cc": "cn"
+          },
+          "shirtnumber": "8",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621712",
+            "name": "Hanlin Tao",
+            "cc": "cn"
+          },
+          "shirtnumber": "20",
+          "pos": "C"
+        },
+        {
+          "player": {
+            "id": "1968133",
+            "name": "Peidong Chen",
+            "cc": "cn"
+          },
+          "shirtnumber": "44",
+          "pos": "Guard"
+        }
+      ],
+      "substitutes": [
+        {
+          "player": {
+            "id": "1621714",
+            "name": "Ruheng Wang",
+            "cc": "cn"
+          },
+          "shirtnumber": "24",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621720",
+            "name": "Ke Wu",
+            "cc": "cn"
+          },
+          "shirtnumber": "15",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1968153",
+            "name": "Guanxiang Wang",
+            "cc": "cn"
+          },
+          "shirtnumber": "13",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621732",
+            "name": "Qingpeng Zhang",
+            "cc": "cn"
+          },
+          "shirtnumber": "9",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621742",
+            "name": "Hui Zhang",
+            "cc": "cn"
+          },
+          "shirtnumber": "4",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621846",
+            "name": "Peizuo Hou",
+            "cc": "cn"
+          },
+          "shirtnumber": "10",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1625148",
+            "name": "Dapeng Liu",
+            "cc": "cn"
+          },
+          "shirtnumber": "1",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1626046",
+            "name": "Henan Sun",
+            "cc": "cn"
+          },
+          "shirtnumber": "31",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1626864",
+            "name": "Jiafu Tian",
+            "cc": "cn"
+          },
+          "shirtnumber": "14",
+          "pos": "C"
+        },
+        {
+          "player": {
+            "id": "1627444",
+            "name": "James Mays",
+            "cc": "us"
+          },
+          "shirtnumber": "40",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1968161",
+            "name": "Guanghan Ma",
+            "cc": "cn"
+          },
+          "shirtnumber": "5",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621694",
+            "name": "Honghan Li",
+            "cc": "cn"
+          },
+          "shirtnumber": "7",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621690",
+            "name": "Rongzhen Zhu",
+            "cc": "cn"
+          },
+          "shirtnumber": "35",
+          "pos": "C"
+        }
+      ]
+    },
+    "away": {
+      "startinglineup": [
+        {
+          "player": {
+            "id": "1621650",
+            "name": "Rui Zhao",
+            "cc": "cn"
+          },
+          "shirtnumber": "10",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621672",
+            "name": "Xinkai Wang",
+            "cc": "cn"
+          },
+          "shirtnumber": "5",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621676",
+            "name": "Junfei Ren",
+            "cc": "cn"
+          },
+          "shirtnumber": "20",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1027099",
+            "name": "Jianlian Yi",
+            "cc": "cn"
+          },
+          "shirtnumber": "9",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1305122",
+            "name": "MarShon Brooks",
+            "cc": "us"
+          },
+          "shirtnumber": "6",
+          "pos": "Guard"
+        }
+      ],
+      "substitutes": [
+        {
+          "player": {
+            "id": "1967549",
+            "name": "Quanbiao Liu",
+            "cc": "cn"
+          },
+          "shirtnumber": "0",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1967547",
+            "name": "Xucheng Liu",
+            "cc": "cn"
+          },
+          "shirtnumber": "14",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1967545",
+            "name": "Yingbo Li",
+            "cc": "cn"
+          },
+          "shirtnumber": "17",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1889994",
+            "name": "Haojia Zhang",
+            "cc": "cn"
+          },
+          "shirtnumber": "25",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "858096",
+            "name": "Sonny Weems",
+            "cc": "us"
+          },
+          "shirtnumber": "13",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1889992",
+            "name": "Weibo Fang",
+            "cc": "cn"
+          },
+          "shirtnumber": "1",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621664",
+            "name": "Mingxuan Hu",
+            "cc": "cn"
+          },
+          "shirtnumber": "3",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621670",
+            "name": "Peng Zhou",
+            "cc": "cn"
+          },
+          "shirtnumber": "11",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621674",
+            "name": "Fanri Zeng",
+            "cc": "cn"
+          },
+          "shirtnumber": "22",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621678",
+            "name": "Jie Xu",
+            "cc": "cn"
+          },
+          "shirtnumber": "2",
+          "pos": "Guard"
+        },
+        {
+          "player": {
+            "id": "1621680",
+            "name": "Runwang Du",
+            "cc": "cn"
+          },
+          "shirtnumber": "18",
+          "pos": "Forward"
+        },
+        {
+          "player": {
+            "id": "1621684",
+            "name": "Wei Su",
+            "cc": "cn"
+          },
+          "shirtnumber": "12",
+          "pos": "C"
+        },
+        {
+          "player": {
+            "id": "1621706",
+            "name": "Shengwei Wan",
+            "cc": "cn"
+          },
+          "shirtnumber": "51",
+          "pos": "C"
+        }
+      ]
+    }
+  }
+}

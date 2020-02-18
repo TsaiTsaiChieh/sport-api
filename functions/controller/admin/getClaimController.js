@@ -30,7 +30,7 @@ module.exports = getClaim;
  * @apiVersion 1.0.0
  * @apiDescription 管理員查看使用者權限等級 by Tsai-Chieh
  * 
- * （注意：請使用此使用者 uid: isyoDyVSJBXtD3G7sp9pLW5de7n1）
+ * （注意：請使用此使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName getClaim
  * @apiGroup Admin
  * @apiPermission admin
@@ -40,8 +40,8 @@ module.exports = getClaim;
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": isyoDyVSJBXtD3G7sp9pLW5de7n1
- * }
+ *    "id": eIQXtxPrBFPW5daGMcJSx4AicAQ2
+ * };
  * @apiSuccessExample {JSON} Request-Example
  * 
  *  HTTP/1.1 200 OK
