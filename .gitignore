@@ -78,3 +78,7 @@ package-lock.json
 /public/apidoc/api_data.json
 /public/apidoc/api_project.js
 /public/apidoc/api_project.json
+
+# front-end
+/public/dist
+/public/video.html
