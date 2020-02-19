@@ -3,25 +3,28 @@
 const modules = require('../util/modules');
 const nba_api_key = '48v65d232xsk2am8j6yu693v';
 const global_api_key = 'n8bam2aeabvh358r8g6k83dj';
-// Just for NBA now
-async function prematch(req, res) {
-  // async function prematch() {
+// Just for NBA & SBL now
+// async function prematch(req, res) {
+async function prematch() {
   const date = modules
     .moment()
     .add(1, 'days')
     // .subtract(1, 'days')
     .format('YYYY-MM-DD');
-  // prematchForNBA(date);
-  const results = await prematchForSBL(date);
-  res.json(results);
+  prematchForNBA(date);
+  prematchForSBL(date);
+  // for endpoint test
+  // const results = await prematchForSBL(date);
+  // res.json(results);
 }
 async function prematchForSBL(date) {
   const year = date.substring(0, 4);
   const month = date.substring(5, 7);
   const day = date.substring(8, 10);
   // If query today information, it will return tomorrow information
-  // const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-${month}-${day}/summaries.json?api_key=${global_api_key}`;
-  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${global_api_key}`;
+  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-${month}-${day}/summaries.json?api_key=${global_api_key}`;
+  // const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${global_api_key}`;
+
   try {
     const { data } = await modules.axios(URL);
     const ele = data.summaries;
@@ -34,18 +37,37 @@ async function prematchForSBL(date) {
           ].sport_event.sport_event_context.competition.name.toUpperCase() ===
           'SBL'
         ) {
-          repackageForSBL(ele[i]);
+          results.push(
+            modules.firestore
+              .collection(modules.db.sport_18)
+              .doc(ele[i].sport_event.id.replace('sr:sport_event:', ''))
+              .set(repackageForSBL(ele[i]), { merge: true })
+          );
+          console.log(
+            `match_id: ${ele[i].sport_event.id.replace('sr:sport_event:', '')}`
+          );
         }
       }
     }
-    return results;
+    try {
+      await Promise.all(results);
+    } catch (error) {
+      console.log(
+        'error happened in pubsub/prematch/prematchForSBL results variable by Tsai-Chieh',
+        error
+      );
+      return error;
+    }
   } catch (error) {
     console.log(
-      'error happened in pubsub/prematch/prematchForSBL results axios by Tsai-Chieh',
+      'error happened in pubsub/prematch/prematchForSBL axios function by Tsai-Chieh',
       error
     );
     return error;
   }
+  const result = `Daily Schedule in SBL on ${date} +1 successful, URL: ${URL}`;
+  console.log(result);
+  return result;
 }
 async function prematchForNBA(date) {
   const year = date.substring(0, 4);
@@ -53,8 +75,8 @@ async function prematchForNBA(date) {
   const day = date.substring(8, 10);
 
   // If query today information, it will return tomorrow information
-  // const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/${day}/schedule.json?api_key=${nba_api_key}`;
-  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/14/schedule.json?api_key=${nba_api_key}`;
+  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/${day}/schedule.json?api_key=${nba_api_key}`;
+  // const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${year}/${month}/14/schedule.json?api_key=${nba_api_key}`;
 
   try {
     const { data } = await modules.axios(URL);
@@ -86,14 +108,14 @@ async function prematchForNBA(date) {
     );
     return error;
   }
-  const result = `Daily Schedule on ${date} +1 successful, URL: ${URL}`;
+  const result = `Daily Schedule in NBA on ${date} +1 successful, URL: ${URL}`;
   console.log(result);
   return result;
   // res.json(result);
 }
 function repackageForSBL(ele) {
   data = {};
-  data.id = ele.replace('sr:sport_event:', '');
+  data.id = ele.sport_event.id.replace('sr:sport_event:', '');
   data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date()
   );
@@ -103,7 +125,7 @@ function repackageForSBL(ele) {
   );
   data.league = {
     id: ele.sport_event.sport_event_context.competition.id,
-    name: ele.sport_event.sport_event_context.name.toUpperCase()
+    name: ele.sport_event.sport_event_context.competition.name.toUpperCase()
   };
   data.home = {
     id: ele.sport_event.competitors[0].id.substring('sr:competitor:', ''),
