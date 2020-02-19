@@ -10,4 +10,5 @@ router.get('/testUpcoming', require('../pubsub/getUpcomingEvent'));
 router.get('/testLineups', require('../pubsub/getLineups'));
 // for testing handicap
 router.get('/testOdds', require('../pubsub/getHandicap'));
+router.get('/prematch', require('../controller/sport/prematchController'));
 module.exports = router;
