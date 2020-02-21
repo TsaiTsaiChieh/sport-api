@@ -1,0 +1,23 @@
+<html>
+<body>
+<video controls="" preload="auto" id="_video"></video>
+</body>
+</html>
+
+<script>
+    function createObjectURL(object) {
+        return (window.URL) ? window.URL.createObjectURL(object) : window.webkitURL.createObjectURL(object);
+    }
+
+    async function display(videoStream){
+        var video = document.getElementById('_video');
+        let blob = await fetch(videoStream).then(r => r.blob());
+        var videoUrl=createObjectURL(blob);
+        video.src = videoUrl;
+    }
+
+    // display('https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/chat%2Fpublic%2Fssa8LE669NbzsNpjXcCCDsdVmxj2%2F15809773344936a8628ec-11e6-8529-4ef6-d2f667ca4387.mp4?alt=media&token=ad5c066d-3286-42ae-be75-dc2a5fd2ce15#t=0.5');
+    // display('https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/chat%2Fpublic%2Fssa8LE669NbzsNpjXcCCDsdVmxj2%2F1580802078589541defb4-06b8-6755-64d9-9e34613487c0.mov?alt=media&token=da61c9d2-42db-48a2-a1bb-2ec2aedfd95e#t=0.5');
+    display('https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/chat%2Fpublic%2FFdqFph3P2QQ0jymNyENHlJcJVfg1%2FIMG_6245.MOV?alt=media&token=430da8ec-b4de-4f11-8cc8-eb8db498f220');
+    // display('https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/chat%2Fpublic%2Fnull%2F1580959170495081adf84-5bda-4c8e-1d34-6443abed54a5.quicktime?alt=media&token=39d997b9-b565-4e09-913b-c2e807dbd2b6#t=0.5');
+</script>

@@ -243,8 +243,11 @@ const envValues = require('../../config/env_values');
 
 async function modifyUserProfile(req, res) {
     let sessionCookie = req.cookies.__session;
-    // console.log("session Cookie...", sessionCookie);
-    if (!sessionCookie) return res.status(401).send();
+    console.log("session Cookie...", sessionCookie);
+    if (!sessionCookie) {
+        res.status(401).send();
+        return;
+    }
     let uid = req.token.uid;
     const userSnapshot = await modules.getSnapshot('users', uid);
     const userProfile = await userSnapshot.data();
@@ -275,12 +278,18 @@ async function modifyUserProfile(req, res) {
                 }
             };
             const valid = modules.ajv.validate(schema, args);
-            if (!valid) return res.status(400).json(modules.ajv.errors);
+            console.log(modules.ajv.errors);
+            // if (!valid) return res.status(400).json(modules.ajv.errors);
+            if (!valid) {
+                res.status(400).json(modules.ajv.errors)
+                return;
+            }
             const uniqueNameSnapshot = await modules.firestore.collection('uniqueName').doc(args.displayName).get();
             const uniqueEmailSnapshot = await modules.firestore.collection('uniqueEmail').doc(args.email).get();
             const uniquePhoneSnapshot = await modules.firestore.collection('uniquePhone').doc(args.phone).get();
             if (uniqueNameSnapshot.exists || uniqueEmailSnapshot.exists || uniquePhoneSnapshot.exists) {
-                return res.status(400).json({success: false, message: 'user name , email or phone exists'});
+                res.status(400).json({success: false, message: 'user name , email or phone exists'});
+                return;
             } else {
                 modules.firestore.collection('uniqueName').doc(args.displayName).set({uid: uid});
                 modules.firestore.collection('uniqueEmail').doc(args.email).set({uid: uid});
@@ -369,10 +378,10 @@ async function modifyUserProfile(req, res) {
         resultJson.data = userResult;
         resultJson.success = true;
         console.log('Added document with ID: ', ref);
-        return res.status(200).json(resultJson);
+        res.status(200).json(resultJson);
     }).catch(e => {
         console.log('Added document with error: ', e);
-        return res.status(500).json({success: false, message: "update failed"});
+        res.status(500).json({success: false, message: "update failed"});
     });
     // res.json({success: true, result: writeResult});
 }

@@ -32,16 +32,18 @@ app.use(
 const whitelist = [
   'https://chat.doinfo.cc',
   'http://localhost:5000',
-  'http://localhost:8080'
+  'http://localhost:8080',
+  'http://localhost:8081'
 ];
 const corsOptions = {
-  origin: function(origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+    credential:true,
+    origin: function(origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+    },
 };
 app.use(cors(corsOptions));
 
