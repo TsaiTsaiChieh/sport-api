@@ -7,7 +7,7 @@ const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
-const Busboy = require('busboy');
+// const Busboy = require('busboy');
 const uuidv1 = require('uuid/v1'); // for unique id generation
 const path = require('path');
 const os = require('os');
@@ -53,7 +53,8 @@ function createError(code, error) {
 // database name general setting
 const db = {
   // sport_18: 'sport_baseketball'
-  sport_18: 'radar_basketball'
+  sport_18: 'radar_basketball',
+  bets_18: 'bets_basketball'
 };
 
 module.exports = {
@@ -72,7 +73,7 @@ module.exports = {
   axios,
   db,
   betsToken,
-  Busboy,
+  // Busboy,
   uuidv1,
   path,
   os,
