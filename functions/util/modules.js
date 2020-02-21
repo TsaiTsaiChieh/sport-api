@@ -54,7 +54,8 @@ function createError(code, error) {
 const db = {
   // sport_18: 'sport_baseketball'
   sport_18: 'radar_basketball',
-  bets_18: 'bets_basketball'
+  bets_18: 'basketball',
+  basketball: 'basketball'
 };
 
 module.exports = {
