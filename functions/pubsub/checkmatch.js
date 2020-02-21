@@ -1,71 +1,68 @@
 const modules = require("../util/modules");
-// const pbpNBA = require("./pbpNBA.js");
-const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
 
-var gameID = "e253238c-2eac-4749-b28e-9cde1aed0303";
-var scheduleTime = "2020-02-18T09:21:00+00:00";
-// const express = require("express");
-// const router = express();
-// router.get("/test", async (req, res) => {
-//   const ele = await modules.firestore.collection(modules.db.sport_18).get();
-//   const totalData = [];
-//   ele.forEach(doc => {
-//     totalData.push(doc.data());
-//   });
-//   //   for (var i = 0; i < totalData.length(); i++) {
-//   //     console.log(Date(totalData[i].scheduled._seconds));
-//   //   }
-//   res.json(totalData.length());
-// });
-
-async function checkmatch() {
-  console.log("testmessage");
-
-  // read the firestore's radar_basketball
-  //   let ele = await modules.firestore.collection(modules.db.sport_18).get();
-  var scheduleTime = "2020-02-20T09:35:00+00:00";
-  var scheduleYear = parseInt(scheduleTime.substring(0, 4));
-  var scheduleMonth = parseInt(scheduleTime.substring(5, 7));
-  var scheduleDay = parseInt(scheduleTime.substring(8, 10));
-  var scheduleHour = parseInt(scheduleTime.substring(11, 13));
-  var scheduleMinute = parseInt(scheduleTime.substring(14, 16));
-  var scheduleSecond = parseInt(scheduleTime.substring(17, 19));
-  scheduleMonth = scheduleMonth - 1;
-
-  var date = new Date(
-    scheduleYear,
-    scheduleMonth,
-    scheduleDay,
-    scheduleHour,
-    scheduleMinute,
-    scheduleSecond
-  );
-  var date2 = new Date(
-    scheduleYear,
-    scheduleMonth,
-    scheduleDay,
-    scheduleHour,
-    scheduleMinute + 10,
-    scheduleSecond
-  );
-
-  modules.nodeSchedule.scheduleJob(date, function() {
-    console.log("scheduled test");
-    modules.firestore
-      .collection("pagetest")
-      .doc("123")
-      .set({ test: "loki4316" }, { merge: true });
+const pbpNBA = require("./pbpNBA.js");
+async function checkmatch(req, res) {
+  //read event information from firestore
+  var data = await modules.firestore.collection("test_basketball").get();
+  var totalData = [];
+  data.forEach(doc => {
+    totalData.push(doc.data());
   });
-  modules.nodeSchedule.scheduleJob(date2, function() {
-    console.log("scheduled test");
-    modules.firestore
-      .collection("pagetest")
-      .doc("123")
-      .set({ test2: "jecica196" }, { merge: true });
-  });
-  console.log("schedule suceess");
+
+  //the time show on front-end
+  //   var gameTimeTaipei = new Date(
+  //     totalData[0].scheduleTime._seconds * 1000
+  //   ).toString();
+  //   var nowTimeTaipei = new Date(Date.now()).toString();
+
+  // realtime database write
+  //var data2 = await modules.database.ref("sportlottery-test");
+  //   modules.database.ref(gameID).set({
+  //     username: "123"
+  //   });
+
+  // 所有賽事判斷
+
+  for (var i = 0; i < totalData.length; i++) {
+    var gameID = totalData[i].id;
+
+    var gameTime = totalData[i].scheduleTime._seconds * 1000;
+    var nowTime = Date.now();
+    //event status 0:history 1:now 2:future
+    if (totalData[i].flag.status === 1) {
+      // check the periods and event in firebase realtime database now
+      var realtimeData;
+      realtimeData = JSON.parse(
+        JSON.stringify(
+          // eslint-disable-next-line no-await-in-loop
+          await modules.database.ref(`basketball/NBA/${gameID}`).once("value")
+        )
+      );
+      //   eslint-disable-next-line no-await-in-loop
+
+      var periodsNow = Object.keys(realtimeData.periods).length - 1; //how much periods
+      var periodName = Object.keys(realtimeData.periods);
+      var eventNow =
+        Object.keys(realtimeData.periods[periodName[periodsNow]]).length - 1;
+
+      pbpNBA(gameID, periodsNow, eventNow);
+
+      //pbpNBA();
+    }
+    if (totalData[i].flag.status === 2) {
+      if (gameTime <= nowTime) {
+        // eslint-disable-next-line no-await-in-loop
+        //change the status to 1
+        //pbpNBA();
+        // modules.firestore
+        //   .collection("test_basketball")
+        //   .doc(gameID)
+        //   .set({ flag: { status: 1 } }, { merge: true });
+      }
+    }
+  }
+
+  res.json(realtimeData);
 }
 
-// module.exports = router;
 module.exports = checkmatch;
-// exports.api2 = functions.https.onRequest(checkmatch);

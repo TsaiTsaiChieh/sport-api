@@ -68,7 +68,7 @@ exports.cronHandicap = functions.pubsub
   .timeZone("Asia/Taipei")
   .onRun(require("./pubsub/getHandicap"));
 exports.cronCheckmatch = functions.pubsub
-  .schedule("55 9 * * *")
+  .schedule("* * * * *")
   .timeZone("Asia/Taipei")
   .onRun(require("./pubsub/checkmatch"));
 exports.api = functions.https.onRequest(app);
