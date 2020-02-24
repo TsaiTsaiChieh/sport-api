@@ -1,6 +1,5 @@
 const modules = require('../../util/modules');
 const NBA_api_key = '48v65d232xsk2am8j6yu693v';
-
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
 module.exports.NBA.upcomming = async function(date, league_id) {
@@ -15,7 +14,7 @@ module.exports.NBA.upcomming = async function(date, league_id) {
       let ele = data.results[i];
       results.push(
         modules.firestore
-          .collection(modules.db.basketball)
+          .collection(modules.db.basketball_NBA)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
       );
@@ -29,15 +28,17 @@ module.exports.NBA.upcomming = async function(date, league_id) {
     return error;
   }
   // firestore
-  try {
-    await Promise.all(results);
-  } catch (error) {
-    console.log(
-      'Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh',
-      error
-    );
-    return error;
-  }
+  return new Promise(async function(resolve, reject) {
+    try {
+      resolve(await Promise.all(results));
+    } catch (error) {
+      console.log(
+        'Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh',
+        error
+      );
+      reject(error);
+    }
+  });
 };
 
 function repackage_bets(ele) {
@@ -67,7 +68,6 @@ function repackage_bets(ele) {
   };
   return data;
 }
-
 function encode(name) {
   name = name.toLowerCase();
   switch (name) {
@@ -95,6 +95,7 @@ module.exports.NBA.prematch = async function(date) {
   try {
     const { data } = await modules.axios(URL);
     const query = await query_NBA(date);
+
     for (let i = 0; i < data.games.length; i++) {
       let ele = data.games[i];
       integration(query, ele, data.league);
@@ -122,22 +123,21 @@ function integration(query, ele, league) {
       ele.home.alias.toUpperCase() === query[i].away.alias
     ) {
       modules.firestore
-        .collection(modules.db.basketball)
+        .collection(modules.db.basketball_NBA)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, league), { merge: true });
     }
   }
 }
 async function query_NBA(date) {
-  const basketRef = modules.firestore.collection(modules.db.basketball);
+  const basketRef = modules.firestore.collection(modules.db.basketball_NBA);
   const beginningDate = modules.moment(date).add(1, 'days');
   const endDate = modules.moment(date).add(2, 'days');
   const results = [];
   try {
     const query = await basketRef
-      .where('league.name', '==', 'NBA')
       .where('scheduled', '>=', beginningDate)
-      .where('scheduled', '<', endDate)
+      .where('scheduled', '<=', endDate)
       .get();
 
     query.forEach(async function(ele) {
@@ -147,7 +147,7 @@ async function query_NBA(date) {
     return results;
   } catch (error) {
     console.log(
-      'Error in pubsub/util/prematchFunctions_NBA integration function by TsaiChieh',
+      'Error in pubsub/util/prematchFunctions integration function by TsaiChieh',
       error
     );
     return error;
@@ -188,7 +188,6 @@ function repackage_sportradar(ele, league) {
   if (ele.home.sr_id) data.home.sr_id = ele.home.sr_id;
   if (ele.away.sr_id) data.away.sr_id = ele.away.sr_id;
   if (ele.sr_id) data.sr_id = ele.sr_id;
-  console.log(data);
   return data;
 }
 // eslint-disable-next-line consistent-return
