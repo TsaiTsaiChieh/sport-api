@@ -11,7 +11,7 @@ function giveTitle(req, res) {
       },
       rank: {
         type: 'integer',
-        maximum: 5,
+        maximum: 4,
         minimum: 1
       },
       sport: {
@@ -132,7 +132,7 @@ module.exports = giveTitle;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
- * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神
+ * @apiParam {Integer} rank user rank, maximum: 4, minimum: 1. rank `1`: 鑽石大神, rank `2`: 金牌大神, rank `3`: 銀牌大神, rank `4`: 銅牌大神
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
  * @apiParam {String} league user league, enum pair: [16(`中華職棒`, `墨西哥職棒`, `韓國職棒`, `MLB`, `日本職棒`, `澳洲職棒`), 18(`SBL`, `日本職籃`, `韓國職籃`, `澳洲職籃`, `NBA`, `WNBA`, `中國職籃`), 17(`NHL`), 1(`足球`)]
 
@@ -150,7 +150,7 @@ module.exports = giveTitle;
  *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "title": [
  *        {
- *              "rank": 5,
+ *              "rank": 2,
  *              "sport": 16,
  *              "league": "中華職棒"
  *        }
