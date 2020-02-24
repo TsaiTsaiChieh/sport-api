@@ -52,10 +52,8 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  // sport_18: 'sport_baseketball'
-  sport_18: 'radar_basketball',
-  bets_18: 'basketball',
-  basketball: 'basketball'
+  basketball_NBA: 'basketball_NBA',
+  basketball_SBL: 'basketball_SBL'
 };
 
 module.exports = {
