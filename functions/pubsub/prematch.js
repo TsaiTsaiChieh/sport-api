@@ -8,7 +8,6 @@ const global_api_key = 'n8bam2aeabvh358r8g6k83dj';
 const league_id = [2274, 8251]; // NBA, SBL
 // Just for NBA & SBL now
 // upcomming is BetsAPI, prematch is for sportradar
-// async function prematch(req, res) {
 async function prematch() {
   const date = modules
     .moment()
@@ -17,7 +16,7 @@ async function prematch() {
     .format('YYYY-MM-DD');
   const yesterday = modules
     .moment()
-    .subtract(1, 'days')
+    // .subtract(1, 'days')
     .format('YYYY-MM-DD');
   // const yesterday = '2020-02-21';
   // const date = dateFormat(currentDate);
@@ -25,8 +24,8 @@ async function prematch() {
 
   upcomming_NBA(date);
   prematch_NBA(yesterday);
-  upcomming_SBL(date);
-  prematch_SBL(date);
+  // upcomming_SBL(date);
+  // prematch_SBL(date);
   // for endpoint test
   // const results = await prematchForSBL(date);
   // res.json(results);
@@ -35,7 +34,7 @@ async function prematch() {
 async function upcomming_NBA(date) {
   const date_ = dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id[0]}&day=${date_.year}${date_.month}${date_.day}`;
-  console.log(`BetsAPI NBA URL: ${URL}`);
+  console.log(`BetsAPI NBA URL on ${date}: ${URL}`);
   // axios
   const results = [];
   try {
@@ -95,6 +94,166 @@ function repackage_NBA_bets(ele) {
   };
   return data;
 }
+function codebook_NBA(alias) {
+  switch (alias) {
+    // 大西洋組
+    case 'BOS':
+      return {
+        name_ch: '波士頓塞爾提克',
+        alias_ch: '塞爾提'
+      };
+    case 'BKN':
+      return {
+        name_ch: '布魯克林籃網',
+        alias_ch: '籃網'
+      };
+    case 'NYK':
+      return {
+        name_ch: '紐約尼克',
+        alias_ch: '尼克'
+      };
+    case 'PHI':
+      return {
+        name_ch: '費城76人',
+        alias_ch: '76人'
+      };
+    case 'TOR':
+      return {
+        name_ch: '多倫多暴龍',
+        alias_ch: '暴龍'
+      };
+    // 中央組
+    case 'CHI':
+      return {
+        name_ch: '芝加哥公牛',
+        alias_ch: '公牛'
+      };
+    case 'CLE':
+      return {
+        name_ch: '克里夫蘭騎士',
+        alias_ch: '騎士'
+      };
+    case 'DET':
+      return {
+        name_ch: '底特律活塞',
+        alias_ch: '活塞'
+      };
+    case 'IND':
+      return {
+        name_ch: '印地安那溜馬',
+        alias_ch: '溜馬'
+      };
+    case 'MIL':
+      return {
+        name_ch: '密爾瓦基公鹿',
+        alias_ch: '公鹿'
+      };
+    // 東南組
+    case 'ATL':
+      return {
+        name_ch: '亞特蘭大老鷹',
+        alias_ch: '老鷹'
+      };
+    case 'CHA':
+      return {
+        name_ch: '夏洛特黃蜂',
+        alias_ch: '黃蜂'
+      };
+    case 'MIA':
+      return {
+        name_ch: '邁阿密熱火',
+        alias_ch: '熱火'
+      };
+    case 'ORL':
+      return {
+        name_ch: '奧蘭多魔術',
+        alias_ch: '魔術'
+      };
+    case 'WAS':
+      return {
+        name_ch: '華盛頓巫師',
+        alias_ch: '巫師'
+      };
+    // 西北組
+    case 'DEN':
+      return {
+        name_ch: '亞特蘭大老鷹',
+        alias_ch: '老鷹'
+      };
+    case 'MIN':
+      return {
+        name_ch: '明尼蘇達灰狼',
+        alias_ch: '灰狼'
+      };
+    case 'POR':
+      return {
+        name_ch: '波特蘭拓荒者',
+        alias_ch: '拓荒者'
+      };
+    case 'OKC':
+      return {
+        name_ch: '奧克拉荷馬雷霆',
+        alias_ch: '雷霆'
+      };
+    case 'UTA':
+      return {
+        name_ch: '猶他爵士',
+        alias_ch: '爵士'
+      };
+    // 太平洋組
+    case 'GSW':
+      return {
+        name_ch: '金州勇士',
+        alias_ch: '勇士'
+      };
+    case 'LAC':
+      return {
+        name_ch: '洛杉磯快艇',
+        alias_ch: '快艇'
+      };
+    case 'LAL':
+      return {
+        name_ch: '洛杉磯湖人',
+        alias_ch: '湖人'
+      };
+    case 'PHX':
+      return {
+        name_ch: '鳳凰城太陽',
+        alias_ch: '太陽'
+      };
+    case 'SAC':
+      return {
+        name_ch: '沙加緬度國王',
+        alias_ch: '國王'
+      };
+    // 西南組
+    case 'HOU':
+      return {
+        name_ch: '休士頓火箭',
+        alias_ch: '火箭'
+      };
+    case 'DAL':
+      return {
+        name_ch: '達拉斯獨行俠',
+        alias_ch: '獨行俠'
+      };
+    case 'MEM':
+      return {
+        name_ch: '孟菲斯灰熊',
+        alias_ch: '灰熊'
+      };
+    case 'SAS':
+      return {
+        name_ch: '聖安東尼奧馬刺',
+        alias_ch: '馬刺'
+      };
+    case 'NOP':
+      return {
+        name_ch: '新奧爾良鵜鶘',
+        alias_ch: '鵜鶘'
+      };
+  }
+}
 function encode_NBA(name) {
   name = name.toLowerCase();
   switch (name) {
@@ -118,6 +277,7 @@ async function prematch_NBA(date) {
   const date_ = dateFormat(date);
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${date_.year}/${date_.month}/${date_.day}/schedule.json?api_key=${nba_api_key}`;
+  console.log(`SportRadarAPI NBA URL on ${date}: ${URL}`);
   try {
     const { data } = await modules.axios(URL);
     const query = await query_NBA(date);
@@ -195,11 +355,15 @@ function repackage_NBA_sportradar(ele, league) {
     alias: ele.home.alias,
     radar_id: ele.home.id
   };
+  data.home.name_ch = codebook_NBA(data.home.alias).name_ch;
+  data.home.alias_ch = codebook_NBA(data.home.alias).alias_ch;
   data.away = {
     name: ele.away.name,
     alias: ele.away.alias,
     radar_id: ele.away.id
   };
+  data.away.name_ch = codebook_NBA(data.away.alias).name_ch;
+  data.away.alias_ch = codebook_NBA(data.away.alias).alias_ch;
   data.venue = {
     name: ele.venue.name,
     city: ele.venue.city,
@@ -208,7 +372,7 @@ function repackage_NBA_sportradar(ele, league) {
   if (ele.home.sr_id) data.home.sr_id = ele.home.sr_id;
   if (ele.away.sr_id) data.away.sr_id = ele.away.sr_id;
   if (ele.sr_id) data.sr_id = ele.sr_id;
-
+  console.log(data);
   return data;
 }
 // eslint-disable-next-line consistent-return
