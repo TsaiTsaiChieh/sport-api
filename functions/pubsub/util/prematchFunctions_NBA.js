@@ -1,10 +1,10 @@
 const modules = require('../../util/modules');
-const NBA_api_key = '48v65d232xsk2am8j6yu693v';
+
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
 module.exports.NBA.upcomming = async function(date, league_id) {
   const date_ = dateFormat(date);
-  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id[0]}&day=${date_.year}${date_.month}${date_.day}`;
+  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id}&day=${date_.year}${date_.month}${date_.day}`;
   console.log(`BetsAPI NBA URL on ${date}: ${URL}`);
   // axios
   const results = [];
@@ -87,7 +87,7 @@ function encode(name) {
       return name.substring(0, 3).toUpperCase();
   }
 }
-module.exports.NBA.prematch = async function(date) {
+module.exports.NBA.prematch = async function(date, NBA_api_key) {
   const date_ = dateFormat(date);
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${date_.year}/${date_.month}/${date_.day}/schedule.json?api_key=${NBA_api_key}`;
