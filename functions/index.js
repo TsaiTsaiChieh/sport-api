@@ -59,7 +59,7 @@ app.use('/messages_temp', require('./Deprecated/messages'));
 app.use('/radar/prematch', require('./pubsub/prematch'));
 
 exports.cronPrematch = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('0 20 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.cronHandicap = functions.pubsub
