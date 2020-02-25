@@ -32,7 +32,10 @@ const lineLogin = new line_login({
 // call from Line SDK
 function loginHandler(req, res) {
     const lineAccessToken = req.query.code;
-    if (!lineAccessToken) return res.status(401).send({error: 'login failed!'});
+    if (!lineAccessToken) {
+        res.status(401).send({error: 'login failed!'});
+        return;
+    }
     // res.setHeader('Access-Control-Allow-Origin', '*');
     // const lineState = req.query.state;
 
@@ -59,7 +62,8 @@ function loginHandler(req, res) {
 
             lineLogin.verify_access_token(token_response.access_token).then((verify_response) => {
                 if (verify_response.client_id !== envValues.lineConfig.channelID) {
-                    return Promise.reject(new Error('Line channel ID mismatched'));
+                    Promise.reject(new Error('Line channel ID mismatched'));
+                    return;
                 }
                 userUtils.getFirebaseUser(token_response).then(userRecord => {
                     firebaseAdmin.auth().createCustomToken(userRecord.uid).then(token => {
@@ -70,7 +74,7 @@ function loginHandler(req, res) {
                         res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
                         res.cookie('auth_token', token, options);
                         // return res.redirect(307, envValues.indexURL + 'line_login.html');
-                        return res.redirect(307, 'https://chat.doinfo.cc/statics/line_login.html');
+                        res.redirect(307, 'https://chat.doinfo.cc/statics/line_login.html');
                     })
                 }).catch(function (err) {
                     console.log("id token verification failed.", err);
@@ -79,7 +83,7 @@ function loginHandler(req, res) {
             })
         } catch (exception) {
             console.log("id token verification failed.");
-            return res.status(401).send({error: 'login failed!'});
+            res.status(401).send({error: 'login failed!'});
         }
     });
 }

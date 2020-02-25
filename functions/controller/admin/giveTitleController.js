@@ -156,7 +156,7 @@ module.exports = giveTitle;
  *        }
  *     ]
  *  }
- * 
+ *
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 403 Forbidden
