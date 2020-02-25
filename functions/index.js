@@ -1,4 +1,4 @@
-// const ssr = require('./server/index.js');
+const ssr = require('./server/index.js');
 
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
