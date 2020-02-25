@@ -57,6 +57,7 @@ app.use('/messages_temp', require('./Deprecated/messages'));
 
 // for test pubsub endpoint
 app.use('/radar/prematch', require('./pubsub/prematch'));
+app.use('/radar/handicap', require('./pubsub/handicap'));
 
 exports.cronPrematch = functions.pubsub
   .schedule('0 20 * * *')
