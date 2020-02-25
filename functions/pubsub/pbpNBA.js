@@ -2,93 +2,109 @@ const modules = require("../util/modules");
 
 const axios = require("axios");
 const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
-
+let countForStatus2 = 0;
+const timesPerLoop = 11;
+const firestoreName = "basketball_page";
 async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
 
-  try {
-    dataFromAPI = await axios(URL);
-    for (
-      var periodsCount = periodsNow;
-      periodsCount < dataFromAPI.periods.length;
-      periodsCount++
-    ) {
-      for (
-        var eventsCount = eventsNow;
-        eventsCount < dataFromAPI.periods[periodsCount].events.length;
-        eventsCount++
-      ) {
-        var ref = modules.database.ref(
-          `basketball/NBA/${gameID}/periods${periodsCount}/events${eventsCount}`
-        );
-        // eslint-disable-next-line no-await-in-loop
-        await ref.set(dataFromAPI.periods[periodsCount].events[eventsCount]);
-      }
-    }
-  } catch (error) {
-    console.log(
-      "error happened in pubsub/NBApbpInplay function by page",
-      error
-    );
-    return error;
-  }
+  let timerForStatus2 = setInterval(async function() {
+    try {
+      let { data } = await axios(URL);
 
-  periodsNow = periodsCount - 1;
-  eventsNow = eventsCount - 1;
-  return [periodsNow, eventsNow];
+      for (
+        let periodsCount = periodsNow;
+        periodsCount < data.periods.length;
+        periodsCount++
+      ) {
+        for (
+          let eventsCount = eventsNow;
+          eventsCount < data.periods[periodsCount].events.length;
+          eventsCount++
+        ) {
+          let ref = modules.database.ref(
+            `basketball/NBA/${betsID}/periods${periodsCount}/events${eventsCount}`
+          );
+          // eslint-disable-next-line no-await-in-loop
+          await ref.set(data.periods[periodsCount].events[eventsCount]);
+        }
+      }
+      let ref = modules.database.ref(`basketball/NBA/${betsID}/status`);
+      await ref.set(data.status);
+    } catch (error) {
+      console.log(
+        "error happened in pubsub/NBApbpInplay function by page",
+        error
+      );
+    }
+    countForStatus2 = countForStatus2 + 1;
+
+    if (countForStatus2 >= timesPerLoop) {
+      modules.firestore
+        .collection(firestoreName)
+        .doc(betsID)
+        .set({ flag: { status: 1 } }, { merge: true });
+      clearInterval(timerForStatus2);
+    }
+  }, 5000);
+  // change the status to 1
 }
 async function NBApbpHistory(gameID, betsID) {
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   try {
-    dataFromAPI = await axios(URL);
+    data = await axios(URL);
 
-    var awayInfo = {
-      teamAlias: dataFromAPI.away.alias,
-      teamID: dataFromAPI.away.id,
-      teamMarket: dataFromAPI.away.market,
-      teamName: dataFromAPI.away.name,
-      teamSrID: dataFromAPI.away.sr_id
+    let awayInfo = {
+      teamAlias: data.away.alias,
+      teamID: data.away.id,
+      teamMarket: data.away.market,
+      teamName: data.away.name,
+      teamSrID: data.away.sr_id
     };
-    var homeInfo = {
-      teamAlias: dataFromAPI.home.alias,
-      teamID: dataFromAPI.home.id,
-      teamMarket: dataFromAPI.home.market,
-      teamName: dataFromAPI.home.name,
-      teamSrID: dataFromAPI.home.sr_id
+    let homeInfo = {
+      teamAlias: data.home.alias,
+      teamID: data.home.id,
+      teamMarket: data.home.market,
+      teamName: data.home.name,
+      teamSrID: data.home.sr_id
     };
-    var winner;
-    if (dataFromAPI.home.points > dataFromAPI.away.points) {
+    let winner;
+    if (data.home.points > data.away.points) {
       winner = "home";
     } else {
       winner = "away";
     }
-    var finalScore = {
-      homePoints: dataFromAPI.home.points,
-      awayPoints: dataFromAPI.away.points,
+    let finalScore = {
+      homePoints: data.home.points,
+      awayPoints: data.away.points,
       winner: winner
     };
-    var dataOutput = {
+    let dataOutput = {
       awayInfo: awayInfo,
       homeInfo: homeInfo,
       finalScore: finalScore,
-      gameID: dataFromAPI.id,
-      gameSrID: dataFromAPI.sr_id,
-      startTime: dataFromAPI.scheduled
+      gameID: data.id,
+      gameSrID: data.sr_id,
+      startTime: data.scheduled
     };
-    var ref = modules.firestore.collection("test_basketball").doc(betsID);
+    let ref = modules.firestore.collection(firestoreName).doc(betsID);
     await ref.set(dataOutput);
     for (
-      var periodsCount = 0;
-      periodsCount < dataFromAPI.periods.length;
+      let periodsCount = 0;
+      periodsCount < data.periods.length;
       periodsCount++
     ) {
       for (
-        var eventsCount = 0;
-        eventsCount < dataFromAPI.periods[periodsCount].events.length;
+        let eventsCount = 0;
+        eventsCount < data.periods[periodsCount].events.length;
         eventsCount++
       ) {
-        ref = db.collection("test_basketball").doc(betsID);
-        ref.set(data.periods[periodsCount].events[eventsCount]);
+        ref = db.collection(firestoreName).doc(betsID);
+        // eslint-disable-next-line no-await-in-loop
+        await ref.set(
+          { pbp: data.periods[periodsCount].events[eventsCount] },
+          { merge: true }
+        );
       }
     }
   } catch (error) {
@@ -98,5 +114,10 @@ async function NBApbpHistory(gameID, betsID) {
     );
     return error;
   }
+  // change the status to 1
+  modules.firestore
+    .collection(firestoreName)
+    .doc(betsID)
+    .set({ flag: { status: 0 } }, { merge: true });
 }
 module.exports = { NBApbpInplay, NBApbpHistory };
