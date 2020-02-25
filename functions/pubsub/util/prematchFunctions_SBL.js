@@ -3,9 +3,9 @@ const modules = require('../../util/modules');
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
 module.exports.SBL.upcomming = async function(date, league_id) {
-  const date_ = dateFormat(date);
+  const date_ = modules.dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id}&day=${date_.year}${date_.month}${date_.day}`;
-  console.log(`BetsAPI SBL URL: ${URL}`);
+  console.log(`BetsAPI SBL URL on ${date}: ${URL}`);
   // axios
   const results = [];
   try {
@@ -14,7 +14,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
       let ele = data.results[i];
       results.push(
         modules.firestore
-          .collection(modules.db.basketball_NBA)
+          .collection(modules.db.basketball_SBL)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
       );
@@ -22,7 +22,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
     }
   } catch (error) {
     console.log(
-      'Error in pubsub/prematch upcomming_SBL axios by TsaiChieh',
+      'Error in pubsub/prematchFunctions_SBL upcomming axios by TsaiChieh',
       error
     );
     return error;
@@ -33,7 +33,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
       resolve(await Promise.all(results));
     } catch (error) {
       console.log(
-        'Error in pubsub/prematch upcomming_SBL function by TsaiChieh',
+        'Error in pubsub/prematchFunctions_SBL upcomming function by TsaiChieh',
         error
       );
       reject(error);
@@ -43,6 +43,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
 
 function repackage_bets(ele) {
   data = {};
+
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
@@ -66,26 +67,29 @@ function repackage_bets(ele) {
     totals: 0,
     status: 2
   };
+
   return data;
 }
 // eslint-disable-next-line consistent-return
 function encode(name, id) {
   name = name.toLowerCase();
   id = Number.parseInt(id);
-  if (name === 'pauian' || id === 54440) return 'PAR';
+
+  if (name === 'pauian archiland' || id === 319674) return 'PAR';
   else if (name === 'taiwan beer' || id === 193059) return 'TAI';
-  else if (name === 'yulon' || id === 192998) return 'YUL';
-  else if (name === 'jeoutai basketball' || id === 303666) return 'JEO';
+  else if (name === 'yulon dinos' || id === 295972) return 'YUL';
+  else if (name === 'jeoutai technology' || id === 319673) return 'JEO';
   else if (name === 'bank of taiwan' || id === 193057) return 'BAN';
 }
 // eslint-disable-next-line consistent-return
 module.exports.SBL.prematch = async function(date, global_api_key) {
-  const date_ = dateFormat(date);
+  const date_ = modules.dateFormat(date);
   // If query today information, it will return today information
-  const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${date_.year}-${date_.month}-${date_.day}/summaries.json?api_key=${global_api_key}`;
+  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${date_.year}-${date_.month}-${date_.day}/summaries.json?api_key=${global_api_key}`;
   // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${global_api_key}`;
+  console.log(`SportRadar SBL URL on ${date}: ${URL}`);
   try {
-    const { data } = await modules.axios(sportRadarURL);
+    const { data } = await modules.axios(URL);
     const query = await query_SBL(date);
 
     for (let i = 0; i < data.summaries.length; i++) {
@@ -97,30 +101,29 @@ module.exports.SBL.prematch = async function(date, global_api_key) {
         ) {
           integration(query, ele);
           console.log(
-            `match_id: ${ele.sport_event.id.replace('sr:sport_event:', '')}`
+            `SportRadar SBL match_id: ${ele.sport_event.id.replace(
+              'sr:sport_event:',
+              ''
+            )}`
           );
         }
       }
     }
   } catch (error) {
     console.log(
-      'error happened in pubsub/prematch/prematch_SBL axios or query by Tsai-Chieh',
+      'error happened in pubsub/prematchFunctions_SBL prematch axios or query by Tsai-Chieh',
       error
     );
     return error;
   }
-  // const result = `Daily Schedule in SBL on ${date} +1 successful, URL: ${sportRadarURL}`;
-  // console.log(result);
-  // return result;
 };
 async function query_SBL(date) {
-  const basketRef = modules.firestore.collection(modules.db.basketball_NBA);
+  const basketRef = modules.firestore.collection(modules.db.basketball_SBL);
   const beginningDate = modules.moment(date);
   const endDate = modules.moment(date).add(1, 'days');
   const results = [];
   try {
     const query = await basketRef
-      .where('league.name', '==', 'SBL')
       .where('scheduled', '>=', beginningDate)
       .where('scheduled', '<', endDate)
       .get();
@@ -131,7 +134,10 @@ async function query_SBL(date) {
     await Promise.all(results);
     return results;
   } catch (error) {
-    console.log('Error in pubsub/prematch integration function by TsaiChieh');
+    console.log(
+      'Error in pubsub/prematchFunctions_SBL integration function by TsaiChieh',
+      error
+    );
     return error;
   }
 }
@@ -146,7 +152,7 @@ function integration(query, ele) {
       ele.sport_event.competitors[0].abbreviation === query[i].home.alias
     ) {
       modules.firestore
-        .collection(modules.db.basketball_NBA)
+        .collection(modules.db.basketball_SBL)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele), { merge: true });
     }
@@ -166,17 +172,56 @@ function repackage_sportradar(ele) {
     radar_id: ele.sport_event.competitors[0].id,
     name: ele.sport_event.competitors[0].name
   };
+  data.home.alias_ch = codebook(
+    ele.sport_event.competitors[0].abbreviation
+  ).alias_ch;
+  data.home.name_ch = codebook(
+    ele.sport_event.competitors[0].abbreviation
+  ).name_ch;
+
   data.away = {
     radar_id: ele.sport_event.competitors[1].id,
     name: ele.sport_event.competitors[1].name
   };
+
+  data.away.alias_ch = codebook(
+    ele.sport_event.competitors[1].abbreviation
+  ).alias_ch;
+  data.away.name_ch = codebook(
+    ele.sport_event.competitors[1].abbreviation
+  ).name_ch;
+
   return data;
 }
 
-function dateFormat(date) {
-  return {
-    year: date.substring(0, 4),
-    month: date.substring(5, 7),
-    day: date.substring(8, 10)
-  };
+// eslint-disable-next-line consistent-return
+function codebook(alias) {
+  alias = alias.toUpperCase();
+  switch (alias) {
+    case 'PAR':
+      return {
+        name_ch: '桃園璞園建築',
+        alias_ch: '璞園'
+      };
+    case 'TAI':
+      return {
+        name_ch: '台灣啤酒',
+        alias_ch: '台啤'
+      };
+    case 'YUL':
+      return {
+        name_ch: '裕隆納智捷',
+        alias_ch: '裕隆'
+      };
+    case 'JEO':
+      return {
+        name_ch: '九太科技',
+        alias_ch: '九太'
+      };
+    case 'BAN':
+      return {
+        name_ch: '台灣銀行',
+        alias_ch: '台銀'
+      };
+  }
 }
