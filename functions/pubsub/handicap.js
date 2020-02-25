@@ -2,7 +2,8 @@
 const modules = require('../util/modules');
 const URL = 'https://api.betsapi.com/v2/event/odds/summary';
 const leagues = [modules.db.basketball_NBA, modules.db.basketball_SBL];
-const intervals = [16, 10, 8, 6];
+// const intervals = [16, 10, 8, 6];
+const intervals = [14, 12, 8, 6];
 async function handicap() {
   // const { spread_ids, totals_ids } = query_leagues(leagues);
   const querys_NBA = await query_spread(leagues[0]);
@@ -29,6 +30,7 @@ async function query_spread(leagues) {
 }
 function timer(league, eles) {
   for (let i = 0; i < eles.length; i++) {
+    // const intervals = [14, 12, 8, 6];
     const ele = eles[i];
     const beforeHour =
       (ele.scheduled._seconds * 1000 - Date.now()) / (1000 * 60 * 60);
@@ -37,9 +39,59 @@ function timer(league, eles) {
     //   modules.moment(ele.scheduled._seconds * 1000),
     //   beforeHour
     // );
-    if (beforeHour <= 0) {
-      getHandicap(league, ele);
-      // console.log('real...', beforeHour);
+    //  diff <= 6
+    if (
+      (beforeHour <= 0 &&
+        beforeHour <= intervals[intervals.length - 1] &&
+        ele.flag.spread_status === 0) ||
+      (beforeHour <= 0 &&
+        beforeHour <= intervals[intervals.length - 1] &&
+        ele.flag.totals_status === 0)
+    ) {
+      const status = -1;
+      updateHandicap(league, ele, status);
+    }
+    // 12 < diff < 14
+    else if (
+      (intervals[1] <= beforeHour &&
+        beforeHour <= intervals[0] &&
+        ele.flag.spread_status === 0) ||
+      (intervals[1] <= beforeHour &&
+        beforeHour <= intervals[0] &&
+        ele.flag.totals_status === 0)
+    ) {
+      const status = 1;
+      updateHandicap(league, ele, status);
+      // console.log(
+      //   `${i}, ${ele.bets_id}: ${intervals[1]}<=${beforeHour}<=${intervals[0]}`
+      // );
+      // 8 < diff < 12
+    } else if (
+      (intervals[2] <= beforeHour &&
+        beforeHour <= intervals[1] &&
+        ele.flag.spread_status === 1) ||
+      (intervals[2] <= beforeHour &&
+        beforeHour <= intervals[1] &&
+        ele.flag.totals_status === 1)
+    ) {
+      const status = 2;
+      updateHandicap(league, ele, status);
+      console.log(
+        `${i}, ${ele.bets_id}: ${intervals[2]}<=${beforeHour}<=${intervals[1]}`
+      );
+    } else if (
+      (intervals[3] <= beforeHour &&
+        beforeHour <= intervals[2] &&
+        ele.flag.spread_status === 2) ||
+      (intervals[3] <= beforeHour &&
+        beforeHour <= intervals[2] &&
+        ele.flag.totals_status === 2)
+    ) {
+      const status = 3;
+      updateHandicap(league, ele, status);
+      console.log(
+        `${i}, ${ele.bets_id}: ${intervals[3]}<=${beforeHour}<=${intervals[2]}`
+      );
     }
     // if (intervals[1] <= beforeHour && beforeHour <= intervals[0]) {
     //   console.log(
@@ -57,7 +109,7 @@ function timer(league, eles) {
     // }
   }
 }
-async function getHandicap(league, ele) {
+async function updateHandicap(league, ele, status) {
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const { data } = await modules.axios(
@@ -79,7 +131,7 @@ async function getHandicap(league, ele) {
           new Date()
         );
         eventSnapshot.set(
-          { flag: { spread: 1 }, handicap: { spread } },
+          { flag: { spread: 1, spread_status: status }, handicap: { spread } },
           { merge: true }
         );
       }
@@ -95,7 +147,7 @@ async function getHandicap(league, ele) {
           new Date()
         );
         eventSnapshot.set(
-          { flag: { totals: 1 }, handicap: { totals } },
+          { flag: { totals: 1, totals_status: status }, handicap: { totals } },
           { merge: true }
         );
       }
