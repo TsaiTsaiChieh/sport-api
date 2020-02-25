@@ -31,13 +31,16 @@ app.use(
 );
 const whitelist = [
   'https://chat.doinfo.cc',
+  'https://doinfo.cc',
   'http://localhost:5000',
   'http://localhost:8080',
-  'http://localhost:8081'
+  'http://localhost:8081',
 ];
 const corsOptions = {
     credential:true,
     origin: function(origin, callback) {
+        console.log(',,,,,,,,,,');
+        console.log(origin);
         if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true);
         } else {
