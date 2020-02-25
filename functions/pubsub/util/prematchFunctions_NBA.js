@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
 module.exports.NBA.upcomming = async function(date, league_id) {
-  const date_ = dateFormat(date);
+  const date_ = modules.dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id}&day=${date_.year}${date_.month}${date_.day}`;
   console.log(`BetsAPI NBA URL on ${date}: ${URL}`);
   // axios
@@ -88,7 +88,7 @@ function encode(name) {
   }
 }
 module.exports.NBA.prematch = async function(date, NBA_api_key) {
-  const date_ = dateFormat(date);
+  const date_ = modules.dateFormat(date);
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${date_.year}/${date_.month}/${date_.day}/schedule.json?api_key=${NBA_api_key}`;
   console.log(`SportRadarAPI NBA URL on ${date}: ${URL}`);
@@ -99,6 +99,7 @@ module.exports.NBA.prematch = async function(date, NBA_api_key) {
     for (let i = 0; i < data.games.length; i++) {
       let ele = data.games[i];
       integration(query, ele, data.league);
+      console.log(`SportRadar NBA match_id: ${ele.id}`);
     }
   } catch (error) {
     console.log(
@@ -350,11 +351,4 @@ function codebook(alias) {
         alias_ch: '鵜鶘'
       };
   }
-}
-function dateFormat(date) {
-  return {
-    year: date.substring(0, 4),
-    month: date.substring(5, 7),
-    day: date.substring(8, 10)
-  };
 }
