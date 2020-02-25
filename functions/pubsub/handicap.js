@@ -2,8 +2,8 @@
 const modules = require('../util/modules');
 const URL = 'https://api.betsapi.com/v2/event/odds/summary';
 const leagues = [modules.db.basketball_NBA, modules.db.basketball_SBL];
-// const intervals = [16, 10, 8, 6];
-const intervals = [14, 12, 8, 6];
+const intervals = [16, 10, 8, 6];
+// const intervals = [14, 12, 8, 6];
 async function handicap() {
   // const { spread_ids, totals_ids } = query_leagues(leagues);
   const querys_NBA = await query_spread(leagues[0]);
