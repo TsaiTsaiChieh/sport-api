@@ -41,12 +41,10 @@ const whitelist = [
 const corsOptions = {
     credential:true,
     origin: function(origin, callback) {
-        console.log(',,,,,,,,,,');
-        console.log(origin);
         if (whitelist.indexOf(origin) !== -1 || !origin) {
-          callback(null, true);
+          return callback(null, true);
         } else {
-          callback(new Error('Not allowed by CORS'));
+          return callback(new Error('Not allowed by CORS'));
         }
     },
 };
