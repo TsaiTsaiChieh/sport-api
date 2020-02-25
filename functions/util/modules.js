@@ -55,6 +55,13 @@ const db = {
   basketball_NBA: 'basketball_NBA',
   basketball_SBL: 'basketball_SBL'
 };
+function dateFormat(date) {
+  return {
+    year: date.substring(0, 4),
+    month: date.substring(5, 7),
+    day: date.substring(8, 10)
+  };
+}
 
 module.exports = {
   express,
@@ -79,5 +86,6 @@ module.exports = {
   fs,
   fileType,
   ffmpeg,
-  https
+  https,
+  dateFormat
 };
