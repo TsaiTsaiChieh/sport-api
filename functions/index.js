@@ -35,6 +35,7 @@ const whitelist = [
   'http://localhost:5000',
   'http://localhost:8080',
   'http://localhost:8081',
+  'http://192.168.0.195:8080',
 ];
 const corsOptions = {
     credential:true,

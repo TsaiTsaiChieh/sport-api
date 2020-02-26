@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     apidoc: {
       myapp: {
         src: "controller/",
-        dest: "../../sport-apidoc/"
+        dest: "../../sports-apidoc/"
       }
     }
   });
