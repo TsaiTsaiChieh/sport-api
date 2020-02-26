@@ -67,7 +67,7 @@ exports.cronPrematch = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.cronHandicap = functions.pubsub
-  .schedule('* */24 * * *')
+  .schedule('* */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
 exports.api = functions.https.onRequest(app);
