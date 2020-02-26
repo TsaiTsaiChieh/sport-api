@@ -11,9 +11,14 @@ const league_id = [2274, 8251]; // NBA, SBL
 // Just for NBA & SBL now
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
+  // Warning: 若排程設在凌晨六點前，需 add(2, 'day'), yesterday 則需 add(1, 'day')
+  // const date = modules
+  //   .moment()
+  //   .add(1, 'days')
+  //   .format('YYYY-MM-DD');
   const date = modules
     .moment()
-    .add(1, 'days')
+    .add(24, 'hours')
     .format('YYYY-MM-DD');
   const yesterday = modules
     .moment()
