@@ -65,8 +65,6 @@ function repackage_bets(ele) {
   data.flag = {
     spread: 0,
     totals: 0,
-    spread_status: 0,
-    totals_status: 0,
     status: 2
   };
 
