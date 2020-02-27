@@ -40,7 +40,6 @@ module.exports.NBA.upcomming = async function(date, league_id) {
     }
   });
 };
-
 function repackage_bets(ele) {
   data = {};
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
@@ -64,7 +63,8 @@ function repackage_bets(ele) {
   data.flag = {
     spread: 0,
     totals: 0,
-    status: 2
+    status: 2,
+    lineup: 0
   };
   return data;
 }
@@ -103,7 +103,7 @@ module.exports.NBA.prematch = async function(date, NBA_api_key) {
     }
   } catch (error) {
     console.log(
-      'error happened in pubsub/util/prematchFunctions axios or query by Tsai-Chieh',
+      'error happened in pubsub/util/prematchFunctions_NBA axios or query by Tsai-Chieh',
       error
     );
   }
@@ -131,12 +131,12 @@ function integration(query, ele, league) {
   }
 }
 async function query_NBA(date) {
-  const basketRef = modules.firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const beginningDate = modules.moment(date).add(1, 'days');
   const endDate = modules.moment(date).add(2, 'days');
   const results = [];
   try {
-    const query = await basketRef
+    const query = await eventsRef
       .where('scheduled', '>=', beginningDate)
       .where('scheduled', '<=', endDate)
       .get();
@@ -148,7 +148,7 @@ async function query_NBA(date) {
     return results;
   } catch (error) {
     console.log(
-      'Error in pubsub/util/prematchFunctions integration function by TsaiChieh',
+      'Error in pubsub/util/prematchFunctions_NBA query_NBA function by TsaiChieh',
       error
     );
     return error;
@@ -350,5 +350,37 @@ function codebook(alias) {
         name_ch: '新奧爾良鵜鶘',
         alias_ch: '鵜鶘'
       };
+  }
+}
+module.exports.NBA.lineup = async function(date, NBA_api_key) {
+  const querys = query_before40Min(date);
+  const URL = `https://api.sportradar.us/nba/trial/v7/en/games`;
+  for (let i = 0; i < querys.length; i++) {
+    const ele = querys[i];
+    const { data } = await modules.axios.get(
+      `${URL}/${ele.bets_id}/summary.json?api_key=${NBA_api_key}`
+    );
+  }
+};
+async function query_before40Min(date) {
+  // const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = modules.firestore.collection('NBA_TC');
+  const results = [];
+  try {
+    const query = await eventsRef
+      .where('scheduled', '>=', date)
+      .where('scheduled', '<=', modules.moment().add(180, 'minutes'))
+      .where('flag.lineup', '==', 0)
+      .get();
+    query.docs.map(function(docs) {
+      results.push(docs.data());
+    });
+    return await Promise.all(results);
+  } catch (error) {
+    console.log(
+      'Error in pubsub/util/prematchFunctions_NBA query_before40Min function by TsaiChieh',
+      error
+    );
+    return error;
   }
 }
