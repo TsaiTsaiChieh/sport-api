@@ -29,6 +29,13 @@ app.use(
     limit: '50mb'
   })
 );
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Credentials',true);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
+
 const whitelist = [
   'https://chat.doinfo.cc',
   'https://doinfo.cc',
@@ -36,16 +43,15 @@ const whitelist = [
   'http://localhost:8080',
   'http://localhost:8081',
   'http://192.168.0.195:8080',
+  'http://192.168.0.170:8080'
 ];
 const corsOptions = {
-    credential:true,
     origin: function(origin, callback) {
-        console.log(',,,,,,,,,,');
-        console.log(origin);
         if (whitelist.indexOf(origin) !== -1 || !origin) {
-          callback(null, true);
+          return callback(null, true);
         } else {
-          callback(new Error('Not allowed by CORS'));
+          console.log('Not allowed by CORS',origin);
+          return callback(new Error('Not allowed by CORS'));
         }
     },
 };
