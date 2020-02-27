@@ -2,9 +2,9 @@ const modules = require("../util/modules");
 const NBApbp = require("./pbpNBA.js");
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
-const timesPerLoop = 11;
-const firestoreName = "basketball_page";
+
 async function checkmatch(req, res) {
+  const firestoreName = "pagetest";
   //read event information from firestore
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
@@ -39,32 +39,37 @@ async function checkmatch(req, res) {
       let periodsNow;
       let periodName;
       let eventNow;
-      let status;
 
-      if (realtimeData) {
-        periodsNow = Object.keys(realtimeData).length - 1; //how much periods
-        periodName = Object.keys(realtimeData);
-        eventNow = Object.keys(realtimeData[periodName[periodsNow]]).length - 1;
-        status = realtimeData.status;
+      if (realtimeData.Summary.status === "created") {
+        periodsNow = 0;
+        periodName = "periods0";
+        eventNow = 0;
+        // eslint-disable-next-line no-await-in-loop
+        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+      } else if (
+        realtimeData.Summary.status === "closed" ||
+        realtimeData.Summary.status === "complete"
+      ) {
+        // eslint-disable-next-line no-await-in-loop
+        await NBApbpHistory(gameID, betsID);
+      } else if (realtimeData.Summary.status === "inprogress") {
+        periodsNow = Object.keys(realtimeData.PBP).length - 1; //how much periods
+        periodName = Object.keys(realtimeData.PBP);
+        eventNow =
+          Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
+
+        // eslint-disable-next-line no-await-in-loop
+        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
       } else {
         periodsNow = 0; //realtime database has no data
         periodName = "periods0";
         eventNow = 0;
-        status = "inprogress";
-      }
-      console.log(status);
 
-      //write to the firebase realtime
-
-      if (status === "closed" || status === "complete") {
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpHistory(gameID, betsID);
-      } else {
-        // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
       }
+      //write to the firebase realtime
     }
-    if (eventStatus === 3) {
+    if (eventStatus === 2) {
       if (gameTime <= nowTime) {
         // write to firebase realtime
         periodsNow = 0;
@@ -75,7 +80,7 @@ async function checkmatch(req, res) {
     }
   }
   //res.json(realtimeData);
-  res.json({ process: "success" });
+  //res.json({ process: "success" });
 }
 
 module.exports = checkmatch;
