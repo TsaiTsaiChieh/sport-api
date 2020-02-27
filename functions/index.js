@@ -61,14 +61,19 @@ app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
 app.use('/radar/prematch', require('./pubsub/prematch'));
 app.use('/radar/handicap', require('./pubsub/handicap'));
+app.use('/radar/cron10Min', require('./pubsub/cron10Min'));
 
 exports.cronPrematch = functions.pubsub
   .schedule('0 */2 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.cronHandicap = functions.pubsub
-  .schedule('* */1 * * *')
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
+exports.cron10Mins = functions.pubsub
+  .schedule('*/10 * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/cron10Min'));
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);
