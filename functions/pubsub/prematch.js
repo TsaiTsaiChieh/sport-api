@@ -20,6 +20,7 @@ async function prematch() {
     .moment()
     .add(24, 'hours')
     .format('YYYY-MM-DD');
+  console.log(`this date.........:${modules.moment().add(24, 'hours')}`);
   const yesterday = modules
     .moment()
     // .subtract(1, 'days')
