@@ -37,7 +37,6 @@ async function updateHandicap(league, ele) {
     const totals_odds = data.results.odds['18_3'];
     for (let i = 0; i < spread_odds.length; i++) {
       const odd = spread_odds[i];
-      // console.log(odd);
       if (odd.home_od && odd.handicap && odd.away_od) {
         const spread = {};
         spread[odd.id] = {
@@ -85,7 +84,6 @@ async function updateHandicap(league, ele) {
 async function query_opening(flag, value, league) {
   const eventsRef = modules.firestore.collection(league);
   const eles = [];
-
   const querys = await eventsRef
     .where(flag, '==', value)
     .where('scheduled', '>', modules.moment())
