@@ -21,7 +21,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
       console.log(`BetsAPI SBL match id: ${ele.id}`);
     }
   } catch (error) {
-    console.log(
+    console.error(
       'Error in pubsub/prematchFunctions_SBL upcomming axios by TsaiChieh',
       error
     );
@@ -32,7 +32,7 @@ module.exports.SBL.upcomming = async function(date, league_id) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {
-      console.log(
+      console.error(
         'Error in pubsub/prematchFunctions_SBL upcomming function by TsaiChieh',
         error
       );
@@ -82,11 +82,11 @@ function encode(name, id) {
   else if (name === 'bank of taiwan' || id === 193057) return 'BAN';
 }
 // eslint-disable-next-line consistent-return
-module.exports.SBL.prematch = async function(date, global_api_key) {
+module.exports.SBL.prematch = async function(date) {
   const date_ = modules.dateFormat(date);
   // If query today information, it will return today information
-  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${date_.year}-${date_.month}-${date_.day}/summaries.json?api_key=${global_api_key}`;
-  // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${global_api_key}`;
+  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${date_.year}-${date_.month}-${date_.day}/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
+  // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
   console.log(`SportRadar SBL URL on ${date}: ${URL}`);
   try {
     const { data } = await modules.axios(URL);
@@ -110,7 +110,7 @@ module.exports.SBL.prematch = async function(date, global_api_key) {
       }
     }
   } catch (error) {
-    console.log(
+    console.error(
       'error happened in pubsub/prematchFunctions_SBL prematch axios or query by Tsai-Chieh',
       error
     );
@@ -134,7 +134,7 @@ async function query_SBL(date) {
     await Promise.all(results);
     return results;
   } catch (error) {
-    console.log(
+    console.error(
       'Error in pubsub/prematchFunctions_SBL integration function by TsaiChieh',
       error
     );
