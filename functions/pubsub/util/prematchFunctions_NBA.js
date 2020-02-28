@@ -21,7 +21,7 @@ module.exports.NBA.upcomming = async function(date, league_id) {
       console.log(`BetsAPI NBA match id: ${ele.id}`);
     }
   } catch (error) {
-    console.log(
+    console.error(
       'Error in pubsub/util/prematchFunctions_NBA upcomming axios by TsaiChieh',
       error
     );
@@ -32,7 +32,7 @@ module.exports.NBA.upcomming = async function(date, league_id) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {
-      console.log(
+      console.error(
         'Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh',
         error
       );
@@ -87,10 +87,10 @@ function encode(name) {
       return name.substring(0, 3).toUpperCase();
   }
 }
-module.exports.NBA.prematch = async function(date, NBA_api_key) {
+module.exports.NBA.prematch = async function(date) {
   const date_ = modules.dateFormat(date);
   // If query today information, it will return tomorrow information
-  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${date_.year}/${date_.month}/${date_.day}/schedule.json?api_key=${NBA_api_key}`;
+  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${date_.year}/${date_.month}/${date_.day}/schedule.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
   console.log(`SportRadarAPI NBA URL on ${date}: ${URL}`);
   try {
     const { data } = await modules.axios(URL);
@@ -102,7 +102,7 @@ module.exports.NBA.prematch = async function(date, NBA_api_key) {
       console.log(`SportRadar NBA match_id: ${ele.id}`);
     }
   } catch (error) {
-    console.log(
+    console.error(
       'error happened in pubsub/util/prematchFunctions_NBA axios or query by Tsai-Chieh',
       error
     );
@@ -147,7 +147,7 @@ async function query_NBA(date) {
     await Promise.all(results);
     return results;
   } catch (error) {
-    console.log(
+    console.error(
       'Error in pubsub/util/prematchFunctions_NBA query_NBA function by TsaiChieh',
       error
     );
@@ -352,35 +352,93 @@ function codebook(alias) {
       };
   }
 }
-module.exports.NBA.lineup = async function(date, NBA_api_key) {
-  const querys = query_before40Min(date);
+module.exports.NBA.lineup = async function(date) {
+  const querys = await query_before40Min(date);
   const URL = `https://api.sportradar.us/nba/trial/v7/en/games`;
-  for (let i = 0; i < querys.length; i++) {
-    const ele = querys[i];
-    const { data } = await modules.axios.get(
-      `${URL}/${ele.bets_id}/summary.json?api_key=${NBA_api_key}`
+  try {
+    for (let i = 0; i < querys.length; i++) {
+      const ele = querys[i];
+      // eslint-disable-next-line no-await-in-loop
+      const { data } = await modules.axios.get(
+        `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
+      );
+      console.log(
+        `SportRadarAPI NBA lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
+      );
+
+      modules.firestore
+        .collection(league)
+        .doc(querys[i].bets_id)
+        .set(repackage_lineup(data), { merge: true });
+    }
+  } catch (error) {
+    console.error(
+      'Error in pubsub/util/prematchFunctions_NBA lineup function by TsaiChieh',
+      error
     );
   }
 };
 async function query_before40Min(date) {
-  // const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
-  const eventsRef = modules.firestore.collection('NBA_TC');
+  const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const results = [];
+
   try {
     const query = await eventsRef
       .where('scheduled', '>=', date)
-      .where('scheduled', '<=', modules.moment().add(180, 'minutes'))
+      .where('scheduled', '<=', modules.moment().add(40, 'minutes'))
       .where('flag.lineup', '==', 0)
       .get();
+
     query.docs.map(function(docs) {
       results.push(docs.data());
     });
     return await Promise.all(results);
   } catch (error) {
-    console.log(
+    console.error(
       'Error in pubsub/util/prematchFunctions_NBA query_before40Min function by TsaiChieh',
       error
     );
     return error;
   }
+}
+function repackage_lineup(ele) {
+  data = {};
+  data.flag = {
+    lineup: 1
+  };
+  data.lineups = {};
+  data.lineups.home = {};
+  data.lineups.away = {};
+  data.lineups.home.starters = [];
+  data.lineups.home.substitutes = [];
+  data.lineups.away.starters = [];
+  data.lineups.away.substitutes = [];
+  for (let i = 0; i < ele.home.players.length; i++) {
+    const player = ele.home.players[i];
+    if (player.on_court) {
+      data.lineups.home.starters.push(repackage_player(player));
+    } else {
+      data.lineups.home.substitutes.push(repackage_player(player));
+    }
+  }
+  for (let i = 0; i < ele.away.players.length; i++) {
+    const player = ele.away.players[i];
+    if (player.on_court) {
+      data.lineups.away.starters.push(repackage_player(player));
+    } else {
+      data.lineups.away.substitutes.push(repackage_player(player));
+    }
+  }
+
+  return data;
+}
+function repackage_player(ele) {
+  return {
+    name: ele.full_name,
+    first_name: ele.first_name,
+    last_name: ele.last_name,
+    primary_position: ele.primary_position,
+    id: ele.id,
+    sr_id: ele.sr_id
+  };
 }
