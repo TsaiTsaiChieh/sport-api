@@ -1,45 +1,37 @@
 /* eslint-disable consistent-return */
-// const express = require('express');
-// const router = express.Router();
 const modules = require('../util/modules');
-const NBA_api_key = '48v65d232xsk2am8j6yu693v';
-const global_api_key = 'n8bam2aeabvh358r8g6k83dj';
 const NBA_functions = require('./util/prematchFunctions_NBA');
 const SBL_functions = require('./util/prematchFunctions_SBL');
 // for BetsAPI
-const league_id = [2274, 8251]; // NBA, SBL
+const leagues_id = [2274, 8251]; // NBA, SBL
 // Just for NBA & SBL now
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
-  // Warning: 若排程設在凌晨六點前，需 add(2, 'day'), yesterday 則需 add(1, 'day')
-  // const date = modules
-  //   .moment()
-  //   .add(1, 'days')
-  //   .format('YYYY-MM-DD');
   const date = modules
     .moment()
-    .add(24, 'hours')
+    .utcOffset(8)
+    .add(1, 'days')
     .format('YYYY-MM-DD');
-  console.log(`this date.........:${modules.moment().add(24, 'hours')}`);
   const yesterday = modules
     .moment()
+    .utcOffset(8)
     // .subtract(1, 'days')
     .format('YYYY-MM-DD');
   // const yesterday = '2020-02-21';
   // const date = '2020-02-22';
   // NBA
   try {
-    await NBA_functions.NBA.upcomming(date, league_id[0]);
-    NBA_functions.NBA.prematch(yesterday, NBA_api_key);
+    await NBA_functions.NBA.upcomming(date, leagues_id[0]);
+    NBA_functions.NBA.prematch(yesterday);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   // const test_date = '2020-03-07';
   try {
-    await SBL_functions.SBL.upcomming(date, league_id[1]);
-    SBL_functions.SBL.prematch(date, global_api_key);
+    await SBL_functions.SBL.upcomming(date, leagues_id[1]);
+    SBL_functions.SBL.prematch(date);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
