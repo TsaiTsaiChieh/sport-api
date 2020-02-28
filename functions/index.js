@@ -64,7 +64,7 @@ app.use('/radar/handicap', require('./pubsub/handicap'));
 app.use('/radar/cron10Min', require('./pubsub/cron10Min'));
 
 exports.cronPrematch = functions.pubsub
-  .schedule('0 */2 * * *')
+  .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.cronHandicap = functions.pubsub
@@ -75,5 +75,6 @@ exports.cron10Mins = functions.pubsub
   .schedule('*/10 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/cron10Min'));
+
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);
