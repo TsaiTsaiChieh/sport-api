@@ -90,8 +90,6 @@ const envValues = require('../../config/env_values');
 async function firebaseLogin(req, res) {
   let returnJson = { success: false };
   let token = req.body.token;
-  // let uid = req.body.uid;
-  // res.setHeader('Access-Control-Allow-Origin', '*');
   if (!token) {
     console.log('Error login user: missing token');
     res.status(401).json(returnJson);
@@ -136,6 +134,7 @@ async function firebaseLogin(req, res) {
             httpOnly: true,
             sameSite: 'none',
             domain: envValues.domain
+            // domain: 'http://localhost:8080'
           };
 
           res.cookie('__session', sessionCookie, options);
@@ -143,13 +142,11 @@ async function firebaseLogin(req, res) {
         })
         .catch(error => {
           console.log('Error login user: \n\t', error);
-          res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
           res.status(401).json({ success: false });
         });
     })
     .catch(error => {
       console.log('Error login user: \n\t', error);
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.status(401).json({ success: false });
     });
 }
