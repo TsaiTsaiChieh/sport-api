@@ -45,3 +45,4 @@ exports.lineConfig = {
   callbackURL: this.indexURL + 'auth/lineLoginHandler'
 };
 exports.betsToken = require('../auth/betsToken.json').token;
+exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
