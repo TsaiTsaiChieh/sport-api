@@ -152,3 +152,87 @@ async function modifyUserProfile(req, res) {
 
 
 module.exports = modifyUserProfile;
+
+/**
+ * @api {post} /user/modifyUserProfile Modify User Profile
+ * @apiVersion 1.0.0
+ * @apiName modifyUserProfile
+ * @apiGroup User
+ * @apiPermission login user
+ *
+ * @apiParam (Request cookie) {JWT} __session token generate from firebase Admin SDK
+ * @apiParam (Request body) {URL} avatar URL of avatar from Firestorage
+ * @apiParam (Request body) {String} name Actual name (Non changeable)
+ * @apiParam (Request body) {String} displayName Nick Name (Unique,Non changeable)
+ * @apiParam (Request body) {String} phone mobile number with area code (Unique,Non changeable)
+ * @apiParam (Request body) {String} email email address (Unique,Non changeable)
+ * @apiParam (Request body) {Number} birthday birthday UTC timestamp (Non changeable)
+ * @apiParam (Request body) {String} signature signature
+ * @apiParam (Request body) {String} refCode UID of referrer (Non changeable)
+ * @apiParam (Request body) {JSON} title default title example : {"league":"MLB","rank":1,"sport":16}
+ *
+ *
+ * @apiSuccess {JSON} result Execute Result
+ *
+ * @apiSuccessExample New User:
+ *  HTTP/1.1 200 OK
+ {
+    "refPoint": 200,
+    "data": {
+        "success": true,
+        "uid": "sfoepr8QRORSUfs8tZFa3zO7SN23",
+        "data": {
+            "blockMessage": {
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
+            },
+            "ingot": 0,
+            "avatar": "https://i.imgur.com/EUAd2ht.jpg",
+            "uid": "sfoepr8QRORSUfs8tZFa3zO7SN23",
+            "birthday": {
+                "_seconds": 1543182036,
+                "_nanoseconds": 370000000
+            },
+            "phone": "+886999999999",
+            "dividend": 0,
+            "referrer": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
+            "point": 200,
+            "coin": 0,
+            "signature": "世界很快我很慢",
+            "status": 1,
+            "blockCount": 0,
+            "email": "rex@gets-info.com",
+            "name": "rex",
+            "accuseCredit": 20,
+            "displayName": "qqqq",
+            "denys": [],
+            "titles": [],
+            "createTime": {
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
+            },
+            "defaultTitle": {
+                "league": "MLB",
+                "sport": 16,
+                "rank": 1
+            },
+            "updateTime": {
+                "_seconds": 1577676856,
+                "_nanoseconds": 649000000
+            }
+        },
+        "status": 1
+    },
+    "success": true
+}
+ *
+ *
+ * @apiError TokenMissing session cookie not exist.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Token Missing
+ {
+    "success": false,
+    "message": "getUserProfile failed"
+ }
+ */
