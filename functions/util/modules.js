@@ -7,6 +7,7 @@ const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
+const sportRadarKeys = envValues.sportRadarKeys;
 // const Busboy = require('busboy');
 const uuidv1 = require('uuid/v1'); // for unique id generation
 const path = require('path');
@@ -53,6 +54,7 @@ function createError(code, error) {
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
+  // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL'
 };
 function dateFormat(date) {
@@ -94,5 +96,6 @@ module.exports = {
   ffmpeg,
   https,
   dateFormat,
-  cloneFirestore
+  cloneFirestore,
+  sportRadarKeys
 };
