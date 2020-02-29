@@ -62,11 +62,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use('/admin', require('./router/admin'));
-app.use('/auth', require('./router/authentication'));
-app.use('/user', require('./router/user'));
-app.use('/messages', require('./router/messages'));
-app.use('/sport', require('./router/sport'));
+app.use('/admin', require('./routers/admin'));
+app.use('/auth', require('./routers/authentication'));
+app.use('/user', require('./routers/user'));
+app.use('/messages', require('./routers/messages'));
+app.use('/sport', require('./routers/sport'));
 app.use('/messages_temp', require('./Deprecated/messages'));
 
 // for test pubsub endpoint
