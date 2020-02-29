@@ -67,12 +67,9 @@ app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
 app.use('/messages', require('./routers/messages'));
 app.use('/sport', require('./routers/sport'));
-app.use('/messages_temp', require('./Deprecated/messages'));
-
+// app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
-app.use('/radar/prematch', require('./pubsub/prematch'));
-app.use('/radar/handicap', require('./pubsub/handicap'));
-app.use('/radar/cron10Min', require('./pubsub/cron10Min'));
+app.use('/pubsub',require('./routers/pubsub'));
 
 exports.cronPrematch = functions.pubsub
   .schedule('0 5 * * *')
