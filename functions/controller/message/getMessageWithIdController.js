@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
-const messageModel = require('../../model/message/getMessageWithId');
+const messageModel = require('../../model/message/getMessageWithIdModel');
 
 function getMessageWithId(req, res) {
   const schema = {
