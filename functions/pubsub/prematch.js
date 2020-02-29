@@ -2,8 +2,6 @@
 const modules = require('../util/modules');
 const NBA_functions = require('./util/prematchFunctions_NBA');
 const SBL_functions = require('./util/prematchFunctions_SBL');
-// for BetsAPI
-const leagues_id = [2274, 8251]; // NBA, SBL
 // Just for NBA & SBL now
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
@@ -21,14 +19,15 @@ async function prematch() {
   // const date = '2020-02-22';
   // NBA
   try {
-    await NBA_functions.NBA.upcomming(date, leagues_id[0]);
+    await NBA_functions.NBA.upcomming(date);
     NBA_functions.NBA.prematch(yesterday);
   } catch (error) {
     console.error(error);
   }
+  // SBL
   // const test_date = '2020-03-07';
   try {
-    await SBL_functions.SBL.upcomming(date, leagues_id[1]);
+    await SBL_functions.SBL.upcomming(date);
     SBL_functions.SBL.prematch(date);
   } catch (error) {
     console.error(error);

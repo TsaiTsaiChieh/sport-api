@@ -3,8 +3,8 @@ const modules = require('../../util/modules');
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
 module.exports.SBL.upcomming = async function(date, league_id) {
-  const date_ = modules.dateFormat(date);
-  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=${league_id}&day=${date_.year}${date_.month}${date_.day}`;
+  const _date = modules.dateFormat(date);
+  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI SBL URL on ${date}: ${URL}`);
   // axios
   const results = [];
@@ -83,9 +83,9 @@ function encode(name, id) {
 }
 // eslint-disable-next-line consistent-return
 module.exports.SBL.prematch = async function(date) {
-  const date_ = modules.dateFormat(date);
+  const _date = modules.dateFormat(date);
   // If query today information, it will return today information
-  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${date_.year}-${date_.month}-${date_.day}/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
+  const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${_date.year}-${_date.month}-${_date.day}/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
   // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
   console.log(`SportRadar SBL URL on ${date}: ${URL}`);
   try {
