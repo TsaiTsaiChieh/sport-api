@@ -8,4 +8,6 @@ router.post('/modifyUserProfile', verification.token, require('../controller/use
 router.post('/checkUnique/', require('../controller/user/checkUnique'));
 router.post('/accuse/', verification.token, require('../controller/user/accuseUser'));
 router.get('/getTitlesAndPoints/:uid', require('../controller/user/getTitlesAndPointsController'));
+router.get('/getClaim/:uid', require('../controller/user/getClaimController')
+);
 module.exports = router;

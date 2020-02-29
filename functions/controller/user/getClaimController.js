@@ -1,41 +1,24 @@
 // const modules = require('../../util/modules');
-const setClaimModel = require('../../model/admin/getClaimModel');
+const setClaimModel = require('../../model/user/getClaimModel');
 
 async function getClaim(req, res) {
   try {
-    // const schema = {
-    //   type: 'object',
-    //   required: ['uid'],
-    //   properties: {
-    //     uid: {
-    //       type: 'string'
-    //     }
-    //   }
-    // };
-    // const validate = modules.ajv.validate(schema, req.params);
-    // if (!validate) {
-    //   res.status(400).json(modules.ajv.errors);
-    //   return;
-    // }
     res.json(await setClaimModel(req.params));
   } catch (err) {
     res.status(err.code).json(err);
   }
 }
-
 module.exports = getClaim;
 
 /**
- * @api {get} /admin/getClaim/:uid Get Claim
+ * @api {get} /user/getClaim/:uid Get Claim
  * @apiVersion 1.0.0
- * @apiDescription 管理員查看使用者權限等級 by Tsai-Chieh
+ * @apiDescription 查看使用者權限等級 by Tsai-Chieh
  * 
  * （注意：請使用此使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName getClaim
- * @apiGroup Admin
- * @apiPermission admin
+ * @apiGroup User
  *
- * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
  *
  * @apiParamExample {Number} uid Users unique ID
@@ -46,18 +29,11 @@ module.exports = getClaim;
  * 
  *  HTTP/1.1 200 OK
  * {
- *     "role": 9
+ *     "role": 1
  * }
- * @apiError 401 Unauthorized
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error
  *
- * @apiErrorExample {JSON} 401-Response
- * HTTP/1.1 401 Unauthorized
- * {
-    "code": 401,
-    "error": "Unauthorized"
-}
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
  * {
