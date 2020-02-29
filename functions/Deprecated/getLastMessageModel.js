@@ -1,8 +1,8 @@
-/* eslint-disable promise/always-return */
+i/* eslint-disable promise/always-return */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
-const messageModule = require('../../util/messageModule');
+const modules = require('../util/modules');
+const messageModule = require('../util/messageModule');
 
 // like messages/last
 function getLastMessage(args) {
