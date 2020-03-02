@@ -13,8 +13,6 @@ const os = require('os');
 const fs = require('fs');
 const https = require('https');
 
-ffmpeg.setFfmpegPath(ffmpegPath);
-
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
