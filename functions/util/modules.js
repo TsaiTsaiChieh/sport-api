@@ -8,14 +8,9 @@ const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
 const sportRadarKeys = envValues.sportRadarKeys;
-// const Busboy = require('busboy');
-const uuidv1 = require('uuid/v1'); // for unique id generation
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
-const fileType = require('file-type');
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-const ffmpeg = require('fluent-ffmpeg');
 const https = require('https');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -87,13 +82,9 @@ module.exports = {
   axios,
   db,
   betsToken,
-  // Busboy,
-  uuidv1,
   path,
   os,
   fs,
-  fileType,
-  ffmpeg,
   https,
   dateFormat,
   cloneFirestore,
