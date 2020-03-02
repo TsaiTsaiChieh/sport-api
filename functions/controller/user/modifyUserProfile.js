@@ -1,7 +1,7 @@
-const userUtils = require('../../util/userUtil');
-const modules = require('../../util/modules');
+const userUtils = require("../../util/userUtil");
+const modules = require("../../util/modules");
 const admin = modules.firebaseAdmin;
-const envValues = require('../../config/env_values');
+const envValues = require("../../config/env_values");
 
 /**
  * @api {post} /user/modifyUserProfile Modify User Profile
@@ -253,7 +253,7 @@ async function modifyUserProfile(req, res) {
   // console.log("session Cookie...", sessionCookie);
   if (!sessionCookie) return res.status(401).send();
   let uid = req.token.uid;
-  const userSnapshot = await modules.getSnapshot('users', uid);
+  const userSnapshot = await modules.getSnapshot("users", uid);
   const userProfile = await userSnapshot.data();
   let userStatus = userSnapshot.exists ? userProfile.status : 0;
   let data = {};
@@ -269,30 +269,30 @@ async function modifyUserProfile(req, res) {
       args.avatar = req.body.avatar;
       args.signature = req.body.signature;
       const schema = {
-        type: 'object',
-        required: ['displayName', 'name', 'phone', 'email', 'birthday'],
+        type: "object",
+        required: ["displayName", "name", "phone", "email", "birthday"],
         properties: {
-          displayName: { type: 'string', minLength: 2, maxLength: 15 },
-          name: { type: 'string', minLength: 2, maxLength: 10 },
-          phone: { type: 'string', minLength: 10, maxLength: 15 },
-          email: { type: 'string', format: 'email' },
-          birthday: { type: 'integer' },
-          avatar: { type: 'string', format: 'url' },
-          signature: { type: 'string', maxLength: 50 }
+          displayName: { type: "string", minLength: 2, maxLength: 15 },
+          name: { type: "string", minLength: 2, maxLength: 10 },
+          phone: { type: "string", minLength: 10, maxLength: 15 },
+          email: { type: "string", format: "email" },
+          birthday: { type: "integer" },
+          avatar: { type: "string", format: "url" },
+          signature: { type: "string", maxLength: 50 }
         }
       };
       const valid = modules.ajv.validate(schema, args);
       if (!valid) return res.status(400).json(modules.ajv.errors);
       const uniqueNameSnapshot = await modules.firestore
-        .collection('uniqueName')
+        .collection("uniqueName")
         .doc(args.displayName)
         .get();
       const uniqueEmailSnapshot = await modules.firestore
-        .collection('uniqueEmail')
+        .collection("uniqueEmail")
         .doc(args.email)
         .get();
       const uniquePhoneSnapshot = await modules.firestore
-        .collection('uniquePhone')
+        .collection("uniquePhone")
         .doc(args.phone)
         .get();
       if (
@@ -302,19 +302,19 @@ async function modifyUserProfile(req, res) {
       ) {
         return res.status(400).json({
           success: false,
-          message: 'user name , email or phone exists'
+          message: "user name , email or phone exists"
         });
       } else {
         modules.firestore
-          .collection('uniqueName')
+          .collection("uniqueName")
           .doc(args.displayName)
           .set({ uid: uid });
         modules.firestore
-          .collection('uniqueEmail')
+          .collection("uniqueEmail")
           .doc(args.email)
           .set({ uid: uid });
         modules.firestore
-          .collection('uniquePhone')
+          .collection("uniquePhone")
           .doc(args.phone)
           .set({ uid: uid });
       }
@@ -329,7 +329,7 @@ async function modifyUserProfile(req, res) {
       if (!args.avatar)
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
       data.status = 1;
-      data.signature = '';
+      data.signature = "";
       data.blockMessage = nowTimeStamp;
       data.createTime = nowTimeStamp;
       data.denys = [];
@@ -349,20 +349,20 @@ async function modifyUserProfile(req, res) {
       admin.auth().setCustomUserClaims(uid, { role: 1 });
       break;
     case 1: //一般會員
-      console.log('normal user');
+      console.log("normal user");
       break;
     case 2: //大神
-      console.log('godlike user');
+      console.log("godlike user");
       break;
     case -1: //鎖帳號會員
-      console.log('blocked user');
-      res.status(400).json({ success: false, message: 'blocked user' });
+      console.log("blocked user");
+      res.status(400).json({ success: false, message: "blocked user" });
       break;
     case 9: //管理員
-      console.log('manager user');
+      console.log("manager user");
       break;
     default:
-      throw 'user status error';
+      throw "user status error";
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
@@ -386,13 +386,13 @@ async function modifyUserProfile(req, res) {
       /^[a-zA-Z0-9]{28}$/g.test(refCode) === true ||
       /^[U][a-f0-9]{32}$/g.test(refCode) === true
     ) {
-      const referrerSnapshot = await modules.getSnapshot('users', refCode);
+      const referrerSnapshot = await modules.getSnapshot("users", refCode);
       if (referrerSnapshot.exists) {
         const referrerProfile = await referrerSnapshot.data();
         // process Ref Point
         // deny if refer each other
         if (referrerProfile.referrer !== uid && referrerProfile.status > 0) {
-          console.log('set refCode give point: ', refCode);
+          console.log("set refCode give point: ", refCode);
           const userPoint = userSnapshot.exists ? userProfile.point : 0;
           data.point = userPoint + 200;
           data.referrer = refCode;
@@ -400,24 +400,23 @@ async function modifyUserProfile(req, res) {
         }
       }
     }
+    console.log("user profile updated : ", JSON.stringify(data, null, "\t"));
+    modules.firestore
+      .collection("users")
+      .doc(uid)
+      .set(data, { merge: true })
+      .then(async ref => {
+        const userResult = await userUtils.getUserProfile(uid);
+        resultJson.data = userResult;
+        resultJson.success = true;
+        console.log("Added document with ID: ", ref);
+        res.status(200).json(resultJson);
+      })
+      .catch(e => {
+        console.log("Added document with error: ", e);
+        res.status(500).json({ success: false, message: "update failed" });
+      });
+    // res.json({success: true, result: writeResult});
   }
-  console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  modules.firestore
-    .collection('users')
-    .doc(uid)
-    .set(data, { merge: true })
-    .then(async ref => {
-      const userResult = await userUtils.getUserProfile(uid);
-      resultJson.data = userResult;
-      resultJson.success = true;
-      console.log('Added document with ID: ', ref);
-      return res.status(200).json(resultJson);
-    })
-    .catch(e => {
-      console.log('Added document with error: ', e);
-      return res.status(500).json({ success: false, message: 'update failed' });
-    });
-  // res.json({success: true, result: writeResult});
 }
-
 module.exports = modifyUserProfile;

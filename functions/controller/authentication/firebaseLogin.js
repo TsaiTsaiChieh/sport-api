@@ -1,7 +1,7 @@
-const userUtils = require('../../util/userUtil');
-const modules = require('../../util/modules');
+const userUtils = require("../../util/userUtil");
+const modules = require("../../util/modules");
 const firebaseAdmin = modules.firebaseAdmin;
-const envValues = require('../../config/env_values');
+const envValues = require("../../config/env_values");
 
 /**
  * @api {post} /auth/login create session cookie
@@ -93,8 +93,9 @@ async function firebaseLogin(req, res) {
   // let uid = req.body.uid;
   // res.setHeader('Access-Control-Allow-Origin', '*');
   if (!token) {
-    console.log('Error login user: missing token');
-    return res.status(401).json(returnJson);
+    console.log("Error login user: missing token");
+    res.status(401).json(returnJson);
+    return;
   }
 
   firebaseAdmin
@@ -114,11 +115,12 @@ async function firebaseLogin(req, res) {
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
-            console.log('firestoreUser exist');
+            console.log("firestoreUser exist");
             if (firestoreUser.uid) {
               returnJson.uid = firestoreUser.uid;
             } else {
-              return res.status(401).json({ success: false });
+              res.status(401).json({ success: false });
+              return;
             }
             if (firestoreUser.status) {
               returnJson.status = firestoreUser.status;
@@ -130,25 +132,25 @@ async function firebaseLogin(req, res) {
           returnJson.data = firestoreUser.data;
           // let options = {maxAge: expiresIn, httpOnly: true};
           let options = {
-            maxAge: expiresIn
-            // httpOnly: true,
-            // sameSite: 'none',
-            // domain: envValues.domain
+            maxAge: expiresIn,
+            httpOnly: true,
+            sameSite: "none",
+            domain: envValues.domain
           };
 
-          res.cookie('__session', sessionCookie, options);
-          return res.status(200).json(returnJson);
+          res.cookie("__session", sessionCookie, options);
+          res.status(200).json(returnJson);
         })
         .catch(error => {
-          console.log('Error login user: \n\t', error);
-          res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          return res.status(401).json({ success: false });
+          console.log("Error login user: \n\t", error);
+          res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+          res.status(401).json({ success: false });
         });
     })
     .catch(error => {
-      console.log('Error login user: \n\t', error);
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      return res.status(401).json({ success: false });
+      console.log("Error login user: \n\t", error);
+      res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.status(401).json({ success: false });
     });
 }
 
