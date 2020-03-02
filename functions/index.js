@@ -69,7 +69,7 @@ app.use('/messages', require('./routers/messages'));
 app.use('/sport', require('./routers/sport'));
 // app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
-app.use('/pubsub',require('./routers/pubsub'));
+app.use('/pubsub', require('./routers/pubsub'));
 
 exports.cronPrematch = functions.pubsub
   .schedule('0 5 * * *')
