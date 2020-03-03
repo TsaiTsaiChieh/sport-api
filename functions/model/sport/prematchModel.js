@@ -16,6 +16,7 @@ function premath(args) {
         .where('scheduled', '>=', beginningDate)
         .where('scheduled', '<', endDate)
         .get();
+
       const results = [];
       querys.docs.map(function(ele) {
         results.push(repackage(ele.data()));
@@ -39,14 +40,7 @@ function repackage(ele) {
   data = {};
   data.id = ele.bets_id;
   data.scheduled = ele.scheduled._seconds;
-  data.handicap = {};
-  data.handicap.spread = {};
-  data.handicap.totals = {};
-  data.lineups = {};
-  data.lineups.home = {};
-  data.lineups.home.starters = [];
-  data.lineups.away = {};
-  data.lineups.away.starters = [];
+
   // home v.s. away
   data.home = {
     alias: ele.home.alias,
@@ -64,6 +58,14 @@ function repackage(ele) {
     image_id: ele.away.image_id,
     id: ele.away.radar_id
   };
+  data.handicap = {};
+  data.handicap.spread = {};
+  data.handicap.totals = {};
+  data.lineups = {};
+  data.lineups.home = {};
+  data.lineups.home.starters = [];
+  data.lineups.away = {};
+  data.lineups.away.starters = [];
   // handicap information
   if (ele.handicap) {
     if (ele.handicap.spread) {
