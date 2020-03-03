@@ -64,9 +64,7 @@ async function cloneFirestore(name, clonedName) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
-function timestampeFormat(timestampe) {
-  return timestampe._seconds;
-}
+
 module.exports = {
   express,
   firebaseAdmin,
@@ -89,6 +87,5 @@ module.exports = {
   https,
   dateFormat,
   cloneFirestore,
-  sportRadarKeys,
-  timestampeFormat
+  sportRadarKeys
 };
