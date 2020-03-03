@@ -10,7 +10,7 @@ function premath(args) {
       .moment(args.date)
       .utcOffset(8)
       .add(1, 'days');
-
+    // query the match on date which user query
     try {
       const querys = await matchsRef
         .where('scheduled', '>=', beginningDate)
@@ -38,47 +38,96 @@ function collectionCodebook(league) {
 function repackage(ele) {
   data = {};
   data.id = ele.bets_id;
+  data.scheduled = ele.scheduled._seconds;
   data.handicap = {};
   data.handicap.spread = {};
   data.handicap.totals = {};
-
-  if (ele.handicap) {
-    if (ele.handicap.spread) {
-      for (const obj in ele.handicap.spread) {
-        data.handicap.spread[obj] = {
-          handicap: ele.handicap.spread[obj].handicap,
-          add_time: modules.timestampeFormat(ele.handicap.spread[obj].add_time),
-          home_odd: ele.handicap.spread[obj].home_odd,
-          away_odd: ele.handicap.spread[obj].away_odd,
-          insert_time: modules.timestampeFormat(
-            ele.handicap.spread[obj].add_time
-          )
-        };
-      }
-    }
-    if (ele.handicap.totals) {
-      for (const obj in ele.handicap.totals) {
-        data.handicap.totals[obj] = {
-          handicap: ele.handicap.totals[obj].handicap,
-          add_time: modules.timestampeFormat(ele.handicap.totals[obj].add_time),
-          home_odd: ele.handicap.totals[obj].home_odd,
-          away_odd: ele.handicap.totals[obj].away_odd,
-          insert_time: modules.timestampeFormat(
-            ele.handicap.totals[obj].add_time
-          )
-        };
-      }
-    }
-  }
+  data.lineups = {};
+  data.lineups.home = {};
+  data.lineups.home.starters = [];
+  data.lineups.away = {};
+  data.lineups.away.starters = [];
+  // home v.s. away
   data.home = {
-    // alias_ch
+    alias: ele.home.alias,
     name: ele.home.name,
     alias_ch: ele.home.alias_ch,
     alias_name: ele.home.alias_name,
     image_id: ele.home.image_id,
     id: ele.home.radar_id
   };
+  data.away = {
+    alias: ele.away.alias,
+    name: ele.away.name,
+    alias_ch: ele.away.alias_ch,
+    alias_name: ele.away.alias_name,
+    image_id: ele.away.image_id,
+    id: ele.away.radar_id
+  };
+  // handicap information
+  if (ele.handicap) {
+    if (ele.handicap.spread) {
+      const spreadKey = [];
+      const spreadArray = [];
+      for (const key in ele.handicap.spread) {
+        spreadKey.push(key);
+        spreadArray.push(ele.handicap.spread[key].add_time._seconds);
+      }
+      const newestKey = sortTime(spreadKey, spreadArray);
+      const newestSpread = ele.handicap.spread[newestKey];
+      data.handicap.spread[newestKey] = {
+        handicap: newestSpread.handicap,
+        add_time: newestSpread.add_time._seconds,
+        home_odd: newestSpread.home_odd,
+        away_odd: newestSpread.away_odd,
+        insert_time: newestSpread.insert_time._seconds
+      };
+    }
+    if (ele.handicap.totals) {
+      const totalsKey = [];
+      const totalsArray = [];
+      for (const key in ele.handicap.totals) {
+        totalsKey.push(key);
+        totalsArray.push(ele.handicap.totals[key].add_time._seconds);
+      }
+      const newestKey = sortTime(totalsKey, totalsArray);
+      const newestTotals = ele.handicap.totals[newestKey];
+      data.handicap.totals[newestKey] = {
+        handicap: newestTotals.handicap,
+        add_time: newestTotals.add_time._seconds,
+        home_odd: newestTotals.home_odd,
+        away_odd: newestTotals.away_odd,
+        insert_time: newestTotals.insert_time._seconds
+      };
+    }
+  }
+  // lineups information
+  if (ele.lineups) {
+    for (let i = 0; i < ele.lineups.home.starters.length; i++) {
+      const player = ele.lineups.home.starters[i];
+
+      data.lineups.home.starters.push({
+        name: player.name,
+        position: player.primary_position,
+        first_name: player.first_name,
+        last_name: player.last_name,
+        id: player.id
+      });
+    }
+    for (let i = 0; i < ele.lineups.away.starters.length; i++) {
+      const player = ele.lineups.away.starters[i];
+      data.lineups.away.starters.push({
+        name: player.name,
+        position: player.primary_position,
+        first_name: player.first_name,
+        last_name: player.last_name,
+        id: player.id
+      });
+    }
+  }
   return data;
 }
-
+function sortTime(ids, times) {
+  return ids[times.indexOf(Math.max(...times))];
+}
 module.exports = premath;

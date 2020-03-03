@@ -4,7 +4,10 @@ module.exports = function(grunt) {
     apidoc: {
       myapp: {
         src: 'controller/',
+        // for sports-apidoc
         dest: '../../sports-apidoc/'
+        // for localhost test
+        // dest: '../public/apidoc/'
       }
     }
   });
