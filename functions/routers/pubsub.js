@@ -3,6 +3,6 @@ const router = modules.express.Router();
 
 router.get('/prematch', require('../pubsub/prematch'));
 router.get('/handicap', require('../pubsub/handicap'));
-router.get('/cron10Min', require('../pubsub/cron10Min'))
+router.get('/lineups', require('../pubsub/lineups'));
 
 module.exports = router;

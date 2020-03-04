@@ -79,10 +79,10 @@ exports.cronHandicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
-exports.cron10Mins = functions.pubsub
+exports.lineups = functions.pubsub
   .schedule('*/10 * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/cron10Min'));
+  .onRun(require('./pubsub/lineups'));
 
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);
