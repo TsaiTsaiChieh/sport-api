@@ -29,7 +29,7 @@ async function prematch(req, res) {
 }
 module.exports = prematch;
 /**
- * @api {GET} /sport/prematch?date=2020-02-29&league=NBA Get Prematch
+ * @api {GET} /sport/prematch?date=2020-02-28&league=NBA Get Prematch
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get prematch information included home & away team name, lineups and match scheduled time by TsaiChieh
  * @apiName prematch information
