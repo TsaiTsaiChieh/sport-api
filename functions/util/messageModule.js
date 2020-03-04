@@ -8,11 +8,7 @@ function repackageUserData(user) {
     displayName: user.displayName,
     avatar: user.avatar,
     status: user.status,
-    point: user.point,
-    titles: user.titles,
-    defaultTitle: user.defaultTitle,
-    blockMessage: user.blockMessage,
-    signature: user.signature
+    defaultTitle: user.defaultTitle
   };
   // return body;
 }
