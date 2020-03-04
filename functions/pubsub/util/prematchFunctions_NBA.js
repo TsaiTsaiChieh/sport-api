@@ -367,7 +367,7 @@ module.exports.NBA.lineup = async function(date) {
       );
 
       modules.firestore
-        .collection(league)
+        .collection(modules.db.basketball_NBA)
         .doc(querys[i].bets_id)
         .set(repackage_lineup(data), { merge: true });
     }
@@ -379,6 +379,7 @@ module.exports.NBA.lineup = async function(date) {
   }
 };
 async function query_before40Min(date) {
+  
   const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const results = [];
 
@@ -391,6 +392,8 @@ async function query_before40Min(date) {
 
     query.docs.map(function(docs) {
       results.push(docs.data());
+      console.log('test',docs.data().bets_id);
+      
     });
     return await Promise.all(results);
   } catch (error) {
@@ -402,17 +405,21 @@ async function query_before40Min(date) {
   }
 }
 function repackage_lineup(ele) {
-  data = {};
-  data.flag = {
-    lineup: 1
-  };
-  data.lineups = {};
-  data.lineups.home = {};
-  data.lineups.away = {};
-  data.lineups.home.starters = [];
-  data.lineups.home.substitutes = [];
-  data.lineups.away.starters = [];
-  data.lineups.away.substitutes = [];
+  data = {
+    flag: {
+      lineup: 1
+    },
+    lineups: {
+      home: {
+        starters:[],
+        substitutes: []
+      },
+      away: {
+        starters:[],
+        substitutes: []
+      }
+    }
+  }
   for (let i = 0; i < ele.home.players.length; i++) {
     const player = ele.home.players[i];
     if (player.on_court) {

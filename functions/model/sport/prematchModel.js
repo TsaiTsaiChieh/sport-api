@@ -37,36 +37,39 @@ function collectionCodebook(league) {
   }
 }
 function repackage(ele) {
-  data = {};
-  data.id = ele.bets_id;
-  data.scheduled = ele.scheduled._seconds;
+  data = {
+    id: ele.bets_id,
+    scheduled: ele.scheduled._seconds,
+    home: {
+      alias: ele.home.alias,
+      name: ele.home.name,
+      alias_ch: ele.home.alias_ch,
+      alias_name: ele.home.alias_name,
+      image_id: ele.home.image_id,
+      id: ele.home.radar_id
+    },
+    away: {
+      alias: ele.away.alias,
+      name: ele.away.name,
+      alias_ch: ele.away.alias_ch,
+      alias_name: ele.away.alias_name,
+      image_id: ele.away.image_id,
+      id: ele.away.radar_id
+    },
+    handicap: {
+      spread: {},
+      totals: {}
+    },
+    lineups: {
+      home: {
+        starters: []
+      },
+      away: {
+        starters: []
+      }
+    }
+  };
 
-  // home v.s. away
-  data.home = {
-    alias: ele.home.alias,
-    name: ele.home.name,
-    alias_ch: ele.home.alias_ch,
-    alias_name: ele.home.alias_name,
-    image_id: ele.home.image_id,
-    id: ele.home.radar_id
-  };
-  data.away = {
-    alias: ele.away.alias,
-    name: ele.away.name,
-    alias_ch: ele.away.alias_ch,
-    alias_name: ele.away.alias_name,
-    image_id: ele.away.image_id,
-    id: ele.away.radar_id
-  };
-  data.handicap = {};
-  data.handicap.spread = {};
-  data.handicap.totals = {};
-  data.lineups = {};
-  data.lineups.home = {};
-  data.lineups.home.starters = [];
-  data.lineups.away = {};
-  data.lineups.away.starters = [];
-  // handicap information
   if (ele.handicap) {
     if (ele.handicap.spread) {
       const spreadKey = [];
