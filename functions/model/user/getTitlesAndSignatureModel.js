@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 
-function getTitlesAndPoints(args) {
+function getTitlesAndSignature(args) {
   return new Promise(async function(resolve, reject) {
     /* step 1: check if user exists */
     try {
@@ -14,7 +14,7 @@ function getTitlesAndPoints(args) {
       let titles = user.titles ? user.titles : [];
       resolve({
         uid: args.uid,
-        point: user.point,
+        signature: user.signature,
         titles: titles
       });
     } catch (err) {
@@ -23,4 +23,4 @@ function getTitlesAndPoints(args) {
     }
   });
 }
-module.exports = getTitlesAndPoints;
+module.exports = getTitlesAndSignature;

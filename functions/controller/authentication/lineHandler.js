@@ -74,7 +74,7 @@ function loginHandler(req, res) {
                         res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
                         res.cookie('auth_token', token, options);
                         // return res.redirect(307, envValues.indexURL + 'line_login.html');
-                        res.redirect(307, 'https://chat.doinfo.cc/statics/line_login.html');
+                        res.redirect(307, 'https://doinfo.cc/statics/line_login.html');
                     })
                 }).catch(function (err) {
                     console.log("id token verification failed.", err);
