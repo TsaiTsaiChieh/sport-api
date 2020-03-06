@@ -23,6 +23,7 @@ const bucket = firebaseAdmin
   .bucket(envValues.firebaseConfig.storageBucket);
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
+
 function getSnapshot(collection, id) {
   return firestore
     .collection(collection)
@@ -65,7 +66,9 @@ async function cloneFirestore(name, clonedName) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
-
+function firebaseTimestamp(milliseconds) {
+  return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
+}
 module.exports = {
   express,
   firebaseAdmin,
@@ -88,5 +91,6 @@ module.exports = {
   https,
   dateFormat,
   cloneFirestore,
-  sportRadarKeys
+  sportRadarKeys,
+  firebaseTimestamp
 };
