@@ -1,11 +1,12 @@
 const modules = require("../util/modules");
 
 const axios = require("axios");
-//const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
-//const nba_api_key = "bj7tvgz7qpsqjqaxmzsaqdnp";
 
 async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
-  const nba_api_key = "6mmty4jtxz3guuy62a4yr5u5";
+  //const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
+  //const nba_api_key = "bj7tvgz7qpsqjqaxmzsaqdnp";
+  //const nba_api_key = "6mmty4jtxz3guuy62a4yr5u5";
+  const nba_api_key = "vpf9q8sqxfakxfusd9hmx2xa";
   const timesPerLoop = 11;
   const firestoreName = "pagetest";
   console.log(betsID);
@@ -98,10 +99,10 @@ async function NBApbpHistory(gameID, betsID) {
       ) {
         ref = modules.firestore.collection(firestoreName).doc(betsID);
         // eslint-disable-next-line no-await-in-loop
-        // await ref.set(
-        //   { pbp: data.periods[periodsCount].events[eventsCount] },
-        //   { merge: true }
-        // );
+        await ref.set(
+          { pbp: data.periods[periodsCount].events[eventsCount] },
+          { merge: true }
+        );
       }
     }
   } catch (error) {

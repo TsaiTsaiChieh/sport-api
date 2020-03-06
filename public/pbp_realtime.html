@@ -53,7 +53,7 @@
 
       let user = firebase.auth().currentUser;
       let chat_message = document.querySelector(".chat_message .pbp");
-      let gameID = "20200228";
+      let gameID = "20200303";
       let periodsNow;
       let periodName;
       let eventNow;
@@ -89,9 +89,9 @@
           let realtimeData = snapshot.val();
           console.log(realtimeData);
 
-          let homepoints = realtimeData.Summary.homepoints;
-          let awaypoints = realtimeData.Summary.awaypoints;
-          let status = realtimeData.Summary.status;
+          //let homepoints = realtimeData.Summary.homepoints;
+          //let awaypoints = realtimeData.Summary.awaypoints;
+          //let status = realtimeData.Summary.status;
           let periodsNow = Object.keys(realtimeData.PBP).length - 1;
           let periodName = Object.keys(realtimeData.PBP);
           let eventNow =

@@ -60,7 +60,8 @@ app.use("/messages_temp", require("./Deprecated/messages"));
 
 // for test pubsub endpoint
 app.use("/radar/prematch", require("./pubsub/prematch"));
-app.use("/radar/checkmatch", require("./pubsub/checkmatch"));
+app.use("/radar/checkmatch_NBA", require("./pubsub/checkmatch_NBA"));
+app.use("/radar/checkmatch_MLB", require("./pubsub/checkmatch_MLB"));
 
 exports.cronPrematch = functions.pubsub
   .schedule("0 5 * * *")
@@ -70,9 +71,13 @@ exports.cronHandicap = functions.pubsub
   .schedule("*/30 * * * *")
   .timeZone("Asia/Taipei")
   .onRun(require("./pubsub/getHandicap"));
-exports.cronCheckmatch = functions.pubsub
+exports.cronCheckmatch_NBA = functions.pubsub
   .schedule("* * * * *")
   .timeZone("Asia/Taipei")
-  .onRun(require("./pubsub/checkmatch"));
+  .onRun(require("./pubsub/checkmatch_NBA"));
+exports.cronCheckmatch_MLB = functions.pubsub
+  .schedule("* * * * *")
+  .timeZone("Asia/Taipei")
+  .onRun(require("./pubsub/checkmatch_MLB"));
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);

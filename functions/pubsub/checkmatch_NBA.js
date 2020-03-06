@@ -3,9 +3,10 @@ const NBApbp = require("./pbpNBA.js");
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 
-async function checkmatch(req, res) {
-  const firestoreName = "pagetest";
+async function checkmatch_NBA(req, res) {
+  const firestoreName = "pagetest_NBA";
   //read event information from firestore
+
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
   data.forEach(doc => {
@@ -83,4 +84,4 @@ async function checkmatch(req, res) {
   //res.json({ process: "success" });
 }
 
-module.exports = checkmatch;
+module.exports = checkmatch_NBA;
