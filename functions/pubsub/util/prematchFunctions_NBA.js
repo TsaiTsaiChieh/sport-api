@@ -379,7 +379,6 @@ module.exports.NBA.lineup = async function(date) {
   }
 };
 async function query_before40Min(date) {
-  
   const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const results = [];
 
@@ -392,8 +391,6 @@ async function query_before40Min(date) {
 
     query.docs.map(function(docs) {
       results.push(docs.data());
-      console.log('test',docs.data().bets_id);
-      
     });
     return await Promise.all(results);
   } catch (error) {
@@ -411,15 +408,15 @@ function repackage_lineup(ele) {
     },
     lineups: {
       home: {
-        starters:[],
+        starters: [],
         substitutes: []
       },
       away: {
-        starters:[],
+        starters: [],
         substitutes: []
       }
     }
-  }
+  };
   for (let i = 0; i < ele.home.players.length; i++) {
     const player = ele.home.players[i];
     if (player.on_court) {
