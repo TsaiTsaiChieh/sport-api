@@ -2,9 +2,9 @@ const modules = require('../../util/modules');
 
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
-module.exports.SBL.upcomming = async function(date, league_id) {
+module.exports.SBL.upcomming = async function(date) {
   const _date = modules.dateFormat(date);
-  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=&day=${_date.year}${_date.month}${_date.day}`;
+  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=8251&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI SBL URL on ${date}: ${URL}`);
   // axios
   const results = [];
@@ -67,7 +67,7 @@ function repackage_bets(ele) {
     totals: 0,
     status: 2
   };
-
+  console.log(data);
   return data;
 }
 // eslint-disable-next-line consistent-return
