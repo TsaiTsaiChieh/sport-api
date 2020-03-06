@@ -61,11 +61,10 @@ module.exports.MLB_PRE = {
   }
 };
 function repackage_bets(ele) {
-  data = {
+  return {
+    update_time: modules.firebaseTimestamp(new Date()),
     bets_id: ele.id,
-    scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-      new Date(Number.parseInt(ele.time) * 1000)
-    ),
+    scheduled: modules.firebaseTimestamp(Number.parseInt(ele.time) * 1000),
     home: {
       alias: codebook(ele.home.id, ele.home.name).alias,
       alias_ch: codebook(ele.home.id, ele.home.name).alias_ch,
@@ -92,7 +91,6 @@ function repackage_bets(ele) {
       prematch: 0
     }
   };
-  return data;
 }
 // eslint-disable-next-line consistent-return
 function encodeSeason(name) {
