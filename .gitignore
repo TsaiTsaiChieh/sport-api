@@ -71,10 +71,6 @@ package-lock.json
 .BAK
 
 # tsaichieh add
-/public/test.html
-
 /public/apidoc
-/public/apidoc/api_data.js
-/public/apidoc/api_data.json
-/public/apidoc/api_project.js
-/public/apidoc/api_project.json
+endpoints.rest
+sportRadar.rest

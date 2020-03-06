@@ -28,4 +28,8 @@ router.get(
     '/getTitlesAndSignature/:uid',
     require('../controller/user/getTitlesAndSignatureController')
 );
+router.get(
+    '/getClaim/:uid',
+    require('../controller/user/getClaimController')
+);
 module.exports = router;

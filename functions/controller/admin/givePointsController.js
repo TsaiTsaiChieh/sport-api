@@ -37,9 +37,9 @@ module.exports = givePoints;
 /**
  * @api {post} /admin/givePoints Give Points
  * @apiVersion 1.0.0
- * @apiDescription 管理員給使用者點數
+ * @apiDescription 管理員給使用者點數 by Tsai-Chieh
  * 
- * （注意：請使用測試使用者 uid: 40lFV6SJAVYpw0zZbIuUp7gL9Py2
+ * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName givePoints
  * @apiGroup Admin
  * @apiPermission admin
@@ -50,14 +50,14 @@ module.exports = givePoints;
  *
  * @apiParamExample {JSON} Request-Example
  * {
- *     "uid": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
+ *     "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *     "points": 200
  * }
  * 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
+ *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "currentPoints": 77
  * }
  * 

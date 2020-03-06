@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 /* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
-const messageModel = require('../../model/message/getLastMessage');
+const modules = require('../util/modules');
+const messageModel = require('./getLastMessageModel');
 
 async function getLastMessage(req, res) {
   // if user login get the user info

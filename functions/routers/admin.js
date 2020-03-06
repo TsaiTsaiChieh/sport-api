@@ -35,11 +35,5 @@ router.post(
   require('../controller/admin/setClaimController')
 );
 
-router.get(
-  '/getClaim/:uid',
-  verification.token,
-  verification.admin,
-  require('../controller/admin/getClaimController')
-);
 
 module.exports = router;

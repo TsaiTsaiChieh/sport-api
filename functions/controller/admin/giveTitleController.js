@@ -123,9 +123,9 @@ module.exports = giveTitle;
 /**
  * @api {post} /admin/giveTitle Give Title
  * @apiVersion 1.0.0
- * @apiDescription 管理員給使用者頭銜
+ * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
  *
- * （注意：請使用測試使用者 uid: aaabnKcVVaiIaUf3daVMNTTK5gH4hf1）
+ * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName giveTitle
  * @apiGroup Admin
  * @apiPermission admin
@@ -138,7 +138,7 @@ module.exports = giveTitle;
 
  * @apiParamExample {JSON} Request-Example
  * {
- *     "uid": "6t0bRabntZ5fRFczvfij",
+ *     "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *     "rank": 1,
  *     "sport": 16,
  *     "league": "ABL"
@@ -147,10 +147,10 @@ module.exports = giveTitle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *    "uid": "ssa8LE669NbzsNpjXcCCDsdVmxj2",
+ *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "title": [
  *        {
- *              "rank": 5,
+ *              "rank": 2,
  *              "sport": 16,
  *              "league": "中華職棒"
  *        }

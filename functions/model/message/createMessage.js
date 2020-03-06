@@ -68,10 +68,12 @@ function createMessage(args) {
         messageId: messageId,
         softDelete: 2 /* 2 is default and normal */
       };
+      if (args.message.thumbURL) {
+        insertData.message.thumbURL = args.message.thumbURL;
+      }
       insertData.user = user;
       /* add message data to firestore & realtime */
       let result = await messageDoc.set(insertData);
-      console.log(result);
       if (result) {
         modules.database
           .ref(`chat_${args.message.channelId}`)

@@ -39,7 +39,7 @@ module.exports = deleteMessageWithId;
 /**
  * @api {delete} /messages/:id deleteMessage
  * @apiVersion 1.0.0
- * @apiDescription The front-end can only listen to the message which masked after deleting action in the realtime database 
+ * @apiDescription The front-end can only listen to the message which masked after deleting action in the realtime database by Tsai-Chieh
  * @apiName Soft delete message
  * @apiGroup Messages
  * @apiPermission login user with completed data

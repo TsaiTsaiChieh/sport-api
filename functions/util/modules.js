@@ -7,6 +7,12 @@ const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
+const sportRadarKeys = envValues.sportRadarKeys;
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const https = require('https');
+
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
@@ -40,8 +46,24 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  sport_18: 'sport_baseketball'
+  basketball_NBA: 'basketball_NBA',
+  // basketball_NBA: 'NBA_TC',
+  basketball_SBL: 'basketball_SBL'
 };
+function dateFormat(date) {
+  return {
+    year: date.substring(0, 4),
+    month: date.substring(5, 7),
+    day: date.substring(8, 10)
+  };
+}
+async function cloneFirestore(name, clonedName) {
+  const snapshot = await firestore.collection(name).get();
+  const clonedDb = firestore.collection(clonedName);
+  snapshot.docs.map(function(doc) {
+    clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
+  });
+}
 
 module.exports = {
   express,
@@ -58,5 +80,12 @@ module.exports = {
   moment,
   axios,
   db,
-  betsToken
+  betsToken,
+  path,
+  os,
+  fs,
+  https,
+  dateFormat,
+  cloneFirestore,
+  sportRadarKeys
 };

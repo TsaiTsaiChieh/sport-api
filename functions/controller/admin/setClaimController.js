@@ -42,7 +42,6 @@ module.exports = setClaim;
  * @apiVersion 1.0.0
  * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
  * 
- * （注意：請使用此使用者 uid: lz3c3ju6G0TilDOdgCQt4I7I8ep1）
  * @apiName setClaim
  * @apiGroup Admin
  * @apiPermission admin
@@ -53,13 +52,13 @@ module.exports = setClaim;
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": isyoDyVSJBXtD3G7sp9pLW5de7n1,
+ *    "id": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "role": 2
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
  * {
- *    "data": "set user: lz3c3ju6G0TilDOdgCQt4I7I8ep1 as role: 1 successfully"
+ *    "data": "set user: eIQXtxPrBFPW5daGMcJSx4AicAQ2 as role: 1 successfully"
  * }
  * 
  * @apiError 401 Unauthorized
