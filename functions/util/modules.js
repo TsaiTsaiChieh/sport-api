@@ -48,7 +48,8 @@ function createError(code, error) {
 const db = {
   basketball_NBA: 'basketball_NBA',
   // basketball_NBA: 'NBA_TC',
-  basketball_SBL: 'basketball_SBL'
+  basketball_SBL: 'basketball_SBL',
+  baseball_MLB: 'baseball_MLB'
 };
 function dateFormat(date) {
   return {
