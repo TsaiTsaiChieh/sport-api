@@ -320,8 +320,11 @@ function integration(query, ele, league) {
   for (let i = 0; i < query.length; i++) {
     if (
       (raderSeconds === query[i].scheduled._seconds &&
-        ele.home.abbr.toUpperCase() === query[i].home.alias) ||
-      ele.home.abbr.toUpperCase() === query[i].away.alias
+        ele.home.abbr.toUpperCase() === query[i].home.alias &&
+        ele.away.abbr.toUpperCase() === query[i].away.alias) ||
+      (raderSeconds === query[i].scheduled._seconds &&
+        ele.home.abbr.toUpperCase() === query[i].away.alias &&
+        ele.away.abbr.toUpperCase() === query[i].home.alias)
     ) {
       modules.firestore
         .collection(modules.db.baseball_MLB)
