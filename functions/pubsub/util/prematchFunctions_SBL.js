@@ -43,19 +43,16 @@ module.exports.SBL.upcomming = async function(date) {
 
 function repackage_bets(ele) {
   data = {};
-
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
   data.bets_id = ele.id;
   data.home = {
     alias: encode(ele.home.name, ele.home.id),
-    // image_id: ele.home.image_id,
     bets_id: ele.home.id
   };
   data.away = {
     alias: encode(ele.away.name, ele.away.id),
-    // image_id: ele.away.image_id,
     bets_id: ele.away.id
   };
   data.league = {
@@ -67,7 +64,6 @@ function repackage_bets(ele) {
     totals: 0,
     status: 2
   };
-  console.log(data);
   return data;
 }
 // eslint-disable-next-line consistent-return
