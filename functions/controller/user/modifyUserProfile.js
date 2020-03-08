@@ -5,7 +5,7 @@ const envValues = require('../../config/env_values');
 
 async function modifyUserProfile(req, res) {
   let sessionCookie = req.cookies.__session;
-  console.log('session Cookie...', sessionCookie);
+  // console.log('session Cookie...', sessionCookie);
   if (!sessionCookie) {
     res.status(401).send();
     return;
@@ -203,7 +203,7 @@ module.exports = modifyUserProfile;
  * @apiParam (Request body) {String} signature signature
  * @apiParam (Request body) {String} refCode UID of referrer (Non changeable)
  * @apiParam (Request body) {JSON} title default title example : {"league":"MLB","rank":1,"sport":16}
- * 
+ *
  * @apiParamExample {JSON} Request-Example
  * {
  *    "displayName":"ㄘㄐ",
@@ -212,7 +212,7 @@ module.exports = modifyUserProfile;
  *    "email":"xxx@gmail.com",
  *    "birthday":1581988872411
  * }
- *      
+ *
  * @apiSuccess {JSON} result Execute Result
  *
  * @apiSuccessExample New User:

@@ -8,7 +8,7 @@
   },
   "hosting": [
     {
-      "site": "sportslottery-test",
+      "site": "sport19y0715",
       "public": "public",
       "ignore": [
         "firebase.json",
