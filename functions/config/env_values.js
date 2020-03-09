@@ -1,9 +1,8 @@
 exports.indexURL = 'https://chat-api.doinfo.cc/';
 exports.productURL = 'https://chat.doinfo.cc/';
-
-exports.domain = '.doinfo.cc';
 exports.release = false;
 // 正式版 sport19y0715-dev
+// exports.domain = '.doinfo.cc';
 // exports.projectId = 'sport19y0715';
 // exports.cert = require('../auth/sport19y0715-dev.json');
 // exports.firebaseConfig = {
@@ -16,6 +15,7 @@ exports.release = false;
 //   appId: '1:179049951227:web:15b2ae874d653216'
 // };
 // 測試版 sportslottery-test-adminsdk
+exports.domain = 'localhost';
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
