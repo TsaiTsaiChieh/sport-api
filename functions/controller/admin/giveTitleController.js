@@ -125,7 +125,6 @@ module.exports = giveTitle;
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
  *
- * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName giveTitle
  * @apiGroup Admin
  * @apiPermission admin
@@ -204,6 +203,12 @@ module.exports = giveTitle;
  * {
     "code": 403,
     "error": "forbidden, this user had the same title"
+}
+* @apiErrorExample {JSON} 401-Response
+ * HTTP/1.1 403 Forbidden
+{
+    "code": 403,
+    "error": "forbidden, admin could not have a title"
 }
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found

@@ -12,13 +12,19 @@ function giveTitleModel(args) {
       }
       const user = userSnapshot.data();
       let titles = user.titles ? user.titles : [];
-      /* step 2: insert if titles.length === 0 */
+      /* step 2: check user is admin */
+      if (user.status === 9) {
+        reject({ code: 403, error: 'forbidden, admin could not have a title' });
+        return;
+      }
+      /* step 3: insert if titles.length === 0 */
       if (titles.length === 0) {
         titles.push({
           rank: args.rank,
           league: args.league,
           sport: args.sport
         });
+
         // set default title
         userDoc.set(
           { titles, defaultTitle: titles[0], status: 2 },
