@@ -329,12 +329,14 @@ function integration(query, ele, league) {
       modules.firestore
         .collection(modules.db.baseball_MLB)
         .doc(query[i].bets_id)
-        .set(repackage_sportradar(ele, league), { merge: true });
+        .set(repackage_sportradar(ele, query[i], league), { merge: true });
     }
   }
 }
 
-function repackage_sportradar(ele, league) {
+function repackage_sportradar(ele, query, league) {
+  const homeFlag = ele.home.abbr.toUpperCase() === query.home.alias;
+  const awayFlag = ele.away.abbr.toUpperCase() === query.away.alias;
   return {
     update_time: modules.firebaseTimestamp(new Date()),
     radar_id: ele.id,
@@ -342,10 +344,20 @@ function repackage_sportradar(ele, league) {
       radar_id: league.id
     },
     home: {
+      alias: `${homeFlag ? query.home.alias : query.away.alias}`,
+      alias_ch: `${homeFlag ? query.home.alias_ch : query.away.alias_ch}`,
+      name_ch: `${homeFlag ? query.home.name_ch : query.away.name_ch}`,
+      image_id: `${homeFlag ? query.home.image_id : query.away.image_id}`,
+      bets_id: `${homeFlag ? query.home.bets_id : query.away.bets_id}`,
       radar_id: ele.home.id,
       name: `${ele.home.market} ${ele.home.name}`
     },
     away: {
+      alias: `${awayFlag ? query.away.alias : query.home.alias}`,
+      alias_ch: `${awayFlag ? query.away.alias_ch : query.home.alias_ch}`,
+      name_ch: `${awayFlag ? query.away.name_ch : query.home.name_ch}`,
+      image_id: `${awayFlag ? query.away.image_id : query.home.image_id}`,
+      bets_id: `${awayFlag ? query.away.bets_id : query.home.bets_id}`,
       radar_id: ele.away.id,
       name: `${ele.away.market} ${ele.away.name}`
     },
