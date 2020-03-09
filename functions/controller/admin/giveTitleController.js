@@ -198,13 +198,13 @@ module.exports = giveTitle;
     "code": 401,
     "error": "Unauthorized"
 }
-* @apiErrorExample {JSON} 401-Response
+* @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
     "error": "forbidden, this user had the same title"
 }
-* @apiErrorExample {JSON} 401-Response
+* @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
 {
     "code": 403,
