@@ -231,23 +231,21 @@ async function MLBpbpHistory(parameter) {
             ].lineup
           ) {
             ref = modules.firestore.collection(firestoreName).doc(betsID);
-            await ref.set({
-              pbp: { Innings: 123 }
-            });
+            await ref.set(jsonFile(), { merge: true });
           }
           if (
             data.game.innings[inningsCount].halfs[halfsCount].events[
               eventHalfCount
             ].at_bat
           ) {
-            ref = modules.database.ref(
-              `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfsCount}/events${eventHalfCount}/at_bat/description`
-            );
-            await ref.set(
-              data.game.innings[inningsCount].halfs[halfsCount].events[
-                eventHalfCount
-              ].at_bat.description
-            );
+            // ref = modules.database.ref(
+            //   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfsCount}/events${eventHalfCount}/at_bat/description`
+            // );
+            // await ref.set(
+            //   data.game.innings[inningsCount].halfs[halfsCount].events[
+            //     eventHalfCount
+            //   ].at_bat.description
+            // );
             for (
               let eventAtbatCount = 0;
               eventAtbatCount <
@@ -256,17 +254,16 @@ async function MLBpbpHistory(parameter) {
               ].at_bat.events.length;
               eventAtbatCount++
             ) {
-              ref = modules.database.ref(
-                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfsCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
-              );
-              await ref.set(
-                data.game.innings[inningsCount].halfs[halfsCount].events[
-                  eventHalfCount
-                ].at_bat.events[eventAtbatCount]
-              );
+              // ref = modules.database.ref(
+              //   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfsCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
+              // );
+              // await ref.set(
+              //   data.game.innings[inningsCount].halfs[halfsCount].events[
+              //     eventHalfCount
+              //   ].at_bat.events[eventAtbatCount]
+              // );
             }
           }
-          // write the at_bat.desciption
         }
       }
     }
@@ -281,5 +278,8 @@ async function MLBpbpHistory(parameter) {
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
 }
-
+function jsonFile() {
+  let test = { pp: "123" };
+  return test;
+}
 module.exports = { MLBpbpInplay, MLBpbpHistory };
