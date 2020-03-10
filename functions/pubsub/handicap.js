@@ -2,28 +2,47 @@
 const modules = require('../util/modules');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = [modules.db.basketball_NBA, modules.db.basketball_SBL];
-// const leagues = ['NBA_TC', modules.db.basketball_SBL];
+const leagues = [
+  modules.db.basketball_NBA,
+  modules.db.basketball_SBL,
+  modules.db.baseball_MLB
+];
 
 async function handicap() {
-  for (let i = 0; i < leagues.length - 1; i++) {
-    const querys_spread = await query_handicap('flag.spread', 0, leagues[i]);
-    const querys_totals = await query_handicap('flag.totals', 0, leagues[i]);
-    const querys_opening = await query_opening('flag.spread', 1, leagues[i]);
+  // go through each league
+  for (let i = 0; i < 1; i++) {
+    // flag.spread/totals === 0 represent did not have first handicap information
+    const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
+    const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
+    const querysSpreadOpening = await query_opening(
+      'flag.spread',
+      1,
+      leagues[i]
+    );
+    const querysTotalsOpening = await query_opening(
+      'flag.totals',
+      1,
+      leagues[i]
+    );
 
-    if (querys_spread.length) {
-      for (let j = 0; j < querys_spread.length; j++) {
-        getHandicap(leagues[i], querys_spread[j]);
+    if (querysSpread.length) {
+      for (let j = 0; j < querysSpread.length; j++) {
+        getHandicap(leagues[i], querysSpread[j]);
       }
     }
-    if (querys_totals.length) {
-      for (let j = 0; j < querys_totals.length; j++) {
-        getTotals(leagues[i], querys_totals[j]);
+    if (querysTotals.length) {
+      for (let j = 0; j < querysTotals.length; j++) {
+        getTotals(leagues[i], querysTotals[j]);
       }
     }
-    if (querys_opening.length) {
-      for (let j = 0; j < querys_opening.length; j++) {
-        updateHandicap(leagues[i], querys_opening[j]);
+    if (querysSpreadOpening.length) {
+      for (let j = 0; j < querysSpreadOpening.length; j++) {
+        updateHandicap(leagues[i], querysSpreadOpening[j]);
+      }
+    }
+    if (querysTotalsOpening.length) {
+      for (let j = 0; j < querysTotalsOpening.length; j++) {
+        updateHandicap(leagues[i], querysTotalsOpening[j]);
       }
     }
   }
@@ -55,12 +74,12 @@ async function updateHandicap(league, ele) {
     }
     for (let i = 0; i < totals_odds.length; i++) {
       const odd = totals_odds[i];
-      if (odd.home_od && odd.handicap && odd.away_od) {
+      if (odd.over_od && odd.handicap && odd.under_od) {
         const totals = {};
         totals[odd.id] = {
           handicap: Number.parseFloat(odd.handicap),
-          home_odd: Number.parseFloat(odd.home_od),
-          away_odd: Number.parseFloat(odd.away_od),
+          under_odd: Number.parseFloat(odd.under_od),
+          over_odd: Number.parseFloat(odd.over_od),
           add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date(Number.parseInt(odd.add_time) * 1000)
           ),
@@ -75,8 +94,8 @@ async function updateHandicap(league, ele) {
       }
     }
   } catch (error) {
-    console.log(
-      'Error in pubsub/handicap updateHandicap functions by Tsai-Chieh',
+    console.error(
+      `Error in pubsub/handicap updateHandicap functions by Tsai-Chieh ${Date.now()}`,
       error
     );
   }
@@ -84,14 +103,21 @@ async function updateHandicap(league, ele) {
 async function query_opening(flag, value, league) {
   const eventsRef = modules.firestore.collection(league);
   const eles = [];
-  const querys = await eventsRef
-    .where(flag, '==', value)
-    .where('scheduled', '>', modules.moment())
-    .get();
-  querys.forEach(function(docs) {
-    eles.push(docs.data());
-  });
-  return await Promise.all(eles);
+  try {
+    const querys = await eventsRef
+      .where(flag, '==', value)
+      .where('scheduled', '>', modules.moment())
+      .get();
+    querys.forEach(function(docs) {
+      eles.push(docs.data());
+    });
+    return await Promise.all(eles);
+  } catch (error) {
+    console.error(
+      `Error in pubsub/handicap/query_opening by TsaiChieh on ${Date.now()}`
+    );
+    return error;
+  }
 }
 async function query_handicap(flag, value, leagues) {
   const date = modules.moment();
@@ -99,15 +125,23 @@ async function query_handicap(flag, value, leagues) {
   const eventsRef = modules.firestore.collection(leagues);
   const beginningDate = modules.moment(date);
   const endDate = modules.moment(date).add(24, 'hours');
-  const querys = await eventsRef
-    .where(flag, '==', value)
-    .where('scheduled', '>=', beginningDate)
-    .where('scheduled', '<=', endDate)
-    .get();
-  querys.forEach(async function(docs) {
-    eles.push(docs.data());
-  });
-  return await Promise.all(eles);
+  // 只針對明天（和今天時間相減相差 24 小時內）的賽事
+  try {
+    const querys = await eventsRef
+      .where(flag, '==', value)
+      .where('scheduled', '>=', beginningDate)
+      .where('scheduled', '<=', endDate)
+      .get();
+    querys.forEach(async function(docs) {
+      eles.push(docs.data());
+    });
+    return await Promise.all(eles);
+  } catch (error) {
+    console.error(
+      `Error in pubsub/handicap/query_handicap by TsaiChieh on ${Date.now()}`
+    );
+    return error;
+  }
 }
 
 async function getHandicap(league, ele) {
@@ -149,8 +183,8 @@ async function getHandicap(league, ele) {
         const totals = {};
         totals[totalsData.id] = {
           handicap: Number.parseFloat(totalsData.handicap),
-          home_odd: Number.parseFloat(spreadData.home_od),
-          away_odd: Number.parseFloat(spreadData.away_od),
+          over_odd: Number.parseFloat(spreadData.over_od),
+          under_odd: Number.parseFloat(spreadData.under_od),
           add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date(Number.parseInt(totalsData.add_time) * 1000)
           ),
@@ -170,7 +204,7 @@ async function getHandicap(league, ele) {
     }
   } catch (error) {
     console.log(
-      'Error in pubsub/handicap getHandicap functions by Tsai-Chieh',
+      `Error in pubsub/handicap getHandicap functions by Tsai-Chieh on ${Date.now()}`,
       error
     );
   }
@@ -207,7 +241,7 @@ async function getTotals(league, ele) {
     }
   } catch (error) {
     console.log(
-      'Error in pubsub/handicap getTotals functions by Tsai-Chieh',
+      `Error in pubsub/handicap getTotals functions by Tsai-Chieh on ${Date.now()}`,
       error
     );
   }
