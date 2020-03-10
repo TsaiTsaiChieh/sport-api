@@ -10,7 +10,7 @@ const leagues = [
 
 async function handicap() {
   // go through each league
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < leagues.length; i++) {
     // flag.spread/totals === 0 represent did not have first handicap information
     const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
     const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
