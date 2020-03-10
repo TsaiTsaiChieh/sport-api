@@ -77,7 +77,7 @@ exports.cronPrematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
-exports.cronHandicap = functions.pubsub
+exports.handicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
