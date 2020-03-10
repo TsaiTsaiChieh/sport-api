@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const giveTitleModel = require('../../model/admin/giveTitleModel');
 
-function giveTitle(req, res) {
+async function giveTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
@@ -104,18 +104,18 @@ function giveTitle(req, res) {
       }
     ]
   };
+  const args = req.body;
+  args.adminUid = req.adminUid;
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
-  giveTitleModel(req.body)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).json(err);
-    });
+  try {
+    res.json(await giveTitleModel(args));
+  } catch (err) {
+    res.status(err.code).json(err);
+  }
 }
 
 module.exports = giveTitle;

@@ -12,6 +12,7 @@ function giveTitleModel(args) {
       }
       const user = userSnapshot.data();
       let titles = user.titles ? user.titles : [];
+
       /* step 2: check user is admin */
       if (user.status === 9) {
         reject({ code: 403, error: 'forbidden, admin could not have a title' });
@@ -31,6 +32,12 @@ function giveTitleModel(args) {
           { merge: true }
         );
         modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
+        console.log(
+          `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
+            args.adminUid
+          } on ${new Date()} by TsaiChieh`
+        );
+
         resolve({
           uid: args.uid,
           title: [
@@ -66,6 +73,11 @@ function giveTitleModel(args) {
         ) {
           updateFlag = true;
           ele.rank = args.rank;
+          console.log(
+            `Add title ${args.league}_${args.sport}_${
+              args.rank
+            } by admin uid: ${args.adminUid} on ${new Date()} by TsaiChieh`
+          );
           break;
         }
       }
@@ -82,7 +94,7 @@ function giveTitleModel(args) {
           sport: args.sport
         });
       }
-      // status 2 is good like
+      // status 2 is god like
       userDoc.set({ titles, status: 2 }, { merge: true });
       modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
       resolve({
@@ -95,6 +107,11 @@ function giveTitleModel(args) {
           }
         ]
       });
+      console.log(
+        `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
+          args.adminUid
+        } on ${new Date()} by TsaiChieh`
+      );
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
