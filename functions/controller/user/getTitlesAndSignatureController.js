@@ -1,8 +1,8 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const getTitlesAndPointsModel = require('../../model/user/getTitlesAndPointsModel');
+const getTitlesAndSignatureModel = require('../../model/user/getTitlesAndSignatureModel');
 
-async function getTitlesAndPoints(req, res) {
+async function getTitlesAndSignature(req, res) {
   const schema = {
     type: 'object',
     required: ['uid'],
@@ -21,21 +21,21 @@ async function getTitlesAndPoints(req, res) {
   }
   args.token = req.token;
   try {
-    res.json(await getTitlesAndPointsModel(args));
+    res.json(await getTitlesAndSignatureModel(args));
   } catch (err) {
     console.log('err....', err);
     res.status(err.code).json(err);
   }
 }
 
-module.exports = getTitlesAndPoints;
+module.exports = getTitlesAndSignature;
 
 /**
- * @api {get} /user/getTitlesAndPoints/:uid Get Titles And Points
+ * @api {get} /user/getTitlesAndSignature/:uid Get Titles And Signature
  * @apiVersion 1.0.1
  * @apiDescription 看使用者的的頭銜和點數 by Tsai-Chieh
- * 
- * @apiName getTitlesAndPoints
+ *
+ * @apiName getTitlesAndSignature
  * @apiGroup User
  *
  * @apiParam {String} uid user uid
@@ -48,7 +48,7 @@ module.exports = getTitlesAndPoints;
  *  HTTP/1.1 200 OK
  * {
  *    "uid": "X6umtiqFyRfcuJiKfjsFXrWqICc2",
- *    "points": 4,
+ *    "signature": "簽名檔～",
  *    "titles": [
  *        {
  *            "rank": 1,
@@ -62,7 +62,7 @@ module.exports = getTitlesAndPoints;
  *         }
  *     ]
  * }
- * 
+ *
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error

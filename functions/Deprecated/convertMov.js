@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const modules = require('../util/modules');
 
 async function convertMov(req, res) {
   const file = modules.fs.createWriteStream('heart.MOV');

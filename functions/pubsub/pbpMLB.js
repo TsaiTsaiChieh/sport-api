@@ -64,35 +64,10 @@ async function MLBpbpInplay(parameter) {
             );
             await ref.set(data.game.innings[0].halfs[0].events[numberCount]);
           }
-          //data.game.innings[0].halfs[0].events[0~10].lineup  away team = 上半場
         }
         if (inningsCount >= 1) {
           // normal play
 
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/runs`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.home.runs);
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/runs`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.away.runs);
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/hits`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.home.hits);
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/hits`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.away.hits);
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/errors`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.home.errors);
-          ref = modules.database.ref(
-            `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/errors`
-          );
-          await ref.set(data.game.innings[inningsCount].scoring.away.errors);
           if (inningsCount != inningsNow && changeInnings) {
             halfCount = 0;
             changeInnings = false;
@@ -107,6 +82,39 @@ async function MLBpbpInplay(parameter) {
               eventHalfNow = 0;
               changeHalfs = false;
             }
+            if (halfCount == 0) {
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/runs`
+              );
+              await ref.set(data.game.innings[inningsCount].scoring.away.runs);
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/errors`
+              );
+              await ref.set(
+                data.game.innings[inningsCount].scoring.away.errors
+              );
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/away/hits`
+              );
+              await ref.set(data.game.innings[inningsCount].scoring.away.hits);
+            }
+            if (halfCount == 1) {
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/runs`
+              );
+              await ref.set(data.game.innings[inningsCount].scoring.home.runs);
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/hits`
+              );
+              await ref.set(data.game.innings[inningsCount].scoring.home.hits);
+              ref = modules.database.ref(
+                `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/scoring/home/errors`
+              );
+              await ref.set(
+                data.game.innings[inningsCount].scoring.home.errors
+              );
+            }
+
             for (
               let eventHalfCount = eventHalfNow;
               eventHalfCount <

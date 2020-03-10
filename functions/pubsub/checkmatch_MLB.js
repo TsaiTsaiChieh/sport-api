@@ -30,6 +30,8 @@ async function checkmatch_MLB(req, res) {
           await modules.database.ref(`baseball/MLB/${betsID}`).once("value")
         )
       );
+
+      // console.log(realtimeData);
       // from the begining
       if (realtimeData.Summary.status === "created") {
         let inningsNow = 0; // 0 ~ 10
@@ -53,9 +55,11 @@ async function checkmatch_MLB(req, res) {
         let parameter = { gameID: gameID, betsID: betsID };
         MLBpbpHistory(parameter);
       }
+
       if (realtimeData.Summary.status === "inprogress") {
-        // let inningsNow = Object.keys(realtimeData.PBP).length - 1;
-        // let inningsName = Object.keys(realtimeData.PBP);
+        let inningsNow = Object.keys(realtimeData.PBP).length - 1;
+        let inningsName = Object.keys(realtimeData.PBP);
+        let halfsNow = Object.keys(realtimeData.PDP);
         // let eventNow =
         //   Object.keys(realtimeData.PBP[inningsName[inningsNow]]).length - 1;
 

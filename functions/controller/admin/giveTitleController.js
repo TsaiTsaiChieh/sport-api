@@ -150,7 +150,7 @@ module.exports = giveTitle;
  *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "title": [
  *        {
- *              "rank": 5,
+ *              "rank": 2,
  *              "sport": 16,
  *              "league": "中華職棒"
  *        }
