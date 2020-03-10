@@ -73,7 +73,7 @@ app.use('/sport', require('./routers/sport'));
 // for test pubsub endpoint
 app.use('/pubsub', require('./routers/pubsub'));
 
-exports.cronPrematch = functions.pubsub
+exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
