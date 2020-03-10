@@ -256,7 +256,7 @@ function codebook(id, name) {
       };
     case 1368 | 'CHI Cubs':
       return {
-        alias: 'CHI',
+        alias: 'CHC',
         alias_ch: '小熊',
         name_ch: '芝加哥小熊'
       };
