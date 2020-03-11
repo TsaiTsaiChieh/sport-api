@@ -7,7 +7,7 @@ const leagues = [
   modules.db.basketball_SBL,
   modules.db.baseball_MLB
 ];
-
+// 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
 async function handicap() {
   // go through each league
   for (let i = 0; i < leagues.length; i++) {
@@ -138,7 +138,8 @@ async function query_handicap(flag, value, leagues) {
     return await Promise.all(eles);
   } catch (error) {
     console.error(
-      `Error in pubsub/handicap/query_handicap by TsaiChieh on ${Date.now()}`
+      `Error in pubsub/handicap/query_handicap by TsaiChieh on ${Date.now()}`,
+      error
     );
     return error;
   }
