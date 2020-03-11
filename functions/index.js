@@ -85,6 +85,10 @@ exports.lineups = functions.pubsub
   .schedule('*/10 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/lineups'));
+exports.lineups_MLB = functions.pubsub
+  .schedule('0 */1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/lineups_MLB'));
 
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);
