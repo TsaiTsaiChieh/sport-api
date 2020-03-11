@@ -61,8 +61,35 @@ module.exports.MLB_PRE = {
         error
       );
     }
+  },
+  lineups: async function(date) {
+    const querys = await queryBeforeOneDay(date);
+    const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games`;
+    try {
+      // for (let i = 0; i < querys.length; i++) {
+      for (let i = 0; i < 1; i++) {
+        const ele = querys[i];
+        // eslint-disable-next-line no-await-in-loop
+        const { data } = await modules.axios.get(
+          `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
+        );
+        console.log(
+          `SportRadar MLB_PRE lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
+        );
+        modules.firestore
+          .collection(modules.db.baseball_MLB)
+          .doc(ele.bets_id)
+          .set(repackage_lineups(data), { merge: true });
+      }
+    } catch (error) {
+      console.error(
+        `Error in pubsub/util/prematchFunctions_MLB lineups function by TsaiChieh on ${new Date()}`,
+        error
+      );
+    }
   }
 };
+
 function skipTeam(id) {
   id = Number.parseInt(id);
   switch (id) {
@@ -395,4 +422,69 @@ function repackage_sportradar(ele, query, league) {
       prematch: 1
     }
   };
+}
+
+async function queryBeforeOneDay(date) {
+  const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
+  const results = [];
+  try {
+    const querys = await eventsRef
+      .where('flag.lineup', '==', 0)
+      .where('scheduled', '>=', modules.moment(date))
+      .where('scheduled', '<=', modules.moment(date).add(24, 'hours'))
+      .get();
+    querys.docs.map(function(docs) {
+      // console.log(
+      //   docs.data().bets_id,
+      //   modules
+      //     .moment(docs.data().scheduled._seconds * 1000)
+      //     .format('YYYY-MM-DD')
+      // );
+      results.push(docs.data());
+    });
+    return await Promise.all(results);
+  } catch (error) {
+    console.error(
+      `Error in pubsub/util/prematchFunctions_MLB queryBeforeOneDay function by TsaiChieh on ${new Date()}`,
+      error
+    );
+    return error;
+  }
+}
+
+// eslint-disable-next-line consistent-return
+function repackage_lineups(ele) {
+  if (ele.game.home.probable_pitcher && ele.game.away.probable_pitcher) {
+    const homePitcher = ele.game.home.probable_pitcher;
+    const awayPitcher = ele.game.away.probable_pitcher;
+    return {
+      flag: { lineup: 1 },
+      lineups: {
+        home: {
+          pitcher: {
+            name: homePitcher.preferred_name,
+            first_name: homePitcher.first_name,
+            last_name: homePitcher.last_name,
+            jersey_number: homePitcher.jersey_number,
+            id: homePitcher.id,
+            win: homePitcher.win,
+            loss: homePitcher.loss,
+            era: homePitcher.era
+          }
+        },
+        away: {
+          pitcher: {
+            name: awayPitcher.preferred_name,
+            first_name: awayPitcher.first_name,
+            last_name: awayPitcher.last_name,
+            jersey_number: awayPitcher.jersey_number,
+            id: awayPitcher.id,
+            win: awayPitcher.win,
+            loss: awayPitcher.loss,
+            era: awayPitcher.era
+          }
+        }
+      }
+    };
+  }
 }
