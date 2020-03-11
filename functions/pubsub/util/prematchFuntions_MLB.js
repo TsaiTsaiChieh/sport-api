@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 
 module.exports.MLB_PRE = {
-  upcomming: async function(date) {
+  upcoming: async function(date) {
     const _date = modules.dateFormat(date);
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=16&token=${modules.betsToken}&league_id=3939&day=${_date.year}${_date.month}${_date.day}`;
     console.log(`BetsAPI MLB_PRE URL on ${date}: ${URL}`);
@@ -11,16 +11,19 @@ module.exports.MLB_PRE = {
       const { data } = await modules.axios(URL);
       for (let i = 0; i < data.results.length; i++) {
         const ele = data.results[i];
-        results.push(
-          modules.firestore
-            .collection(modules.db.baseball_MLB)
-            .doc(ele.id)
-            .set(repackage_bets(ele), { merge: true })
-        );
+        if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
+          results.push(
+            modules.firestore
+              .collection(modules.db.baseball_MLB)
+              .doc(ele.id)
+              .set(repackage_bets(ele), { merge: true })
+          );
+          console.log(`BetsAPI MLB_PRE match_id: ${ele.id}`);
+        }
       }
     } catch (error) {
       console.error(
-        'Error in pubsub/util/prematchFunctions_MLB_PRE upcomming axios by TsaiChieh',
+        'Error in pubsub/util/prematchFunctions_MLB_PRE upcoming axios by TsaiChieh',
         error
       );
       return error;
@@ -31,7 +34,7 @@ module.exports.MLB_PRE = {
         resolve(await Promise.all(results));
       } catch (error) {
         console.error(
-          'Error in pubsub/util/prematchFunctions_MLB_PRE upcomming axios by TsaiChieh',
+          'Error in pubsub/util/prematchFunctions_MLB_PRE upcoming axios by TsaiChieh',
           error
         );
         reject(error);
@@ -60,6 +63,28 @@ module.exports.MLB_PRE = {
     }
   }
 };
+function skipTeam(id) {
+  id = Number.parseInt(id);
+  switch (id) {
+    case 269292:
+    case 216007:
+    case 45295:
+    case 10078:
+    case 325710:
+    case 7420:
+    case 7432:
+    case 162080:
+    case 1485:
+    case 216028:
+    case 265768:
+    case 1482:
+    case 269640:
+      return false;
+    default:
+      return true;
+  }
+}
+
 function repackage_bets(ele) {
   return {
     update_time: modules.firebaseTimestamp(new Date()),
