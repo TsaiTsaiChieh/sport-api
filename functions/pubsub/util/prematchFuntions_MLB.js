@@ -66,13 +66,13 @@ module.exports.MLB_PRE = {
     const querys = await queryBeforeOneDay(date);
     const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games`;
     try {
-      // for (let i = 0; i < querys.length; i++) {
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < querys.length; i++) {
         const ele = querys[i];
         // eslint-disable-next-line no-await-in-loop
         const { data } = await modules.axios.get(
           `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
         );
+        // eslint-disable-next-line no-await-in-loop
         console.log(
           `SportRadar MLB_PRE lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
         );
@@ -465,7 +465,9 @@ function repackage_lineups(ele) {
             name: homePitcher.preferred_name,
             first_name: homePitcher.first_name,
             last_name: homePitcher.last_name,
-            jersey_number: homePitcher.jersey_number,
+            jersey_number: `${
+              homePitcher.jersey_number ? homePitcher.jersey_number : '-'
+            }`,
             id: homePitcher.id,
             win: homePitcher.win,
             loss: homePitcher.loss,
@@ -477,7 +479,9 @@ function repackage_lineups(ele) {
             name: awayPitcher.preferred_name,
             first_name: awayPitcher.first_name,
             last_name: awayPitcher.last_name,
-            jersey_number: awayPitcher.jersey_number,
+            jersey_number: `${
+              awayPitcher.jersey_number ? awayPitcher.jersey_number : '-'
+            }`,
             id: awayPitcher.id,
             win: awayPitcher.win,
             loss: awayPitcher.loss,
@@ -486,5 +490,5 @@ function repackage_lineups(ele) {
         }
       }
     };
-  }
+  } else return {};
 }
