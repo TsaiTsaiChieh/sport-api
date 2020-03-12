@@ -81,10 +81,10 @@ exports.handicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
-exports.lineups = functions.pubsub
-  .schedule('*/10 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/lineups'));
+// exports.lineups = functions.pubsub
+//   .schedule('*/10 * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/lineups'));
 exports.lineups_MLB = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
