@@ -16,27 +16,25 @@ async function prematch() {
     .utcOffset(8)
     // .subtract(1, 'days')
     .format('YYYY-MM-DD');
-  // const yesterday = '2020-02-21';
-  // const date = '2020-02-22';
-  // NBA
+
+  // try {
+  //   await NBA_functions.NBA.upcomming(tomorrow);
+  //   NBA_functions.NBA.prematch(now);
+  // } catch (error) {
+  //   console.error(error);
+  // }
+  // try {
+  //   await SBL_functions.SBL.upcomming(tomorrow);
+  //   SBL_functions.SBL.prematch(tomorrow);
+  // } catch (error) {
+  //   console.error(error);
+  // }
   try {
-    await NBA_functions.NBA.upcomming(tomorrow);
-    NBA_functions.NBA.prematch(now);
-  } catch (error) {
-    console.error(error);
-  }
-  // SBL
-  // const test_date = '2020-03-07';
-  try {
-    await SBL_functions.SBL.upcomming(tomorrow);
-    SBL_functions.SBL.prematch(tomorrow);
-  } catch (error) {
-    console.error(error);
-  }
-  // MLB
-  try {
-    await MLB_functions.MLB_PRE.upcomming(now);
-    MLB_functions.MLB_PRE.prematch(now);
+    await MLB_functions.MLB_PRE.upcoming(now);
+    // query now 上午八點過後的場次
+    await MLB_functions.MLB_PRE.upcoming(tomorrow);
+    MLB_functions.MLB.prematch(now);
+    MLB_functions.MLB.teamStat();
   } catch (error) {
     console.error(error);
   }
