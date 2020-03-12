@@ -369,7 +369,7 @@ module.exports.NBA.lineup = async function(date) {
           ele.away.alias
         }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
           .moment(ele.scheduled._seconds * 1000)
-          .format('llll')}, URL: ${completeURL}`
+          .format('ll')}, URL: ${completeURL}`
       );
       modules.firestore
         .collection(modules.db.basketball_NBA)
