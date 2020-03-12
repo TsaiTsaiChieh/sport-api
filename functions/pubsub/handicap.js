@@ -3,8 +3,8 @@ const modules = require('../util/modules');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const leagues = [
-  modules.db.basketball_NBA,
-  modules.db.basketball_SBL,
+  // modules.db.basketball_NBA,
+  // modules.db.basketball_SBL,
   modules.db.baseball_MLB
 ];
 // 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
