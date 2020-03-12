@@ -9,16 +9,18 @@ module.exports.MLB_PRE = {
     const results = [];
     try {
       const { data } = await modules.axios(URL);
-      for (let i = 0; i < data.results.length; i++) {
-        const ele = data.results[i];
-        if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
-          results.push(
-            modules.firestore
-              .collection(modules.db.baseball_MLB)
-              .doc(ele.id)
-              .set(repackage_bets(ele), { merge: true })
-          );
-          console.log(`BetsAPI MLB_PRE match_id: ${ele.id}`);
+      if (data.results.length) {
+        for (let i = 0; i < data.results.length; i++) {
+          const ele = data.results[i];
+          if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
+            results.push(
+              modules.firestore
+                .collection(modules.db.baseball_MLB)
+                .doc(ele.id)
+                .set(repackage_bets(ele), { merge: true })
+            );
+            console.log(`BetsAPI: ${modules.db.baseball_MLB}(${ele.id})`);
+          }
         }
       }
     } catch (error) {
@@ -40,7 +42,9 @@ module.exports.MLB_PRE = {
         reject(error);
       }
     });
-  },
+  }
+};
+module.exports.MLB = {
   prematch: async function(date) {
     const _date = modules.dateFormat(date);
     // If query today information, it will return today or tomorrow information
@@ -49,11 +53,9 @@ module.exports.MLB_PRE = {
     try {
       const { data } = await modules.axios(URL);
       const querys = await query_MLB('flag.prematch', 0);
-
       for (let i = 0; i < data.games.length; i++) {
         const ele = data.games[i];
         integration(querys, ele, data.league);
-        console.log(`SportRadar MLB_PRE match_id: ${ele.id}`);
       }
     } catch (error) {
       console.error(
@@ -76,7 +78,8 @@ module.exports.MLB_PRE = {
             ele.away.alias
           }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
             .moment(ele.scheduled._seconds * 1000)
-            .format('llll')}, URL: ${completeURL}`
+            .utcOffset(8)
+            .format('ll')}, URL: ${completeURL}`
         );
         modules.firestore
           .collection(modules.db.baseball_MLB)
@@ -120,26 +123,42 @@ module.exports.MLB_PRE = {
     }
   }
 };
-
 function skipTeam(id) {
   id = Number.parseInt(id);
   switch (id) {
-    case 269292:
-    case 216007:
-    case 45295:
-    case 10078:
-    case 325710:
-    case 7420:
-    case 7432:
-    case 162080:
-    case 1485:
-    case 216028:
-    case 265768:
-    case 1482:
-    case 269640:
-      return false;
-    default:
+    case 1090:
+    case 1222:
+    case 1202:
+    case 1217:
+    case 1311:
+    case 1091:
+    case 1478:
+    case 1310:
+    case 1203:
+    case 1088:
+    case 1120:
+    case 1089:
+    case 1121:
+    case 1216:
+    case 1479:
+    case 1369:
+    case 1353:
+    case 1108:
+    case 1365:
+    case 1146:
+    case 1223:
+    case 1186:
+    case 1187:
+    case 1364:
+    case 1368:
+    case 1147:
+    case 1352:
+    case 1109:
+    case 1113:
+    case 1112:
       return true;
+    default:
+      return false;
   }
 }
 
@@ -181,6 +200,8 @@ function encodeSeason(name) {
   switch (name) {
     case 'exhibition games':
       return 'PRE';
+    default:
+      return name;
   }
 }
 
@@ -413,6 +434,9 @@ function integration(query, ele, league) {
         .collection(modules.db.baseball_MLB)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
+      console.log(
+        `SportRadar: ${modules.db.baseball_MLB}(${query[i].bets_id})`
+      );
     }
   }
 }
