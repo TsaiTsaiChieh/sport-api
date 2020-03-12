@@ -89,7 +89,11 @@ async function updateHandicap(league, ele) {
         };
         eventSnapshot.set({ handicap: { totals } }, { merge: true });
         console.log(
-          `${league}-event_id: ${ele.bets_id} updated handicap successful, URL: ${URL}`
+          `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+            ele.away.alias
+          }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
+            .moment(ele.scheduled._seconds * 1000)
+            .format('llll')} updated handicap successful, URL: ${URL}`
         );
       }
     }
@@ -150,7 +154,14 @@ async function getHandicap(league, ele) {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
     const { data } = await modules.axios(URL);
-    console.log(`${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`);
+    console.log(
+      `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${ele.away.alias}):${
+        ele.home.alias_ch
+      }(${ele.home.alias}) at ${modules
+        .moment(ele.scheduled._seconds * 1000)
+        .format('llll')}
+      `
+    );
     // if no data, the data.results will be { }
     if (data.results.Bet365) {
       const odds = data.results.Bet365.odds.start;
@@ -215,7 +226,14 @@ async function getTotals(league, ele) {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
     const { data } = await modules.axios(URL);
-    console.log(`${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`);
+    console.log(
+      `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${ele.away.alias}):${
+        ele.home.alias_ch
+      }(${ele.home.alias}) at ${modules
+        .moment(ele.scheduled._seconds * 1000)
+        .format('llll')}
+      `
+    );
     if (data.results.Bet365) {
       const odds = data.results.Bet365.odds.start;
 
