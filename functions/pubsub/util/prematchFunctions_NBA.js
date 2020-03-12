@@ -361,14 +361,16 @@ module.exports.NBA.lineup = async function(date) {
   try {
     for (let i = 0; i < querys.length; i++) {
       const ele = querys[i];
+      const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
       // eslint-disable-next-line no-await-in-loop
-      const { data } = await modules.axios.get(
-        `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
-      );
+      const { data } = await modules.axios.get(completeURL);
       console.log(
-        `SportRadarAPI NBA lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
+        `${modules.db.basketball_NBA}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+          ele.away.alias
+        }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
+          .moment(ele.scheduled._seconds * 1000)
+          .format('llll')}, URL: ${completeURL}`
       );
-
       modules.firestore
         .collection(modules.db.basketball_NBA)
         .doc(querys[i].bets_id)
