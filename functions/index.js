@@ -7,7 +7,6 @@ const cors = require('cors');
 
 let bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-// const nodeSchedule = require("node-schedule");
 const app = express();
 
 app.use(cookieParser());
