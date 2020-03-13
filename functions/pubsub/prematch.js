@@ -34,7 +34,7 @@ async function prematch() {
     // query now 上午八點過後的場次
     await MLB_functions.MLB_PRE.upcoming(tomorrow);
     MLB_functions.MLB.prematch(now);
-    MLB_functions.MLB.teamStat();
+    MLB_functions.MLB.teamStat(now);
   } catch (error) {
     console.error(error);
   }
