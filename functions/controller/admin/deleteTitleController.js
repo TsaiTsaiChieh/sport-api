@@ -1,25 +1,25 @@
-const modules = require('../../util/modules');
-const deleteTitleModel = require('../../model/admin/deleteTitleModel');
+const modules = require("../../util/modules");
+const deleteTitleModel = require("../../model/admin/deleteTitleModel");
 
 function deleteTitle(req, res) {
   const schema = {
-    type: 'object',
-    required: ['uid', 'rank', 'sport', 'league'],
+    type: "object",
+    required: ["uid", "rank", "sport", "league"],
     properties: {
       uid: {
-        type: 'string'
+        type: "string"
       },
       rank: {
-        type: 'integer',
+        type: "integer",
         maximum: 4,
         minimum: 1
       },
       sport: {
-        type: 'integer',
+        type: "integer",
         // baseball, basketball, ice_hockey, soccer
         enum: [16, 18, 17, 1]
       },
-      league: { type: 'string' }
+      league: { type: "string" }
     },
     allOf: [
       {
@@ -34,12 +34,12 @@ function deleteTitle(req, res) {
           properties: {
             league: {
               enum: [
-                '中華職棒',
-                '墨西哥職棒',
-                '韓國職棒',
-                'MLB',
-                '日本職棒',
-                '澳洲職棒'
+                "中華職棒",
+                "墨西哥職棒",
+                "韓國職棒",
+                "MLB",
+                "日本職棒",
+                "澳洲職棒"
               ]
             }
           }
@@ -57,13 +57,13 @@ function deleteTitle(req, res) {
           properties: {
             league: {
               enum: [
-                'SBL',
-                '日本職籃',
-                '韓國職籃',
-                '澳洲職籃',
-                'NBA',
-                'WNBA',
-                '中國職籃'
+                "SBL",
+                "日本職籃",
+                "韓國職籃",
+                "澳洲職籃",
+                "NBA",
+                "WNBA",
+                "中國職籃"
               ]
             }
           }
@@ -80,7 +80,7 @@ function deleteTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['NHL']
+              enum: ["NHL"]
             }
           }
         }
@@ -96,7 +96,7 @@ function deleteTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['足球']
+              enum: ["足球"]
             }
           }
         }

@@ -1,7 +1,7 @@
-const userUtils = require('../../util/userUtil');
-const modules = require('../../util/modules');
+const userUtils = require("../../util/userUtil");
+const modules = require("../../util/modules");
 const firebaseAdmin = modules.firebaseAdmin;
-const envValues = require('../../config/env_values');
+const envValues = require("../../config/env_values");
 
 /**
  * @api {post} /auth/login create session cookie
@@ -113,7 +113,7 @@ async function firebaseLogin(req, res) {
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
-            console.log('firestoreUser exist');
+            console.log("firestoreUser exist");
             if (firestoreUser.uid) {
               returnJson.uid = firestoreUser.uid;
             } else {
