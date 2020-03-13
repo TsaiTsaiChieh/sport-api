@@ -65,7 +65,7 @@ module.exports.MLB = {
     }
   },
   lineups: async function(date) {
-    const querys = await queryBeforeOneDay(date);
+    const querys = await queryBeforeOneDay(date, 'flag.prematch', 1);
     const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games`;
     try {
       for (let i = 0; i < querys.length; i++) {
@@ -94,8 +94,8 @@ module.exports.MLB = {
     }
   },
   // eslint-disable-next-line consistent-return
-  teamStat: async function() {
-    const querys = await query_MLB('flag.prematch', 1);
+  teamStat: async function(date) {
+    const querys = await queryBeforeOneDay(date, 'flag.prematch', 1);
     const URL =
       'http://api.sportradar.us/mlb/trial/v6.6/en/seasons/2020/PRE/teams';
     for (let i = 0; i < querys.length; i++) {
@@ -189,7 +189,6 @@ function repackage_bets(ele) {
       spread: 0,
       totals: 0,
       status: 2,
-      lineup: 0,
       prematch: 0
     }
   };
@@ -479,22 +478,16 @@ function repackage_sportradar(ele, query, league) {
   };
 }
 
-async function queryBeforeOneDay(date) {
+async function queryBeforeOneDay(date, flag, value) {
   const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
   const results = [];
   try {
     const querys = await eventsRef
-      .where('flag.lineup', '==', 0)
+      .where(flag, '==', value)
       .where('scheduled', '>=', modules.moment(date))
       .where('scheduled', '<=', modules.moment(date).add(24, 'hours'))
       .get();
     querys.docs.map(function(docs) {
-      // console.log(
-      //   docs.data().bets_id,
-      //   modules
-      //     .moment(docs.data().scheduled._seconds * 1000)
-      //     .format('YYYY-MM-DD')
-      // );
       results.push(docs.data());
     });
     return await Promise.all(results);
@@ -513,7 +506,6 @@ function repackage_lineups(ele) {
     const homePitcher = ele.game.home.probable_pitcher;
     const awayPitcher = ele.game.away.probable_pitcher;
     return {
-      flag: { lineup: 1 },
       lineups: {
         home: {
           pitcher: {
