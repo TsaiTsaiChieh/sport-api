@@ -38,7 +38,7 @@ async function setClaim(req, res) {
 module.exports = setClaim;
 
 /**
- * @api {get} /admin/setClaim/ Set Claim
+ * @api {POST} /admin/setClaim/ Set Claim
  * @apiVersion 1.0.0
  * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
  * 

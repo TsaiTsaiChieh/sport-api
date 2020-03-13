@@ -72,5 +72,4 @@ package-lock.json
 
 # tsaichieh add
 /public/apidoc
-endpoints.rest
-sportRadar.rest
+*.rest

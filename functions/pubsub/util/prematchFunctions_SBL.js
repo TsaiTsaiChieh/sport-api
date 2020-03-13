@@ -2,9 +2,9 @@ const modules = require('../../util/modules');
 
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
-module.exports.SBL.upcomming = async function(date, league_id) {
+module.exports.SBL.upcomming = async function(date) {
   const _date = modules.dateFormat(date);
-  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=&day=${_date.year}${_date.month}${_date.day}`;
+  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=8251&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI SBL URL on ${date}: ${URL}`);
   // axios
   const results = [];
@@ -43,19 +43,16 @@ module.exports.SBL.upcomming = async function(date, league_id) {
 
 function repackage_bets(ele) {
   data = {};
-
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
   data.bets_id = ele.id;
   data.home = {
     alias: encode(ele.home.name, ele.home.id),
-    // image_id: ele.home.image_id,
     bets_id: ele.home.id
   };
   data.away = {
     alias: encode(ele.away.name, ele.away.id),
-    // image_id: ele.away.image_id,
     bets_id: ele.away.id
   };
   data.league = {
@@ -67,7 +64,6 @@ function repackage_bets(ele) {
     totals: 0,
     status: 2
   };
-
   return data;
 }
 // eslint-disable-next-line consistent-return
