@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
     const _date = modules.dateFormat(date);
-    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=16&token=${modules.betsToken}&league_id=3939&day=${_date.year}${_date.month}${_date.day}`;
+    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=16&token=${modules.betsToken}&league_id=22259&day=${_date.year}${_date.month}${_date.day}`;
     console.log(`BetsAPI MLB_PRE URL on ${date}: ${URL}`);
     // axios
     const results = [];
