@@ -1,6 +1,20 @@
+/* eslint-disable consistent-return */
 const modules = require('../../util/modules');
 
 function prematch(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const queries = await queryOneDay(args);
+      if (args.league === 'MLB') resolve(repackage_MLB(queries));
+      else if (args.league === 'NBA') resolve(repackage_NBA(queries));
+    } catch (err) {
+      console.log(err);
+      reject({ code: 500, error: err });
+    }
+  });
+}
+
+function queryOneDay(args) {
   return new Promise(async function(resolve, reject) {
     const matchesRef = modules.firestore.collection(
       collectionCodebook(args.league)
@@ -10,7 +24,7 @@ function prematch(args) {
       .moment(args.date)
       .utcOffset(8)
       .add(1, 'days');
-    // query the match on date which user query
+    const results = [];
     try {
       const queries = await matchesRef
         .where('flag.prematch', '==', 1)
@@ -18,19 +32,20 @@ function prematch(args) {
         .where('scheduled', '<', endDate)
         .get();
 
-      const results = [];
-      queries.docs.map(function(ele) {
-        results.push(repackage(ele.data(), args.league));
+      queries.docs.map(function(docs) {
+        results.push(docs.data());
       });
-      resolve(results);
+      resolve(await Promise.all(results));
     } catch (err) {
-      console.error('Error in sport/prematchModel by TsaiChieh', err);
-      reject({ code: 500, error: err });
-      return;
+      console.error(
+        'Error in sport/prematchModel queryOneDay function by TsaiChieh',
+        err
+      );
+      reject(err);
     }
   });
 }
-// eslint-disable-next-line consistent-return
+
 function collectionCodebook(league) {
   switch (league) {
     case 'NBA':
@@ -39,8 +54,33 @@ function collectionCodebook(league) {
       return modules.db.baseball_MLB;
   }
 }
-function repackage(ele, league) {
-  data = {
+
+function repackage_MLB(events) {
+  const results = [];
+  for (let i = 0; i < events.length; i++) {
+    const ele = events[i];
+    const data = generalData(ele);
+    results.push(data);
+    // if (ele.lineups) // baseball pitcher logic not finish
+  }
+  return results;
+}
+function repackage_NBA(events) {
+  const results = [];
+  for (let i = 0; i < events.length; i++) {
+    const ele = events[i];
+    const data = generalData(ele);
+    if (ele.lineups)
+      data.lineups = repackageBasketballLineups(
+        ele.lineups.home,
+        ele.lineups.away
+      );
+    results.push(data);
+  }
+  return results;
+}
+function generalData(ele) {
+  const data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
     home: {
@@ -64,74 +104,66 @@ function repackage(ele, league) {
       totals: {}
     },
     lineups: {
-      home: {
-        starters: []
-      },
-      away: {
-        starters: []
-      }
+      home: {},
+      away: {}
     }
   };
-
   if (ele.handicap) {
-    if (ele.handicap.spread) {
-      const spreadKey = [];
-      const spreadArray = [];
-      for (const key in ele.handicap.spread) {
-        spreadKey.push(key);
-        spreadArray.push(ele.handicap.spread[key].add_time._seconds);
-      }
-      const newestKey = sortTime(spreadKey, spreadArray);
-      const newestSpread = ele.handicap.spread[newestKey];
-      data.handicap.spread[newestKey] = {
-        handicap: newestSpread.handicap,
-        add_time: newestSpread.add_time._seconds,
-        home_odd: newestSpread.home_odd,
-        away_odd: newestSpread.away_odd,
-        insert_time: newestSpread.insert_time._seconds
-      };
-    }
-    if (ele.handicap.totals) {
-      const totalsKey = [];
-      const totalsArray = [];
-      for (const key in ele.handicap.totals) {
-        totalsKey.push(key);
-        totalsArray.push(ele.handicap.totals[key].add_time._seconds);
-      }
-      const newestKey = sortTime(totalsKey, totalsArray);
-      const newestTotals = ele.handicap.totals[newestKey];
-      data.handicap.totals[newestKey] = {
-        handicap: newestTotals.handicap,
-        add_time: newestTotals.add_time._seconds,
-        home_odd: newestTotals.home_odd,
-        away_odd: newestTotals.away_odd,
-        insert_time: newestTotals.insert_time._seconds
-      };
-    }
+    if (ele.handicap.spread)
+      data.handicap.spread = repackageSpread(ele.handicap.spread);
+    if (ele.handicap.totals)
+      data.handicap.totals = repackageTotals(ele.handicap.totals);
   }
-  // lineups information
-  if (ele.lineups) {
-    for (let i = 0; i < ele.lineups.home.starters.length; i++) {
-      const player = ele.lineups.home.starters[i];
+  return data;
+}
 
-      data.lineups.home.starters.push({
-        name: player.name,
-        position: player.primary_position,
-        first_name: player.first_name,
-        last_name: player.last_name,
-        id: player.id
-      });
+function repackageTotals(ele) {
+  const data = {};
+  const totalsKey = [];
+  const totalsArray = [];
+  for (const key in ele) {
+    totalsKey.push(key);
+    totalsArray.push(ele[key].add_time._seconds);
+  }
+  const newestKey = sortTime(totalsKey, totalsArray);
+  const newestTotals = ele[newestKey];
+  data[newestKey] = {
+    handicap: newestTotals.handicap,
+    add_time: newestTotals.add_time._seconds,
+    home_odd: newestTotals.home_odd,
+    away_odd: newestTotals.away_odd,
+    insert_time: newestTotals.insert_time._seconds
+  };
+  return data;
+}
+function repackageBasketballLineups(home, away) {
+  const data = {
+    home: {
+      starters: []
+    },
+    away: {
+      starters: []
     }
-    for (let i = 0; i < ele.lineups.away.starters.length; i++) {
-      const player = ele.lineups.away.starters[i];
-      data.lineups.away.starters.push({
-        name: player.name,
-        position: player.primary_position,
-        first_name: player.first_name,
-        last_name: player.last_name,
-        id: player.id
-      });
-    }
+  };
+  for (let i = 0; i < home.starters.length; i++) {
+    const player = home.starters[i];
+    data.home.starters.push({
+      name: player.name,
+      position: player.primary_position,
+      first_name: player.first_name,
+      last_name: player.last_name,
+      id: player.id
+    });
+  }
+  for (let i = 0; i < away.starters.length; i++) {
+    const player = away.starters[i];
+    data.away.starters.push({
+      name: player.name,
+      position: player.primary_position,
+      first_name: player.first_name,
+      last_name: player.last_name,
+      id: player.id
+    });
   }
   return data;
 }
