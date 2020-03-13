@@ -85,13 +85,13 @@ exports.lineups = functions.pubsub
   .schedule("*/10 * * * *")
   .timeZone("Asia/Taipei")
   .onRun(require("./pubsub/lineups"));
-//   exports.cronCheckmatch_NBA = functions.pubsub
-//   .schedule("* * * * *")
-//   .timeZone("Asia/Taipei")
-//   .onRun(require("./pubsub/checkmatch_NBA"));
-// exports.cronCheckmatch_MLB = functions.pubsub
-//   .schedule("* * * * *")
-//   .timeZone("Asia/Taipei")
-//   .onRun(require("./pubsub/checkmatch_MLB"));
+exports.cronCheckmatch_NBA = functions.pubsub
+  .schedule("* * * * *")
+  .timeZone("Asia/Taipei")
+  .onRun(require("./pubsub/checkmatch_NBA"));
+exports.cronCheckmatch_MLB = functions.pubsub
+  .schedule("* * * * *")
+  .timeZone("Asia/Taipei")
+  .onRun(require("./pubsub/checkmatch_MLB"));
 exports.api = functions.https.onRequest(app);
 // exports.ssr = functions.https.onRequest(ssr.app);
