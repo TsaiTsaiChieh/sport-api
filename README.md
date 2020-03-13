@@ -46,4 +46,4 @@ Created by TsaiChieh
 - NBA 在賽前 40 分鐘撈先發和候補球員
 - MLB 熱身賽在賽前 24 小時撈先發投手
 
-> index: (scheduled, flag.lineup)
+> index: (scheduled, flag.prematch)
