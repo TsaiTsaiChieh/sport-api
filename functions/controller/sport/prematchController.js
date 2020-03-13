@@ -12,7 +12,7 @@ async function prematch(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'MLB']
       }
     }
   };

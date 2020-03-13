@@ -1,8 +1,8 @@
 const modules = require('../../util/modules');
 
-function premath(args) {
+function prematch(args) {
   return new Promise(async function(resolve, reject) {
-    const matchsRef = modules.firestore.collection(
+    const matchesRef = modules.firestore.collection(
       collectionCodebook(args.league)
     );
     const beginningDate = modules.moment(args.date).utcOffset(8);
@@ -12,14 +12,15 @@ function premath(args) {
       .add(1, 'days');
     // query the match on date which user query
     try {
-      const querys = await matchsRef
+      const queries = await matchesRef
+        .where('flag.prematch', '==', 1)
         .where('scheduled', '>=', beginningDate)
         .where('scheduled', '<', endDate)
         .get();
 
       const results = [];
-      querys.docs.map(function(ele) {
-        results.push(repackage(ele.data()));
+      queries.docs.map(function(ele) {
+        results.push(repackage(ele.data(), args.league));
       });
       resolve(results);
     } catch (err) {
@@ -34,9 +35,11 @@ function collectionCodebook(league) {
   switch (league) {
     case 'NBA':
       return modules.db.basketball_NBA;
+    case 'MLB':
+      return modules.db.baseball_MLB;
   }
 }
-function repackage(ele) {
+function repackage(ele, league) {
   data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
@@ -45,7 +48,7 @@ function repackage(ele) {
       name: ele.home.name,
       alias_ch: ele.home.alias_ch,
       alias_name: ele.home.alias_name,
-      image_id: ele.home.image_id,
+      image_id: `${ele.home.image_id ? ele.home.image_id : '-'}`,
       id: ele.home.radar_id
     },
     away: {
@@ -53,7 +56,7 @@ function repackage(ele) {
       name: ele.away.name,
       alias_ch: ele.away.alias_ch,
       alias_name: ele.away.alias_name,
-      image_id: ele.away.image_id,
+      image_id: `${ele.away.image_id ? ele.away.image_id : '-'}`,
       id: ele.away.radar_id
     },
     handicap: {
@@ -135,4 +138,4 @@ function repackage(ele) {
 function sortTime(ids, times) {
   return ids[times.indexOf(Math.max(...times))];
 }
-module.exports = premath;
+module.exports = prematch;
