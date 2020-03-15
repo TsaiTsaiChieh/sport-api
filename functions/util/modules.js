@@ -1,17 +1,18 @@
-const express = require("express");
-const envValues = require("../config/env_values");
-const firebaseAdmin = require("firebase-admin");
-const firebase = require("firebase");
-const moment = require("moment");
-const Ajv = require("ajv");
+const express = require('express');
+const envValues = require('../config/env_values');
+const firebaseAdmin = require('firebase-admin');
+const firebase = require('firebase');
+const moment = require('moment');
+const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
-const axios = require("axios");
+const axios = require('axios');
 const betsToken = envValues.betsToken;
 const sportRadarKeys = envValues.sportRadarKeys;
-const path = require("path");
-const os = require("os");
-const fs = require("fs");
-const https = require("https");
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const https = require('https');
+const firestoreService = require('firestore-export-import');
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -47,11 +48,11 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  basketball_NBA: "basketball_NBA",
+  basketball_NBA: 'basketball_NBA',
   // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
-  // baseball_MLB: 'baseball_MLB'
-  baseball_MLB: 'MLB_TC'
+  baseball_MLB: 'baseball_MLB'
+  // baseball_MLB: 'MLB_TC'
 };
 function dateFormat(date) {
   return {
@@ -93,5 +94,6 @@ module.exports = {
   dateFormat,
   cloneFirestore,
   sportRadarKeys,
-  firebaseTimestamp
+  firebaseTimestamp,
+  firestoreService
 };
