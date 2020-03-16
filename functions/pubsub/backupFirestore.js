@@ -8,7 +8,7 @@ const jsonFile = require('../json/input.json');
 function backupFirestore() {
   // Initiate Firebase App
   modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
-  const collections = ['NBA_TC'];
+  const collections = ['basketball_NBA'];
   // Start exporting your data
   modules.firestoreService.backups(collections).then(function(data) {
     modules.fs.writeFile('./json/input.json', JSON.stringify(data), function(
@@ -20,10 +20,11 @@ function backupFirestore() {
   });
 }
 async function restoreFirestore() {
-  modules.firestoreService.initializeApp(
-    officialServiceAccount,
-    officialDatabaseURL
-  );
+  // modules.firestoreService.initializeApp(
+  //   officialServiceAccount,
+  //   officialDatabaseURL
+  // );
+  modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
   modules.firestoreService.restore(jsonFile, {
     dates: ['update_time', 'scheduled']
   });
