@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "sportslottery-test"
+    "test": "sportslottery-test",
+    "product": "sport19y0715"
   }
 }

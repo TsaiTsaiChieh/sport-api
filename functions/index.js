@@ -1,5 +1,3 @@
-// const ssr = require("./server/index.js");
-
 /* eslint-disable no-unused-vars */
 const functions = require("firebase-functions");
 const express = require("express");
@@ -92,4 +90,3 @@ exports.lineups_MLB = functions.pubsub
   .onRun(require('./pubsub/lineups_MLB'));
 
 exports.api = functions.https.onRequest(app);
-// exports.ssr = functions.https.onRequest(ssr.app);
