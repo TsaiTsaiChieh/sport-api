@@ -604,7 +604,7 @@ exports.runFileUpload5t = async function(fileUrl = '', firestore) {
 
     //確認正確位置是否有檔案
     let path2 = ''.concat(
-      envValues.sharefilePath5T,
+        'share_files/',
       fileUploadId,
       '.',
       returnJson.fileSubName
@@ -1135,7 +1135,7 @@ exports.getOneShareFile = async function(
 
       let buckeFile1 = bucket1.file(
         ''.concat(
-          envValues.sharefilePath5T,
+            'share_files/',
           fileUploadId,
           '.',
           data.fileSubName
