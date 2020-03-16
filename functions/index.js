@@ -47,7 +47,8 @@ const whitelist = [
   'http://192.168.0.170:8080',
   'http://192.168.0.113:8080',
   'http://192.168.0.148:8080',
-  'http://dosports.web.app'
+  'http://dosports.web.app',
+  'http://api-dosports.web.app',
 ];
 const corsOptions = {
   origin: function(origin, callback) {
