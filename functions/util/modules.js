@@ -71,6 +71,16 @@ async function cloneFirestore(name, clonedName) {
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
 }
+function leagueCodebook(league) {
+  switch (league) {
+    case 'NBA':
+      return db.basketball_NBA;
+    case 'SBL':
+      return db.basketball_SBL;
+    case 'MLB':
+      return db.baseball_MLB;
+  }
+}
 module.exports = {
   express,
   firebaseAdmin,
@@ -95,5 +105,6 @@ module.exports = {
   cloneFirestore,
   sportRadarKeys,
   firebaseTimestamp,
-  firestoreService
+  firestoreService,
+  leagueCodebook
 };
