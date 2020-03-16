@@ -33,7 +33,6 @@ async function godlists(req, res) {
 }
 
 function repackage(ele) {
-console.log(ele)
     data = {
         league_win_lists: {},
         uid: ele.uid,
