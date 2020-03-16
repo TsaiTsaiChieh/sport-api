@@ -1,5 +1,3 @@
-// const ssr = require("./server/index.js");
-
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
@@ -74,21 +72,20 @@ app.use('/sport', require('./routers/sport'));
 app.use('/pubsub', require('./routers/pubsub'));
 
 exports.prematch = functions.pubsub
-  .schedule('0 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch'));
+    .schedule('0 5 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/prematch'));
 exports.handicap = functions.pubsub
-  .schedule('0 */1 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/handicap'));
+    .schedule('0 */1 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/handicap'));
 exports.lineups = functions.pubsub
-  .schedule('*/10 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/lineups'));
+    .schedule('*/10 * * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/lineups'));
 exports.lineups_MLB = functions.pubsub
-  .schedule('0 */1 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/lineups_MLB'));
+    .schedule('0 */1 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/lineups_MLB'));
 
 exports.api = functions.https.onRequest(app);
-// exports.ssr = functions.https.onRequest(ssr.app);
