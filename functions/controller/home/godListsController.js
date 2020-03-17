@@ -7,7 +7,7 @@ async function godlists(req, res) {
 
     try {
         // beatuful_face 取出是 大神資料 且 有販售
-        const godListsQuery = await modules.firestore.collection('beatuful_face')
+        const godListsQuery = await modules.firestore.collection('god_recommend')
             .where('sell', '==', '1')
             .get();
         
