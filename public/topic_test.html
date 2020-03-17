@@ -41,6 +41,10 @@
       <label>
         內文<textarea rows=5 style="width:70%" id="content"></textarea>
       </label>
+      </label><br>
+      <label>
+        瀏覽次數*<input id="viewCount" style="width:70%">
+      </label>
       <button type="button" onclick="doSubmit()">送出</button>
     </form>
   </div>
@@ -73,25 +77,29 @@
           }
         });
         /** 程式碼寫在下面 **/
-        /* 直接存取firestore */
         let res = [];
+        /* 直接存取firestore *
         ref.orderBy('ranking.viewCount', 'desc')
         .get().then(querySnapshot => {
           querySnapshot.forEach(doc => {
-            let tmp = doc.data()
-            tmp.content.id = doc.id;
-            res.push(tmp)
+            res.push(doc.data())
           });
+          console.log(res)
           this.topics = res;
-        });
+        }); /**/
 
-        // axios.get('/home/hotTopics')
-        // .then(function(response) {
-        //   // success
-        // })
-        // .catch(function(error) {
-        //   alert('asios failed');
-        // })
+        /* 透過api */
+        axios.get('/home/hotTopics')
+        .then(function(response) {
+          response.data.topics.forEach(item => {
+            res.push(item)
+          });
+          console.log(res)
+          vm.topics = res;
+        })
+        .catch(function(error) {
+          console.log('asios failed');
+        }) /**/
       }
     })
 
@@ -100,6 +108,7 @@
       let type = document.getElementById('type').value;
       let title = document.getElementById('title').value;
       let content = document.getElementById('content').value;
+      let viewCount = document.getElementById('viewCount').value;
       if(!firebase.auth().currentUser){
         location.href = 'auth.html';
         return;
@@ -118,9 +127,7 @@
         },
         like: [],
         ranking: {
-          likeControl: 0,
-          viewControl: 0,
-          viewReal: 0
+          viewCount: viewCount,
         },
         reply: [],
         user: {
