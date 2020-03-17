@@ -1,12 +1,10 @@
 const modules = require('../../util/modules');
 
 async function godlists(req, res) {
-    let returnJson = {};
-
     const godLists = [];
 
     try {
-        // beatuful_face 取出是 大神資料 且 有販售
+        // god_recommend 取出是 大神資料 且 有販售
         const godListsQuery = await modules.firestore.collection('god_recommend')
             .where('sell', '==', '1')
             .get();
@@ -78,34 +76,34 @@ module.exports = godlists;
  {
     "godlists": [
         {
-            "leaguewinlists": {
+            "league_win_lists": {
                 "NBA": {
-                "rank": "2",
-                "winrate": "80",
-                "sellprediction": "129",
-                "predictrate": [
-                    "5",
-                    "5"
-                ],
-                "continu": "8"
+                    "rank": "2",
+                    "win_rate": 80,
+                    "predict_rate": [
+                        7,
+                        5,
+                        5
+                    ],
+                    "continune": 8
                 },
                 "MLB": {
-                "rank": "2",
-                "winrate": "80",
-                "sellprediction": "159",
-                "predictrate": [
-                    "7",
-                    "6"
-                ],
-                "continu": "3"
+                    "rank": "1",
+                    "win_rate": 80,
+                    "predict_rate": [
+                        6,
+                        5,
+                        5
+                    ],
+                    "continune": 8
                 }
             },
-            "useruid": "2WMRgHyUwvTLyHpLoANk7gWADZn1",
-            "headpicurl": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-            "display": "台中大哥大"
-        }, ...
+            "uid": "2WMRgHyUwvTLyHpLoANk7gWADZn1",
+            "displayname": "台中大哥大"
+        },
+        ...
     ]
- }
+}
  *
  * @apiError 500 Internal Server Error
  *

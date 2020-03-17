@@ -1,114 +1,62 @@
 const modules = require('../../util/modules');
 
-async function godlists(req, res) {
-    let returnJson = {};
+
+async function winreatelists(req, res) {
+    let win_rate_lists = {
+        NBA: [],
+        MLB: [],
+    }
 
     try {
-        //   const snapshot = await modules.firestore.collection('sports').get();
-        //   snapshot.forEach(function (doc) {
-        //       // console.log("...", doc.id, " => ", doc.data());
-        //       returnJson[doc.id]= doc.data();
-        //   });
+        for (const [key, value] of Object.entries(win_rate_lists)) {
+            const leagueWinRateLists = [];
+            const results = [];
 
-        returnJson = {
-            winratelists: [
-                {
-                    leaguewinlists: [
-                        {
-                            league: 'NBA',
-                            winrate: '88'
-                        },
-                        {
-                            league: 'MLB',
-                            winrate: '82'
-                        }
-                    ],
-                    useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-                    headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-                    display: '炸裂設計師',
-                    perdictrate: ['11', '9'],
-                    continu: "9"
-                },
-                {
-                    leaguewinlists: [
-                        {
-                            league: 'NBA',
-                            winrate: '84'
-                        },
-                        {
-                            league: 'MLB',
-                            winrate: '82'
-                        }
-                    ],
-                    useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-                    headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-                    display: '胥霄荔',
-                    perdictrate: ['5', '5'],
-                    continu: "8"
-                },
-                {
-                    leaguewinlists: [
-                        {
-                            league: 'NBA',
-                            winrate: '80'
-                        },
-                        {
-                            league: 'MLB',
-                            winrate: '81'
-                        }
-                    ],
-                    useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-                    headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-                    display: '冒元有',
-                    perdictrate: ['4', '4'],
-                    continu: "5"
-                },
-                {
-                    leaguewinlists: [
-                        {
-                            league: 'NBA',
-                            winrate: '75'
-                        },
-                        {
-                            league: 'MLB',
-                            winrate: '76'
-                        }
-                    ],
-                    useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-                    headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-                    display: '红天巧',
-                    perdictrate: ['5', '5'],
-                    continu: "8"
-                },
-                {
-                    leaguewinlists: [
-                        {
-                            league: 'NBA',
-                            winrate: '7a'
-                        },
-                        {
-                            league: 'MLB',
-                            winrate: '73'
-                        }
-                    ],
-                    useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-                    headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-                    display: 'Annie Boone',
-                    perdictrate: ['5', '5'],
-                    continu: "8"
-                }
-            ]
-        };
+            const leagueWinRateListsQuery = await modules.firestore.collection('users_win_lists')
+                .orderBy(`${key}_this_month_win_rate`, 'desc')
+                .limit(5)
+                .get();
 
-    } catch (e) {
-        console.log('homeController godlists Error:  %o', e);
+            leagueWinRateListsQuery.forEach(function(data) {
+                results.push( data.data() );
+            });
+
+            // const results = leagueWinRateListsQuery.docs.map(function(doc) {  // 轉換成array
+            //     return doc.data()
+            // });
+            //console.log(results)            
+            results.forEach(async function(data) {
+                leagueWinRateLists.push( repackage(key, data) );
+            });
+
+            win_rate_lists[key] = leagueWinRateLists
+
+            //await Promise.all(winRateLists);
+        } 
+    }catch(err){
+        console.log('Error in  home/godlists by YuHsien:  %o', err);
         return res.status(500);
     }
 
-    return res.status(200).json(returnJson);
+    return res.status(200).json({win_rate_lists: win_rate_lists});
 }
 
-module.exports = godlists;
+function repackage(league, ele) {
+    data = {
+        win_rate: '',
+        uid: ele.uid,
+        avatar: ele.avatar,
+        displayname: ele.displayname,
+        rank: ''
+    };
+
+    data['win_rate'] = ele[`${league}_this_month_win_rate`];
+    data['rank'] = ele[`${league}_rank`];
+
+    return data;
+}
+
+module.exports = winreatelists;
 /**
  * @api {get} /winratelists Get Winrate Lists
  * @apiVersion 1.0.0
@@ -121,94 +69,83 @@ module.exports = godlists;
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  {
-    winratelists: [
-        {
-            leaguewinlists: [
-                {
-                    league: 'NBA',
-                    winrate: '88'
-                },
-                {
-                    league: 'MLB',
-                    winrate: '82'
-                }
-            ],
-            useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-            headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-            display: '炸裂設計師',
-            perdictrate: ['11', '9'],
-            continu: "9"
-        },
-        {
-            leaguewinlists: [
-                {
-                    league: 'NBA',
-                    winrate: '84'
-                },
-                {
-                    league: 'MLB',
-                    winrate: '82'
-                }
-            ],
-            useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-            headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-            display: '胥霄荔',
-            perdictrate: ['5', '5'],
-            continu: "8"
-        },
-        {
-            leaguewinlists: [
-                {
-                    league: 'NBA',
-                    winrate: '80'
-                },
-                {
-                    league: 'MLB',
-                    winrate: '81'
-                }
-            ],
-            useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-            headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-            display: '冒元有',
-            perdictrate: ['4', '4'],
-            continu: "5"
-        },
-        {
-            leaguewinlists: [
-                {
-                    league: 'NBA',
-                    winrate: '75'
-                },
-                {
-                    league: 'MLB',
-                    winrate: '76'
-                }
-            ],
-            useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-            headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-            display: '红天巧',
-            perdictrate: ['5', '5'],
-            continu: "8"
-        },
-        {
-            leaguewinlists: [
-                {
-                    league: 'NBA',
-                    winrate: '7a'
-                },
-                {
-                    league: 'MLB',
-                    winrate: '73'
-                }
-            ],
-            useruid: 'MyOPA8SzgVUq8iARhOa8mzQLC3e2',
-            headpicurl: 'https://chat.doinfo.cc/statics/default-profile-avatar.jpg',
-            display: 'Annie Boone',
-            perdictrate: ['5', '5'],
-            continu: "8"
-        }
+  "win_rate_lists": {
+    "NBA": [
+      {
+        "win_rate": 94,
+        "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "紅色警報",
+        "rank": "2"
+      },
+      {
+        "win_rate": 92,
+        "uid": "BimYoqVdG3ONxyxZ4Vy855lXc9q2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "中哥大",
+        "rank": "2"
+      },
+      {
+        "win_rate": 91,
+        "uid": "FZql5b9sOENEq373y4CiiHOXYe43",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "台大科技",
+        "rank": "2"
+      },
+      {
+        "win_rate": 90,
+        "uid": "6wrKIEue8MajxljlsSTujhLWNkm1",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "台大科技",
+        "rank": ""
+      },
+      {
+        "win_rate": 89,
+        "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "運測2人",
+        "rank": "3"
+      }
+    ],
+    "MLB": [
+      {
+        "win_rate": 88,
+        "uid": "B30GysZF0rMiIGGAA7FSyraf13D2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "大小人",
+        "rank": ""
+      },
+      {
+        "win_rate": 78,
+        "uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "無19",
+        "rank": ""
+      },
+      {
+        "win_rate": 78,
+        "uid": "FXzqjqFlRygUYu7S20XMqsFNxom1",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "工儘2",
+        "rank": ""
+      },
+      {
+        "win_rate": 78,
+        "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "運測2人",
+        "rank": "2"
+      },
+      {
+        "win_rate": 78,
+        "uid": "5kICOSoGJjWSExJx1vL56if0p1G2",
+        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+        "displayname": "珊迪",
+        "rank": "3"
+      }
     ]
- }
+  }
+}
  *
  * @apiError 500 Internal Server Error
  *
