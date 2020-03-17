@@ -117,22 +117,42 @@ function generalData(ele) {
   return data;
 }
 
+function repackageSpread(ele) {
+  const data = {};
+  const spreadKey = [];
+  const spreadArray = [];
+  for (const key in ele) {
+    spreadKey.push(key);
+    spreadArray.push(ele[key].add_time);
+  }
+  const newestKey = sortTime(spreadKey, spreadArray);
+  const newestSpread = ele[newestKey];
+  data[newestKey] = {
+    handicap: newestSpread.handicap,
+    add_time: newestSpread.add_time,
+    home_odd: newestSpread.home_odd,
+    away_odd: newestSpread.away_odd,
+    insert_time: newestSpread.insert_time
+  };
+  return data;
+}
+
 function repackageTotals(ele) {
   const data = {};
   const totalsKey = [];
   const totalsArray = [];
   for (const key in ele) {
     totalsKey.push(key);
-    totalsArray.push(ele[key].add_time._seconds);
+    totalsArray.push(ele[key].add_time);
   }
   const newestKey = sortTime(totalsKey, totalsArray);
   const newestTotals = ele[newestKey];
   data[newestKey] = {
     handicap: newestTotals.handicap,
-    add_time: newestTotals.add_time._seconds,
+    add_time: newestTotals.add_time,
     home_odd: newestTotals.home_odd,
     away_odd: newestTotals.away_odd,
-    insert_time: newestTotals.insert_time._seconds
+    insert_time: newestTotals.insert_time
   };
   return data;
 }
