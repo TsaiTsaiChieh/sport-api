@@ -51,7 +51,11 @@ async function checkmatch_MLB() {
         realtimeData.Summary.status === 'closed' ||
         realtimeData.Summary.status === 'complete'
       ) {
-        let parameter = { gameID: gameID, betsID: betsID, scheduled: gameTime };
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          scheduled: gameTime
+        };
         MLBpbpHistory(parameter);
       }
 

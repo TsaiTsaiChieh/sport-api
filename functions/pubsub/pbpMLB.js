@@ -32,19 +32,19 @@ async function MLBpbpInplay(parameter) {
       // 目前的總比分
       let { data } = await axios(URL);
       let ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
-      ref.set(data.game.status);
+      await ref.set(data.game.status);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/runs`);
-      ref.set(data.game.scoring.home.runs);
+      await ref.set(data.game.scoring.home.runs);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/hits`);
-      ref.set(data.game.scoring.home.hits);
+      await ref.set(data.game.scoring.home.hits);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/errors`);
-      ref.set(data.game.scoring.home.errors);
+      await ref.set(data.game.scoring.home.errors);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/runs`);
-      ref.set(data.game.scoring.away.runs);
+      await ref.set(data.game.scoring.away.runs);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/hits`);
-      ref.set(data.game.scoring.away.hits);
+      await ref.set(data.game.scoring.away.hits);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/errors`);
-      ref.set(data.game.scoring.away.errors);
+      await ref.set(data.game.scoring.away.errors);
       for (
         inningsCount = inningsNow;
         inningsCount < data.game.innings.length;
@@ -62,7 +62,7 @@ async function MLBpbpInplay(parameter) {
             homeLineup.push(
               data.game.innings[0].halfs[1].events[numberCount].lineup.id
             );
-            ref.set(data.game.innings[0].halfs[1].events[numberCount]);
+            await ref.set(data.game.innings[0].halfs[1].events[numberCount]);
           }
           for (numberCount = 0; numberCount < awayLineupLength; numberCount++) {
             // write awayteam lineup
@@ -72,7 +72,7 @@ async function MLBpbpInplay(parameter) {
             awayLineup.push(
               data.game.innings[0].halfs[0].events[numberCount].lineup.id
             );
-            ref.set(data.game.innings[0].halfs[0].events[numberCount]);
+            await ref.set(data.game.innings[0].halfs[0].events[numberCount]);
           }
           inningsNow = inningsNow + 1;
         }
@@ -106,29 +106,41 @@ async function MLBpbpInplay(parameter) {
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs0/scoring/away/runs`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.away.runs);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.away.runs
+                );
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs0/scoring/away/errors`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.away.errors);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.away.errors
+                );
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs0/scoring/away/hits`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.away.hits);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.away.hits
+                );
               }
               if (halfCount == 1) {
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs1/scoring/home/runs`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.home.runs);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.home.runs
+                );
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs1/scoring/home/hits`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.home.hits);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.home.hits
+                );
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs1/scoring/home/errors`
                 );
-                ref.set(data.game.innings[inningsCount].scoring.home.errors);
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.home.errors
+                );
               }
 
               if (
@@ -196,7 +208,7 @@ async function MLBpbpInplay(parameter) {
         clearInterval(timerForStatus2);
       }
       // add here for any status
-      //maybe call summary API
+      // maybe call summary API for player information
     } catch (error) {
       console.log(
         'error happened in pubsub/MLBpbpInplay function by page',
@@ -225,7 +237,7 @@ async function MLBpbpHistory(parameter) {
   try {
     let { data } = await axios(URL);
     ref = modules.firestore.collection(firestoreName).doc(betsID);
-    ref.set(
+    await ref.set(
       {
         bets_id: betsID,
         radar_id: gameID,
@@ -251,7 +263,7 @@ async function MLBpbpHistory(parameter) {
     ) {
       if (inningsCount == 0) {
         for (let i = 0; i < 10; i++) {
-          ref.set(
+          await ref.set(
             {
               PBP: {
                 ['innings0']: {
@@ -263,7 +275,7 @@ async function MLBpbpHistory(parameter) {
             },
             { merge: true }
           );
-          ref.set(
+          await ref.set(
             {
               PBP: {
                 ['innings0']: {
@@ -289,7 +301,7 @@ async function MLBpbpHistory(parameter) {
             eventHalfCount++
           ) {
             if (halfsCount == 0) {
-              ref.set(
+              await ref.set(
                 {
                   PBP: {
                     ['innings' + inningsCount]: {
@@ -312,7 +324,7 @@ async function MLBpbpHistory(parameter) {
                 { merge: true }
               );
             } else {
-              ref.set(
+              await ref.set(
                 {
                   PBP: {
                     ['innings' + inningsCount]: {
@@ -340,7 +352,7 @@ async function MLBpbpHistory(parameter) {
                 eventHalfCount
               ].lineup
             ) {
-              ref.set(
+              await ref.set(
                 {
                   PBP: {
                     ['innings' + inningsCount]: {
@@ -362,7 +374,7 @@ async function MLBpbpHistory(parameter) {
                 eventHalfCount
               ].at_bat
             ) {
-              ref.set(
+              await ref.set(
                 {
                   PBP: {
                     ['innings' + inningsCount]: {
@@ -388,7 +400,7 @@ async function MLBpbpHistory(parameter) {
                 ].at_bat.events.length;
                 eventAtbatCount++
               ) {
-                ref.set(
+                await ref.set(
                   {
                     PBP: {
                       ['innings' + inningsCount]: {

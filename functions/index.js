@@ -67,6 +67,7 @@ app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
 app.use('/messages', require('./routers/messages'));
+app.use('/home', require('./routers/home'));
 app.use('/sport', require('./routers/sport'));
 // app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
@@ -88,4 +89,12 @@ exports.lineups_MLB = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/lineups_MLB'));
+// exports.pbp_MLB = functions.pubsub
+//   .schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_MLB'));
+// exports.pbp_NBA = functions.pubsub
+//   .schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_NBA'));
 exports.api = functions.https.onRequest(app);
