@@ -43,7 +43,7 @@
       </label>
       </label><br>
       <label>
-        瀏覽次數*<input id="viewCount" style="width:70%">
+        瀏覽次數*<input id="viewCount" style="width:30%">
       </label>
       <button type="button" onclick="doSubmit()">送出</button>
     </form>
@@ -78,9 +78,8 @@
         });
         /** 程式碼寫在下面 **/
         let res = [];
-        /* 直接存取firestore *
-        ref.orderBy('ranking.viewCount', 'desc')
-        .get().then(querySnapshot => {
+        /* 直接存取firestore(撈全部資料) *
+        ref.get().then(querySnapshot => {
           querySnapshot.forEach(doc => {
             res.push(doc.data())
           });
