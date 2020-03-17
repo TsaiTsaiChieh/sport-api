@@ -1,11 +1,13 @@
 module.exports = function(grunt) {
-
   // Project configuration.
   grunt.initConfig({
     apidoc: {
       myapp: {
-        src: "controller/",
-        dest: "../public/apidoc/"
+        src: 'controller/',
+        // for sports-apidoc
+        dest: '../../sports-apidoc/'
+        // for localhost test
+        // dest: '../public/apidoc/'
       }
     }
   });
@@ -14,5 +16,4 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default', ['apidoc']);
-
 };

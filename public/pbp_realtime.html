@@ -1,0 +1,110 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>pbp_realtime</title>
+
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  </head>
+  <style>
+    .chat_message {
+      margin-top: 100px;
+      margin-left: 150px;
+      width: 540px;
+      height: 500px;
+      /* border: 1px solid red; */
+      /* background: black; */
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .message {
+      padding: 10px;
+      background: green;
+      color: white;
+    }
+    .pagetest {
+      padding: 10px;
+      background: gray;
+      color: white;
+    }
+    .message_single_2 {
+      padding: 10px;
+      background: blue;
+      color: white;
+    }
+  </style>
+  <body>
+    <div class="chat_message">
+      <h3 class="pbp">PBP</h3>
+    </div>
+    <!-- js code-->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE",
+        authDomain: "sportslottery-test.firebaseapp.com",
+        databaseURL: "https://sportslottery-test.firebaseio.com",
+        projectId: "sportslottery-test",
+        storageBucket: "sportslottery-test.appspot.com",
+        messagingSenderId: "969081540385",
+        appId: "1:969081540385:web:da08ff289d0bec4ca9b860"
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      let user = firebase.auth().currentUser;
+      let chat_message = document.querySelector(".chat_message .pbp");
+      let gameID = "20200303";
+      let periodsNow;
+      let periodName;
+      let eventNow;
+
+      firebase
+        .database()
+        .ref(`basketball/NBA/${gameID}`)
+        .once("value", async function(snapshot) {
+          let realtimeData = snapshot.val();
+          let homepoints = realtimeData.Summary.homepoints;
+          let awaypoints = realtimeData.Summary.awaypoints;
+          let status = realtimeData.Summary.status;
+          periodsNow = Object.keys(realtimeData.PBP).length - 1;
+          periodName = Object.keys(realtimeData.PBP);
+
+          for (let i = 0; i <= periodsNow; i++) {
+            eventNow = Object.keys(realtimeData.PBP[periodName[i]]).length - 1;
+
+            for (let j = 0; j <= eventNow; j++) {
+              let message = document.createElement("p");
+              message.setAttribute("class", "pageTest");
+              message.innerHTML =
+                realtimeData.PBP[`periods${i}`][`events${j}`].description;
+              chat_message.append(message);
+            }
+          }
+        });
+
+      firebase
+        .database()
+        .ref(`basketball/NBA/${gameID}`)
+        .on("value", function(snapshot) {
+          let realtimeData = snapshot.val();
+          console.log(realtimeData);
+
+          //let homepoints = realtimeData.Summary.homepoints;
+          //let awaypoints = realtimeData.Summary.awaypoints;
+          //let status = realtimeData.Summary.status;
+          let periodsNow = Object.keys(realtimeData.PBP).length - 1;
+          let periodName = Object.keys(realtimeData.PBP);
+          let eventNow =
+            Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
+
+          let message = document.createElement("p");
+          message.setAttribute("class", "pageTest");
+          message.innerHTML =
+            realtimeData.PBP[`periods${periodsNow}`][
+              `events${eventNow}`
+            ].description;
+          chat_message.append(message);
+        });
+    </script>
+  </body>
+</html>

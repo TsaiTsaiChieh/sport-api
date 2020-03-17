@@ -1,26 +1,19 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const setClaimModel = require('../../model/admin/setClaimModel');
+const getTitlesAndSignatureModel = require('../../model/user/getTitlesAndSignatureModel');
 
-async function setClaim(req, res) {
+async function getTitlesAndSignature(req, res) {
   const schema = {
     type: 'object',
-    required: ['uid', 'role'],
+    required: ['uid'],
     properties: {
       uid: {
         type: 'string'
-      },
-      role: {
-        type: 'integer',
-        // -1: locked, 0: sinup but not complete profile, 1: normal,
-        // 2: god like, 9: admin, 10: developer
-        enum: [-1, 0, 1, 2, 9]
       }
     }
   };
   const args = {};
-  args.uid = req.body.uid;
-  args.role = req.body.role;
+  args.uid = req.params.uid;
   const validate = modules.ajv.validate(schema, args);
   if (!validate) {
     res.status(400).json(modules.ajv.errors);
@@ -28,39 +21,48 @@ async function setClaim(req, res) {
   }
   args.token = req.token;
   try {
-    res.json(await setClaimModel(args));
+    res.json(await getTitlesAndSignatureModel(args));
   } catch (err) {
     console.log('err....', err);
     res.status(err.code).json(err);
   }
 }
 
-module.exports = setClaim;
+module.exports = getTitlesAndSignature;
 
 /**
- * @api {POST} /admin/setClaim/ Set Claim
- * @apiVersion 1.0.0
- * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
- * 
- * @apiName setClaim
- * @apiGroup Admin
- * @apiPermission admin
+ * @api {get} /user/getTitlesAndSignature/:uid Get Titles And Signature
+ * @apiVersion 1.0.1
+ * @apiDescription 看使用者的的頭銜和點數 by Tsai-Chieh
  *
- * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
+ * @apiName getTitlesAndSignature
+ * @apiGroup User
+ *
  * @apiParam {String} uid user uid
- * @apiParam {Integer} role user uid, `-1`: locked, `0`: sinup but not complete profile, `1`: normal, `2`: god like, `9`: admin
  *
  * @apiParamExample {Number} uid Users unique ID
  * {
- *    "id": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
- *    "role": 2
+ *    "uid": X6umtiqFyRfcuJiKfjsFXrWqICc2
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
  * {
- *    "data": "set user: eIQXtxPrBFPW5daGMcJSx4AicAQ2 as role: 1 successfully"
+ *    "uid": "X6umtiqFyRfcuJiKfjsFXrWqICc2",
+ *    "signature": "簽名檔～",
+ *    "titles": [
+ *        {
+ *            "rank": 1,
+ *            "league": "足球",
+ *            "sport": 1
+ *        },
+ *        {
+ *            "rank": 5,
+ *            "league": "中華職棒",
+ *            "sport": 16
+ *         }
+ *     ]
  * }
- * 
+ *
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error

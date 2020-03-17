@@ -34,17 +34,23 @@ function verifySessionCookie(req, res) {
     // const sessionCookie = cookie.parse(cookies).__session;
 
     console.log("verify cookie ....", sessionCookie);
-    if (!sessionCookie) return res.status(200).json({success: false, message: "authentication failed"});
+    if (!sessionCookie) {
+        res.status(200).json({success: false, message: "authentication failed"});
+        return;
+    }
     // res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!sessionCookie) return res.json({success: false});
+    if (!sessionCookie) {
+        res.json({success: false});
+        return;
+    }
     firebaseAdmin.auth().verifySessionCookie(sessionCookie, true)
         .then((decodedClaims) => {
             console.log('Auth - verifySessionCookie success : ', decodedClaims);
-            return res.status(200).json({success: true});
+            res.status(200).json({success: true});
         })
         .catch(error => {
             console.log('Auth - verifySessionCookie false : ', error);
-            return res.status(401).json({success: false});
+            res.status(401).json({success: false});
         });
 }
 

@@ -1,5 +1,3 @@
-// const ssr = require('./server/index.js');
-
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
@@ -7,7 +5,6 @@ const cors = require('cors');
 
 let bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-
 const app = express();
 
 app.use(cookieParser());
@@ -31,16 +28,35 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, private'
+  );
+  next();
+});
+
 const whitelist = [
   'https://chat.doinfo.cc',
+  'https://doinfo.cc',
   'http://localhost:5000',
-  'http://localhost:8080'
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://192.168.0.195:8080',
+  'http://192.168.0.170:8080',
+  'http://192.168.0.113:8080',
+  'http://192.168.0.148:8080',
+  'http://192.168.0.152:8080',
+  'https://dosports.web.app',
+  'https://api-dosports.web.app',
 ];
 const corsOptions = {
   origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
-      return callback(null, true);
+      callback(null, true);
     } else {
+      console.log('Not allowed by CORS', origin);
       return callback(new Error('Not allowed by CORS'));
     }
   }
@@ -48,23 +64,30 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use('/admin', require('./router/admin'));
-app.use('/auth', require('./router/authentication'));
-app.use('/user', require('./router/user'));
-app.use('/messages', require('./router/messages'));
-app.use('/sport', require('./router/sport'));
-app.use('/messages_temp', require('./Deprecated/messages'));
-
+app.use('/admin', require('./routers/admin'));
+app.use('/auth', require('./routers/authentication'));
+app.use('/user', require('./routers/user'));
+app.use('/messages', require('./routers/messages'));
+app.use('/sport', require('./routers/sport'));
+// app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
-app.use('/radar/prematch', require('./pubsub/prematch'));
+app.use('/pubsub', require('./routers/pubsub'));
 
-exports.cronPrematch = functions.pubsub
-  .schedule('0 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch'));
-exports.cronHandicap = functions.pubsub
-  .schedule('*/30 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/getHandicap'));
+exports.prematch = functions.pubsub
+    .schedule('0 5 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/prematch'));
+exports.handicap = functions.pubsub
+    .schedule('0 */1 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/handicap'));
+exports.lineups = functions.pubsub
+    .schedule('*/10 * * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/lineups'));
+exports.lineups_MLB = functions.pubsub
+    .schedule('0 */1 * * *')
+    .timeZone('Asia/Taipei')
+    .onRun(require('./pubsub/lineups_MLB'));
+
 exports.api = functions.https.onRequest(app);
-// exports.ssr = functions.https.onRequest(ssr.app);

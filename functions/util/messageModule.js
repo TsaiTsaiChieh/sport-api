@@ -8,17 +8,13 @@ function repackageUserData(user) {
     displayName: user.displayName,
     avatar: user.avatar,
     status: user.status,
-    point: user.point,
-    titles: user.titles,
-    defaultTitle: user.defaultTitle,
-    blockMessage: user.blockMessage,
-    signature: user.signature
+    defaultTitle: user.defaultTitle
   };
   // return body;
 }
 function repackageMessageData(message) {
   // same as insertData from model/createMessage.js
-  return {
+  data = {
     channelId: message.message.channelId,
     message: message.message.message,
     type: message.message.type,
@@ -28,6 +24,10 @@ function repackageMessageData(message) {
     softDelete: message.message.softDelete,
     user: message.user
   };
+  if (message.message.thumbURL) {
+    data.thumbURL = message.message.thumbURL;
+  }
+  return data;
 }
 async function repackageMessageDataWithFlag(message, user, replyFlag) {
   const body = {};

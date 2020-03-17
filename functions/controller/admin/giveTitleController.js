@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const giveTitleModel = require('../../model/admin/giveTitleModel');
 
-function giveTitle(req, res) {
+async function giveTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
@@ -11,7 +11,7 @@ function giveTitle(req, res) {
       },
       rank: {
         type: 'integer',
-        maximum: 5,
+        maximum: 4,
         minimum: 1
       },
       sport: {
@@ -104,18 +104,18 @@ function giveTitle(req, res) {
       }
     ]
   };
+  const args = req.body;
+  args.adminUid = req.adminUid;
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
-  giveTitleModel(req.body)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).json(err);
-    });
+  try {
+    res.json(await giveTitleModel(args));
+  } catch (err) {
+    res.status(err.code).json(err);
+  }
 }
 
 module.exports = giveTitle;
@@ -125,14 +125,13 @@ module.exports = giveTitle;
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
  *
- * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName giveTitle
  * @apiGroup Admin
  * @apiPermission admin
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} uid user uid
- * @apiParam {Integer} rank user rank, maximum: 5, minimum: 1. rank `1`: 鑽石大神, rank `2`: 白金大神, rank `3`: 金牌大神, rank `4`: 銀牌大神, rank `5`: 銅牌大神
+ * @apiParam {Integer} rank user rank, maximum: 4, minimum: 1. rank `1`: 鑽石大神, rank `2`: 金牌大神, rank `3`: 銀牌大神, rank `4`: 銅牌大神
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
  * @apiParam {String} league user league, enum pair: [16(`中華職棒`, `墨西哥職棒`, `韓國職棒`, `MLB`, `日本職棒`, `澳洲職棒`), 18(`SBL`, `日本職籃`, `韓國職籃`, `澳洲職籃`, `NBA`, `WNBA`, `中國職籃`), 17(`NHL`), 1(`足球`)]
 
@@ -150,13 +149,13 @@ module.exports = giveTitle;
  *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "title": [
  *        {
- *              "rank": 5,
+ *              "rank": 2,
  *              "sport": 16,
  *              "league": "中華職棒"
  *        }
  *     ]
  *  }
- * 
+ *
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 403 Forbidden
@@ -199,11 +198,17 @@ module.exports = giveTitle;
     "code": 401,
     "error": "Unauthorized"
 }
-* @apiErrorExample {JSON} 401-Response
+* @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
     "error": "forbidden, this user had the same title"
+}
+* @apiErrorExample {JSON} 403-Response
+ * HTTP/1.1 403 Forbidden
+{
+    "code": 403,
+    "error": "forbidden, admin could not have a title"
 }
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
