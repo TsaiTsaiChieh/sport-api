@@ -22,7 +22,7 @@ module.exports.NBA.upcomming = async function(date) {
     }
   } catch (error) {
     console.error(
-      'Error in pubsub/util/prematchFunctions_NBA upcomming axios by TsaiChieh',
+      `Error in pubsub/util/prematchFunctions_NBA upcomming axios by TsaiChieh on ${Date.now()}`,
       error
     );
     return error;
@@ -33,7 +33,7 @@ module.exports.NBA.upcomming = async function(date) {
       resolve(await Promise.all(results));
     } catch (error) {
       console.error(
-        'Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh',
+        `Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh on ${Date.now()}`,
         error
       );
       reject(error);
@@ -41,32 +41,33 @@ module.exports.NBA.upcomming = async function(date) {
   });
 };
 function repackage_bets(ele) {
-  data = {};
-  data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
-    new Date(Number.parseInt(ele.time) * 1000)
-  );
-  data.bets_id = ele.id;
-  data.home = {
-    alias: encode(ele.home.name),
-    image_id: ele.home.image_id,
-    bets_id: ele.home.id
+  return {
+    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+    scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+      new Date(Number.parseInt(ele.time) * 1000)
+    ),
+    bets_id: ele.id,
+    home: {
+      alias: encode(ele.home.name),
+      image_id: ele.home.image_id,
+      bets_id: ele.home.id
+    },
+    away: {
+      alias: encode(ele.away.name),
+      image_id: ele.away.image_id,
+      bets_id: ele.away.id
+    },
+    league: {
+      bets_id: ele.league.id,
+      name: ele.league.name.toUpperCase()
+    },
+    flag: {
+      spread: 0,
+      totals: 0,
+      status: 2,
+      lineup: 0
+    }
   };
-  data.away = {
-    alias: encode(ele.away.name),
-    image_id: ele.away.image_id,
-    bets_id: ele.away.id
-  };
-  data.league = {
-    bets_id: ele.league.id,
-    name: ele.league.name.toUpperCase()
-  };
-  data.flag = {
-    spread: 0,
-    totals: 0,
-    status: 2,
-    lineup: 0
-  };
-  return data;
 }
 function encode(name) {
   name = name.toLowerCase();
@@ -103,7 +104,7 @@ module.exports.NBA.prematch = async function(date) {
     }
   } catch (error) {
     console.error(
-      'error happened in pubsub/util/prematchFunctions_NBA axios or query by Tsai-Chieh',
+      `error happened in pubsub/util/prematchFunctions_NBA axios or query by Tsai-Chieh on ${Date.now()}`,
       error
     );
   }
@@ -126,7 +127,7 @@ function integration(query, ele, league) {
       modules.firestore
         .collection(modules.db.basketball_NBA)
         .doc(query[i].bets_id)
-        .set(repackage_sportradar(ele, league), { merge: true });
+        .set(repackage_sportradar(ele, query[i], league), { merge: true });
     }
   }
 }
@@ -154,40 +155,42 @@ async function query_NBA(date) {
     return error;
   }
 }
-function repackage_sportradar(ele, league) {
-  data = {};
-  data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
-    new Date()
-  );
-  data.radar_id = ele.id;
-  // data.status = ele.status;
-  data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
-    new Date(ele.scheduled)
-  );
-  data.league = {
-    radar_id: league.id
+function repackage_sportradar(ele, query, league) {
+  const homeFlag = ele.home.alias.toUpperCase() === query.home.alias;
+  const awayFlag = ele.away.alias.toUpperCase() === query.away.alias;
+  const data = {
+    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+    scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+      new Date(ele.scheduled)
+    ),
+    radar_id: ele.id,
+    home: {
+      alias: ele.home.alias,
+      alias_ch: codebook(ele.home.alias).alias_ch,
+      name: ele.home.name,
+      name_ch: codebook(ele.home.alias).name_ch,
+      bets_id: `${homeFlag ? query.home.bets_id : query.away.bets_id}`,
+      radar_id: ele.home.id,
+      image_id: `${homeFlag ? query.home.image_id : query.away.image_id}`
+    },
+    away: {
+      alias: ele.away.alias,
+      alias_ch: codebook(ele.away.alias).alias_ch,
+      name: ele.away.name,
+      name_ch: codebook(ele.away.alias).name_ch,
+      bets_id: `${awayFlag ? query.away.bets_id : query.home.bets_id}`,
+      radar_id: ele.away.id,
+      image_id: `${awayFlag ? query.away.image_id : query.home.image_id}`
+    },
+    league: {
+      radar_id: league.id
+    },
+    venue: {
+      name: ele.venue.name,
+      city: ele.venue.city,
+      country: ele.venue.country
+    }
   };
-  data.home = {
-    name: ele.home.name,
-    alias: ele.home.alias,
-    radar_id: ele.home.id
-  };
-  data.home.name_ch = codebook(data.home.alias).name_ch;
-  data.home.alias_ch = codebook(data.home.alias).alias_ch;
-  data.away = {
-    name: ele.away.name,
-    alias: ele.away.alias,
-    radar_id: ele.away.id
-  };
-  data.away.name_ch = codebook(data.away.alias).name_ch;
-  data.away.alias_ch = codebook(data.away.alias).alias_ch;
-  data.venue = {
-    name: ele.venue.name,
-    city: ele.venue.city,
-    country: ele.venue.country
-  };
-  if (ele.home.sr_id) data.home.sr_id = ele.home.sr_id;
-  if (ele.away.sr_id) data.away.sr_id = ele.away.sr_id;
   if (ele.sr_id) data.sr_id = ele.sr_id;
   return data;
 }
@@ -379,7 +382,6 @@ module.exports.NBA.lineup = async function(date) {
   }
 };
 async function query_before40Min(date) {
-  
   const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const results = [];
 
@@ -392,8 +394,6 @@ async function query_before40Min(date) {
 
     query.docs.map(function(docs) {
       results.push(docs.data());
-      console.log('test',docs.data().bets_id);
-      
     });
     return await Promise.all(results);
   } catch (error) {
@@ -411,15 +411,15 @@ function repackage_lineup(ele) {
     },
     lineups: {
       home: {
-        starters:[],
+        starters: [],
         substitutes: []
       },
       away: {
-        starters:[],
+        starters: [],
         substitutes: []
       }
     }
-  }
+  };
   for (let i = 0; i < ele.home.players.length; i++) {
     const player = ele.home.players[i];
     if (player.on_court) {

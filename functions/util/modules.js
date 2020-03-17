@@ -23,6 +23,7 @@ const bucket = firebaseAdmin
   .bucket(envValues.firebaseConfig.storageBucket);
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
+
 function getSnapshot(collection, id) {
   return firestore
     .collection(collection)
@@ -48,7 +49,9 @@ function createError(code, error) {
 const db = {
   basketball_NBA: "basketball_NBA",
   // basketball_NBA: 'NBA_TC',
-  basketball_SBL: "basketball_SBL"
+  basketball_SBL: 'basketball_SBL',
+  // baseball_MLB: 'baseball_MLB'
+  baseball_MLB: 'MLB_TC'
 };
 function dateFormat(date) {
   return {
@@ -64,7 +67,9 @@ async function cloneFirestore(name, clonedName) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
-
+function firebaseTimestamp(milliseconds) {
+  return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
+}
 module.exports = {
   express,
   firebaseAdmin,
@@ -87,5 +92,6 @@ module.exports = {
   https,
   dateFormat,
   cloneFirestore,
-  sportRadarKeys
+  sportRadarKeys,
+  firebaseTimestamp
 };

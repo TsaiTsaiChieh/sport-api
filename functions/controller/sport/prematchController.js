@@ -4,7 +4,7 @@ const model = require('../../model/sport/prematchModel');
 async function prematch(req, res) {
   const schema = {
     type: 'object',
-    require: ['date', 'league'],
+    required: ['date', 'league'],
     properties: {
       date: {
         type: 'string',

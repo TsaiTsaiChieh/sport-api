@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const giveTitleModel = require('../../model/admin/giveTitleModel');
 
-function giveTitle(req, res) {
+async function giveTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
@@ -104,18 +104,18 @@ function giveTitle(req, res) {
       }
     ]
   };
+  const args = req.body;
+  args.adminUid = req.adminUid;
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
-  giveTitleModel(req.body)
-    .then(function(body) {
-      res.json(body);
-    })
-    .catch(function(err) {
-      res.status(err.code).json(err);
-    });
+  try {
+    res.json(await giveTitleModel(args));
+  } catch (err) {
+    res.status(err.code).json(err);
+  }
 }
 
 module.exports = giveTitle;
@@ -125,7 +125,6 @@ module.exports = giveTitle;
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
  *
- * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName giveTitle
  * @apiGroup Admin
  * @apiPermission admin
@@ -199,11 +198,17 @@ module.exports = giveTitle;
     "code": 401,
     "error": "Unauthorized"
 }
-* @apiErrorExample {JSON} 401-Response
+* @apiErrorExample {JSON} 403-Response
  * HTTP/1.1 403 Forbidden
  * {
     "code": 403,
     "error": "forbidden, this user had the same title"
+}
+* @apiErrorExample {JSON} 403-Response
+ * HTTP/1.1 403 Forbidden
+{
+    "code": 403,
+    "error": "forbidden, admin could not have a title"
 }
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
