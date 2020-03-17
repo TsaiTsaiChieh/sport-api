@@ -43,7 +43,7 @@
       </label>
       </label><br>
       <label>
-        瀏覽次數*<input id="viewCount" style="width:30%">
+        瀏覽次數*<input id="viewCount" type="number" style="width:30%">
       </label>
       <button type="button" onclick="doSubmit()">送出</button>
     </form>
@@ -112,8 +112,11 @@
         location.href = 'auth.html';
         return;
       }
+      if(!viewCount || !Number.isInteger(viewCount)){
+        viewCount = 0;
+      }
       if(!title || !content){
-        alert('不得為空')
+        alert('標題與內容不得為空')
         return;
       }
       ref.doc().set({
@@ -134,7 +137,7 @@
           uid: firebase.auth().currentUser.uid
         }
       }).then(() => {
-        alert('完成，請重新整理網頁')
+        window.location.reload()
       });
     }
 
