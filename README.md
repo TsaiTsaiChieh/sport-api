@@ -1,29 +1,22 @@
-# chat 前後端合併版
 
-前端將自己的專案 build 出來後，把/dist/ssr 下的
+# 正式版 deploy 後網址 https://chat-api.doinfo.cc
+* `firebase use project`
+* modify env_values.js : exports variables to "sport19y0715-dev" settings
+* modify firebase.json : hosting site to "sport19y0715"
 
-```
-www
-ssr.js
-template.html
-vue-ssr-client-manifest.json
-vue-ssr-server-bundle.json
-```
 
-放進此專案的 functions 資料夾中並替代
-(注意不要替換掉 server 資料夾和 index.js 檔案)
-
-前端要 deploy 請執行
-`firebase deploy --only functions:ssr`
-
-deploy 後網址 https://chat.doinfo.cc
+# 測式版 deploy 後網址 https://api-dosports.web.app/
+* `firebase use test`
+* modify env_values.js : exports variables to "sportslottery-test-adminsdk" settings
+* modify firebase.json : hosting site to "api-dosports"
 
 後端要 deploy 請執行
 `firebase deploy --only functions:api`
 
-deploy 後網址 https://chat-api.doinfo.cc
+# Deploy static files 
+`firebase deploy --only hostring`
 
-請注意後端 cookie 要設定 domain 為 .doinfo.cc
+請注意後端 cookie 要設定 index.js裡的CORS 白名單
 
 ---
 

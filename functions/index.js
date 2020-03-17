@@ -1,5 +1,3 @@
-// const ssr = require("./server/index.js");
-
 /* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
@@ -49,7 +47,8 @@ const whitelist = [
   'http://192.168.0.170:8080',
   'http://192.168.0.113:8080',
   'http://192.168.0.148:8080',
-  'http://dosports.web.app'
+  'http://dosports.web.app',
+  'http://api-dosports.web.app'
 ];
 const corsOptions = {
   origin: function(origin, callback) {
@@ -91,4 +90,3 @@ exports.lineups_MLB = functions.pubsub
   .onRun(require('./pubsub/lineups_MLB'));
 
 exports.api = functions.https.onRequest(app);
-// exports.ssr = functions.https.onRequest(ssr.app);
