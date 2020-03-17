@@ -3,6 +3,7 @@ const model = require('../../model/user/predictMatchesModel');
 
 // eslint-disable-next-line consistent-return
 async function predictMatches(req, res) {
+  const now = Date.now();
   const schema = {
     type: 'object',
     required: ['league', 'matches'],
@@ -48,6 +49,7 @@ async function predictMatches(req, res) {
     return res.status(400).json(modules.ajv.errors);
   }
   req.body.token = req.token;
+  req.body.now = now;
   try {
     res.json(await model(req.body));
   } catch (err) {
