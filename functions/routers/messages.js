@@ -4,7 +4,7 @@ const router = modules.express.Router();
 
 // Just test
 router.get('/list', function(req, res) {
-  let data = { success: true, list: ['public7771111'] };
+  let data = { success: true, list: ['public1'] };
   res.json(data);
 });
 
