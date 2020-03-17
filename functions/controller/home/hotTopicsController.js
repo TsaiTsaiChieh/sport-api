@@ -5,18 +5,15 @@ const modules = require('../../util/modules');
 async function hotTopics(req, res) {
   const topics = [];
   try {
-    const testQuery = await modules.firestore.collection('topics')
+    const query = await modules.firestore.collection('topics')
       // .where('sell', '==', '1')
+      .orderBy('ranking.viewCount', 'desc')
       .get();
-    console.log(testQuery)
+    console.log(query)
 
-    const sortedArr = testQuery.docs.map(function(doc) {  // 轉換成array
+    const sortedArr = query.docs.map(function(doc) {  // 轉換成array
       return doc.data()
     });
-
-    // sortedArr.sort(function compare(a, b) { // 進行 order 排序
-    //   return a.order > b.order; // 升 小->大
-    // });
 
     sortedArr.forEach(async function(data) {
       topics.push(data);
