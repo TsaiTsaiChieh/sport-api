@@ -1,63 +1,60 @@
 const modules = require('../../util/modules');
 
 async function winBetsLists(req, res) {
-    let winBetsLists = {
-        NBA: [],
-        MLB: [],
+  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
+  let winBetsLists = {
+    NBA: [],
+    MLB: [],
+  }
+
+  try {
+    for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
+      const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
+
+      const leagueWinBetsListsQuery = await modules.firestore.collection('users_win_lists')
+        .orderBy(`${key}_this_month_win_bets`, 'desc')
+        .limit(5)
+        .get();
+
+      leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
+        leagueWinBetsLists.push( repackage(key, data.data()) );
+      });
+      //Promise.all(results)
+
+      winBetsLists[key] = leagueWinBetsLists;
     }
+  } catch (err) {
+    console.log('Error in  home/godlists by YuHsien:  %o', err);
+    return res.status(500);
+  }
 
-    try {
-        for (const [key, value] of Object.entries(winBetsLists)) {
-            const leagueWinBetsLists = [];
-            const results = [];
-
-            const leagueWinBetsListsQuery = await modules.firestore.collection('users_win_lists')
-                .orderBy(`${key}_this_month_win_bets`, 'desc')
-                .limit(5)
-                .get();
-
-                leagueWinBetsListsQuery.forEach(function(data) {
-                results.push( data.data() );
-            });
-    
-            results.forEach(async function(data) {
-                leagueWinBetsLists.push( repackage(key, data) );
-            });
-
-            winBetsLists[key] = leagueWinBetsLists;
-        } 
-    }catch(err){
-        console.log('Error in  home/godlists by YuHsien:  %o', err);
-        return res.status(500);
-    }
-
-    return res.status(200).json({win_bets_lists: winBetsLists});
+  return res.status(200).json({ win_bets_lists: winBetsLists });
 }
 
 function repackage(league, ele) {
-    data = {
-        win_bets: '',
-        uid: ele.uid,
-        avatar: ele.avatar,
-        displayname: ele.displayname,
-        rank: ''
-    };
+  data = {
+    win_bets: '',
+    uid: ele.uid,
+    avatar: ele.avatar,
+    displayname: ele.displayname,
+    rank: ''
+  };
 
-    data['win_bets'] = ele[`${league}_this_month_win_bets`];
-    data['rank'] = ele[`${league}_rank`];
+  data['win_bets'] = ele[`${league}_this_month_win_bets`];
+  data['rank'] = ele[`${league}_rank`];
 
-    return data;
+  return data;
 }
 
 module.exports = winBetsLists;
 /**
- * @api {get} /winbetslists Get Winbets Lists
+ * @api {get} /winbetslists Get WinBets Lists
  * @apiVersion 1.0.0
  * @apiName winbetslists
  * @apiGroup home
  * @apiPermission None
  *
- * @apiSuccess {JSON} result Available List of Winbets lists
+ * @apiSuccess {JSON} result Available List of WinBets lists
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK

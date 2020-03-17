@@ -1,63 +1,60 @@
 const modules = require('../../util/modules');
 
 async function winRateLists(req, res) {
-    let winRateLists = {
-        NBA: [],
-        MLB: [],
+  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
+  let winRateLists = {
+    NBA: [],
+    MLB: [],
+  }
+
+  try {
+    for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
+      const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
+
+      const leagueWinRateListsQuery = await modules.firestore.collection('users_win_lists')
+        .orderBy(`${key}_this_month_win_rate`, 'desc')
+        .limit(5)
+        .get();
+
+      leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
+        leagueWinRateLists.push( repackage(key, data.data()) );
+      });
+      //Promise.all(results)
+
+      winRateLists[key] = leagueWinRateLists;
     }
+  } catch (err) {
+    console.log('Error in  home/godlists by YuHsien:  %o', err);
+    return res.status(500);
+  }
 
-    try {
-        for (const [key, value] of Object.entries(winRateLists)) {
-            const leagueWinRateLists = [];
-            const results = [];
-
-            const leagueWinRateListsQuery = await modules.firestore.collection('users_win_lists')
-                .orderBy(`${key}_this_month_win_rate`, 'desc')
-                .limit(5)
-                .get();
-
-            leagueWinRateListsQuery.forEach(function(data) {
-                results.push( data.data() );
-            });
-    
-            results.forEach(async function(data) {
-                leagueWinRateLists.push( repackage(key, data) );
-            });
-
-            winRateLists[key] = leagueWinRateLists;
-        } 
-    }catch(err){
-        console.log('Error in  home/godlists by YuHsien:  %o', err);
-        return res.status(500);
-    }
-
-    return res.status(200).json({win_rate_lists: win_rate_lists});
+  return res.status(200).json({ win_rate_lists: winRateLists });
 }
 
 function repackage(league, ele) {
-    data = {
-        win_rate: '',
-        uid: ele.uid,
-        avatar: ele.avatar,
-        displayname: ele.displayname,
-        rank: ''
-    };
+  data = {
+    win_rate: '',
+    uid: ele.uid,
+    avatar: ele.avatar,
+    displayname: ele.displayname,
+    rank: ''
+  };
 
-    data['win_rate'] = ele[`${league}_this_month_win_rate`];
-    data['rank'] = ele[`${league}_rank`];
+  data['win_rate'] = ele[`${league}_this_month_win_rate`];
+  data['rank'] = ele[`${league}_rank`];
 
-    return data;
+  return data;
 }
 
 module.exports = winRateLists;
 /**
- * @api {get} /winratelists Get Winrate Lists
+ * @api {get} /winratelists Get WinRate Lists
  * @apiVersion 1.0.0
  * @apiName winratelists
  * @apiGroup home
  * @apiPermission None
  *
- * @apiSuccess {JSON} result Available List of Winrate lists
+ * @apiSuccess {JSON} result Available List of WinRate lists
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
