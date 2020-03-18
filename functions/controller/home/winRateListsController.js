@@ -1,23 +1,31 @@
 const modules = require('../../util/modules');
 
 async function winRateLists(req, res) {
+  // 取得 首頁預設值
+  const defaultValues = await modules.firestore.collection('backstage').doc('home').get()
+    .then(function(data){
+      return data.data()
+    });
+
   // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
-  let winRateLists = {
-    NBA: [],
-    MLB: []
-  }
+  // let winRateLists = {
+  //   NBA: [],
+  //   MLB: []
+  // }
+  let winRateLists = {};
+  winRateLists[defaultValues['league']] = [];
 
   try {
     for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
       const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
-      const leagueWinRateListsQuery = await modules.firestore.collection('users_win_lists')
-        .orderBy(`${key}_this_month_win_rate`, 'desc')
+      const leagueWinRateListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
+        .orderBy(`this_month_win_rate`, 'desc')
         .limit(5)
         .get();
 
       leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
-        leagueWinRateLists.push( repackage(key, data.data()) );
+        leagueWinRateLists.push( repackage(data.data()) );
       });
       //Promise.all(results)
 
@@ -31,7 +39,7 @@ async function winRateLists(req, res) {
   return res.status(200).json({ win_rate_lists: winRateLists });
 }
 
-function repackage(league, ele) {
+function repackage(ele) {
   let data = {
     win_rate: '',
     uid: ele.uid,
@@ -40,8 +48,8 @@ function repackage(league, ele) {
     rank: ''
   };
 
-  data['win_rate'] = ele[`${league}_this_month_win_rate`];
-  data['rank'] = ele[`${league}_rank`];
+  data['win_rate'] = ele[`this_month_win_rate`];
+  data['rank'] = ele[`rank`];
 
   return data;
 }
