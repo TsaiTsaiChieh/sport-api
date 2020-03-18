@@ -4,7 +4,7 @@ async function winRateLists(req, res) {
   // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
   let winRateLists = {
     NBA: [],
-    MLB: [],
+    MLB: []
   }
 
   try {
