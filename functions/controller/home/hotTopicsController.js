@@ -8,7 +8,7 @@ async function hotTopics(req, res) {
   try {
     const queryTop = await modules.firestore.collection('topics')
     .where('content.category', '==', '賽事分析') //撈一篇最高的賽事分析擺第一篇
-    .orderBy('ranking.viewCount', 'desc')
+    .orderBy('ranking.viewCount', 'desc') //依瀏覽數排列
     .limit(1)
     .get().then(querySnapshot => {
       querySnapshot.forEach(doc => {
