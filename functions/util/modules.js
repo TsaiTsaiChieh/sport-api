@@ -39,6 +39,12 @@ function getDoc(collection, id) {
 function addDataInCollection(collection, data) {
   return firestore.collection(collection).add(data);
 }
+function addDataInCollectionWithId(collection, id, data) {
+  return firestore
+    .collection(collection)
+    .doc(id)
+    .set(data, { merge: true });
+}
 function createError(code, error) {
   const err = {};
   err.code = code;
@@ -48,11 +54,14 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  basketball_NBA: 'basketball_NBA',
-  // basketball_NBA: 'NBA_TC',
+  // basketball_NBA: 'basketball_NBA',
+  basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
-  baseball_MLB: 'baseball_MLB'
-  // baseball_MLB: 'MLB_TC'
+  baseball_MLB: 'baseball_MLB',
+  // baseball_MLB: 'MLB_TC',
+  prediction_NBA: 'prediction_NBA_TC',
+  prediction_SBL: 'prediction_SBL',
+  prediction_MLB: 'prediction_MLB'
 };
 function dateFormat(date) {
   return {
@@ -71,14 +80,24 @@ async function cloneFirestore(name, clonedName) {
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
 }
+// eslint-disable-next-line consistent-return
 function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
-      return db.basketball_NBA;
+      return {
+        match: db.basketball_NBA,
+        prediction: db.prediction_NBA
+      };
     case 'SBL':
-      return db.basketball_SBL;
+      return {
+        match: db.basketball_SBL,
+        prediction: db.prediction_SBL
+      };
     case 'MLB':
-      return db.baseball_MLB;
+      return {
+        match: db.baseball_MLB,
+        prediction: db.prediction_MLB
+      };
   }
 }
 module.exports = {
@@ -106,5 +125,6 @@ module.exports = {
   sportRadarKeys,
   firebaseTimestamp,
   firestoreService,
-  leagueCodebook
+  leagueCodebook,
+  addDataInCollectionWithId
 };
