@@ -32,7 +32,7 @@ async function winRateLists(req, res) {
 }
 
 function repackage(league, ele) {
-  data = {
+  let data = {
     win_rate: '',
     uid: ele.uid,
     avatar: ele.avatar,

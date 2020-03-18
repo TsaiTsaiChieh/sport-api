@@ -5,6 +5,7 @@ async function godlists(req, res) {
 
   try {
     // god_recommend 取出是 大神資料 且 有販售
+    // 將來如果要用 參數 或 後台參數 來鎖定聯盟，直接使用 sell_MBA、sell_MLB等方式，能快速過瀘
     const godListsQuery = await modules.firestore.collection('god_recommend')
       .where('sell', '==', '1')
       .get();
@@ -41,9 +42,9 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   const silverArr = [];
   const copperArr = [];
 
-  sortedArr.forEach(async function (data) {
+  sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
     if (data[`sell_${league}`] == '1') {
-      switch (data[`${league}_rank`]){
+      switch (data[`${league}_rank`]){ // 大神等級分類
         case '1': diamondArr.push(data); break;
         case '2': godArr.push(data); break;
         case '3': silverArr.push(data); break;
@@ -52,14 +53,22 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
       }
   });
 
-  if(diamondArr.length > 0) lists.push(repackage(diamondArr[getRandom(diamondArr.length)]));
-  if(godArr.length > 0) lists.push(repackage(godArr[getRandom(godArr.length)]));
-  if(silverArr.length > 0) lists.push(repackage(silverArr[getRandom(silverArr.length)]));
-  if(copperArr.length > 0) lists.push(repackage(copperArr[getRandom(copperArr.length)]));
+  wants = 1; // 隨機取幾個
+
+  for(let i=1; i<=wants; i++){
+    [diamondArr, godArr, silverArr, copperArr].forEach(function(arr){ // 鑽 金 銀 銅 依序產生
+      if(arr.length > 0) {
+        const index = getRandom(arr.length);
+        lists.push(repackage(arr[index]));
+        arr.splice(index, 1);
+      }
+    });
+  }
+  
 }
 
 function repackage(ele) { // 實際資料輸出格式
-  data = {
+  let data = {
     league_win_lists: {},
     uid: ele.uid,
     avatar: ele.avatar,

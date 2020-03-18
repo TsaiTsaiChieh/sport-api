@@ -32,7 +32,7 @@ async function winBetsLists(req, res) {
 }
 
 function repackage(league, ele) {
-  data = {
+  let data = {
     win_bets: '',
     uid: ele.uid,
     avatar: ele.avatar,
