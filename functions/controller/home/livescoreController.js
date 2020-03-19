@@ -59,23 +59,33 @@ module.exports = livescore;
  * @apiSuccess {Number} totals.handicap the handicap about totals
  * @apiSuccess {Object} flag id of spread
  * @apiSuccess {Number} flag.status 0:closed, 1:inprogress, 2:scheduled
+ * @apiSuccess {Object} home information about home team
+ * @apiSuccess {String} home.name_ch chinese name of home team
+ * @apiSuccess {Number} home.image_id image id of home team (front-end need to combine url to get image)
+ * @apiSuccess {Object} away information about away team
+ * @apiSuccess {String} away.name_ch chinese name of away team
+ * @apiSuccess {Number} away.image_id image id of away team (front-end need to combine url to get image)
+ 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
-  [
+[
   {
-    "image_id": "3200",
     "spread": {
       "30000007": {
-        "add_time": 1584515049000,
-        "home_odd": 1.91,
         "away_odd": 1.91,
-        "handicap": 20
+        "handicap": 20,
+        "add_time": 1584515049000,
+        "home_odd": 1.91
       }
     },
     "radar_id": "40320",
     "scheduled": {
       "_seconds": 1584607500,
       "_nanoseconds": 0
+    },
+    "away": {
+      "name_ch": "多倫多藍鳥",
+      "image_id": 3201
     },
     "bets_id": "20200320",
     "totals": {
@@ -88,65 +98,83 @@ module.exports = livescore;
     },
     "flag": {
       "status": 1
+    },
+    "home": {
+      "name_ch": "波士頓紅襪",
+      "image_id": 3200
     }
   },
   {
-    "image_id": "3190",
-    "spread": {
-      "30000005": {
-        "away_odd": 1.912,
-        "handicap": 19,
-        "add_time": 1584515049000,
-        "home_odd": 1.912
-      }
-    },
     "radar_id": "40319",
     "scheduled": {
       "_seconds": 1584606600,
       "_nanoseconds": 0
     },
+    "away": {
+      "name_ch": "奧克蘭運動家",
+      "image_id": 3191
+    },
     "bets_id": "20200319",
     "totals": {
       "30000006": {
-        "over_odd": 1.913,
-        "handicap": 319,
         "add_time": 1584515049000,
-        "under_odd": 1.913
+        "under_odd": 1.913,
+        "over_odd": 1.913,
+        "handicap": 319
       }
     },
     "flag": {
       "status": 1
+    },
+    "home": {
+      "name_ch": "休士頓太空人",
+      "image_id": 3190
+    },
+    "spread": {
+      "30000005": {
+        "add_time": 1584515049000,
+        "home_odd": 1.912,
+        "away_odd": 1.912,
+        "handicap": 19
+      }
     }
   },
   {
-    "totals": {
-      "30000003": {
-        "over_odd": 1.915,
-        "handicap": 318,
-        "add_time": 1584515049000,
-        "under_odd": 1.915
-      }
-    },
-    "flag": {
-      "status": 0
-    },
-    "image_id": "3180",
-    "spread": {
-      "30000002": {
-        "away_odd": 1.914,
-        "handicap": 18,
-        "add_time": 1584515049000,
-        "home_odd": 1.914
-      }
-    },
     "radar_id": "40318",
     "scheduled": {
       "_seconds": 1584605100,
       "_nanoseconds": 0
     },
-    "bets_id": "20200318"
+    "away": {
+      "name_ch": "芝加哥白襪",
+      "image_id": 3181
+    },
+    "bets_id": "20200318",
+    "totals": {
+      "30000003": {
+        "add_time": 1584515049000,
+        "under_odd": 1.915,
+        "over_odd": 1.915,
+        "handicap": 318
+      }
+    },
+    "flag": {
+      "status": 0
+    },
+    "home": {
+      "image_id": 3180,
+      "name_ch": "西雅圖水手"
+    },
+    "spread": {
+      "30000002": {
+        "add_time": 1584515049000,
+        "home_odd": 1.914,
+        "away_odd": 1.914,
+        "handicap": 18
+      }
+    }
   }
-] 
+]
  * @apiError 400 Bad Request ( Not inplement )
  * @apiError 500 Internal Server Error
  
