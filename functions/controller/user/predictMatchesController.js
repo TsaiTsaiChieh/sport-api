@@ -6,11 +6,15 @@ async function predictMatches(req, res) {
   const now = Date.now();
   const schema = {
     type: 'object',
-    required: ['league', 'matches'],
+    required: ['league', 'matches', 'sell'],
     properties: {
       league: {
         type: 'string',
         enum: ['NBA']
+      },
+      sell: {
+        type: 'integer',
+        enum: [0, 1]
       },
       matches: {
         type: 'array',
