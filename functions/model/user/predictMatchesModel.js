@@ -3,32 +3,39 @@ const modules = require('../../util/modules');
 function predictMatches(args) {
   return new Promise(async function(resolve, reject) {
     // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
-    const sieves = await checkMatch(args);
-    if (sieves.needed.length) {
-      try {
-        const results = await insertFirestore(args, sieves.needed);
-        if (results) {
-          if (!sieves.failed.length) {
-            resolve(repackageReturnDate(sieves));
-            return;
+    try {
+      // 檢查此使用者身份
+      const userStatus = await getUserStatus(args);
+      args.userStatus = userStatus;
+      const sieves = await checkMatches(args);
+      if (sieves.needed.length) {
+        try {
+          const results = await insertFirestore(args, sieves.needed);
+          if (results) {
+            if (!sieves.failed.length) {
+              resolve(repackageReturnDate(sieves));
+              return;
+            }
+            if (sieves.failed.length) {
+              reject({ code: 485, error: repackageReturnDate(sieves) });
+              return;
+            }
           }
-          if (sieves.failed.length) {
-            reject({ code: 485, error: repackageReturnDate(sieves) });
-            return;
-          }
+        } catch (err) {
+          console.error(
+            'Error in model/user/predictMatchesModel/predictMatches function by TsaiChieh',
+            err
+          );
+          reject({ code: 500, error: err });
+          return;
         }
-      } catch (err) {
-        console.error(
-          'Error in model/user/predictMatchesModel/predictMatches function by TsaiChieh',
-          err
-        );
-        reject({ code: 500, error: err });
+      }
+      if (!sieves.needed.length) {
+        reject({ code: 485, error: repackageReturnDate(sieves) });
         return;
       }
-    }
-    if (!sieves.needed.length) {
-      reject({ code: 485, error: repackageReturnDate(sieves) });
-      return;
+    } catch (err) {
+      reject({ code: err.code, error: err });
     }
   });
 }
@@ -38,19 +45,26 @@ function repackageReturnDate(sieves) {
   for (let i = 0; i < sieves.needed.length; i++) {
     const ele = sieves.needed[i];
     delete ele.handicap;
+    delete ele.scheduled;
     sieves.success.push(ele);
   }
   delete sieves.needed;
+
   return sieves;
 }
 async function insertFirestore(args, needed) {
   const results = [];
   for (let i = 0; i < needed.length; i++) {
     const ele = needed[i];
+    const date = modules
+      .moment(ele.scheduled * 1000)
+      .utcOffset(8)
+      .format('MMDDYYYY');
+
     results.push(
       modules.addDataInCollectionWithId(
         modules.leagueCodebook(args.league).prediction,
-        `${ele.id}_${args.token.uid}`,
+        `${date}_${args.token.uid}`,
         repackagePrediction(args, ele)
       )
     );
@@ -60,32 +74,62 @@ async function insertFirestore(args, needed) {
 
 function repackagePrediction(args, ele) {
   const data = {
-    bets_id: ele.id,
     uid: args.token.uid,
-    insert_time: modules.firebaseTimestamp(args.now)
+    league: args.league,
+    user_status: args.userStatus,
+    sell: args.sell,
+    matches: {}
   };
+  data.matches[ele.id] = ele.scheduled;
   if (ele.spread) {
-    data.spread = {
-      predict: ele.spread[1],
-      handicap_id: ele.spread[0],
-      handicap: ele.handicap,
-      chip: ele.spread[2],
-      update_time: Date.now()
+    data.matches[ele.id] = {
+      spread: {
+        predict: ele.spread[1],
+        handicap_id: ele.spread[0],
+        handicap: ele.handicap,
+        bets: ele.spread[2],
+        update_time: Date.now()
+      }
     };
   }
   if (ele.totals) {
-    data.totals = {
-      predict: ele.totals[1],
-      handicap_id: ele.totals[0],
-      handicap: ele.handicap,
-      chip: ele.totals[2],
-      update_time: Date.now()
+    data.matches[ele.id] = {
+      totals: {
+        predict: ele.totals[1],
+        handicap_id: ele.totals[0],
+        handicap: ele.handicap,
+        bets: ele.totals[2],
+        update_time: Date.now()
+      }
     };
   }
+  // const data = {
+  //   bets_id: ele.id,
+  //   uid: args.token.uid,
+  //   insert_time: modules.firebaseTimestamp(args.now)
+  // };
+  // if (ele.spread) {
+  //   data.spread = {
+  //     predict: ele.spread[1],
+  //     handicap_id: ele.spread[0],
+  //     handicap: ele.handicap,
+  //     chip: ele.spread[2],
+  //     update_time: Date.now()
+  //   };
+  // }
+  // if (ele.totals) {
+  //   data.totals = {
+  //     predict: ele.totals[1],
+  //     handicap_id: ele.totals[0],
+  //     handicap: ele.handicap,
+  //     chip: ele.totals[2],
+  //     update_time: Date.now()
+  //   };
+  // }
   return data;
 }
 // 檢查有無此賽事 ID
-async function checkMatch(args) {
+async function checkMatches(args) {
   const needed = [];
   const failed = [];
   for (let i = 0; i < args.matches.length; i++) {
@@ -108,8 +152,20 @@ async function checkMatch(args) {
         if (ele.spread) {
           if (isHandicap(match.flag.spread)) {
             if (checkHandicap(match.spread, ele.spread[0])) {
-              ele.handicap = match.spread[ele.spread[0]].handicap;
-              needed.push(ele);
+              // 檢查大神有無新增過此賽事
+              // eslint-disable-next-line no-await-in-loop
+              if (await checkGodInsert(args, match, ele)) {
+                // append match information
+                ele.handicap = match.spread[ele.spread[0]].handicap;
+                ele.scheduled = match.scheduled._seconds;
+                needed.push(ele);
+              }
+              // eslint-disable-next-line no-await-in-loop
+              if (!(await checkGodInsert(args, match, ele))) {
+                ele.code = 423;
+                ele.error = `Spread id: ${ele.spread[0]} already exist, locked`;
+                failed.push(ele);
+              }
             }
             if (!checkHandicap(match.spread, ele.spread[0])) {
               ele.code = 409;
@@ -127,7 +183,9 @@ async function checkMatch(args) {
         if (ele.totals) {
           if (isHandicap(match.flag.totals)) {
             if (checkHandicap(match.totals, ele.totals[0])) {
+              // append match information
               ele.handicap = match.totals[ele.totals[0]].handicap;
+              ele.scheduled = match.scheduled._seconds;
               needed.push(ele);
             }
             if (!checkHandicap(match.totals, ele.totals[0])) {
@@ -178,5 +236,100 @@ function newestHandicap(handicap) {
 
 function sortTime(keys, times) {
   return keys[times.indexOf(Math.max(...times))];
+}
+
+function getUserStatus(args) {
+  return new Promise(async function(resolve, reject) {
+    // 檢查使用者是什麼身份
+    try {
+      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
+      if (!userSnapshot.exists) {
+        reject({ code: 400, error: 'user not found' });
+      }
+
+      if (userSnapshot.exists) {
+        const data = userSnapshot.data();
+        if (args.sell === 1) {
+          if (checkGodTitles(args.league, data.titles)) {
+            resolve(data.status);
+          }
+
+          if (!checkGodTitles(args.league, data.titles)) {
+            reject({
+              code: 403,
+              error: `This user not the god in ${args.league}, forbidden`
+            });
+          }
+        }
+        if (args.sell === 0) resolve(data.status);
+      }
+    } catch (err) {
+      console.error(
+        'Error in model/user/predictMatchesModel/checkUser function by TsaiChieh',
+        err
+      );
+      reject({ code: 500, error: err });
+    }
+  });
+}
+
+function checkGodAction(args, userData) {
+  return new Promise(function(resolve, reject) {
+    if (args.sell === 1) {
+      if (checkGodTitles(args.league, userData.titles)) {
+        resolve({ status: userData.status });
+      }
+      if (!checkGodTitles(args.league, userData.titles)) {
+        reject({
+          code: 403,
+          error: `This user not the god in ${args.league}, forbidden`
+        });
+      }
+    }
+    if (args.sell === 0) resolve({ status: userData.status });
+  });
+}
+
+async function checkGodInsert(args, match, ele) {
+  if (args.userStatus === 1) return true;
+  if (args.userStatus === 2) {
+    const date = modules
+      .moment(match.scheduled._seconds * 1000)
+      .utcOffset(8)
+      .format('MMDDYYYY');
+    const predictSnapshot = await modules.getSnapshot(
+      modules.leagueCodebook(args.league).prediction,
+      `${date}_${args.token.uid}`
+    );
+
+    if (!predictSnapshot.exists) return true;
+    if (predictSnapshot.exists) {
+      const prediction = predictSnapshot.data();
+      if (prediction.matches) {
+        for (const key in prediction.matches) {
+          if (key === ele.id) {
+            if (ele.spread) {
+              if (prediction.matches[ele.id].spread) return false;
+              if (!prediction.matches[ele.id].spread) return true;
+            }
+            if (ele.totals) {
+              if (prediction.matches[ele.id].totals) return false;
+              if (!prediction.matches[ele.id].totals) return true;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+function checkGodTitles(league, titles) {
+  let flag = false;
+  for (let i = 0; i < titles.length; i++) {
+    if (titles[i].league === league) {
+      flag = true;
+      break;
+    }
+  }
+  return flag;
 }
 module.exports = predictMatches;
