@@ -48,7 +48,7 @@ const whitelist = [
   'http://192.168.0.113:8080',
   'http://192.168.0.148:8080',
   'https://dosports.web.app',
-  'https://api-dosports.web.app',
+  'https://api-dosports.web.app'
 ];
 const corsOptions = {
   origin: function(origin, callback) {
@@ -67,6 +67,7 @@ app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
 app.use('/messages', require('./routers/messages'));
+app.use('/home', require('./routers/home'));
 app.use('/sport', require('./routers/sport'));
 // app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
@@ -75,20 +76,27 @@ app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home')); // 首頁相關資訊
 
 exports.prematch = functions.pubsub
-    .schedule('0 5 * * *')
-    .timeZone('Asia/Taipei')
-    .onRun(require('./pubsub/prematch'));
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch'));
 exports.handicap = functions.pubsub
-    .schedule('0 */1 * * *')
-    .timeZone('Asia/Taipei')
-    .onRun(require('./pubsub/handicap'));
+  .schedule('0 */1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/handicap'));
 exports.lineups = functions.pubsub
-    .schedule('*/10 * * * *')
-    .timeZone('Asia/Taipei')
-    .onRun(require('./pubsub/lineups'));
+  .schedule('*/10 * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/lineups'));
 exports.lineups_MLB = functions.pubsub
-    .schedule('0 */1 * * *')
-    .timeZone('Asia/Taipei')
-    .onRun(require('./pubsub/lineups_MLB'));
-
+  .schedule('0 */1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/lineups_MLB'));
+// exports.pbp_MLB = functions.pubsub
+//   .schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_MLB'));
+// exports.pbp_NBA = functions.pubsub
+//   .schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_NBA'));
 exports.api = functions.https.onRequest(app);
