@@ -6,9 +6,7 @@ async function livescore(req, res) {
   // closed : query from firestore
 
   // 驗證
-  // let league = req.params.league;
-  // console.log(league);
-  // console.log(req.query.league);
+
   let out;
   if (req.query.league) {
     out = {
@@ -19,7 +17,6 @@ async function livescore(req, res) {
       league: 'MLB'
     };
   }
-  console.log(out);
 
   try {
     res.json(await model(out));
