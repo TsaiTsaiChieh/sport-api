@@ -13,7 +13,7 @@ async function winRateLists(req, res) {
   //   MLB: []
   // }
   let winRateLists = {};
-  winRateLists[defaultValues['league']] = [];
+  winRateLists[defaultValues['league']] = []; // 像上面的範例
 
   try {
     for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序

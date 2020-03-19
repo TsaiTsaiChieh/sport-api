@@ -10,8 +10,8 @@ async function godlists(req, res) {
         return data.data()
       });
     
-    // god_recommend 取出是 大神資料 且 有販售
-    // 將來如果要用 參數 或 後台參數 來鎖定聯盟，直接使用 sell_MBA、sell_MLB等方式，能快速過瀘
+    // god_recommend_聯盟 取出是 大神資料 且 有販售
+    // 將來有排序條件，可以orderBy，但會和下面的order衝突
     const godListsQuery = await modules.firestore.collection(`god_recommend_${defaultValues['league']}`)
       .where('sell', '==', '1')
       .get();
@@ -63,9 +63,9 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   for(let i=1; i<=wants; i++){
     [diamondArr, godArr, silverArr, copperArr].forEach(function(arr){ // 鑽 金 銀 銅 依序產生
       if(arr.length > 0) {
-        const index = getRandom(arr.length);
-        lists.push(repackage(league, arr[index])); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
-        arr.splice(index, 1);
+        const index = getRandom(arr.length); // 取得隨機數
+        lists.push(repackage(league, arr[index])); 
+        arr.splice(index, 1); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
       }
     });
   }

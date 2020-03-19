@@ -1,7 +1,6 @@
 const modules = require('../../util/modules');
 
 async function winBetsLists(req, res) {
-  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
   // 取得 首頁預設值
   const defaultValues = await modules.firestore.collection('backstage').doc('home').get()
     .then(function(data){
@@ -14,7 +13,7 @@ async function winBetsLists(req, res) {
   //   MLB: []
   // }
   let winBetsLists = {};
-  winBetsLists[defaultValues['league']] = [];
+  winBetsLists[defaultValues['league']] = []; // 像上面的範例
 
   try {
     for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
@@ -26,7 +25,6 @@ async function winBetsLists(req, res) {
         .get();
 
       leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
-
         leagueWinBetsLists.push( repackage(data.data()) );
       });
       //Promise.all(results)
