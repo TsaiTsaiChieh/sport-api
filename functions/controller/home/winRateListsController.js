@@ -1,57 +1,12 @@
 const modules = require('../../util/modules');
+const winRateListsModel = require('../../model/home/winRateListsModel');
 
 async function winRateLists(req, res) {
-  // 取得 首頁預設值
-  const defaultValues = await modules.firestore.collection('backstage').doc('home').get()
-    .then(function(data){
-      return data.data()
-    });
-
-  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
-  // let winRateLists = {
-  //   NBA: [],
-  //   MLB: []
-  // }
-  let winRateLists = {};
-  winRateLists[defaultValues['league']] = [];
-
   try {
-    for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
-      const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
-
-      const leagueWinRateListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
-        .orderBy(`this_month_win_rate`, 'desc')
-        .limit(5)
-        .get();
-
-      leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
-        leagueWinRateLists.push( repackage(data.data()) );
-      });
-      //Promise.all(results)
-
-      winRateLists[key] = leagueWinRateLists;
-    }
+    res.json(await winRateListsModel(req.query));
   } catch (err) {
-    console.log('Error in  home/godlists by YuHsien:  %o', err);
-    return res.status(500);
+    res.status(err.code).json(err);
   }
-
-  return res.status(200).json({ win_rate_lists: winRateLists });
-}
-
-function repackage(ele) {
-  let data = {
-    win_rate: '',
-    uid: ele.uid,
-    avatar: ele.avatar,
-    displayname: ele.displayname,
-    rank: ''
-  };
-
-  data['win_rate'] = ele[`this_month_win_rate`];
-  data['rank'] = ele[`rank`];
-
-  return data;
 }
 
 module.exports = winRateLists;
