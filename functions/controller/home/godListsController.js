@@ -1,66 +1,12 @@
 const modules = require('../../util/modules');
+const godListsModel = require('../../model/home/godListsModel');
 
 async function godlists(req, res) {
-    let returnJson = {};
-
-    const godLists = [];
-
-    try {
-        // beatuful_face 取出是 大神資料 且 有販售
-        const godListsQuery = await modules.firestore.collection('beatuful_face')
-            .where('sell', '==', '1')
-            .get();
-        
-        const sortedArr = godListsQuery.docs.map(function(doc) {  // 轉換成array
-            return doc.data()
-        });
-
-        sortedArr.sort(function compare(a, b) { // 進行 order 排序
-            return a.order > b.order; // 升 小->大
-        });
-
-        sortedArr.forEach(async function(data) {
-            godLists.push( repackage(data) );
-        });
-
-        await Promise.all(godLists);
-    }catch(err){
-        console.log('Error in  home/godlists by YuHsien:  %o', err);
-        return res.status(500);
-    }
-
-    return res.status(200).json({godlists: godLists});
-}
-
-function repackage(ele) {
-    data = {
-        league_win_lists: {},
-        uid: ele.uid,
-        avatar: ele.avatar,
-        displayname: ele.displayname
-    };
-
-    // 大神聯盟戰績表
-    // 該聯盟有賣牌才能出現
-    if(ele.sell_NBA == '1'){
-        data.league_win_lists['NBA'] = { // 聯盟 戰績表
-            rank: ele.NBA_rank,
-            win_rate: ele.NBA_win_rate,
-            predict_rate: ele.NBA_predict_rate, //預測結果 近x過x
-            continune: ele.NBA_continue //預測結果 連贏
-        };
-    }
-    
-    if(ele.sell_MLB == '1'){
-        data.league_win_lists['MLB'] = { // 聯盟 戰績表
-            rank: ele.MLB_rank,
-            win_rate: ele.MLB_win_rate,
-            predict_rate: ele.MLB_predict_rate, //預測結果 近x過x
-            continune: ele.MLB_continue //預測結果 連贏
-        };
-    }
-
-    return data;
+  try {
+    res.json(await godListsModel(req.query));
+  } catch (err) {
+    res.status(err.code).json(err);
+  }
 }
 
 module.exports = godlists;
@@ -75,37 +21,239 @@ module.exports = godlists;
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
- {
-    "godlists": [
-        {
-            "leaguewinlists": {
-                "NBA": {
-                "rank": "2",
-                "winrate": "80",
-                "sellprediction": "129",
-                "predictrate": [
-                    "5",
-                    "5"
-                ],
-                "continu": "8"
-                },
-                "MLB": {
-                "rank": "2",
-                "winrate": "80",
-                "sellprediction": "159",
-                "predictrate": [
-                    "7",
-                    "6"
-                ],
-                "continu": "3"
-                }
-            },
-            "useruid": "2WMRgHyUwvTLyHpLoANk7gWADZn1",
-            "headpicurl": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-            "display": "台中大哥大"
-        }, ...
-    ]
- }
+{
+  "godlists": [
+    {
+      "league_win_lists": {
+        "NBA": {
+          "rank": "1",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            7,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "7SuXZ3POPqTTCIBdd6uKWZ9fGiB2",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "大台中哥"
+    },
+    {
+      "league_win_lists": {
+        "NBA": {
+          "rank": "2",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            7,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "BimYoqVdG3ONxyxZ4Vy855lXc9q2",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "中哥大"
+    },
+    {
+      "league_win_lists": {
+        "NBA": {
+          "rank": "3",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            7,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        },
+        "MLB": {
+          "rank": "4",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            6,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "6wrKIEue8MajxljlsSTujhLWNkm1",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "台大科技"
+    },
+    {
+      "league_win_lists": {
+        "MLB": {
+          "rank": "1",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            6,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "紅色警報"
+    },
+    {
+      "league_win_lists": {
+        "MLB": {
+          "rank": "2",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            6,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "B30GysZF0rMiIGGAA7FSyraf13D2",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "大小人"
+    },
+    {
+      "league_win_lists": {
+        "NBA": {
+          "rank": "2",
+          "win_rate": 76,
+          "continune": 6,
+          "predict_rate": [
+            17,
+            15,
+            8
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        },
+        "MLB": {
+          "rank": "3",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            10,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "運測2人"
+    },
+    {
+      "league_win_lists": {
+        "MLB": {
+          "rank": "4",
+          "win_rate": 80,
+          "continune": 8,
+          "predict_rate": [
+            6,
+            5,
+            5
+          ],
+          "predict_rate2": [
+            7,
+            5
+          ],
+          "win_bets_continue": 4,
+          "matches_rate": [
+            10,
+            7
+          ],
+          "matches_continue": 4
+        }
+      },
+      "uid": "FXzqjqFlRygUYu7S20XMqsFNxom1",
+      "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
+      "displayname": "工儘2"
+    }
+  ]
+}
  *
  * @apiError 500 Internal Server Error
  *
