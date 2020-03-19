@@ -45,11 +45,28 @@
     });
 
     //firebase realtime examle
-    let messageSize = 50;      //頁面刷新預載訊息數日一十田土
-    let messageTotalSize = 20;  //回滾訊數息量
+    let messageSize = 10;      //頁面刷新預載訊息數
+    let messageTotalSize = 10;  //回滾訊數息量
     let firstMessageTime;       // for filter
     let messages;
-    let public_chat = firebase.database().ref("/chat_public");
+    const database = firebase.database();
+    let public_chat = database.ref("/chat_public");
+
+    const presenceRef = database.ref('/.info/connected');
+    const listRef = database.ref('/chat_room_users/public/');
+    const userRef = listRef.push();
+
+    presenceRef.on('value', function(snap) {
+        if (snap.val()) {
+            userRef.onDisconnect().remove();
+            userRef.set(true);
+        }
+    });
+
+    listRef.on('value', function(snap) {
+        console.log('# of online users = ' + snap.numChildren());
+    });
+
     public_chat.orderByChild("createTime/_seconds").limitToLast(1).on("child_added", function (snapshot) {
         console.log(snapshot.key, snapshot.val());
     });
