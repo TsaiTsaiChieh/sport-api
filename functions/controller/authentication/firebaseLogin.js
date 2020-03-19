@@ -110,6 +110,7 @@ async function firebaseLogin(req, res) {
           let firestoreUser = await userUtils.getUserProfile(
             decodedIdToken.uid
           );
+          returnJson.cookie = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
@@ -133,7 +134,8 @@ async function firebaseLogin(req, res) {
             maxAge: expiresIn,
             httpOnly: true,
             sameSite: 'none',
-            domain: envValues.domain
+            secure:true
+            // domain: envValues.domain
             // domain: 'http://localhost:8080'
           };
 
