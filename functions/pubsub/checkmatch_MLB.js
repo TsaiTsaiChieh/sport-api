@@ -47,10 +47,7 @@ async function checkmatch_MLB() {
         };
         MLBpbpInplay(parameter);
       }
-      if (
-        realtimeData.Summary.status === 'closed' ||
-        realtimeData.Summary.status === 'complete'
-      ) {
+      if (realtimeData.Summary.status === 'closed') {
         let parameter = {
           gameID: gameID,
           betsID: betsID,
@@ -59,7 +56,10 @@ async function checkmatch_MLB() {
         MLBpbpHistory(parameter);
       }
 
-      if (realtimeData.Summary.status === 'inprogress') {
+      if (
+        realtimeData.Summary.status === 'inprogress' ||
+        realtimeData.Summary.status === 'complete'
+      ) {
         let inningsNow = Object.keys(realtimeData.PBP).length - 1;
         let inningsName = Object.keys(realtimeData.PBP);
         let halfNow =
@@ -131,6 +131,9 @@ async function checkmatch_MLB() {
           eventAtbatNow: eventAtbatNow
         };
         MLBpbpInplay(parameter);
+      } else {
+        ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
+        await ref.set('scheduled');
       }
     }
   }

@@ -61,7 +61,8 @@
       // test input
       let leagueName = 'MLB';
       let sportName = 'baseball';
-      let gameID = '20200317';
+      let gameID = '20200304';
+      // let gameID = '20200317';
       let periodsNow;
       let periodName;
       let eventNow;
@@ -71,13 +72,18 @@
         .ref(`${sportName}/${leagueName}/${gameID}`)
         .on('value', async function(snapshot) {
           let realtimeData = snapshot.val();
-          console.log(realtimeData);
+          // if MLB（棒球）
 
-          // let homepoints = realtimeData.Summary.homepoints;
-          // let awaypoints = realtimeData.Summary.awaypoints;
-          // let status = realtimeData.Summary.status;
-          // periodsNow = Object.keys(realtimeData.PBP).length - 1;
-          // periodName = Object.keys(realtimeData.PBP);
+          let homepoints = realtimeData.Summary.home.runs;
+          let awaypoints = realtimeData.Summary.away.runs;
+          let status = realtimeData.Summary.status;
+          periodsNow = Object.keys(realtimeData.PBP).length - 1;
+          periodName = Object.keys(realtimeData.PBP);
+          console.log(homepoints);
+          console.log(awaypoints);
+          console.log(status);
+          console.log(periodsNow);
+          console.log(periodName);
 
           // for (let i = 0; i <= periodsNow; i++) {
           //   eventNow = Object.keys(realtimeData.PBP[periodName[i]]).length - 1;
@@ -115,6 +121,10 @@
       //       ].description;
       //     information.append(message);
       //   });
+
+      // if NBA（籃球）
+      // if NHL
+      // if 足球
     </script>
   </body>
 </html>

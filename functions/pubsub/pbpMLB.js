@@ -33,17 +33,29 @@ async function MLBpbpInplay(parameter) {
       let { data } = await axios(URL);
       let ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
       await ref.set(data.game.status);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/runs`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/home/runs`
+      );
       await ref.set(data.game.scoring.home.runs);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/hits`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/home/hits`
+      );
       await ref.set(data.game.scoring.home.hits);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/home/errors`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/home/errors`
+      );
       await ref.set(data.game.scoring.home.errors);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/runs`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/away/runs`
+      );
       await ref.set(data.game.scoring.away.runs);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/hits`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/away/hits`
+      );
       await ref.set(data.game.scoring.away.hits);
-      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/away/errors`);
+      ref = modules.database.ref(
+        `baseball/MLB/${betsID}/Summary/Total/away/errors`
+      );
       await ref.set(data.game.scoring.away.errors);
       for (
         inningsCount = inningsNow;
@@ -110,6 +122,12 @@ async function MLBpbpInplay(parameter) {
                   data.game.innings[inningsCount].scoring.away.runs
                 );
                 ref = modules.database.ref(
+                  `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs0/scoring/runs`
+                );
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.away.runs
+                );
+                ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs0/scoring/away/errors`
                 );
                 await ref.set(
@@ -125,6 +143,12 @@ async function MLBpbpInplay(parameter) {
               if (halfCount == 1) {
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs1/scoring/home/runs`
+                );
+                await ref.set(
+                  data.game.innings[inningsCount].scoring.home.runs
+                );
+                ref = modules.database.ref(
+                  `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs1/scoring/runs`
                 );
                 await ref.set(
                   data.game.innings[inningsCount].scoring.home.runs
@@ -200,7 +224,11 @@ async function MLBpbpInplay(parameter) {
           }
         }
       }
-      if (data.game.status != 'inprogress') {
+      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/Now_innings`);
+      await ref.set(inningsNow);
+      ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/Now_halfs`);
+      await ref.set(halfNow);
+      if (data.game.status != 'inprogress' || data.game.status != 'complete') {
         modules.firestore
           .collection(firestoreName)
           .doc(betsID)
