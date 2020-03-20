@@ -71,19 +71,20 @@ async function insertFirestore(args, needed) {
       modules.addDataInCollectionWithId(
         modules.leagueCodebook(args.league).prediction,
         `${date}_${args.token.uid}`,
-        repackagePrediction(args, ele)
+        repackagePrediction(args, ele, date)
       )
     );
   }
   return await Promise.all(results);
 }
 
-function repackagePrediction(args, ele) {
+function repackagePrediction(args, ele, date) {
   const data = {
     uid: args.token.uid,
     league: args.league,
     user_status: args.userStatus,
     sell: args.sell,
+    date: date,
     matches: {}
   };
   data.matches[ele.id] = ele.scheduled;
