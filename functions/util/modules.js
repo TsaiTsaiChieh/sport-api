@@ -59,7 +59,7 @@ const db = {
   basketball_SBL: 'basketball_SBL',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
-  prediction_NBA: 'prediction_NBA_TC',
+  prediction_NBA: 'prediction_NBA',
   prediction_SBL: 'prediction_SBL',
   prediction_MLB: 'prediction_MLB'
 };
