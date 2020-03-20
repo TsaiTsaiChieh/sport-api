@@ -65,7 +65,7 @@
         let information = document.querySelector('.information .pbp');
         let xhttp = new XMLHttpRequest();
         let league = 'MLB';
-        let API = `http://localhost:5000/home/livescore/${league}`;
+        let API = 'https://api-dosports.web.app/home/livescore?${league}';
         let eventID;
         let jsonOutput = [];
         xhttp.open('GET', API, true);
