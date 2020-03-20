@@ -57,6 +57,10 @@ async function predictMatches(req, res) {
   try {
     res.json(await model(req.body));
   } catch (err) {
+    console.error(
+      'Error in controller/user/predictMatchesController/predictMatches function by TsaiChieh',
+      err
+    );
     res.status(err.code).json(err);
   }
 }
@@ -73,6 +77,7 @@ module.exports = predictMatches;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} league league name, the value enum are: `NBA`
+ * @apiParam {Number} sell 0: free, 1: sell, just god like user can sell
  * @apiParam {Array} matches prediction form
  * @apiParam {String} matches.id match id
  * @apiParam {String} [matches.spread] spread information array, spread[0] is spread id, spread[1] enum are: `home`, `away`, spread[2] is chip number, max is 3, min is 1
@@ -80,7 +85,8 @@ module.exports = predictMatches;
  *
  * @apiParamExample {JSON} Request-Example
 {
-	"league": "NBA",
+  "league": "NBA",
+  "sell": 0,
 	"matches": 
 	[
 		{
