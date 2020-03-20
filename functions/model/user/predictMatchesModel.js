@@ -7,6 +7,12 @@ function predictMatches(args) {
       // 檢查此使用者身份
       const userStatus = await getUserStatus(args);
       args.userStatus = userStatus;
+      if (!checkNormalUserSell(args)) {
+        reject({ code: 405, error: 'Normal user could not sell' });
+        return;
+      }
+
+      // 檢查一般玩家想賣牌
       const sieves = await checkMatches(args);
       if (sieves.needed.length) {
         try {
@@ -14,7 +20,6 @@ function predictMatches(args) {
           if (results) {
             if (!sieves.failed.length) {
               resolve(repackageReturnDate(sieves));
-              return;
             }
             if (sieves.failed.length) {
               reject({ code: 485, error: repackageReturnDate(sieves) });
@@ -36,6 +41,7 @@ function predictMatches(args) {
       }
     } catch (err) {
       reject({ code: err.code, error: err });
+      return;
     }
   });
 }
@@ -103,29 +109,6 @@ function repackagePrediction(args, ele) {
       }
     };
   }
-  // const data = {
-  //   bets_id: ele.id,
-  //   uid: args.token.uid,
-  //   insert_time: modules.firebaseTimestamp(args.now)
-  // };
-  // if (ele.spread) {
-  //   data.spread = {
-  //     predict: ele.spread[1],
-  //     handicap_id: ele.spread[0],
-  //     handicap: ele.handicap,
-  //     chip: ele.spread[2],
-  //     update_time: Date.now()
-  //   };
-  // }
-  // if (ele.totals) {
-  //   data.totals = {
-  //     predict: ele.totals[1],
-  //     handicap_id: ele.totals[0],
-  //     handicap: ele.handicap,
-  //     chip: ele.totals[2],
-  //     update_time: Date.now()
-  //   };
-  // }
   return data;
 }
 // 檢查有無此賽事 ID
@@ -139,7 +122,6 @@ async function checkMatches(args) {
       modules.leagueCodebook(args.league).match,
       ele.id
     );
-
     if (!matchSnapshot.exists) {
       ele.code = 404;
       ele.error = `Match id: ${ele.id} not found`;
@@ -148,20 +130,31 @@ async function checkMatches(args) {
     if (matchSnapshot.exists) {
       const match = matchSnapshot.data();
       if (isScheduled(args.now, match.scheduled._seconds)) {
+        // eslint-disable-next-line no-await-in-loop
+        const predictions = await getPredictions(args, match);
         // spread
         if (ele.spread) {
           if (isHandicap(match.flag.spread)) {
             if (checkHandicap(match.spread, ele.spread[0])) {
               // 檢查大神有無新增過此賽事
               // eslint-disable-next-line no-await-in-loop
-              if (await checkGodInsert(args, match, ele)) {
-                // append match information
-                ele.handicap = match.spread[ele.spread[0]].handicap;
-                ele.scheduled = match.scheduled._seconds;
-                needed.push(ele);
+              if (await checkGodInsert(args, predictions, ele)) {
+                // 檢查大神再次送出的牌是否和當初販售狀態一致
+                if (checkGodSellFlag(args, predictions)) {
+                  // append match information
+                  ele.handicap = match.spread[ele.spread[0]].handicap;
+                  ele.scheduled = match.scheduled._seconds;
+                  needed.push(ele);
+                }
+                if (!checkGodSellFlag(args, predictions)) {
+                  ele.code = 409;
+                  failed.push(ele);
+                  if (args.sell === 0) ele.error = 'Can not be changed to free';
+                  if (args.sell === 1) ele.error = 'Can not be changed to sell';
+                }
               }
               // eslint-disable-next-line no-await-in-loop
-              if (!(await checkGodInsert(args, match, ele))) {
+              if (!(await checkGodInsert(args, predictions, ele))) {
                 ele.code = 423;
                 ele.error = `Spread id: ${ele.spread[0]} already exist, locked`;
                 failed.push(ele);
@@ -183,10 +176,29 @@ async function checkMatches(args) {
         if (ele.totals) {
           if (isHandicap(match.flag.totals)) {
             if (checkHandicap(match.totals, ele.totals[0])) {
-              // append match information
-              ele.handicap = match.totals[ele.totals[0]].handicap;
-              ele.scheduled = match.scheduled._seconds;
-              needed.push(ele);
+              // 檢查大神有無新增過此賽事
+              // eslint-disable-next-line no-await-in-loop
+              if (await checkGodInsert(args, predictions, ele)) {
+                // 檢查大神再次送出的牌是否和當初販售狀態一致
+                if (checkGodSellFlag(args, predictions)) {
+                  // append match information
+                  ele.handicap = match.totals[ele.totals[0]].handicap;
+                  ele.scheduled = match.scheduled._seconds;
+                  needed.push(ele);
+                }
+                if (!checkGodSellFlag(args, predictions)) {
+                  ele.code = 409;
+                  failed.push(ele);
+                  if (args.sell === 0) ele.error = 'Can not be changed to free';
+                  if (args.sell === 1) ele.error = 'Can not be changed to sell';
+                }
+              }
+              // eslint-disable-next-line no-await-in-loop
+              if (!(await checkGodInsert(args, predictions, ele))) {
+                ele.code = 423;
+                ele.error = `Totals id: ${ele.totals[0]} already exist, locked`;
+                failed.push(ele);
+              }
             }
             if (!checkHandicap(match.totals, ele.totals[0])) {
               ele.code = 409;
@@ -273,35 +285,31 @@ function getUserStatus(args) {
   });
 }
 
-function checkGodAction(args, userData) {
-  return new Promise(function(resolve, reject) {
-    if (args.sell === 1) {
-      if (checkGodTitles(args.league, userData.titles)) {
-        resolve({ status: userData.status });
-      }
-      if (!checkGodTitles(args.league, userData.titles)) {
-        reject({
-          code: 403,
-          error: `This user not the god in ${args.league}, forbidden`
-        });
-      }
+function checkGodTitles(league, titles) {
+  let flag = false;
+  for (let i = 0; i < titles.length; i++) {
+    if (titles[i].league === league) {
+      flag = true;
+      break;
     }
-    if (args.sell === 0) resolve({ status: userData.status });
-  });
+  }
+  return flag;
 }
 
-async function checkGodInsert(args, match, ele) {
+async function getPredictions(args, match) {
+  const date = modules
+    .moment(match.scheduled._seconds * 1000)
+    .utcOffset(8)
+    .format('MMDDYYYY');
+  return await modules.getSnapshot(
+    modules.leagueCodebook(args.league).prediction,
+    `${date}_${args.token.uid}`
+  );
+}
+// eslint-disable-next-line consistent-return
+async function checkGodInsert(args, predictSnapshot, ele) {
   if (args.userStatus === 1) return true;
   if (args.userStatus === 2) {
-    const date = modules
-      .moment(match.scheduled._seconds * 1000)
-      .utcOffset(8)
-      .format('MMDDYYYY');
-    const predictSnapshot = await modules.getSnapshot(
-      modules.leagueCodebook(args.league).prediction,
-      `${date}_${args.token.uid}`
-    );
-
     if (!predictSnapshot.exists) return true;
     if (predictSnapshot.exists) {
       const prediction = predictSnapshot.data();
@@ -318,18 +326,25 @@ async function checkGodInsert(args, match, ele) {
             }
           }
         }
+        return true;
       }
     }
   }
 }
-function checkGodTitles(league, titles) {
-  let flag = false;
-  for (let i = 0; i < titles.length; i++) {
-    if (titles[i].league === league) {
-      flag = true;
-      break;
-    }
+
+// eslint-disable-next-line consistent-return
+function checkGodSellFlag(args, predictionSnapshot) {
+  if (args.userStatus === 1) return true;
+  if (!predictionSnapshot.exists) return true;
+  if (args.userStatus === 2) {
+    const prediction = predictionSnapshot.data();
+    if (args.sell === prediction.sell) return true;
+    if (args.sell !== prediction.sell) return false;
   }
-  return flag;
+}
+
+function checkNormalUserSell(args) {
+  if (args.userStatus === 1 && args.sell === 1) return false;
+  return true;
 }
 module.exports = predictMatches;
