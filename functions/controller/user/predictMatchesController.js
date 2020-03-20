@@ -68,7 +68,7 @@ async function predictMatches(req, res) {
 module.exports = predictMatches;
 
 /**
- * @api {post} /predictMatches Predict Matches
+ * @api {post} /user/predict_matches Predict Matches
  * @apiVersion 1.0.0
  * @apiDescription User send own prediction form by Tsai-Chieh
  * @apiName Create or update own prediction form
