@@ -15,5 +15,8 @@ router.get(
   '/livescore/closed',
   require('../controller/livescore/closedController')
 );
-
+router.get(
+  '/livescore/detail',
+  require('../controller/livescore/detailController')
+);
 module.exports = router;
