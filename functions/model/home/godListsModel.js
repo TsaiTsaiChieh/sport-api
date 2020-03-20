@@ -6,7 +6,7 @@ function godlists(args) {
 
     try {
       // 取得 首頁預設值
-      const defaultValues = await modules.firestore.collection('backstage').doc('home').get()
+      const defaultValues = await modules.firestore.collection('doSports_settings').doc('home_gods').get()
         .then(function(data){
           return data.data()
         });
