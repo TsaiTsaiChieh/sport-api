@@ -23,7 +23,7 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 
 // 預測頁
 router.post(
-  '/predictMatches',
+  '/predict_matches',
   verification.token,
   require('../controller/user/predictMatchesController')
 );
