@@ -3,23 +3,24 @@ const testServiceAccount = require('../auth/sportslottery-test-adminsdk.json');
 const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
 const officialServiceAccount = require('../auth/sport19y0715-dev.json');
 const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
-const jsonFile = require('../json/input.json');
+const jsonFile = require('../json/NBA_TC.json');
 
-function backupFirestore() {
+function backupFirestore(req, res) {
   // Initiate Firebase App
   modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
-  const collections = ['basketball_NBA'];
+  const collections = ['NBA_TC'];
   // Start exporting your data
   modules.firestoreService.backups(collections).then(function(data) {
-    modules.fs.writeFile('./json/input.json', JSON.stringify(data), function(
+    modules.fs.writeFile('./json/NBA_TC.json', JSON.stringify(data), function(
       err
     ) {
       if (err) throw err;
       console.log(`Backups complete ${new Date()}`);
+      res.json(`Backups complete ${new Date()}`);
     });
   });
 }
-async function restoreFirestore() {
+async function restoreFirestore(req, res) {
   // modules.firestoreService.initializeApp(
   //   officialServiceAccount,
   //   officialDatabaseURL
@@ -28,5 +29,6 @@ async function restoreFirestore() {
   modules.firestoreService.restore(jsonFile, {
     dates: ['update_time', 'scheduled']
   });
+  res.json('Restore complete');
 }
 module.exports = { backupFirestore, restoreFirestore };
