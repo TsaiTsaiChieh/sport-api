@@ -47,14 +47,15 @@ function predictInfo(args) {
         return reject({ code: 302, error: `User cant not own predictions more than one predictions of one day.` });
       }
 
-      // 查詢 matches 賽事相關資料
-      let predictonsInfoData= {}; 
+    
+      let predictonsInfoData = {}; 
       let betsInfo = [];
 
       predictionsInfoDocs.forEach(function(data){
         predictonsInfoData = data.data();
       });
 
+      // 查詢 matches 賽事相關資料
       for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
         const betsInfoQuery = modules.firestore.collection(collectionCodebook(league))
           .doc(key)
@@ -71,6 +72,7 @@ function predictInfo(args) {
         return temp;
       });
 
+      // 把賽事資料 重包裝格式
       for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
         predictionsInfoList.push( 
           repackage(value, {league: league, betsInfo: betsInfos[key]} ) 
@@ -107,7 +109,6 @@ function collectionCodebook(league) {
 }
 
 function repackage(value, addInfo) {
-//console.log(value)
   let data = {
     bets_id: addInfo.betsInfo.bets_id,
     scheduled: addInfo.betsInfo.scheduled,
