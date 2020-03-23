@@ -39,7 +39,7 @@ function predictInfo(args) {
     try{
       // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
-        .where('uid', '==', '2'+userUid)
+        .where('uid', '==', userUid)
         .get();
 
       // 使用者 一開始尚未預測
