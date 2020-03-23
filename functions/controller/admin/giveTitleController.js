@@ -35,12 +35,12 @@ async function giveTitle(req, res) {
             league: {
               // enum: ['ABL', 'CPBL', 'KBO', 'LMB', 'MLB', 'NPB']
               enum: [
-                '中華職棒',
-                '墨西哥職棒',
-                '韓國職棒',
+                '中華職棒', // CPBL
+                '墨西哥職棒', // LMB
+                '韓國職棒', // KBO
                 'MLB',
-                '日本職棒',
-                '澳洲職棒'
+                '日本職棒', //NPB
+                '澳洲職棒' // ABL
               ]
             }
           }
@@ -59,12 +59,12 @@ async function giveTitle(req, res) {
             league: {
               enum: [
                 'SBL',
-                '日本職籃',
-                '韓國職籃',
-                '澳洲職籃',
+                '日本職籃', // JPBL
+                '韓國職籃', // KBL
+                '澳洲職籃', // NBL
                 'NBA',
                 'WNBA',
-                '中國職籃'
+                '中國職籃' // CBA
               ]
             }
           }
