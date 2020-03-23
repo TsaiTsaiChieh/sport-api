@@ -20,19 +20,19 @@ function predictInfo(args) {
       });
 
       if(memberInfo===undefined) {
-        console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 1301, error: `User does not exist. Please sign in again` }); // ${userUid}
+        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 404, err: {errcode: '1301', errmsg: `User does not exist. Please sign in again`} }); // ${userUid}
       }
 
       if(!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作要另外自己建一個帳號
-        console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 1302, error: `使用者不是一般使用者、大神，請確認使用者狀態` });
+        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 404, err: {errcode: '1302', errmsg: `使用者不是一般使用者、大神，請確認使用者狀態`} });
       }
 
       console.log("memberInfo status of statusSwitch: %o", statusSwitch(memberInfo.status));
     } catch (err) {
-      console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject({ code: 500, error: err.message });
+      console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
+      return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
     }
     
     // 2.
@@ -45,16 +45,15 @@ function predictInfo(args) {
       // 使用者 一開始尚未預測
       if(predictionsInfoDocs.size == 0) {
         // console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        // return reject({ code: 1303, error: `User does not have predictions info.` });
-        return resolve(predictionsInfoList); // 回覆 空Array
+        // return reject({ code: 404, err: {errcode: '1303', errmsg: `User does not have predictions info.`} });
+        return resolve(predictionsInfoList); // 回傳 空Array
       }
       
       // 一個使用者，一天只會有一筆記錄
       if(predictionsInfoDocs.size > 1) {
-        console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 1304, error: `User cant not own predictions more than one predictions of one day.` });
+        // console.error('Error 2. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 404, err: {errcode: '1304', errmsg: `User cant not own predictions more than one predictions of one day.`} });
       }
-
     
       let predictonsInfoData = {}; // 使用者預測資訊
       let matcheInfoDocs = [];
@@ -92,7 +91,7 @@ function predictInfo(args) {
       }
     } catch (err) {
       console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject({ code: 500, error: err.message });
+      return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
     }
 
     resolve(predictionsInfoList);

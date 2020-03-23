@@ -23,7 +23,7 @@ async function predictInfo(req, res) {
 
     res.json(await predictInfoModel(req.body));
   } catch (err) {
-    res.status(err.code).json(err);
+    res.status(err.code).json(err.err);
   }
 }
 
@@ -134,44 +134,45 @@ module.exports = predictInfo;
   }
 ]
  *
- * @apiError 1301 User does not exist. Please sign in again
+ * @apiError 404 
  * 
- * @apiErrorExample {JSON} 1301-Response
- * HTTP/1.1 1301 User does not exist. Please sign in again
+ * @apiErrorExample {JSON} Error-1301
+ * HTTP/1.1 404 Not Found
  * {
-    "code": 1301,
-    "error": "User does not exist. Please sign in again"
+    "errcode": "1301",
+    "errmsg": "User does not exist. Please sign in again"
  * }
  *
- * @apiError 1302 使用者不是一般使用者、大神，請確認使用者態狀
+ * @apiError 404 
  * 
- * @apiErrorExample {JSON} 1302-Response
- * HTTP/1.1 1302 使用者不是一般使用者、大神，請確認使用者態狀
+ * @apiErrorExample {JSON} Error-1302
+ * HTTP/1.1 404 Not Found
  * {
-    "code": 1302,
-    "error": "使用者不是一般使用者、大神，請確認使用者態狀"
+    "errcode": "1302",
+    "errmsg": "使用者不是一般使用者、大神，請確認使用者態狀"
  * }
  *
- * @apiError 1303 User does not have predictions info
+ * @apiError 404 
  * 
- * @apiErrorExample {JSON} 1303-Response
- * HTTP/1.1 1303 User does not have predictions info.
+ * @apiErrorExample {JSON} Error-1303
+ * HTTP/1.1 404 Not Found
  * {
-    "code": 1303,
-    "error": "User does not have predictions info."
+    "errcode": "1303",
+    "errmsg": "User does not have predictions info."
  * }
  *
- * @apiError 1304 User cant not own predictions more than one predictions of one day
+ * @apiError 404 
  * 
- * @apiErrorExample {JSON} 1304-Response
- * HTTP/1.1 1304 User cant not own predictions more than one predictions of one day.
+ * @apiErrorExample {JSON} Error-1304
+ * HTTP/1.1 404 Not Found
  * {
-    "code": 1304,
-    "error": "User cant not own predictions more than one predictions of one day."
+    "errcode": "1304",
+    "errmsg": "User cant not own predictions more than one predictions of one day."
  * }
  *
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:
-     *     HTTP/1.1 500 Internal Server Error
+ *     HTTP/1.1 500 Internal Server Error
+ * 
  */
