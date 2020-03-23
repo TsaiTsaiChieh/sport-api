@@ -15,6 +15,8 @@ exports.release = false;
 //   appId: '1:179049951227:web:15b2ae874d653216'
 // };
 // 測試版 sportslottery-test-adminsdk
+// exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
+
 exports.domain = '.web.app';
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
