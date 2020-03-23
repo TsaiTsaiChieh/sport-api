@@ -19,12 +19,12 @@ function predictInfo(args) {
         return data.data();
       });
 
-      if(memberInfo===undefined) {
+      if(memberInfo === undefined) {
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject({ code: 404, err: {errcode: '1301', errmsg: `User does not exist. Please sign in again`} }); // ${userUid}
       }
 
-      if(!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作要另外自己建一個帳號
+      if(!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作，要另外建一個帳號
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject({ code: 404, err: {errcode: '1302', errmsg: `使用者不是一般使用者、大神，請確認使用者狀態`} });
       }
@@ -44,7 +44,6 @@ function predictInfo(args) {
 
       // 使用者 一開始尚未預測
       if(predictionsInfoDocs.size == 0) {
-        // console.error('Error 2. in user/predictonInfoModell by YuHsien');
         // return reject({ code: 404, err: {errcode: '1303', errmsg: `User does not have predictions info.`} });
         return resolve(predictionsInfoList); // 回傳 空Array
       }
