@@ -6,7 +6,7 @@ function predictInfo(args) {
 
   return new Promise(async function(resolve, reject) {
     // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
-    // 2. 取得 使用者 預測資料，預測資料 排序以 bets_id 為主
+    // 2. 取得 使用者 預測資料，該比賽必需是賽前，預測資料 排序以 bets_id 為主
 
     const userUid = args.token.uid;
     const league = args.league;
@@ -37,10 +37,11 @@ function predictInfo(args) {
         .where('uid', '==', userUid)
         .get();
 
-      if(predictionsInfoDocs.size == 0) {
-        console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 1301, error: `User does not have predictions info.` });
-      }
+      // 使用者 一開始尚未預測
+      // if(predictionsInfoDocs.size == 0) {
+      //   console.error('Error 2. in user/predictonInfoModell by YuHsien');
+      //   return reject({ code: 1301, error: `User does not have predictions info.` });
+      // }
       
       // 一個使用者，一天只會有一筆記錄
       if(predictionsInfoDocs.size > 1) {
@@ -49,8 +50,8 @@ function predictInfo(args) {
       }
 
     
-      let predictonsInfoData = {}; 
-      let betsInfo = [];
+      let predictonsInfoData = {}; // 使用者預測資訊
+      let matcheInfoDocs = [];
 
       predictionsInfoDocs.forEach(function(data){
         predictonsInfoData = data.data();
@@ -58,25 +59,29 @@ function predictInfo(args) {
 
       // 查詢 matches 賽事相關資料
       for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
-        const betsInfoQuery = modules.firestore.collection(collectionCodebook(league))
-          .doc(key)
+        const matcheInfoDoc = modules.firestore.collection(collectionCodebook(league))
+          .where('flag.status', '==', 2) // 賽前
+          .where('bets_id', '==', key)
           .get();
-        betsInfo.push(betsInfoQuery);
+        matcheInfoDocs.push(matcheInfoDoc);
       }
 
       // 將取回賽事資料進行整理，給repackage使用，屬於額外資訊
-      const betsInfos = await Promise.all(betsInfo).then(function(data) { 
+      const matcheInfos = await Promise.all(matcheInfoDocs).then(function(docs) { 
         const temp = {};
-        data.forEach(function(ele) {
-          temp[ele.data().bets_id] = ele.data(); // ES6 才能使用[variable key]
+        docs.forEach(function(doc) {
+          doc.forEach(function(ele){
+            temp[ele.data().bets_id] = ele.data(); // ES6 才能使用[variable key]
+          });
         });
         return temp;
       });
 
       // 把賽事資料 重包裝格式
-      for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
+      for (const [key, value] of Object.entries(predictonsInfoData.matches)) {
+        if (matcheInfos[key] === undefined) continue // 非賽前 (已開打、結束等) 不用處理打包
         predictionsInfoList.push( 
-          repackage(value, {league: league, betsInfo: betsInfos[key]} ) 
+          repackage(value, {league: league, matcheInfo: matcheInfos[key]} ) 
         );
       }
     } catch (err) {
@@ -111,11 +116,11 @@ function collectionCodebook(league) {
 
 function repackage(value, addInfo) {
   let data = {
-    bets_id: addInfo.betsInfo.bets_id,
-    scheduled: addInfo.betsInfo.scheduled._seconds, // 開賽時間
+    bets_id: addInfo.matcheInfo.bets_id,
+    scheduled: addInfo.matcheInfo.scheduled._seconds, // 開賽時間
     league: addInfo.league,
-    home: addInfo.betsInfo.home.alias_ch,
-    away: addInfo.betsInfo.away.alias_ch,
+    home: addInfo.matcheInfo.home.alias_ch,
+    away: addInfo.matcheInfo.away.alias_ch,
     spread: {},
     totals: {}
   };
@@ -125,7 +130,7 @@ function repackage(value, addInfo) {
       predict: value.spread.predict,
       handicap_id: value.spread.handicap_id, // 盤口id
       handicap: value.spread.handicap,
-      percentage: 50, // 目前先固定，將來有決定怎麼產生資料時，再處理
+      percentage: Math.floor(Math.random()*50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: value.spread.bets
     }
   }
@@ -135,7 +140,7 @@ function repackage(value, addInfo) {
       predict: value.totals.predict,
       handicap_id: value.totals.handicap_id,
       handicap: value.totals.handicap,
-      percentage: 50, // 目前先固定，將來有決定怎麼產生資料時，再處理
+      percentage: Math.floor(Math.random()*50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: value.totals.bets
     }
   }
