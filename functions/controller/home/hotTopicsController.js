@@ -60,40 +60,43 @@ module.exports = hotTopics;
  *  HTTP/1.1 200 OK
  {
     "topics": [
-        {
-          "ranking": {
-            "viewCount": 19588
-          },
-          "reply": [
-            {
-              "time": {
-                "_seconds": 1584414000,
-                "_nanoseconds": 0
-              },
-              "displayName": "紅色警報",
-              "content": "好棒棒",
-              "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2"
-            }
-          ],
-          "user": {
-            "uid": "2WMRgHyUwvTLyHpLoANk7gWADZn1",
-            "displayName": "台中大哥大"
-          },
-          "content": {
+      {
+        "ranking": {
+          "viewCount": 19588
+        },
+        "reply": [
+          {
             "time": {
-              "_seconds": 1584406800,
+              "_seconds": 1584414000,
               "_nanoseconds": 0
             },
-            "content": "推一場參考多特蒙德[主] VS布拉格斯拉維亞單 0.940…",
-            "type": "MLB",
-            "category": "賽事分析",
-            "title": "推【近20日34過26】【主推近21日過17】【大小分14過12】季後賽8天過..."
+            "avatar: "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/default%2Favatar%2Fdefault-profile-avatar.jpg?alt=media&token=7753385f-5457-4fe2-af8e-acef75fcccd8",
+            "displayName": "紅色警報",
+            "content": "好棒棒",
+            "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2"
+          }
+        ],
+        "user": {
+          "displayName": "台中大哥大",
+          "avatar": "https://png.pngtree.com/png-clipart/20190629/original/pngtree-cartoon-dinosaur-hand-drawn-cute-commercial-elements-png-image_4068875.jpg",
+          "uid": "2WMRgHyUwvTLyHpLoANk7gWADZn1"
+        },
+        "content": {
+          "title": "MLB／大谷翔平二刀流復活！ 天使隊同意可回日本",
+          "img": "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB11nW8X.img",
+          "time": {
+            "_seconds": 1584406800,
+            "_nanoseconds": 0
           },
-          "like": [
-            "HppFr8j4sUVSQFKaiTGKjGZmQhw2"
-          ],
-          "id": "JYiitIwn0bg5B5r5NB0n"
-        }, ...
+          "type": "MLB",
+          "content": "大聯盟天使隊今天由總教練Joe Maddon宣布，由於受到武漢肺炎感染威脅，最快5月中才有可能開幕，而日籍好手大谷翔平，確定在球季一開始就會以投打「二刀流」身分重回場上。",
+          "category": "賽事分析"
+        },
+        "like": [
+          "HppFr8j4sUVSQFKaiTGKjGZmQhw2"
+        ],
+        "id": "JYiitIwn0bg5B5r5NB0n"
+      }, ...
     ]
  }
  *

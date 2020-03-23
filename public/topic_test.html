@@ -129,6 +129,7 @@
           content: content,
           type: type,
           title: title,
+          img: null,
           time: firebase.firestore.FieldValue.serverTimestamp()
         },
         like: [],
@@ -137,6 +138,7 @@
         },
         reply: [],
         user: {
+          avatar: 'https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/default%2Favatar%2Fdefault-profile-avatar.jpg?alt=media&token=7753385f-5457-4fe2-af8e-acef75fcccd8',
           displayName: firebase.auth().currentUser.displayName,
           uid: firebase.auth().currentUser.uid
         }
