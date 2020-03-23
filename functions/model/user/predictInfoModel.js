@@ -20,31 +20,32 @@ function predictInfo(args) {
       });
 
       if(memberInfo===undefined) {
-        console.error('Error 2. in personal/predictonInfoModell by YuHsien');
+        console.error('Error 2. in user/predictonInfoModell by YuHsien');
         return reject({ code: 500, error: `使用者不存在，請重新登入 ${userUid}` });
       }
 
       console.log("memberInfo status of statusSwitch: %o", statusSwitch(memberInfo.status));
     } catch (err) {
-      console.error('Error 2. in personal/predictonInfoModell by YuHsien', err);
+      console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
       return reject({ code: 500, error: err.message });
     }
     
     // 2.
     try{
+      // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
         .where('uid', '==', userUid)
         .get();
 
       if(predictionsInfoDocs.size == 0) {
-        console.error('Error 2. in personal/predictonInfoModell by YuHsien');
-        return reject({ code: 301, error: `User does not have predictions info.` });
+        console.error('Error 2. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 1301, error: `User does not have predictions info.` });
       }
       
       // 一個使用者，一天只會有一筆記錄
       if(predictionsInfoDocs.size > 1) {
-        console.error('Error 2. in personal/predictonInfoModell by YuHsien');
-        return reject({ code: 302, error: `User cant not own predictions more than one predictions of one day.` });
+        console.error('Error 2. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 1302, error: `User cant not own predictions more than one predictions of one day.` });
       }
 
     
@@ -79,7 +80,7 @@ function predictInfo(args) {
         );
       }
     } catch (err) {
-      console.error('Error 2. in personal/predictonInfoModell by YuHsien', err);
+      console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
       return reject({ code: 500, error: err.message });
     }
 
@@ -111,7 +112,7 @@ function collectionCodebook(league) {
 function repackage(value, addInfo) {
   let data = {
     bets_id: addInfo.betsInfo.bets_id,
-    scheduled: addInfo.betsInfo.scheduled,
+    scheduled: addInfo.betsInfo.scheduled, // 開賽時間
     league: addInfo.league,
     home: addInfo.betsInfo.home.alias_ch,
     away: addInfo.betsInfo.away.alias_ch,
@@ -119,17 +120,17 @@ function repackage(value, addInfo) {
     totals: {}
   };
 
-  if( !(value.spread === undefined) && Object.keys(value.spread).length > 0) { // 沒有讓分資料
+  if( !(value.spread === undefined) && Object.keys(value.spread).length > 0) { // 有讓分資料
     data['spread'] = {
       predict: value.spread.predict,
-      handicap_id: value.spread.handicap_id,
+      handicap_id: value.spread.handicap_id, // 盤口id
       handicap: value.spread.handicap,
       percentage: 50, // 目前先固定，將來有決定怎麼產生資料時，再處理
       bets: value.spread.bets
     }
   }
 
-  if( !(value.totals === undefined) && Object.keys(value.totals).length > 00) { // 沒有大小資料
+  if( !(value.totals === undefined) && Object.keys(value.totals).length > 00) { // 有大小資料
     data['totals'] = {
       predict: value.totals.predict,
       handicap_id: value.totals.handicap_id,

@@ -32,7 +32,7 @@ module.exports = predictInfo;
  * @api {get} /predictionInfo Get Prediction Info
  * @apiVersion 1.0.0
  * @apiName predictionInfo
- * @apiGroup personal
+ * @apiGroup User
  * @apiPermission None
  * 
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
@@ -43,121 +43,112 @@ module.exports = predictInfo;
  *     "league": "NBA"
  * }
  * 
- * @apiSuccess {JSON} result Available Personal Prediction Info
+ * @apiSuccess {JSON} result Available User Prediction Info
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
 [
   {
-    "bets_id": "2119917",
-    "scheduled": "",
+    "bets_id": "2114519",
+    "scheduled": {
+      "_seconds": 1583967600,
+      "_nanoseconds": 0
+    },
     "league": "NBA",
-    "home": "home名稱",
-    "away": "away名稱",
+    "home": "76人",
+    "away": "活塞",
     "spread": {
       "predict": "home",
-      "handicap_id": "31296152",
-      "handicap": 6.5,
+      "handicap_id": "31267231",
+      "handicap": 11.5,
       "percentage": 50,
-      "bets": 1
+      "bets": 3
     },
     "totals": {
-      "predict": "over",
-      "handicap_id": "34452129",
-      "handicap": 231.5,
+      "predict": "under",
+      "handicap_id": "34409340",
+      "handicap": 214.5,
       "percentage": 50,
       "bets": 1
     }
   },
   {
-    "bets_id": "2120643",
-    "scheduled": "",
+    "bets_id": "2115973",
+    "scheduled": {
+      "_seconds": 1583969400,
+      "_nanoseconds": 0
+    },
     "league": "NBA",
-    "home": "home名稱",
-    "away": "away名稱",
-    "spread": {},
-    "totals": {
-      "predict": "over",
-      "handicap_id": "34409038",
-      "handicap": 217,
-      "percentage": 50,
-      "bets": 1
-    }
-  },
-  {
-    "bets_id": "2120646",
-    "scheduled": "",
-    "league": "NBA",
-    "home": "home名稱",
-    "away": "away名稱",
+    "home": "熱火",
+    "away": "黃蜂",
     "spread": {
       "predict": "home",
-      "handicap_id": "31265641",
-      "handicap": 7.5,
+      "handicap_id": "31268919",
+      "handicap": 10.5,
+      "percentage": 50,
+      "bets": 3
+    },
+    "totals": {
+      "predict": "under",
+      "handicap_id": "34417671",
+      "handicap": 210.5,
+      "percentage": 50,
+      "bets": 1
+    }
+  },
+  {
+    "bets_id": "2117403",
+    "scheduled": {
+      "_seconds": 1583884800,
+      "_nanoseconds": 0
+    },
+    "league": "NBA",
+    "home": "火箭",
+    "away": "灰狼",
+    "spread": {
+      "predict": "away",
+      "handicap_id": "31194971",
+      "handicap": 12.5,
       "percentage": 50,
       "bets": 1
     },
     "totals": {}
   },
   {
-    "bets_id": "2120647",
-    "scheduled": "",
-    "league": "NBA",
-    "home": "home名稱",
-    "away": "away名稱",
-    "spread": {
-      "predict": "home",
-      "handicap_id": "34452138",
-      "handicap": 7.5,
-      "percentage": 50,
-      "bets": 1
+    "bets_id": "2117404",
+    "scheduled": {
+      "_seconds": 1583893800,
+      "_nanoseconds": 0
     },
-    "totals": {
-      "predict": "over",
-      "handicap_id": "34452138",
-      "handicap": 217.5,
-      "percentage": 50,
-      "bets": 1
-    }
-  },
-  {
-    "bets_id": "2121183",
-    "scheduled": "",
     "league": "NBA",
-    "home": "home名稱",
-    "away": "away名稱",
-    "spread": {
-      "predict": "home",
-      "handicap_id": "31235571",
-      "handicap": 11,
-      "percentage": 50,
-      "bets": 2
-    },
+    "home": "勇士",
+    "away": "快艇",
+    "spread": {},
     "totals": {
-      "predict": "over",
-      "handicap_id": "31235571",
-      "handicap": 206,
+      "predict": "under",
+      "handicap_id": "34334768",
+      "handicap": 226.5,
       "percentage": 50,
       "bets": 2
     }
   }
 ]
  *
- * @apiError 301 User does not have predictions info
+ * @apiError 1301 User does not have predictions info
  * 
- * @apiErrorExample {JSON} 301-Response
+ * @apiErrorExample {JSON} 1301-Response
  * HTTP/1.1 301 User does not have predictions info.
  * {
-    "code": 301,
+    "code": 1301,
     "error": "User does not have predictions info."
  * }
  *
- * @apiError 302 User cant not own predictions more than one predictions of one day
+ * @apiError 1302 User cant not own predictions more than one predictions of one day
  * 
- * @apiErrorExample {JSON} 302-Response
- * HTTP/1.1 302 User cant not own predictions more than one predictions of one day.
+ * @apiErrorExample {JSON} 1302-Response
+ * HTTP/1.1 1302 User cant not own predictions more than one predictions of one day.
  * {
-    "code": 302,
+    "code": 1302,
     "error": "User cant not own predictions more than one predictions of one day."
  * }
  *
