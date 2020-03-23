@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.league);
+      let result = await reResult(args.sport, args.league);
 
       resolve(result);
     } catch (err) {
@@ -12,13 +12,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(league) {
+async function reResult(sport, league) {
   let result;
-  result = await repackage(league);
+  result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
-async function repackage(league) {
+async function repackage(sport, league) {
   let leagueName = `pagetest_${league}`;
   let query = await modules.firestore
     .collection(leagueName)
@@ -85,7 +85,8 @@ async function repackage(league) {
     }
   }
   //   console.log(outputJson[0]);
-
+  outputJson.push({ sport: sport });
+  outputJson.push({ league: league });
   return outputJson;
 }
 module.exports = livescore;

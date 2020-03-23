@@ -16,7 +16,11 @@ router.get(
   require('../controller/livescore/closedController')
 );
 router.get(
-  '/livescore/detail',
-  require('../controller/livescore/detailController')
+  '/livescore/detail/prematch',
+  require('../controller/livescore/detailPrematchController')
+);
+router.get(
+  '/livescore/detail/pbp',
+  require('../controller/livescore/detailPBPController')
 );
 module.exports = router;

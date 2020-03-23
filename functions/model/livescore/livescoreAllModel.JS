@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.league);
+      let result = await reResult(args.sport, args.league);
 
       resolve(result);
     } catch (err) {
@@ -12,13 +12,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(league) {
+async function reResult(sport, league) {
   let result;
-  result = await repackage(league);
+  result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
-async function repackage(league) {
+async function repackage(sport, league) {
   console.log(league);
 
   let leagueName = `pagetest_${league}`;
@@ -48,7 +48,8 @@ async function repackage(league) {
       eventToday.push(eventData[i]);
     }
   }
-
+  eventToday.push({ sport: sport });
+  eventToday.push({ league: league });
   return eventToday;
 }
 module.exports = livescore;

@@ -2,15 +2,21 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreAllModel');
 
 async function livescore(req, res) {
-  let out;
-  if (req.query.league) {
-    out = {
-      league: req.query.league
-    };
+  let out = {};
+  if (req.query.sport) {
+    out.sport = req.query.sport;
   } else {
-    out = {
-      league: 'MLB'
-    };
+    out.sport = 'baseball';
+  }
+  if (req.query.league) {
+    out.league = req.query.league;
+  } else {
+    out.league = 'MLB';
+  }
+  if (req.query.time) {
+    out.time = req.query.time;
+  } else {
+    out.time = Date.now();
   }
 
   try {

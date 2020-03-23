@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const model = require('../../model/livescore/livescoreScheduledModel');
+const model = require('../../model/livescore/livescoreDetailPrematchModel');
 
 async function livescore(req, res) {
   let out = {};
@@ -13,11 +13,18 @@ async function livescore(req, res) {
   } else {
     out.league = 'MLB';
   }
-  if (req.query.time) {
-    out.time = req.query.time;
+  if (req.query.eventID) {
+    out.eventID = req.query.eventID;
   } else {
-    out.time = Date.now();
+    out.eventID = '20200320';
   }
+
+  if (req.query.category) {
+    out.category = req.query.category;
+  } else {
+    out.category = 'prematch';
+  }
+  console.log(out);
 
   try {
     res.json(await model(out));
