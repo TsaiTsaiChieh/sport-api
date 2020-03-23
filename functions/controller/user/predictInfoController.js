@@ -140,7 +140,7 @@ module.exports = predictInfo;
  * HTTP/1.1 404 Not Found
  * {
     "errcode": "1301",
-    "errmsg": "User does not exist. Please sign in again"
+    "errmsg": "使用者狀態異常"
  * }
  *
  * @apiError 404 
@@ -149,7 +149,7 @@ module.exports = predictInfo;
  * HTTP/1.1 404 Not Found
  * {
     "errcode": "1302",
-    "errmsg": "使用者不是一般使用者、大神，請確認使用者狀態"
+    "errmsg": "使用者狀態異常"
  * }
  *
  * @apiError 404 
@@ -158,7 +158,7 @@ module.exports = predictInfo;
  * HTTP/1.1 404 Not Found
  * {
     "errcode": "1303",
-    "errmsg": "User does not have predictions info."
+    "errmsg": "使用者沒有預測單"
  * }
  *
  * @apiError 404 
@@ -167,7 +167,7 @@ module.exports = predictInfo;
  * HTTP/1.1 404 Not Found
  * {
     "errcode": "1304",
-    "errmsg": "User cant not own predictions more than one predictions of one day."
+    "errmsg": "使用者一天只能擁有一份預測清單"
  * }
  *
  * @apiError 500 Internal Server Error
