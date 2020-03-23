@@ -3,13 +3,19 @@ const modules = require('../../util/modules');
 
 function prematch(args) {
   return new Promise(async function(resolve, reject) {
+    // 根據大神以往的預測來 disable 單選鈕
+    let checkGogResult = {
+      betFlag: false
+    };
+    if (args.token) checkGogResult = await checkGodPrediction(args);
     try {
       const queries = await queryOneDay(args);
       if (args.league === 'MLB') resolve(repackage_MLB(queries));
-      else if (args.league === 'NBA') resolve(repackage_NBA(queries));
+      else if (args.league === 'NBA')
+        resolve(repackage_NBA(queries, checkGogResult));
     } catch (err) {
       console.log(err);
-      reject({ code: 500, error: err });
+      reject({ code: err.code, error: err });
     }
   });
 }
@@ -17,7 +23,7 @@ function prematch(args) {
 function queryOneDay(args) {
   return new Promise(async function(resolve, reject) {
     const matchesRef = modules.firestore.collection(
-      collectionCodebook(args.league)
+      modules.leagueCodebook(args.league).match
     );
     const beginningDate = modules.moment(args.date).utcOffset(8);
     const endDate = modules
@@ -41,45 +47,38 @@ function queryOneDay(args) {
         'Error in sport/prematchModel queryOneDay function by TsaiChieh',
         err
       );
-      reject(err);
+      reject({ code: 500, error: err });
     }
   });
-}
-
-function collectionCodebook(league) {
-  switch (league) {
-    case 'NBA':
-      return modules.db.basketball_NBA;
-    case 'MLB':
-      return modules.db.baseball_MLB;
-  }
 }
 
 function repackage_MLB(events) {
   const results = [];
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
-    const data = generalData(ele);
+    const data = generalData(ele, checkGogResult);
     results.push(data);
     // if (ele.lineups) // baseball pitcher logic not finish
   }
   return results;
 }
-function repackage_NBA(events) {
+function repackage_NBA(events, checkGogResult) {
   const results = [];
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
-    const data = generalData(ele);
-    if (ele.lineups)
-      data.lineups = repackageBasketballLineups(
-        ele.lineups.home,
-        ele.lineups.away
-      );
+    const data = generalData(ele, checkGogResult);
+    // if (ele.lineups)
+    //   data.lineups = repackageBasketballLineups(
+    //     ele.lineups.home,
+    //     ele.lineups.away
+    //   );
     results.push(data);
   }
   return results;
 }
-function generalData(ele) {
+function generalData(ele, checkGogResult) {
+  const handicapFlag = checkHandicapDisable(ele, checkGogResult);
+
   const data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
@@ -98,26 +97,37 @@ function generalData(ele) {
       alias_name: ele.away.alias_name,
       image_id: `${ele.away.image_id ? ele.away.image_id : '-'}`,
       id: ele.away.radar_id
-    },
-    handicap: {
-      spread: {},
-      totals: {}
-    },
-    lineups: {
-      home: {},
-      away: {}
     }
+    // lineups: {
+    //   home: {},
+    //   away: {}
+    // }
   };
-  if (ele.handicap) {
-    if (ele.handicap.spread)
-      data.handicap.spread = repackageSpread(ele.handicap.spread);
-    if (ele.handicap.totals)
-      data.handicap.totals = repackageTotals(ele.handicap.totals);
-  }
+
+  if (ele.spread)
+    data.spread = repackageSpread(ele.spread, handicapFlag.spreadDisable);
+  if (!ele.spread) data.spread = { disable: true };
+  if (ele.totals)
+    data.totals = repackageTotals(ele.totals, handicapFlag.totalsDisable);
+  if (!ele.totals) data.totals = { disable: true };
   return data;
 }
 
-function repackageSpread(ele) {
+function checkHandicapDisable(ele, checkGogResult) {
+  let spreadDisable = false;
+  let totalsDisable = false;
+  if (checkGogResult.betFlag) {
+    for (const key in checkGogResult.record) {
+      if (key === ele.bets_id) {
+        if (checkGogResult.record[key].spread) spreadDisable = true;
+        if (checkGogResult.record[key].totals) totalsDisable = true;
+      }
+    }
+  }
+  return { spreadDisable, totalsDisable };
+}
+
+function repackageSpread(ele, disableFlag) {
   const data = {};
   const spreadKey = [];
   const spreadArray = [];
@@ -130,14 +140,13 @@ function repackageSpread(ele) {
   data[newestKey] = {
     handicap: newestSpread.handicap,
     add_time: newestSpread.add_time,
-    home_odd: newestSpread.home_odd,
-    away_odd: newestSpread.away_odd,
-    insert_time: newestSpread.insert_time
+    // insert_time: newestSpread.insert_time,
+    disable: disableFlag
   };
   return data;
 }
 
-function repackageTotals(ele) {
+function repackageTotals(ele, disableFlag) {
   const data = {};
   const totalsKey = [];
   const totalsArray = [];
@@ -150,9 +159,8 @@ function repackageTotals(ele) {
   data[newestKey] = {
     handicap: newestTotals.handicap,
     add_time: newestTotals.add_time,
-    home_odd: newestTotals.home_odd,
-    away_odd: newestTotals.away_odd,
-    insert_time: newestTotals.insert_time
+    // insert_time: newestTotals.insert_time,
+    disable: disableFlag
   };
   return data;
 }
@@ -190,4 +198,22 @@ function repackageBasketballLineups(home, away) {
 function sortTime(ids, times) {
   return ids[times.indexOf(Math.max(...times))];
 }
+
+async function checkGodPrediction(args) {
+  const date = modules.dateFormat(args.date);
+  const predictionSnapshot = await modules.getSnapshot(
+    modules.leagueCodebook(args.league).prediction,
+    `${date.month}${date.day}${date.year}_${args.token.uid}`
+  );
+  if (!predictionSnapshot.exists) {
+    return { betFlag: false };
+  }
+  if (predictionSnapshot.exists) {
+    const prediction = predictionSnapshot.data();
+    if (prediction.user_status === 1) return { betFlag: false };
+    if (prediction.user_status === 2)
+      return { betFlag: true, record: prediction.matches };
+  }
+}
+
 module.exports = prematch;
