@@ -149,7 +149,7 @@ module.exports = predictInfo;
  * HTTP/1.1 404 Not Found
  * {
     "errcode": "1302",
-    "errmsg": "使用者不是一般使用者、大神，請確認使用者態狀"
+    "errmsg": "使用者不是一般使用者、大神，請確認使用者狀態"
  * }
  *
  * @apiError 404 
