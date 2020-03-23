@@ -55,7 +55,7 @@ function predictInfo(args) {
       }
     
       let predictonsInfoData = {}; // 使用者預測資訊
-      let matcheInfoDocs = [];
+      let matchInfoDocs = [];
 
       predictionsInfoDocs.forEach(function(data){
         predictonsInfoData = data.data();
@@ -63,15 +63,15 @@ function predictInfo(args) {
 
       // 查詢 matches 賽事相關資料
       for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
-        const matcheInfoDoc = modules.firestore.collection(collectionCodebook(league))
+        const matchInfoDoc = modules.firestore.collection(collectionCodebook(league))
           .where('flag.status', '==', 2) // 賽前
           .where('bets_id', '==', key)
           .get();
-        matcheInfoDocs.push(matcheInfoDoc);
+        matchInfoDocs.push(matchInfoDoc);
       }
 
       // 將取回賽事資料進行整理，給repackage使用，屬於額外資訊
-      const matcheInfos = await Promise.all(matcheInfoDocs).then(function(docs) { 
+      const matchesInfos = await Promise.all(matchInfoDocs).then(function(docs) { 
         const temp = {};
         docs.forEach(function(doc) {
           doc.forEach(function(ele){
@@ -83,9 +83,9 @@ function predictInfo(args) {
 
       // 把賽事資料 重包裝格式
       for (const [key, value] of Object.entries(predictonsInfoData.matches)) {
-        if (matcheInfos[key] === undefined) continue // 非賽前 (已開打、結束等) 不用處理打包
+        if (matchesInfos[key] === undefined) continue // 非賽前 (已開打、結束等) 不用處理打包
         predictionsInfoList.push( 
-          repackage(value, {league: league, matcheInfo: matcheInfos[key]} ) 
+          repackage(value, {league: league, matchInfo: matchesInfos[key]} ) 
         );
       }
     } catch (err) {
@@ -120,11 +120,11 @@ function collectionCodebook(league) {
 
 function repackage(value, addInfo) {
   let data = {
-    bets_id: addInfo.matcheInfo.bets_id,
-    scheduled: addInfo.matcheInfo.scheduled._seconds, // 開賽時間
+    bets_id: addInfo.matchInfo.bets_id,
+    scheduled: addInfo.matchInfo.scheduled._seconds, // 開賽時間
     league: addInfo.league,
-    home: addInfo.matcheInfo.home.alias_ch,
-    away: addInfo.matcheInfo.away.alias_ch,
+    home: addInfo.matchInfo.home.alias_ch,
+    away: addInfo.matchInfo.away.alias_ch,
     spread: {},
     totals: {}
   };
