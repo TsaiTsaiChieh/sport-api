@@ -112,7 +112,7 @@ function collectionCodebook(league) {
 function repackage(value, addInfo) {
   let data = {
     bets_id: addInfo.betsInfo.bets_id,
-    scheduled: addInfo.betsInfo.scheduled, // 開賽時間
+    scheduled: addInfo.betsInfo.scheduled._seconds, // 開賽時間
     league: addInfo.league,
     home: addInfo.betsInfo.home.alias_ch,
     away: addInfo.betsInfo.away.alias_ch,
