@@ -53,7 +53,6 @@ async function confirmLogin(req, res, next) {
       const decodedIdToken = await modules.firebaseAdmin
         .auth()
         .verifySessionCookie(session, true);
-      console.log(decodedIdToken);
       req.token = decodedIdToken;
     }
     if (!session) {
