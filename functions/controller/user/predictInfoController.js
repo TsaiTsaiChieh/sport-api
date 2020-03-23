@@ -134,21 +134,39 @@ module.exports = predictInfo;
   }
 ]
  *
- * @apiError 1301 User does not have predictions info
+ * @apiError 1301 User does not exist. Please sign in again
  * 
  * @apiErrorExample {JSON} 1301-Response
- * HTTP/1.1 301 User does not have predictions info.
+ * HTTP/1.1 1301 User does not exist. Please sign in again
  * {
     "code": 1301,
+    "error": "User does not exist. Please sign in again"
+ * }
+ *
+ * @apiError 1302 使用者不是一般使用者、大神，請確認使用者態狀
+ * 
+ * @apiErrorExample {JSON} 1302-Response
+ * HTTP/1.1 1302 使用者不是一般使用者、大神，請確認使用者態狀
+ * {
+    "code": 1302,
+    "error": "使用者不是一般使用者、大神，請確認使用者態狀"
+ * }
+ *
+ * @apiError 1303 User does not have predictions info
+ * 
+ * @apiErrorExample {JSON} 1303-Response
+ * HTTP/1.1 1303 User does not have predictions info.
+ * {
+    "code": 1303,
     "error": "User does not have predictions info."
  * }
  *
- * @apiError 1302 User cant not own predictions more than one predictions of one day
+ * @apiError 1304 User cant not own predictions more than one predictions of one day
  * 
- * @apiErrorExample {JSON} 1302-Response
- * HTTP/1.1 1302 User cant not own predictions more than one predictions of one day.
+ * @apiErrorExample {JSON} 1304-Response
+ * HTTP/1.1 1304 User cant not own predictions more than one predictions of one day.
  * {
-    "code": 1302,
+    "code": 1304,
     "error": "User cant not own predictions more than one predictions of one day."
  * }
  *

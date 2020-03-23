@@ -21,7 +21,12 @@ function predictInfo(args) {
 
       if(memberInfo===undefined) {
         console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 500, error: `使用者不存在，請重新登入 ${userUid}` });
+        return reject({ code: 1301, error: `User does not exist. Please sign in again` }); // ${userUid}
+      }
+
+      if(!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作要另外自己建一個帳號
+        console.error('Error 2. in user/predictonInfoModell by YuHsien');
+        return reject({ code: 1302, error: `使用者不是一般使用者、大神，請確認使用者狀態` });
       }
 
       console.log("memberInfo status of statusSwitch: %o", statusSwitch(memberInfo.status));
@@ -34,19 +39,20 @@ function predictInfo(args) {
     try{
       // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
-        .where('uid', '==', userUid)
+        .where('uid', '==', '2'+userUid)
         .get();
 
       // 使用者 一開始尚未預測
-      // if(predictionsInfoDocs.size == 0) {
-      //   console.error('Error 2. in user/predictonInfoModell by YuHsien');
-      //   return reject({ code: 1301, error: `User does not have predictions info.` });
-      // }
+      if(predictionsInfoDocs.size == 0) {
+        // console.error('Error 2. in user/predictonInfoModell by YuHsien');
+        // return reject({ code: 1303, error: `User does not have predictions info.` });
+        return resolve(predictionsInfoList); // 回覆 空Array
+      }
       
       // 一個使用者，一天只會有一筆記錄
       if(predictionsInfoDocs.size > 1) {
         console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 1302, error: `User cant not own predictions more than one predictions of one day.` });
+        return reject({ code: 1304, error: `User cant not own predictions more than one predictions of one day.` });
       }
 
     
