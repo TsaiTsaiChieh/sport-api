@@ -64,18 +64,6 @@ module.exports = hotTopics;
         "ranking": {
           "viewCount": 19588
         },
-        "reply": [
-          {
-            "time": {
-              "_seconds": 1584414000,
-              "_nanoseconds": 0
-            },
-            "avatar: "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/default%2Favatar%2Fdefault-profile-avatar.jpg?alt=media&token=7753385f-5457-4fe2-af8e-acef75fcccd8",
-            "displayName": "紅色警報",
-            "content": "好棒棒",
-            "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2"
-          }
-        ],
         "user": {
           "displayName": "台中大哥大",
           "avatar": "https://png.pngtree.com/png-clipart/20190629/original/pngtree-cartoon-dinosaur-hand-drawn-cute-commercial-elements-png-image_4068875.jpg",
@@ -95,6 +83,18 @@ module.exports = hotTopics;
         "like": [
           "HppFr8j4sUVSQFKaiTGKjGZmQhw2"
         ],
+        "reply": [
+          {
+            "time": {
+              "_seconds": 1584414000,
+              "_nanoseconds": 0
+            },
+            "avatar: "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/default%2Favatar%2Fdefault-profile-avatar.jpg?alt=media&token=7753385f-5457-4fe2-af8e-acef75fcccd8",
+            "displayName": "紅色警報",
+            "content": "好棒棒",
+            "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2"
+          }
+        ],
         "id": "JYiitIwn0bg5B5r5NB0n"
       }, ...
     ]
@@ -103,5 +103,5 @@ module.exports = hotTopics;
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:
-     *     HTTP/1.1 500 Internal Server Error
+ *     HTTP/1.1 500 Internal Server Error
  */
