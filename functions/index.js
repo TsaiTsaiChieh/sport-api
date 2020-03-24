@@ -41,6 +41,7 @@ const whitelist = [
   'https://chat.doinfo.cc',
   'https://doinfo.cc',
   'http://localhost:5000',
+  'http://127.0.0.1:5000',
   'http://localhost:8080',
   'http://localhost:8081',
   'http://192.168.0.195:8080',
@@ -81,10 +82,10 @@ exports.handicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
-exports.lineups = functions.pubsub
-  .schedule('*/10 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/lineups'));
+// exports.lineups = functions.pubsub
+//   .schedule('*/10 * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/lineups'));
 exports.lineups_MLB = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')

@@ -102,14 +102,14 @@ async function firebaseLogin(req, res) {
     // eslint-disable-next-line promise/always-return
     .then(decodedIdToken => {
       // Create session cookie and set it.
-      let expiresIn = 60 * 60 * 24 * 7 * 1000;
       firebaseAdmin
         .auth()
-        .createSessionCookie(token, { expiresIn })
+        .createSessionCookie(token, {expiresIn: envValues.cookieOptions.maxAge})
         .then(async sessionCookie => {
           let firestoreUser = await userUtils.getUserProfile(
             decodedIdToken.uid
           );
+          returnJson.cookie = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
@@ -128,21 +128,12 @@ async function firebaseLogin(req, res) {
             returnJson.status = 0;
           }
           returnJson.data = firestoreUser.data;
-          // let options = {maxAge: expiresIn, httpOnly: true};
-          let options = {
-            maxAge: expiresIn,
-            httpOnly: true,
-            sameSite: 'none',
-            domain: envValues.domain
-            // domain: 'http://localhost:8080'
-          };
-
-          res.cookie('__session', sessionCookie, options);
+          res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })
         .catch(error => {
           console.log('Error login user: \n\t', error);
-          res.status(401).json({ success: false });
+            res.status(401).json({ devcode: '004',err:'missing tokeng' });
         });
     })
     .catch(error => {

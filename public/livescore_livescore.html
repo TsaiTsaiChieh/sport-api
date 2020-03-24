@@ -97,9 +97,9 @@
         let API;
 
         // normal
-        API = `https://api-dosports.web.app/livescore/livescore/${category}?league=${league}&$time=${time}`;
+        // API = `https://api-dosports.web.app/livescore/livescore/${category}?league=${league}&$time=${time}`;
         //local test
-        // API = `http://localhost:5000/livescore/livescore/${category}?league=${league}&$time=${time}`;
+        API = `http://localhost:5000/livescore/livescore/${category}?league=${league}&$time=${time}`;
 
         let event;
 
@@ -429,9 +429,9 @@
         let API;
 
         // normal
-        API = `https://api-dosports.web.app/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
+        // API = `https://api-dosports.web.app/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
         //local test
-        // API = `http://localhost:5000/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
+        API = `http://localhost:5000/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
         let event;
 
         xhttp.open('GET', API, true);
@@ -657,9 +657,9 @@
 
         let API;
         // normal
-        API = `https://api-dosports.web.app/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
+        // API = `https://api-dosports.web.app/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
         //local test
-        // API = `http://localhost:5000/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
+        API = `http://localhost:5000/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
         let event;
 
         xhttp.open('GET', API, true);

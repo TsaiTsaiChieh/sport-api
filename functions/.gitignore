@@ -5,8 +5,9 @@ auth/
 ./package-lock.json
 .BAK
 .env
+json
 #www/
-#server/
 #vue-ssr-client-manifest.json
+#server/
 #vue-ssr-server-bundle.json
 #ssr.js
