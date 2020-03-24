@@ -1,0 +1,269 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>pbp_realtime</title>
+
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  </head>
+  <style>
+    .chat_message {
+      margin-top: 100px;
+      margin-left: 150px;
+      width: 540px;
+      height: 500px;
+      /* border: 1px solid red; */
+      /* background: black; */
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .message {
+      padding: 10px;
+      background: green;
+      color: white;
+    }
+    .pagetest1 {
+      padding: 10px;
+      background: gray;
+      color: white;
+    }
+    .pagetest2 {
+      padding: 10px;
+      background: gray;
+      color: white;
+    }
+    .pagetest3 {
+      padding: 10px;
+      background: gray;
+      color: white;
+    }
+    .message_single_2 {
+      padding: 10px;
+      background: blue;
+      color: white;
+    }
+  </style>
+  <body>
+    <div class="information">
+      <h3 class="pbp"></h3>
+    </div>
+    <!-- js code-->
+    <script>
+      const firebaseConfig = {
+        apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+        authDomain: 'sportslottery-test.firebaseapp.com',
+        databaseURL: 'https://sportslottery-test.firebaseio.com',
+        projectId: 'sportslottery-test',
+        storageBucket: 'sportslottery-test.appspot.com',
+        messagingSenderId: '969081540385',
+        appId: '1:969081540385:web:da08ff289d0bec4ca9b860'
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      async function livescore() {
+        let information = document.querySelector('.information .pbp');
+        let xhttp = new XMLHttpRequest();
+        let league = 'MLB';
+        let API = 'https://api-dosports.web.app/home/livescore?${league}';
+        let eventID;
+        let jsonOutput = [];
+        xhttp.open('GET', API, true);
+        xhttp.send();
+        xhttp.onreadystatechange = async function() {
+          if (this.readyState == 4 && this.status == 200) {
+            eventID = JSON.parse(this.responseText);
+            // console.log(eventID);
+
+            let sportName = 'baseball';
+
+            firebase
+              .database()
+              .ref(`${sportName}/${league}/${eventID[0].bets_id}`)
+              .on('value', async function(snapshot) {
+                let realtimeData = snapshot.val();
+
+                // if MLB（棒球）
+                let inningsNow = realtimeData.Summary.Now_innings;
+                let halfNow = realtimeData.Summary.Now_halfs;
+                let homeTotalRuns = realtimeData.Summary.Total.home.runs;
+                let homeTotalHits = realtimeData.Summary.Total.home.hits;
+                let homeTotalErrors = realtimeData.Summary.Total.home.errors;
+                let awayTotalRuns = realtimeData.Summary.Total.away.runs;
+                let awayTotalHits = realtimeData.Summary.Total.away.hits;
+                let awayTotalErrors = realtimeData.Summary.Total.away.errors;
+                let homeScore = [];
+                let awayScore = [];
+
+                for (
+                  let inningsCount = 0;
+                  inningsCount < inningsNow;
+                  inningsCount++
+                ) {
+                  homeScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs1.scoring.runs;
+                  awayScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs0.scoring.runs;
+                }
+
+                let jsonEvent = {
+                  inningsNow: inningsNow,
+                  halfNow: halfNow,
+                  homeTotalErrors: homeTotalErrors,
+                  homeTotalHits: homeTotalHits,
+                  homeTotalRuns: homeTotalRuns,
+                  awayTotalErrors: awayTotalErrors,
+                  awayTotalHits: awayTotalHits,
+                  awayTotalRuns: awayTotalRuns
+                };
+                jsonOutput.push(jsonEvent);
+                let message = document.createElement('p');
+                message.setAttribute('class', 'pageTest1');
+                message.innerHTML = [
+                  inningsNow,
+                  halfNow,
+                  homeTotalErrors,
+                  homeTotalHits,
+                  homeTotalRuns,
+                  awayTotalErrors,
+                  awayTotalHits,
+                  awayTotalRuns
+                ];
+                information.append('event1');
+                information.append(message);
+              });
+
+            firebase
+              .database()
+              .ref(`${sportName}/${league}/${eventID[1].bets_id}`)
+              .on('value', async function(snapshot) {
+                let realtimeData = snapshot.val();
+                // if MLB（棒球）
+                let inningsNow = realtimeData.Summary.Now_innings;
+                let halfNow = realtimeData.Summary.Now_halfs;
+                let homeTotalRuns = realtimeData.Summary.Total.home.runs;
+                let homeTotalHits = realtimeData.Summary.Total.home.hits;
+                let homeTotalErrors = realtimeData.Summary.Total.home.errors;
+                let awayTotalRuns = realtimeData.Summary.Total.away.runs;
+                let awayTotalHits = realtimeData.Summary.Total.away.hits;
+                let awayTotalErrors = realtimeData.Summary.Total.away.errors;
+                let homeScore = [];
+                let awayScore = [];
+
+                for (
+                  let inningsCount = 0;
+                  inningsCount < inningsNow;
+                  inningsCount++
+                ) {
+                  homeScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs1.scoring.runs;
+                  awayScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs0.scoring.runs;
+                }
+                let jsonEvent = {
+                  inningsNow: inningsNow,
+                  halfNow: halfNow,
+                  homeTotalErrors: homeTotalErrors,
+                  homeTotalHits: homeTotalHits,
+                  homeTotalRuns: homeTotalRuns,
+                  awayTotalErrors: awayTotalErrors,
+                  awayTotalHits: awayTotalHits,
+                  awayTotalRuns: awayTotalRuns
+                };
+                jsonOutput.push(jsonEvent);
+                let message = document.createElement('p');
+                message.setAttribute('class', 'pageTest2');
+
+                message.innerHTML = [
+                  inningsNow,
+                  halfNow,
+                  homeTotalErrors,
+                  homeTotalHits,
+                  homeTotalRuns,
+                  awayTotalErrors,
+                  awayTotalHits,
+                  awayTotalRuns
+                ];
+                information.append('event2');
+                information.append(message);
+              });
+            firebase
+              .database()
+              .ref(`${sportName}/${league}/${eventID[2].bets_id}`)
+              .on('value', async function(snapshot) {
+                let realtimeData = snapshot.val();
+                // if MLB（棒球）
+                let inningsNow = realtimeData.Summary.Now_innings;
+                let halfNow = realtimeData.Summary.Now_halfs;
+                let homeTotalRuns = realtimeData.Summary.Total.home.runs;
+                let homeTotalHits = realtimeData.Summary.Total.home.hits;
+                let homeTotalErrors = realtimeData.Summary.Total.home.errors;
+                let awayTotalRuns = realtimeData.Summary.Total.away.runs;
+                let awayTotalHits = realtimeData.Summary.Total.away.hits;
+                let awayTotalErrors = realtimeData.Summary.Total.away.errors;
+                let homeScore = [];
+                let awayScore = [];
+
+                for (
+                  let inningsCount = 0;
+                  inningsCount < inningsNow;
+                  inningsCount++
+                ) {
+                  homeScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs1.scoring.runs;
+                  awayScore[inningsCount] =
+                    realtimeData.Summary[
+                      `Innings${inningsCount + 1}`
+                    ].halfs0.scoring.runs;
+                }
+                let jsonEvent = {
+                  inningsNow: inningsNow,
+                  halfNow: halfNow,
+                  homeTotalErrors: homeTotalErrors,
+                  homeTotalHits: homeTotalHits,
+                  homeTotalRuns: homeTotalRuns,
+                  awayTotalErrors: awayTotalErrors,
+                  awayTotalHits: awayTotalHits,
+                  awayTotalRuns: awayTotalRuns
+                };
+
+                jsonOutput.push(jsonEvent);
+
+                let message = document.createElement('p');
+                message.setAttribute('class', 'pageTest3');
+                message.innerHTML = [
+                  inningsNow,
+                  halfNow,
+                  homeTotalErrors,
+                  homeTotalHits,
+                  homeTotalRuns,
+                  awayTotalErrors,
+                  awayTotalHits,
+                  awayTotalRuns
+                ];
+                information.append('event3');
+                information.append(message);
+              });
+          }
+        };
+
+        //NBA
+
+        // if NBA（籃球）
+        // if NHL
+        // if 足球
+      }
+      livescore();
+    </script>
+  </body>
+</html>

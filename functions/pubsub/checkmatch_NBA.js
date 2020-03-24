@@ -3,7 +3,7 @@ const NBApbp = require("./pbpNBA.js");
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 
-async function checkmatch_NBA(req, res) {
+async function checkmatch_NBA() {
   const firestoreName = "pagetest_NBA";
   //read event information from firestore
 
@@ -12,14 +12,6 @@ async function checkmatch_NBA(req, res) {
   data.forEach(doc => {
     totalData.push(doc.data());
   });
-
-  //the time show on front-end
-  //   let gameTimeTaipei = new Date(
-  //     totalData[0].scheduleTime._seconds * 1000
-  //   ).toString();
-  //   let nowTimeTaipei = new Date(Date.now()).toString();
-
-  // 所有賽事判斷
 
   for (let i = 0; i < totalData.length; i++) {
     let betsID = totalData[i].bets_id;
