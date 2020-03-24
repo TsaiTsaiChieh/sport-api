@@ -25,8 +25,8 @@ exports.release = false;
 
 
 // 測試版 sportslottery-test-adminsdk
-// exports.domain = 'dosports.web.app';
-exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
+exports.domain = 'dosports.web.app';
+// exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
 
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
@@ -47,7 +47,6 @@ exports.cookieOptions = {
   secure:true,
   domain:this.domain
 };
-console.log('test........................',this.domain);
 exports.lineConfig = {
   profileURL: 'https://api.line.me/v2/profile',
   tokenURL: 'https://api.line.me/oauth2/v2.1/token',
