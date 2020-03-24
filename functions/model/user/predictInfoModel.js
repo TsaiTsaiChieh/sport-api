@@ -150,7 +150,7 @@ function repackage(value, addInfo) {
     }
   }
 
-  if( !(value.totals === undefined) && Object.keys(value.totals).length > 00) { // 有大小資料
+  if( !(value.totals === undefined) && Object.keys(value.totals).length > 0) { // 有大小資料
     data['totals'] = {
       predict: value.totals.predict,
       handicap_id: value.totals.handicap_id,
