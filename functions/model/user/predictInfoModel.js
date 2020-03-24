@@ -6,7 +6,7 @@ function predictInfo(args) {
 
   return new Promise(async function(resolve, reject) {
     // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
-    // 2. 取得 使用者 預測資料，該比賽必需是賽前，預測資料 排序以 bets_id 為主
+    // 2. 取得 使用者 兩天內 預測資料，該比賽必需是賽前，預測資料 排序以 bets_id 為主
 
     const userUid = args.token.uid;
     const league = args.league;
@@ -34,12 +34,15 @@ function predictInfo(args) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
       return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
     }
-    
+
     // 2.
     try{
+      const now = modules.moment().utcOffset(8).format('MMDDYYYY');
+      const tomorrow = modules.moment().add(1, 'days').utcOffset(8).format('MMDDYYYY');
       // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
         .where('uid', '==', userUid)
+        .where('date', 'in', [now, tomorrow]) // 兩天內的
         .get();
 
       // 使用者 一開始尚未預測
