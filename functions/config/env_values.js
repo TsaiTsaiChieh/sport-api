@@ -14,8 +14,18 @@ exports.release = false;
 //   messagingSenderId: '179049951227',
 //   appId: '1:179049951227:web:15b2ae874d653216'
 // };
+// exports.cookieOptions = {
+//   maxAge: 60 * 60 * 24 * 7 * 1000,
+//   httpOnly: true,
+//   sameSite: 'none',
+//   secure:true,
+//   domain: '.doinfo.cc'
+//   // domain: 'http://localhost:8080'
+// };
+
+
 // 測試版 sportslottery-test-adminsdk
-exports.domain = '.web.app';
+exports.domain = 'dosports.web.app';
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
@@ -27,6 +37,12 @@ exports.firebaseConfig = {
   messagingSenderId: '969081540385',
   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
   measurementId: 'G-WRP22SQG9M'
+};
+exports.cookieOptions = {
+  maxAge: 60 * 60 * 24 * 7 * 1000,
+  httpOnly: false,
+  sameSite: 'none',
+  secure:true
 };
 
 exports.lineConfig = {
