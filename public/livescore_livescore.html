@@ -1,0 +1,741 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>livescore_livescore</title>
+
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  </head>
+  <button onclick="livescore('baseball','MLB',1584982800000,'all')">
+    Show all of events today
+  </button>
+  <button onclick="livescore('baseball','MLB',1584982800000,'scheduled')">
+    Show all of events are scheduled today
+  </button>
+  <button onclick="livescore('baseball','MLB',1584982800000,'inprogress')">
+    Show all of events are in progress today
+  </button>
+  <button onclick="livescore('baseball','MLB',1584982800000,'closed')">
+    Show all of events are closed today
+  </button>
+  <button onclick="livescorePrematch('baseball','MLB','20200320')">
+    Show prematch information of event
+  </button>
+  <button onclick="livescorePBP('baseball','MLB','20200320')">
+    Show PBP of event
+  </button>
+  <style>
+    .chat_message {
+      margin-top: 100px;
+      margin-left: 150px;
+      width: 540px;
+      height: 500px;
+      /* border: 1px solid red; */
+      /* background: black; */
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .message {
+      padding: 10px;
+      background: green;
+      color: white;
+    }
+    .pagetest1 {
+      padding: 10px;
+      background: gray;
+      color: white;
+    }
+
+    .message_single_2 {
+      padding: 10px;
+      background: blue;
+      color: white;
+    }
+  </style>
+  <body>
+    <div class="information">
+      <h3 class="pbp"></h3>
+    </div>
+    <!-- js code-->
+    <script>
+      const firebaseConfig = {
+        apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+        authDomain: 'sportslottery-test.firebaseapp.com',
+        databaseURL: 'https://sportslottery-test.firebaseio.com',
+        projectId: 'sportslottery-test',
+        storageBucket: 'sportslottery-test.appspot.com',
+        messagingSenderId: '969081540385',
+        appId: '1:969081540385:web:da08ff289d0bec4ca9b860'
+      };
+      firebase.initializeApp(firebaseConfig);
+      //   front end input
+      let sport;
+      let league;
+      let time;
+      let category;
+      //default league = MLB
+      //default time = now
+      //default category = all
+      if (!sport) {
+        sport = 'baseball';
+      }
+      if (!league) {
+        league = 'MLB';
+      }
+      if (!time) {
+        time = Date.now();
+      }
+      if (!category) {
+        category = 'all';
+      }
+      // 聯盟, 時間, 種類（全部/排程中/正在打/已結束）
+      async function livescore(sport, league, time, category) {
+        let information = document.querySelector('.information .pbp');
+        let xhttp = new XMLHttpRequest();
+
+        let API;
+
+        // normal
+        API = `https://api-dosports.web.app/livescore/livescore/${category}?league=${league}&$time=${time}`;
+        //local test
+        // API = `http://localhost:5000/livescore/livescore/${category}?league=${league}&$time=${time}`;
+
+        let event;
+
+        xhttp.open('GET', API, true);
+        xhttp.send();
+        xhttp.onreadystatechange = async function() {
+          if (this.readyState == 4 && this.status == 200) {
+            event = JSON.parse(this.responseText);
+
+            let sportName = event[event.length - 2].sport;
+            let leagueName = event[event.length - 1].league;
+            for (
+              let eventCount = 0;
+              eventCount < event.length - 2;
+              eventCount++
+            ) {
+              if (event[eventCount].flag.status === 2) {
+                let eventStatus = event[eventCount].flag.status;
+                let spreadAwayOdd =
+                  event[eventCount].spread[
+                    Object.keys(event[eventCount].spread)
+                  ].away_odd;
+                let spreadHomeOdd =
+                  event[eventCount].spread[
+                    Object.keys(event[eventCount].spread)
+                  ].home_odd;
+                let spreadHandicap =
+                  event[eventCount].spread[
+                    Object.keys(event[eventCount].spread)
+                  ].handicap;
+                let totalsOverOdd =
+                  event[eventCount].totals[
+                    Object.keys(event[eventCount].totals)
+                  ].over_odd;
+                let totalsUnderOdd =
+                  event[eventCount].totals[
+                    Object.keys(event[eventCount].totals)
+                  ].under_odd;
+                let totalsHandicap =
+                  event[eventCount].totals[
+                    Object.keys(event[eventCount].totals)
+                  ].handicap;
+                let homeName = event[eventCount].home.name_ch;
+                let awayName = event[eventCount].away.name_ch;
+                let homeImage = event[eventCount].home.image_id;
+                let awayImage = event[eventCount].away.image_id;
+                let eventTime = event[eventCount].scheduled._seconds;
+                let message = document.createElement('p');
+                message.setAttribute('class', 'pageTest1');
+                //由左上至右下
+                message.innerHTML = [
+                  'eventStatus : ' + eventStatus + '<br />',
+                  'eventTime : ' + eventTime + '<br />',
+                  'homeImage : ' + homeImage + '<br />',
+                  'homeName : ' + homeName + '<br />',
+                  'awayImage : ' + awayImage + '<br />',
+                  'awayName : ' + awayName + '<br />',
+                  'spreadAwayOdd : ' + spreadAwayOdd + '<br />',
+                  'spreadHomeOdd : ' + spreadHomeOdd + '<br />',
+                  'spreadHandicap : ' + spreadHandicap + '<br />',
+                  'totalsOverOdd : ' + totalsOverOdd + '<br />',
+                  'totalsUnderOdd : ' + totalsUnderOdd + '<br />',
+                  'totalsHandicap : ' + totalsHandicap + '<br />',
+                  'sportName : ' + sportName + '<br />',
+                  'leagueName : ' + leagueName + '<br />'
+                ];
+                information.append(`${event[eventCount].bets_id}(scheduled)`);
+                information.append(message);
+              }
+              if (event[eventCount].flag.status === 1) {
+                firebase
+                  .database()
+                  .ref(
+                    `${sportName}/${leagueName}/${event[eventCount].bets_id}`
+                  )
+                  .on('value', async function(snapshot) {
+                    let eventStatus = event[eventCount].flag.status;
+                    let realtimeData = snapshot.val();
+                    let inningsNow = realtimeData.Summary.Now_innings;
+                    let halfNow = realtimeData.Summary.Now_halfs;
+                    let strikesNow = realtimeData.Summary.Now_strikes;
+                    let ballsNow = realtimeData.Summary.Now_balls;
+                    let outsNow = realtimeData.Summary.Now_outs;
+                    let homeTotalRuns = realtimeData.Summary.Total.home.runs;
+                    let homeTotalHits = realtimeData.Summary.Total.home.hits;
+                    let homeTotalErrors =
+                      realtimeData.Summary.Total.home.errors;
+                    let awayTotalRuns = realtimeData.Summary.Total.away.runs;
+                    let awayTotalHits = realtimeData.Summary.Total.away.hits;
+                    let awayTotalErrors =
+                      realtimeData.Summary.Total.away.errors;
+                    let firstBase = realtimeData.Summary.Now_firstbase;
+                    let secondBase = realtimeData.Summary.Now_secondbase;
+                    let thirdBase = realtimeData.Summary.Now_thirdbase;
+                    let spreadAwayOdd =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].away_odd;
+                    let spreadHomeOdd =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].home_odd;
+                    let spreadHandicap =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].handicap;
+                    let totalsOverOdd =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].over_odd;
+                    let totalsUnderOdd =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].under_odd;
+                    let totalsHandicap =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].handicap;
+                    let homeScore = [];
+                    let awayScore = [];
+
+                    for (
+                      let inningsCount = 0;
+                      inningsCount < inningsNow;
+                      inningsCount++
+                    ) {
+                      if (
+                        realtimeData.Summary[`Innings${inningsCount + 1}`]
+                          .halfs1
+                      ) {
+                        homeScore[inningsCount] =
+                          realtimeData.Summary[
+                            `Innings${inningsCount + 1}`
+                          ].halfs1.scoring.runs;
+                      }
+                      if (
+                        realtimeData.Summary[`Innings${inningsCount + 1}`]
+                          .halfs0
+                      ) {
+                        awayScore[inningsCount] =
+                          realtimeData.Summary[
+                            `Innings${inningsCount + 1}`
+                          ].halfs0.scoring.runs;
+                      }
+                    }
+                    let homeName = event[eventCount].home.name_ch;
+                    let awayName = event[eventCount].away.name_ch;
+                    let homeImage = event[eventCount].home.image_id;
+                    let awayImage = event[eventCount].away.image_id;
+                    let eventTime = event[eventCount].scheduled._seconds;
+
+                    let message = document.createElement('p');
+                    message.setAttribute('class', 'pageTest1');
+                    //由左上至右下
+                    message.innerHTML = [
+                      'eventStatus : ' + eventStatus + '<br />',
+                      'eventTime : ' + eventTime + '<br />',
+                      'inningsNow : ' + inningsNow + '<br />',
+                      'halfNow : ' + halfNow + '<br />',
+                      'awayImage : ' + awayImage + '<br />',
+                      'awayName : ' + awayName + '<br />',
+                      'firstBase : ' + firstBase + '<br />',
+                      'secondBase : ' + secondBase + '<br />',
+                      'thirdBase : ' + thirdBase + '<br />',
+                      'awayTotalRuns : ' + awayTotalRuns + '<br />',
+                      'homeTotalRuns : ' + homeTotalRuns + '<br />',
+                      'homeImage : ' + homeImage + '<br />',
+                      'homeName : ' + homeName + '<br />',
+                      'strikesNow : ' + strikesNow + '<br />',
+                      'ballsNow : ' + ballsNow + '<br />',
+                      'outsNow : ' + outsNow + '<br />',
+                      'spreadAwayOdd : ' + spreadAwayOdd + '<br />',
+                      'spreadHomeOdd : ' + spreadHomeOdd + '<br />',
+                      'spreadHandicap : ' + spreadHandicap + '<br />',
+                      'totalsOverOdd : ' + totalsOverOdd + '<br />',
+                      'totalsUnderOdd : ' + totalsUnderOdd + '<br />',
+                      'totalsHandicap : ' + totalsHandicap + '<br />',
+                      'awayScorePerInnings : ' + awayScore + '<br />',
+                      'homeScorePerInnings : ' + homeScore + '<br />',
+                      'awayTotalHits : ' + awayTotalHits + '<br />',
+                      'awayTotalErrors : ' + awayTotalErrors + '<br />',
+                      'homeTotalHits : ' + homeTotalHits + '<br />',
+                      'homeTotalErrors : ' + homeTotalErrors + '<br />',
+                      'sportName : ' + sportName + '<br />',
+                      'leagueName : ' + leagueName + '<br />'
+                    ];
+                    information.append(
+                      `${event[eventCount].bets_id}(inprogress)`
+                    );
+                    information.append(message);
+                  });
+              }
+              if (event[eventCount].flag.status === 0) {
+                let eventStatus = event[eventCount].flag.status;
+                firebase
+                  .database()
+                  .ref(
+                    `${sportName}/${leagueName}/${event[eventCount].bets_id}`
+                  )
+                  .once('value', async function(snapshot) {
+                    let realtimeData = snapshot.val();
+                    let inningsNow = realtimeData.Summary.Now_innings;
+                    let halfNow = realtimeData.Summary.Now_halfs;
+                    let homeTotalRuns = realtimeData.Summary.Total.home.runs;
+                    let homeTotalHits = realtimeData.Summary.Total.home.hits;
+                    let homeTotalErrors =
+                      realtimeData.Summary.Total.home.errors;
+                    let awayTotalRuns = realtimeData.Summary.Total.away.runs;
+                    let awayTotalHits = realtimeData.Summary.Total.away.hits;
+                    let awayTotalErrors =
+                      realtimeData.Summary.Total.away.errors;
+                    let eventStatus = event[eventCount].flag.status;
+                    let firstBase = 0;
+                    let secondBase = 0;
+                    let thirdBase = 0;
+                    let strikesNow = 0;
+                    let ballsNow = 0;
+                    let outsNow = 0;
+                    let spreadAwayOdd =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].away_odd;
+                    let spreadHomeOdd =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].home_odd;
+                    let spreadHandicap =
+                      event[eventCount].spread[
+                        Object.keys(event[eventCount].spread)
+                      ].handicap;
+                    let totalsOverOdd =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].over_odd;
+                    let totalsUnderOdd =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].under_odd;
+                    let totalsHandicap =
+                      event[eventCount].totals[
+                        Object.keys(event[eventCount].totals)
+                      ].handicap;
+                    let homeScore = [];
+                    let awayScore = [];
+
+                    for (
+                      let inningsCount = 0;
+                      inningsCount < inningsNow;
+                      inningsCount++
+                    ) {
+                      if (
+                        realtimeData.Summary[`Innings${inningsCount + 1}`]
+                          .halfs1
+                      ) {
+                        homeScore[inningsCount] =
+                          realtimeData.Summary[
+                            `Innings${inningsCount + 1}`
+                          ].halfs1.scoring.runs;
+                      }
+                      if (
+                        realtimeData.Summary[`Innings${inningsCount + 1}`]
+                          .halfs0
+                      ) {
+                        awayScore[inningsCount] =
+                          realtimeData.Summary[
+                            `Innings${inningsCount + 1}`
+                          ].halfs0.scoring.runs;
+                      }
+                    }
+
+                    let homeName = event[eventCount].home.name_ch;
+                    let awayName = event[eventCount].away.name_ch;
+                    let homeImage = event[eventCount].home.image_id;
+                    let awayImage = event[eventCount].away.image_id;
+                    let eventTime = event[eventCount].scheduled._seconds;
+                    let message = document.createElement('p');
+                    message.setAttribute('class', 'pageTest1');
+                    //由左上至右下
+                    message.innerHTML = [
+                      'eventStatus : ' + eventStatus + '<br />',
+                      'eventTime : ' + eventTime + '<br />',
+                      'awayImage : ' + awayImage + '<br />',
+                      'awayName : ' + awayName + '<br />',
+                      'firstBase : ' + firstBase + '<br />',
+                      'secondBase : ' + secondBase + '<br />',
+                      'thirdBase : ' + thirdBase + '<br />',
+                      'awayTotalRuns : ' + awayTotalRuns + '<br />',
+                      'homeTotalRuns : ' + homeTotalRuns + '<br />',
+                      'homeImage : ' + homeImage + '<br />',
+                      'homeName : ' + homeName + '<br />',
+                      'strikesNow : ' + strikesNow + '<br />',
+                      'ballsNow : ' + ballsNow + '<br />',
+                      'outsNow : ' + outsNow + '<br />',
+                      'spreadAwayOdd : ' + spreadAwayOdd + '<br />',
+                      'spreadHomeOdd : ' + spreadHomeOdd + '<br />',
+                      'spreadHandicap : ' + spreadHandicap + '<br />',
+                      'totalsOverOdd : ' + totalsOverOdd + '<br />',
+                      'totalsUnderOdd : ' + totalsUnderOdd + '<br />',
+                      'totalsHandicap : ' + totalsHandicap + '<br />',
+                      'awayScorePerInnings : ' + awayScore + '<br />',
+                      'homeScorePerInnings : ' + homeScore + '<br />',
+                      'awayTotalHits : ' + awayTotalHits + '<br />',
+                      'awayTotalErrors : ' + awayTotalErrors + '<br />',
+                      'homeTotalHits : ' + homeTotalHits + '<br />',
+                      'homeTotalErrors : ' + homeTotalErrors + '<br />',
+                      'sportName : ' + sportName + '<br />',
+                      'leagueName : ' + leagueName + '<br />'
+                    ];
+
+                    information.append(`${event[eventCount].bets_id}(closed)`);
+                    information.append(message);
+                  });
+              }
+            }
+          }
+
+          //NBA
+          // if NBA（籃球）
+          // if NHL
+          // if 足球
+        };
+      }
+      async function livescorePrematch(sport, league, eventID) {
+        let information = document.querySelector('.information .pbp');
+        let xhttp = new XMLHttpRequest();
+
+        let API;
+
+        // normal
+        API = `https://api-dosports.web.app/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
+        //local test
+        // API = `http://localhost:5000/livescore/livescore/detail/prematch?league=${league}&eventID=${eventID}`;
+        let event;
+
+        xhttp.open('GET', API, true);
+        xhttp.send();
+        xhttp.onreadystatechange = async function() {
+          if (this.readyState == 4 && this.status == 200) {
+            event = JSON.parse(this.responseText);
+
+            let homeName = event[0].home.name_ch;
+            let awayName = event[0].away.name_ch;
+            let statHomeSLG = event[0].stat.home.slg;
+            let statHomeHR = event[0].stat.home.hr;
+            let statHomeH = event[0].stat.home.h;
+            let statHomeR = event[0].stat.home.r;
+            let statHomeOBP = event[0].stat.home.obp;
+            let statHomeAVG = event[0].stat.home.avg;
+            let statAwaySLG = event[0].stat.away.slg;
+            let statAwayHR = event[0].stat.away.hr;
+            let statAwayH = event[0].stat.away.h;
+            let statAwayR = event[0].stat.away.r;
+            let statAwayOBP = event[0].stat.away.obp;
+            let statAwayAVG = event[0].stat.away.avg;
+            let pitcherHomeID = event[0].lineups.home.pitcher.id;
+            let pitcherHomeNumber = event[0].lineups.home.pitcher.jersey_number;
+            let pitcherHomeLose = event[0].lineups.home.pitcher.lose;
+            let pitcherHomeWin = event[0].lineups.home.pitcher.win;
+            let pitcherHomeLastname = event[0].lineups.home.pitcher.last_name;
+            let pitcherHomeFirstname = event[0].lineups.home.pitcher.first_name;
+            let pitcherHomeERA = event[0].lineups.home.pitcher.era;
+            let pitcherHomeK = event[0].lineups.home.pitcher.k;
+            let pitcherAwayID = event[0].lineups.away.pitcher.id;
+            let pitcherAwayNumber = event[0].lineups.away.pitcher.jersey_number;
+            let pitcherAwayLose = event[0].lineups.away.pitcher.lose;
+            let pitcherAwayWin = event[0].lineups.away.pitcher.win;
+            let pitcherAwayLastname = event[0].lineups.away.pitcher.last_name;
+            let pitcherAwayFirstname = event[0].lineups.away.pitcher.first_name;
+            let pitcherAwayERA = event[0].lineups.away.pitcher.era;
+            let pitcherAwayK = event[0].lineups.away.pitcher.k;
+            let homePerformance = [];
+            homePerformance[0] = event[0].home.avg_getscore;
+            homePerformance[1] = event[0].home.avg_lossscore;
+            homePerformance[2] = event[0].home.lose;
+            homePerformance[3] = event[0].home.win;
+            homePerformance[4] = event[0].home.lose_away;
+            homePerformance[5] = event[0].home.lose_home;
+            homePerformance[6] = event[0].home.win_away;
+            homePerformance[7] = event[0].home.win_away;
+            homePerformance[8] = event[0].home.avg_getscore;
+            homePerformance[9] = event[0].home.precent_spread;
+            homePerformance[10] = event[0].home.precent_OU;
+            let awayPerformance = [];
+            awayPerformance[0] = event[0].away.avg_getscore;
+            awayPerformance[1] = event[0].away.avg_lossscore;
+            awayPerformance[2] = event[0].away.lose;
+            awayPerformance[3] = event[0].away.win;
+            awayPerformance[4] = event[0].away.lose_away;
+            awayPerformance[5] = event[0].away.lose_home;
+            awayPerformance[6] = event[0].away.win_away;
+            awayPerformance[7] = event[0].away.win_away;
+            awayPerformance[8] = event[0].away.avg_getscore;
+            awayPerformance[9] = event[0].away.precent_spread;
+            awayPerformance[10] = event[0].away.precent_OU;
+            let historyAwayScore = [];
+            historyAwayScore[0] = event[0].history.event0.away.total_runs;
+            historyAwayScore[1] = event[0].history.event1.away.total_runs;
+            historyAwayScore[2] = event[0].history.event2.away.total_runs;
+            historyAwayScore[3] = event[0].history.event3.away.total_runs;
+            historyAwayScore[4] = event[0].history.event4.away.total_runs;
+            let historyHomeScore = [];
+            historyHomeScore[0] = event[0].history.event0.home.total_runs;
+            historyHomeScore[1] = event[0].history.event1.home.total_runs;
+            historyHomeScore[2] = event[0].history.event2.home.total_runs;
+            historyHomeScore[3] = event[0].history.event3.home.total_runs;
+            historyHomeScore[4] = event[0].history.event4.home.total_runs;
+
+            let historySpread = [];
+            let spreadName = Object.keys(event[0].history.event0.spread)[0];
+            historySpread.push({
+              handicap: event[0].history.event0.spread[spreadName].handicap,
+              check: event[0].history.event0.spread[spreadName].check
+            });
+            spreadName = Object.keys(event[0].history.event1.spread)[0];
+            historySpread.push({
+              handicap: event[0].history.event1.spread[spreadName].handicap,
+              check: event[0].history.event1.spread[spreadName].check
+            });
+            spreadName = Object.keys(event[0].history.event2.spread)[0];
+            historySpread.push({
+              handicap: event[0].history.event2.spread[spreadName].handicap,
+              check: event[0].history.event2.spread[spreadName].check
+            });
+            spreadName = Object.keys(event[0].history.event3.spread)[0];
+            historySpread.push({
+              handicap: event[0].history.event3.spread[spreadName].handicap,
+              check: event[0].history.event3.spread[spreadName].check
+            });
+            spreadName = Object.keys(event[0].history.event4.spread)[0];
+            historySpread.push({
+              handicap: event[0].history.event4.spread[spreadName].handicap,
+              check: event[0].history.event4.spread[spreadName].check
+            });
+            let historyTotals = [];
+            let totalsName = Object.keys(event[0].history.event0.totals)[0];
+            historyTotals.push({
+              handicap: event[0].history.event0.totals[totalsName].handicap,
+              check: event[0].history.event0.totals[totalsName].check
+            });
+            totalsName = Object.keys(event[0].history.event1.totals)[0];
+            historyTotals.push({
+              handicap: event[0].history.event1.totals[totalsName].handicap,
+              check: event[0].history.event1.totals[totalsName].check
+            });
+            totalsName = Object.keys(event[0].history.event2.totals)[0];
+            historyTotals.push({
+              handicap: event[0].history.event2.totals[totalsName].handicap,
+              check: event[0].history.event2.totals[totalsName].check
+            });
+            totalsName = Object.keys(event[0].history.event3.totals)[0];
+            historyTotals.push({
+              handicap: event[0].history.event3.totals[totalsName].handicap,
+              check: event[0].history.event3.totals[totalsName].check
+            });
+            totalsName = Object.keys(event[0].history.event4.totals)[0];
+            historyTotals.push({
+              handicap: event[0].history.event4.totals[totalsName].handicap,
+              check: event[0].history.event4.totals[totalsName].check
+            });
+            let historyScheduled = [];
+            historyScheduled.push({
+              scheduled: event[0].history.event0.scheduled._seconds
+            });
+            historyScheduled.push({
+              scheduled: event[0].history.event1.scheduled._seconds
+            });
+            historyScheduled.push({
+              scheduled: event[0].history.event2.scheduled._seconds
+            });
+            historyScheduled.push({
+              scheduled: event[0].history.event3.scheduled._seconds
+            });
+            historyScheduled.push({
+              scheduled: event[0].history.event4.scheduled._seconds
+            });
+
+            let message = document.createElement('p');
+            message.setAttribute('class', 'pageTest1');
+            //由左上至右下
+            message.innerHTML = [
+              'homeName : ' + homeName + '<br />',
+              'awayName : ' + awayName + '<br />',
+              'pitcherAwayFirstname : ' + pitcherAwayFirstname + '<br />',
+              'pitcherAwayLastname : ' + pitcherAwayLastname + '<br />',
+              'pitcherAwayERA : ' + pitcherAwayERA + '<br />',
+              'pitcherAwayK : ' + pitcherAwayK + '<br />',
+              'pitcherAwayWin : ' + pitcherAwayWin + '<br />',
+              'pitcherAwayLose : ' + pitcherAwayLose + '<br />',
+              'pitcherAwayNumber : ' + pitcherAwayNumber + '<br />',
+              'pitcherHomeFirstname : ' + pitcherHomeFirstname + '<br />',
+              'pitcherHomeLastname : ' + pitcherHomeLastname + '<br />',
+              'pitcherHomeERA : ' + pitcherHomeERA + '<br />',
+              'pitcherHomeK : ' + pitcherHomeK + '<br />',
+              'pitcherHomeWin : ' + pitcherHomeWin + '<br />',
+              'pitcherHomeLose : ' + pitcherHomeLose + '<br />',
+              'pitcherHomeNumber : ' + pitcherHomeNumber + '<br />',
+              'statAwayR : ' + statAwayR + '<br />',
+              'statAwayH : ' + statAwayH + '<br />',
+              'statAwayHR : ' + statAwayHR + '<br />',
+              'statAwayAVG : ' + statAwayAVG + '<br />',
+              'statAwayOBP : ' + statAwayOBP + '<br />',
+              'statAwaySLG : ' + statAwaySLG + '<br />',
+              'statHomeR : ' + statHomeR + '<br />',
+              'statHomeH : ' + statHomeH + '<br />',
+              'statHomeHR : ' + statHomeHR + '<br />',
+              'statHomeAVG : ' + statHomeAVG + '<br />',
+              'statHomeOBP : ' + statHomeOBP + '<br />',
+              'statHomeSLG : ' + statHomeSLG + '<br />',
+              'homePerformance : ' + homePerformance + '<br />',
+              'awayPerformance : ' + awayPerformance + '<br />',
+              'historySpread[0] : ' + historySpread[0].handicap + '<br />',
+              'historySpreadCheck[0] : ' + historySpread[0].check + '<br />',
+              'historySpread[1] : ' + historySpread[1].handicap + '<br />',
+              'historySpreadCheck[1] : ' + historySpread[1].check + '<br />',
+              'historySpread[2] : ' + historySpread[2].handicap + '<br />',
+              'historySpreadCheck[2] : ' + historySpread[2].check + '<br />',
+              'historySpread[3] : ' + historySpread[3].handicap + '<br />',
+              'historySpreadCheck[3] : ' + historySpread[3].check + '<br />',
+              'historySpread[4] : ' + historySpread[4].handicap + '<br />',
+              'historySpreadCheck[4] : ' + historySpread[4].check + '<br />',
+              'historyTotals[0] : ' + historyTotals[0].handicap + '<br />',
+              'historyTotalsCheck[0] : ' + historyTotals[0].check + '<br />',
+              'historyTotals[1] : ' + historyTotals[1].handicap + '<br />',
+              'historyTotalsCheck[1] : ' + historyTotals[1].check + '<br />',
+              'historyTotals[2] : ' + historyTotals[2].handicap + '<br />',
+              'historyTotalsCheck[2] : ' + historyTotals[2].check + '<br />',
+              'historyTotals[3] : ' + historyTotals[3].handicap + '<br />',
+              'historyTotalsCheck[3] : ' + historyTotals[3].check + '<br />',
+              'historyTotals[4] : ' + historyTotals[4].handicap + '<br />',
+              'historyTotalsCheck[4] : ' + historyTotals[4].check + '<br />',
+              'historyScheduled[0] : ' +
+                historyScheduled[0].scheduled +
+                '<br />',
+              'historyScheduled[1] : ' +
+                historyScheduled[1].scheduled +
+                '<br />',
+              'historyScheduled[2] : ' +
+                historyScheduled[2].scheduled +
+                '<br />',
+              'historyScheduled[3] : ' +
+                historyScheduled[3].scheduled +
+                '<br />',
+              'historyScheduled[4] : ' +
+                historyScheduled[4].scheduled +
+                '<br />'
+            ];
+            information.append(`${event[0].bets_id}`);
+            information.append(message);
+          }
+        };
+      }
+      async function livescorePBP(sport, league, eventID) {
+        let information = document.querySelector('.information .pbp');
+        let xhttp = new XMLHttpRequest();
+
+        let API;
+        // normal
+        API = `https://api-dosports.web.app/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
+        //local test
+        // API = `http://localhost:5000/livescore/livescore/detail/pbp?league=${league}&eventID=${eventID}`;
+        let event;
+
+        xhttp.open('GET', API, true);
+        xhttp.send();
+        xhttp.onreadystatechange = async function() {
+          if (this.readyState == 4 && this.status == 200) {
+            event = JSON.parse(this.responseText);
+
+            let sportName = event[1].sport;
+            let leagueName = event[2].league;
+            firebase
+              .database()
+              .ref(`${sportName}/${leagueName}/${event[0].bets_id}`)
+              .on('value', async function(snapshot) {
+                let realtimeData = snapshot.val();
+                //pbp all from realtime database and need to call sportradar-summary
+                let description = [];
+                description.push('Miguel Andújar called out on strikes.');
+                description.push('Rafael Devers homers to center field.');
+                description.push(
+                  'Michael Chavis singles to shallow left field.'
+                );
+                let message = document.createElement('p');
+                message.setAttribute('class', 'pageTest1');
+                //由左上至右下
+                message.innerHTML = [
+                  'homeName : ' + '洋基' + '<br />',
+                  'awayName : ' + '天使' + '<br />',
+                  'pitcherFirstname : ' + 'Masahiro' + '<br />',
+                  'pitcherLastname : ' + 'Tanaka' + '<br />',
+                  'pitcherERA : ' + 0.23 + '<br />',
+                  'pitcherK : ' + 7 + '<br />',
+                  'pitcherWin : ' + 7 + '<br />',
+                  'pitcherLose : ' + 2 + '<br />',
+                  'pitcherNumber : ' + 19 + '<br />',
+                  'pitcherMain : ' + 0.6 + '<br />',
+                  'pitcherStrikes : ' + 14 + '<br />',
+                  'pitcherBalls : ' + 6 + '<br />',
+                  'pitcherPoints : ' + 3 + '<br />',
+                  'pitcherHits : ' + 3 + '<br />',
+                  'pitcherKs : ' + 6 + '<br />',
+                  'hitterFirstname : ' + 'Michael' + '<br />',
+                  'hitterLastname : ' + 'Chavis' + '<br />',
+                  'hitterOrder : ' + 3 + '<br />',
+                  'hitterAVG : ' + 0.33 + '<br />',
+                  'hitterHR : ' + 6 + '<br />',
+                  'hitterRBI : ' + 63 + '<br />',
+                  'hitterH : ' + 49 + '<br />',
+                  'hitterABs : ' + 6 + '<br />',
+                  'hitterHs : ' + 0 + '<br />',
+                  'hitterFirstname : ' + 'Rafael' + '<br />',
+                  'hitterLastname : ' + 'Devers' + '<br />',
+                  'hitterOrder : ' + 2 + '<br />',
+                  'hitterAVG : ' + 0.45 + '<br />',
+                  'hitterHR : ' + 12 + '<br />',
+                  'hitterRBI : ' + 40 + '<br />',
+                  'hitterH : ' + 30 + '<br />',
+                  'hitterABs : ' + 5 + '<br />',
+                  'hitterHs : ' + 4 + '<br />',
+                  'hitterFirstname : ' + 'Michael' + '<br />',
+                  'hitterLastname : ' + 'Chavis' + '<br />',
+                  'hitterOrder : ' + 1 + '<br />',
+                  'hitterAVG : ' + 0.31 + '<br />',
+                  'hitterHR : ' + 7 + '<br />',
+                  'hitterRBI : ' + 61 + '<br />',
+                  'hitterH : ' + 55 + '<br />',
+                  'hitterABs : ' + 3 + '<br />',
+                  'hitterHs : ' + 1 + '<br />',
+                  'description : ' + description + '<br />'
+                ];
+                information.append(`${event[0].bets_id}`);
+                information.append(message);
+              });
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
