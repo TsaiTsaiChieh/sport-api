@@ -128,7 +128,6 @@ async function firebaseLogin(req, res) {
             returnJson.status = 0;
           }
           returnJson.data = firestoreUser.data;
-
           res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })

@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/sport/prematchModel');
 
+// eslint-disable-next-line consistent-return
 async function prematch(req, res) {
   const schema = {
     type: 'object',
@@ -12,15 +13,16 @@ async function prematch(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'MLB']
       }
     }
   };
-  const valid = modules.ajv.validate(schema, req.query);
+  req.args = req.query;
+  const valid = modules.ajv.validate(schema, req.args);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
-    return;
+    return res.status(400).json(modules.ajv.errors);
   }
+  req.args.token = req.token;
   try {
     res.json(await model(req.query));
   } catch (err) {
@@ -35,12 +37,12 @@ module.exports = prematch;
  * @apiName prematch information
  * @apiGroup Sport
  *
- * @apiParam {String} prematch date, ex: ```2020-02-28```
+ * @apiParam {String} prematch date, ex: ```2020-04-01```
  * @apiParam {String} league league name, the value enum are: ```NBA```
  *
  * @apiParamExample {JSON} Request-Query
  * {
- *    "date": '2020-02-28',
+ *    "date": '2020-04-01',
  *    "league": 'NBA'
  * }
  * @apiSuccess {String} id match id
@@ -56,136 +58,137 @@ module.exports = prematch;
  * @apiSuccess {Object} handicap.spread the newest spread information (which will change based on the request time)
  * @apiSuccess {Number} handicap.spread.handicap handicap
  * @apiSuccess {Number} handicap.spread.add_time handicap add time which betsAPI returned
- * @apiSuccess {Number} handicap.spread.home_odd odd of home team
- * @apiSuccess {Number} handicap.spread.away_odd odd of away team
  * @apiSuccess {Number} handicap.spread.insert_time the time of the data inserted into firestore [debug used] 
  * @apiSuccess {Object} handicap.totals the newest totals information like handicap.spread field, description omitted here
- * @apiSuccess {Object} lineups lineups information which included home & away team, starters for a match are populated around 30 mins for the scheduled start time 
- * @apiSuccess {Object} lineups.home lineups of home team
- * @apiSuccess {String[]} lineups.home.starters just return starters, if need the substitutes, it can tune
- * @apiSuccess {String} lineups.home.starters.name player name
- * @apiSuccess {String} lineups.home.starters.position player primary position
- * @apiSuccess {String} lineups.home.starters.first_name player first name
- * @apiSuccess {String} lineups.home.starters.last_name player last name
- * @apiSuccess {String} lineups.home.starters.id player id
- * @apiSuccess {Object} lineups.away lineups of away team, like lineups.home field, description omitted here
  * 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * [
     {
-        "id": "2106992",
-        "scheduled": 1582851600,
+        "id": "2114519",
+        "scheduled": 1585695600,
         "home": {
-            "alias": "IND",
-            "name": "Indiana Pacers",
-            "alias_ch": "溜馬",
-            "image_id": "3414",
-            "id": "583ec7cd-fb46-11e1-82cb-f4ce4684ea4c"
+            "alias": "PHI",
+            "name": "Philadelphia 76ers",
+            "alias_ch": "76人",
+            "image_id": "3420",
+            "id": "583ec87d-fb46-11e1-82cb-f4ce4684ea4c"
         },
         "away": {
-            "alias": "POR",
-            "name": "Portland Trail Blazers",
-            "alias_ch": "拓荒者",
-            "image_id": "3419",
-            "id": "583ed056-fb46-11e1-82cb-f4ce4684ea4c"
+            "alias": "DET",
+            "name": "Detroit Pistons",
+            "alias_ch": "活塞",
+            "image_id": "3424",
+            "id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c"
         },
-        "handicap": {
-            "spread": {
-                "30539260": {
-                    "handicap": 9.5,
-                    "add_time": 1582755227,
-                    "home_odd": 1.909,
-                    "away_odd": 1.909,
-                    "insert_time": 1582779612
-                }
-            },
-            "totals": {
-                "33283734": {
-                    "handicap": 218,
-                    "add_time": 1582755227,
-                    "insert_time": 1582779610
-                }
+        "spread": {
+            "31267231": {
+                "handicap": 11.5,
+                "add_time": 1583926710,
+                "disable": true
             }
         },
-        "lineups": {
-            "home": {
-                "starters": [
-                    {
-                        "name": "Myles Turner",
-                        "position": "C",
-                        "first_name": "Myles",
-                        "last_name": "Turner",
-                        "id": "323f9ef8-ecdd-41a7-859e-dd3db48ba913"
-                    },
-                    {
-                        "name": "Malcolm Brogdon",
-                        "position": "PG",
-                        "first_name": "Malcolm",
-                        "last_name": "Brogdon",
-                        "id": "f7134fc8-b298-41fd-933d-d0c4a5d8f6ac"
-                    },
-                    {
-                        "name": "Justin Holiday",
-                        "position": "SG",
-                        "first_name": "Justin",
-                        "last_name": "Holiday",
-                        "id": "05dea31d-f1ff-491b-9f17-8be88b26f413"
-                    },
-                    {
-                        "name": "T.J. Warren",
-                        "position": "SF",
-                        "first_name": "T.J.",
-                        "last_name": "Warren",
-                        "id": "2ec7092d-e988-4576-ab8b-e3197448fa5d"
-                    },
-                    {
-                        "name": "Victor Oladipo",
-                        "position": "SG",
-                        "first_name": "Victor",
-                        "last_name": "Oladipo",
-                        "id": "ae9e275c-9dce-4c10-a108-cfee6958df48"
-                    }
-                ]
-            },
-            "away": {
-                "starters": [
-                    {
-                        "name": "Gary Trent Jr.",
-                        "position": "PG",
-                        "first_name": "Gary",
-                        "last_name": "Trent Jr.",
-                        "id": "62daf16f-0c4c-46ae-9e54-0d34d6fdef85"
-                    },
-                    {
-                        "name": "Carmelo Anthony",
-                        "position": "PF",
-                        "first_name": "Carmelo",
-                        "last_name": "Anthony",
-                        "id": "32688af1-7ac2-432e-b60a-74b9bd89df57"
-                    },
-                    {
-                        "name": "Anfernee Simons",
-                        "position": "SG",
-                        "first_name": "Anfernee",
-                        "last_name": "Simons",
-                        "id": "632adcc4-97f1-4e67-a132-e0b79f013c67"
-                    },
-                    {
-                        "name": "CJ McCollum",
-                        "position": "SG",
-                        "first_name": "CJ",
-                        "last_name": "McCollum",
-                        "id": "bc70a55a-cee0-478f-9a13-cf51c4a4187c"
-                    },
-                    {
-                        "name": "Trevor Ariza",
-                        "position": "SF",
-                        "first_name": "Trevor",
-                        "last_name": "Ariza",
-                        "id": "9392d5b6-3dbf-4375-8fdd-4dafaae6ede4"
-                    }
-                ]
+        "totals": {
+            "34409340": {
+                "handicap": 214.5,
+                "add_time": 1583934276,
+                "disable": true
+            }
+        }
+    },
+    {
+        "id": "2115973",
+        "scheduled": 1585697400,
+        "home": {
+            "alias": "MIA",
+            "name": "Miami Heat",
+            "alias_ch": "熱火",
+            "image_id": "3435",
+            "id": "583ecea6-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "away": {
+            "alias": "CHA",
+            "name": "Charlotte Hornets",
+            "alias_ch": "黃蜂",
+            "image_id": "3430",
+            "id": "583ec97e-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "spread": {
+            "31268919": {
+                "handicap": 10.5,
+                "add_time": 1583934483,
+                "disable": true
+            }
+        },
+        "totals": {
+            "34417671": {
+                "handicap": 210.5,
+                "add_time": 1583945384,
+                "disable": true
+            }
+        }
+    },
+    {
+        "id": "2117403",
+        "scheduled": 1585699200,
+        "home": {
+            "alias": "HOU",
+            "name": "Houston Rockets",
+            "alias_ch": "火箭",
+            "image_id": "3412",
+            "id": "583ecb3a-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "away": {
+            "alias": "MIN",
+            "name": "Minnesota Timberwolves",
+            "alias_ch": "灰狼",
+            "image_id": "3426",
+            "id": "583eca2f-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "spread": {
+            "31194971": {
+                "handicap": 12.5,
+                "add_time": 1583788130,
+                "disable": true
+            }
+        },
+        "totals": {
+            "34333969": {
+                "handicap": 245,
+                "add_time": 1583846112,
+                "disable": false
+            }
+        }
+    },
+    {
+        "id": "2117404",
+        "scheduled": 1585708200,
+        "home": {
+            "alias": "GSW",
+            "name": "Golden State Warriors",
+            "alias_ch": "勇士",
+            "image_id": "3428",
+            "id": "583ec825-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "away": {
+            "alias": "LAC",
+            "name": "Los Angeles Clippers",
+            "alias_ch": "快艇",
+            "image_id": "3425",
+            "id": "583ecdfb-fb46-11e1-82cb-f4ce4684ea4c"
+        },
+        "spread": {
+            "31217018": {
+                "handicap": -11,
+                "add_time": 1583834476,
+                "disable": false
+            }
+        },
+        "totals": {
+            "34334768": {
+                "handicap": 226.5,
+                "add_time": 1583850138,
+                "disable": true
             }
         }
     }

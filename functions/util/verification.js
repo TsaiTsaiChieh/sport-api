@@ -7,7 +7,6 @@ async function token(req, res, next) {
     const decodedIdToken = await modules.firebaseAdmin
       .auth()
       .verifySessionCookie(session, true);
-    // 之後要設定過期時間，重新給 token
     // decodedIdToken = {
     //   iss: 'https://session.firebase.google.com/sport19y0715',
     //   aud: 'sport19y0715',
@@ -22,7 +21,7 @@ async function token(req, res, next) {
     // };
     req.token = decodedIdToken;
   } catch (err) {
-    console.log('Error in util/verification functions', err);
+    console.error('Error in util/verification token functions', err);
     res.status(401).json({ code: 401, error: 'Unauthorized' });
     return;
   }
@@ -47,4 +46,22 @@ async function admin(req, res, next) {
   }
 }
 
-module.exports = { token, admin };
+async function confirmLogin(req, res, next) {
+  const session = req.cookies.__session;
+  try {
+    if (session) {
+      const decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(session, true);
+      req.token = decodedIdToken;
+    }
+    if (!session) {
+      // do nothing and next
+    }
+  } catch (err) {
+    console.error('Error in util/verification confirmLogin functions', err);
+    return res.status(500).json({ code: 500, error: err });
+  }
+  return next();
+}
+module.exports = { token, admin, confirmLogin };
