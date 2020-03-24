@@ -68,7 +68,6 @@ app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
 app.use('/messages', require('./routers/messages'));
-app.use('/home', require('./routers/home'));
 app.use('/sport', require('./routers/sport'));
 // app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
