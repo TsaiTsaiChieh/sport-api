@@ -22,9 +22,8 @@ async function livescore(req, res) {
   if (req.query.category) {
     out.category = req.query.category;
   } else {
-    out.category = 'prematch';
+    out.category = 'pbp';
   }
-  console.log(out);
 
   try {
     res.json(await model(out));

@@ -16,7 +16,8 @@ async function livescore(req, res) {
   if (req.query.time) {
     out.time = req.query.time;
   } else {
-    out.time = Date.now();
+    //out.time = Date.now();
+    out.time = 1584982800000;
   }
 
   try {
