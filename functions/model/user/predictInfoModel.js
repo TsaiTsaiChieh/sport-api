@@ -37,12 +37,16 @@ function predictInfo(args) {
 
     // 2.
     try{
-      const now = modules.moment().utcOffset(8).format('MMDDYYYY');
-      const tomorrow = modules.moment().add(1, 'days').utcOffset(8).format('MMDDYYYY');
+      const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
+      const now = modules.moment(now_YYYYMMDD).utcOffset(8).unix() * 1000;
+      const tomorrow = modules.moment(now_YYYYMMDD).add(1, 'days').utcOffset(8).unix() * 1000;
+
       // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
         .where('uid', '==', userUid)
-        .where('date', 'in', [now, tomorrow]) // 兩天內的
+        .where('date_timestamp', '>=', now)
+        .where('date_timestamp', '<=', tomorrow) // 兩天內
+        //.where('date', 'in', [now, tomorrow]) // 兩天內
         .get();
 
       // 使用者 一開始尚未預測
@@ -52,26 +56,28 @@ function predictInfo(args) {
       }
       
       // 一個使用者，一天只會有一筆記錄
-      if(predictionsInfoDocs.size > 1) {
-        // console.error('Error 2. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 404, err: {errcode: '1304', errmsg: `使用者一天只能擁有一份預測清單`} });
-      }
+      // if(predictionsInfoDocs.size > 1) {
+      //   // console.error('Error 2. in user/predictonInfoModell by YuHsien');
+      //   return reject({ code: 404, err: {errcode: '1304', errmsg: `使用者一天只能擁有一份預測清單`} });
+      // }
     
-      let predictonsInfoData = {}; // 使用者預測資訊
+      let predictonsInfoData = []; // 使用者預測資訊
       let matchInfoDocs = [];
 
       predictionsInfoDocs.forEach(function(data){
-        predictonsInfoData = data.data();
+        predictonsInfoData.push(data.data());
       });
 
       // 查詢 matches 賽事相關資料
-      for (const [key, value] of Object.entries(predictonsInfoData.matches)) { 
-        const matchInfoDoc = modules.firestore.collection(collectionCodebook(league))
-          .where('flag.status', '==', 2) // 賽前
-          .where('bets_id', '==', key)
-          .get();
-        matchInfoDocs.push(matchInfoDoc);
-      }
+      predictonsInfoData.forEach(function(data) {
+        for (const [key, value] of Object.entries(data.matches)) { 
+          const matchInfoDoc = modules.firestore.collection(collectionCodebook(league))
+            .where('flag.status', '==', 2) // 賽前
+            .where('bets_id', '==', key)
+            .get();
+          matchInfoDocs.push(matchInfoDoc);
+        }
+      });
 
       // 將取回賽事資料進行整理，給repackage使用，屬於額外資訊
       const matchesInfos = await Promise.all(matchInfoDocs).then(function(docs) { 
@@ -85,12 +91,14 @@ function predictInfo(args) {
       });
 
       // 把賽事資料 重包裝格式
-      for (const [key, value] of Object.entries(predictonsInfoData.matches)) {
-        if (matchesInfos[key] === undefined) continue // 非賽前 (已開打、結束等) 不用處理打包
-        predictionsInfoList.push( 
-          repackage(value, {league: league, matchInfo: matchesInfos[key]} ) 
-        );
-      }
+      predictonsInfoData.forEach(function(data) {
+        for (const [key, value] of Object.entries(data.matches)) {
+          if (matchesInfos[key] === undefined) continue // 非賽前 (已開打、結束等) 不用處理打包
+          predictionsInfoList.push( 
+            repackage(value, {league: league, matchInfo: matchesInfos[key]} ) 
+          );
+        }
+      });
     } catch (err) {
       console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
       return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
