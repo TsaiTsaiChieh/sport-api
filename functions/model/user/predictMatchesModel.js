@@ -10,7 +10,6 @@ function predictMatches(args) {
       args.userStatus = userStatus;
       if (!checkNormalUserSell(args)) {
         return reject({ code: 405, error: 'Normal user could not sell' });
-        // return;
       }
 
       // 檢查一般玩家想賣牌
@@ -77,6 +76,14 @@ function repackagePrediction(args, ele, date) {
     user_status: args.userStatus,
     sell: args.sell,
     date: date,
+    date_timestamp: modules
+      .moment(
+        modules
+          .moment(ele.scheduled * 1000)
+          .utcOffset(8)
+          .format('YYYYMMDD')
+      )
+      .valueOf(),
     matches: {}
   };
   data.matches[ele.id] = ele.scheduled;
