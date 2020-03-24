@@ -1,17 +1,18 @@
-const express = require("express");
-const envValues = require("../config/env_values");
-const firebaseAdmin = require("firebase-admin");
-const firebase = require("firebase");
-const moment = require("moment");
-const Ajv = require("ajv");
+const express = require('express');
+const envValues = require('../config/env_values');
+const firebaseAdmin = require('firebase-admin');
+const firebase = require('firebase');
+const moment = require('moment');
+const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
-const axios = require("axios");
+const axios = require('axios');
 const betsToken = envValues.betsToken;
 const sportRadarKeys = envValues.sportRadarKeys;
-const path = require("path");
-const os = require("os");
-const fs = require("fs");
-const https = require("https");
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const https = require('https');
+const firestoreService = require('firestore-export-import');
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -38,6 +39,12 @@ function getDoc(collection, id) {
 function addDataInCollection(collection, data) {
   return firestore.collection(collection).add(data);
 }
+function addDataInCollectionWithId(collection, id, data) {
+  return firestore
+    .collection(collection)
+    .doc(id)
+    .set(data, { merge: true });
+}
 function createError(code, error) {
   const err = {};
   err.code = code;
@@ -47,11 +54,14 @@ function createError(code, error) {
 
 // database name general setting
 const db = {
-  basketball_NBA: "basketball_NBA",
-  // basketball_NBA: 'NBA_TC',
+  // basketball_NBA: 'basketball_NBA',
+  basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
-  // baseball_MLB: 'baseball_MLB'
-  baseball_MLB: 'MLB_TC'
+  baseball_MLB: 'baseball_MLB',
+  // baseball_MLB: 'MLB_TC',
+  prediction_NBA: 'prediction_NBA',
+  prediction_SBL: 'prediction_SBL',
+  prediction_MLB: 'prediction_MLB'
 };
 function dateFormat(date) {
   return {
@@ -69,6 +79,26 @@ async function cloneFirestore(name, clonedName) {
 }
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
+}
+// eslint-disable-next-line consistent-return
+function leagueCodebook(league) {
+  switch (league) {
+    case 'NBA':
+      return {
+        match: db.basketball_NBA,
+        prediction: db.prediction_NBA
+      };
+    case 'SBL':
+      return {
+        match: db.basketball_SBL,
+        prediction: db.prediction_SBL
+      };
+    case 'MLB':
+      return {
+        match: db.baseball_MLB,
+        prediction: db.prediction_MLB
+      };
+  }
 }
 module.exports = {
   express,
@@ -93,5 +123,8 @@ module.exports = {
   dateFormat,
   cloneFirestore,
   sportRadarKeys,
-  firebaseTimestamp
+  firebaseTimestamp,
+  firestoreService,
+  leagueCodebook,
+  addDataInCollectionWithId
 };

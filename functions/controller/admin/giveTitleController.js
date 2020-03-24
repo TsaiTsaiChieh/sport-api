@@ -33,14 +33,13 @@ async function giveTitle(req, res) {
         then: {
           properties: {
             league: {
-              // enum: ['ABL', 'CPBL', 'KBO', 'LMB', 'MLB', 'NPB']
               enum: [
-                '中華職棒',
-                '墨西哥職棒',
-                '韓國職棒',
-                'MLB',
-                '日本職棒',
-                '澳洲職棒'
+                'CPBL', // 中華職棒
+                'LMB', // 墨西哥職棒
+                'KBO', // 韓國職棒
+                'MLB', // 美國職棒
+                'NPB', // 日本職棒
+                'ABL' // 澳洲職棒
               ]
             }
           }
@@ -59,12 +58,12 @@ async function giveTitle(req, res) {
             league: {
               enum: [
                 'SBL',
-                '日本職籃',
-                '韓國職籃',
-                '澳洲職籃',
+                'JPBL', // 日本職籃
+                'KBL', // 韓國職籃
+                'NBL', // 澳洲職籃
                 'NBA',
                 'WNBA',
-                '中國職籃'
+                'CBA' //  中國職籃
               ]
             }
           }
@@ -97,13 +96,14 @@ async function giveTitle(req, res) {
         then: {
           properties: {
             league: {
-              enum: ['足球']
+              enum: ['SOCCER']
             }
           }
         }
       }
     ]
   };
+
   const args = req.body;
   args.adminUid = req.adminUid;
   const valid = modules.ajv.validate(schema, req.body);
@@ -133,7 +133,7 @@ module.exports = giveTitle;
  * @apiParam {String} uid user uid
  * @apiParam {Integer} rank user rank, maximum: 4, minimum: 1. rank `1`: 鑽石大神, rank `2`: 金牌大神, rank `3`: 銀牌大神, rank `4`: 銅牌大神
  * @apiParam {Integer} sport user sport, enum: `16`(baseball), `18`(basketball), `17`(ice_hockey), `1`(soccer)
- * @apiParam {String} league user league, enum pair: [16(`中華職棒`, `墨西哥職棒`, `韓國職棒`, `MLB`, `日本職棒`, `澳洲職棒`), 18(`SBL`, `日本職籃`, `韓國職籃`, `澳洲職籃`, `NBA`, `WNBA`, `中國職籃`), 17(`NHL`), 1(`足球`)]
+ * @apiParam {String} league user league, enum pair: [16(`CPBL`(中華職棒), `LMB`(墨西哥職棒), `KBO`(韓國職棒), `MLB`, `NPB`(日本職棒), `ABL`(澳洲職棒)), 18(`SBL`, `JPBL`(日本職籃), `KBL`(韓國職籃), `NBL`(澳洲職籃), `NBA`, `WNBA`, `CBA`(中國職籃)), 17(`NHL`), 1(`SOCCER`(足球))]
 
  * @apiParamExample {JSON} Request-Example
  * {

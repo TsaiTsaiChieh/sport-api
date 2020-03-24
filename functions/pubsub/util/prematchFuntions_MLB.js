@@ -3,22 +3,24 @@ const modules = require('../../util/modules');
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
     const _date = modules.dateFormat(date);
-    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=16&token=${modules.betsToken}&league_id=3939&day=${_date.year}${_date.month}${_date.day}`;
+    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=16&token=${modules.betsToken}&league_id=22259&day=${_date.year}${_date.month}${_date.day}`;
     console.log(`BetsAPI MLB_PRE URL on ${date}: ${URL}`);
     // axios
     const results = [];
     try {
       const { data } = await modules.axios(URL);
-      for (let i = 0; i < data.results.length; i++) {
-        const ele = data.results[i];
-        if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
-          results.push(
-            modules.firestore
-              .collection(modules.db.baseball_MLB)
-              .doc(ele.id)
-              .set(repackage_bets(ele), { merge: true })
-          );
-          console.log(`BetsAPI MLB_PRE match_id: ${ele.id}`);
+      if (data.results.length) {
+        for (let i = 0; i < data.results.length; i++) {
+          const ele = data.results[i];
+          if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
+            results.push(
+              modules.firestore
+                .collection(modules.db.baseball_MLB)
+                .doc(ele.id)
+                .set(repackage_bets(ele), { merge: true })
+            );
+            console.log(`BetsAPI: ${modules.db.baseball_MLB}(${ele.id})`);
+          }
         }
       }
     } catch (error) {
@@ -40,7 +42,9 @@ module.exports.MLB_PRE = {
         reject(error);
       }
     });
-  },
+  }
+};
+module.exports.MLB = {
   prematch: async function(date) {
     const _date = modules.dateFormat(date);
     // If query today information, it will return today or tomorrow information
@@ -48,12 +52,10 @@ module.exports.MLB_PRE = {
     console.log(`SportRadar MLB_PRE URL on ${date}: ${URL}`);
     try {
       const { data } = await modules.axios(URL);
-      const query = await query_MLB();
-
+      const querys = await query_MLB('flag.prematch', 0);
       for (let i = 0; i < data.games.length; i++) {
         const ele = data.games[i];
-        integration(query, ele, data.league);
-        console.log(`SportRadar MLB_PRE match_id: ${ele.id}`);
+        integration(querys, ele, data.league);
       }
     } catch (error) {
       console.error(
@@ -63,18 +65,21 @@ module.exports.MLB_PRE = {
     }
   },
   lineups: async function(date) {
-    const querys = await queryBeforeOneDay(date);
+    const querys = await queryBeforeOneDay(date, 'flag.prematch', 1);
     const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games`;
     try {
-      // for (let i = 0; i < querys.length; i++) {
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < querys.length; i++) {
         const ele = querys[i];
+        const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
         // eslint-disable-next-line no-await-in-loop
-        const { data } = await modules.axios.get(
-          `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
-        );
+        const { data } = await modules.axios.get(completeURL);
         console.log(
-          `SportRadar MLB_PRE lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`
+          `${modules.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+            ele.away.alias
+          }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
+            .moment(ele.scheduled._seconds * 1000)
+            .utcOffset(8)
+            .format('ll')}, URL: ${completeURL}`
         );
         modules.firestore
           .collection(modules.db.baseball_MLB)
@@ -87,28 +92,73 @@ module.exports.MLB_PRE = {
         error
       );
     }
+  },
+  // eslint-disable-next-line consistent-return
+  teamStat: async function(date) {
+    const querys = await queryBeforeOneDay(date, 'flag.prematch', 1);
+    const URL =
+      'http://api.sportradar.us/mlb/trial/v6.6/en/seasons/2020/PRE/teams';
+    for (let i = 0; i < querys.length; i++) {
+      const ele = querys[i];
+      const homeURL = `${URL}/${ele.home.radar_id}/statistics.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
+      const awayURL = `${URL}/${ele.away.radar_id}/statistics.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const homeTeam = await modules.axios.get(homeURL);
+        // eslint-disable-next-line no-await-in-loop
+        const awayTeam = await modules.axios.get(awayURL);
+        console.log(`SportRadar URL: ${homeURL} on ${new Date()}`);
+        console.log(`SportRadar URL: ${awayURL} on ${new Date()}`);
+        modules.firestore
+          .collection(modules.db.baseball_MLB)
+          .doc(ele.bets_id)
+          .set(repackage_team(homeTeam.data, awayTeam.data), { merge: true });
+      } catch (error) {
+        console.error(
+          `Error in pubsub/util/prematchFunctions_MLB teamStat function by TsaiChieh on ${new Date()}`,
+          error
+        );
+        return error;
+      }
+    }
   }
 };
-
 function skipTeam(id) {
   id = Number.parseInt(id);
   switch (id) {
-    case 269292:
-    case 216007:
-    case 45295:
-    case 10078:
-    case 325710:
-    case 7420:
-    case 7432:
-    case 162080:
-    case 1485:
-    case 216028:
-    case 265768:
-    case 1482:
-    case 269640:
-      return false;
-    default:
+    case 1090:
+    case 1222:
+    case 1202:
+    case 1217:
+    case 1311:
+    case 1091:
+    case 1478:
+    case 1310:
+    case 1203:
+    case 1088:
+    case 1120:
+    case 1089:
+    case 1121:
+    case 1216:
+    case 1479:
+    case 1369:
+    case 1353:
+    case 1108:
+    case 1365:
+    case 1146:
+    case 1223:
+    case 1186:
+    case 1187:
+    case 1364:
+    case 1368:
+    case 1147:
+    case 1352:
+    case 1109:
+    case 1113:
+    case 1112:
       return true;
+    default:
+      return false;
   }
 }
 
@@ -139,7 +189,6 @@ function repackage_bets(ele) {
       spread: 0,
       totals: 0,
       status: 2,
-      lineup: 0,
       prematch: 0
     }
   };
@@ -150,6 +199,8 @@ function encodeSeason(name) {
   switch (name) {
     case 'exhibition games':
       return 'PRE';
+    default:
+      return name;
   }
 }
 
@@ -346,12 +397,12 @@ function codebook(id, name) {
   }
 }
 
-async function query_MLB() {
+async function query_MLB(flag, value) {
   const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
   const results = [];
 
   try {
-    const query = await eventsRef.where('flag.prematch', '==', 0).get();
+    const query = await eventsRef.where(flag, '==', value).get();
     query.forEach(async function(ele) {
       results.push(ele.data());
     });
@@ -359,7 +410,7 @@ async function query_MLB() {
     return results;
   } catch (error) {
     console.error(
-      'Error in pubsub/util/prematchFunctions_MLB query_MLB function by TsaiChieh',
+      `Error in pubsub/util/prematchFunctions_MLB query_MLB function by TsaiChieh on ${new Date()}`,
       error
     );
     return error;
@@ -382,6 +433,9 @@ function integration(query, ele, league) {
         .collection(modules.db.baseball_MLB)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
+      console.log(
+        `SportRadar: ${modules.db.baseball_MLB}(${query[i].bets_id})`
+      );
     }
   }
 }
@@ -390,7 +444,7 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.abbr.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.abbr.toUpperCase() === query.away.alias;
   return {
-    update_time: modules.firebaseTimestamp(new Date()),
+    update_time: modules.firebaseTimestamp(Date.now()),
     radar_id: ele.id,
     league: {
       radar_id: league.id
@@ -424,22 +478,16 @@ function repackage_sportradar(ele, query, league) {
   };
 }
 
-async function queryBeforeOneDay(date) {
+async function queryBeforeOneDay(date, flag, value) {
   const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
   const results = [];
   try {
     const querys = await eventsRef
-      .where('flag.lineup', '==', 0)
+      .where(flag, '==', value)
       .where('scheduled', '>=', modules.moment(date))
       .where('scheduled', '<=', modules.moment(date).add(24, 'hours'))
       .get();
     querys.docs.map(function(docs) {
-      // console.log(
-      //   docs.data().bets_id,
-      //   modules
-      //     .moment(docs.data().scheduled._seconds * 1000)
-      //     .format('YYYY-MM-DD')
-      // );
       results.push(docs.data());
     });
     return await Promise.all(results);
@@ -458,14 +506,15 @@ function repackage_lineups(ele) {
     const homePitcher = ele.game.home.probable_pitcher;
     const awayPitcher = ele.game.away.probable_pitcher;
     return {
-      flag: { lineup: 1 },
       lineups: {
         home: {
           pitcher: {
             name: homePitcher.preferred_name,
             first_name: homePitcher.first_name,
             last_name: homePitcher.last_name,
-            jersey_number: homePitcher.jersey_number,
+            jersey_number: `${
+              homePitcher.jersey_number ? homePitcher.jersey_number : '-'
+            }`,
             id: homePitcher.id,
             win: homePitcher.win,
             loss: homePitcher.loss,
@@ -477,7 +526,9 @@ function repackage_lineups(ele) {
             name: awayPitcher.preferred_name,
             first_name: awayPitcher.first_name,
             last_name: awayPitcher.last_name,
-            jersey_number: awayPitcher.jersey_number,
+            jersey_number: `${
+              awayPitcher.jersey_number ? awayPitcher.jersey_number : '-'
+            }`,
             id: awayPitcher.id,
             win: awayPitcher.win,
             loss: awayPitcher.loss,
@@ -486,5 +537,68 @@ function repackage_lineups(ele) {
         }
       }
     };
-  }
+  } else if (ele.game.home.probable_pitcher) {
+    const homePitcher = ele.game.home.probable_pitcher;
+    return {
+      lineups: {
+        home: {
+          pitcher: {
+            name: homePitcher.preferred_name,
+            first_name: homePitcher.first_name,
+            last_name: homePitcher.last_name,
+            jersey_number: `${
+              homePitcher.jersey_number ? homePitcher.jersey_number : '-'
+            }`,
+            id: homePitcher.id,
+            win: homePitcher.win,
+            loss: homePitcher.loss,
+            era: homePitcher.era
+          }
+        }
+      }
+    };
+  } else if (ele.game.away.probable_pitcher) {
+    const awayPitcher = ele.game.away.probable_pitcher;
+    return {
+      lineups: {
+        home: {
+          pitcher: {
+            name: awayPitcher.preferred_name,
+            first_name: awayPitcher.first_name,
+            last_name: awayPitcher.last_name,
+            jersey_number: `${
+              awayPitcher.jersey_number ? awayPitcher.jersey_number : '-'
+            }`,
+            id: awayPitcher.id,
+            win: awayPitcher.win,
+            loss: awayPitcher.loss,
+            era: awayPitcher.era
+          }
+        }
+      }
+    };
+  } else return {};
+}
+function repackage_team(homeData, awayData) {
+  return {
+    stat: {
+      update_time: modules.firebaseTimestamp(new Date()),
+      home: {
+        r: homeData.statistics.hitting.overall.runs.total,
+        h: homeData.statistics.hitting.overall.onbase.h,
+        hr: homeData.statistics.hitting.overall.onbase.hr,
+        avg: Number.parseFloat(homeData.statistics.hitting.overall.avg),
+        obp: homeData.statistics.hitting.overall.obp,
+        slg: homeData.statistics.hitting.overall.slg
+      },
+      away: {
+        r: awayData.statistics.hitting.overall.runs.total,
+        h: awayData.statistics.hitting.overall.onbase.h,
+        hr: awayData.statistics.hitting.overall.onbase.hr,
+        avg: Number.parseFloat(awayData.statistics.hitting.overall.avg),
+        obp: awayData.statistics.hitting.overall.obp,
+        slg: awayData.statistics.hitting.overall.slg
+      }
+    }
+  };
 }
