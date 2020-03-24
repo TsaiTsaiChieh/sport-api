@@ -32,4 +32,7 @@ router.get(
     '/getClaim/:uid',
     require('../controller/user/getClaimController')
 );
+
+router.post('/predict_info', verification.token, require('../controller/user/predictInfoController') );
+
 module.exports = router;

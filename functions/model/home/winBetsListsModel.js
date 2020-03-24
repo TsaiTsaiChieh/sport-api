@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 function winBetsLists(args) {
   return new Promise(async function(resolve, reject) {
     // 取得 首頁預設值
-    const defaultValues = await modules.firestore.collection('backstage').doc('home').get()
+    const defaultValues = await modules.firestore.collection('doSports_settings').doc('home_win_bets').get()
       .then(function(data){
         return data.data()
       });
