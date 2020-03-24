@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 /* 施工中
-    簡易資料測試 http://localhost:5000/topic_test.html
+    簡易資料測試 http://localhost:5000/test/hotTopics.html
 */
 async function hotTopics(req, res) {
   const topics = [];

@@ -1,0 +1,267 @@
+<head>
+  <title>banner by ifyu</title>
+  <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.19.2/vuedraggable.umd.min.js"></script>
+</head>
+<body>
+  <style>
+    .ghost {
+      opacity: 0.5;
+      background: #c8ebfb;
+    }
+  </style>
+  <div id="app">
+    <div style="width:100%; background-color: lightskyblue;"><a href="/auth.html">[登入頁]</a> {{fbAuth ? fbAuth.displayName : '未登入'}}</div>
+    <div style="width:100%; text-align: center;"><h3>首頁輪播圖</h3></div>
+    <div v-show="message" style="height:24px; padding:0 5px;background-color:red; color:white; position:fixed; top:8px; right:8px; border:0;">{{message}}</div>
+    <img v-show="!loaded" style="width:30px; height:30px; position:fixed; top:42px; right:13px; border:0;" src="loading.gif" />
+
+    首頁顯示
+    <div style="background-color: LightGrey; padding: 10px">
+      <div v-if="images1.length == 0">請在底下新增圖片或把下面的圖片拖來這裡</div>
+      <draggable
+        :list="images1"
+        @start="dragging = true"
+        @end="dragging = false"
+        ghost-class="ghost"
+        group="headimg" >
+        <div
+          v-for="(item, index) in images1"
+          :key="item.name"
+          v-if="item"
+          style="width:100%; margin-top: 10px; vertical-align:top; display:flex; cursor: move;" >
+          <img :src="item.url" style="width:100%; max-width:300px;">
+          <div style="padding:10px">
+            {{item.name}}<br>
+            連結：<input type="text" v-model="item.link" placeholder="http://..." />
+          </div>
+        </div>
+      </draggable>
+      <div style="text-align:center"><button style="margin-top:10px;" @click="doSubmit">儲存排序/更新連結</button></div>
+    </div>
+    <hr>
+    首頁不顯示
+    <div style="background-color: LightGrey; padding: 10px">
+      <div v-if="images2.length == 0">請在下方新增圖片</div>
+      <draggable
+        :list="images2"
+        @start="dragStart(); dragging = true"
+        @end="dragging = false"
+        ghost-class="ghost"
+        group="headimg" >
+        <div
+          v-for="(item, index) in images2"
+          :key="item.name"
+          style="width:100%; margin-top: 10px; vertical-align:top; display:flex; cursor: move;" >
+          <img :src="item.url" style="width:100%; max-width:300px;">
+          <div style="padding:10px">
+            {{item.name}}<br>
+            連結：<input type="text" v-model="item.link" placeholder="http://..." /><br>
+            <button @click="updateLink(item.name, item.link)">更新連結</button><br>
+            <button @click="deleteImg(item)">刪除</button>
+          </div>
+        </div>
+      </draggable>
+    </div>
+  </div>
+  <div style="width:50%; margin: 10px auto; padding: 5px; background-color: lightgrey;">
+    <form id="form" width=100%>
+      上傳圖片<br>
+      <label>
+        <input type="file" id="file" value="upload" accept=".jpg,.png">
+      </label>
+    </form>
+  </div>
+  <script>
+    const firebaseConfig = {
+      apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+      authDomain: 'sportslottery-test.firebaseapp.com',
+      databaseURL: 'https://sportslottery-test.firebaseio.com',
+      projectId: 'sportslottery-test',
+      storageBucket: 'sportslottery-test.appspot.com',
+      messagingSenderId: '969081540385',
+      appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
+    };
+    firebase.initializeApp(firebaseConfig);
+    let storage = firebase.storage();
+
+    Vue.config.devtools = true;
+    var app = new Vue({
+      el: '#app',
+      data: {
+        fbAuth: null,
+        loaded: false,
+        message: '',
+        images1: [],
+        images2: [],
+        dragging: false
+      },
+      mounted: function(){
+        let vm = this;
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user){
+            vm.fbAuth = user;
+          }
+        });
+        this.loadContent()
+      },
+      methods: {
+        showMsg: function(text){
+          this.message = text;
+          let vm = this;
+          setTimeout(function(){
+            vm.message = '';
+          }, 3000)
+        },
+        doSubmit: function(){
+          if(this.images1.length > 6){
+            alert('最多只能使用7張圖')
+            return;
+          }
+          this.loaded = false;
+          let tmp = {};
+          console.log(this.images1)
+          for(let i = 0; i < 7; i++) {
+            if(this.images1[i]){
+              tmp[i] = {
+                name: this.images1[i].name,
+                link: this.images1[i].link,
+                url: this.images1[i].url,
+              }
+            }else{
+              tmp[i] = null;
+            }
+          }
+          let db = firebase.firestore();
+          let ref = db.collection('home_banner')
+          ref.doc('show').set(tmp).then(() => {
+            this.loaded = true;
+            this.showMsg('設定完成')
+          });
+        },
+        deleteImg: function(item){
+          console.log(item)
+          let vm = this;
+          if(!confirm('確定要刪除嗎？若只是不需要用到，請拖至下面')) return;
+          let storageRef = firebase.storage().ref('/');
+          let desertRef = storageRef.child('home_banner/'+item.name);
+          desertRef.delete().then(function() {
+            let db = firebase.firestore();
+            console.log(db)
+            db.collection('home_banner')
+            .doc(item.name)
+            .delete();
+            vm.doSubmit()
+            vm.loadContent()
+          }).catch(function(error) {
+            vm.loadContent()
+          });
+        },
+        updateLink(name, link){
+          if(!link) return;
+          this.loaded = false;
+          let db = firebase.firestore();
+          let ref = db.collection('home_banner')
+          console.log(this.images1)
+          ref.doc(name).update({
+            link: link
+          }).then(() => {
+            this.loaded = true;
+            this.showMsg('設定完成')
+          });
+        },
+        loadContent: function(){
+          this.loaded = false;
+          let show = [];
+          let show_key = [];
+          let hide = [];
+          let hide_tmp = [];
+          let db = firebase.firestore();
+
+          db.collection('home_banner').get().then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              if(doc.id == 'show'){
+                let item = doc.data()
+
+                for(let i = 0; i < Object.keys(item).length; i++){
+                  if(item[i] != null){
+                    show.push(item[i])
+                    show_key.push(item[i].name)
+                  }
+                }
+              }else{
+                hide_tmp.push(doc.data())
+              }
+            });
+            for(let i = 0; i < hide_tmp.length; i++){
+              console.log(hide_tmp[i].name, show_key)
+              if(!show_key.includes(hide_tmp[i].name)){
+                hide.push(hide_tmp[i])
+              }
+            }
+            this.images1 = show;
+            this.images2 = hide;
+            this.loaded = true;
+          });
+
+          /***** 以下為撈firebase storage資料夾內全部顯示，無取db資料 *****
+          let vm = this;
+          let res = [];
+          let storageRef = firebase.storage().ref('/');
+          listRef = storageRef.child('home_banner');
+          listRef.listAll().then(function(item) {
+            item.items.forEach(function(itemRef) {
+              itemRef.getDownloadURL().then(function(url) {
+                res.push({link: '', url: url, name: itemRef.name, path:itemRef.fullPath})
+              })
+            });
+            console.log(res)
+            vm.images2 = res;
+            vm.loaded = true;
+          }).catch(function(error) {
+            alert('讀取失敗')
+          }); /**/
+        },
+        dragStart: function(e){
+          if(this.images1.length > 7)
+          alert('最多7張圖');
+        }
+      }
+    })
+
+    let file = document.getElementById('file');
+    file.addEventListener('change', function(e) {
+      let file = e.target.files[0];
+      let type;
+      if(file.type === 'image/jpeg') type = 'jpg';
+      else if(file.type === 'image/png') type = 'png';
+      else{
+        alert('不支援的檔案類型');
+        return;
+      }
+      document.getElementById('file').disabled = true;
+      app.loaded = false;
+      let filename = Date.now()+'.'+type;
+      let storageRef = firebase.storage().ref('home_banner/'+filename);
+      storageRef.put(file).then((e) => {
+        storageRef.getDownloadURL().then((url) => {
+          let db = firebase.firestore();
+          let ref = db.collection('home_banner')
+          ref.doc(filename).set({
+            name: filename,
+            url: url,
+            link: ''
+          }).then(() => {
+            app.loadContent()
+            app.showMsg('上傳完成')
+            document.getElementById('file').disabled = false;
+          });
+        })
+      });
+    });
+  </script>
+</body>
