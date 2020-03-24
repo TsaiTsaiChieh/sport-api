@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const modules = require('../../util/modules');
 
 function predictMatches(args) {
@@ -8,8 +9,8 @@ function predictMatches(args) {
       const userStatus = await getUserStatus(args);
       args.userStatus = userStatus;
       if (!checkNormalUserSell(args)) {
-        reject({ code: 405, error: 'Normal user could not sell' });
-        return;
+        return reject({ code: 405, error: 'Normal user could not sell' });
+        // return;
       }
 
       // 檢查一般玩家想賣牌
@@ -18,30 +19,21 @@ function predictMatches(args) {
         try {
           const results = await insertFirestore(args, sieves.needed);
           if (results) {
-            if (!sieves.failed.length) {
-              resolve(repackageReturnDate(sieves));
-            }
-            if (sieves.failed.length) {
-              reject({ code: 485, error: repackageReturnDate(sieves) });
-              return;
-            }
+            return resolve(repackageReturnDate(sieves));
           }
         } catch (err) {
           console.error(
             'Error in model/user/predictMatchesModel/predictMatches function by TsaiChieh',
             err
           );
-          reject({ code: 500, error: err });
-          return;
+          return reject({ code: 500, error: err });
         }
       }
       if (!sieves.needed.length) {
-        reject({ code: 485, error: repackageReturnDate(sieves) });
-        return;
+        return reject({ code: 485, error: repackageReturnDate(sieves) });
       }
     } catch (err) {
-      reject({ code: err.code, error: err });
-      return;
+      return reject({ code: err.code, error: err });
     }
   });
 }
