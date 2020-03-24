@@ -37,7 +37,6 @@ async function repackage(sport, league, eventID) {
   dateNow = dateNow.split(' ')[0];
 
   let historySpread = [];
-
   let spreadName = Object.keys(eventData[0].history.event0.spread)[0];
   historySpread.push({
     handicap: eventData[0].history.event0.spread[spreadName].handicap,
