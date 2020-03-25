@@ -100,6 +100,44 @@ function leagueCodebook(league) {
       };
   }
 }
+
+function getPeriod(date) {
+  const specificDate = '20200302';
+  const years = [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030
+  ];
+  let weeks = 0;
+  for (let i = 0; i < years.length; i++) {
+    const year = years[i];
+    const weeksInYear = moment(year).isoWeeksInYear(); // always 53
+    weeks += weeksInYear;
+  }
+  weeks -= moment().weeks();
+
+  for (let i = 0; i < Math.ceil(weeks / 2); i++) {
+    const begin = moment(specificDate)
+      .utcOffset(8)
+      .add(i * 2, 'weeks')
+      .valueOf();
+    const end = moment(specificDate)
+      .utcOffset(8)
+      .add(i * 2 + 1, 'weeks')
+      .endOf('isoWeek')
+      .valueOf();
+    if (begin <= date && date <= end) return i;
+  }
+  return 0;
+}
 module.exports = {
   express,
   firebaseAdmin,
@@ -126,5 +164,6 @@ module.exports = {
   firebaseTimestamp,
   firestoreService,
   leagueCodebook,
-  addDataInCollectionWithId
+  addDataInCollectionWithId,
+  getPeriod
 };
