@@ -26,7 +26,6 @@ exports.release = false;
 // 測試版 sportslottery-test-adminsdk
 exports.domain = 'dosports.web.app';
 // exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
-
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
