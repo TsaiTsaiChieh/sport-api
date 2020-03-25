@@ -33,7 +33,7 @@
 // let testString =
 //   'Andrés Blanco flies out to left center field to Collin Cowgill.';
 // let testString = 'David Fry hit by pitch.';
-// let testString = 'Luis Castro homers to center field.';
+let testString = 'Michael Chavis homers to center field.';
 //keyword = 依最嚴格條件開始替換
 let keyword1 = [
   // 觸身

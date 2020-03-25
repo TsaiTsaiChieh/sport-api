@@ -677,11 +677,71 @@
                 let realtimeData = snapshot.val();
                 //pbp all from realtime database and need to call sportradar-summary
                 let description = [];
-                description.push('Miguel Andújar called out on strikes.');
-                description.push('Rafael Devers homers to center field.');
-                description.push(
-                  'Michael Chavis singles to shallow left field.'
-                );
+                let descriptionCh = [];
+                let hitterNow;
+                let pitcherNow;
+
+                let inningsNow = realtimeData.Summary.Now_innings;
+                let halfsNow = realtimeData.Summary.Now_halfs;
+                let eventUnderHalfsCount = Object.keys(
+                  realtimeData.Summary[`Innings${inningsNow}`][
+                    `halfs${halfsNow}`
+                  ]
+                ).length;
+
+                if (inningsNow >= 1) {
+                  //history
+                  for (let i = 1; i <= inningsNow; i++) {
+                    for (let j = 0; j < halfsNow; j++) {
+                      for (let k = 0; k < eventUnderHalfsCount; k++) {
+                        description.push(
+                          realtimeData.Summary[`Innings${i}`][`halfs${j}`][
+                            `event${k}`
+                          ].at_bat.description
+                        );
+                        descriptionCh.push(
+                          realtimeData.Summary[`Innings${i}`][`halfs${j}`][
+                            `event${k}`
+                          ].at_bat.description_ch
+                        );
+                      }
+                    }
+                  }
+                  //now
+
+                  for (i = 0; i < eventUnderHalfsCount - 2; i++) {
+                    description.push(
+                      realtimeData.Summary[`Innings${inningsNow}`][
+                        `halfs${halfsNow}`
+                      ][`event${i}`].at_bat.description
+                    );
+                    descriptionCh.push(
+                      realtimeData.Summary[`Innings${inningsNow}`][
+                        `halfs${halfsNow}`
+                      ][`event${i}`].at_bat.description_ch
+                    );
+                  }
+
+                  let eventUnderAtbatCount = Object.keys(
+                    realtimeData.Summary[`Innings${inningsNow}`][
+                      `halfs${halfsNow}`
+                    ][`event${eventUnderHalfsCount - 2}`].at_bat
+                  ).length;
+
+                  for (let i = 0; i < eventUnderAtbatCount; i++) {
+                    hitterNow =
+                      realtimeData.Summary[`Innings${inningsNow}`][
+                        `halfs${halfsNow}`
+                      ][`event${eventUnderHalfsCount - 2}`].at_bat[`event${i}`]
+                        .hitter;
+                    pitcherNow =
+                      realtimeData.Summary[`Innings${inningsNow}`][
+                        `halfs${halfsNow}`
+                      ][`event${eventUnderHalfsCount - 2}`].at_bat[`event${i}`]
+                        .pitcher;
+                  }
+                }
+
                 let message = document.createElement('p');
                 message.setAttribute('class', 'pageTest1');
                 //由左上至右下
@@ -728,7 +788,10 @@
                   'hitterH : ' + 55 + '<br />',
                   'hitterABs : ' + 3 + '<br />',
                   'hitterHs : ' + 1 + '<br />',
-                  'description : ' + description + '<br />'
+                  'description : ' + description + '<br />',
+                  'descriptionCh : ' + descriptionCh + '<br />',
+                  'hitterNow : ' + hitterNow + '<br />',
+                  'pitcherNow : ' + pitcherNow + '<br />'
                 ];
                 information.append(`${event[0].bets_id}`);
                 information.append(message);
