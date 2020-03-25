@@ -8,22 +8,22 @@ async function livescore(req, res) {
   // 驗證
 
   let out = {};
-  // if (req.query.sport) {
-  //   out.sport = req.query.sport;
-  // } else {
-  //   out.sport = 'baseball';
-  // }
-  // if (req.query.league) {
-  //   out.league = req.query.league;
-  // } else {
-  //   out.league = 'MLB';
-  // }
-  // if (req.query.time) {
-  //   out.time = req.query.time;
-  // } else {
-  //   // out.time = Date.now();
-  //   out.time = 1584982800000;
-  // }
+  if (req.query.sport) {
+    out.sport = req.query.sport;
+  } else {
+    out.sport = 'baseball';
+  }
+  if (req.query.league) {
+    out.league = req.query.league;
+  } else {
+    out.league = 'MLB';
+  }
+  if (req.query.time) {
+    out.time = req.query.time;
+  } else {
+    // out.time = Date.now();
+    out.time = 1584982800000;
+  }
 
   try {
     res.json(await model(out));
