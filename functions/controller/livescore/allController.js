@@ -28,10 +28,10 @@ async function livescore(req, res) {
 }
 module.exports = livescore;
 /**
- * @api {GET} /livescore/livescore/all Get Livescore on livescore page of all event
+ * @api {GET} /livescore/livescore/all Get Livescore of all event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
- * @apiName livescore information
+ * @apiName livescore information all
  * @apiGroup Livescore
  *
  * @apiParam {String} sport sport name, the value enum are: ```baseball```

@@ -28,10 +28,10 @@ async function livescore(req, res) {
 }
 module.exports = livescore;
 /**
- * @api {GET} /livescore/livescore/all Get Livescore on livescore page of close event
+ * @api {GET} /livescore/livescore/closed Get Livescore of close event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
- * @apiName livescore information
+ * @apiName livescore information closed
  * @apiGroup Livescore
  *
  * @apiParam {String} sport sport name, the value enum are: ```baseball```
@@ -417,7 +417,6 @@ module.exports = livescore;
 ]
  * @apiError 400 Bad Request ( Not inplement )
  * @apiError 500 Internal Server Error
- 
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {

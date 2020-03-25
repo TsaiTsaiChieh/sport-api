@@ -33,7 +33,7 @@ async function livescore(req, res) {
 
 module.exports = livescore;
 /**
- * @api {GET} /home/livescore?league=MLB Get Livescore on home page
+ * @api {GET} /home/livescore?league=MLB Get Livescore 
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in homepage, included score, handicap and information of team. Array of three match. 
  * @apiName livescore information
