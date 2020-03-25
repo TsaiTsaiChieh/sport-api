@@ -1,8 +1,8 @@
 const modules = require('../util/modules');
 
-const specificDate = '20200302';
-let weeks = 0;
 function titlePeriod() {
+  const specificDate = '20200302';
+  let weeks = 0;
   const years = [
     2020,
     2021,
@@ -22,15 +22,15 @@ function titlePeriod() {
     weeks += weeksInYear;
   }
   weeks -= modules.moment().weeks();
-
   for (let i = 0; i < Math.ceil(weeks / 2); i++) {
     const begin = modules
       .moment(specificDate)
       .utcOffset(8)
       .add(i * 2, 'weeks');
-    const end = begin
-      .clone()
-      .add(1, 'weeks')
+    const end = modules
+      .moment(specificDate)
+      .utcOffset(8)
+      .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek');
     const data = {
       period: i + 1,
