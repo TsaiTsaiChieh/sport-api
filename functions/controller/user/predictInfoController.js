@@ -29,9 +29,9 @@ async function predictInfo(req, res) {
 
 module.exports = predictInfo;
 /**
- * @api {get} /predictionInfo Get Prediction Info
+ * @api {get} /predictInfo Get Predic Info
  * @apiVersion 1.0.0
- * @apiName predictionInfo
+ * @apiName predictInfo
  * @apiGroup User
  * @apiPermission None
  * 
@@ -43,7 +43,7 @@ module.exports = predictInfo;
  *     "league": "NBA"
  * }
  * 
- * @apiSuccess {JSON} result Available User Prediction Info
+ * @apiSuccess {JSON} result Available User Predict Info
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
