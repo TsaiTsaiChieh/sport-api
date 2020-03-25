@@ -101,7 +101,7 @@ function leagueCodebook(league) {
   }
 }
 
-function getPeriod(date) {
+function getTitlesPeriod(date) {
   const specificDate = '20200302';
   const years = [
     2020,
@@ -134,7 +134,14 @@ function getPeriod(date) {
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
-    if (begin <= date && date <= end) return i;
+    if (begin <= date && date <= end)
+      return {
+        period: i,
+        date: moment(specificDate)
+          .utcOffset(8)
+          .add(i * 2 - 2, 'weeks')
+          .format('YYYYMMDD')
+      };
   }
   return 0;
 }
@@ -165,5 +172,5 @@ module.exports = {
   firestoreService,
   leagueCodebook,
   addDataInCollectionWithId,
-  getPeriod
+  getTitlesPeriod
 };
