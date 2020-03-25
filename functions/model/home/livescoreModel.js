@@ -35,6 +35,8 @@ async function repackage(sport, league, time) {
   });
   dateNow = dateNow.split(' ')[0];
 
+  console.log(dateNow);
+
   let scheduled;
   let eventToday = [];
   let closedEvent = [];
