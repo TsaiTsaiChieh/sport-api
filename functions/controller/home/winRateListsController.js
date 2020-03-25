@@ -11,7 +11,7 @@ async function winRateLists(req, res) {
 
 module.exports = winRateLists;
 /**
- * @api {get} /winratelists Get WinRate Lists
+ * @api {get} /win_rate_lists Get WinRate Lists
  * @apiVersion 1.0.0
  * @apiName winratelists
  * @apiGroup home
