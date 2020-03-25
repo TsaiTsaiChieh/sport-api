@@ -2,7 +2,13 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.sport, args.league);
+      let result;
+
+      if (args.error) {
+        //reject
+      } else {
+        result = await reResult(args.sport, args.league, args.UID);
+      }
 
       resolve(result);
     } catch (err) {
@@ -12,14 +18,14 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league) {
+async function reResult(sport, league, UID) {
   let result;
-  result = await repackage(sport, league);
+  result = await repackage(sport, league, UID);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league) {
-  let leagueName = `pagetest_${league}`;
+async function repackage(sport, league, UID) {
+  let leagueName = `pagetest_${league}_member`;
   let query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')

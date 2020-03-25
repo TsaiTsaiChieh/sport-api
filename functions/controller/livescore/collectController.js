@@ -3,21 +3,23 @@ const model = require('../../model/livescore/livescoreCollectModel');
 
 async function livescore(req, res) {
   let out = {};
+  if (req.query.UID) {
+    out.userID = req.query.UID;
+  } else {
+    out = {};
+    out.error = 1301;
+  }
   if (req.query.sport) {
     out.sport = req.query.sport;
   } else {
-    out.sport = 'baseball';
+    out = {};
+    out.error = 1301;
   }
   if (req.query.league) {
     out.league = req.query.league;
   } else {
-    out.league = 'MLB';
-  }
-  if (req.query.time) {
-    out.time = req.query.time;
-  } else {
-    out.time = 1584982800000;
-    //out.time = Date.now();
+    out = {};
+    out.error = 1301;
   }
 
   try {
