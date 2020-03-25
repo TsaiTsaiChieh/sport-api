@@ -11,7 +11,7 @@ async function winBetsLists(req, res) {
 
 module.exports = winBetsLists;
 /**
- * @api {get} /winbetslists Get WinBets Lists
+ * @api {get} /win_bets_lists Get WinBets Lists
  * @apiVersion 1.0.0
  * @apiName winbetslists
  * @apiGroup home

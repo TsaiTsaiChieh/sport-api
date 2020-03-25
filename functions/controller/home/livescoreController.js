@@ -6,20 +6,23 @@ async function livescore(req, res) {
   // closed : query from firestore
 
   // 驗證
-  // let league = req.params.league;
-  // console.log(league);
-  // console.log(req.query.league);
-  let out;
-  if (req.query.league) {
-    out = {
-      league: req.query.league
-    };
+
+  let out = {};
+  if (req.query.sport) {
+    out.sport = req.query.sport;
   } else {
-    out = {
-      league: 'MLB'
-    };
+    out.sport = 'baseball';
   }
-  console.log(out);
+  if (req.query.league) {
+    out.league = req.query.league;
+  } else {
+    out.league = 'MLB';
+  }
+  if (req.query.time) {
+    out.time = req.query.time;
+  } else {
+    out.time = Date.now();
+  }
 
   try {
     res.json(await model(out));
@@ -30,14 +33,15 @@ async function livescore(req, res) {
 
 module.exports = livescore;
 /**
- * @api {GET} /home/livescore?league=MLB Get Livescore
+ * @api {GET} /home/livescore?league=MLB Get Livescore 
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in homepage, included score, handicap and information of team. Array of three match. 
  * @apiName livescore information
  * @apiGroup Home
  *
- * @apiParam {String} league league name, the value enum are: ```MLB```
- *
+ * @apiParam {String} sport sport name, the value enum are: ```baseball```
+ * @apiParam {String} league league name, the value enum are: ```MLB``` 
+ * @apiParam {Number} time timestamp, the value enum are: ```1585039500000``` 
  * @apiParamExample {JSON} Request-Query
  {
    "league" : "MLB"

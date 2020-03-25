@@ -3,7 +3,11 @@ const axios = require('axios');
 
 let homeLineup = [];
 let awayLineup = [];
-
+let baseNow = [];
+//清空壘包
+baseNow[0] = 0;
+baseNow[1] = 0;
+baseNow[2] = 0;
 async function MLBpbpInplay(parameter) {
   let gameID = parameter.gameID;
   let betsID = parameter.betsID;
@@ -95,6 +99,9 @@ async function MLBpbpInplay(parameter) {
             halfNow = 0;
             eventHalfNow = 0;
             eventAtbatNow = 0;
+            baseNow[0] = 0;
+            baseNow[1] = 0;
+            baseNow[2] = 0;
           }
 
           for (
@@ -106,8 +113,22 @@ async function MLBpbpInplay(parameter) {
               halfNow = halfNow + 1;
               eventHalfNow = 0;
               eventAtbatNow = 0;
+              baseNow[0] = 0;
+              baseNow[1] = 0;
+              baseNow[2] = 0;
             }
-
+            ref = modules.database.ref(
+              `baseball/MLB/${betsID}/Summary/Now_firstbase`
+            );
+            await ref.set(baseNow[0]);
+            ref = modules.database.ref(
+              `baseball/MLB/${betsID}/Summary/Now_secondbase`
+            );
+            await ref.set(baseNow[1]);
+            ref = modules.database.ref(
+              `baseball/MLB/${betsID}/Summary/Now_thirdbase`
+            );
+            await ref.set(baseNow[2]);
             for (
               eventHalfCount = eventHalfNow;
               eventHalfCount <
@@ -218,6 +239,80 @@ async function MLBpbpInplay(parameter) {
                       eventHalfCount
                     ].at_bat.events[eventAtbatCount]
                   );
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_strikes`
+                  );
+                  await ref.set(
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].count.strikes
+                  );
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_balls`
+                  );
+                  await ref.set(
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].count.balls
+                  );
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_outs`
+                  );
+                  await ref.set(
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].count.outs
+                  );
+
+                  if (
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].runner
+                  ) {
+                    let baseInformation =
+                      data.game.innings[inningsCount].halfs[halfCount].events[
+                        eventHalfCount
+                      ].at_bat.events[eventAtbatCount].runners.length;
+                    for (
+                      let baseCount = 0;
+                      baseCount < baseInformation;
+                      baseCount++
+                    ) {
+                      //壘包資訊
+                      let startBase =
+                        data.game.innings[inningsCount].halfs[halfCount].events[
+                          eventHalfCount
+                        ].at_bat.events[eventAtbatCount].runners[baseCount]
+                          .starting_base;
+                      let endBase =
+                        data.game.innings[inningsCount].halfs[halfCount].events[
+                          eventHalfCount
+                        ].at_bat.events[eventAtbatCount].runners[baseCount]
+                          .ending_base;
+                      if (endBase == 0) {
+                        // 壘上出局
+                        baseNow[startBase - 1] = 0;
+                      } else if (endBase == 4) {
+                        // 回本壘
+                        baseNow[startBase - 1] = 0;
+                      } else {
+                        baseNow[startBase - 1] = 0;
+                        baseNow[ending_base - 1] = 1;
+                      }
+                    }
+                  }
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_firstbase`
+                  );
+                  await ref.set(baseNow[0]);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_secondbase`
+                  );
+                  await ref.set(baseNow[1]);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Now_thirdbase`
+                  );
+                  await ref.set(baseNow[2]);
                 }
               }
             }
@@ -228,6 +323,7 @@ async function MLBpbpInplay(parameter) {
       await ref.set(inningsNow);
       ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/Now_halfs`);
       await ref.set(halfNow);
+
       if (data.game.status != 'inprogress' || data.game.status != 'complete') {
         modules.firestore
           .collection(firestoreName)

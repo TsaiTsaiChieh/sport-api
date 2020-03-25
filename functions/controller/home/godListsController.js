@@ -11,7 +11,7 @@ async function godlists(req, res) {
 
 module.exports = godlists;
 /**
- * @api {get} /godlists Get God Lists
+ * @api {get} /god_lists Get God Lists
  * @apiVersion 1.0.0
  * @apiName godlists
  * @apiGroup home

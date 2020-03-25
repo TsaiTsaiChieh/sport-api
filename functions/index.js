@@ -72,9 +72,8 @@ app.use('/sport', require('./routers/sport'));
 // app.use('/messages_temp', require('./Deprecated/messages'));
 // for test pubsub endpoint
 app.use('/pubsub', require('./routers/pubsub'));
-
-app.use('/home', require('./routers/home')); // 首頁相關資訊
-
+app.use('/home', require('./routers/home'));
+app.use('/livescore', require('./routers/livescore'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
