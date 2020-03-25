@@ -109,13 +109,9 @@
           if (this.readyState == 4 && this.status == 200) {
             event = JSON.parse(this.responseText);
 
-            let sportName = event[event.length - 2].sport;
-            let leagueName = event[event.length - 1].league;
-            for (
-              let eventCount = 0;
-              eventCount < event.length - 2;
-              eventCount++
-            ) {
+            for (let eventCount = 0; eventCount < event.length; eventCount++) {
+              let sportName = event[eventCount].sport;
+              let leagueName = event[eventCount].league;
               if (event[eventCount].flag.status === 2) {
                 let eventStatus = event[eventCount].flag.status;
                 let spreadAwayOdd =
@@ -300,6 +296,8 @@
                     `${sportName}/${leagueName}/${event[eventCount].bets_id}`
                   )
                   .once('value', async function(snapshot) {
+                    let sportName = event[eventCount].sport;
+                    let leagueName = event[eventCount].league;
                     let realtimeData = snapshot.val();
                     let inningsNow = realtimeData.Summary.Now_innings;
                     let halfNow = realtimeData.Summary.Now_halfs;
@@ -439,6 +437,7 @@
         xhttp.onreadystatechange = async function() {
           if (this.readyState == 4 && this.status == 200) {
             event = JSON.parse(this.responseText);
+            console.log(event);
 
             let homeName = event[0].home.name_ch;
             let awayName = event[0].away.name_ch;
@@ -475,13 +474,13 @@
             homePerformance[1] = event[0].home.avg_lossscore;
             homePerformance[2] = event[0].home.lose;
             homePerformance[3] = event[0].home.win;
-            homePerformance[4] = event[0].home.lose_away;
-            homePerformance[5] = event[0].home.lose_home;
-            homePerformance[6] = event[0].home.win_away;
-            homePerformance[7] = event[0].home.win_away;
+            homePerformance[4] = event[0].home.lose_away; //在客隊時輸
+            homePerformance[5] = event[0].home.lose_home; //在主隊時輸
+            homePerformance[6] = event[0].home.win_away; //在客隊時贏
+            homePerformance[7] = event[0].home.win_away; //在客隊時贏
             homePerformance[8] = event[0].home.avg_getscore;
-            homePerformance[9] = event[0].home.precent_spread;
-            homePerformance[10] = event[0].home.precent_OU;
+            homePerformance[9] = event[0].home.precent_spread; // 讓分過盤率
+            homePerformance[10] = event[0].home.precent_OU; // 大小分過盤率
             let awayPerformance = [];
             awayPerformance[0] = event[0].away.avg_getscore;
             awayPerformance[1] = event[0].away.avg_lossscore;
@@ -668,8 +667,8 @@
           if (this.readyState == 4 && this.status == 200) {
             event = JSON.parse(this.responseText);
 
-            let sportName = event[1].sport;
-            let leagueName = event[2].league;
+            let sportName = event[0].sport;
+            let leagueName = event[0].league;
             firebase
               .database()
               .ref(`${sportName}/${leagueName}/${event[0].bets_id}`)
@@ -683,16 +682,16 @@
 
                 let inningsNow = realtimeData.Summary.Now_innings;
                 let halfsNow = realtimeData.Summary.Now_halfs;
-                let eventUnderHalfsCount = Object.keys(
-                  realtimeData.Summary[`Innings${inningsNow}`][
-                    `halfs${halfsNow}`
-                  ]
-                ).length;
-
+                let eventUnderHalfsCount;
                 if (inningsNow >= 1) {
                   //history
                   for (let i = 1; i <= inningsNow; i++) {
                     for (let j = 0; j < halfsNow; j++) {
+                      eventUnderHalfsCount =
+                        Object.keys(
+                          realtimeData.Summary[`Innings${i}`][`halfs${j}`]
+                        ).length - 1; // sub scoring
+
                       for (let k = 0; k < eventUnderHalfsCount; k++) {
                         description.push(
                           realtimeData.Summary[`Innings${i}`][`halfs${j}`][
@@ -708,8 +707,13 @@
                     }
                   }
                   //now
-
-                  for (i = 0; i < eventUnderHalfsCount - 2; i++) {
+                  eventUnderHalfsCount =
+                    Object.keys(
+                      realtimeData.Summary[`Innings${inningsNow}`][
+                        `halfs${halfsNow}`
+                      ]
+                    ).length - 1; //sub scoring
+                  for (i = 0; i < eventUnderHalfsCount; i++) {
                     description.push(
                       realtimeData.Summary[`Innings${inningsNow}`][
                         `halfs${halfsNow}`
@@ -725,7 +729,7 @@
                   let eventUnderAtbatCount = Object.keys(
                     realtimeData.Summary[`Innings${inningsNow}`][
                       `halfs${halfsNow}`
-                    ][`event${eventUnderHalfsCount - 2}`].at_bat
+                    ][`event${eventUnderHalfsCount - 1}`].at_bat
                   ).length;
 
                   for (let i = 0; i < eventUnderAtbatCount; i++) {
@@ -746,11 +750,11 @@
                 message.setAttribute('class', 'pageTest1');
                 //由左上至右下
                 message.innerHTML = [
-                  'homeName : ' + '洋基' + '<br />',
-                  'awayName : ' + '天使' + '<br />',
-                  'pitcherFirstname : ' + 'Masahiro' + '<br />',
-                  'pitcherLastname : ' + 'Tanaka' + '<br />',
-                  'pitcherERA : ' + 0.23 + '<br />',
+                  'homeName : ' + event[0].home.name_ch + '<br />',
+                  'awayName : ' + event[0].away.name_ch + '<br />',
+                  'pitcherFirstname : ' + pitcherNow.first_name + '<br />',
+                  'pitcherLastname : ' + pitcherNow.last_name + '<br />',
+                  'pitcherERA : ' + 0.23 + '<br />', //need to call sportradar
                   'pitcherK : ' + 7 + '<br />',
                   'pitcherWin : ' + 7 + '<br />',
                   'pitcherLose : ' + 2 + '<br />',
@@ -761,8 +765,8 @@
                   'pitcherPoints : ' + 3 + '<br />',
                   'pitcherHits : ' + 3 + '<br />',
                   'pitcherKs : ' + 6 + '<br />',
-                  'hitterFirstname : ' + 'Michael' + '<br />',
-                  'hitterLastname : ' + 'Chavis' + '<br />',
+                  'hitterFirstname : ' + hitterNow.first_name + '<br />',
+                  'hitterLastname : ' + hitterNow.last_name + '<br />',
                   'hitterOrder : ' + 3 + '<br />',
                   'hitterAVG : ' + 0.33 + '<br />',
                   'hitterHR : ' + 6 + '<br />',
@@ -779,8 +783,8 @@
                   'hitterH : ' + 30 + '<br />',
                   'hitterABs : ' + 5 + '<br />',
                   'hitterHs : ' + 4 + '<br />',
-                  'hitterFirstname : ' + 'Michael' + '<br />',
-                  'hitterLastname : ' + 'Chavis' + '<br />',
+                  'hitterFirstname : ' + 'Mich' + '<br />',
+                  'hitterLastname : ' + 'Chis' + '<br />',
                   'hitterOrder : ' + 1 + '<br />',
                   'hitterAVG : ' + 0.31 + '<br />',
                   'hitterHR : ' + 7 + '<br />',

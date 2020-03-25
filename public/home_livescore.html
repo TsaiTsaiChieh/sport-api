@@ -93,13 +93,9 @@
           if (this.readyState == 4 && this.status == 200) {
             event = JSON.parse(this.responseText);
 
-            let sportName = event[event.length - 2].sport;
-            let leagueName = event[event.length - 1].league;
-            for (
-              let eventCount = 0;
-              eventCount < event.length - 2;
-              eventCount++
-            ) {
+            for (let eventCount = 0; eventCount < event.length; eventCount++) {
+              let sportName = event[eventCount].sport;
+              let leagueName = event[eventCount].league;
               firebase
                 .database()
                 .ref(`${sportName}/${league}/${event[eventCount].bets_id}`)
