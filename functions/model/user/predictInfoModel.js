@@ -38,8 +38,8 @@ function predictInfo(args) {
     // 2.
     try{
       const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = modules.moment(now_YYYYMMDD).utcOffset(8).unix() * 1000;
-      const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').utcOffset(8).unix() * 1000;
+      const now = modules.moment(now_YYYYMMDD).unix() * 1000;
+      const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
 
       // 使用者預測資訊
       const predictionsInfoDocs = await modules.firestore.collection(`prediction_${league}`)
@@ -48,7 +48,7 @@ function predictInfo(args) {
         .where('date_timestamp', '<', tomorrow) // 兩天內
         //.where('date', 'in', [now, tomorrow]) // 兩天內
         .get();
-        
+
       // 使用者 一開始尚未預測
       if(predictionsInfoDocs.size == 0) {
         // return reject({ code: 404, err: {errcode: '1303', errmsg: `使用者沒有預測單`} });
