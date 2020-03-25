@@ -2,8 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const results = [];
-      result = await reResult(args.league);
+      result = await reResult(args.sport, args.league, args.time);
 
       resolve(result);
     } catch (err) {
@@ -13,13 +12,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(league) {
+async function reResult(sport, league, time) {
   let result;
-  result = await repackage(league);
+  result = await repackage(sport, league, time);
 
   return await Promise.all(result);
 }
-async function repackage(league) {
+async function repackage(sport, league, time) {
   let leagueName = `pagetest_${league}`;
   let query = await modules.firestore
     .collection(leagueName)
@@ -31,7 +30,9 @@ async function repackage(league) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei'
+  });
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
@@ -40,6 +41,7 @@ async function repackage(league) {
   let inprogressEvent = [];
   let scheduledEvent = [];
   let outputJson = [];
+
   for (let i = 0; i < eventData.length; i++) {
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000
@@ -56,6 +58,7 @@ async function repackage(league) {
 
     // 1 目前當天有幾場比賽進行中
     if (scheduled === dateNow && eventData[i].flag.status == 1) {
+      inprogressEvent.push(eventData[i]);
       outputJson.push(eventData[i]);
     }
     // 2 目前當天有幾場比賽規劃中
@@ -85,8 +88,9 @@ async function repackage(league) {
       }
     }
   }
-  //   console.log(outputJson[0]);
-
+  outputJson.push({ sport: sport });
+  outputJson.push({ league: league });
+  // outputJson = JSON.parse(outputJson);
   return outputJson;
 }
 module.exports = livescore;
