@@ -28,6 +28,7 @@ const envValues = require("../../config/env_values");
   "success": true,
   "status": 1,
   "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+  "cookie":"eyJhbGciOiJSUzI1NiIsImtp..."
   "data": {
     "blockMessage": {
       "_seconds": 1575907200,
@@ -128,7 +129,6 @@ async function firebaseLogin(req, res) {
             returnJson.status = 0;
           }
           returnJson.data = firestoreUser.data;
-          res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })
         .catch(error => {
