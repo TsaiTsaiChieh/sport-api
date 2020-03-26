@@ -11,89 +11,9 @@ function giveTitleModel(args) {
       const periodObj = modules.getTitlesPeriod(new Date());
       const titles = await getTitles(args.uid, periodObj.period);
       const result = await insertTitles(args, titles, periodObj);
-      console.log(result);
-
-      /* step 3: insert if titles.length === 0 */
-      if (titles.length === 0) {
-        return resolve({
-          uid: args.uid,
-          title: [
-            {
-              rank: args.rank,
-              sport: args.sport,
-              league: args.league
-            }
-          ]
-        });
-      }
-
-      let duplicatedFlag = false;
-      let updateFlag = false;
-      for (let i = 0; i < titles.length; i++) {
-        ele = titles[i];
-        /* step 3: check if titles duplication */
-        if (
-          ele.sport === args.sport &&
-          ele.league === args.league &&
-          ele.rank === args.rank
-        ) {
-          duplicatedFlag = true;
-          break;
-        }
-        /* step 4: update rank */
-        if (
-          ele.sport === args.sport &&
-          ele.league === args.league &&
-          ele.rank !== 1 &&
-          args.rank !== 1
-        ) {
-          updateFlag = true;
-          ele.rank = args.rank;
-          console.log(
-            `Add title ${args.league}_${args.sport}_${
-              args.rank
-            } by admin uid: ${args.adminUid} on ${new Date()} by TsaiChieh`
-          );
-          break;
-        }
-      }
-      if (duplicatedFlag) {
-        return reject({
-          code: 403,
-          error: 'forbidden, this user had the same title'
-        });
-      } else if (!updateFlag) {
-        titles.push({
-          rank: args.rank,
-          league: args.league,
-          sport: args.sport
-        });
-      }
-      // status 2 is god like
-      // userDoc.set({ titles, status: 2 }, { merge: true });
-      modules.addDataInCollectionWithId('users', args.uid, {
-        titles,
-        status: 2
-      });
-      modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
-      resolve({
-        uid: args.uid,
-        title: [
-          {
-            rank: args.rank,
-            sport: args.sport,
-            league: args.league
-          }
-        ]
-      });
-      console.log(
-        `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
-          args.adminUid
-        } on ${new Date()} by TsaiChieh`
-      );
+      return resolve(result);
     } catch (err) {
-      console.log('error happened...', err);
-      reject({ code: 500, error: err });
+      return reject({ code: err.code, error: err });
     }
   });
 }
@@ -136,10 +56,6 @@ function getTitles(uid, period) {
         }
       }
     } catch (err) {
-      console.error(
-        'Error in model/admin/giveTitleModel getTitles function by TsaiChieh',
-        err
-      );
       return reject({ code: 500, error: err });
     }
   });
@@ -149,24 +65,90 @@ function insertTitles(args, titles, periodObj) {
   return new Promise(async function(resolve, reject) {
     // insert if titles.length === 0
     if (!titles.length) {
-      const title = { rank: args.rank, league: args.league, sport: args.sport };
-      const data = { uid: args.uid };
-      data[`${periodObj.period}_period`] = {
-        date: periodObj.date,
-        titles: [title]
-      };
       modules.addDataInCollectionWithId('users', args.uid, {
-        defaultTitle: title,
-        status: 2
+        defaultTitle: {
+          rank: args.rank,
+          league: args.league,
+          sport: args.sport
+        }
       });
-      modules.addDataInCollectionWithId('users_titles', args.uid, data);
-      modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
-      return resolve(
-        `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
-          args.adminUid
-        } on ${new Date()}`
-      );
+      insertFirestore(args, titles, periodObj);
     }
+    // if already have titles, should check duplication
+    else if (titles.length) {
+      if (checkTitleDuplication(titles, args)) {
+        return reject({
+          code: 403,
+          error: 'forbidden, this user had the same title'
+        });
+      }
+      if (!checkTitleDuplication(titles, args)) {
+        updateResult = checkUpdateTitle(titles, args);
+        insertFirestore(
+          args,
+          updateResult.titles,
+          periodObj,
+          updateResult.updateFlag
+        );
+      }
+    }
+    return resolve(
+      `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
+        args.adminUid
+      } on ${new Date()}`
+    );
   });
+}
+
+function insertFirestore(args, titles, periodObj, updateFlag = false) {
+  if (!updateFlag)
+    titles.push({
+      rank: args.rank,
+      league: args.league,
+      sport: args.sport
+    });
+  const data = { uid: args.uid };
+  data[`${periodObj.period}_period`] = {
+    date: periodObj.date,
+    titles
+  };
+  modules.addDataInCollectionWithId('users', args.uid, {
+    status: 2
+  });
+  modules.addDataInCollectionWithId('users_titles', args.uid, data);
+  modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
+}
+function checkTitleDuplication(titles, args) {
+  // check if titles duplication
+  let duplicatedFlag = false;
+  for (let i = 0; i < titles.length; i++) {
+    ele = titles[i];
+    if (
+      ele.sport === args.sport &&
+      ele.league === args.league &&
+      ele.rank === args.rank
+    ) {
+      duplicatedFlag = true;
+      break;
+    }
+  }
+  return duplicatedFlag;
+}
+
+function checkUpdateTitle(titles, args) {
+  let updateFlag = false;
+  for (let i = 0; i < titles.length; i++) {
+    const ele = titles[i];
+    if (
+      ele.sport === args.sport &&
+      ele.league === args.league &&
+      ele.rank !== 1 &&
+      args.rank !== 1
+    ) {
+      ele.rank = args.rank;
+      updateFlag = true;
+    }
+  }
+  return { updateFlag, titles };
 }
 module.exports = giveTitleModel;
