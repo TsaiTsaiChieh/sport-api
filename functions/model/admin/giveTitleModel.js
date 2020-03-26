@@ -113,7 +113,8 @@ function insertFirestore(args, titles, periodObj, updateFlag = false) {
     titles
   };
   modules.addDataInCollectionWithId('users', args.uid, {
-    status: 2
+    status: 2,
+    titles
   });
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
   modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
