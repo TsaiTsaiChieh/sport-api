@@ -43,6 +43,8 @@ async function repackage(sport, league, time) {
   let outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
+    eventData[i].sport = sport;
+    eventData[i].league = league;
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000
     ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
@@ -88,9 +90,6 @@ async function repackage(sport, league, time) {
       }
     }
   }
-  outputJson.push({ sport: sport });
-  outputJson.push({ league: league });
-  // outputJson = JSON.parse(outputJson);
   return outputJson;
 }
 module.exports = livescore;

@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.sport, args.league);
+      let result = await reResult(args.sport, args.league, args.time);
 
       resolve(result);
     } catch (err) {
@@ -12,13 +12,14 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league) {
+async function reResult(sport, league, time) {
   let result;
-  result = await repackage(sport, league);
+  result = await repackage(sport, league, time);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league) {
+async function repackage(sport, league, time) {
+  console.log(sport);
   console.log(league);
 
   let leagueName = `pagetest_${league}`;
@@ -32,7 +33,9 @@ async function repackage(sport, league) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei'
+  });
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
@@ -45,11 +48,12 @@ async function repackage(sport, league) {
     scheduled = scheduled.split(' ')[0];
 
     if (scheduled === dateNow) {
+      eventData[i].sport = sport;
+      eventData[i].league = league;
       eventToday.push(eventData[i]);
     }
   }
-  eventToday.push({ sport: sport });
-  eventToday.push({ league: league });
+
   return eventToday;
 }
 module.exports = livescore;
