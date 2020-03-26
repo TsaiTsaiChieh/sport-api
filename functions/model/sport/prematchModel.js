@@ -82,6 +82,7 @@ function generalData(ele, checkGogResult) {
   const data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
+    league: ele.league.name,
     home: {
       alias: ele.home.alias,
       name: ele.home.name,

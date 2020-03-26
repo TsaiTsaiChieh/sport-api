@@ -47,6 +47,7 @@ module.exports = prematch;
  * }
  * @apiSuccess {String} id match id
  * @apiSuccess {Number} scheduled return the numeric value corresponding to the scheduled time—the number of seconds elapsed since January 1, 1970 00:00:00 UTC
+ * @apiSuccess {String} league league name
  * @apiSuccess {Object} home home team information
  * @apiSuccess {String} home.alias team abbreviation name
  * @apiSuccess {String} home.name team name
@@ -67,6 +68,7 @@ module.exports = prematch;
     {
         "id": "2114519",
         "scheduled": 1585695600,
+        "league": NBA,
         "home": {
             "alias": "PHI",
             "name": "Philadelphia 76ers",
