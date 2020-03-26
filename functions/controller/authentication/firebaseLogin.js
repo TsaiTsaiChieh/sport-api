@@ -110,7 +110,7 @@ async function firebaseLogin(req, res) {
           let firestoreUser = await userUtils.getUserProfile(
             decodedIdToken.uid
           );
-          returnJson.cookie = sessionCookie;
+          // returnJson.cookie = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
@@ -129,6 +129,7 @@ async function firebaseLogin(req, res) {
             returnJson.status = 0;
           }
           returnJson.data = firestoreUser.data;
+          res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })
         .catch(error => {

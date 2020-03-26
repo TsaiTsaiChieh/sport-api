@@ -6,7 +6,7 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy",
-    "alan": "firebase deploy --only functions:api",
+    "api": "firebase deploy --only functions:api",
     "logs": "firebase functions:log",
     "grunt": "grunt"
   },
