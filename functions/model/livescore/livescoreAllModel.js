@@ -19,9 +19,6 @@ async function reResult(sport, league, time) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, time) {
-  console.log(sport);
-  console.log(league);
-
   let leagueName = `pagetest_${league}`;
   let query = await modules.firestore
     .collection(leagueName)

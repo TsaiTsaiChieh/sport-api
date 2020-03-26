@@ -5,9 +5,9 @@ module.exports = function(grunt) {
       myapp: {
         src: 'controller/',
         // for sports-apidoc
-        // dest: '../../sports-apidoc/'
+        dest: '../../sports-apidoc/'
         // for localhost test
-        dest: '../public/apidoc/'
+        // dest: '../public/apidoc/'
       }
     }
   });
