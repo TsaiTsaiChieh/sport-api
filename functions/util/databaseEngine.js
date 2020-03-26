@@ -2,7 +2,7 @@ const modules = require('./modules');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
-    const userSnapshot = await modules.getSnapshot('userss', uid);
+    const userSnapshot = await modules.getSnapshot('users', uid);
     if (!userSnapshot.exists)
       return reject({
         code: 404,
