@@ -132,7 +132,9 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     titles
   });
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
-  modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, { role: 2 });
+  modules.firebaseAdmin
+    .auth()
+    .setCustomUserClaims(args.uid, { role: GOD_STATUS });
 }
 async function getTitlesRecord(args) {
   const titlesRecord = await modules.getSnapshot('users_titles', args.uid);
