@@ -84,18 +84,17 @@ module.exports = prematch;
             "id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c"
         },
         "spread": {
-            "31267231": {
-                "handicap": 11.5,
-                "add_time": 1583926710,
-                "disable": true
-            }
+            "id": "31268919",
+            "handicap": 11.5,
+            "add_time": 1583926710,
+            "disable": true
+        }
         },
-        "totals": {
-            "34409340": {
-                "handicap": 214.5,
-                "add_time": 1583934276,
-                "disable": true
-            }
+        "totals": {            
+            "id": "34417671",
+            "handicap": 214.5,
+            "add_time": 1583934276,
+            "disable": true
         }
     },
     {
