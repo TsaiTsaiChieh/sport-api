@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const getTitlesAndSignatureModel = require('../../model/user/getTitlesAndSignatureModel');
+const model = require('../../model/user/getTitlesAndSignatureModel');
 
 async function getTitlesAndSignature(req, res) {
   const schema = {
@@ -15,16 +15,17 @@ async function getTitlesAndSignature(req, res) {
   const args = {};
   args.uid = req.params.uid;
   const validate = modules.ajv.validate(schema, args);
-  if (!validate) {
-    res.status(400).json(modules.ajv.errors);
-    return;
-  }
+  if (!validate) return res.status(400).json(modules.ajv.errors);
   args.token = req.token;
+
   try {
-    res.json(await getTitlesAndSignatureModel(args));
+    res.json(await model(args));
   } catch (err) {
-    console.log('err....', err);
-    res.status(err.code).json(err);
+    console.log(
+      'Error in controller/user/getTitlesAndSignatureController fucntion by TsaiChieh',
+      err
+    );
+    res.status(err.code).json(err.error);
   }
 }
 
@@ -46,22 +47,28 @@ module.exports = getTitlesAndSignature;
  * }
  * @apiSuccessExample {JSON} Request-Example
  *  HTTP/1.1 200 OK
- * {
- *    "uid": "X6umtiqFyRfcuJiKfjsFXrWqICc2",
- *    "signature": "簽名檔～",
- *    "titles": [
- *        {
- *            "rank": 1,
- *            "league": "足球",
- *            "sport": 1
- *        },
- *        {
- *            "rank": 5,
- *            "league": "中華職棒",
- *            "sport": 16
- *         }
- *     ]
- * }
+{
+    "uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
+    "signature": "",
+    "titles": [
+        {
+            "rank": 1,
+            "league": "NBA",
+            "sport": 18
+        },
+        {
+            "rank": 1,
+            "league": "CBA",
+            "sport": 18
+        }
+    ],
+    "record": {
+        "rank1_count": 2,
+        "rank2_count": 0,
+        "rank3_count": 0,
+        "rank4_count": 0
+    }
+}
  *
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
@@ -75,9 +82,12 @@ module.exports = getTitlesAndSignature;
 }
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
- * {
+{
     "code": 404,
-    "error": "user not found"
+    "error": {
+        "devcode": 1305,
+        "msg": "user status abnormal"
+    }
 }
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
