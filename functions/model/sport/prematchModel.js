@@ -129,7 +129,6 @@ function checkHandicapDisable(ele, checkGogResult) {
 }
 
 function repackageSpread(ele, disableFlag) {
-  const data = {};
   const spreadKey = [];
   const spreadArray = [];
   for (const key in ele) {
@@ -138,7 +137,8 @@ function repackageSpread(ele, disableFlag) {
   }
   const newestKey = sortTime(spreadKey, spreadArray);
   const newestSpread = ele[newestKey];
-  data[newestKey] = {
+  const data = {
+    id: newestKey,
     handicap: newestSpread.handicap,
     add_time: newestSpread.add_time,
     // insert_time: newestSpread.insert_time,
@@ -148,7 +148,6 @@ function repackageSpread(ele, disableFlag) {
 }
 
 function repackageTotals(ele, disableFlag) {
-  const data = {};
   const totalsKey = [];
   const totalsArray = [];
   for (const key in ele) {
@@ -157,7 +156,9 @@ function repackageTotals(ele, disableFlag) {
   }
   const newestKey = sortTime(totalsKey, totalsArray);
   const newestTotals = ele[newestKey];
-  data[newestKey] = {
+
+  data = {
+    id: newestKey,
     handicap: newestTotals.handicap,
     add_time: newestTotals.add_time,
     // insert_time: newestTotals.insert_time,
