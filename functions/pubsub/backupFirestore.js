@@ -11,13 +11,15 @@ function backupFirestore(req, res) {
   const collections = ['NBA_TC'];
   // Start exporting your data
   modules.firestoreService.backups(collections).then(function(data) {
-    modules.fs.writeFile('./json/NBA_TC.json', JSON.stringify(data), function(
-      err
-    ) {
-      if (err) throw err;
-      console.log(`Backups complete ${new Date()}`);
-      res.json(`Backups complete ${new Date()}`);
-    });
+    modules.fs.writeFile(
+      './json/basketball.json',
+      JSON.stringify(data),
+      function(err) {
+        if (err) throw err;
+        console.log(`Backups complete ${new Date()}`);
+        res.json(`Backups complete ${new Date()}`);
+      }
+    );
   });
 }
 async function restoreFirestore(req, res) {

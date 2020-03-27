@@ -9,5 +9,6 @@ router.get('/lineups', require('../pubsub/lineups'));
 router.get('/checkmatch_NBA', require('../pubsub/checkmatch_NBA'));
 router.get('/checkmatch_MLB', require('../pubsub/checkmatch_MLB'));
 router.get('/title_period', require('../pubsub/titlePeriod'));
+// router.get('/tune_db', require('../pubsub/tuneDB'));
 
 module.exports = router;
