@@ -3,9 +3,9 @@ const dbEngine = require('../../util/databaseEngine');
 
 function deleteTitle(args) {
   return new Promise(async function(resolve, reject) {
-    /* step 1: check if user exists */
     try {
       const now = new Date();
+      // check if user exists
       const user = await dbEngine.findUser(args.uid);
       const period = modules.getTitlesPeriod(now).period;
       const titlesObj = await getTitleFromUsersTitlesCollection(
@@ -28,7 +28,7 @@ function getTitleFromUsersTitlesCollection(uid, period) {
         code: 404,
         error: { devcode: 1306, msg: 'user status abnormal' }
       });
-    // TODO if titlesObj[`${periodObj.period}_period`] is null
+
     if (userTitles.exists) {
       const titlesObj = userTitles.data();
       const data = {
@@ -69,6 +69,7 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
 function checkDeleteTitle(titlesObj, args, period) {
   // default title check and set to null
   let deleteFlag = false;
+  // should check default title
   const defaultTitle = titlesObj[`${period}_period`].default_title;
   if (
     args.sport === defaultTitle.sport &&
@@ -93,7 +94,7 @@ function checkDeleteTitle(titlesObj, args, period) {
       if (args.rank === 4) titlesObj.rank4_count -= 1;
     }
   }
-  // TODO should check default title
+
   return { deleteFlag, titlesObj };
 }
 function checkUserStatus(titles, uid) {
