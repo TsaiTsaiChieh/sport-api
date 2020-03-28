@@ -1,13 +1,10 @@
 const modules = require('./modules');
+const appError = require('./appErrors');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     const userSnapshot = await modules.getSnapshot('users', uid);
-    if (!userSnapshot.exists)
-      return reject({
-        code: 404,
-        error: { devcode: 1305, msg: 'user status abnormal' }
-      });
+    if (!userSnapshot.exists) return reject(new appError.UserNotFound());
     if (userSnapshot.exists) return resolve(userSnapshot.data());
   });
 }
