@@ -15,7 +15,7 @@ class ExtendableError extends Error {
   }
 }
 /**
- * 信箱尚未註冊 Error
+ * 找不到使用者資料 Error
  * @extends ExtendableError
  */
 class UserNotFound extends ExtendableError {
