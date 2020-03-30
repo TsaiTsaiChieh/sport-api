@@ -5,7 +5,7 @@ async function winBetsLists(req, res) {
   try {
     res.json(await winBetsListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    res.status(err.code).json(err.err);
   }
 }
 
