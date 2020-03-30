@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const errs = require('../../util/errorCode');
 
 function predictInfo(args) {
   // args.token 從 cookie 取得 __session 中 token 需求token.uid
@@ -21,18 +22,18 @@ function predictInfo(args) {
 
       if(memberInfo === undefined) {
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 404, err: {errcode: '1301', errmsg: `使用者狀態異常`} }); // ${userUid}
+        return reject(errs.errsMsg('404', '1301')); // ${userUid}
       }
 
       if(!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作，要另外建一個帳號
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject({ code: 404, err: {errcode: '1302', errmsg: `使用者狀態異常`} });
+        return reject(errs.errsMsg('404', '1302'));
       }
 
       console.log("memberInfo status of statusSwitch: %o", statusSwitch(memberInfo.status));
     } catch (err) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
-      return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
+      return reject(errs.errsMsg('500', '500', err.message));
     }
 
     // 2.
@@ -51,14 +52,14 @@ function predictInfo(args) {
 
       // 使用者 一開始尚未預測
       if(predictionsInfoDocs.size == 0) {
-        // return reject({ code: 404, err: {errcode: '1303', errmsg: `使用者沒有預測單`} });
+        // return reject(errs.errsMsg('404', '1303'));
         return resolve(predictionsInfoList); // 回傳 空Array
       }
       
       // 一個使用者，一天只會有一筆記錄
       // if(predictionsInfoDocs.size > 1) {
       //   // console.error('Error 2. in user/predictonInfoModell by YuHsien');
-      //   return reject({ code: 404, err: {errcode: '1304', errmsg: `使用者一天只能擁有一份預測清單`} });
+      //   return reject(errs.errsMsg('404', '1304'));
       // }
     
       let predictonsInfoData = []; // 使用者預測資訊
@@ -101,7 +102,7 @@ function predictInfo(args) {
       });
     } catch (err) {
       console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject({ code: 500, err: { errcode: '500', errmsg: err.message } });
+      return reject(errs.errsMsg('500', '500', err.message));
     }
 
     resolve(predictionsInfoList);
