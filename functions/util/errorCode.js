@@ -13,7 +13,7 @@ const errorCodeLists = {
 function errsMsg(serverCode, backendcode, otherMsg='', showOrder=0) { // othermsg 當 500 或 特殊情況 可以自行輸入
   showOrder = [0].includes(showOrder)?showOrder:0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
-  // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在
+  // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
   return otherMsg?
     {code: serverCode, err: { code: backendcode, msg: (typeof otherMsg=='string')?otherMsg:otherMsg.message } }
   :
