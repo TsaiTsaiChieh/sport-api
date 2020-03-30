@@ -33,7 +33,7 @@ function predictInfo(args) {
       console.log("memberInfo status of statusSwitch: %o", statusSwitch(memberInfo.status));
     } catch (err) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err.message));
+      return reject(errs.errsMsg('500', '500', err));
     }
 
     // 2.
@@ -102,7 +102,7 @@ function predictInfo(args) {
       });
     } catch (err) {
       console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err.message));
+      return reject(errs.errsMsg('500', '500', err));
     }
 
     resolve(predictionsInfoList);
