@@ -15,7 +15,7 @@ function errsMsg(serverCode, backendcode, otherMsg='', showOrder=0) { // otherms
 
   // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在
   return otherMsg?
-    {code: serverCode, err: { code: backendcode, msg: otherMsg } }
+    {code: serverCode, err: { code: backendcode, msg: (typeof otherMsg=='string')?otherMsg:otherMsg.message } }
   :
     Object.keys(errorCodeLists).includes(backendcode)?
       {code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }
