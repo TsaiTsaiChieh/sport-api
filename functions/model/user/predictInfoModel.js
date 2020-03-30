@@ -105,7 +105,6 @@ function predictInfo(args) {
         });
         response[league] = predictionsInfoList;
         predictionsInfoList = [];
-        console.log(response)
       });
 
       // predictonsInfoData.forEach(function(data) {
