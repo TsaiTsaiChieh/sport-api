@@ -132,9 +132,26 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     titles
   });
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
-  modules.firebaseAdmin
-    .auth()
-    .setCustomUserClaims(args.uid, { role: GOD_STATUS });
+  const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
+
+  if (customClaims.titles) {
+    if (customClaims.titles.includes(args.league)) {
+      // do nothing
+    }
+    if (!customClaims.titles.includes(args.league)) {
+      const userTitles = customClaims.titles;
+      userTitles.push(args.league);
+      modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+        role: GOD_STATUS,
+        titles: userTitles
+      });
+    }
+  } else if (!customClaims.titles) {
+    modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+      role: GOD_STATUS,
+      titles: [`${args.league}`]
+    });
+  }
 }
 async function getTitlesRecord(args) {
   const titlesRecord = await modules.getSnapshot('users_titles', args.uid);

@@ -52,7 +52,8 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
         error: { devcode: 1307, msg: 'delete failed' }
       });
     if (checkResult.deleteFlag) {
-      checkUserStatus(
+      updateUserStatus(
+        args,
         checkResult.titlesObj[`${period}_period`].titles,
         args.uid
       );
@@ -97,15 +98,22 @@ function checkDeleteTitle(titlesObj, args, period) {
 
   return { deleteFlag, titlesObj };
 }
-function checkUserStatus(titles, uid) {
+async function updateUserStatus(args, titles, uid) {
   const NORMAL_STATUS = 1;
-  console.log(titles.length);
-
-  if (titles.length === 0)
+  const GOD_STATUS = 2;
+  const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
+  if (titles.length === 0) {
     modules.addDataInCollectionWithId('users', uid, { status: NORMAL_STATUS });
-  modules.firebaseAdmin
-    .auth()
-    .setCustomUserClaims(uid, { role: NORMAL_STATUS });
+    modules.firebaseAdmin
+      .auth()
+      .setCustomUserClaims(uid, { role: NORMAL_STATUS });
+  }
+  const userTitles = customClaims.titles;
+  userTitles.splice(userTitles.indexOf(args.league), 1); // delete league from userTitle array
+  modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+    role: `${titles.length === 0 ? NORMAL_STATUS : GOD_STATUS}`,
+    titles: userTitles
+  });
 }
 function updateFirestore(uid, titlesObj, period) {
   modules.addDataInCollectionWithId('users_titles', uid, titlesObj);
