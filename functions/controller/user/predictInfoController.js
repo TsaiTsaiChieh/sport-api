@@ -2,22 +2,6 @@ const modules = require('../../util/modules');
 const predictInfoModel = require('../../model/user/predictInfoModel');
 
 async function predictInfo(req, res) {
-  const schema = {
-    type: 'object',
-    required: ['league'],
-    properties: {
-      league: {
-        type: 'string',
-        enum: ['NBA', 'MLB']
-      }
-    }
-  };
-
-  const valid = modules.ajv.validate(schema, req.body);
-  if (!valid) {
-    return res.status(400).json(modules.ajv.errors);  
-  }
-
   try {
     req.body.token = req.token; // 從 cookie 取得 __session 中 token
 
@@ -38,109 +22,235 @@ module.exports = predictInfo;
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} league shwo league
  * 
- * @apiParamExample {JSON} Request-Example
- * {
- *     "league": "NBA"
- * }
  * 
  * @apiSuccess {JSON} result Available User Predict Info
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
-[
-  {
-    "bets_id": "2114519",
-    "scheduled": {
-      "_seconds": 1583967600,
-      "_nanoseconds": 0
+{
+  "NBA": [
+    {
+      "bets_id": "2115973",
+      "scheduled": 1585627804000,
+      "league": "NBA",
+      "home": "CHA",
+      "home_ch": "黃蜂",
+      "spread": {
+        "predict": "under",
+        "handicap": 210.5,
+        "percentage": 8,
+        "bets": 1
+      },
+      "totals": {}
     },
-    "league": "NBA",
-    "home": "76人",
-    "away": "活塞",
-    "spread": {
-      "predict": "home",
-      "handicap_id": "31267231",
-      "handicap": 11.5,
-      "percentage": 50,
-      "bets": 3
+    {
+      "bets_id": "2115973",
+      "scheduled": 1585628027000,
+      "league": "NBA",
+      "home": "CHA",
+      "home_ch": "黃蜂",
+      "spread": {
+        "predict": "under",
+        "handicap": 210.5,
+        "percentage": 16,
+        "bets": 1
+      },
+      "totals": {}
     },
-    "totals": {
-      "predict": "under",
-      "handicap_id": "34409340",
-      "handicap": 214.5,
-      "percentage": 50,
-      "bets": 1
+    {
+      "bets_id": "2117403",
+      "scheduled": 1585628027000,
+      "league": "NBA",
+      "home": "MIN",
+      "home_ch": "灰狼",
+      "spread": {
+        "predict": "away",
+        "handicap": 12.5,
+        "percentage": 17,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2114519",
+      "scheduled": 1585714204000,
+      "league": "NBA",
+      "home": "PHI",
+      "home_ch": "76人",
+      "spread": {
+        "predict": "under",
+        "handicap": 214.5,
+        "percentage": 10,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2114519",
+      "scheduled": 1585714427000,
+      "league": "NBA",
+      "home": "PHI",
+      "home_ch": "76人",
+      "spread": {
+        "predict": "under",
+        "handicap": 214.5,
+        "percentage": 11,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2117404",
+      "scheduled": 1585714427000,
+      "league": "NBA",
+      "home": "GSW",
+      "home_ch": "勇士",
+      "spread": {
+        "predict": "under",
+        "handicap": 226.5,
+        "percentage": 20,
+        "bets": 2
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2117404",
+      "scheduled": 1585800604000,
+      "league": "NBA",
+      "home": "GSW",
+      "home_ch": "勇士",
+      "spread": {
+        "predict": "under",
+        "handicap": 226.5,
+        "percentage": 42,
+        "bets": 2
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2117404",
+      "scheduled": 1585800827000,
+      "league": "NBA",
+      "home": "GSW",
+      "home_ch": "勇士",
+      "spread": {
+        "predict": "under",
+        "handicap": 226.5,
+        "percentage": 32,
+        "bets": 2
+      },
+      "totals": {}
     }
-  },
-  {
-    "bets_id": "2115973",
-    "scheduled": {
-      "_seconds": 1583969400,
-      "_nanoseconds": 0
+  ],
+  "MLB": [
+    {
+      "bets_id": "2115973",
+      "scheduled": 1585628127000,
+      "league": "MLB",
+      "home": "CHA",
+      "home_ch": "黃蜂",
+      "spread": {
+        "predict": "under",
+        "handicap": 210.5,
+        "percentage": 32,
+        "bets": 1
+      },
+      "totals": {}
     },
-    "league": "NBA",
-    "home": "熱火",
-    "away": "黃蜂",
-    "spread": {
-      "predict": "home",
-      "handicap_id": "31268919",
-      "handicap": 10.5,
-      "percentage": 50,
-      "bets": 3
+    {
+      "bets_id": "2115973",
+      "scheduled": 1585714383000,
+      "league": "MLB",
+      "home": "CHA",
+      "home_ch": "黃蜂",
+      "spread": {
+        "predict": "under",
+        "handicap": 210.5,
+        "percentage": 32,
+        "bets": 1
+      },
+      "totals": {}
     },
-    "totals": {
-      "predict": "under",
-      "handicap_id": "34417671",
-      "handicap": 210.5,
-      "percentage": 50,
-      "bets": 1
+    {
+      "bets_id": "2117403",
+      "scheduled": 1585714383000,
+      "league": "MLB",
+      "home": "MIN",
+      "home_ch": "灰狼",
+      "spread": {
+        "predict": "away",
+        "handicap": 12.5,
+        "percentage": 28,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2114519",
+      "scheduled": 1585714527000,
+      "league": "MLB",
+      "home": "PHI",
+      "home_ch": "76人",
+      "spread": {
+        "predict": "under",
+        "handicap": 214.5,
+        "percentage": 8,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2115973",
+      "scheduled": 1585714527000,
+      "league": "MLB",
+      "home": "CHA",
+      "home_ch": "黃蜂",
+      "spread": {
+        "predict": "under",
+        "handicap": 210.5,
+        "percentage": 12,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2117403",
+      "scheduled": 1585714527000,
+      "league": "MLB",
+      "home": "MIN",
+      "home_ch": "灰狼",
+      "spread": {
+        "predict": "away",
+        "handicap": 12.5,
+        "percentage": 26,
+        "bets": 1
+      },
+      "totals": {}
+    },
+    {
+      "bets_id": "2117404",
+      "scheduled": 1585800927000,
+      "league": "MLB",
+      "home": "GSW",
+      "home_ch": "勇士",
+      "spread": {
+        "predict": "under",
+        "handicap": 226.5,
+        "percentage": 11,
+        "bets": 2
+      },
+      "totals": {}
     }
-  },
-  {
-    "bets_id": "2117403",
-    "scheduled": {
-      "_seconds": 1583884800,
-      "_nanoseconds": 0
-    },
-    "league": "NBA",
-    "home": "火箭",
-    "away": "灰狼",
-    "spread": {
-      "predict": "away",
-      "handicap_id": "31194971",
-      "handicap": 12.5,
-      "percentage": 50,
-      "bets": 1
-    },
-    "totals": {}
-  },
-  {
-    "bets_id": "2117404",
-    "scheduled": {
-      "_seconds": 1583893800,
-      "_nanoseconds": 0
-    },
-    "league": "NBA",
-    "home": "勇士",
-    "away": "快艇",
-    "spread": {},
-    "totals": {
-      "predict": "under",
-      "handicap_id": "34334768",
-      "handicap": 226.5,
-      "percentage": 50,
-      "bets": 2
-    }
-  }
-]
+  ]
+}
  *
  * @apiError 404 
  * 
  * @apiErrorExample {JSON} Error-1301
  * HTTP/1.1 404 Not Found
  * {
-    "errcode": "1301",
-    "errmsg": "使用者狀態異常"
+    "code": "1301",
+    "msg": "使用者狀態異常"
  * }
  *
  * @apiError 404 
@@ -148,8 +258,8 @@ module.exports = predictInfo;
  * @apiErrorExample {JSON} Error-1302
  * HTTP/1.1 404 Not Found
  * {
-    "errcode": "1302",
-    "errmsg": "使用者狀態異常"
+    "code": "1302",
+    "msg": "使用者狀態異常"
  * }
  *
  * @apiError 404 
@@ -157,8 +267,8 @@ module.exports = predictInfo;
  * @apiErrorExample {JSON} Error-1303
  * HTTP/1.1 404 Not Found
  * {
-    "errcode": "1303",
-    "errmsg": "使用者沒有預測單"
+    "code": "1303",
+    "msg": "使用者沒有預測單"
  * }
  *
  * @apiError 404 
@@ -166,8 +276,8 @@ module.exports = predictInfo;
  * @apiErrorExample {JSON} Error-1304
  * HTTP/1.1 404 Not Found
  * {
-    "errcode": "1304",
-    "errmsg": "使用者一天只能擁有一份預測清單"
+    "code": "1304",
+    "msg": "使用者一天只能擁有一份預測清單"
  * }
  *
  * @apiError 500 Internal Server Error
