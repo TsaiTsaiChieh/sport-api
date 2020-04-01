@@ -51,6 +51,7 @@ function predictInfo(args) {
         //.where('date_timestamp', '<', tomorrow) // 兩天內
         .where('date', 'in', [now_YYYYMMDD, tomorrow_YYYYMMDD]) // 兩天內
         .where('scheduled', '>', now) // 賽前 (scheduled 開賽時間 > api呼叫時間)
+        .orderBy('scheduled')
         .get();
 
       // 使用者 一開始尚未預測
