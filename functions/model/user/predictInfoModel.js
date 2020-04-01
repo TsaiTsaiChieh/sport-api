@@ -127,8 +127,8 @@ function repackage(ele){
     league: ele.league,
     home: ele.home.alias,
     home_ch: ele.home.alias_ch,
-    away: ele.alias,
-    away_ch: ele.alias_ch,
+    away: ele.away.alias,
+    away_ch: ele.away.alias_ch,
     spread: {},
     totals: {}
   };
