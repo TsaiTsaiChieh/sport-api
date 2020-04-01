@@ -16,30 +16,18 @@ describe('/user Endpoints', () => {
   it('/user/predict_info 不正確登入session __badsession', async () => {
     const res = await request(url)
       .post('/user/predict_info')
-      .send({league: 'NBA'})
       .set('Cookie', __badsession);
 
     expect(res.statusCode).toEqual(401);
   });
 
-  it('/user/predict_info 正確參數 NBA', async () => {
+  it('/user/predict_info', async () => {
     const res = await request(url)
       .post('/user/predict_info')
-      .send({league: 'NBA'})
       .set('Cookie', __session);
 
     expect(res.statusCode).toEqual(200);
     expect(typeof res.body).toEqual(typeof []);
-  });
-
-  it('/user/predict_info 錯誤參數 CCC ', async () => {
-    const res = await request(url)
-      .post('/user/predict_info')
-      .send({league: 'CCC'})
-      .set('Cookie', __session);
-
-    expect(res.statusCode).toEqual(400);
-    expect(res.body[0]).toHaveProperty('keyword');
   });
 
 });

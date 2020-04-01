@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const predictInfoModel = require('../../model/user/predictInfoModel');
 
 async function predictInfo(req, res) {
