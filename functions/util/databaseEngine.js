@@ -1,11 +1,15 @@
 const modules = require('./modules');
-const appError = require('./appErrors');
+const AppError = require('./AppErrors');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
-    const userSnapshot = await modules.getSnapshot('users', uid);
-    if (!userSnapshot.exists) return reject(new appError.UserNotFound());
-    if (userSnapshot.exists) return resolve(userSnapshot.data());
+    try {
+      const { customClaims } = await modules.firebaseAdmin.auth().getUser(uid);
+      if (!customClaims.role) return reject(new AppError.UserNotFound());
+      return resolve(customClaims);
+    } catch (error) {
+      return reject(new AppError.UserNotFound());
+    }
   });
 }
 
