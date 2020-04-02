@@ -4,8 +4,8 @@ function getTitlesAndSignature(args) {
   return new Promise(async function(resolve, reject) {
     try {
       // check if user exists
-      const user = await dbEngine.findUser(args.uid);
-      const result = await getUserTitles(user);
+      const customClaims = await dbEngine.findUser(args.uid);
+      const result = await getUserTitles(args.uid, customClaims);
       return resolve(result);
     } catch (err) {
       return reject({ code: err.code, error: err });
@@ -13,12 +13,16 @@ function getTitlesAndSignature(args) {
   });
 }
 
-async function getUserTitles(user) {
+async function getUserTitles(uid, customClaims) {
+  const userSnapshot = await modules.getSnapshot('users', uid);
+  const user = userSnapshot.data();
+
   const titles = user.titles ? user.titles : [];
   const record = await getTitleRecord(user.uid);
   return {
     uid: user.uid,
     signature: user.signature,
+    role: modules.userStatusCodebook(customClaims.role),
     titles: titles,
     record
   };

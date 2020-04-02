@@ -50,6 +50,7 @@ module.exports = getTitlesAndSignature;
 {
     "uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
     "signature": "",
+    "role": "GOD"
     "titles": [
         {
             "rank": 1,
