@@ -1,8 +1,8 @@
 const modules = require('../util/modules');
 const router = modules.express.Router();
 
-// router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);
-// router.get('/restore', require('../pubsub/backupFirestore').restoreFirestore);
+router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);
+router.get('/restore', require('../pubsub/backupFirestore').restoreFirestore);
 router.get('/prematch', require('../pubsub/prematch'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/lineups', require('../pubsub/lineups'));
