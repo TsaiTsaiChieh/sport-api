@@ -59,7 +59,7 @@ const db = {
   basketball_SBL: 'basketball_SBL',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
-  prediction_NBA: 'prediction_NBA',
+  prediction_NBA: 'prediction_NBA_TTC',
   prediction_SBL: 'prediction_SBL',
   prediction_MLB: 'prediction_MLB'
 };
@@ -145,6 +145,17 @@ function getTitlesPeriod(date) {
   }
   return 0;
 }
+
+function userStatusCodebook(role) {
+  switch (role) {
+    case 1:
+      return 'GOD';
+    case 9:
+      return 'ADMIN';
+    default:
+      return 'NORMAL';
+  }
+}
 module.exports = {
   express,
   firebaseAdmin,
@@ -172,5 +183,6 @@ module.exports = {
   firestoreService,
   leagueCodebook,
   addDataInCollectionWithId,
-  getTitlesPeriod
+  getTitlesPeriod,
+  userStatusCodebook
 };
