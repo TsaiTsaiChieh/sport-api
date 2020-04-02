@@ -33,7 +33,7 @@ function newestHandicap(data) {
     newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
-      newest_total: data.totals[newestKey]
+      newest_totals: data.totals[newestKey]
     });
   }
 }

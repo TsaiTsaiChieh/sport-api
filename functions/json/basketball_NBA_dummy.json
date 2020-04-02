@@ -1,7 +1,7 @@
 {
   "basketball_NBA": {
     "2114519": {
-      "newest_total": {
+      "newest_totals": {
         "add_time": 1583934276,
         "under_odd": 1.909,
         "handicap_id": "34409340",
@@ -457,7 +457,7 @@
         }
       },
       "update_time": { "_seconds": 1583890705, "_nanoseconds": 0 },
-      "newest_total": {
+      "newest_totals": {
         "under_odd": 1.909,
         "handicap_id": "34417671",
         "handicap": 210.5,
@@ -494,7 +494,7 @@
       }
     },
     "2117403": {
-      "newest_total": {
+      "newest_totals": {
         "under_odd": 1.909,
         "handicap_id": "34333969",
         "handicap": 245,
@@ -1154,7 +1154,7 @@
           "away_odd": 1.909
         }
       },
-      "newest_total": {
+      "newest_totals": {
         "over_odd": 1.909,
         "add_time": 1583850138,
         "under_odd": 1.909,
@@ -1554,7 +1554,7 @@
         }
       },
       "update_time": { "_seconds": 1583889464, "_nanoseconds": 0 },
-      "newest_total": {
+      "newest_totals": {
         "over_odd": 1.909,
         "add_time": 1583881966,
         "under_odd": 1.909,
@@ -1602,7 +1602,7 @@
         }
       },
       "update_time": { "_seconds": 1593736200, "_nanoseconds": 0 },
-      "newest_total": {
+      "newest_totals": {
         "handicap": 223,
         "insert_time": 1583881204,
         "over_odd": 1.909,
@@ -1656,24 +1656,22 @@
     "2118810": {
       "scheduled": { "_seconds": 1593743400, "_nanoseconds": 0 },
       "sr_id": "sr:match:19098374",
-      "handicap": {
-        "spread": {
-          "31235573": {
-            "handicap": -1.5,
-            "insert_time": 1583978401,
-            "add_time": 1583874134,
-            "home_odd": 1.909,
-            "away_odd": 1.909
-          }
-        },
-        "totals": {
-          "34360993": {
-            "insert_time": 1583978401,
-            "add_time": 1583874134,
-            "under_odd": 1.909,
-            "over_odd": 1.909,
-            "handicap": 235
-          }
+      "spread": {
+        "31235573": {
+          "handicap": -1.5,
+          "insert_time": 1583978401,
+          "add_time": 1583874134,
+          "home_odd": 1.909,
+          "away_odd": 1.909
+        }
+      },
+      "totals": {
+        "34360993": {
+          "insert_time": 1583978401,
+          "add_time": 1583874134,
+          "under_odd": 1.909,
+          "over_odd": 1.909,
+          "handicap": 235
         }
       },
       "lineups": {
@@ -1992,7 +1990,7 @@
       }
     },
     "2118816": {
-      "newest_total": {
+      "newest_totals": {
         "add_time": 1583866749,
         "under_odd": 1.909,
         "handicap_id": "34346860",
@@ -2103,7 +2101,7 @@
         }
       },
       "update_time": { "_seconds": 1583889464, "_nanoseconds": 0 },
-      "newest_total": {
+      "newest_totals": {
         "add_time": 1583881157,
         "under_odd": 1.909,
         "handicap_id": "34364794",
@@ -2150,7 +2148,7 @@
         }
       },
       "update_time": { "_seconds": 1583889464, "_nanoseconds": 0 },
-      "newest_total": {
+      "newest_totals": {
         "under_odd": 1.909,
         "handicap_id": "34334734",
         "handicap": 233,
