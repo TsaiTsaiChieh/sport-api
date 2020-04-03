@@ -14,6 +14,7 @@ class ExtendableError extends Error {
     Error.captureStackTrace(this, this.constructor.name);
   }
 }
+/* --------------------------- 404 NOT FOUND ---------------------------*/
 /**
  * 找不到使用者資料 Error
  * @extends ExtendableError
@@ -32,9 +33,32 @@ class UserNotFound extends ExtendableError {
     code = httpStatus.NOT_FOUND
   ) {
     super(message, status, isPublic, code);
-    this.name = 'UserNotFound';
+  }
+}
+
+/* --------------------------- 403 FORBIDDEN ---------------------------*/
+class UserCouldNotSell extends ExtendableError {
+  constructor(
+    message = '使用者非法操作',
+    status = 1201,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class UserPredictFailed extends ExtendableError {
+  constructor(
+    message,
+    status = 1202,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
   }
 }
 module.exports = {
-  UserNotFound
+  UserNotFound,
+  UserCouldNotSell,
+  UserPredictFailed
 };
