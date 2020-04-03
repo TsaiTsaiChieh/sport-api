@@ -59,9 +59,7 @@ const db = {
   basketball_SBL: 'basketball_SBL',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
-  prediction_NBA: 'prediction_NBA_TTC',
-  prediction_SBL: 'prediction_SBL',
-  prediction_MLB: 'prediction_MLB'
+  prediction: 'prediction'
 };
 function dateFormat(date) {
   return {
@@ -85,18 +83,15 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
-        match: db.basketball_NBA,
-        prediction: db.prediction_NBA
+        match: db.basketball_NBA
       };
     case 'SBL':
       return {
-        match: db.basketball_SBL,
-        prediction: db.prediction_SBL
+        match: db.basketball_SBL
       };
     case 'MLB':
       return {
-        match: db.baseball_MLB,
-        prediction: db.prediction_MLB
+        match: db.baseball_MLB
       };
   }
 }
