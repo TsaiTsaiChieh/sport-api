@@ -55,9 +55,11 @@ async function checkMatches(args) {
     isBeforeScheduled(args.now, i, { needed, failed });
     isOpened(i, { needed, failed });
     isNewestHandicap(i, { needed, failed });
+    //
     if (args.token.role === GOD_USER) {
       await isGodUpdate(args.token.uid, i, { needed, failed });
       if (needed[i].length === undefined) {
+        // 有資料的
         await isGodSellConsistent(args, i, { needed, failed });
       }
     }
@@ -70,6 +72,7 @@ async function isMatchExist(args, ele, filter) {
     modules.leagueCodebook(args.league).match,
     ele.id
   );
+
   if (!matchSnapshot.exists) {
     ele.code = 404;
     ele.error = `Match id: ${ele.id} in ${args.league} not found`;
@@ -78,7 +81,6 @@ async function isMatchExist(args, ele, filter) {
     // append match information
     ele.data = matchSnapshot.data();
     filter.needed.push(ele);
-    // filter.needed_temp.push(ele);
   }
 }
 
@@ -129,7 +131,7 @@ function isNewestHandicap(i, filter) {
     if (ele.spread[0] !== ele.data.newest_spread.handicap_id) {
       const error = {
         code: 403,
-        error: `Spread id: ${ele.totals[0]} conflict with the newest`
+        error: `Spread id: ${ele.spread[0]} conflict with the newest`
       };
       filterProcessor(filter, i, error);
     }

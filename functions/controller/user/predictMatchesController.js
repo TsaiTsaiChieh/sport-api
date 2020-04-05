@@ -6,7 +6,7 @@ async function predictMatches(req, res) {
   const now = Date.now();
   const schema = {
     type: 'object',
-    required: ['league', 'matches', 'sell'],
+    required: ['league', 'sell', 'matches'],
     properties: {
       league: {
         type: 'string',
@@ -64,7 +64,9 @@ async function predictMatches(req, res) {
     res
       .status(err.code)
       .json(
-        err.isPublic ? { error: err.message, devcode: err.status } : err.code
+        err.isPublic
+          ? { error: err.name, message: err.message, devcode: err.status }
+          : err.code
       );
   }
 }
