@@ -13,11 +13,12 @@ const os = require('os');
 const fs = require('fs');
 const https = require('https');
 const firestoreService = require('firestore-export-import');
+const request = require('supertest');
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
-  storageBucket: envValues.firebaseConfig.storageBucket
+  storageBucket: envValues.firebaseConfig.storageBucket,
 });
 const bucket = firebaseAdmin
   .storage()
@@ -26,10 +27,7 @@ const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
 function getSnapshot(collection, id) {
-  return firestore
-    .collection(collection)
-    .doc(id)
-    .get();
+  return firestore.collection(collection).doc(id).get();
 }
 
 function getDoc(collection, id) {
@@ -40,10 +38,7 @@ function addDataInCollection(collection, data) {
   return firestore.collection(collection).add(data);
 }
 function addDataInCollectionWithId(collection, id, data) {
-  return firestore
-    .collection(collection)
-    .doc(id)
-    .set(data, { merge: true });
+  return firestore.collection(collection).doc(id).set(data, { merge: true });
 }
 function createError(code, error) {
   const err = {};
@@ -59,19 +54,19 @@ const db = {
   basketball_SBL: 'basketball_SBL',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
-  prediction: 'prediction'
+  prediction: 'prediction',
 };
 function dateFormat(date) {
   return {
     year: date.substring(0, 4),
     month: date.substring(5, 7),
-    day: date.substring(8, 10)
+    day: date.substring(8, 10),
   };
 }
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
+  snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
@@ -83,15 +78,15 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
-        match: db.basketball_NBA
+        match: db.basketball_NBA,
       };
     case 'SBL':
       return {
-        match: db.basketball_SBL
+        match: db.basketball_SBL,
       };
     case 'MLB':
       return {
-        match: db.baseball_MLB
+        match: db.baseball_MLB,
       };
   }
 }
@@ -109,7 +104,7 @@ function getTitlesPeriod(date) {
     2027,
     2028,
     2029,
-    2030
+    2030,
   ];
   let weeks = 0;
   for (let i = 0; i < years.length; i++) {
@@ -135,7 +130,7 @@ function getTitlesPeriod(date) {
         date: moment(specificDate)
           .utcOffset(8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD')
+          .format('YYYYMMDD'),
       };
   }
   return 0;
@@ -179,5 +174,6 @@ module.exports = {
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,
-  userStatusCodebook
+  userStatusCodebook,
+  request,
 };
