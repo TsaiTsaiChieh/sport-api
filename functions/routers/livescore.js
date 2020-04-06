@@ -24,7 +24,12 @@ router.get(
   require('../controller/livescore/detailPBPController')
 );
 router.get(
-  '/livescore/collect',
-  require('../controller/livescore/collectController')
+  '/livescore/getCollect',
+  require('../controller/livescore/getCollectController')
 );
+
+// router.post(
+//   '/livescore/collect',
+//   require('../controller/livescore/getCollectController')
+// );
 module.exports = router;
