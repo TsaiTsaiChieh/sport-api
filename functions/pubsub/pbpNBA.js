@@ -59,18 +59,78 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
       let { data } = await axios(zhSummaryURL);
       for (let i = 0; i < data.home.players.length; i++) {
         let ref = modules.database.ref(
-          `basketball/NBA/${betsID}/Summary/home/player/player${i}`
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/full_name`
         );
-        await ref.set(data.away.points);
+        await ref.set(data.home.players[i].full_name);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/jersey_number`
+        );
+        await ref.set(data.home.players[i].jersey_number);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/id`
+        );
+        await ref.set(data.home.players[i].id);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/position`
+        );
+        await ref.set(data.home.players[i].position);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/minutes`
+        );
+        await ref.set(data.home.players[i].statistics.minutes);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/points`
+        );
+        await ref.set(data.home.players[i].statistics.points);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/rebounds`
+        );
+        await ref.set(data.home.players[i].statistics.rebounds);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/assists`
+        );
+        await ref.set(data.home.players[i].statistics.assists);
       }
-      for (let i = 0; i < data.away.players.length; i++) {}
-      let ref = modules.database.ref(
-        `basketball/NBA/${betsID}/Summary/away/player/`
-      );
-      // home/statistics/minutes
-      // home/statistics/rebounds
-      // home/statistics/assists
-      // home/statistics/points
+      for (let i = 0; i < data.away.players.length; i++) {
+        let ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/full_name`
+        );
+        await ref.set(data.away.players[i].full_name);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/jersey_number`
+        );
+        await ref.set(data.away.players[i].jersey_number);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/id`
+        );
+        await ref.set(data.away.players[i].id);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/position`
+        );
+        await ref.set(data.away.players[i].position);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/minutes`
+        );
+        await ref.set(data.away.players[i].statistics.minutes);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/points`
+        );
+        await ref.set(data.away.players[i].statistics.points);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/rebounds`
+        );
+        await ref.set(data.away.players[i].statistics.rebounds);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/assists`
+        );
+        await ref.set(data.away.players[i].statistics.assists);
+      }
     } catch (error) {
       console.log(
         'error happened in pubsub/NBApbpInplay function by page',
