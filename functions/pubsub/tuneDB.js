@@ -2,9 +2,15 @@ const modules = require('../util/modules');
 
 async function tuneDB() {
   const collection = await modules.firestore.collection('basketball_NBA').get();
-  collection.docs.map(async function(doc) {
+  collection.docs.map(async function (doc) {
+    const match = doc.data();
     newestHandicap(doc.data());
-    // handicapProcessor(doc.data());
+    await modules.addDataInCollectionWithId(
+      'basketball_NBA',
+      match.bets_id,
+      handicapProcessor(match)
+    );
+    // handicapProcessor(match).spread;
   });
 }
 
@@ -20,7 +26,7 @@ function newestHandicap(data) {
 
     data.spread[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
-      newest_spread: data.spread[newestKey]
+      newest_spread: data.spread[newestKey],
     });
   }
   if (data.totals) {
@@ -33,7 +39,7 @@ function newestHandicap(data) {
     newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
-      newest_totals: data.totals[newestKey]
+      newest_totals: data.totals[newestKey],
     });
   }
 }
@@ -46,15 +52,42 @@ function handicapProcessor(data) {
       handicapCalculator(data.spread[key]);
     }
   }
+  if (data.newest_spread) {
+    handicapCalculator(data.newest_spread);
+  }
+  return data;
 }
 function handicapCalculator(handicapObj) {
+  // 賠率相同
   if (
+    handicapObj.handicap % 1 !== 0 &&
+    handicapObj.handicap < 0
+    // handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    // handicapObj.away_tw = `${Math.floor(handicapObj.handicap)} 輸`;
+    handicapObj.away_tw = `${Math.ceil(Math.abs(handicapObj.handicap))}贏`;
+  } else if (
+    handicapObj.handicap % 1 !== 0 &&
+    handicapObj.handicap > 0
+    // handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    // handicapObj.home_tw = `${Math.abs(Math.floor(handicapObj.handicap))}輸`;
+    handicapObj.home_tw = `${Math.ceil(handicapObj.handicap)}贏`;
+  } else if (
     handicapObj.handicap % 1 === 0 &&
     handicapObj.handicap > 0 &&
     handicapObj.home_odd === handicapObj.away_odd
   ) {
-    // handicapObj.handicap_tw =
+    handicapObj.home_tw = `${handicapObj.handicap}平`;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
   }
+
+  return handicapObj;
 }
 // async function tuneDB() {
 //   const collection = await modules.firestore.collection('NBA_TC').get();
