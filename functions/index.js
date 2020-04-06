@@ -98,4 +98,10 @@ exports.lineups_MLB = functions.pubsub
 //   .schedule('* * * * *')
 //   .timeZone('Asia/Taipei')
 //   .onRun(require('./pubsub/checkmatch_NBA'));
+
+// keep firebase cloud function :API awake
+app.get('/awakeAPI', (req, res) => {
+  res.status(200).json({ test: 'awake' });
+});
+
 exports.api = functions.https.onRequest(app);
