@@ -10,11 +10,11 @@ async function predictMatches(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA'],
       },
       sell: {
         type: 'integer',
-        enum: [0, 1]
+        enum: [0, 1],
       },
       matches: {
         type: 'array',
@@ -24,28 +24,28 @@ async function predictMatches(req, res) {
           anyOf: [{ required: ['spread'] }, { required: ['totals'] }],
           properties: {
             id: {
-              type: 'string'
+              type: 'string',
             },
             spread: {
               type: 'array',
               items: [
                 { type: 'string' },
                 { type: 'string', enum: ['home', 'away'] },
-                { type: 'integer', minimum: 1, maximum: 3 }
-              ]
+                { type: 'integer', minimum: 1, maximum: 3 },
+              ],
             },
             totals: {
               type: 'array',
               item: [
                 { type: 'string' },
                 { type: 'string', enum: ['over', 'under'] },
-                { type: 'integer', minimum: 1, maximum: 3 }
-              ]
-            }
-          }
-        }
-      }
-    }
+                { type: 'integer', minimum: 1, maximum: 3 },
+              ],
+            },
+          },
+        },
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.body);
@@ -65,7 +65,7 @@ async function predictMatches(req, res) {
       .status(err.code)
       .json(
         err.isPublic
-          ? { error: err.name, message: err.message, devcode: err.status }
+          ? { error: err.name, devcode: err.status, message: err.message }
           : err.code
       );
   }
