@@ -9,6 +9,7 @@ router.get(
 
 router.post(
   '/getUserProfile',
+  verification.token,
   require('../controller/user/getUserProfile')
 );
 
