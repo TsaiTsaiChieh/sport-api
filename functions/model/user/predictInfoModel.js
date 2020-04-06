@@ -45,11 +45,11 @@ function predictInfo(args) {
       // const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
 
       // 使用者預測資訊
-      const predictionsInfoDocs = await modules.firestore.collection(`prediction_NBA_Y`)
+      const predictionsInfoDocs = await modules.firestore.collection(`prediction`)
         .where('uid', '==', userUid)
         //.where('date_timestamp', '>=', now)
         //.where('date_timestamp', '<', tomorrow) // 兩天內
-        .where('date', 'in', [now_YYYYMMDD, tomorrow_YYYYMMDD]) // 兩天內
+        //.where('date', 'in', [now_YYYYMMDD, tomorrow_YYYYMMDD]) // 兩天內
         .where('scheduled', '>', now) // 賽前 (scheduled 開賽時間 > api呼叫時間)
         .orderBy('scheduled')
         .get();
