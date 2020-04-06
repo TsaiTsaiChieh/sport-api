@@ -144,7 +144,7 @@ function repackage(ele){
   }
 
   if( !(ele.totals === undefined) && Object.keys(ele.totals).length > 0) { // 有大小資料
-    data['spread'] = {
+    data['totals'] = {
       predict: ele.totals.predict,
       handicap_id: ele.totals.handicap_id,
       handicap: ele.totals.handicap,
