@@ -13,6 +13,8 @@ const os = require('os');
 const fs = require('fs');
 const https = require('https');
 const firestoreService = require('firestore-export-import');
+const translate = require('@k3rn31p4nic/google-translate-api');
+const simple2Tradition = require('chinese-simple-tradition-translator');
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -126,5 +128,7 @@ module.exports = {
   firebaseTimestamp,
   firestoreService,
   leagueCodebook,
-  addDataInCollectionWithId
+  addDataInCollectionWithId,
+  translate,
+  simple2Tradition
 };

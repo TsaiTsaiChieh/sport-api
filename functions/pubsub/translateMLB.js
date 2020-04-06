@@ -1,43 +1,6 @@
 const modules = require('../util/modules');
 translateMLB('Rafael Devers homers to center field.');
 async function translateMLB(stringOrigin) {
-  // let testString = 'Andrew Benintendi called out on strikes.';
-  // let testString = 'Rafael Devers pops out to shallow infield to Gleyber Torres.';
-  // let testString = 'DJ LeMahieu singles to shallow center field.';
-  // let testString =
-  //   'Brett Gardner grounds out to shallow infield, José Peraza to Michael Chavis. DJ LeMahieu to third.';
-  // let testString =
-  //   'Luke Voit singles to shallow right field. Gary Sánchez to second.';
-  // let testString =
-  //   'Mike Tauchman out on a sacrifice fly to center field to Tzu-Wei Lin. Gary Sánchez scores.';
-  // let testString =
-  //   'Gio Urshela walks. Miguel Andújar to second. Luke Voit to third.';
-  // let testString = 'Hunter Haworth (P) replaces Martín Pérez (P).';
-  // let testString = 'José Peraza strikes out swinging.';
-  // let testString = 'Cole Sturgeon pinch-hitting for Tzu-Wei Lin.';
-  // let testString = 'Cole Sturgeon remains in the game as CF.';
-  // let testString = 'Gleyber Torres pops out to second base to José Peraza.';
-  // let testString = 'Luke Voit lines out to shallow infield to C.J. Chatham.';
-  // let testString =
-  //   'C.J. Chatham grounds out to shallow infield, Gleyber Torres to Luke Voit.';
-  // let testString =
-  //   'John Andreoli reaches on error. Throwing error by Gio Urshela.';
-  // let testString =
-  //   'John Andreoli reaches on error. Throwing error by Gio Urshela.';
-  // let testString = 'Gio Urshela homers to center field.';
-  // let testString = 'Gleyber Torres doubles to deep left center field.';
-  // let testString =
-  //   'Luke Voit flies out to shallow center field to Cole Sturgeon.';
-  // let testString = 'C.J. Chatham out at second.';
-  // let testString = 'Jett Bandy (C) replaces Jonathan Lucroy (C), batting 4th.';
-  // let testString = 'Trey Amburgey pinch-running for Clint Frazier.';
-  // let testString = 'Evan White steals second.';
-  // let testString = 'Jarred Kelenic switches from LF to RF.';
-  // let testString =
-  //   'Andrés Blanco flies out to left center field to Collin Cowgill.';
-  // let testString = 'David Fry hit by pitch.';
-  // let testString = 'Michael Chavis homers to center field.';
-
   //keyword = 依最嚴格條件開始替換
   let keyword1 = [
     // 觸身
@@ -830,7 +793,6 @@ async function translateMLB(stringOrigin) {
   finalString[0] = stringOrigin;
   for (let step = 1; step < 5; step++) {
     finalString[step] = '';
-    // eval('keyword' + step)
 
     for (let i = 0; i < eval('keyword' + step).length; i++) {
       if (finalString[step - 1].indexOf(eval('keyword' + step)[i]) >= 0) {
@@ -944,7 +906,7 @@ async function stepTrans(stringTrans) {
 
   stringTrans = stringTrans.replace(' . ', ' ');
   for (let i = 0; i < eleSmall.length; i++) {
-    stringTrans = stringTrans.replace(`${eleSmall[i]}.`, ' ');
+    stringTrans = stringTrans.replace(`${eleSmall[i]}.`, `${eleSmall[i]}`);
   }
   let match = stringTrans.split(' ');
 
@@ -989,3 +951,4 @@ async function stepTrans(stringTrans) {
   }
   console.log(final);
 }
+module.exports = translateMLB;
