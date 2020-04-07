@@ -9,7 +9,7 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
   const timesPerLoop = 11;
   const firestoreName = 'pagetest';
-  console.log(betsID);
+
   let countForStatus2 = 0;
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   const zhSummaryURL = `http://api.sportradar.us/nba/trial/v7/zh/games/${gameID}/summary.json?api_key=${nba_api_key}`;

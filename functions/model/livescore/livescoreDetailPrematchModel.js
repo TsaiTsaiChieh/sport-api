@@ -3,7 +3,6 @@ async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let result = await reResult(args.sport, args.league, args.eventID);
-      console.log(args.sport);
 
       resolve(result);
     } catch (err) {
@@ -42,6 +41,38 @@ async function repackage(sport, league, eventID) {
   eventData[0].sport = sport;
   eventData[0].league = league;
 
+  //for specific league
+  //nba
+  if (league === 'NBA') {
+    let queryHome = await modules.firestore
+      .collection(leagueName)
+      .where('home.alias', 'in', [
+        eventData[0].away.alias,
+        eventData[0].home.alias
+      ])
+      .limit(1)
+      .get();
+    let tempdataHome = [];
+    queryHome.forEach(doc => {
+      tempdataHome.push(doc.data());
+    });
+    console.log(leagueName);
+
+    let queryAway = await modules.firestore
+      .collection(leagueName)
+      .where('away.alias', 'in', [
+        eventData[0].away.alias,
+        eventData[0].home.alias
+      ])
+      .get();
+    let tempdataAway = [];
+    queryAway.forEach(doc => {
+      tempdataAway.push(doc.data());
+    });
+
+    // console.log(tempdataHome);
+    // console.log(tempdataAway);
+  }
   return eventData;
 }
 module.exports = livescore;
