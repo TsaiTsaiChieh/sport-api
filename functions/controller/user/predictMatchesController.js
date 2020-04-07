@@ -6,15 +6,15 @@ async function predictMatches(req, res) {
   const now = Date.now();
   const schema = {
     type: 'object',
-    required: ['league', 'matches', 'sell'],
+    required: ['league', 'sell', 'matches'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA'],
       },
       sell: {
         type: 'integer',
-        enum: [0, 1]
+        enum: [0, 1],
       },
       matches: {
         type: 'array',
@@ -24,28 +24,28 @@ async function predictMatches(req, res) {
           anyOf: [{ required: ['spread'] }, { required: ['totals'] }],
           properties: {
             id: {
-              type: 'string'
+              type: 'string',
             },
             spread: {
               type: 'array',
               items: [
                 { type: 'string' },
                 { type: 'string', enum: ['home', 'away'] },
-                { type: 'integer', minimum: 1, maximum: 3 }
-              ]
+                { type: 'integer', minimum: 1, maximum: 3 },
+              ],
             },
             totals: {
               type: 'array',
               item: [
                 { type: 'string' },
                 { type: 'string', enum: ['over', 'under'] },
-                { type: 'integer', minimum: 1, maximum: 3 }
-              ]
-            }
-          }
-        }
-      }
-    }
+                { type: 'integer', minimum: 1, maximum: 3 },
+              ],
+            },
+          },
+        },
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.body);
@@ -61,7 +61,13 @@ async function predictMatches(req, res) {
       'Error in controller/user/predictMatchesController/predictMatches function by TsaiChieh',
       err
     );
-    res.status(err.code).json(err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      );
   }
 }
 
@@ -144,14 +150,70 @@ module.exports = predictMatches;
         }
     ]
 }
+* @apiSuccessExample {JSON} Success-Response
+{
+    "failed": [
+        {
+            "id": "2115973",
+            "spread": [
+                "31268919",
+                "home",
+                3
+            ],
+            "code": 403,
+            "error": "Spread id: 31268919 OTB, forbidden"
+        },
+        {
+            "id": "2118058",
+            "totals": [
+                "ssstest",
+                "over",
+                1
+            ],
+            "code": 403,
+            "error": "Totals id: ssstest OTB, forbidden"
+        },
+        {
+            "id": "2115973",
+            "totals": [
+                "null",
+                "under",
+                1
+            ],
+            "code": 403,
+            "error": "Totals id: null conflict with the newest"
+        }
+    ],
+    "success": [
+        {
+            "id": "2117403",
+            "spread": [
+                "31194971",
+                "away",
+                1
+            ]
+        },
+        {
+            "id": "2117404",
+            "totals": [
+                "34334768",
+                "under",
+                2
+            ]
+        },
+        {
+            "id": "2114519",
+            "totals": [
+                "34409340",
+                "under",
+                1
+            ]
+        }
+    ]
+}
  *
  * @apiError 400 Bad Request
- * @apiError 401 Unauthorized
- * @apiError 404 Not Found
- * @apiError 405 Not Allowed
- * @apiError 406 Not Acceptable
- * @apiError 485 Own Definition
- * @apiError 500 Internal Server Error
+ * @apiError 403 Forbidden
  *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
@@ -168,78 +230,11 @@ module.exports = predictMatches;
         "message": "should be equal to one of the allowed values"
     }
 ]
- * @apiErrorExample {JSON} 401-Response
- * HTTP/1.1 401 Unauthorized
+* @apiErrorExample {JSON} 403-Response
+ * HTTP/1.1 403 Bad Request
  * {
-    "code": 401,
-    "error": "Unauthorized"
-}
- * @apiErrorExample {JSON} 485-Response
- * HTTP/1.1 485 Own Definition
-{
-    "code": 485,
-    "error": {
-        "failed": [
-            {
-                "id": "34893434",
-                "spread": [
-                    "37843",
-                    "home",
-                    2
-                ],
-                "code": 404,
-                "error": "Match id: 34893434 not found"
-            },
-            {
-                "id": "34893434",
-                "totals": [
-                    "3435456",
-                    "over",
-                    2
-                ],
-                "code": 404,
-                "error": "Match id: 34893434 not found"
-            },
-            {
-                "id": "2114519",
-                "spread": [
-                    "27833",
-                    "home",
-                    3
-                ],
-                "code": 406,
-                "error": "The Match id: 2114519 already start, not acceptable"
-            },
-            {
-                "id": "2118810",
-                "spread": [
-                    "3435456",
-                    "home",
-                    2
-                ],
-                "code": 405,
-                "error": "Spread id: 3435456 OTB, not allowed"
-            }
-        ],
-        "success": [
-            {
-                "id": "2115973",
-                "spread": [
-                    "31268919",
-                    "home",
-                    3
-                ]
-            },
-            {
-                "id": "2115973",
-                "totals": [
-                    "34417671",
-                    "over",
-                    2
-                ]
-            }
-        ]
-    }
+    "error": "UserPredictFailed",
+    "devcode": 1202
 }
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error

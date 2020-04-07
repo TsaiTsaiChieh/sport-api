@@ -3,9 +3,9 @@ const dbEngine = require('../../util/databaseEngine');
 
 function deleteTitle(args) {
   return new Promise(async function(resolve, reject) {
-    /* step 1: check if user exists */
     try {
       const now = new Date();
+      // check if user exists
       const user = await dbEngine.findUser(args.uid);
       const period = modules.getTitlesPeriod(now).period;
       const titlesObj = await getTitleFromUsersTitlesCollection(
@@ -28,7 +28,7 @@ function getTitleFromUsersTitlesCollection(uid, period) {
         code: 404,
         error: { devcode: 1306, msg: 'user status abnormal' }
       });
-    // TODO if titlesObj[`${periodObj.period}_period`] is null
+
     if (userTitles.exists) {
       const titlesObj = userTitles.data();
       const data = {
@@ -52,7 +52,8 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
         error: { devcode: 1307, msg: 'delete failed' }
       });
     if (checkResult.deleteFlag) {
-      checkUserStatus(
+      updateUserStatus(
+        args,
         checkResult.titlesObj[`${period}_period`].titles,
         args.uid
       );
@@ -69,6 +70,7 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
 function checkDeleteTitle(titlesObj, args, period) {
   // default title check and set to null
   let deleteFlag = false;
+  // should check default title
   const defaultTitle = titlesObj[`${period}_period`].default_title;
   if (
     args.sport === defaultTitle.sport &&
@@ -93,18 +95,25 @@ function checkDeleteTitle(titlesObj, args, period) {
       if (args.rank === 4) titlesObj.rank4_count -= 1;
     }
   }
-  // TODO should check default title
+
   return { deleteFlag, titlesObj };
 }
-function checkUserStatus(titles, uid) {
+async function updateUserStatus(args, titles, uid) {
   const NORMAL_STATUS = 1;
-  console.log(titles.length);
-
-  if (titles.length === 0)
+  const GOD_STATUS = 2;
+  const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
+  if (titles.length === 0) {
     modules.addDataInCollectionWithId('users', uid, { status: NORMAL_STATUS });
-  modules.firebaseAdmin
-    .auth()
-    .setCustomUserClaims(uid, { role: NORMAL_STATUS });
+    modules.firebaseAdmin
+      .auth()
+      .setCustomUserClaims(uid, { role: NORMAL_STATUS });
+  }
+  const userTitles = customClaims.titles;
+  userTitles.splice(userTitles.indexOf(args.league), 1); // delete league from userTitle array
+  modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+    role: `${titles.length === 0 ? NORMAL_STATUS : GOD_STATUS}`,
+    titles: userTitles
+  });
 }
 function updateFirestore(uid, titlesObj, period) {
   modules.addDataInCollectionWithId('users_titles', uid, titlesObj);
