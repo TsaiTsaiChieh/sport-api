@@ -26,7 +26,7 @@ function newestHandicap(data) {
 
     data.spread[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
-      newest_spread: data.spread[newestKey],
+      newest_spread: data.spread[newestKey]
     });
   }
   if (data.totals) {
@@ -39,7 +39,7 @@ function newestHandicap(data) {
     newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
-      newest_totals: data.totals[newestKey],
+      newest_totals: data.totals[newestKey]
     });
   }
 }
@@ -49,15 +49,35 @@ function sortTime(ids, add_time) {
 function handicapProcessor(data) {
   if (data.spread) {
     for (const key in data.spread) {
-      handicapCalculator(data.spread[key]);
+      spreadCalculator(data.spread[key], data.bets_id);
     }
   }
   if (data.newest_spread) {
-    handicapCalculator(data.newest_spread);
+    spreadCalculator(data.newest_spread, data.bets_id);
+  }
+  if (data.totals) {
+    for (const key in data.totals) {
+      totalsCalculator(data.totals[key], data.bets_id);
+    }
+  }
+  if (data.newest_totals) {
+    totalsCalculator(data.newest_totals, data.bets_id);
   }
   return data;
 }
-function handicapCalculator(handicapObj) {
+
+function totalsCalculator(handicapObj, id) {
+  if (
+    handicapObj.over_odd === handicapObj.under_odd ||
+    handicapObj.handicap % 1 !== 0
+  ) {
+    handicapObj.away_tw = `大${handicapObj.handicap}`;
+  } else if (handicapObj.over_odd !== handicapObj.under_odd) {
+    handicapObj.away_tw = `大${handicapObj.handicap} -50`;
+    console.log(handicapObj, id);
+  }
+}
+function spreadCalculator(handicapObj, id) {
   // 賠率相同
   if (
     handicapObj.handicap % 1 !== 0 &&
@@ -85,6 +105,32 @@ function handicapCalculator(handicapObj) {
     handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap > 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      handicapObj.home_tw = `+${handicapObj.handicap} +50`;
+      handicapObj.away_tw = `-${handicapObj.handicap} -50`;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.away_tw = `-${handicapObj.handicap} -50`;
+      handicapObj.home_tw = `+${handicapObj.handicap} +50`;
+    }
+    console.log(handicapObj, id);
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)} +50`;
+      handicapObj.away_tw = `-${Math.abs(handicapObj.handicap)} -50`;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.away_tw = `-${Math.abs(handicapObj.handicap)} -50`;
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)} +50`;
+    }
+    // console.log(handicapObj, id);
   }
 
   return handicapObj;
