@@ -5,7 +5,7 @@ async function godlists(req, res) {
   try {
     res.json(await godListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    res.status(err.code).json(err.err);
   }
 }
 

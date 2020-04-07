@@ -8,7 +8,8 @@
     "deploy": "firebase deploy",
     "api": "firebase deploy --only functions:api",
     "logs": "firebase functions:log",
-    "grunt": "grunt"
+    "grunt": "grunt",
+    "test": "jest test/ --testTimeout=30000"
   },
   "engines": {
     "node": "10",
@@ -31,6 +32,7 @@
     "firestore-export-import": "0.3.3",
     "fs": "0.0.1-security",
     "helmet": "3.21.2",
+    "http-status": "1.4.2",
     "jsonwebtoken": "8.5.1",
     "line-login": "1.0.14",
     "moment": "2.24.0",
@@ -38,11 +40,22 @@
     "path": "0.12.7"
   },
   "devDependencies": {
+    "bufferutil": "4.0.1",
+    "canvas": "2.6.1",
     "eslint": "5.16.0",
     "eslint-plugin-promise": "4.2.1",
     "firebase-functions-test": "0.1.7",
     "grunt": "1.0.4",
-    "grunt-apidoc": "0.11.0"
+    "grunt-apidoc": "0.11.0",
+    "jest": "25.2.0",
+    "supertest": "4.0.2",
+    "utf-8-validate": "5.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "private": true
 }

@@ -5,7 +5,7 @@ async function winRateLists(req, res) {
   try {
     res.json(await winRateListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    res.status(err.code).json(err.err);
   }
 }
 

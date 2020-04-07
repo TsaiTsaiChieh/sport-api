@@ -1,350 +1,298 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable consistent-return */
 const modules = require('../../util/modules');
+const dbEngine = require('../../util/databaseEngine');
+const AppError = require('../../util/AppErrors');
 
-function predictMatches(args) {
-  return new Promise(async function(resolve, reject) {
+const NORMAL_USER = 1;
+const GOD_USER = 2;
+const TAIWAN_UTF = 8;
+
+function prematch(args) {
+  return new Promise(async function (resolve, reject) {
     // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
     try {
       // 檢查此使用者身份
-      const userStatus = await getUserStatus(args);
-      args.userStatus = userStatus;
-      if (!checkNormalUserSell(args)) {
-        return reject({ code: 405, error: 'Normal user could not sell' });
-      }
-
-      // 檢查一般玩家想賣牌
-      const sieves = await checkMatches(args);
-      if (sieves.needed.length) {
-        try {
-          const results = await insertFirestore(args, sieves.needed);
-          if (results) {
-            return resolve(repackageReturnDate(sieves));
-          }
-        } catch (err) {
-          console.error(
-            'Error in model/user/predictMatchesModel/predictMatches function by TsaiChieh',
-            err
-          );
-          return reject({ code: 500, error: err });
-        }
-      }
-      if (!sieves.needed.length) {
-        return reject({ code: 485, error: repackageReturnDate(sieves) });
-      }
+      const customClaims = await dbEngine.findUser(args.token.uid);
+      await isGodBelongToLeague(args, customClaims.titles);
+      await isNormalUserSell(args.sell, customClaims.role);
+      const filter = await checkMatches(args);
+      return resolve(await sendPrediction(args, filter));
     } catch (err) {
-      return reject({ code: err.code, error: err });
+      return reject(err);
     }
   });
 }
 
-function repackageReturnDate(sieves) {
-  sieves.success = [];
-  for (let i = 0; i < sieves.needed.length; i++) {
-    const ele = sieves.needed[i];
-    delete ele.handicap;
-    delete ele.scheduled;
-    sieves.success.push(ele);
-  }
-  delete sieves.needed;
-
-  return sieves;
-}
-async function insertFirestore(args, needed) {
-  const results = [];
-  for (let i = 0; i < needed.length; i++) {
-    const ele = needed[i];
-    const date = modules
-      .moment(ele.scheduled * 1000)
-      .utcOffset(8)
-      .format('MMDDYYYY');
-
-    results.push(
-      modules.addDataInCollectionWithId(
-        modules.leagueCodebook(args.league).prediction,
-        `${date}_${args.token.uid}`,
-        repackagePrediction(args, ele, date)
-      )
-    );
-  }
-  return await Promise.all(results);
+// 檢查玩家想賣牌，是否屬於該聯盟的大神
+function isGodBelongToLeague(args, userTitles = []) {
+  return new Promise(function (resolve, reject) {
+    if (args.sell === 1 && !userTitles.includes(args.league))
+      return reject(new AppError.UserCouldNotSell());
+    else return resolve();
+  });
 }
 
-function repackagePrediction(args, ele, date) {
-  const data = {
-    uid: args.token.uid,
-    league: args.league,
-    user_status: args.userStatus,
-    sell: args.sell,
-    date: date,
-    date_timestamp: modules
-      .moment(
-        modules
-          .moment(ele.scheduled * 1000)
-          .utcOffset(8)
-          .format('YYYYMMDD')
-      )
-      .valueOf(),
-    matches: {}
-  };
-  data.matches[ele.id] = ele.scheduled;
-  if (ele.spread) {
-    data.matches[ele.id] = {
-      spread: {
-        predict: ele.spread[1],
-        handicap_id: ele.spread[0],
-        handicap: ele.handicap,
-        bets: ele.spread[2],
-        update_time: Date.now()
-      }
-    };
-  }
-  if (ele.totals) {
-    data.matches[ele.id] = {
-      totals: {
-        predict: ele.totals[1],
-        handicap_id: ele.totals[0],
-        handicap: ele.handicap,
-        bets: ele.totals[2],
-        update_time: Date.now()
-      }
-    };
-  }
-  return data;
+// 檢查玩家想賣牌，是否屬於大神
+function isNormalUserSell(sell, role) {
+  return new Promise(function (resolve, reject) {
+    role = Number.parseInt(role);
+    if (role === NORMAL_USER && sell === 1)
+      return reject(new AppError.UserCouldNotSell());
+    else return resolve();
+  });
 }
-// 檢查有無此賽事 ID
+
 async function checkMatches(args) {
   const needed = [];
   const failed = [];
+
   for (let i = 0; i < args.matches.length; i++) {
     const ele = args.matches[i];
-    // eslint-disable-next-line no-await-in-loop
-    const matchSnapshot = await modules.getSnapshot(
-      modules.leagueCodebook(args.league).match,
-      ele.id
-    );
-    if (!matchSnapshot.exists) {
-      ele.code = 404;
-      ele.error = `Match id: ${ele.id} not found`;
-      failed.push(ele);
-    }
-    if (matchSnapshot.exists) {
-      const match = matchSnapshot.data();
-      if (isScheduled(args.now, match.scheduled._seconds)) {
-        // eslint-disable-next-line no-await-in-loop
-        const predictions = await getPredictions(args, match);
-        // spread
-        if (ele.spread) {
-          if (isHandicap(match.flag.spread)) {
-            if (checkHandicap(match.spread, ele.spread[0])) {
-              // 檢查大神有無新增過此賽事
-              // eslint-disable-next-line no-await-in-loop
-              if (await checkGodInsert(args, predictions, ele)) {
-                // 檢查大神再次送出的牌是否和當初販售狀態一致
-                if (checkGodSellFlag(args, predictions)) {
-                  // append match information
-                  ele.handicap = match.spread[ele.spread[0]].handicap;
-                  ele.scheduled = match.scheduled._seconds;
-                  needed.push(ele);
-                }
-                if (!checkGodSellFlag(args, predictions)) {
-                  ele.code = 409;
-                  failed.push(ele);
-                  if (args.sell === 0) ele.error = 'Can not be changed to free';
-                  if (args.sell === 1) ele.error = 'Can not be changed to sell';
-                }
-              }
-              // eslint-disable-next-line no-await-in-loop
-              if (!(await checkGodInsert(args, predictions, ele))) {
-                ele.code = 423;
-                ele.error = `Spread id: ${ele.spread[0]} already exist, locked`;
-                failed.push(ele);
-              }
-            }
-            if (!checkHandicap(match.spread, ele.spread[0])) {
-              ele.code = 409;
-              ele.error = `Spread id: ${ele.spread[0]} already updated, conflict with the newest`;
-              failed.push(ele);
-            }
-          }
-          if (!isHandicap(match.flag.spread)) {
-            ele.code = 405;
-            ele.error = `Spread id: ${ele.spread[0]} OTB, not allowed`;
-            failed.push(ele);
-          }
-        }
-        // totals
-        if (ele.totals) {
-          if (isHandicap(match.flag.totals)) {
-            if (checkHandicap(match.totals, ele.totals[0])) {
-              // 檢查大神有無新增過此賽事
-              // eslint-disable-next-line no-await-in-loop
-              if (await checkGodInsert(args, predictions, ele)) {
-                // 檢查大神再次送出的牌是否和當初販售狀態一致
-                if (checkGodSellFlag(args, predictions)) {
-                  // append match information
-                  ele.handicap = match.totals[ele.totals[0]].handicap;
-                  ele.scheduled = match.scheduled._seconds;
-                  needed.push(ele);
-                }
-                if (!checkGodSellFlag(args, predictions)) {
-                  ele.code = 409;
-                  failed.push(ele);
-                  if (args.sell === 0) ele.error = 'Can not be changed to free';
-                  if (args.sell === 1) ele.error = 'Can not be changed to sell';
-                }
-              }
-              // eslint-disable-next-line no-await-in-loop
-              if (!(await checkGodInsert(args, predictions, ele))) {
-                ele.code = 423;
-                ele.error = `Totals id: ${ele.totals[0]} already exist, locked`;
-                failed.push(ele);
-              }
-            }
-            if (!checkHandicap(match.totals, ele.totals[0])) {
-              ele.code = 409;
-              ele.error = `Totals id: ${ele.totals[0]} already updated, conflict with the newest`;
-              failed.push(ele);
-            }
-          }
-          if (!isHandicap(match.flag.totals)) {
-            ele.code = 405;
-            ele.error = `Totals id: ${ele.totals[0]} OTB, not allowed`;
-            failed.push(ele);
-          }
-        }
-      }
-      if (!isScheduled(args.now, matchSnapshot.data().scheduled._seconds)) {
-        ele.code = 406;
-        ele.error = `The Match id: ${ele.id} already start, not acceptable`;
-        failed.push(ele);
+    await isMatchExist(args, ele, { needed, failed });
+  }
+  for (let i = 0; i < needed.length; i++) {
+    isBeforeScheduled(args.now, i, { needed, failed });
+    isOpened(i, { needed, failed });
+    isNewestHandicap(i, { needed, failed });
+    //
+    if (args.token.role === GOD_USER) {
+      await isGodUpdate(args.token.uid, i, { needed, failed });
+      if (needed[i].length === undefined) {
+        // 有資料的
+        await isGodSellConsistent(args, i, { needed, failed });
       }
     }
   }
   return { needed, failed };
 }
-// 檢查是否為未來賽事
-function isScheduled(now, scheduled) {
-  return now < scheduled * 1000 ? true : false;
-}
-// 檢查盤口是否可下注
-function isHandicap(flag) {
-  return flag === 1 ? true : false;
-}
 
-// 檢查盤口 ID 是否有效
-function checkHandicap(data, id) {
-  return id === newestHandicap(data) ? true : false;
-}
+async function isMatchExist(args, ele, filter) {
+  const matchSnapshot = await modules.getSnapshot(
+    modules.leagueCodebook(args.league).match,
+    ele.id
+  );
 
-function newestHandicap(handicap) {
-  const keys = [];
-  const times = [];
-  for (const key in handicap) {
-    keys.push(key);
-    times.push(handicap[key].add_time);
+  if (!matchSnapshot.exists) {
+    ele.code = 404;
+    ele.error = `Match id: ${ele.id} in ${args.league} not found`;
+    filter.failed.push(ele);
+  } else if (matchSnapshot.exists) {
+    // append match information
+    ele.data = matchSnapshot.data();
+    filter.needed.push(ele);
   }
-  return sortTime(keys, times);
 }
 
-function sortTime(keys, times) {
-  return keys[times.indexOf(Math.max(...times))];
+function isBeforeScheduled(now, i, filter) {
+  const ele = filter.needed[i];
+  if (now >= ele.data.scheduled._seconds * 1000) {
+    const error = {
+      code: 403,
+      error: `Match id: ${ele.id} already start, forbidden`
+    };
+    filterProcessor(filter, i, error);
+  }
 }
 
-function getUserStatus(args) {
-  return new Promise(async function(resolve, reject) {
-    // 檢查使用者是什麼身份
-    try {
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-      if (!userSnapshot.exists) {
-        reject({ code: 400, error: 'user not found' });
-      }
+function filterProcessor(filter, i, error) {
+  const ele = filter.needed[i];
+  ele.code = error.code;
+  ele.error = error.error;
+  delete ele.data;
+  filter.needed[i] = []; // clear
+  filter.failed.push(ele);
+}
 
-      if (userSnapshot.exists) {
-        const data = userSnapshot.data();
-        if (args.sell === 1) {
-          if (checkGodTitles(args.league, data.titles)) {
-            resolve(data.status);
-          }
+function isOpened(i, filter) {
+  const ele = filter.needed[i];
+  if (ele.spread) {
+    if (ele.data.flag.spread === 0) {
+      const error = {
+        code: 403,
+        error: `Spread id: ${ele.spread[0]} OTB, forbidden`
+      };
+      filterProcessor(filter, i, error);
+    }
+  } else if (ele.totals) {
+    if (ele.data.flag.totals === 0) {
+      const error = {
+        code: 403,
+        error: `Totals id: ${ele.totals[0]} OTB, forbidden`
+      };
+      filterProcessor(filter, i, error);
+    }
+  }
+}
 
-          if (!checkGodTitles(args.league, data.titles)) {
-            reject({
-              code: 403,
-              error: `This user not the god in ${args.league}, forbidden`
-            });
-          }
-        }
-        if (args.sell === 0) resolve(data.status);
+function isNewestHandicap(i, filter) {
+  const ele = filter.needed[i];
+  if (ele.spread) {
+    if (ele.spread[0] !== ele.data.newest_spread.handicap_id) {
+      const error = {
+        code: 403,
+        error: `Spread id: ${ele.spread[0]} conflict with the newest`
+      };
+      filterProcessor(filter, i, error);
+    }
+  } else if (ele.totals) {
+    if (ele.totals[0] !== ele.data.newest_totals.handicap_id) {
+      const error = {
+        code: 403,
+        error: `Totals id: ${ele.totals[0]} conflict with the newest`
+      };
+      filterProcessor(filter, i, error);
+    }
+  }
+}
+
+async function isGodUpdate(uid, i, filter) {
+  const ele = filter.needed[i];
+  const predictionSnapshot = await modules.getSnapshot(
+    modules.db.prediction,
+    `${ele.id}_${uid}`
+  );
+
+  if (predictionSnapshot.exists) {
+    const prediction = predictionSnapshot.data();
+    if (ele.spread) {
+      if (prediction.spread) {
+        const error = {
+          code: 403,
+          error: `Spread id: ${ele.spread[0]} already exist, locked`
+        };
+        filterProcessor(filter, i, error);
       }
-    } catch (err) {
-      console.error(
-        'Error in model/user/predictMatchesModel/checkUser function by TsaiChieh',
-        err
-      );
-      reject({ code: 500, error: err });
+    }
+    if (ele.totals) {
+      if (prediction.totals) {
+        const error = {
+          code: 403,
+          error: `Totals id: ${ele.totals[0]} already exist, locked`
+        };
+        filterProcessor(filter, i, error);
+      }
+    }
+  }
+}
+
+async function isGodSellConsistent(args, i, filter) {
+  const date = modules
+    .moment(filter.needed[i].data.scheduled._seconds * 1000)
+    .utcOffset(TAIWAN_UTF)
+    .format('YYYYMMDD');
+  const query = await modules.firestore
+    .collection(modules.db.prediction)
+    .where('uid', '==', args.token.uid)
+    .where('date', '==', date)
+    .get();
+
+  if (query.size > 0) {
+    query.docs.map(function (doc) {
+      if (doc.data().sell !== args.sell) {
+        const error = {
+          code: 403,
+          error: `Cannot be changed to ${args === 1 ? 'sell' : 'free'}`
+        };
+        filterProcessor(filter, i, error);
+      }
+    });
+  }
+}
+
+function sendPrediction(args, filter) {
+  return new Promise(async function (resolve, reject) {
+    neededResult = isNeeded(filter.needed);
+    if (!neededResult) {
+      return reject(new AppError.UserPredictFailed((message = filter.failed)));
+    } else if (neededResult) {
+      await insertFirestore(args, filter.needed);
+      return resolve(repackageReturnData(filter));
     }
   });
 }
 
-function checkGodTitles(league, titles) {
-  let flag = false;
-  for (let i = 0; i < titles.length; i++) {
-    if (titles[i].league === league) {
-      flag = true;
-      break;
-    }
+function isNeeded(needed) {
+  let count = 0;
+  for (let i = 0; i < needed.length; i++) {
+    const ele = needed[i];
+    if (ele.length === 0) count++;
   }
-  return flag;
-}
-
-async function getPredictions(args, match) {
-  const date = modules
-    .moment(match.scheduled._seconds * 1000)
-    .utcOffset(8)
-    .format('MMDDYYYY');
-  return await modules.getSnapshot(
-    modules.leagueCodebook(args.league).prediction,
-    `${date}_${args.token.uid}`
-  );
-}
-// eslint-disable-next-line consistent-return
-async function checkGodInsert(args, predictSnapshot, ele) {
-  if (args.userStatus === 1) return true;
-  if (args.userStatus === 2) {
-    if (!predictSnapshot.exists) return true;
-    if (predictSnapshot.exists) {
-      const prediction = predictSnapshot.data();
-      if (prediction.matches) {
-        for (const key in prediction.matches) {
-          if (key === ele.id) {
-            if (ele.spread) {
-              if (prediction.matches[ele.id].spread) return false;
-              if (!prediction.matches[ele.id].spread) return true;
-            }
-            if (ele.totals) {
-              if (prediction.matches[ele.id].totals) return false;
-              if (!prediction.matches[ele.id].totals) return true;
-            }
-          }
-        }
-        return true;
-      }
-    }
-  }
-}
-
-// eslint-disable-next-line consistent-return
-function checkGodSellFlag(args, predictionSnapshot) {
-  if (args.userStatus === 1) return true;
-  if (!predictionSnapshot.exists) return true;
-  if (args.userStatus === 2) {
-    const prediction = predictionSnapshot.data();
-    if (args.sell === prediction.sell) return true;
-    if (args.sell !== prediction.sell) return false;
-  }
-}
-
-function checkNormalUserSell(args) {
-  if (args.userStatus === 1 && args.sell === 1) return false;
+  if (count === needed.length) return false;
   return true;
 }
-module.exports = predictMatches;
+
+async function insertFirestore(args, needed) {
+  const results = [];
+  for (let i = 0; i < needed.length; i++) {
+    const ele = needed[i];
+    if (ele.length === undefined) {
+      results.push(
+        modules.addDataInCollectionWithId(
+          modules.db.prediction,
+          `${ele.id}_${args.token.uid}`,
+          repackagePrediction(args, ele)
+        )
+      );
+    }
+  }
+  return await Promise.all(results);
+}
+
+function repackagePrediction(args, ele) {
+  const date = modules
+    .moment(ele.data.scheduled._seconds * 1000)
+    .utcOffset(TAIWAN_UTF)
+    .format('YYYYMMDD');
+  const data = {
+    bets_id: ele.id,
+    uid: args.token.uid,
+    league: args.league,
+    user_status: args.token.role,
+    sell: args.sell,
+    date,
+    date_timestamp: modules.moment(date).valueOf(),
+    scheduled: ele.data.scheduled._seconds * 1000,
+    home: {
+      alias: ele.data.home.alias,
+      alias_ch: ele.data.home.alias_ch
+    },
+    away: {
+      alias: ele.data.away.alias,
+      alias_ch: ele.data.away.alias_ch
+    }
+  };
+  if (ele.spread) {
+    data.spread = {
+      handicap_id: ele.spread[0],
+      predict: ele.spread[1],
+      handicap: ele.data.spread[ele.spread[0]].handicap,
+      bets: ele.spread[2],
+      update_time: Date.now()
+    };
+  }
+  if (ele.totals) {
+    data.totals = {
+      handicap_id: ele.totals[0],
+      predict: ele.totals[1],
+      bets: ele.totals[2],
+      handicap: ele.data.totals[ele.totals[0]].handicap,
+      update_time: Date.now()
+    };
+  }
+  return data;
+}
+
+function repackageReturnData(filter) {
+  filter.success = [];
+  for (let i = 0; i < filter.needed.length; i++) {
+    const ele = filter.needed[i];
+    if (ele.length === undefined) {
+      delete ele.data;
+      filter.success.push(ele);
+    }
+  }
+  delete filter.needed;
+  return filter;
+}
+module.exports = prematch;
