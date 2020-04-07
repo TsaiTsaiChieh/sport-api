@@ -89,7 +89,7 @@ function isBeforeScheduled(now, i, filter) {
   if (now >= ele.data.scheduled._seconds * 1000) {
     const error = {
       code: 403,
-      error: `Match id: ${ele.id} already start, forbidden`,
+      error: `Match id: ${ele.id} already start, forbidden`
     };
     filterProcessor(filter, i, error);
   }
@@ -110,7 +110,7 @@ function isOpened(i, filter) {
     if (ele.data.flag.spread === 0) {
       const error = {
         code: 403,
-        error: `Spread id: ${ele.spread[0]} OTB, forbidden`,
+        error: `Spread id: ${ele.spread[0]} OTB, forbidden`
       };
       filterProcessor(filter, i, error);
     }
@@ -118,7 +118,7 @@ function isOpened(i, filter) {
     if (ele.data.flag.totals === 0) {
       const error = {
         code: 403,
-        error: `Totals id: ${ele.totals[0]} OTB, forbidden`,
+        error: `Totals id: ${ele.totals[0]} OTB, forbidden`
       };
       filterProcessor(filter, i, error);
     }
@@ -131,7 +131,7 @@ function isNewestHandicap(i, filter) {
     if (ele.spread[0] !== ele.data.newest_spread.handicap_id) {
       const error = {
         code: 403,
-        error: `Spread id: ${ele.spread[0]} conflict with the newest`,
+        error: `Spread id: ${ele.spread[0]} conflict with the newest`
       };
       filterProcessor(filter, i, error);
     }
@@ -139,7 +139,7 @@ function isNewestHandicap(i, filter) {
     if (ele.totals[0] !== ele.data.newest_totals.handicap_id) {
       const error = {
         code: 403,
-        error: `Totals id: ${ele.totals[0]} conflict with the newest`,
+        error: `Totals id: ${ele.totals[0]} conflict with the newest`
       };
       filterProcessor(filter, i, error);
     }
@@ -159,7 +159,7 @@ async function isGodUpdate(uid, i, filter) {
       if (prediction.spread) {
         const error = {
           code: 403,
-          error: `Spread id: ${ele.spread[0]} already exist, locked`,
+          error: `Spread id: ${ele.spread[0]} already exist, locked`
         };
         filterProcessor(filter, i, error);
       }
@@ -168,7 +168,7 @@ async function isGodUpdate(uid, i, filter) {
       if (prediction.totals) {
         const error = {
           code: 403,
-          error: `Totals id: ${ele.totals[0]} already exist, locked`,
+          error: `Totals id: ${ele.totals[0]} already exist, locked`
         };
         filterProcessor(filter, i, error);
       }
@@ -192,7 +192,7 @@ async function isGodSellConsistent(args, i, filter) {
       if (doc.data().sell !== args.sell) {
         const error = {
           code: 403,
-          error: `Cannot be changed to ${args === 1 ? 'sell' : 'free'}`,
+          error: `Cannot be changed to ${args === 1 ? 'sell' : 'free'}`
         };
         filterProcessor(filter, i, error);
       }
@@ -255,12 +255,12 @@ function repackagePrediction(args, ele) {
     scheduled: ele.data.scheduled._seconds * 1000,
     home: {
       alias: ele.data.home.alias,
-      alias_ch: ele.data.home.alias_ch,
+      alias_ch: ele.data.home.alias_ch
     },
     away: {
       alias: ele.data.away.alias,
-      alias_ch: ele.data.away.alias_ch,
-    },
+      alias_ch: ele.data.away.alias_ch
+    }
   };
   if (ele.spread) {
     data.spread = {
@@ -268,7 +268,7 @@ function repackagePrediction(args, ele) {
       predict: ele.spread[1],
       handicap: ele.data.spread[ele.spread[0]].handicap,
       bets: ele.spread[2],
-      update_time: Date.now(),
+      update_time: Date.now()
     };
   }
   if (ele.totals) {
@@ -277,7 +277,7 @@ function repackagePrediction(args, ele) {
       predict: ele.totals[1],
       bets: ele.totals[2],
       handicap: ele.data.totals[ele.totals[0]].handicap,
-      update_time: Date.now(),
+      update_time: Date.now()
     };
   }
   return data;
