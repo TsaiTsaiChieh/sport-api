@@ -9,7 +9,7 @@
     "api": "firebase deploy --only functions:api",
     "logs": "firebase functions:log",
     "grunt": "grunt",
-    "test": "jest test/ --detectOpenHandles"
+    "test": "jest test/ --testTimeout=30000"
   },
   "engines": {
     "node": "10",
@@ -43,8 +43,14 @@
     "firebase-functions-test": "0.1.7",
     "grunt": "1.0.4",
     "grunt-apidoc": "0.11.0",
-    "jest": "25.2.7",
+    "jest": "25.2.0",
     "supertest": "4.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "private": true
 }
