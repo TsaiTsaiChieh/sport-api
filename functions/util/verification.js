@@ -71,9 +71,12 @@ async function confirmLogin(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
+      decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(bearerToken, true);
       req.token = await modules.firebaseAdmin
-          .auth()
-          .verifySessionCookie(bearerToken, true);
+        .auth()
+        .getUser(decodedIdToken.uid);
     } else {
       // do nothing
     }
@@ -91,9 +94,13 @@ async function token(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
+
+      const decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(bearerToken, true);
       req.token = await modules.firebaseAdmin
-          .auth()
-          .verifySessionCookie(bearerToken, true);
+        .auth()
+        .getUser(decodedIdToken.uid);
     } else {
       res.sendStatus(401);
     }
