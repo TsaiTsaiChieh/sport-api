@@ -6,10 +6,12 @@ async function postCollect(req, res) {
     required: ['sport', 'league', 'UID', 'eventID'],
     properties: {
       sport: {
-        type: 'string'
+        type: 'string',
+        enum: ['baseball', 'basketball', 'icehockey', 'soccer']
       },
       league: {
-        type: 'string'
+        type: 'string',
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       UID: {
         type: 'string'
