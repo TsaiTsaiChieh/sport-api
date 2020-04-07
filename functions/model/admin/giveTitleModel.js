@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 
 function giveTitleModel(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       // check if user exists
       const user = await getUserDoc(args.uid);
@@ -19,7 +19,7 @@ function giveTitleModel(args) {
 }
 
 function getUserDoc(uid) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const userSnapshot = await modules.getSnapshot('users', uid);
     if (!userSnapshot.exists) {
       return reject({ code: 404, error: 'user not found' });
@@ -31,18 +31,18 @@ function getUserDoc(uid) {
 }
 
 function isAdmin(status) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (status === 9)
       return reject({
         code: 403,
-        error: 'forbidden, admin could not have a title'
+        error: 'forbidden, admin could not have a title',
       });
     return resolve(true);
   });
 }
 
 function getTitles(uid, period) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const titlesSnapshot = await modules.getSnapshot('users_titles', uid);
       if (!titlesSnapshot.exists) return resolve([]);
@@ -62,7 +62,7 @@ function getTitles(uid, period) {
 }
 
 function insertTitles(args, titles, periodObj) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     // insert if titles.length === 0
     if (!titles.length) {
       // insert default title
@@ -74,7 +74,7 @@ function insertTitles(args, titles, periodObj) {
       if (checkTitleDuplication(titles, args)) {
         return reject({
           code: 403,
-          error: 'forbidden, this user had the same title'
+          error: 'forbidden, this user had the same title',
         });
       }
       if (!checkTitleDuplication(titles, args)) {
@@ -95,13 +95,13 @@ function insertDefaultTitle(args, period) {
   defaultTitle = {
     rank: args.rank,
     league: args.league,
-    sport: args.sport
+    sport: args.sport,
   };
   modules.addDataInCollectionWithId('users', args.uid, {
-    defaultTitle
+    defaultTitle,
   });
   data[`${period}_period`] = {
-    default_title: defaultTitle
+    default_title: defaultTitle,
   };
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
 }
@@ -111,7 +111,7 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     titles.push({
       rank: args.rank,
       league: args.league,
-      sport: args.sport
+      sport: args.sport,
     });
   const titlesRecord = await getTitlesRecord(args);
   record = updateTitleCount(titlesRecord, args.rank, updateResult);
@@ -120,16 +120,16 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     rank1_count: record.rank1_count,
     rank2_count: record.rank2_count,
     rank3_count: record.rank3_count,
-    rank4_count: record.rank4_count
+    rank4_count: record.rank4_count,
   };
   data[`${periodObj.period}_period`] = {
     date: periodObj.date,
-    titles
+    titles,
   };
 
   modules.addDataInCollectionWithId('users', args.uid, {
     status: GOD_STATUS,
-    titles
+    titles,
   });
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
   const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
@@ -143,13 +143,13 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
       userTitles.push(args.league);
       modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
         role: GOD_STATUS,
-        titles: userTitles
+        titles: userTitles,
       });
     }
   } else if (!customClaims.titles) {
     modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
       role: GOD_STATUS,
-      titles: [`${args.league}`]
+      titles: [`${args.league}`],
     });
   }
 }
@@ -160,7 +160,7 @@ async function getTitlesRecord(args) {
       rank1_count: 0,
       rank2_count: 0,
       rank3_count: 0,
-      rank4_count: 0
+      rank4_count: 0,
     };
   }
   if (titlesRecord.exists) {
@@ -168,7 +168,7 @@ async function getTitlesRecord(args) {
       rank1_count,
       rank2_count,
       rank3_count,
-      rank4_count
+      rank4_count,
     } = titlesRecord.data();
     return { rank1_count, rank2_count, rank3_count, rank4_count };
   }
