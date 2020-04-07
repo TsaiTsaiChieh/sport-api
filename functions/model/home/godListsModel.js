@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const errs = require('../../util/errorCode');
 
 function godlists(args) {
   return new Promise(async function(resolve, reject) {
@@ -31,8 +32,7 @@ function godlists(args) {
       await Promise.all(godLists);
     } catch (err) {
       console.log('Error in  home/godlists by YuHsien:  %o', err);
-      reject({ code: 500, error: err });
-      return;
+      return reject(errs.errsMsg('500', '500', err.message));
     }
 
     resolve({ godlists: godLists });
