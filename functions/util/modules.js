@@ -13,7 +13,6 @@ const os = require('os');
 const fs = require('fs');
 const https = require('https');
 const firestoreService = require('firestore-export-import');
-const request = require('supertest');
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -174,6 +173,5 @@ module.exports = {
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,
-  userStatusCodebook,
-  request,
+  userStatusCodebook
 };
