@@ -4,12 +4,6 @@ const admin = modules.firebaseAdmin;
 const envValues = require("../../config/env_values");
 
 async function modifyUserProfile(req, res) {
-  let sessionCookie = req.cookies.__session;
-  // console.log('session Cookie...', sessionCookie);
-  if (!sessionCookie) {
-    res.status(401).send();
-    return;
-  }
   let uid = req.token.uid;
   const userSnapshot = await modules.getSnapshot("users", uid);
   const userProfile = await userSnapshot.data();

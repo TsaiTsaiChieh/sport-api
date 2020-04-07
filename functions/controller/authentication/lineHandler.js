@@ -74,17 +74,18 @@ function loginHandler(req, res) {
                 .auth()
                 .createCustomToken(userRecord.uid)
                 .then(token => {
-                  const expiresIn = 3 * 60 * 1000;
+                    res.status(200.).json({token:token});
+                  // const expiresIn = 3 * 60 * 1000;
                   // const options = {maxAge: expiresIn, httpOnly: true, secure: true};
                   // const options = {maxAge: expiresIn, secure: true};
-                  const options = {
-                    maxAge: expiresIn,
-                    domain: envValues.domain
-                  };
-                  res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-                  res.cookie('auth_token', token, options);
-                  // return res.redirect(307, envValues.indexURL + 'line_login.html');
-                  res.redirect(307, 'https://doinfo.cc/line_login.html');
+                  // const options = {
+                  //   maxAge: expiresIn,
+                  //   domain: envValues.domain
+                  // };
+                  // res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+                  // res.cookie('auth_token', token, options);
+                  // // return res.redirect(307, envValues.indexURL + 'line_login.html');
+                  // res.redirect(307, 'https://doinfo.cc/line_login.html');
                 });
             })
             .catch(function(err) {

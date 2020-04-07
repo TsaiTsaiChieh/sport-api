@@ -15,7 +15,7 @@ async function predictInfo(req, res) {
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);  
+    return res.status(400).json(modules.ajv.errors);
   }
 
   try {
@@ -34,15 +34,15 @@ module.exports = predictInfo;
  * @apiName predictInfo
  * @apiGroup User
  * @apiPermission None
- * 
+ *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} league shwo league
- * 
+ *
  * @apiParamExample {JSON} Request-Example
  * {
  *     "league": "NBA"
  * }
- * 
+ *
  * @apiSuccess {JSON} result Available User Predict Info
  *
  * @apiSuccessExample Success-Response:
@@ -134,8 +134,8 @@ module.exports = predictInfo;
   }
 ]
  *
- * @apiError 404 
- * 
+ * @apiError 404
+ *
  * @apiErrorExample {JSON} Error-1301
  * HTTP/1.1 404 Not Found
  * {
@@ -143,8 +143,8 @@ module.exports = predictInfo;
     "errmsg": "使用者狀態異常"
  * }
  *
- * @apiError 404 
- * 
+ * @apiError 404
+ *
  * @apiErrorExample {JSON} Error-1302
  * HTTP/1.1 404 Not Found
  * {
@@ -152,8 +152,8 @@ module.exports = predictInfo;
     "errmsg": "使用者狀態異常"
  * }
  *
- * @apiError 404 
- * 
+ * @apiError 404
+ *
  * @apiErrorExample {JSON} Error-1303
  * HTTP/1.1 404 Not Found
  * {
@@ -161,8 +161,8 @@ module.exports = predictInfo;
     "errmsg": "使用者沒有預測單"
  * }
  *
- * @apiError 404 
- * 
+ * @apiError 404
+ *
  * @apiErrorExample {JSON} Error-1304
  * HTTP/1.1 404 Not Found
  * {
@@ -174,5 +174,5 @@ module.exports = predictInfo;
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 500 Internal Server Error
- * 
+ *
  */

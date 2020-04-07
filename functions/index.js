@@ -44,18 +44,18 @@ const whitelist = [
   'http://127.0.0.1:5000',
   'http://localhost:8080',
   'http://localhost:8081',
-  'http://192.168.0.195:8080',
-  'http://192.168.0.170:8080',
-  'http://192.168.0.113:8080',
-  'http://192.168.0.148:8080',
   'https://dosports.web.app',
   'https://api-dosports.web.app'
 ];
+const localOrigin = 'http://172.16.21'
 const corsOptions = {
   origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
-    } else {
+    }else if(origin.includes(localOrigin)) {
+      callback(null, true);
+    }
+    else {
       console.log('Not allowed by CORS', origin);
       return callback(new Error('Not allowed by CORS'));
     }
