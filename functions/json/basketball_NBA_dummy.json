@@ -1,5 +1,116 @@
 {
   "basketball_NBA": {
+    "2000000": {
+      "sr_id": "sr:match:19098368",
+      "totals": {
+        "totals_1": {
+          "add_time": 1583926710,
+          "under_odd": 1.952,
+          "handicap": 112,
+          "insert_time": 1583964004,
+          "over_odd": 1.87
+        },
+        "totals_2": {
+          "over_odd": 1.909,
+          "add_time": 1583933203,
+          "under_odd": 1.909,
+          "handicap": 113,
+          "insert_time": 1583964004
+        },
+        "totals_3": {
+          "handicap": 116.5,
+          "insert_time": 1583964004,
+          "over_odd": 1.952,
+          "add_time": 1583934276,
+          "under_odd": 1.87
+        }
+      },
+      "spread": {
+        "spread_1": {
+          "add_time": 1583912049,
+          "home_odd": 1.909,
+          "away_odd": 1.909,
+          "handicap": 12.5,
+          "insert_time": 1583964004
+        },
+        "spread_2": {
+          "add_time": 1583912049,
+          "home_odd": 1.909,
+          "away_odd": 1.909,
+          "handicap": -12.5,
+          "insert_time": 1583964004
+        },
+        "spread_3": {
+          "add_time": 1583912049,
+          "home_odd": 1.87,
+          "away_odd": 1.952,
+          "handicap": -7,
+          "insert_time": 1583964004
+        },
+        "spread_4": {
+          "add_time": 1583912049,
+          "home_odd": 1.87,
+          "away_odd": 1.952,
+          "handicap": 7,
+          "insert_time": 1583964004
+        }
+      },
+      "update_time": { "_seconds": 1585705105, "_nanoseconds": 0 },
+      "radar_id": "8f012aae-cbab-456b-9626-e2a985ce741f",
+      "away": {
+        "name_ch": "底特律活塞",
+        "alias_ch": "活塞",
+        "name": "Detroit Pistons",
+        "alias": "DET",
+        "image_id": "3424",
+        "radar_id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c",
+        "bets_id": "56737"
+      },
+      "bets_id": "2000000",
+      "flag": {
+        "status": 2,
+        "lineup": 1,
+        "prematch": 1,
+        "spread": 1,
+        "totals": 1
+      },
+      "home": {
+        "radar_id": "583ec87d-fb46-11e1-82cb-f4ce4684ea4c",
+        "bets_id": "53954",
+        "name_ch": "費城76人",
+        "name": "Philadelphia 76ers",
+        "alias_ch": "76人",
+        "alias": "PHI",
+        "image_id": "3420"
+      },
+      "venue": {
+        "city": "Philadelphia",
+        "name": "Wells Fargo Center",
+        "country": "USA"
+      },
+      "newest_spread": {
+        "handicap_id": "spread_4",
+        "add_time": 1583912049,
+        "home_odd": 1.87,
+        "away_odd": 1.952,
+        "handicap": 1,
+        "insert_time": 1583964004
+      },
+      "league": {
+        "radar_id": "4353138d-4c22-4396-95d8-5f587d2df25c",
+        "bets_id": "2274",
+        "name": "NBA"
+      },
+      "scheduled": { "_seconds": 1593561600, "_nanoseconds": 0 },
+      "newest_totals": {
+        "handicap": 116.5,
+        "insert_time": 1583964004,
+        "over_odd": 1.952,
+        "add_time": 1583934276,
+        "under_odd": 1.87,
+        "handicap_id": "totals_3"
+      }
+    },
     "2114519": {
       "newest_totals": {
         "add_time": 1583934276,
