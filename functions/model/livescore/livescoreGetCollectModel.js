@@ -7,7 +7,6 @@ async function livescore(args) {
       if (args.error) {
         //reject
         result = 'reject';
-        console.log('reject');
       } else {
         result = await reResult(args.sport, args.league, args.userID);
       }
@@ -30,7 +29,7 @@ async function repackage(sport, league, userID) {
   let leagueName = `pagetest_${league}_member`;
   let query = await modules.firestore
     .collection(leagueName)
-    .where('uid', '==', userID)
+    .where(`profile.uid`, '==', userID)
     .get();
 
   let eventData = [];
@@ -38,8 +37,6 @@ async function repackage(sport, league, userID) {
     eventData.push(doc.data());
   });
 
-  eventData.push({ sport: sport });
-  eventData.push({ league: league });
   return eventData;
 }
 module.exports = livescore;

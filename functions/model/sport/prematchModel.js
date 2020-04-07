@@ -2,10 +2,10 @@
 const modules = require('../../util/modules');
 
 function prematch(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     // 根據大神以往的預測來 disable 單選鈕
     let checkGogResult = {
-      betFlag: false
+      betFlag: false,
     };
     if (args.token) checkGogResult = await checkGodPrediction(args);
     try {
@@ -21,15 +21,12 @@ function prematch(args) {
 }
 
 function queryOneDay(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchesRef = modules.firestore.collection(
       modules.leagueCodebook(args.league).match
     );
     const beginningDate = modules.moment(args.date).utcOffset(8);
-    const endDate = modules
-      .moment(args.date)
-      .utcOffset(8)
-      .add(1, 'days');
+    const endDate = modules.moment(args.date).utcOffset(8).add(1, 'days');
     const results = [];
     try {
       const queries = await matchesRef
@@ -38,7 +35,7 @@ function queryOneDay(args) {
         .where('scheduled', '<', endDate)
         .get();
 
-      queries.docs.map(function(docs) {
+      queries.docs.map(function (docs) {
         results.push(docs.data());
       });
       resolve(await Promise.all(results));
@@ -82,13 +79,14 @@ function generalData(ele, checkGogResult) {
   const data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
+    league: ele.league.name,
     home: {
       alias: ele.home.alias,
       name: ele.home.name,
       alias_ch: ele.home.alias_ch,
       alias_name: ele.home.alias_name,
       image_id: `${ele.home.image_id ? ele.home.image_id : '-'}`,
-      id: ele.home.radar_id
+      id: ele.home.radar_id,
     },
     away: {
       alias: ele.away.alias,
@@ -96,19 +94,25 @@ function generalData(ele, checkGogResult) {
       alias_ch: ele.away.alias_ch,
       alias_name: ele.away.alias_name,
       image_id: `${ele.away.image_id ? ele.away.image_id : '-'}`,
-      id: ele.away.radar_id
-    }
+      id: ele.away.radar_id,
+    },
     // lineups: {
     //   home: {},
     //   away: {}
     // }
   };
 
-  if (ele.spread)
-    data.spread = repackageSpread(ele.spread, handicapFlag.spreadDisable);
+  if (ele.newest_spread && ele.flag.spread === 1)
+    data.spread = repackageSpread(
+      ele.newest_spread,
+      handicapFlag.spreadDisable
+    );
   if (!ele.spread) data.spread = { disable: true };
-  if (ele.totals)
-    data.totals = repackageTotals(ele.totals, handicapFlag.totalsDisable);
+  if (ele.newest_totals && ele.flag.totals === 1)
+    data.totals = repackageTotals(
+      ele.newest_totals,
+      handicapFlag.totalsDisable
+    );
   if (!ele.totals) data.totals = { disable: true };
   return data;
 }
@@ -128,50 +132,53 @@ function checkHandicapDisable(ele, checkGogResult) {
 }
 
 function repackageSpread(ele, disableFlag) {
-  const data = {};
-  const spreadKey = [];
-  const spreadArray = [];
-  for (const key in ele) {
-    spreadKey.push(key);
-    spreadArray.push(ele[key].add_time);
-  }
-  const newestKey = sortTime(spreadKey, spreadArray);
-  const newestSpread = ele[newestKey];
-  data[newestKey] = {
-    handicap: newestSpread.handicap,
-    add_time: newestSpread.add_time,
+  // const spreadKey = [];
+  // const spreadArray = [];
+  // for (const key in ele) {
+  //   spreadKey.push(key);
+  //   spreadArray.push(ele[key].add_time);
+  // }
+  // const newestKey = sortTime(spreadKey, spreadArray);
+  // const newestSpread = ele[newestKey];
+  const data = {
+    id: ele.handicap_id,
+    handicap: ele.handicap,
+    add_time: ele.add_time,
     // insert_time: newestSpread.insert_time,
-    disable: disableFlag
   };
+  if (ele.away_tw) data.away_tw = ele.away_tw;
+  if (ele.home_tw) data.home_tw = ele.home_tw;
+  data.disable = disableFlag;
   return data;
 }
 
 function repackageTotals(ele, disableFlag) {
-  const data = {};
-  const totalsKey = [];
-  const totalsArray = [];
-  for (const key in ele) {
-    totalsKey.push(key);
-    totalsArray.push(ele[key].add_time);
-  }
-  const newestKey = sortTime(totalsKey, totalsArray);
-  const newestTotals = ele[newestKey];
-  data[newestKey] = {
-    handicap: newestTotals.handicap,
-    add_time: newestTotals.add_time,
+  // const totalsKey = [];
+  // const totalsArray = [];
+  // for (const key in ele) {
+  //   totalsKey.push(key);
+  //   totalsArray.push(ele[key].add_time);
+  // }
+  // const newestKey = sortTime(totalsKey, totalsArray);
+  // const newestTotals = ele[newestKey];
+
+  data = {
+    id: ele.id,
+    handicap: ele.handicap,
+    add_time: ele.add_time,
     // insert_time: newestTotals.insert_time,
-    disable: disableFlag
+    disable: disableFlag,
   };
   return data;
 }
 function repackageBasketballLineups(home, away) {
   const data = {
     home: {
-      starters: []
+      starters: [],
     },
     away: {
-      starters: []
-    }
+      starters: [],
+    },
   };
   for (let i = 0; i < home.starters.length; i++) {
     const player = home.starters[i];
@@ -180,7 +187,7 @@ function repackageBasketballLineups(home, away) {
       position: player.primary_position,
       first_name: player.first_name,
       last_name: player.last_name,
-      id: player.id
+      id: player.id,
     });
   }
   for (let i = 0; i < away.starters.length; i++) {
@@ -190,7 +197,7 @@ function repackageBasketballLineups(home, away) {
       position: player.primary_position,
       first_name: player.first_name,
       last_name: player.last_name,
-      id: player.id
+      id: player.id,
     });
   }
   return data;

@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.sport, args.league);
+      let result = await reResult(args.sport, args.league, args.time);
 
       resolve(result);
     } catch (err) {
@@ -12,13 +12,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league) {
+async function reResult(sport, league, time) {
   let result;
-  result = await repackage(sport, league);
+  result = await repackage(sport, league, time);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league) {
+async function repackage(sport, league, time) {
   let leagueName = `pagetest_${league}`;
   let query = await modules.firestore
     .collection(leagueName)
@@ -30,7 +30,9 @@ async function repackage(sport, league) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei'
+  });
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
@@ -44,11 +46,12 @@ async function repackage(sport, league) {
 
     // 2 目前當天有幾場比賽規劃中
     if (scheduled === dateNow && eventData[i].flag.status == 2) {
+      eventData[i].sport = sport;
+      eventData[i].league = league;
       scheduledEvent.push(eventData[i]);
     }
   }
-  scheduledEvent.push({ sport: sport });
-  scheduledEvent.push({ league: league });
+
   return scheduledEvent;
 }
 module.exports = livescore;

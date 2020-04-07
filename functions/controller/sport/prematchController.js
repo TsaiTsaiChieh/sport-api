@@ -47,6 +47,7 @@ module.exports = prematch;
  * }
  * @apiSuccess {String} id match id
  * @apiSuccess {Number} scheduled return the numeric value corresponding to the scheduled time—the number of seconds elapsed since January 1, 1970 00:00:00 UTC
+ * @apiSuccess {String} league league name
  * @apiSuccess {Object} home home team information
  * @apiSuccess {String} home.alias team abbreviation name
  * @apiSuccess {String} home.name team name
@@ -67,6 +68,7 @@ module.exports = prematch;
     {
         "id": "2114519",
         "scheduled": 1585695600,
+        "league": NBA,
         "home": {
             "alias": "PHI",
             "name": "Philadelphia 76ers",
@@ -82,18 +84,17 @@ module.exports = prematch;
             "id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c"
         },
         "spread": {
-            "31267231": {
-                "handicap": 11.5,
-                "add_time": 1583926710,
-                "disable": true
-            }
+            "id": "31268919",
+            "handicap": 11.5,
+            "add_time": 1583926710,
+            "disable": true
+        }
         },
-        "totals": {
-            "34409340": {
-                "handicap": 214.5,
-                "add_time": 1583934276,
-                "disable": true
-            }
+        "totals": {            
+            "id": "34417671",
+            "handicap": 214.5,
+            "add_time": 1583934276,
+            "disable": true
         }
     },
     {

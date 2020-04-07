@@ -78,25 +78,14 @@ const firebaseAdmin = modules.firebaseAdmin;
  *     missing token
  */
 async function getUserProfile(req, res) {
-    let sessionCookie = req.cookies.__session;
-    if (!sessionCookie) return res.status(401).send("missing token");
-    firebaseAdmin.auth().verifySessionCookie(
-        sessionCookie, true)
-        .then((decodedClaims) => {
-            console.log('getUserProfile - verifySessionCookie success : ', decodedClaims);
-            let uid = decodedClaims.uid;
-            userUtils.getUserProfile(uid).then(firestoreUser => {
-                // res.setHeader('Access-Control-Allow-Origin', '*');
-                return res.status(200).json(firestoreUser)
-            }).catch(error => {
-                console.log('getUserProfile - getUserProfile false : ', error);
-                return res.status(500).send("error");
-            });
-        })
-        .catch(error => {
-            console.log('getUserProfile - verifySessionCookie false : ', error);
-            return res.status(401).send("verify failed");
-        });
+    let uid = req.token.uid;
+    userUtils.getUserProfile(uid).then(firestoreUser => {
+        // res.setHeader('Access-Control-Allow-Origin', '*');
+        return res.status(200).json(firestoreUser)
+    }).catch(error => {
+        console.log('getUserProfile - getUserProfile false : ', error);
+        return res.status(500).send("error");
+    });
 }
 
 
