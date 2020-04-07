@@ -3,6 +3,8 @@ const router = express.Router();
 const line_login = require("line-login");
 const envValues = require('../config/env_values');
 const session = require("express-session");
+const verification = require('../util/verification');
+
 const session_options_line = {
     secret: envValues.lineConfig.channelSecret,
     resave: false,
@@ -23,7 +25,7 @@ router.use(session(session_options_line));
 router.get("/lineLogin", lineLogin.auth());
 router.get("/lineLoginHandler", require('../controller/authentication/lineHandler'));
 router.post('/login', require('../controller/authentication/firebaseLogin'));
-router.get('/logout', require('../controller/authentication/logout'));
-router.get('/verifySessionCookie', require('../controller/authentication/verifySessionCookie'));
+router.get('/logout', verification.token, require('../controller/authentication/logout'));
+router.post('/verifySessionCookie', verification.token, require('../controller/authentication/verifySessionCookie'));
 
 module.exports = router;
