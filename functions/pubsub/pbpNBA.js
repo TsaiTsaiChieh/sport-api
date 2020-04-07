@@ -1,21 +1,23 @@
-const modules = require("../util/modules");
+const modules = require('../util/modules');
 
-const axios = require("axios");
+const axios = require('axios');
 
 async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   //const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
   //const nba_api_key = "bj7tvgz7qpsqjqaxmzsaqdnp";
   //const nba_api_key = "6mmty4jtxz3guuy62a4yr5u5";
-  const nba_api_key = "vpf9q8sqxfakxfusd9hmx2xa";
+  const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
   const timesPerLoop = 11;
-  const firestoreName = "pagetest";
+  const firestoreName = 'pagetest';
   console.log(betsID);
   let countForStatus2 = 0;
-  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
+  const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
+  const zhSummaryURL = `http://api.sportradar.us/nba/trial/v7/zh/games/${gameID}/summary.json?api_key=${nba_api_key}`;
+  const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   let changePeriods = true;
   let timerForStatus2 = setInterval(async function() {
     try {
-      let { data } = await axios(URL);
+      let { data } = await axios(pbpURL);
       let ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
       await ref.set(data.status);
 
@@ -46,13 +48,107 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
       await ref.set(data.home.points);
       ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/awaypoints`);
       await ref.set(data.away.points);
-
-      //maybe call summary API
     } catch (error) {
       console.log(
-        "error happened in pubsub/NBApbpInplay function by page",
+        'error happened in pubsub/NBApbpInplay function by page',
         error
       );
+    }
+    // summary[english] for player information
+    try {
+      let { data } = await axios(zhSummaryURL);
+      for (let i = 0; i < data.home.players.length; i++) {
+        let ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/full_name`
+        );
+        await ref.set(data.home.players[i].full_name);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/jersey_number`
+        );
+        await ref.set(data.home.players[i].jersey_number);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/id`
+        );
+        await ref.set(data.home.players[i].id);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/position`
+        );
+        await ref.set(data.home.players[i].position);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/minutes`
+        );
+        await ref.set(data.home.players[i].statistics.minutes);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/points`
+        );
+        await ref.set(data.home.players[i].statistics.points);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/rebounds`
+        );
+        await ref.set(data.home.players[i].statistics.rebounds);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player/player${i}/assists`
+        );
+        await ref.set(data.home.players[i].statistics.assists);
+      }
+      for (let i = 0; i < data.away.players.length; i++) {
+        let ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/full_name`
+        );
+        await ref.set(data.away.players[i].full_name);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/jersey_number`
+        );
+        await ref.set(data.away.players[i].jersey_number);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/id`
+        );
+        await ref.set(data.away.players[i].id);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/position`
+        );
+        await ref.set(data.away.players[i].position);
+
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/minutes`
+        );
+        await ref.set(data.away.players[i].statistics.minutes);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/points`
+        );
+        await ref.set(data.away.players[i].statistics.points);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/rebounds`
+        );
+        await ref.set(data.away.players[i].statistics.rebounds);
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/away/player/player${i}/assists`
+        );
+        await ref.set(data.away.players[i].statistics.assists);
+      }
+    } catch (error) {
+      console.log(
+        'error happened in pubsub/NBApbpInplay function by page',
+        error
+      );
+    }
+    if (periodsNow === 0 && eventsNow == 0) {
+      // summary[chinese] for player translate
+      try {
+        let { data } = await axios(zhSummaryURL);
+        // let ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
+        // await ref.set(data.status);
+      } catch (error) {
+        console.log(
+          'error happened in pubsub/NBApbpInplay function by page',
+          error
+        );
+      }
     }
     countForStatus2 = countForStatus2 + 1;
 
@@ -67,15 +163,15 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   // change the status to 1
 }
 async function NBApbpHistory(gameID, betsID) {
-  const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
+  const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   try {
-    let { data } = await axios(URL);
+    let { data } = await axios(pbpURL);
 
     let winner;
     if (data.home.points > data.away.points) {
-      winner = "home";
+      winner = 'home';
     } else {
-      winner = "away";
+      winner = 'away';
     }
     let finalResult = {
       homePoints: data.home.points,
@@ -107,7 +203,7 @@ async function NBApbpHistory(gameID, betsID) {
     }
   } catch (error) {
     console.log(
-      "error happened in pubsub/NBApbpHistory function by page",
+      'error happened in pubsub/NBApbpHistory function by page',
       error
     );
     return error;

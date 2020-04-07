@@ -25,6 +25,60 @@
   <button onclick="livescorePBP('baseball','MLB','20200320')">
     Show PBP of event
   </button>
+  <button
+    onclick="livescoreGetCollect('baseball','MLB','DLRnd5igRmakC0VrLxz5Ph443Qj1')"
+  >
+    Show all collect of user
+  </button>
+  <form
+    action="/livescore/livescore/postCollect"
+    method="post"
+    name="formCollectAdd"
+    id="formCollectAdd"
+  >
+    <input type="hidden" name="UID" value="DLRnd5igRmakC0VrLxz5Ph443Qj1" />
+    <input type="hidden" name="sport" value="baseball" />
+    <input type="hidden" name="league" value="MLB" />
+    <input type="hidden" name="eventID" value="20200320" />
+    <input type="submit" value="收藏" />
+  </form>
+  <form
+    action="/livescore/livescore/deleteCollect"
+    method="post"
+    name="formCollectDelete"
+    id="formCollectDelete"
+  >
+    <input type="hidden" name="UID" value="DLRnd5igRmakC0VrLxz5Ph443Qj1" />
+    <input type="hidden" name="sport" value="baseball" />
+    <input type="hidden" name="league" value="MLB" />
+    <input type="hidden" name="eventID" value="20200320" />
+    <input type="submit" value="取消收藏" />
+  </form>
+  <form
+    action="/livescore/livescore/postCollect"
+    method="post"
+    name="formCollectAdd"
+    id="formCollectAdd"
+  >
+    <input type="hidden" name="UID" value="DLRnd5igRmakC0VrLxz5Ph443Qj1" />
+    <input type="hidden" name="sport" value="baseball" />
+    <input type="hidden" name="league" value="MLB" />
+    <input type="hidden" name="eventID" value="20200321" />
+    <input type="submit" value="收藏" />
+  </form>
+  <form
+    action="/livescore/livescore/deleteCollect"
+    method="post"
+    name="formCollectDelete"
+    id="formCollectDelete"
+  >
+    <input type="hidden" name="UID" value="DLRnd5igRmakC0VrLxz5Ph443Qj1" />
+    <input type="hidden" name="sport" value="baseball" />
+    <input type="hidden" name="league" value="MLB" />
+    <input type="hidden" name="eventID" value="20200321" />
+    <input type="submit" value="取消收藏" />
+  </form>
+
   <style>
     .chat_message {
       margin-top: 100px;
@@ -800,6 +854,52 @@
                 information.append(`${event[0].bets_id}`);
                 information.append(message);
               });
+          }
+        };
+      }
+      async function livescoreGetCollect(sport, league, UID) {
+        let information = document.querySelector('.information .pbp');
+        let xhttp = new XMLHttpRequest();
+
+        let API;
+        // normal
+        // API = `https://api-dosports.web.app/livescore/livescore/getCollect?sport=${sport}?league=${league}&UID=${UID}`;
+        //local test
+        API = `http://localhost:5000/livescore/livescore/getCollect?sport=${sport}&league=${league}&UID=${UID}`;
+        let event;
+
+        xhttp.open('GET', API, true);
+        xhttp.send();
+        xhttp.onreadystatechange = async function() {
+          if (this.readyState == 4 && this.status == 200) {
+            event = JSON.parse(this.responseText);
+
+            // let sportName = event[0].sport;
+            // let leagueName = event[0].league;
+
+            let collectCount = Object.keys(event[0]).length - 1;
+            let collectEvent = [];
+            let eventID;
+
+            for (let i = 0; i < collectCount; i++) {
+              eventID = Object.keys(event[0])[i];
+              collectEvent.push(event[0][eventID]);
+            }
+
+            let message = document.createElement('p');
+            message.setAttribute('class', 'pageTest1');
+            //由左上至右下
+            message.innerHTML = [
+              'allCollectEvent : ' + collectEvent + '<br />',
+              'collectEvent[0].sport : ' + collectEvent[0].sport + '<br />',
+              'collectEvent[0].league : ' + collectEvent[0].league + '<br />',
+              'collectEvent[0].eventID : ' + collectEvent[0].eventID + '<br />',
+              'collectEvent[1].sport : ' + collectEvent[1].sport + '<br />',
+              'collectEvent[1].league : ' + collectEvent[1].league + '<br />',
+              'collectEvent[1].eventID : ' + collectEvent[1].eventID + '<br />'
+            ];
+            information.append(`${event[0].bets_id}`);
+            information.append(message);
           }
         };
       }

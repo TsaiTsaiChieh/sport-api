@@ -1,10 +1,10 @@
-const modules = require("../util/modules");
-const NBApbp = require("./pbpNBA.js");
+const modules = require('../util/modules');
+const NBApbp = require('./pbpNBA.js');
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 
 async function checkmatch_NBA() {
-  const firestoreName = "pagetest_NBA";
+  const firestoreName = 'pagetest_NBA';
   //read event information from firestore
 
   let data = await modules.firestore.collection(firestoreName).get();
@@ -26,26 +26,26 @@ async function checkmatch_NBA() {
       realtimeData = JSON.parse(
         JSON.stringify(
           // eslint-disable-next-line no-await-in-loop
-          await modules.database.ref(`basketball/NBA/${betsID}`).once("value")
+          await modules.database.ref(`basketball/NBA/${betsID}`).once('value')
         )
       );
       let periodsNow;
       let periodName;
       let eventNow;
 
-      if (realtimeData.Summary.status === "created") {
+      if (realtimeData.Summary.status === 'created') {
         periodsNow = 0;
-        periodName = "periods0";
+        periodName = 'periods0';
         eventNow = 0;
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
       } else if (
-        realtimeData.Summary.status === "closed" ||
-        realtimeData.Summary.status === "complete"
+        realtimeData.Summary.status === 'closed' ||
+        realtimeData.Summary.status === 'complete'
       ) {
         // eslint-disable-next-line no-await-in-loop
         await NBApbpHistory(gameID, betsID);
-      } else if (realtimeData.Summary.status === "inprogress") {
+      } else if (realtimeData.Summary.status === 'inprogress') {
         periodsNow = Object.keys(realtimeData.PBP).length - 1; //how much periods
         periodName = Object.keys(realtimeData.PBP);
         eventNow =
@@ -55,7 +55,7 @@ async function checkmatch_NBA() {
         await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
       } else {
         periodsNow = 0; //realtime database has no data
-        periodName = "periods0";
+        periodName = 'periods0';
         eventNow = 0;
 
         await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
@@ -64,16 +64,14 @@ async function checkmatch_NBA() {
     }
     if (eventStatus === 2) {
       if (gameTime <= nowTime) {
-        // write to firebase realtime
         periodsNow = 0;
         eventNow = 0;
+
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
       }
     }
   }
-  //res.json(realtimeData);
-  //res.json({ process: "success" });
 }
 
 module.exports = checkmatch_NBA;
