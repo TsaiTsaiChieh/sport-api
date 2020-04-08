@@ -10,14 +10,6 @@ const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
 const perStep = 14000;
 //一分鐘4次
 const timesPerLoop = 4;
-function test() {
-  let gameID = '380142e6-95e7-423b-8ba9-4de32862fd06';
-  let betsID = '1111111';
-  let periodsNow = 0;
-  let eventsNow = 0;
-  NBApbpInplay(gameID, betsID, periodsNow, eventsNow);
-}
-test();
 async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   if (periodsNow === 0 && eventsNow == 0) {
     try {
@@ -39,7 +31,7 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
         numberHome,
         awayTeamName,
         keywordAway,
-        numberAway
+        numberAway,
       ] = await summmaryEN(gameID);
       let transSimpleHome = [];
       let transSimpleAway = [];
@@ -70,9 +62,9 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
           transSimpleHome: transSimpleHome,
           transSimpleAway: transSimpleAway,
           transCompleteHome: transCompleteHome,
-          transCompleteAway: transCompleteAway
+          transCompleteAway: transCompleteAway,
         }),
-        function(error) {
+        function (error) {
           console.log('write file error in pbpNBA.js');
         }
       );
@@ -84,7 +76,7 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
     }
   }
 
-  modules.fs.readFile(`${betsid}.json`, function(err, data) {
+  modules.fs.readFile(`${betsid}.json`, function (err, data) {
     if (err) throw err;
     //read data
   });
@@ -92,7 +84,7 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
 
   let changePeriods = true;
-  let timerForStatus2 = setInterval(async function() {
+  let timerForStatus2 = setInterval(async function () {
     try {
       let { data } = await axios(pbpURL);
       let ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
@@ -200,7 +192,7 @@ async function summmaryEN(gameID) {
       numberHome,
       awayTeamName,
       keywordAway,
-      numberAway
+      numberAway,
     ];
   } catch (error) {
     console.log(
@@ -224,10 +216,10 @@ async function NBApbpHistory(gameID, betsID) {
     let finalResult = {
       homePoints: data.home.points,
       awayPoints: data.away.points,
-      winner: winner
+      winner: winner,
     };
     let dataOutput = {
-      boxscore: finalResult
+      boxscore: finalResult,
     };
     let ref = modules.firestore.collection(firestoreName).doc(betsID);
     await ref.set(dataOutput, { merge: true });
