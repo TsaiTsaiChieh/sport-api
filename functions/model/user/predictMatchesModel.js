@@ -248,7 +248,7 @@ function repackagePrediction(args, ele) {
     bets_id: ele.id,
     uid: args.token.uid,
     league: args.league,
-    user_status: args.token.role,
+    user_status: args.token.customClaims.role,
     sell: args.sell,
     date,
     date_timestamp: modules.moment(date).valueOf(),
@@ -280,6 +280,8 @@ function repackagePrediction(args, ele) {
       update_time: Date.now()
     };
   }
+  // console.log(data);
+
   return data;
 }
 
