@@ -5,7 +5,7 @@ function prematch(args) {
   return new Promise(async function (resolve, reject) {
     // 根據大神以往的預測來 disable 單選鈕
     let checkGogResult = {
-      betFlag: false,
+      betFlag: false
     };
     if (args.token) checkGogResult = await checkGodPrediction(args);
     try {
@@ -86,7 +86,7 @@ function generalData(ele, checkGogResult) {
       alias_ch: ele.home.alias_ch,
       alias_name: ele.home.alias_name,
       image_id: `${ele.home.image_id ? ele.home.image_id : '-'}`,
-      id: ele.home.radar_id,
+      id: ele.home.radar_id
     },
     away: {
       alias: ele.away.alias,
@@ -94,8 +94,8 @@ function generalData(ele, checkGogResult) {
       alias_ch: ele.away.alias_ch,
       alias_name: ele.away.alias_name,
       image_id: `${ele.away.image_id ? ele.away.image_id : '-'}`,
-      id: ele.away.radar_id,
-    },
+      id: ele.away.radar_id
+    }
     // lineups: {
     //   home: {},
     //   away: {}
@@ -143,7 +143,7 @@ function repackageSpread(ele, disableFlag) {
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
-    add_time: ele.add_time,
+    add_time: ele.add_time
     // insert_time: newestSpread.insert_time,
   };
   if (ele.away_tw) data.away_tw = ele.away_tw;
@@ -162,23 +162,25 @@ function repackageTotals(ele, disableFlag) {
   // const newestKey = sortTime(totalsKey, totalsArray);
   // const newestTotals = ele[newestKey];
 
-  data = {
+  const data = {
     id: ele.id,
     handicap: ele.handicap,
-    add_time: ele.add_time,
+    add_time: ele.add_time
     // insert_time: newestTotals.insert_time,
-    disable: disableFlag,
   };
+  if (ele.away_tw) data.away_tw = ele.away_tw;
+  if (ele.home_tw) data.home_tw = ele.home_tw;
+  data.disable = disableFlag;
   return data;
 }
 function repackageBasketballLineups(home, away) {
   const data = {
     home: {
-      starters: [],
+      starters: []
     },
     away: {
-      starters: [],
-    },
+      starters: []
+    }
   };
   for (let i = 0; i < home.starters.length; i++) {
     const player = home.starters[i];
@@ -187,7 +189,7 @@ function repackageBasketballLineups(home, away) {
       position: player.primary_position,
       first_name: player.first_name,
       last_name: player.last_name,
-      id: player.id,
+      id: player.id
     });
   }
   for (let i = 0; i < away.starters.length; i++) {
@@ -197,7 +199,7 @@ function repackageBasketballLineups(home, away) {
       position: player.primary_position,
       first_name: player.first_name,
       last_name: player.last_name,
-      id: player.id,
+      id: player.id
     });
   }
   return data;
