@@ -163,7 +163,7 @@ function repackageTotals(ele, disableFlag) {
   // const newestTotals = ele[newestKey];
 
   const data = {
-    id: ele.id,
+    id: ele.handicap_id,
     handicap: ele.handicap,
     add_time: ele.add_time
     // insert_time: newestTotals.insert_time,
