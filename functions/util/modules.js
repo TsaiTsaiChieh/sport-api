@@ -15,11 +15,12 @@ const https = require('https');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
+const TAIWAN_UTF = 8;
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
   databaseURL: envValues.firebaseConfig.databaseURL,
-  storageBucket: envValues.firebaseConfig.storageBucket,
+  storageBucket: envValues.firebaseConfig.storageBucket
 });
 const bucket = firebaseAdmin
   .storage()
@@ -55,13 +56,13 @@ const db = {
   basketball_SBL: 'basketball_SBL',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
-  prediction: 'prediction',
+  prediction: 'prediction'
 };
 function dateFormat(date) {
   return {
     year: date.substring(0, 4),
     month: date.substring(5, 7),
-    day: date.substring(8, 10),
+    day: date.substring(8, 10)
   };
 }
 async function cloneFirestore(name, clonedName) {
@@ -79,20 +80,21 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
-        match: db.basketball_NBA,
+        match: db.basketball_NBA
       };
     case 'SBL':
       return {
-        match: db.basketball_SBL,
+        match: db.basketball_SBL
       };
     case 'MLB':
       return {
-        match: db.baseball_MLB,
+        match: db.baseball_MLB
       };
   }
 }
 
 function getTitlesPeriod(date) {
+  // date = new Date()
   const specificDate = '20200302';
   const years = [
     2020,
@@ -105,7 +107,7 @@ function getTitlesPeriod(date) {
     2027,
     2028,
     2029,
-    2030,
+    2030
   ];
   let weeks = 0;
   for (let i = 0; i < years.length; i++) {
@@ -113,25 +115,25 @@ function getTitlesPeriod(date) {
     const weeksInYear = moment(year).isoWeeksInYear(); // always 53
     weeks += weeksInYear;
   }
-  weeks -= moment().weeks();
+  weeks -= moment().weeks(); // 減去目前已過幾週
 
   for (let i = 0; i < Math.ceil(weeks / 2); i++) {
     const begin = moment(specificDate)
-      .utcOffset(8)
+      .utcOffset(TAIWAN_UTF)
       .add(i * 2, 'weeks')
       .valueOf();
     const end = moment(specificDate)
-      .utcOffset(8)
+      .utcOffset(TAIWAN_UTF)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
     if (begin <= date && date <= end)
       return {
-        period: i,
+        period: i, // 期數
         date: moment(specificDate)
-          .utcOffset(8)
+          .utcOffset(TAIWAN_UTF)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'),
+          .format('YYYYMMDD') // 該期的開始日期
       };
   }
   return 0;
