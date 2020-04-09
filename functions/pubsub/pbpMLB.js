@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const axios = require('axios');
-
+const tranlate = require('./translateMLB');
 let homeLineup = [];
 let awayLineup = [];
 let baseNow = [];
@@ -31,7 +31,7 @@ async function MLBpbpInplay(parameter) {
   let eventHalfCount;
   let eventAtbatCount;
 
-  let timerForStatus2 = setInterval(async function() {
+  let timerForStatus2 = setInterval(async function () {
     try {
       // 目前的總比分
       let { data } = await axios(URL);
@@ -239,6 +239,13 @@ async function MLBpbpInplay(parameter) {
                       eventHalfCount
                     ].at_bat.events[eventAtbatCount]
                   );
+                  //4/9
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
+                  );
+                  let outcome_id = await translteMLB(outcome_id);
+                  await ref.set(outcome_id);
+                  // 球數
                   ref = modules.database.ref(
                     `baseball/MLB/${betsID}/Summary/Now_strikes`
                   );
@@ -369,13 +376,13 @@ async function MLBpbpHistory(parameter) {
         home: {
           home_runs: data.game.scoring.home.runs,
           home_hits: data.game.scoring.home.hits,
-          home_errors: data.game.scoring.home.errors
+          home_errors: data.game.scoring.home.errors,
         },
         away: {
           away_runs: data.game.scoring.away.runs,
           away_hits: data.game.scoring.away.hits,
-          away_errors: data.game.scoring.away.errors
-        }
+          away_errors: data.game.scoring.away.errors,
+        },
       },
       { merge: true }
     );
@@ -392,10 +399,10 @@ async function MLBpbpHistory(parameter) {
               PBP: {
                 ['innings0']: {
                   ['halfs0']: {
-                    ['lineup' + i]: data.game.innings[0].halfs[0].events[i]
-                  }
-                }
-              }
+                    ['lineup' + i]: data.game.innings[0].halfs[0].events[i],
+                  },
+                },
+              },
             },
             { merge: true }
           );
@@ -404,10 +411,10 @@ async function MLBpbpHistory(parameter) {
               PBP: {
                 ['innings0']: {
                   ['halfs1']: {
-                    ['lineup' + i]: data.game.innings[0].halfs[1].events[i]
-                  }
-                }
-              }
+                    ['lineup' + i]: data.game.innings[0].halfs[1].events[i],
+                  },
+                },
+              },
             },
             { merge: true }
           );
@@ -438,12 +445,12 @@ async function MLBpbpHistory(parameter) {
                               data.game.innings[inningsCount].scoring.away.hits,
                             away_errors:
                               data.game.innings[inningsCount].scoring.away
-                                .errors
-                          }
-                        }
-                      }
-                    }
-                  }
+                                .errors,
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
                 { merge: true }
               );
@@ -461,12 +468,12 @@ async function MLBpbpHistory(parameter) {
                               data.game.innings[inningsCount].scoring.home.hits,
                             home_errors:
                               data.game.innings[inningsCount].scoring.home
-                                .errors
-                          }
-                        }
-                      }
-                    }
-                  }
+                                .errors,
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
                 { merge: true }
               );
@@ -484,11 +491,11 @@ async function MLBpbpHistory(parameter) {
                         ['events' + eventHalfCount]: {
                           lineup:
                             data.game.innings[inningsCount].halfs[halfsCount]
-                              .events[eventHalfCount].lineup
-                        }
-                      }
-                    }
-                  }
+                              .events[eventHalfCount].lineup,
+                        },
+                      },
+                    },
+                  },
                 },
                 { merge: true }
               );
@@ -507,12 +514,12 @@ async function MLBpbpHistory(parameter) {
                           at_bat: {
                             description:
                               data.game.innings[inningsCount].halfs[halfsCount]
-                                .events[eventHalfCount].at_bat.description
-                          }
-                        }
-                      }
-                    }
-                  }
+                                .events[eventHalfCount].at_bat.description,
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
                 { merge: true }
               );
@@ -534,12 +541,12 @@ async function MLBpbpHistory(parameter) {
                               ['events' + eventAtbatCount]: data.game.innings[
                                 inningsCount
                               ].halfs[halfsCount].events[eventHalfCount].at_bat
-                                .events[eventAtbatCount]
-                            }
-                          }
-                        }
-                      }
-                    }
+                                .events[eventAtbatCount],
+                            },
+                          },
+                        },
+                      },
+                    },
                   },
                   { merge: true }
                 );

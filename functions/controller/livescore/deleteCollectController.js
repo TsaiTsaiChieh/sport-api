@@ -2,24 +2,36 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreDeleteCollectModel');
 
 async function deleteCollect(req, res) {
+  if (req.body.league === 'NBA') {
+    req.body.sport = 'basketball';
+  }
+  if (req.body.league === 'MLB') {
+    req.body.sport = 'baseball';
+  }
+  if (req.body.league === 'NHL') {
+    req.body.sport = 'icehockey';
+  }
+  if (req.body.league === 'soccer') {
+    req.body.sport = 'soccer';
+  }
   const schema = {
     required: ['sport', 'league', 'UID', 'eventID'],
     properties: {
       sport: {
         type: 'string',
-        enum: ['baseball', 'basketball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       UID: {
-        type: 'string'
+        type: 'string',
       },
       eventID: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.body);

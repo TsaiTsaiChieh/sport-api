@@ -21,16 +21,16 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       UID: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);

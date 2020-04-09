@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const axios = require('axios');
-
+const tranlate = require('./translateNBA');
 const firestoreName = 'pagetest';
 //const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
 // const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
@@ -55,13 +55,21 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
       //transCompleteHome,transCompleteAway
 
       modules.fs.writeFile(
-        `./${betsID}.json`,
+        `../json/${homeTeamName}.json`,
         JSON.stringify({
           keywordHome: keywordHome,
-          keywordAway: keywordAway,
           transSimpleHome: transSimpleHome,
-          transSimpleAway: transSimpleAway,
           transCompleteHome: transCompleteHome,
+        }),
+        function (error) {
+          console.log('write file error in pbpNBA.js');
+        }
+      );
+      modules.fs.writeFile(
+        `../json/${awayTeamName}.json`,
+        JSON.stringify({
+          keywordAway: keywordAway,
+          transSimpleAway: transSimpleAway,
           transCompleteAway: transCompleteAway,
         }),
         function (error) {
@@ -76,9 +84,13 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
     }
   }
 
-  modules.fs.readFile(`${betsid}.json`, function (err, data) {
+  modules.fs.readFile(`../json/${awayTeamName}.json`, function (err, awayData) {
     if (err) throw err;
+
     //read data
+  });
+  modules.fs.readFile(`../json/${homeTeamName}.json`, function (err, homeData) {
+    if (err) throw err;
   });
   let countForStatus2 = 0;
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
@@ -109,12 +121,14 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
           );
           // eslint-disable-next-line no-await-in-loop
           await ref.set(data.periods[periodsCount].events[eventsCount]);
-          // let descCH=translateNBA(keywordHome,
-          // keywordAway,
-          // transSimpleHome,
-          // transSimpleAway,
-          // transCompleteHome,
-          // transCompleteAway)
+          
+            // let descCH=translateNBA(keywordHome,
+            // keywordAway,
+            // transSimpleHome,
+            // transSimpleAway,
+            // transCompleteHome,
+            // transCompleteAway)
+          }
 
           // write to realtime database
         }
