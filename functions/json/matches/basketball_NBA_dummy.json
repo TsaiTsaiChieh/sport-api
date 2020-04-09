@@ -10,6 +10,15 @@
         "handicap": 7,
         "insert_time": 1583964004
       },
+      "newest_totals": {
+        "add_time": 1583933203,
+        "under_odd": 1.909,
+        "handicap": 113,
+        "insert_time": 1583964004,
+        "over_odd": 1.909,
+        "away_tw": "大113",
+        "handicap_id": "totals_2"
+      },
       "venue": {
         "city": "Philadelphia",
         "name": "Wells Fargo Center",
@@ -23,20 +32,6 @@
       "scheduled": { "_seconds": 1593561600, "_nanoseconds": 0 },
       "sr_id": "sr:match:19098368",
       "totals": {
-        "totals_4": {
-          "insert_time": 1583964004,
-          "add_time": 1583934276,
-          "under_odd": 1.952,
-          "over_odd": 1.87,
-          "handicap": 116.5
-        },
-        "totals_3": {
-          "insert_time": 1583964004,
-          "add_time": 1583934276,
-          "under_odd": 1.87,
-          "over_odd": 1.952,
-          "handicap": 116.5
-        },
         "totals_1": {
           "add_time": 1583926710,
           "under_odd": 1.952,
@@ -117,7 +112,7 @@
       },
       "bets_id": "2000000",
       "flag": {
-        "status": 2,
+        "status": 1,
         "lineup": 1,
         "prematch": 1,
         "spread": 1,
@@ -180,7 +175,7 @@
         "bets_id": "2274",
         "name": "NBA"
       },
-      "scheduled": { "_seconds": 1593561600, "_nanoseconds": 0 },
+      "scheduled": { "_seconds": 1593563400, "_nanoseconds": 0 },
       "newest_totals": {
         "over_odd": 1.909,
         "away_tw": "大214.5",
@@ -2352,7 +2347,7 @@
         "totals": 1,
         "spread": 1,
         "prematch": 1,
-        "status": 2
+        "status": 0
       },
       "home": {
         "radar_id": "583ed056-fb46-11e1-82cb-f4ce4684ea4c",
