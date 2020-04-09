@@ -1,18 +1,13 @@
 /* eslint-disable consistent-return */
 const modules = require('../../util/modules');
 
+const TAIWAN_UTF = 8;
 function prematch(args) {
   return new Promise(async function (resolve, reject) {
-    // 根據大神以往的預測來 disable 單選鈕
-    let checkGogResult = {
-      betFlag: false
-    };
-    if (args.token) checkGogResult = await checkGodPrediction(args);
     try {
       const queries = await queryOneDay(args);
-      if (args.league === 'MLB') resolve(repackage_MLB(queries));
-      else if (args.league === 'NBA')
-        resolve(repackage_NBA(queries, checkGogResult));
+      if (args.league === 'MLB') resolve(repackage_MLB(args, queries));
+      else if (args.league === 'NBA') resolve(repackage_NBA(args, queries));
     } catch (err) {
       console.log(err);
       reject({ code: err.code, error: err });
@@ -25,8 +20,11 @@ function queryOneDay(args) {
     const matchesRef = modules.firestore.collection(
       modules.leagueCodebook(args.league).match
     );
-    const beginningDate = modules.moment(args.date).utcOffset(8);
-    const endDate = modules.moment(args.date).utcOffset(8).add(1, 'days');
+    const beginningDate = modules.moment(args.date).utcOffset(TAIWAN_UTF);
+    const endDate = modules
+      .moment(args.date)
+      .utcOffset(TAIWAN_UTF)
+      .add(1, 'days');
     const results = [];
     try {
       const queries = await matchesRef
@@ -49,37 +47,56 @@ function queryOneDay(args) {
   });
 }
 
-function repackage_MLB(events) {
+async function repackage_MLB(args, events) {
   const results = [];
+  let checkGogResult;
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
+    if (
+      args.token.customClaims.role === 2 &&
+      args.token.customClaims.titles.includes(args.league)
+    ) {
+      // 根據大神以往的預測來 disable 單選鈕
+      // eslint-disable-next-line no-await-in-loop
+      checkGogResult = await checkGodPrediction(args, ele.bets_id);
+    }
     const data = generalData(ele, checkGogResult);
     results.push(data);
     // if (ele.lineups) // baseball pitcher logic not finish
   }
   return results;
 }
-function repackage_NBA(events, checkGogResult) {
+async function repackage_NBA(args, events) {
   const results = [];
+  let checkGogResult;
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
+    if (
+      args.token.customClaims.role === 2 &&
+      args.token.customClaims.titles.includes(args.league)
+    ) {
+      // 根據大神以往的預測來 disable 單選鈕
+      // eslint-disable-next-line no-await-in-loop
+      checkGogResult = await checkGodPrediction(args, ele.bets_id);
+    }
     const data = generalData(ele, checkGogResult);
     // if (ele.lineups)
     //   data.lineups = repackageBasketballLineups(
     //     ele.lineups.home,
     //     ele.lineups.away
     //   );
+
     results.push(data);
   }
   return results;
 }
 function generalData(ele, checkGogResult) {
-  const handicapFlag = checkHandicapDisable(ele, checkGogResult);
-
+  const handicapFlag = checkHandicapDisable(checkGogResult);
   const data = {
     id: ele.bets_id,
     scheduled: ele.scheduled._seconds,
     league: ele.league.name,
+    status: ele.flag.status,
     home: {
       alias: ele.home.alias,
       name: ele.home.name,
@@ -95,7 +112,9 @@ function generalData(ele, checkGogResult) {
       alias_name: ele.away.alias_name,
       image_id: `${ele.away.image_id ? ele.away.image_id : '-'}`,
       id: ele.away.radar_id
-    }
+    },
+    spread: { disable: false },
+    totals: { disable: false }
     // lineups: {
     //   home: {},
     //   away: {}
@@ -107,39 +126,29 @@ function generalData(ele, checkGogResult) {
       ele.newest_spread,
       handicapFlag.spreadDisable
     );
-  if (!ele.spread) data.spread = { disable: true };
+  if (!ele.newest_spread || ele.flag.status !== 2) data.spread.disable = true;
   if (ele.newest_totals && ele.flag.totals === 1)
     data.totals = repackageTotals(
       ele.newest_totals,
       handicapFlag.totalsDisable
     );
-  if (!ele.totals) data.totals = { disable: true };
+
+  if (!ele.newest_totals || ele.flag.status !== 2) data.totals.disable = true;
   return data;
 }
 
-function checkHandicapDisable(ele, checkGogResult) {
+function checkHandicapDisable(checkGogResult) {
   let spreadDisable = false;
   let totalsDisable = false;
   if (checkGogResult.betFlag) {
-    for (const key in checkGogResult.record) {
-      if (key === ele.bets_id) {
-        if (checkGogResult.record[key].spread) spreadDisable = true;
-        if (checkGogResult.record[key].totals) totalsDisable = true;
-      }
-    }
+    if (checkGogResult.record.spread) spreadDisable = true;
+    if (checkGogResult.record.totals) totalsDisable = true;
   }
+
   return { spreadDisable, totalsDisable };
 }
 
 function repackageSpread(ele, disableFlag) {
-  // const spreadKey = [];
-  // const spreadArray = [];
-  // for (const key in ele) {
-  //   spreadKey.push(key);
-  //   spreadArray.push(ele[key].add_time);
-  // }
-  // const newestKey = sortTime(spreadKey, spreadArray);
-  // const newestSpread = ele[newestKey];
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -153,15 +162,6 @@ function repackageSpread(ele, disableFlag) {
 }
 
 function repackageTotals(ele, disableFlag) {
-  // const totalsKey = [];
-  // const totalsArray = [];
-  // for (const key in ele) {
-  //   totalsKey.push(key);
-  //   totalsArray.push(ele[key].add_time);
-  // }
-  // const newestKey = sortTime(totalsKey, totalsArray);
-  // const newestTotals = ele[newestKey];
-
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -204,24 +204,21 @@ function repackageBasketballLineups(home, away) {
   }
   return data;
 }
-function sortTime(ids, times) {
-  return ids[times.indexOf(Math.max(...times))];
-}
-
-async function checkGodPrediction(args) {
-  const date = modules.dateFormat(args.date);
-  const predictionSnapshot = await modules.getSnapshot(
-    modules.leagueCodebook(args.league).prediction,
-    `${date.month}${date.day}${date.year}_${args.token.uid}`
-  );
-  if (!predictionSnapshot.exists) {
+async function checkGodPrediction(args, match_id) {
+  const predictionRef = modules.firestore.collection(modules.db.prediction);
+  const query = await predictionRef
+    .where('uid', '==', args.token.uid)
+    .where('bets_id', '==', match_id)
+    .get();
+  if (!query.size) {
     return { betFlag: false };
   }
-  if (predictionSnapshot.exists) {
-    const prediction = predictionSnapshot.data();
-    if (prediction.user_status === 1) return { betFlag: false };
-    if (prediction.user_status === 2)
-      return { betFlag: true, record: prediction.matches };
+  if (query.size > 0) {
+    let record = {};
+    query.forEach(async function (docs) {
+      record = docs.data();
+    });
+    return { betFlag: true, record };
   }
 }
 
