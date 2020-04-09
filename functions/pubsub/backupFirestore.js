@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 const testServiceAccount = require('../auth/sportslottery-test-adminsdk.json');
 const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
-const officialServiceAccount = require('../auth/sport19y0715-dev.json');
+// const officialServiceAccount = require('../auth/sport19y0715-dev.json');
 const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
 const jsonFile = require('../json/basketball_NBA_dummy.json');
 

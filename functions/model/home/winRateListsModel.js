@@ -22,7 +22,7 @@ function winRateLists(args) {
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
         const leagueWinRateListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
-          .orderBy(`this_month_win_rate`, 'desc')
+          .orderBy(`this_period_win_rate`, 'desc')
           .limit(5)
           .get();
 
