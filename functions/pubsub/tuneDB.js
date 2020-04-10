@@ -68,15 +68,15 @@ function handicapProcessor(data) {
 
 function totalsCalculator(handicapObj, id) {
   if (handicapObj.over_odd === handicapObj.under_odd) {
-    handicapObj.away_tw = `大${handicapObj.handicap}`;
+    handicapObj.away_tw = `${handicapObj.handicap}`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
     handicapObj.over_odd !== handicapObj.under_odd
   ) {
     if (handicapObj.over_odd > handicapObj.under_odd) {
-      handicapObj.away_tw = `大${handicapObj.handicap} +50`;
+      handicapObj.away_tw = `${handicapObj.handicap} +50`;
     } else if (handicapObj.over_odd < handicapObj.under_odd) {
-      handicapObj.away_tw = `大${handicapObj.handicap} -50`;
+      handicapObj.away_tw = `${handicapObj.handicap} -50`;
     }
   }
 }
