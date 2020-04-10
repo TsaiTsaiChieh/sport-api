@@ -10,21 +10,27 @@ const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
 const perStep = 14000;
 //一分鐘4次
 const timesPerLoop = 4;
-async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
+//gameID, betsID, periodsNow, eventsNow
+async function NBApbpInplay(parameter) {
+  let gameID = parameter.gameID;
+  let betsID = parameter.betsID;
+  let periodsNow = parameter.periodsNow;
+  let eventsNow = parameter.eventsNow;
+
+  let awayData;
+  let homeData;
   if (periodsNow === 0 && eventsNow == 0) {
+    let keywordTransHome = [];
+    let keywordTransAway = [];
+    let homeTeamName;
+    let keywordHome = [];
+    let numberHome = [];
+    let awayTeamName;
+    let keywordAway = [];
+    let numberAway = [];
     try {
       // write to json
-      let keywordTransHome = [];
-      let keywordTransAway = [];
       [keywordTransHome, keywordTransAway] = await summmaryZH(gameID);
-
-      let homeTeamName;
-      let keywordHome = [];
-      let numberHome = [];
-      let awayTeamName;
-      let keywordAway = [];
-      let numberAway = [];
-
       [
         homeTeamName,
         keywordHome,
@@ -50,13 +56,11 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
           i
         ] = `[${awayTeamName}] ${keywordTransAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
       }
-      //keywordHome,keywordAway
-      //transSimpleHome,transSimpleAway
-      //transCompleteHome,transCompleteAway
 
       modules.fs.writeFile(
-        `../json/${homeTeamName}.json`,
+        `../json/NBA_${homeTeamName}.json`,
         JSON.stringify({
+          homeTeamName: homeTeamName,
           keywordHome: keywordHome,
           transSimpleHome: transSimpleHome,
           transCompleteHome: transCompleteHome,
@@ -66,8 +70,9 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
         }
       );
       modules.fs.writeFile(
-        `../json/${awayTeamName}.json`,
+        `../json/NBA_${awayTeamName}.json`,
         JSON.stringify({
+          awayTeamName: awayTeamName,
           keywordAway: keywordAway,
           transSimpleAway: transSimpleAway,
           transCompleteAway: transCompleteAway,
@@ -84,17 +89,18 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
     }
   }
 
-  modules.fs.readFile(`../json/${awayTeamName}.json`, function (err, awayData) {
+  modules.fs.readFile(`../json/NBA_${awayTeamName}.json`, function (err, data) {
     if (err) throw err;
-
+    awayData = data;
     //read data
   });
-  modules.fs.readFile(`../json/${homeTeamName}.json`, function (err, homeData) {
+  modules.fs.readFile(`../json/NBA_${homeTeamName}.json`, function (err, data) {
+    homeData = data;
     if (err) throw err;
   });
   let countForStatus2 = 0;
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
-
+  const summaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   let changePeriods = true;
   let timerForStatus2 = setInterval(async function () {
     try {
@@ -121,20 +127,44 @@ async function NBApbpInplay(gameID, betsID, periodsNow, eventsNow) {
           );
           // eslint-disable-next-line no-await-in-loop
           await ref.set(data.periods[periodsCount].events[eventsCount]);
-          
-            // let descCH=translateNBA(keywordHome,
-            // keywordAway,
-            // transSimpleHome,
-            // transSimpleAway,
-            // transCompleteHome,
-            // transCompleteAway)
-          }
 
-          // write to realtime database
+          let descCH = translateNBA(
+            data.periods[periodsCount].events[eventsCount].description,
+            keywordHome,
+            keywordAway,
+            transSimpleHome,
+            transSimpleAway,
+            transCompleteHome,
+            transCompleteAway
+          );
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/periods${periodsCount}/events${eventsCount}.description`
+          );
+          await ref.set(
+            data.periods[periodsCount].events[eventsCount].description
+          );
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/periods${periodsCount}/events${eventsCount}.description_ch`
+          );
+          await ref.set(descCH);
         }
       }
+
       //call summary to get player information
-      //scores, blocks, assists, minutes
+      let { data2 } = await axios(summaryURL);
+      for (let i = 0; i < data2.home.players; i++) {
+        ref = modules.database.ref(
+          `basketball/NBA/${betsID}/Summary/home/player${i}`
+        );
+        await ref.set({
+          minutes: data2.home.players[i].minutes,
+          scores: data2.home.players[i].scores,
+          blocks: data2.home.players[i].blocks,
+          assists: data2.home.players[i].assists,
+        });
+      }
+      ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/homepoints`);
+      await ref.set(data.home.points);
       ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/homepoints`);
       await ref.set(data.home.points);
       ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/awaypoints`);

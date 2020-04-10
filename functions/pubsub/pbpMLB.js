@@ -9,6 +9,80 @@ baseNow[0] = 0;
 baseNow[1] = 0;
 baseNow[2] = 0;
 async function MLBpbpInplay(parameter) {
+  let awayData;
+  let homeData;
+  if (periodsNow === 0 && eventsNow == 0) {
+    let homeTeamName;
+    let keywordHome = [];
+    let numberHome = [];
+    let awayTeamName;
+    let keywordAway = [];
+    let numberAway = [];
+    try {
+      [
+        homeTeamName,
+        keywordHome,
+        numberHome,
+        awayTeamName,
+        keywordAway,
+        numberAway,
+      ] = await summmaryEN(gameID);
+      let transSimpleHome = [];
+      let transSimpleAway = [];
+      let transCompleteHome = [];
+      let transCompleteAway = [];
+      for (let i = 0; i < keywordTransHome.length; i++) {
+        transSimpleHome[i] = `${keywordTransHome[i]}#${numberHome[i]}`;
+        transCompleteHome[
+          i
+        ] = `[${homeTeamName}] ${keywordTransHome[i]}(${keywordHome[i]}#${numberHome[i]})`;
+      }
+      for (let i = 0; i < keywordTransAway.length; i++) {
+        transSimpleAway[i] = `${keywordTransAway[i]}#${numberAway[i]}`;
+        transCompleteAway[
+          i
+        ] = `[${awayTeamName}] ${keywordTransAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
+      }
+      modules.fs.writeFile(
+        `../json/MLB_${homeTeamName}.json`,
+        JSON.stringify({
+          homeTeamName: homeTeamName,
+          keywordHome: keywordHome,
+          transSimpleHome: transSimpleHome,
+          transCompleteHome: transCompleteHome,
+        }),
+        function (error) {
+          console.log('write file error in pbpNBA.js');
+        }
+      );
+      modules.fs.writeFile(
+        `../json/MLB_${awayTeamName}.json`,
+        JSON.stringify({
+          awayTeamName: awayTeamName,
+          keywordAway: keywordAway,
+          transSimpleAway: transSimpleAway,
+          transCompleteAway: transCompleteAway,
+        }),
+        function (error) {
+          console.log('write file error in pbpMLB.js');
+        }
+      );
+    } catch (error) {
+      console.log(
+        'error happened in pubsub/MLBpbpInplay function by page',
+        error
+      );
+    }
+  }
+  modules.fs.readFile(`../json/MLB_${awayTeamName}.json`, function (err, data) {
+    if (err) throw err;
+    awayData = data;
+    //read data
+  });
+  modules.fs.readFile(`../json/MLB_${homeTeamName}.json`, function (err, data) {
+    homeData = data;
+    if (err) throw err;
+  });
   let gameID = parameter.gameID;
   let betsID = parameter.betsID;
   let inningsNow = parameter.inningsNow;
@@ -22,8 +96,6 @@ async function MLBpbpInplay(parameter) {
   let countForStatus2 = 0;
   // PBP API
   const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/pbp.json?api_key=${mlb_api_key}`;
-  // Summary API
-  const URL2 = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
 
   let inningsCount;
   let numberCount;
@@ -243,7 +315,29 @@ async function MLBpbpInplay(parameter) {
                   ref = modules.database.ref(
                     `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
                   );
-                  let outcome_id = await translteMLB(outcome_id);
+                  let outcome =
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].hitter.first_name +
+                    ' ' +
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].hitter.last_name +
+                    ' ' +
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.events[eventAtbatCount].outcome_id;
+
+                  let outcome_id = await translteMLB(
+                    outcome,
+                    homeData.keywordHome,
+                    awayData.keywordAway,
+                    homeData.transSimpleHome,
+                    awayData.transSimpleAway,
+                    homeData.transCompleteHome,
+                    awayData.transCompleteAway
+                  );
+
                   await ref.set(outcome_id);
                   // 球數
                   ref = modules.database.ref(
@@ -566,6 +660,47 @@ async function MLBpbpHistory(parameter) {
     .collection('pagetest_MLB')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
+}
+
+async function summmaryEN(gameID) {
+  const enSummaryURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
+  try {
+    let homeTeamName;
+    let awayTeamName;
+    let keywordHome = [];
+    let keywordAway = [];
+    let numberHome = [];
+    let numberAway = [];
+    let { data } = await axios(enSummaryURL);
+    homeTeamName = data.home.name;
+    awayTeamName = data.away.name;
+    for (let i = 0; i < data.home.players.length; i++) {
+      let full_name =
+        data.home.players[i].first_name + ' ' + data.home.players[i].last_name;
+      keywordHome.push(full_name);
+      numberHome.push(data.home.players[i].jersey_number);
+    }
+    for (let i = 0; i < data.away.players.length; i++) {
+      let full_name =
+        data.away.players[i].first_name + ' ' + data.away.players[i].last_name;
+      keywordAway.push(full_name);
+      numberAway.push(data.away.players[i].jersey_number);
+    }
+    return [
+      homeTeamName,
+      keywordHome,
+      numberHome,
+      awayTeamName,
+      keywordAway,
+      numberAway,
+    ];
+  } catch (error) {
+    console.log(
+      'error happened in pubsub/NBApbpHistory function by page',
+      error
+    );
+    return error;
+  }
 }
 
 module.exports = { MLBpbpInplay, MLBpbpHistory };

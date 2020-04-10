@@ -9,7 +9,7 @@ async function checkmatch_NBA() {
 
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
-  data.forEach(doc => {
+  data.forEach((doc) => {
     totalData.push(doc.data());
   });
 
@@ -37,8 +37,14 @@ async function checkmatch_NBA() {
         periodsNow = 0;
         periodName = 'periods0';
         eventNow = 0;
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          periodsNow: periodsNow,
+          eventNow: eventNow,
+        };
         // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+        await NBApbpInplay(parameter);
       } else if (
         realtimeData.Summary.status === 'closed' ||
         realtimeData.Summary.status === 'complete'
@@ -51,14 +57,25 @@ async function checkmatch_NBA() {
         eventNow =
           Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
 
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          periodsNow: periodsNow,
+          eventNow: eventNow,
+        };
         // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+        await NBApbpInplay(parameter);
       } else {
         periodsNow = 0; //realtime database has no data
         periodName = 'periods0';
         eventNow = 0;
-
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          periodsNow: periodsNow,
+          eventNow: eventNow,
+        };
+        await NBApbpInplay(parameter);
       }
       //write to the firebase realtime
     }
@@ -66,9 +83,14 @@ async function checkmatch_NBA() {
       if (gameTime <= nowTime) {
         periodsNow = 0;
         eventNow = 0;
-
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          periodsNow: periodsNow,
+          eventNow: eventNow,
+        };
         // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+        await NBApbpInplay(parameter);
       }
     }
   }

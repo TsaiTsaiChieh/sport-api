@@ -1,9 +1,161 @@
 const modules = require('../util/modules');
-translateMLB('Rafael Devers homers to center field.');
-async function translateMLB(stringOrigin) {
+
+// translateMLB(
+//   'Teoscar Hernández pops out to shallow infield to Kody Eaves.',
+//   ['Teoscar Hernández'],
+//   ['Kody Eaves'],
+//   ['Teoscar Hernández(Teoscar Hernández#45)'],
+//   ['Kody Eaves(Kody Eaves#16)'],
+//   ['[Blue Jays] Teoscar Hernández(Teoscar Hernández#45)'],
+//   ['[Twins] Kody Eaves(Kody Eaves#16)']
+// );
+async function translateMLB(
+  stringOrigin,
+  keywordHomeOrigin,
+  keywordAwayOrigin,
+  transSimpleHomeOrigin,
+  transSimpleAwayOrigin,
+  transCompleteHomeOrigin,
+  transCompleteAwayOrigin
+) {
   let finalString = stringOrigin;
+  let keywordHome = keywordHomeOrigin;
+  let keywordAway = keywordAwayOrigin;
+  let transSimpleHome = transSimpleHomeOrigin;
+  let transSimpleAway = transSimpleAwayOrigin;
+  let transCompleteHome = transCompleteHomeOrigin;
+  let transCompleteAway = transCompleteAwayOrigin;
+  let keyword = keywordHome.concat(keywordAway);
+  let keywordTrans = transCompleteHome.concat(transCompleteAway);
+  let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
   //keyword = 依最嚴格條件開始替換
-  let keyword = [
+
+  for (let i = 0; i < keyword.length; i++) {
+    finalString = await finalString.replace(
+      new RegExp(keyword[i], 'g'),
+      keywordTrans[i]
+    );
+  }
+
+  keyword = [
+    'aBK', //投手犯規
+    'aCI', //守備妨礙打擊
+    'aD', //打者擊出二壘安打
+    'aDAD3', // 打者擊出二壘安打、使跑者推進三個壘包
+    'aDAD4', // 打者擊出二壘安打、使跑者回本壘
+    'aFCAD2', // 打者獲得野手選擇、使跑者推進兩個壘包
+    'aFCAD3', // 打者獲得野手選擇、使跑者推進三個壘包
+    'aFCAD4', // 打者獲得野手選擇、使跑者回本壘
+    'aHBP', //打者遭觸身
+    'aHR', //打者擊出全壘打
+    'aIBB', //打者遭保送
+    'aKLAD1', // 好球、打者未揮棒、跑者推進一個壘包
+    'aKLAD2', // 好球、打者未揮棒、跑者推進兩個壘包
+    'aKLAD3', // 好球、打者未揮棒、跑者推進三個壘包
+    'aKLAD4', // 好球、打者未揮棒、跑者回本壘
+    'aKSAD1', // 好球、打者揮棒落空、跑者推進一個壘包
+    'aKSAD2', // 好球、打者揮棒落空、跑者推進兩個壘包
+    'aKSAD3', // 好球、打者揮棒落空、跑者推進三個壘包
+    'aKSAD4', // 好球、打者揮棒落空、跑者回本壘
+    'aROE', // 守備失誤
+    'aROEAD2', // 守備失誤、使跑者推進二個壘包
+    'aROEAD3', // 守備失誤、使跑者推進三個壘包
+    'aROEAD4', // 守備失誤、使跑者回本壘
+    'aS', //打者擊出一壘安打
+    'aSAD2', //打者擊出一壘安打、使跑者推進二個壘包
+    'aSAD3', //打者擊出一壘安打、使跑者推進三個壘包
+    'aSAD4', //打者擊出一壘安打、使跑者回本壘
+    'aSBAD1', // 打者擊出犧牲觸擊、使跑者推進一個壘包
+    'aSBAD2', // 打者擊出犧牲觸擊、使跑者推進兩個壘包
+    'aSBAD3', // 打者擊出犧牲觸擊、使跑者推進三個壘包
+    'aSBAD4', // 打者擊出犧牲觸擊、使跑者回本壘
+    'aSFAD1', // 打者擊出犧牲高飛打、使跑者推進一個壘包
+    'aSFAD2', // 打者擊出犧牲高飛打、使跑者推進兩個壘包
+    'aSFAD3', // 打者擊出犧牲高飛打、使跑者推進三個壘包
+    'aSFAD4', // 打者擊出犧牲高飛打、使跑者回本壘
+    'aT', // 打者擊出三壘安打
+    'aTAD4', // 打者擊出三壘安打、使跑者回本壘
+    'bAB', // 投手投出壞球
+    'bB', // 投手投出壞球
+    'bDB', // 投手投出壞球
+    'bIB', // 投手投出壞球
+    'bPO', // 跑者遭牽制出局
+    'kF', // 打者擊出界外球
+    'kFT', // 打者擊出擦棒被捕球
+    'kKL', // 好球、打者未揮棒
+    'kKS', // 好球、打者揮棒落空
+    'oBI', // 打者妨礙守備
+    'oDT3', // 打者擊出二壘安打，使跑者出局在三壘
+    'oDT4', // 打者擊出二壘安打，使跑者出局在本壘
+    'oFC', // 發生野手選擇
+    'oFCT2', // 發生野手選擇、跑者出局於二壘
+    'oFCT3', // 發生野手選擇、跑者出局於三壘
+    'oFCT4', // 發生野手選擇、跑者出局於本壘
+    'oFO', //打者擊出高飛球被接殺
+    'oGO', //打者擊出滾地球被刺殺
+    'oKLT2', // 好球、打者未揮棒，跑者出局於二壘
+    'oKLT3', // 好球、打者未揮棒，跑者出局於三壘
+    'oKLT4', // 好球、打者未揮棒，跑者出局於本壘
+    'oKST1', // 好球、打者揮棒落空，跑者出局於一壘
+    'oKST2', // 好球、打者揮棒落空，跑者出局於二壘
+    'oKST3', // 好球、打者揮棒落空，跑者出局於三壘
+    'oKST4', // 好球、打者揮棒落空，跑者出局於本壘
+    'oLO', // 打者擊出平飛球被接殺
+    'oOBB', // 打者出局於打者區
+    'oOP',
+    'oPO',
+    'oROET2',
+    'oROET3',
+    'oROET4',
+    'oSB',
+    'oSBT2',
+    'oSBT3',
+    'oSBT4',
+    'oSF',
+    'oSFT2',
+    'oSFT3',
+    'oSFT4',
+    'oST2',
+    'oST3',
+    'oST4',
+    'oTT4',
+    'rPABC',
+    'rPABO',
+    'á',
+    'é',
+    'í',
+    'ó',
+    'ú',
+    'Angels',
+    'Athletics',
+    'Mariners',
+    'Astros',
+    'Rangers',
+    'Tigers',
+    'Royals',
+    'Indians',
+    'White Sox',
+    'Twins',
+    'Orioles',
+    'Blue Jays',
+    'Yankees',
+    'Rays',
+    'Red Sox',
+    'Dodgers',
+    'Giants',
+    'Padres',
+    'Diamondbacks',
+    'Rockies',
+    'Cardinals',
+    'Pirates',
+    'Brewers',
+    'Reds',
+    'Cubs',
+    'Nationals',
+    'Braves',
+    'Marlins',
+    'Mets',
+    'Phillies',
     'hit by pitch',
     'switches from',
     `reaches on a fielder's choice to shallow infield`,
@@ -379,7 +531,42 @@ async function translateMLB(stringOrigin) {
     ' P.',
   ];
 
-  let keywordTrans = [
+  keywordTrans = [
+    'a',
+    'e',
+    'i',
+    'o',
+    'u',
+    '天使',
+    '運動家',
+    '水手',
+    '太空人',
+    '遊騎兵',
+    '老虎',
+    '皇家',
+    '印地安人',
+    '白襪',
+    '雙城',
+    '金鶯',
+    '藍鳥',
+    '洋基',
+    '光芒',
+    '紅襪',
+    '道奇',
+    '巨人',
+    '教士',
+    '響尾蛇',
+    '落磯',
+    '紅雀',
+    '海盜',
+    '釀酒人',
+    '紅人',
+    '小熊',
+    '國民',
+    '勇士',
+    '馬林魚',
+    '大都會',
+    '費城人',
     '遭觸身保送',
     '由',
     '擊出內野安打獲得野手選擇',
@@ -758,7 +945,9 @@ async function translateMLB(stringOrigin) {
       keywordTrans[i]
     );
   }
+
   finalString = await transFunction(finalString);
+  //4/10
   console.log(finalString);
 }
 

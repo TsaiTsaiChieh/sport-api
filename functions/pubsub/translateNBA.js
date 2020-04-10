@@ -1,75 +1,88 @@
 const modules = require('../util/modules');
 const axios = require('axios');
-const string =
-  'CJ McCollum makes three point step back jump shot (Mario Hezonja assists)';
-translateNBA(string);
 
-async function translateNBA(stringOrigin) {
+async function translateNBA(
+  stringOrigin,
+  keywordHomeOrigin,
+  keywordAwayOrigin,
+  transSimpleHomeOrigin,
+  transSimpleAwayOrigin,
+  transCompleteHomeOrigin,
+  transCompleteAwayOrigin
+) {
   let finalString = stringOrigin;
-
-  let keyword = [
-    'Sekou Doumbouya',
-    'Derrick Rose',
-    'Svi Mykhailiuk',
-    'Thon Maker',
-    'Tony Snell',
-    'Hassan Whiteside',
-    'Trevor Ariza',
-    'CJ McCollum',
-    'Carmelo Anthony',
-    'Gary Trent Jr.',
-    'Bruce Brown',
-    'Langston Galloway',
-    'Brandon Knight',
-    'John Henson',
-    'Christian Wood',
-    'Anfernee Simons',
-    'Nassir Little',
-    'Wenyen Gabriel',
-    'Mario Hezonja',
-  ];
-  let keywordTrans = [
-    '[Pistons]杜姆布亚，塞古(Sekou Doumbouya#45)',
-    '[Pistons]德里克 罗斯(Derrick Rose#25)',
-    '[Pistons]斯维亚托斯拉夫 米凯卢克(Svi Mykhailiuk#19)',
-    '[Pistons]索恩 马克(Thon Maker#7)',
-    '[Pistons]托尼 斯内尔(Tony Snell#17)',
-    '[Trail Blazers]哈桑 怀特赛德(Hassan Whiteside#21)',
-    '[Trail Blazers]特雷沃 阿里扎(Trevor Ariza#8)',
-    '[Trail Blazers]C.J. 麦科勒姆(CJ McCollum#3)',
-    '[Trail Blazers]卡梅罗 安东尼(Carmelo Anthony#00)',
-    '[Trail Blazers]加里 小特伦特(Gary Trent Jr.#2)',
-    '布鲁斯 小布朗',
-    '兰斯顿 加洛韦',
-    '布兰登 奈特',
-    '约翰 汉森',
-    '克里斯蒂安 伍德',
-    '安弗尼 西蒙斯',
-    '利特尔，纳西尔',
-    '韦尼恩 加布里艾尔',
-    '[Trail Blazers]马里奥 赫佐尼亚(Mario Hezonja#44)',
-  ];
-  let keywordTransSimple = [
-    '杜姆布亚，塞古(Sekou Doumbouya#45)',
-    '德里克 罗斯(Derrick Rose#25)',
-    '斯维亚托斯拉夫 米凯卢克(Svi Mykhailiuk#19)',
-    '索恩 马克(Thon Maker#7)',
-    '托尼 斯内尔(Tony Snell#17)',
-    '哈桑 怀特赛德(Hassan Whiteside#21)',
-    '特雷沃 阿里扎(Trevor Ariza#8)',
-    'C.J. 麦科勒姆(CJ McCollum#3)',
-    '卡梅罗 安东尼(Carmelo Anthony#00)',
-    '加里 小特伦特(Gary Trent Jr.#2)',
-    '布鲁斯 小布朗',
-    '兰斯顿 加洛韦',
-    '布兰登 奈特',
-    '约翰 汉森',
-    '克里斯蒂安 伍德',
-    '安弗尼 西蒙斯',
-    '利特尔，纳西尔',
-    '韦尼恩 加布里艾尔',
-    '马里奥 赫佐尼亚(Mario Hezonja#44)',
-  ];
+  let keywordHome = keywordHomeOrigin;
+  let keywordAway = keywordAwayOrigin;
+  let transSimpleHome = transSimpleHomeOrigin;
+  let transSimpleAway = transSimpleAwayOrigin;
+  let transCompleteHome = transCompleteHomeOrigin;
+  let transCompleteAway = transCompleteAwayOrigin;
+  let keyword = keywordHome.concat(keywordAway);
+  let keywordTrans = transCompleteHome.concat(transCompleteAway);
+  let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
+  // let keyword = [
+  //   'Sekou Doumbouya',
+  //   'Derrick Rose',
+  //   'Svi Mykhailiuk',
+  //   'Thon Maker',
+  //   'Tony Snell',
+  //   'Hassan Whiteside',
+  //   'Trevor Ariza',
+  //   'CJ McCollum',
+  //   'Carmelo Anthony',
+  //   'Gary Trent Jr.',
+  //   'Bruce Brown',
+  //   'Langston Galloway',
+  //   'Brandon Knight',
+  //   'John Henson',
+  //   'Christian Wood',
+  //   'Anfernee Simons',
+  //   'Nassir Little',
+  //   'Wenyen Gabriel',
+  //   'Mario Hezonja',
+  // ];
+  // let keywordTrans = [
+  //   '[Pistons]杜姆布亚，塞古(Sekou Doumbouya#45)',
+  //   '[Pistons]德里克 罗斯(Derrick Rose#25)',
+  //   '[Pistons]斯维亚托斯拉夫 米凯卢克(Svi Mykhailiuk#19)',
+  //   '[Pistons]索恩 马克(Thon Maker#7)',
+  //   '[Pistons]托尼 斯内尔(Tony Snell#17)',
+  //   '[Trail Blazers]哈桑 怀特赛德(Hassan Whiteside#21)',
+  //   '[Trail Blazers]特雷沃 阿里扎(Trevor Ariza#8)',
+  //   '[Trail Blazers]C.J. 麦科勒姆(CJ McCollum#3)',
+  //   '[Trail Blazers]卡梅罗 安东尼(Carmelo Anthony#00)',
+  //   '[Trail Blazers]加里 小特伦特(Gary Trent Jr.#2)',
+  //   '布鲁斯 小布朗',
+  //   '兰斯顿 加洛韦',
+  //   '布兰登 奈特',
+  //   '约翰 汉森',
+  //   '克里斯蒂安 伍德',
+  //   '安弗尼 西蒙斯',
+  //   '利特尔，纳西尔',
+  //   '韦尼恩 加布里艾尔',
+  //   '[Trail Blazers]马里奥 赫佐尼亚(Mario Hezonja#44)',
+  // ];
+  // let keywordTransSimple = [
+  //   '杜姆布亚，塞古(Sekou Doumbouya#45)',
+  //   '德里克 罗斯(Derrick Rose#25)',
+  //   '斯维亚托斯拉夫 米凯卢克(Svi Mykhailiuk#19)',
+  //   '索恩 马克(Thon Maker#7)',
+  //   '托尼 斯内尔(Tony Snell#17)',
+  //   '哈桑 怀特赛德(Hassan Whiteside#21)',
+  //   '特雷沃 阿里扎(Trevor Ariza#8)',
+  //   'C.J. 麦科勒姆(CJ McCollum#3)',
+  //   '卡梅罗 安东尼(Carmelo Anthony#00)',
+  //   '加里 小特伦特(Gary Trent Jr.#2)',
+  //   '布鲁斯 小布朗',
+  //   '兰斯顿 加洛韦',
+  //   '布兰登 奈特',
+  //   '约翰 汉森',
+  //   '克里斯蒂安 伍德',
+  //   '安弗尼 西蒙斯',
+  //   '利特尔，纳西尔',
+  //   '韦尼恩 加布里艾尔',
+  //   '马里奥 赫佐尼亚(Mario Hezonja#44)',
+  // ];
   if (finalString.indexOf('lineup change') < 0) {
     for (let i = 0; i < keywordTrans.length; i++) {
       keywordTrans[i] = modules.simple2Tradition.translate(keywordTrans[i]);
