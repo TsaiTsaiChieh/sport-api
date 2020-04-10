@@ -9,7 +9,6 @@ function prematch(args) {
       if (args.league === 'MLB') resolve(repackage_MLB(args, queries));
       else if (args.league === 'NBA') resolve(repackage_NBA(args, queries));
     } catch (err) {
-      console.log(err);
       reject({ code: err.code, error: err });
     }
   });
@@ -49,16 +48,18 @@ function queryOneDay(args) {
 
 async function repackage_MLB(args, events) {
   const results = [];
-  let checkGogResult;
+  let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
-    if (
-      args.token.customClaims.role === 2 &&
-      args.token.customClaims.titles.includes(args.league)
-    ) {
-      // 根據大神以往的預測來 disable 單選鈕
-      // eslint-disable-next-line no-await-in-loop
-      checkGogResult = await checkGodPrediction(args, ele.bets_id);
+    if (args.token) {
+      if (
+        args.token.customClaims.role === 2 &&
+        args.token.customClaims.titles.includes(args.league)
+      ) {
+        // 根據大神以往的預測來 disable 單選鈕
+        // eslint-disable-next-line no-await-in-loop
+        checkGogResult = await checkGodPrediction(args, ele.bets_id);
+      }
     }
     const data = generalData(ele, checkGogResult);
     results.push(data);
@@ -68,16 +69,20 @@ async function repackage_MLB(args, events) {
 }
 async function repackage_NBA(args, events) {
   const results = [];
-  let checkGogResult;
+  let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
-    if (
-      args.token.customClaims.role === 2 &&
-      args.token.customClaims.titles.includes(args.league)
-    ) {
-      // 根據大神以往的預測來 disable 單選鈕
-      // eslint-disable-next-line no-await-in-loop
-      checkGogResult = await checkGodPrediction(args, ele.bets_id);
+    console.log(args.token);
+
+    if (args.token) {
+      if (
+        args.token.customClaims.role === 2 &&
+        args.token.customClaims.titles.includes(args.league)
+      ) {
+        // 根據大神以往的預測來 disable 單選鈕
+        // eslint-disable-next-line no-await-in-loop
+        checkGogResult = await checkGodPrediction(args, ele.bets_id);
+      }
     }
     const data = generalData(ele, checkGogResult);
     // if (ele.lineups)
