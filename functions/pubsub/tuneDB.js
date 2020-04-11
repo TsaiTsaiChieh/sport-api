@@ -1,15 +1,12 @@
 const modules = require('../util/modules');
-
+const collectionName = 'NBA_TC';
 async function tuneDB() {
-  const collection = await modules.firestore.collection('basketball_NBA').get();
+  const collection = await modules.firestore.collection(collectionName).get();
   collection.docs.map(async function (doc) {
     const match = doc.data();
-    newestHandicap(doc.data());
-    await modules.addDataInCollectionWithId(
-      'basketball_NBA',
-      match.bets_id,
-      handicapProcessor(match)
-    );
+    newestHandicap(match);
+    handicapProcessor(match);
+
     // handicapProcessor(match).spread;
   });
 }
@@ -46,7 +43,7 @@ function newestHandicap(data) {
 function sortTime(ids, add_time) {
   return ids[add_time.indexOf(Math.max(...add_time))];
 }
-function handicapProcessor(data) {
+async function handicapProcessor(data) {
   if (data.spread) {
     for (const key in data.spread) {
       spreadCalculator(data.spread[key], data.bets_id);
@@ -63,11 +60,15 @@ function handicapProcessor(data) {
   if (data.newest_totals) {
     totalsCalculator(data.newest_totals, data.bets_id);
   }
-  return data;
+  await modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, data);
+  // return data;
 }
 
 function totalsCalculator(handicapObj, id) {
-  if (handicapObj.over_odd === handicapObj.under_odd) {
+  if (
+    handicapObj.over_odd === handicapObj.under_odd ||
+    handicapObj.handicap % 1 !== 0
+  ) {
     handicapObj.away_tw = `${handicapObj.handicap}`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
