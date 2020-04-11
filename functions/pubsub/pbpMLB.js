@@ -32,13 +32,13 @@ async function MLBpbpInplay(parameter) {
       let transCompleteHome = [];
       let transCompleteAway = [];
       for (let i = 0; i < keywordTransHome.length; i++) {
-        transSimpleHome[i] = `${keywordTransHome[i]}#${numberHome[i]}`;
+        transSimpleHome[i] = `${keywordTransHome[i]}(#${numberHome[i]})`;
         transCompleteHome[
           i
         ] = `[${homeTeamName}] ${keywordTransHome[i]}(${keywordHome[i]}#${numberHome[i]})`;
       }
       for (let i = 0; i < keywordTransAway.length; i++) {
-        transSimpleAway[i] = `${keywordTransAway[i]}#${numberAway[i]}`;
+        transSimpleAway[i] = `${keywordTransAway[i]}(#${numberAway[i]})`;
         transCompleteAway[
           i
         ] = `[${awayTeamName}] ${keywordTransAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
@@ -102,7 +102,7 @@ async function MLBpbpInplay(parameter) {
   let halfCount;
   let eventHalfCount;
   let eventAtbatCount;
-
+  let totalDescriptionOrEachBall;
   let timerForStatus2 = setInterval(async function () {
     try {
       // 目前的總比分
@@ -281,15 +281,45 @@ async function MLBpbpInplay(parameter) {
                   eventHalfCount
                 ].at_bat
               ) {
-                ref = modules.database.ref(
-                  `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description`
-                );
-
-                await ref.set(
+                if (
                   data.game.innings[inningsCount].halfs[halfCount].events[
                     eventHalfCount
                   ].at_bat.description
-                );
+                ) {
+                  let desResult;
+                  let desResultCH;
+                  let playerEN = [];
+                  let playerCH = [];
+                  totalDescriptionOrEachBall = 0;
+                  [desResult, desResultCH] = await translteMLB(
+                    data.game.innings[inningsCount].halfs[halfCount].events[
+                      eventHalfCount
+                    ].at_bat.description,
+                    homeData.keywordHome,
+                    awayData.keywordAway,
+                    homeData.transSimpleHome,
+                    awayData.transSimpleAway,
+                    homeData.transCompleteHome,
+                    awayData.transCompleteAway,
+                    totalDescriptionOrEachBall
+                  );
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description`
+                  );
+                  await ref.set(desResult);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/PBP/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description_ch`
+                  );
+                  await ref.set(desResultCH);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description`
+                  );
+                  await ref.set(desResult);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description_ch`
+                  );
+                  await ref.set(desResultCH);
+                }
                 if (eventHalfCount != eventHalfNow) {
                   eventHalfNow = eventHalfNow + 1;
                   eventAtbatNow = 0;
@@ -312,33 +342,47 @@ async function MLBpbpInplay(parameter) {
                     ].at_bat.events[eventAtbatCount]
                   );
                   //4/9
-                  ref = modules.database.ref(
-                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
-                  );
-                  let outcome =
+
+                  let outcome_ori = [
                     data.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
                     ].at_bat.events[eventAtbatCount].hitter.first_name +
-                    ' ' +
+                      ' ' +
+                      data.game.innings[inningsCount].halfs[halfCount].events[
+                        eventHalfCount
+                      ].at_bat.events[eventAtbatCount].hitter.last_name,
                     data.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
-                    ].at_bat.events[eventAtbatCount].hitter.last_name +
-                    ' ' +
+                    ].at_bat.events[eventAtbatCount].pitcher.first_name +
+                      ' ' +
+                      data.game.innings[inningsCount].halfs[halfCount].events[
+                        eventHalfCount
+                      ].at_bat.events[eventAtbatCount].pitcher.last_name,
                     data.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
-                    ].at_bat.events[eventAtbatCount].outcome_id;
-
-                  let outcome_id = await translteMLB(
-                    outcome,
+                    ].at_bat.events[eventAtbatCount].outcome_id,
+                  ];
+                  totalDescriptionOrEachBall = 1;
+                  let outcome = '';
+                  let outcomeCH = '';
+                  [outcome, outcomeCH] = await translteMLB(
+                    outcome_ori,
                     homeData.keywordHome,
                     awayData.keywordAway,
                     homeData.transSimpleHome,
                     awayData.transSimpleAway,
                     homeData.transCompleteHome,
-                    awayData.transCompleteAway
+                    awayData.transCompleteAway,
+                    totalDescriptionOrEachBall
                   );
-
-                  await ref.set(outcome_id);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}.description`
+                  );
+                  await ref.set(outcome);
+                  ref = modules.database.ref(
+                    `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}.description_ch`
+                  );
+                  await ref.set(outcomeCH);
                   // 球數
                   ref = modules.database.ref(
                     `baseball/MLB/${betsID}/Summary/Now_strikes`
