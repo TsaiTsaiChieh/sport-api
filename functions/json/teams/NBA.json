@@ -27,15 +27,6 @@
     "name_ch": "芝加哥公牛"
   },
   {
-    "team_id": "52914",
-    "radar_id": "583ec5fd-fb46-11e1-82cb-f4ce4684ea4c",
-    "image_id": "3409",
-    "alias": "CHI",
-    "alias_ch": "公牛",
-    "name": "Chicago Bulls",
-    "name_ch": "芝加哥公牛"
-  },
-  {
     "radar_id": "583ecea6-fb46-11e1-82cb-f4ce4684ea4c",
     "team_id": "57721",
     "name_ch": "邁阿密熱火",
@@ -187,5 +178,41 @@
     "name": "Phoenix Suns",
     "alias": "PHX",
     "image_id": "3416"
+  },
+  {
+    "radar_id": "583ecefd-fb46-11e1-82cb-f4ce4684ea4c",
+    "bets_id": "52913",
+    "alias_ch": "公鹿",
+    "name": "Milwaukee Bucks",
+    "alias": "MIL",
+    "name_ch": "密爾瓦基公鹿",
+    "image_id": "3410"
+  },
+  {
+    "radar_id": "583ece50-fb46-11e1-82cb-f4ce4684ea4c",
+    "bets_id": "55289",
+    "alias_ch": "爵士",
+    "name": "Utah Jazz",
+    "alias": "UTA",
+    "name_ch": "猶他爵士",
+    "image_id": "3434"
+  },
+  {
+    "radar_id": "583ed102-fb46-11e1-82cb-f4ce4684ea4c",
+    "bets_id": "54378",
+    "alias_ch": "老鷹",
+    "name": "Denver Nuggets",
+    "alias": "DEN",
+    "name_ch": "亞特蘭大老鷹",
+    "image_id": "3417"
+  },
+  {
+    "radar_id": "583ec70e-fb46-11e1-82cb-f4ce4684ea4c",
+    "bets_id": "54760",
+    "alias_ch": "尼克",
+    "name": "New York Knicks",
+    "alias": "NYK",
+    "name_ch": "紐約尼克",
+    "image_id": "3421"
   }
 ]
