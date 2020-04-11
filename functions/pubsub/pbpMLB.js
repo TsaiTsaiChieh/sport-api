@@ -11,7 +11,9 @@ baseNow[2] = 0;
 async function MLBpbpInplay(parameter) {
   let awayData;
   let homeData;
-  if (periodsNow === 0 && eventsNow == 0) {
+  if (periodsNow === 0 && eventsNow === 0) {
+    let keywordTransHome = [];
+    let keywordTransAway = [];
     let homeTeamName;
     let keywordHome = [];
     let numberHome = [];
@@ -27,27 +29,30 @@ async function MLBpbpInplay(parameter) {
         keywordAway,
         numberAway,
       ] = await summmaryEN(gameID);
+      keywordTransHome = await transFunction(keywordHome);
+      keywordTransAway = await transFunction(keywordAway);
       let transSimpleHome = [];
       let transSimpleAway = [];
       let transCompleteHome = [];
       let transCompleteAway = [];
-      for (let i = 0; i < keywordTransHome.length; i++) {
-        transSimpleHome[i] = `${keywordTransHome[i]}(#${numberHome[i]})`;
+      for (let i = 0; i < keywordHome.length; i++) {
+        transSimpleHome[i] = `${keywordHome[i]}(#${numberHome[i]})`;
         transCompleteHome[
           i
-        ] = `[${homeTeamName}] ${keywordTransHome[i]}(${keywordHome[i]}#${numberHome[i]})`;
+        ] = `[${homeTeamName}] ${keywordHome[i]}(${keywordHome[i]}#${numberHome[i]})`;
       }
-      for (let i = 0; i < keywordTransAway.length; i++) {
-        transSimpleAway[i] = `${keywordTransAway[i]}(#${numberAway[i]})`;
+      for (let i = 0; i < keywordAway.length; i++) {
+        transSimpleAway[i] = `${keywordAway[i]}(#${numberAway[i]})`;
         transCompleteAway[
           i
-        ] = `[${awayTeamName}] ${keywordTransAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
+        ] = `[${awayTeamName}] ${keywordAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
       }
       modules.fs.writeFile(
         `../json/MLB_${homeTeamName}.json`,
         JSON.stringify({
           homeTeamName: homeTeamName,
           keywordHome: keywordHome,
+          keywordTransHome: keywordTransHome,
           transSimpleHome: transSimpleHome,
           transCompleteHome: transCompleteHome,
         }),
@@ -60,6 +65,7 @@ async function MLBpbpInplay(parameter) {
         JSON.stringify({
           awayTeamName: awayTeamName,
           keywordAway: keywordAway,
+          keywordTransAway: keywordTransAway,
           transSimpleAway: transSimpleAway,
           transCompleteAway: transCompleteAway,
         }),
@@ -705,7 +711,13 @@ async function MLBpbpHistory(parameter) {
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
 }
-
+async function transFunction(stringTrans) {
+  let stringAfterTrans = await modules.translate(stringTrans, {
+    from: 'en',
+    to: 'zh-tw',
+  });
+  return await stringAfterTrans.text;
+}
 async function summmaryEN(gameID) {
   const enSummaryURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
   try {

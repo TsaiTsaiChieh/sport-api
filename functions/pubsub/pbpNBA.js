@@ -19,7 +19,7 @@ async function NBApbpInplay(parameter) {
 
   let awayData;
   let homeData;
-  if (periodsNow === 0 && eventsNow == 0) {
+  if (periodsNow === 0 && eventsNow === 0) {
     let keywordTransHome = [];
     let keywordTransAway = [];
     let homeTeamName;
@@ -45,13 +45,13 @@ async function NBApbpInplay(parameter) {
       let transCompleteAway = [];
 
       for (let i = 0; i < keywordTransHome.length; i++) {
-        transSimpleHome[i] = `${keywordTransHome[i]}#${numberHome[i]}`;
+        transSimpleHome[i] = `${keywordTransHome[i]}(#${numberHome[i]})`;
         transCompleteHome[
           i
         ] = `[${homeTeamName}] ${keywordTransHome[i]}(${keywordHome[i]}#${numberHome[i]})`;
       }
       for (let i = 0; i < keywordTransAway.length; i++) {
-        transSimpleAway[i] = `${keywordTransAway[i]}#${numberAway[i]}`;
+        transSimpleAway[i] = `${keywordTransAway[i]}(#${numberAway[i]})`;
         transCompleteAway[
           i
         ] = `[${awayTeamName}] ${keywordTransAway[i]}(${keywordAway[i]}#${numberAway[i]})`;
@@ -90,8 +90,8 @@ async function NBApbpInplay(parameter) {
   }
 
   modules.fs.readFile(`../json/NBA_${awayTeamName}.json`, function (err, data) {
-    if (err) throw err;
     awayData = data;
+    if (err) throw err;
     //read data
   });
   modules.fs.readFile(`../json/NBA_${homeTeamName}.json`, function (err, data) {
@@ -248,6 +248,7 @@ async function summmaryEN(gameID) {
 }
 async function NBApbpHistory(gameID, betsID) {
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
+  const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   try {
     let { data } = await axios(pbpURL);
 
@@ -281,6 +282,32 @@ async function NBApbpHistory(gameID, betsID) {
         // eslint-disable-next-line no-await-in-loop
         await ref.set(
           { pbp: data.periods[periodsCount].events[eventsCount] },
+          { merge: true }
+        );
+      }
+    }
+  } catch (error) {
+    console.log(
+      'error happened in pubsub/NBApbpHistory function by page',
+      error
+    );
+    return error;
+  }
+  try {
+    let { data2 } = await axios(summmaryEN);
+    let ref = modules.firestore.collection(firestoreName).doc(betsID);
+    await ref.set(dataOutput, { merge: true });
+    for (let i = 0; i < data2.home.players.length; i++) {
+      {
+        ref = modules.firestore.collection(firestoreName).doc(betsID);
+        // eslint-disable-next-line no-await-in-loop
+        await ref.set(
+          {
+            players: {
+              home: data2.home.players[i],
+              away: data2.away.players[i],
+            },
+          },
           { merge: true }
         );
       }

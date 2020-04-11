@@ -976,9 +976,6 @@ async function translateMLB(
       );
     }
 
-    //4/10
-    // console.log(finalString);
-
     return [stringOrigin, finalString];
   }
 }
