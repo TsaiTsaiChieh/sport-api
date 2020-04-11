@@ -24,7 +24,7 @@ async function prematch(req, res) {
   }
   req.args.token = req.token;
   try {
-    res.json(await model(req.query));
+    res.json(await model(req.args));
   } catch (err) {
     res.status(err.code).json(err);
   }
