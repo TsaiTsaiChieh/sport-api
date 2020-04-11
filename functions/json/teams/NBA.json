@@ -1,0 +1,191 @@
+[
+  {
+    "team_id": "53954",
+    "radar_id": "583ec87d-fb46-11e1-82cb-f4ce4684ea4c",
+    "image_id": "3420",
+    "alias": "PHI",
+    "alias_ch": "76人",
+    "name": "Philadelphia 76ers",
+    "name_ch": "費城76人"
+  },
+  {
+    "team_id": "55277",
+    "radar_id": "583ec773-fb46-11e1-82cb-f4ce4684ea4c",
+    "image_id": "3432",
+    "alias": "CLE",
+    "alias_ch": "騎士",
+    "name": "Cleveland Cavaliers",
+    "name_ch": "克里夫蘭騎士"
+  },
+  {
+    "team_id": "52914",
+    "radar_id": "583ec5fd-fb46-11e1-82cb-f4ce4684ea4c",
+    "image_id": "3409",
+    "alias": "CHI",
+    "alias_ch": "公牛",
+    "name": "Chicago Bulls",
+    "name_ch": "芝加哥公牛"
+  },
+  {
+    "team_id": "52914",
+    "radar_id": "583ec5fd-fb46-11e1-82cb-f4ce4684ea4c",
+    "image_id": "3409",
+    "alias": "CHI",
+    "alias_ch": "公牛",
+    "name": "Chicago Bulls",
+    "name_ch": "芝加哥公牛"
+  },
+  {
+    "radar_id": "583ecea6-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "57721",
+    "name_ch": "邁阿密熱火",
+    "name": "Miami Heat",
+    "alias_ch": "熱火",
+    "alias": "MIA",
+    "image_id": "3435"
+  },
+  {
+    "radar_id": "583ecb3a-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "52640",
+    "name_ch": "休士頓火箭",
+    "alias_ch": "火箭",
+    "name": "Houston Rockets",
+    "alias": "HOU",
+    "image_id": "3412"
+  },
+  {
+    "radar_id": "583ec825-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "53390",
+    "name_ch": "金州勇士",
+    "alias_ch": "勇士",
+    "name": "Golden State Warriors",
+    "alias": "GSW",
+    "image_id": "3428"
+  },
+  {
+    "image_id": "3427",
+    "radar_id": "583ecae2-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "54379",
+    "name_ch": "洛杉磯湖人",
+    "alias_ch": "湖人",
+    "name": "Los Angeles Lakers",
+    "alias": "LAL"
+  },
+  {
+    "name_ch": "孟菲斯灰熊",
+    "alias_ch": "灰熊",
+    "name": "Memphis Grizzlies",
+    "alias": "MEM",
+    "image_id": "3415",
+    "radar_id": "583eca88-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "58056"
+  },
+  {
+    "name_ch": "沙加緬度國王",
+    "alias_ch": "國王",
+    "name": "Sacramento Kings",
+    "alias": "SAC",
+    "image_id": "3413",
+    "radar_id": "583ed0ac-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "55290"
+  },
+  {
+    "name_ch": "聖安東尼奧馬刺",
+    "name": "San Antonio Spurs",
+    "alias_ch": "馬刺",
+    "alias": "SAS",
+    "image_id": "3429",
+    "radar_id": "583ecd4f-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "56087"
+  },
+  {
+    "radar_id": "583ed056-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "55868",
+    "name_ch": "波特蘭拓荒者",
+    "alias_ch": "拓荒者",
+    "name": "Portland Trail Blazers",
+    "alias": "POR",
+    "image_id": "3414"
+  },
+  {
+    "radar_id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "56737",
+    "name_ch": "底特律活塞",
+    "alias_ch": "活塞",
+    "name": "Detroit Pistons",
+    "alias": "DET",
+    "image_id": "3424"
+  },
+  {
+    "radar_id": "583ec97e-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "58265",
+    "name_ch": "夏洛特黃蜂",
+    "name": "Charlotte Hornets",
+    "alias_ch": "黃蜂",
+    "alias": "CHA",
+    "image_id": "3430"
+  },
+  {
+    "radar_id": "583eca2f-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "58057",
+    "name_ch": "明尼蘇達灰狼",
+    "alias_ch": "灰狼",
+    "name": "Minnesota Timberwolves",
+    "alias": "MIN",
+    "image_id": "3426"
+  },
+  {
+    "name_ch": "洛杉磯快艇",
+    "alias_ch": "快艇",
+    "name": "Los Angeles Clippers",
+    "alias": "LAC",
+    "image_id": "3425",
+    "radar_id": "583ecdfb-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "53389"
+  },
+  {
+    "radar_id": "583ec9d6-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "54759",
+    "name_ch": "布魯克林籃網",
+    "alias_ch": "籃網",
+    "name": "Brooklyn Nets",
+    "alias": "BKN",
+    "image_id": "3436"
+  },
+  {
+    "image_id": "3437",
+    "radar_id": "583ed157-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "56088",
+    "name_ch": "奧蘭多魔術",
+    "name": "Orlando Magic",
+    "alias_ch": "魔術",
+    "alias": "ORL"
+  },
+  {
+    "radar_id": "583ecc9a-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "54878",
+    "name_ch": "新奧爾良鵜鶘",
+    "alias_ch": "鵜鶘",
+    "name": "New Orleans Pelicans",
+    "alias": "NOP",
+    "image_id": "5539"
+  },
+  {
+    "image_id": "3411",
+    "radar_id": "583ecf50-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "58479",
+    "name_ch": "達拉斯獨行俠",
+    "alias_ch": "獨行俠",
+    "name": "Dallas Mavericks",
+    "alias": "DAL"
+  },
+  {
+    "radar_id": "583ecfa8-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "56107",
+    "name_ch": "鳳凰城太陽",
+    "alias_ch": "太陽",
+    "name": "Phoenix Suns",
+    "alias": "PHX",
+    "image_id": "3416"
+  }
+]
