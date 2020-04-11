@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 const router = modules.express.Router();
 
+// 一次性專區
 router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);
 router.get('/restore', require('../pubsub/backupFirestore').restoreFirestore);
 router.get('/prematch', require('../pubsub/prematch'));
@@ -10,5 +11,6 @@ router.get('/checkmatch_NBA', require('../pubsub/checkmatch_NBA'));
 router.get('/checkmatch_MLB', require('../pubsub/checkmatch_MLB'));
 router.get('/title_period', require('../pubsub/titlePeriod'));
 // router.get('/tune_db', require('../pubsub/tuneDB'));
-
+router.get('/mysql', require('../pubsub/mysql/connection'));
+// router.get('/restore_NBA', require('../pubsub/mysql/match_NBA'));
 module.exports = router;
