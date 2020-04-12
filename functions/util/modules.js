@@ -14,7 +14,7 @@ const https = require('https');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
-const TAIWAN_UTF = 8;
+const UTF = 8;
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(envValues.cert),
@@ -118,11 +118,11 @@ function getTitlesPeriod(date) {
 
   for (let i = 0; i < Math.ceil(weeks / 2); i++) {
     const begin = moment(specificDate)
-      .utcOffset(TAIWAN_UTF)
+      .utcOffset(UTF)
       .add(i * 2, 'weeks')
       .valueOf();
     const end = moment(specificDate)
-      .utcOffset(TAIWAN_UTF)
+      .utcOffset(UTF)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
@@ -130,7 +130,7 @@ function getTitlesPeriod(date) {
       return {
         period: i, // 期數
         date: moment(specificDate)
-          .utcOffset(TAIWAN_UTF)
+          .utcOffset(UTF)
           .add(i * 2 - 2, 'weeks')
           .format('YYYYMMDD') // 該期的開始日期
       };
@@ -178,5 +178,6 @@ module.exports = {
   getTitlesPeriod,
   userStatusCodebook,
   translate,
-  simple2Tradition
+  simple2Tradition,
+  UTF
 };
