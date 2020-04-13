@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const mysql = require('../auth/mysql-setting');
+const mysql = require('../config/mysql-setting');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -256,9 +256,9 @@ const match_NBA = sequelize.define(
   }
 );
 
-const db = {
+const dbUtil = {
   sequelize,
   Sequelize
 };
 
-module.exports = db;
+module.exports = dbUtil;

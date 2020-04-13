@@ -136,8 +136,8 @@
               tmp[i] = null;
             }
           }
-          let db = firebase.firestore();
-          let ref = db.collection('home_banner')
+          let dbUtil = firebase.firestore();
+          let ref = dbUtil.collection('home_banner')
           ref.doc('show').set(tmp).then(() => {
             this.loaded = true;
             this.showMsg('設定完成')
@@ -150,9 +150,9 @@
           let storageRef = firebase.storage().ref('/');
           let desertRef = storageRef.child('home_banner/'+item.name);
           desertRef.delete().then(function() {
-            let db = firebase.firestore();
-            console.log(db)
-            db.collection('home_banner')
+            let dbUtil = firebase.firestore();
+            console.log(dbUtil)
+            dbUtil.collection('home_banner')
             .doc(item.name)
             .delete();
             vm.doSubmit()
@@ -164,8 +164,8 @@
         updateLink(name, link){
           if(!link) return;
           this.loaded = false;
-          let db = firebase.firestore();
-          let ref = db.collection('home_banner')
+          let dbUtil = firebase.firestore();
+          let ref = dbUtil.collection('home_banner')
           console.log(this.images1)
           ref.doc(name).update({
             link: link
@@ -180,9 +180,9 @@
           let show_key = [];
           let hide = [];
           let hide_tmp = [];
-          let db = firebase.firestore();
+          let dbUtil = firebase.firestore();
 
-          db.collection('home_banner').get().then(querySnapshot => {
+          dbUtil.collection('home_banner').get().then(querySnapshot => {
             querySnapshot.forEach(doc => {
               if(doc.id == 'show'){
                 let item = doc.data()
@@ -249,8 +249,8 @@
       let storageRef = firebase.storage().ref('home_banner/'+filename);
       storageRef.put(file).then((e) => {
         storageRef.getDownloadURL().then((url) => {
-          let db = firebase.firestore();
-          let ref = db.collection('home_banner')
+          let dbUtil = firebase.firestore();
+          let ref = dbUtil.collection('home_banner')
           ref.doc(filename).set({
             name: filename,
             url: url,
