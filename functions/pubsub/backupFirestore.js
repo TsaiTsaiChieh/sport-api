@@ -5,7 +5,7 @@ const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
 const officialServiceAccount = require('../auth/sport19y0715-dev.json');
 const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
 const jsonFile = require('../json/matches/firestore_MLB.json');
-const collectionName = ['MLB_TC'];
+const collectionName = ['basketball_NBA'];
 
 function backupFirestore(req, res) {
   // Initiate Firebase App
@@ -13,13 +13,13 @@ function backupFirestore(req, res) {
   // eslint-disable-next-line promise/always-return
   modules.firestoreService.backups(collectionName).then(function (data) {
     modules.fs.writeFile(
-      './json/matches/firestore_MLB.json', // origin
+      // './json/matches/firestore_MLB.json', // origin
       // './json/matches/NBA.json', // match
-      // './json/spread/NBA.json', // spread
+      './json/spread/NBA.json', // spread
       // './json/totals/NBA.json', // totals
-      JSON.stringify(data), // origin
+      // JSON.stringify(data), // origin
       // JSON.stringify(repackageMatch(data.basketball_NBA)), // match
-      // JSON.stringify(repackageSpread(data.basketball_NBA)), // spread
+      JSON.stringify(repackageSpread(data.basketball_NBA)), // spread
       // JSON.stringify(repackageTotals(data.basketball_NBA)), // totals
       function (err) {
         if (err) throw err;
