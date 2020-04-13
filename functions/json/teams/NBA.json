@@ -214,5 +214,14 @@
     "alias": "NYK",
     "name_ch": "紐約尼克",
     "image_id": "3421"
+  },
+  {
+    "radar_id": "583ecfff-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "52891",
+    "alias_ch": "雷霆",
+    "name": "Oklahoma City Thunder",
+    "alias": "OKC",
+    "name_ch": "奧克拉荷馬雷霆",
+    "image_id": "3418"
   }
 ]
