@@ -10,9 +10,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   dialect: mysql.setting.dialect,
   host: mysql.setting.host,
   timestamps: true,
-  dialectOptions: {
-    ssl: mysql.SSL
-  },
+  dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
   timezone: mysql.setting.timezone //for writing to database
 });
