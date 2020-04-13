@@ -226,6 +226,7 @@ sequelize.define(
     scheduled: {
       type: Sequelize.INTEGER
     },
+    scheduled_tw: { type: Sequelize.DATE },
     flag_prematch: {
       type: Sequelize.INTEGER
     },
