@@ -8,6 +8,7 @@ const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
 const betsToken = envValues.betsToken;
 const sportRadarKeys = envValues.sportRadarKeys;
+const redisToken = envValues.redisToken;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -27,6 +28,11 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
+/*redis 設定*/
+var redis = {
+  ip: '10.106.218.244',
+  port: '6379'
+};
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -148,6 +154,7 @@ function userStatusCodebook(role) {
   }
 }
 module.exports = {
+  redis,
   express,
   firebaseAdmin,
   firebase,
@@ -170,6 +177,7 @@ module.exports = {
   dateFormat,
   cloneFirestore,
   sportRadarKeys,
+  redisToken,
   firebaseTimestamp,
   firestoreService,
   leagueCodebook,

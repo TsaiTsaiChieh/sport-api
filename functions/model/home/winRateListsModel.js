@@ -1,5 +1,7 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
+const redis = require('redis');
+const redisClient = redis.createClient(modules.redis.port, modules.redis.ip);//建立redis客戶端
 
 function winRateLists(args) {
   return new Promise(async function(resolve, reject) {
@@ -16,7 +18,20 @@ function winRateLists(args) {
     // }
     let winRateLists = {};
     winRateLists[defaultValues['league']] = []; // 像上面的範例
+    
+    /*有redis資料就撈，沒有就跑下面程式撈firebase資料*/
+    redisClient.on('error', (err) => console.error('ERR:REDIS:', err));
 
+    if(redisClient.connected){
+      redisClient.get('win_rate_lists', function(err, result){
+        if(result!=null){
+          res = JSON.parse(result);
+          resolve(res);
+        }
+      });
+    }
+
+    
     try {
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
@@ -32,6 +47,7 @@ function winRateLists(args) {
         //Promise.all(results)
 
         winRateLists[key] = leagueWinRateLists;
+        redisClient.set('win_rate_lists', JSON.stringify(winRateLists));////把資料存入redis
       }
     } catch (err) {
       console.log('Error in  home/godlists by YuHsien:  %o', err);
@@ -52,7 +68,7 @@ function repackage(ele) {
     rank: ''
   };
 
-  data['win_rate'] = ele[`this_month_win_rate`];
+  data['win_rate'] = ele[`this_period_win_rate`];
   data['rank'] = ele[`rank`];
 
   return data;
