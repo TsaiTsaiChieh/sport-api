@@ -3,8 +3,6 @@ const model = require('../../model/sport/matchesModel');
 
 // eslint-disable-next-line consistent-return
 async function getMatches(req, res) {
-  console.log(req.query);
-
   const schema = {
     type: 'object',
     required: ['date', 'league'],
