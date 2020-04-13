@@ -4,7 +4,7 @@ const testServiceAccount = require('../auth/sportslottery-test-adminsdk.json');
 const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
 const officialServiceAccount = require('../auth/sport19y0715-dev.json');
 const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
-const jsonFile = require('../json/matches/firestore_MLB.json');
+const jsonFile = require('../json/matches/firestore_NBA.json');
 const collectionName = ['basketball_NBA'];
 
 function backupFirestore(req, res) {
