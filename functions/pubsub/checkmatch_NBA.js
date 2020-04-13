@@ -4,9 +4,9 @@ const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 
 async function checkmatch_NBA() {
-  const firestoreName = 'pagetest_NBA';
-  //read event information from firestore
+  const firestoreName = 'page_NBA';
 
+  // maybe from firestore to mysql
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
   data.forEach((doc) => {
@@ -19,8 +19,21 @@ async function checkmatch_NBA() {
     let gameTime = totalData[i].scheduled._seconds * 1000;
     let nowTime = Date.now();
 
-    //event status 0:history 1:now 2:future
     let eventStatus = totalData[i].flag.status;
+    if (eventStatus === 2) {
+      if (gameTime <= nowTime) {
+        periodsNow = 0;
+        eventNow = 0;
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          periodsNow: periodsNow,
+          eventNow: eventNow,
+        };
+        // eslint-disable-next-line no-await-in-loop
+        await NBApbpInplay(parameter);
+      }
+    }
     if (eventStatus === 1) {
       let realtimeData;
       realtimeData = JSON.parse(
@@ -66,7 +79,7 @@ async function checkmatch_NBA() {
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
       } else {
-        periodsNow = 0; //realtime database has no data
+        periodsNow = 0;
         periodName = 'periods0';
         eventNow = 0;
         let parameter = {
@@ -75,21 +88,6 @@ async function checkmatch_NBA() {
           periodsNow: periodsNow,
           eventNow: eventNow,
         };
-        await NBApbpInplay(parameter);
-      }
-      //write to the firebase realtime
-    }
-    if (eventStatus === 2) {
-      if (gameTime <= nowTime) {
-        periodsNow = 0;
-        eventNow = 0;
-        let parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          periodsNow: periodsNow,
-          eventNow: eventNow,
-        };
-        // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
       }
     }

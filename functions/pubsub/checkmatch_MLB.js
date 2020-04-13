@@ -5,11 +5,11 @@ const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 
 async function checkmatch_MLB() {
-  const firestoreName = 'pagetest_MLB';
+  const firestoreName = 'page_MLB';
 
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
-  data.forEach(doc => {
+  data.forEach((doc) => {
     totalData.push(doc.data());
   });
 
@@ -43,7 +43,7 @@ async function checkmatch_MLB() {
           inningsNow: inningsNow,
           halfNow: halfNow,
           eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
+          eventAtbatNow: eventAtbatNow,
         };
         MLBpbpInplay(parameter);
       }
@@ -51,7 +51,7 @@ async function checkmatch_MLB() {
         let parameter = {
           gameID: gameID,
           betsID: betsID,
-          scheduled: gameTime
+          scheduled: gameTime,
         };
         MLBpbpHistory(parameter);
       }
@@ -80,7 +80,7 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: 0,
-            eventAtbatNow: 0
+            eventAtbatNow: 0,
           };
           MLBpbpInplay(parameter);
         } else {
@@ -107,7 +107,7 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: eventHalfNow,
-            eventAtbatNow: eventAtbatNow
+            eventAtbatNow: eventAtbatNow,
           };
 
           MLBpbpInplay(parameter);
@@ -128,7 +128,7 @@ async function checkmatch_MLB() {
           inningsNow: inningsNow,
           halfNow: halfNow,
           eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
+          eventAtbatNow: eventAtbatNow,
         };
         MLBpbpInplay(parameter);
       } else {

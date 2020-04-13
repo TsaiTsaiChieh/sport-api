@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 const axios = require('axios');
 const tranlate = require('./translateNBA');
-const firestoreName = 'pagetest';
+const firestoreName = 'page';
 //const nba_api_key = "y7uxzm4stjju6dmkspnabaav";
 // const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
 const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
@@ -254,14 +254,18 @@ async function NBApbpHistory(gameID, betsID) {
 
     let winner;
     if (data.home.points > data.away.points) {
-      winner = 'home';
-    } else {
-      winner = 'away';
+      winner = data.home.name;
+      loser = data.away.name;
+    }
+    if (data.home.points < data.away.points) {
+      winner = data.away.name;
+      loser = data.home.name;
     }
     let finalResult = {
       homePoints: data.home.points,
       awayPoints: data.away.points,
       winner: winner,
+      loser: loser,
     };
     let dataOutput = {
       boxscore: finalResult,
