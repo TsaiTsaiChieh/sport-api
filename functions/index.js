@@ -64,6 +64,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+app.use('/sqlinit', require('./sqlinit'));
 app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
