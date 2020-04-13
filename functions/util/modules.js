@@ -17,11 +17,25 @@ const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const TAIWAN_UTF = 8;
 
-firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(envValues.cert),
-  databaseURL: envValues.firebaseConfig.databaseURL,
-  storageBucket: envValues.firebaseConfig.storageBucket
-});
+function initFirebase(){
+  if (firebaseAdmin.apps.length === 0) {
+    console.log("initializing firebase database");
+    firebaseAdmin.initializeApp({
+      credential: firebaseAdmin.credential.cert(envValues.cert),
+      databaseURL: envValues.firebaseConfig.databaseURL,
+      storageBucket: envValues.firebaseConfig.storageBucket
+    });
+  }else{
+    console.log("firebase is already initialized");
+  }
+}
+
+initFirebase();
+// firebaseAdmin.initializeApp({
+//   credential: firebaseAdmin.credential.cert(envValues.cert),
+//   databaseURL: envValues.firebaseConfig.databaseURL,
+//   storageBucket: envValues.firebaseConfig.storageBucket
+// });
 const bucket = firebaseAdmin
   .storage()
   .bucket(envValues.firebaseConfig.storageBucket);
@@ -179,5 +193,6 @@ module.exports = {
   getTitlesPeriod,
   userStatusCodebook,
   translate,
-  simple2Tradition
+  simple2Tradition,
+  initFirebase
 };
