@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const db = require('../../util/db');
+const db = require('../../util/dbUtil');
 const AppError = require('../../util/AppErrors');
 const scheduledStatus = 2;
 const inPlayStatus = 1;

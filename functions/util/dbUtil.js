@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const mysql = require('../auth/mysql-setting');
+const mysql = require('../config/mysql-setting');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -10,9 +10,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   dialect: mysql.setting.dialect,
   host: mysql.setting.host,
   timestamps: true,
-  dialectOptions: {
-    ssl: mysql.SSL
-  },
+  dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
   timezone: mysql.setting.timezone //for writing to database
 });
@@ -258,9 +256,9 @@ const match_NBA = sequelize.define(
   }
 );
 
-const db = {
+const dbUtil = {
   sequelize,
   Sequelize
 };
 
-module.exports = db;
+module.exports = dbUtil;

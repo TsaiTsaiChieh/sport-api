@@ -60,8 +60,8 @@
       appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
     };
     firebase.initializeApp(firebaseConfig);
-    let db = firebase.firestore();
-    let ref = db.collection('topics')
+    let dbUtil = firebase.firestore();
+    let ref = dbUtil.collection('topics')
 
     Vue.config.devtools = true;
     var app = new Vue({
