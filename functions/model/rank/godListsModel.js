@@ -57,7 +57,7 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   diamondArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_bets < b.win_bets; // 降 大->小
   });
-  godLists['1'] = diamondArr.map(function(t){
+  godLists['diamond'] = diamondArr.map(function(t){
     return repackage_winBets(t); 
   });
 
@@ -65,7 +65,7 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   godArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['2'] = godArr.map(function(t){
+  godLists['god'] = godArr.map(function(t){
     return repackage_winRate(t); 
   });
 
@@ -73,7 +73,7 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   silverArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['3'] = silverArr.map(function(t){
+  godLists['silver'] = silverArr.map(function(t){
     return repackage_winRate(t); 
   });
 
@@ -81,7 +81,7 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   copperArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['4'] = copperArr.map(function(t){
+  godLists['copper'] = copperArr.map(function(t){
     return repackage_winRate(t); 
   });
 }
