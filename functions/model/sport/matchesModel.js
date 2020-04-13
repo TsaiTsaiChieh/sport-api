@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const db = require('../../util/db');
+const db = require('../../util/dbUtil');
 const moment = require('moment');
 
 function getMatches(args) {
