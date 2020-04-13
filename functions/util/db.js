@@ -23,6 +23,10 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * Ex: sequelize.models.match
  * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
  */
+
+/*
+ * 各聯盟資訊，ex: NBA, MLB and so on
+ */
 sequelize.define(
   'match__league',
   {
@@ -58,7 +62,10 @@ sequelize.define(
   }
 );
 
-sequelize.define(
+/*
+ * 各讓分資訊，unique key 為賽事 ID + 盤口 ID
+ */
+const Spread = sequelize.define(
   'match__spread',
   {
     id: {
@@ -106,7 +113,9 @@ sequelize.define(
     ]
   }
 );
-
+/*
+ * 各大小分資訊，unique key 為賽事 ID + 盤口 ID
+ */
 sequelize.define(
   'match__total',
   {
@@ -152,7 +161,9 @@ sequelize.define(
     ]
   }
 );
-
+/*
+ * NBA 各隊伍資訊，unique key 為 team_id
+ */
 sequelize.define(
   'match__team__NBA',
   {
@@ -194,7 +205,10 @@ sequelize.define(
   }
 );
 
-sequelize.define(
+/*
+ * NBA 各賽事資訊，unique key 為 bets_id
+ */
+const match_NBA = sequelize.define(
   'match__NBA',
   {
     id: {
