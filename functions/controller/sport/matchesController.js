@@ -1,8 +1,8 @@
 const modules = require('../../util/modules');
-const model = require('../../model/sport/prematchModel');
+const model = require('../../model/sport/matchesModel');
 
 // eslint-disable-next-line consistent-return
-async function prematch(req, res) {
+async function getMatches(req, res) {
   const schema = {
     type: 'object',
     required: ['date', 'league'],
@@ -22,14 +22,14 @@ async function prematch(req, res) {
   if (!valid) {
     return res.status(400).json(modules.ajv.errors);
   }
-  req.args.token = req.token;
+  //   req.args.token = req.token;
   try {
-    res.json(await model(req.args));
+    res.json(await model(req.query));
   } catch (err) {
     res.status(err.code).json(err);
   }
 }
-module.exports = prematch;
+module.exports = getMatches;
 /**
  * @api {GET} /sport/prematch?date=2020-02-28&league=NBA Get Prematch
  * @apiVersion 1.0.0

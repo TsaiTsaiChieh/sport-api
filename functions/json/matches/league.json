@@ -1,0 +1,16 @@
+[
+  {
+    "radar_id": "4353138d-4c22-4396-95d8-5f587d2df25c",
+    "league_id": "2274",
+    "name": "NBA",
+    "sport": 18,
+    "name_ch": "美國國家籃球協會"
+  },
+  {
+    "radar_id": "2fa448bc-fc17-4d3d-be03-e60e080fdc26",
+    "league_id": "3939",
+    "name": "MLB",
+    "sport": 16,
+    "name_ch": "美國職棒大聯盟"
+  }
+]
