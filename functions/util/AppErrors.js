@@ -57,8 +57,21 @@ class UserPredictFailed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+/* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
+class MysqlError extends ExtendableError {
+  constructor(
+    message = 'MySQL錯誤',
+    status = 1500,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
-  UserPredictFailed
+  UserPredictFailed,
+  MysqlError
 };

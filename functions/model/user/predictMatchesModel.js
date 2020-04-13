@@ -56,7 +56,7 @@ async function checkMatches(args) {
     isOpened(i, { needed, failed });
     isNewestHandicap(i, { needed, failed });
     //
-    if (args.token.role === GOD_USER) {
+    if (args.token.customClaims.role === GOD_USER) {
       await isGodUpdate(args.token.uid, i, { needed, failed });
       if (needed[i].length === undefined) {
         // 有資料的
@@ -86,10 +86,11 @@ async function isMatchExist(args, ele, filter) {
 
 function isBeforeScheduled(now, i, filter) {
   const ele = filter.needed[i];
-  if (now >= ele.data.scheduled._seconds * 1000) {
+  if (ele.data.flag.status !== 2) {
+    // if (now >= ele.data.scheduled._seconds * 1000) {
     const error = {
       code: 403,
-      error: `Match id: ${ele.id} already start, forbidden`
+      error: `Match id: ${ele.id} already start or end, forbidden`
     };
     filterProcessor(filter, i, error);
   }
@@ -248,7 +249,7 @@ function repackagePrediction(args, ele) {
     bets_id: ele.id,
     uid: args.token.uid,
     league: args.league,
-    user_status: args.token.role,
+    user_status: args.token.customClaims.role,
     sell: args.sell,
     date,
     date_timestamp: modules.moment(date).valueOf(),
@@ -280,6 +281,8 @@ function repackagePrediction(args, ele) {
       update_time: Date.now()
     };
   }
+  // console.log(data);
+
   return data;
 }
 
