@@ -181,7 +181,7 @@
   },
   {
     "radar_id": "583ecefd-fb46-11e1-82cb-f4ce4684ea4c",
-    "bets_id": "52913",
+    "team_id": "52913",
     "alias_ch": "公鹿",
     "name": "Milwaukee Bucks",
     "alias": "MIL",
@@ -190,7 +190,7 @@
   },
   {
     "radar_id": "583ece50-fb46-11e1-82cb-f4ce4684ea4c",
-    "bets_id": "55289",
+    "team_id": "55289",
     "alias_ch": "爵士",
     "name": "Utah Jazz",
     "alias": "UTA",
@@ -199,7 +199,7 @@
   },
   {
     "radar_id": "583ed102-fb46-11e1-82cb-f4ce4684ea4c",
-    "bets_id": "54378",
+    "team_id": "54378",
     "alias_ch": "老鷹",
     "name": "Denver Nuggets",
     "alias": "DEN",
@@ -208,7 +208,7 @@
   },
   {
     "radar_id": "583ec70e-fb46-11e1-82cb-f4ce4684ea4c",
-    "bets_id": "54760",
+    "team_id": "54760",
     "alias_ch": "尼克",
     "name": "New York Knicks",
     "alias": "NYK",
