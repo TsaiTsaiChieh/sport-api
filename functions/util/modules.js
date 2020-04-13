@@ -6,8 +6,7 @@ const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const betsToken = envValues.betsToken;
-const sportRadarKeys = envValues.sportRadarKeys;
+const { sportRadarKeys, betsToken } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -15,7 +14,7 @@ const https = require('https');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
-const TAIWAN_UTF = 8;
+const UTF = 8;
 
 function initFirebase(){
   if (firebaseAdmin.apps.length === 0) {
@@ -133,11 +132,11 @@ function getTitlesPeriod(date) {
 
   for (let i = 0; i < Math.ceil(weeks / 2); i++) {
     const begin = moment(specificDate)
-      .utcOffset(TAIWAN_UTF)
+      .utcOffset(UTF)
       .add(i * 2, 'weeks')
       .valueOf();
     const end = moment(specificDate)
-      .utcOffset(TAIWAN_UTF)
+      .utcOffset(UTF)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
@@ -145,7 +144,7 @@ function getTitlesPeriod(date) {
       return {
         period: i, // 期數
         date: moment(specificDate)
-          .utcOffset(TAIWAN_UTF)
+          .utcOffset(UTF)
           .add(i * 2 - 2, 'weeks')
           .format('YYYYMMDD') // 該期的開始日期
       };
@@ -194,5 +193,5 @@ module.exports = {
   userStatusCodebook,
   translate,
   simple2Tradition,
-  initFirebase
+  UTF
 };

@@ -72,8 +72,6 @@ async function repackage_NBA(args, events) {
   let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
     const ele = events[i];
-    console.log(args.token);
-
     if (args.token) {
       if (
         args.token.customClaims.role === 2 &&
