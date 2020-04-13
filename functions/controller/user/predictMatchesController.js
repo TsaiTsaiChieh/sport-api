@@ -4,48 +4,60 @@ const model = require('../../model/user/predictMatchesModel');
 // eslint-disable-next-line consistent-return
 async function predictMatches(req, res) {
   const now = Date.now();
+  const spreadSchema = {
+    type: 'array',
+    items: [
+      { type: 'string' },
+      { type: 'string', enum: ['home', 'away'] },
+      { type: 'integer', minimum: 1, maximum: 3 }
+    ]
+  };
+  const totalsSchema = {
+    type: 'array',
+    items: [
+      { type: 'string' },
+      { type: 'string', enum: ['over', 'under'] },
+      { type: 'integer', minimum: 1, maximum: 3 }
+    ]
+  };
   const schema = {
     type: 'object',
     required: ['league', 'sell', 'matches'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA'],
+        enum: ['NBA']
       },
       sell: {
         type: 'integer',
-        enum: [0, 1],
+        enum: [0, 1]
       },
       matches: {
         type: 'array',
         items: {
           type: 'object',
           required: ['id'],
-          anyOf: [{ required: ['spread'] }, { required: ['totals'] }],
+          maxItems: 30,
+          anyOf: [
+            {
+              type: 'object',
+              required: ['spread']
+            },
+            {
+              type: 'object',
+              required: ['totals']
+            }
+          ],
           properties: {
             id: {
-              type: 'string',
+              type: 'string'
             },
-            spread: {
-              type: 'array',
-              items: [
-                { type: 'string' },
-                { type: 'string', enum: ['home', 'away'] },
-                { type: 'integer', minimum: 1, maximum: 3 },
-              ],
-            },
-            totals: {
-              type: 'array',
-              item: [
-                { type: 'string' },
-                { type: 'string', enum: ['over', 'under'] },
-                { type: 'integer', minimum: 1, maximum: 3 },
-              ],
-            },
-          },
-        },
-      },
-    },
+            spread: spreadSchema,
+            totals: totalsSchema
+          }
+        }
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.body);

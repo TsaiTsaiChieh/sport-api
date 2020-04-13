@@ -1,13 +1,11 @@
 const modules = require('../util/modules');
 translateMLB('Rafael Devers homers to center field.');
 async function translateMLB(stringOrigin) {
+  let finalString = stringOrigin;
   //keyword = 依最嚴格條件開始替換
-  let keyword1 = [
-    // 觸身
+  let keyword = [
     'hit by pitch',
-    //交換位置
     'switches from',
-    //野手選擇
     `reaches on a fielder's choice to shallow infield`,
     `reaches on a fielder's choice to shallow center infield`,
     `reaches on a fielder's choice to shallow right infield`,
@@ -34,24 +32,19 @@ async function translateMLB(stringOrigin) {
     `reaches on a fielder's choice to deep right center field`,
     `reaches on a fielder's choice to deep left field`,
     `reaches on a fielder's choice to deep left center field`,
-    //失誤
     'reaches on error',
     'Throwing error by',
-    //三振
     'called out on strikes',
     'strikes out swinging',
     'strikes out on a foul tip',
-    //全壘打
     'homers to center field',
     'homers to right field',
     'homers to right center field',
     'homers to left field.',
     'homers to left center field.',
-    //在壘包上出局
     'out at first',
     'out at second',
     'out at third',
-    //飛向壘包的出局
     'pops out to first base to',
     'pops out to second base to',
     'pops out to third base to',
@@ -61,7 +54,6 @@ async function translateMLB(stringOrigin) {
     'lines out to first base to',
     'lines out to second base to',
     'lines out to third base to',
-    //內野出局
     'pops out to shallow infield to',
     'pops out to shallow center infield to',
     'pops out to shallow right infield to',
@@ -230,10 +222,164 @@ async function translateMLB(stringOrigin) {
     'as RF',
     'as RP',
     'as SP',
-    'as DH'
+    'as DH',
+    'pops out to shallow infield',
+    'pops out to shallow center infield',
+    'pops out to shallow right infield',
+    'pops out to shallow left infield',
+    'pops out to infield',
+    'pops out to center infield',
+    'pops out to right infield',
+    'pops out to left infield',
+    'grounds out to shallow infield',
+    'grounds out to shallow center infield',
+    'grounds out to shallow right infield',
+    'grounds out to shallow left infield',
+    'grounds out to infield',
+    'grounds out to center infield',
+    'grounds out to right infield',
+    'grounds out to left infield',
+    'lines out to shallow infield',
+    'lines out to shallow center infield',
+    'lines out to shallow right infield',
+    'lines out to shallow left infield',
+    'lines out to infield',
+    'lines out to center infield',
+    'lines out to right infield',
+    'lines out to left infield',
+    'flies out to shallow field',
+    'flies out to shallow center field',
+    'flies out to shallow right field',
+    'flies out to shallow right center field',
+    'flies out to shallow left field',
+    'flies out to shallow left center field',
+    'flies out to field',
+    'flies out to center field',
+    'flies out to right field',
+    'flies out to right center field',
+    'flies out to left field',
+    'flies out to left center field',
+    'flies out to deep field',
+    'flies out to deep center field',
+    'flies out to deep right field',
+    'flies out to deep right center field',
+    'flies out to deep left field',
+    'flies out to deep left center field',
+    'out on a sacrifice fly to field',
+    'out on a sacrifice fly to center field',
+    'out on a sacrifice fly to right field',
+    'out on a sacrifice fly to right center field',
+    'out on a sacrifice fly to left field',
+    'out on a sacrifice fly to left center field',
+    '(C)',
+    '(IF)',
+    '(1B)',
+    '(2B)',
+    '(3B)',
+    '(SS)',
+    '(OF)',
+    '(LF)',
+    '(CF)',
+    '(P)',
+    '(RF)',
+    '(RP)',
+    '(SP)',
+    '(DH)',
+    'as C',
+    'as P',
+    'to IF ',
+    'to 1B ',
+    'to 2B ',
+    'to 3B ',
+    'to SS ',
+    'to OF ',
+    'to LF ',
+    'to CF ',
+    'to RF ',
+    'to RP ',
+    'to SP ',
+    'to DH ',
+    'to IF.',
+    'to 1B.',
+    'to 2B.',
+    'to 3B.',
+    'to SS.',
+    'to OF.',
+    'to LF.',
+    'to CF.',
+    'to RF.',
+    'to RP.',
+    'to SP.',
+    'to DH.',
+    'to first',
+    'to second',
+    'to third',
+    '(C)',
+    '(IF)',
+    '(1B)',
+    '(2B)',
+    '(3B)',
+    '(SS)',
+    '(OF)',
+    '(LF)',
+    '(CF)',
+    '(P)',
+    '(RF)',
+    '(RP)',
+    '(SP)',
+    '(DH)',
+    'pops out to',
+    'grounds out to',
+    'lines out to',
+    'flies out to',
+    ' IF ',
+    ' 1B ',
+    ' 2B ',
+    ' 3B ',
+    ' SS ',
+    ' OF ',
+    ' LF ',
+    ' CF ',
+    ' RF ',
+    ' RP ',
+    ' SP ',
+    ' DH ',
+    ' IF.',
+    ' 1B.',
+    ' 2B.',
+    ' 3B.',
+    ' SS.',
+    ' OF.',
+    ' LF.',
+    ' CF.',
+    ' RF.',
+    ' RP.',
+    ' SP.',
+    ' DH.',
+    'to C ',
+    'to P ',
+    'to C.',
+    'to P.',
+    ' to ',
+    'batting 1st.',
+    'batting 2nd.',
+    'batting 3rd.',
+    'batting 4th.',
+    'batting 5th.',
+    'batting 6th.',
+    'batting 7th.',
+    'batting 8th.',
+    'batting 9th.',
+    'singles',
+    'doubles',
+    'thirds',
+    ' C ',
+    ' P ',
+    ' C.',
+    ' P.',
   ];
 
-  let keywordTrans1 = [
+  let keywordTrans = [
     '遭觸身保送',
     '由',
     '擊出內野安打獲得野手選擇',
@@ -450,100 +596,7 @@ async function translateMLB(stringOrigin) {
     '右外野手',
     '後援投手',
     '先發投手',
-    '指定打擊'
-  ];
-  let keyword2 = [
-    //內野出局（無 to
-    'pops out to shallow infield',
-    'pops out to shallow center infield',
-    'pops out to shallow right infield',
-    'pops out to shallow left infield',
-    'pops out to infield',
-    'pops out to center infield',
-    'pops out to right infield',
-    'pops out to left infield',
-    'grounds out to shallow infield',
-    'grounds out to shallow center infield',
-    'grounds out to shallow right infield',
-    'grounds out to shallow left infield',
-    'grounds out to infield',
-    'grounds out to center infield',
-    'grounds out to right infield',
-    'grounds out to left infield',
-    'lines out to shallow infield',
-    'lines out to shallow center infield',
-    'lines out to shallow right infield',
-    'lines out to shallow left infield',
-    'lines out to infield',
-    'lines out to center infield',
-    'lines out to right infield',
-    'lines out to left infield',
-    'flies out to shallow field',
-    'flies out to shallow center field',
-    'flies out to shallow right field',
-    'flies out to shallow right center field',
-    'flies out to shallow left field',
-    'flies out to shallow left center field',
-    'flies out to field',
-    'flies out to center field',
-    'flies out to right field',
-    'flies out to right center field',
-    'flies out to left field',
-    'flies out to left center field',
-    'flies out to deep field',
-    'flies out to deep center field',
-    'flies out to deep right field',
-    'flies out to deep right center field',
-    'flies out to deep left field',
-    'flies out to deep left center field',
-    'out on a sacrifice fly to field',
-    'out on a sacrifice fly to center field',
-    'out on a sacrifice fly to right field',
-    'out on a sacrifice fly to right center field',
-    'out on a sacrifice fly to left field',
-    'out on a sacrifice fly to left center field',
-    '(C)',
-    '(IF)',
-    '(1B)',
-    '(2B)',
-    '(3B)',
-    '(SS)',
-    '(OF)',
-    '(LF)',
-    '(CF)',
-    '(P)',
-    '(RF)',
-    '(RP)',
-    '(SP)',
-    '(DH)',
-    'as C',
-    'as P',
-    'to IF ',
-    'to 1B ',
-    'to 2B ',
-    'to 3B ',
-    'to SS ',
-    'to OF ',
-    'to LF ',
-    'to CF ',
-    'to RF ',
-    'to RP ',
-    'to SP ',
-    'to DH ',
-    'to IF.',
-    'to 1B.',
-    'to 2B.',
-    'to 3B.',
-    'to SS.',
-    'to OF.',
-    'to LF.',
-    'to CF.',
-    'to RF.',
-    'to RP.',
-    'to SP.',
-    'to DH.'
-  ];
-  let keywordTrans2 = [
+    '指定打擊',
     '擊出內野高飛球被接殺',
     '擊出中內野高飛球被接殺',
     '擊出右內野高飛球被接殺',
@@ -631,60 +684,7 @@ async function translateMLB(stringOrigin) {
     '轉為 右外野手.',
     '轉為 後援投手.',
     '轉為 先發投手.',
-    '轉為 指定打擊.'
-  ];
-  let keyword3 = [
-    'to first',
-    'to second',
-    'to third',
-    '(C)',
-    '(IF)',
-    '(1B)',
-    '(2B)',
-    '(3B)',
-    '(SS)',
-    '(OF)',
-    '(LF)',
-    '(CF)',
-    '(P)',
-    '(RF)',
-    '(RP)',
-    '(SP)',
-    '(DH)',
-    'pops out to',
-    'grounds out to',
-    'lines out to',
-    'flies out to',
-    ' IF ',
-    ' 1B ',
-    ' 2B ',
-    ' 3B ',
-    ' SS ',
-    ' OF ',
-    ' LF ',
-    ' CF ',
-    ' RF ',
-    ' RP ',
-    ' SP ',
-    ' DH ',
-    ' IF.',
-    ' 1B.',
-    ' 2B.',
-    ' 3B.',
-    ' SS.',
-    ' OF.',
-    ' LF.',
-    ' CF.',
-    ' RF.',
-    ' RP.',
-    ' SP.',
-    ' DH.',
-    'to C ',
-    'to P ',
-    'to C.',
-    'to P.'
-  ];
-  let keywordTrans3 = [
+    '轉為 指定打擊.',
     '上一壘',
     '上二壘',
     '上三壘',
@@ -733,29 +733,7 @@ async function translateMLB(stringOrigin) {
     '轉為 捕手 ',
     '轉為 投手 ',
     '轉為 捕手.',
-    '轉為 投手.'
-  ];
-
-  let keyword4 = [
-    ' to ',
-    'batting 1st.',
-    'batting 2nd.',
-    'batting 3rd.',
-    'batting 4th.',
-    'batting 5th.',
-    'batting 6th.',
-    'batting 7th.',
-    'batting 8th.',
-    'batting 9th.',
-    'singles',
-    'doubles',
-    'thirds',
-    ' C ',
-    ' P ',
-    ' C.',
-    ' P.'
-  ];
-  let keywordTrans4 = [
+    '轉為 投手.',
     ' 傳給 ',
     '第一棒打擊',
     '第二棒打擊',
@@ -772,76 +750,22 @@ async function translateMLB(stringOrigin) {
     ' 捕手 ',
     ' 投手 ',
     ' 捕手.',
-    ' 投手.'
+    ' 投手.',
   ];
-
-  let keywordIndex1 = [];
-  let keywordIndex2 = [];
-  let keywordIndex3 = [];
-  let keywordIndex4 = [];
-
-  let slideIndex1 = [];
-  let slideIndex2 = [];
-  let slideIndex3 = [];
-  let slideIndex4 = [];
-
-  let finalString1 = '';
-  let finalString2 = '';
-  let finalString3 = '';
-  let finalString4 = '';
-  let finalString = [];
-  finalString[0] = stringOrigin;
-  for (let step = 1; step < 5; step++) {
-    finalString[step] = '';
-
-    for (let i = 0; i < eval('keyword' + step).length; i++) {
-      if (finalString[step - 1].indexOf(eval('keyword' + step)[i]) >= 0) {
-        eval('keywordIndex' + step).push(i);
-        eval('slideIndex' + step).push(
-          finalString[step - 1].indexOf(eval('keyword' + step)[i])
-        );
-      }
-    }
-    for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-      if (eval('slideIndex' + step)[i] > eval('slideIndex' + step)[i + 1]) {
-        let temp = eval('keywordIndex' + step)[i];
-        eval('keywordIndex' + step)[i] = eval('keywordIndex' + step)[i + 1];
-        eval('keywordIndex' + step)[i + 1] = temp;
-        temp = eval('slideIndex' + step)[i];
-        eval('slideIndex' + step)[i] = eval('slideIndex' + step)[i + 1];
-        eval('slideIndex' + step)[i + 1] = temp;
-      }
-    }
-
-    let startIndex = 0;
-
-    for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-      finalString[step] =
-        finalString[step] +
-        finalString[step - 1].substring(
-          startIndex,
-          eval('slideIndex' + step)[i]
-        ) +
-        eval('keywordTrans' + step)[eval('keywordIndex' + step)[i]];
-      startIndex =
-        eval('slideIndex' + step)[i] +
-        eval('keyword' + step)[eval('keywordIndex' + step)[i]].length;
-    }
-
-    finalString[step] =
-      finalString[step] +
-      finalString[step - 1].substring(startIndex, finalString[step - 1].length);
+  for (let i = 0; i < keyword.length; i++) {
+    finalString = await finalString.replace(
+      new RegExp(keyword[i], 'g'),
+      keywordTrans[i]
+    );
   }
-  finalString[4] = finalString[4].substring(0, finalString[4].length - 1);
-
-  stepTrans(finalString[4]);
-  // return await stepTrans(finalString[4]);
+  finalString = await transFunction(finalString);
+  console.log(finalString);
 }
 
 async function transFunction(stringTrans) {
   let stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
-    to: 'zh-tw'
+    to: 'zh-tw',
   });
   return await stringAfterTrans.text;
 }
@@ -872,7 +796,7 @@ async function stepTrans(stringTrans) {
     'W',
     'X',
     'Y',
-    'Z'
+    'Z',
   ];
   let eleSmall = [
     'a',
@@ -900,7 +824,7 @@ async function stepTrans(stringTrans) {
     'w',
     'x',
     'y',
-    'z'
+    'z',
   ];
   let matcharray = [];
 
@@ -949,6 +873,5 @@ async function stepTrans(stringTrans) {
       final = final + match[x];
     }
   }
-  console.log(final);
 }
 module.exports = translateMLB;

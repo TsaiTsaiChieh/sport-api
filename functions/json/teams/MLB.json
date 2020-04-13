@@ -1,0 +1,252 @@
+[
+  {
+    "radar_id": "a7723160-10b7-4277-a309-d8dd95a8ae65",
+    "bets_id": "1353",
+    "name": "San Francisco Giants",
+    "alias_ch": "巨人",
+    "alias": "SF",
+    "name_ch": "舊金山巨人",
+    "image_id": "3634"
+  },
+  {
+    "image_id": "3640",
+    "radar_id": "25507be1-6a68-4267-bd82-e097d94b359b",
+    "bets_id": "1365",
+    "name": "Arizona Diamondbacks",
+    "alias_ch": "響尾蛇",
+    "alias": "ARI",
+    "name_ch": "亞利桑納響尾蛇"
+  },
+  {
+    "radar_id": "f246a5e5-afdb-479c-9aaa-c68beeda7af6",
+    "bets_id": "1113",
+    "name": "New York Mets",
+    "alias_ch": "大都會",
+    "alias": "NYM",
+    "name_ch": "紐約大都會",
+    "image_id": "3629"
+  },
+  {
+    "radar_id": "27a59d3b-ff7c-48ea-b016-4798f560f5e1",
+    "bets_id": "1222",
+    "name": "Oakland Athletics",
+    "alias_ch": "運動家",
+    "alias": "OAK",
+    "name_ch": "奧克蘭運動家",
+    "image_id": "3645"
+  },
+  {
+    "radar_id": "80715d0d-0d2a-450f-a970-1b9a3b18c7e7",
+    "bets_id": "1310",
+    "name": "Cleveland Indians",
+    "alias_ch": "印地安人",
+    "alias": "CLE",
+    "name_ch": "克里夫蘭印地安人",
+    "image_id": "3650"
+  },
+  {
+    "radar_id": "dcfd5266-00ce-442c-bc09-264cd20cf455",
+    "bets_id": "1187",
+    "name": "Milwaukee Brewers",
+    "alias_ch": "釀酒人",
+    "alias": "MIL",
+    "name_ch": "密爾瓦基釀酒人",
+    "image_id": "3630"
+  },
+  {
+    "radar_id": "44671792-dc02-4fdd-a5ad-f5f17edaa9d7",
+    "bets_id": "1223",
+    "name": "St. Louis Cardinals",
+    "alias_ch": "紅雀",
+    "alias": "STL",
+    "name_ch": "聖路易紅雀",
+    "image_id": "3632"
+  },
+  {
+    "radar_id": "eb21dadd-8f10-4095-8bf3-dfb3b779f107",
+    "bets_id": "1217",
+    "name": "Houston Astros",
+    "alias_ch": "太空人",
+    "alias": "HOU",
+    "name_ch": "休士頓太空人",
+    "image_id": "3655"
+  },
+  {
+    "radar_id": "d52d5339-cbdd-43f3-9dfa-a42fd588b9a3",
+    "bets_id": "1108",
+    "name": "San Diego Padres",
+    "alias_ch": "教士",
+    "alias": "SD",
+    "name_ch": "聖地牙哥教士",
+    "image_id": "3636"
+  },
+  {
+    "radar_id": "55714da8-fcaf-4574-8443-59bfb511a524",
+    "bets_id": "1368",
+    "name": "Chicago Cubs",
+    "alias_ch": "小熊",
+    "alias": "CHC",
+    "name_ch": "芝加哥小熊",
+    "image_id": "3627"
+  },
+  {
+    "radar_id": "29dd9a87-5bcc-4774-80c3-7f50d985068b",
+    "bets_id": "1146",
+    "name": "Colorado Rockies",
+    "alias_ch": "落磯",
+    "alias": "COL",
+    "name_ch": "科羅拉多落磯",
+    "image_id": "3628"
+  },
+  {
+    "radar_id": "d99f919b-1534-4516-8e8a-9cd106c6d8cd",
+    "bets_id": "1311",
+    "name": "Texas Rangers",
+    "alias_ch": "遊騎兵",
+    "alias": "TEX",
+    "name_ch": "德州遊騎兵",
+    "image_id": "3647"
+  },
+  {
+    "image_id": "3652",
+    "radar_id": "75729d34-bca7-4a0f-b3df-6f26c6ad3719",
+    "bets_id": "1120",
+    "name": "Baltimore Orioles",
+    "alias_ch": "金鶯",
+    "alias": "BAL",
+    "name_ch": "巴爾的摩金鶯"
+  },
+  {
+    "image_id": "3641",
+    "radar_id": "43a39081-52b4-4f93-ad29-da7f329ea960",
+    "bets_id": "1202",
+    "name": "Seattle Mariners",
+    "alias_ch": "水手",
+    "alias": "SEA",
+    "name_ch": "西雅圖水手"
+  },
+  {
+    "radar_id": "bdc11650-6f74-49c4-875e-778aeb7632d9",
+    "bets_id": "1216",
+    "name": "Tampa Bay Rays",
+    "alias_ch": "光芒",
+    "alias": "TB",
+    "name_ch": "坦帕灣光芒",
+    "image_id": "3653"
+  },
+  {
+    "radar_id": "93941372-eb4c-4c40-aced-fe3267174393",
+    "bets_id": "1479",
+    "name": "Boston Red Sox",
+    "alias_ch": "紅襪",
+    "alias": "BOS",
+    "name_ch": "波士頓紅襪",
+    "image_id": "3646"
+  },
+  {
+    "radar_id": "575c19b7-4052-41c2-9f0a-1c5813d02f99",
+    "bets_id": "1091",
+    "name": "Detroit Tigers",
+    "alias_ch": "老虎",
+    "alias": "DET",
+    "name_ch": "底特律老虎",
+    "image_id": "3648"
+  },
+  {
+    "radar_id": "aa34e0ed-f342-4ec6-b774-c79b47b60e2d",
+    "bets_id": "1088",
+    "name": "Minnesota Twins",
+    "alias_ch": "雙城",
+    "alias": "MIN",
+    "name_ch": "明尼蘇達雙城",
+    "image_id": "3649"
+  },
+  {
+    "radar_id": "481dfe7e-5dab-46ab-a49f-9dcc2b6e2cfd",
+    "bets_id": "1186",
+    "name": "Pittsburgh Pirates",
+    "alias_ch": "海盜",
+    "alias": "PIT",
+    "name_ch": "匹茲堡海盜",
+    "image_id": "3637"
+  },
+  {
+    "radar_id": "ef64da7f-cfaf-4300-87b0-9313386b977c",
+    "bets_id": "1369",
+    "name": "Los Angeles Dodgers",
+    "alias_ch": "道奇",
+    "alias": "LAD",
+    "name_ch": "洛杉磯道奇",
+    "image_id": "3638"
+  },
+  {
+    "radar_id": "833a51a9-0d84-410f-bd77-da08c3e5e26e",
+    "bets_id": "1478",
+    "name": "Kansas City Royals",
+    "alias_ch": "皇家",
+    "alias": "KC",
+    "name_ch": "堪薩斯皇家",
+    "image_id": "3651"
+  },
+  {
+    "radar_id": "03556285-bdbb-4576-a06d-42f71f46ddc5",
+    "bets_id": "1109",
+    "name": "Miami Marlins",
+    "alias_ch": "馬林魚",
+    "alias": "MIA",
+    "name_ch": "邁阿密馬林魚",
+    "image_id": "3639"
+  },
+  {
+    "name": "Philadelphia Phillies",
+    "alias_ch": "費城人",
+    "alias": "PHI",
+    "name_ch": "費城費城人",
+    "image_id": "3635",
+    "radar_id": "2142e1ba-3b40-445c-b8bb-f1f8b1054220",
+    "bets_id": "1112"
+  },
+  {
+    "radar_id": "1d678440-b4b1-4954-9b39-70afb3ebbcfa",
+    "bets_id": "1089",
+    "name": "Toronto Blue Jays",
+    "alias_ch": "藍鳥",
+    "alias": "TOR",
+    "name_ch": "多倫多藍鳥",
+    "image_id": "3642"
+  },
+  {
+    "name_ch": "芝加哥白襪",
+    "alias": "CWS",
+    "alias_ch": "白襪",
+    "image_id": "3644",
+    "bets_id": "1203"
+  },
+  {
+    "image_id": "5929",
+    "radar_id": "4f735188-37c8-473d-ae32-1f7e34ccf892",
+    "bets_id": "1090",
+    "name": "Los Angeles Angels",
+    "alias_ch": "天使",
+    "alias": "LAA",
+    "name_ch": "洛杉磯天使"
+  },
+  {
+    "name": "Atlanta Braves",
+    "alias_ch": "勇士",
+    "alias": "ATL",
+    "name_ch": "亞特蘭大勇士",
+    "image_id": "3656",
+    "radar_id": "12079497-e414-450a-8bf2-29f91de646bf",
+    "bets_id": "1352"
+  },
+  {
+    "image_id": "3654",
+    "radar_id": "a09ec676-f887-43dc-bbb3-cf4bbaee9a18",
+    "bets_id": "1121",
+    "name": "New York Yankees",
+    "alias_ch": "洋基",
+    "alias": "NYY",
+    "name_ch": "紐約洋基"
+  }
+]

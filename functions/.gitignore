@@ -2,7 +2,6 @@ node_modules/
 .DS_Store
 auth/
 ./firtebase_request.js
-./package-lock.json
 .BAK
 .env
 
