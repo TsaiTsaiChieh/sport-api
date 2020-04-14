@@ -15,13 +15,13 @@ async function createTopic(req, res) {
     type: 'object',
     requied: ['category', 'type', 'title', 'content'],
     properties: {
-      category: {
-        type: 'string',
-        enum: ['賽事分析', '球隊討論', '投注分享']
-      },
       type: {
         type: 'string',
         enum: ['MLB', 'NBA']
+      },
+      category: {
+        type: 'string',
+        enum: ['賽事分析', '球隊討論', '投注分享']
       },
       title: {
         type: 'string',
@@ -33,16 +33,15 @@ async function createTopic(req, res) {
     }
   }
 
-  // const valid = modules.ajv.validate(schema, req.body);
-  // if (!valid) {
-  //   res.status(400).json(modules.ajv.errors);
-  //   return;
-  // }
-  // req.body.token = req.token;
-  // const args = req.body;
-  console.log(req.token);
+  const valid = modules.ajv.validate(schema, req.body);
+  if (!valid) {
+    res.status(400).json(modules.ajv.errors);
+    return;
+  }
+  req.body.token = req.token;
+  const args = req.body;
   
-  topicModel(req.token, req.body)
+  topicModel(args)
   .then(function(body) {
     res.json(body);
   })
