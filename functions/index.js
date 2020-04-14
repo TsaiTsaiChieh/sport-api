@@ -74,6 +74,7 @@ app.use('/sport', require('./routers/sport'));
 // for test pubsub endpoint
 app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
+app.use('/topics', require('./routers/topics'));
 app.use('/livescore', require('./routers/livescore'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')

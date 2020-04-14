@@ -1,3 +1,4 @@
+/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/createTopicModel');
 async function createTopic(req, res) {
@@ -31,6 +32,23 @@ async function createTopic(req, res) {
       }
     }
   }
+
+  // const valid = modules.ajv.validate(schema, req.body);
+  // if (!valid) {
+  //   res.status(400).json(modules.ajv.errors);
+  //   return;
+  // }
+  // req.body.token = req.token;
+  // const args = req.body;
+  console.log(req.token);
+  
+  topicModel(req.token, req.body)
+  .then(function(body) {
+    res.json(body);
+  })
+  .catch(function(err) {
+    res.status(err.code).json(err);
+  });
 }
 
 module.exports = createTopic;

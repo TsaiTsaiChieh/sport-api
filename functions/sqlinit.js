@@ -27,15 +27,15 @@ const sequelize = new Sequelize(`${db_name}`, `${db_user}`, `${db_password}`, {
   }
 });
 async function sqlinit(req, res) {
-  sequelize
-  .authenticate()
-  .then(() => {
-  })
-  .catch(err => {
-    return res.status(500).json({msg: 'unable to connect to db', err: err.message})
-  });
+  // sequelize
+  // .authenticate()
+  // .then(() => {
+  // })
+  // .catch(err => {
+  //   return res.status(500).json({msg: 'unable to connect to db', err: err.message})
+  // });
 
-  const topicDef = sequelize.define('topic__article', {
+  const topicDef = await sequelize.define('topic__article', {
     uid: {
       type: Sequelize.STRING,
       allowNull: false
@@ -64,7 +64,7 @@ async function sqlinit(req, res) {
 
   //await topicDef.sync({ force: true }); //刪除重建資料表 慎用
   
-  topicDef.create({
+  await topicDef.create({
     uid: '1234',
     type: '測試',
     category: '測試',
@@ -72,13 +72,13 @@ async function sqlinit(req, res) {
     content: '測試',
   })
   .then(() => {
-    res.send('create article success!');
+    console.log('create article success!');
   })
   .catch(err => {
     return res.status(500).json({msg: 'create article failed', err: err.message})
   });
 
-  topicDef.findAll().then(function(data) {
+  await topicDef.findAll().then(function(data) {
     res.json(data)
   })
 }
