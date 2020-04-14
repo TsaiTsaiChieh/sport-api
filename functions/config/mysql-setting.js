@@ -12,7 +12,7 @@ const SSL = {
   connectTimeout: 60000 // The milliseconds before a timeout occurs during the initial connection to the MySQL server.
 };
 const host = isEmulator ? '35.188.137.1' : `/cloudsql/${instance}`;
-const dialectOptions = isEmulator ? { ssl: SSL } : { socketPath: host };
+const dialectOptions = isEmulator ? { ssl: SSL } : { socketPath: host,connectTimeout: 60000 };
 const setting = {
   db_name: {
     TC_test: 'TC_test',
@@ -29,6 +29,6 @@ const setting = {
     acquire: 3000, // The maximum time, in milliseconds, that pool will try to get connection before throwing error
     idle: 30000 // The maximum time, in milliseconds, that a connection can be idle before being released
   },
-  timezone: '+08:00'
+  timezone: 'Asia/Taipei'
 };
 module.exports = { setting };
