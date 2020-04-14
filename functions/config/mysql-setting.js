@@ -12,7 +12,9 @@ const SSL = {
   connectTimeout: 60000 // The milliseconds before a timeout occurs during the initial connection to the MySQL server.
 };
 const host = isEmulator ? '35.188.137.1' : `/cloudsql/${instance}`;
-const dialectOptions = isEmulator ? { ssl: SSL } : { socketPath: host };
+const dialectOptions = isEmulator
+  ? { ssl: SSL }
+  : { socketPath: host, connectTimeout: 60000 };
 const setting = {
   db_name: {
     TC_test: 'TC_test',
