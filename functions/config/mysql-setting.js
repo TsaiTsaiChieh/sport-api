@@ -7,7 +7,9 @@ const SSL = {
   cert: modules.fs.readFileSync(
     path.join(__dirname, '../auth/client-cert.pem')
   ),
-  ca: modules.fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem'))
+  ca: modules.fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem')),
+  // ref: https://stackoverflow.com/questions/52465530/sequelize-connection-timeout-while-using-serverless-aurora-looking-for-a-way-to
+  connectTimeout: 60000 // The milliseconds before a timeout occurs during the initial connection to the MySQL server.
 };
 const host = isEmulator ? '35.188.137.1' : `/cloudsql/${instance}`;
 const dialectOptions = isEmulator ? { ssl: SSL } : { socketPath: host };
