@@ -3,18 +3,14 @@ const modules = require('../util/modules');
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const instance = 'sportslottery-test:us-central1:do-sports';
 const SSL = {
-  key: modules.fs.readFileSync(
-      path.join(__dirname,'../auth/client-key.pem')
-  ),
+  key: modules.fs.readFileSync(path.join(__dirname, '../auth/client-key.pem')),
   cert: modules.fs.readFileSync(
-      path.join(__dirname,'../auth/client-cert.pem')
+    path.join(__dirname, '../auth/client-cert.pem')
   ),
-  ca: modules.fs.readFileSync(
-      path.join(__dirname,'../auth/server-ca.pem')
-  )
+  ca: modules.fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem'))
 };
-const host = isEmulator ? '35.188.137.1': `/cloudsql/${instance}`;
-const dialectOptions = isEmulator ? {ssl:SSL} : {socketPath: host} ;
+const host = isEmulator ? '35.188.137.1' : `/cloudsql/${instance}`;
+const dialectOptions = isEmulator ? { ssl: SSL } : { socketPath: host };
 const setting = {
   db_name: {
     TC_test: 'TC_test',
@@ -27,9 +23,9 @@ const setting = {
   dialectOptions: dialectOptions,
   pool: {
     max: 50,
-    min: 0,
-    acquire: 3000,
-    idle: 10000
+    min: 5, // Minimum number of connection in pool
+    acquire: 3000, // The maximum time, in milliseconds, that pool will try to get connection before throwing error
+    idle: 30000 // The maximum time, in milliseconds, that a connection can be idle before being released
   },
   timezone: '+08:00'
 };
