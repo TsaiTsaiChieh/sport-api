@@ -21,17 +21,21 @@ function getMatchesWithDate(args) {
   return new Promise(async function (resolve, reject) {
     const flag_prematch = 1;
     const { league } = args;
-    const begin = modules.moment(args.date).utcOffset(modules.UTF0).unix();
-    const end =
-      modules.moment(args.date).utcOffset(modules.UTF0).add(1, 'days').unix() -
-      1;
-    console.log('--------');
+    const beginString = modules
+      .moment(args.date)
+      .utcOffset(modules.UTF8)
+      .format('YYYYMMDD');
+    const begin = modules.moment(beginString).unix();
+    const endString = modules
+      .moment(args.date)
+      .utcOffset(modules.UTF8)
+      .add(1, 'days')
+      .format('YYYYMMDD');
+    const end = modules.moment(endString).unix() - 1;
+    console.log('************');
+    console.log(beginString, endString);
     console.log(begin, end);
-
-    console.log('--------');
-
-    db.sequelize.League;
-    db.sequelize.models.match__league;
+    console.log('************');
     try {
       // 下面的 SELECT 是當讓分或大小分都沒開盤的情況
       const results = await db.sequelize.query(
@@ -71,6 +75,8 @@ function getMatchesWithDate(args) {
       );
       return resolve(results);
     } catch (error) {
+      console.log(error);
+
       return reject(new AppError.MysqlError());
     }
   });
