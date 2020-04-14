@@ -125,6 +125,9 @@ const User = sequelize.define(
   }
 );
 
+/*
+ * 歷史大神 含 大神戰績資訊 
+ */
 const Title = sequelize.define(
   'title',
   {
@@ -152,6 +155,36 @@ const Title = sequelize.define(
     rank_id: {
       type: Sequelize.INTEGER,
       allowNull: false
+    },
+    win_bets: { // 勝注
+      type: Sequelize.INTEGER
+    },
+    win_rate: { // 勝率
+      type: Sequelize.INTEGER
+    },
+    continune: { // 連贏 N 天
+      type: Sequelize.INTEGER
+    },
+    predict_rate1: { // 近N日 N過 N  // 近N日過 N
+      type: Sequelize.INTEGER
+    },
+    predict_rate2: {
+      type: Sequelize.INTEGER
+    },
+    predict_rate3: {
+      type: Sequelize.INTEGER
+    },
+    win_bets_continue: { // 勝注連過 Ｎ日
+      type: Sequelize.INTEGER
+    },
+    matches_rate1: { // 近 Ｎ 場過 Ｎ 場
+      type: Sequelize.INTEGER
+    },
+    matches_rate2: {
+      type: Sequelize.INTEGER
+    },
+    matches_continue: { // 連贏Ｎ場
+      type: Sequelize.INTEGER
     }
   },
   {
@@ -159,6 +192,7 @@ const Title = sequelize.define(
       { fields: ['uid'] },
       { fields: ['period'] },
       { fields: ['period_date'] },
+      { fields: ['league_id'] },
     ]
   }
 );
@@ -188,6 +222,7 @@ const Rank = sequelize.define(
     ]
   }
 );
+
 
 /*
  * 各聯盟資訊，ex: NBA, MLB and so on
