@@ -18,21 +18,26 @@ async function checkmatch_NBA() {
     let gameID = totalData[i].radar_id;
     let gameTime = totalData[i].scheduled._seconds * 1000;
     let nowTime = Date.now();
-
+    let periodsNow;
+    let periodName;
+    let eventsNow;
     let eventStatus = totalData[i].flag.status;
     if (eventStatus === 2) {
       if (gameTime <= nowTime) {
         periodsNow = 0;
-        eventNow = 0;
+        eventsNow = 0;
         let parameter = {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventNow: eventNow,
+          eventsNow: eventsNow,
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
       }
+    } else {
+      ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
+      await ref.set('scheduled');
     }
     if (eventStatus === 1) {
       let realtimeData;
@@ -42,19 +47,16 @@ async function checkmatch_NBA() {
           await modules.database.ref(`basketball/NBA/${betsID}`).once('value')
         )
       );
-      let periodsNow;
-      let periodName;
-      let eventNow;
 
       if (realtimeData.Summary.status === 'created') {
         periodsNow = 0;
         periodName = 'periods0';
-        eventNow = 0;
+        eventsNow = 0;
         let parameter = {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventNow: eventNow,
+          eventsNow: eventsNow,
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
@@ -63,30 +65,34 @@ async function checkmatch_NBA() {
         realtimeData.Summary.status === 'complete'
       ) {
         // eslint-disable-next-line no-await-in-loop
-        await NBApbpHistory(gameID, betsID);
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+        };
+        await NBApbpHistory(parameter);
       } else if (realtimeData.Summary.status === 'inprogress') {
         periodsNow = Object.keys(realtimeData.PBP).length - 1; //how much periods
         periodName = Object.keys(realtimeData.PBP);
-        eventNow =
+        eventsNow =
           Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
 
         let parameter = {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventNow: eventNow,
+          eventsNow: eventsNow,
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
       } else {
         periodsNow = 0;
         periodName = 'periods0';
-        eventNow = 0;
+        eventsNow = 0;
         let parameter = {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventNow: eventNow,
+          eventsNow: eventsNow,
         };
         await NBApbpInplay(parameter);
       }

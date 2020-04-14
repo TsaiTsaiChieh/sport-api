@@ -6,47 +6,28 @@ async function translateNBA(
   keywordHomeOrigin,
   keywordAwayOrigin,
   transSimpleHomeOrigin,
-  transSimpleAwayOrigin,
-  transCompleteHomeOrigin,
-  transCompleteAwayOrigin
+  transSimpleAwayOrigin
+  // transCompleteHomeOrigin,
+  // transCompleteAwayOrigin
 ) {
   let finalString = stringOrigin;
   let keywordHome = keywordHomeOrigin;
   let keywordAway = keywordAwayOrigin;
   let transSimpleHome = transSimpleHomeOrigin;
   let transSimpleAway = transSimpleAwayOrigin;
-  let transCompleteHome = transCompleteHomeOrigin;
-  let transCompleteAway = transCompleteAwayOrigin;
+  // let transCompleteHome = transCompleteHomeOrigin;
+  // let transCompleteAway = transCompleteAwayOrigin;
   let keyword = keywordHome.concat(keywordAway);
-  let keywordTrans = transCompleteHome.concat(transCompleteAway);
+  // let keywordTrans = transCompleteHome.concat(transCompleteAway);
   let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
   // pbp : Sekou Doumbouya(#45) 兩分球進
-  if (finalString.indexOf('lineup change') < 0) {
-    for (let i = 0; i < keywordTrans.length; i++) {
-      keywordTrans[i] = modules.simple2Tradition.translate(keywordTrans[i]);
-      keywordTrans[i] = keywordTrans[i].replace('，', '．');
-    }
-    for (let i = 0; i < keyword.length; i++) {
-      finalString = await finalString.replace(
-        new RegExp(keyword[i], 'g'),
-        keywordTrans[i]
-      );
-    }
-  } else {
-    for (let i = 0; i < keywordTransSimple.length; i++) {
-      keywordTransSimple[i] = modules.simple2Tradition.translate(
-        keywordTransSimple[i]
-      );
-      keywordTransSimple[i] = keywordTransSimple[i].replace('，', '．');
-    }
-    for (let i = 0; i < keyword.length; i++) {
-      finalString = await finalString.replace(
-        new RegExp(keyword[i], 'g'),
-        keywordTransSimple[i]
-      );
-    }
-  }
 
+  for (let i = 0; i < keyword.length; i++) {
+    finalString = await finalString.replace(
+      new RegExp(keyword[i], 'g'),
+      keywordTransSimple[i]
+    );
+  }
   keyword = [
     'Wizards',
     'Hornets',
@@ -90,42 +71,42 @@ async function translateNBA(
     'vs.',
     'gains possession',
     'Defensive three second',
-    'assists',
-    'steals',
-    'blocks',
-    'technical',
-    'shooting',
-    'personal',
-    'draws the foul',
-    'foul',
-    'turnover',
-    'bad pass',
-    'lost ball',
-    'fadeaway',
-    'floating',
-    'step back',
-    'turnaround',
-    'hook shot',
-    'jump shot',
-    'reverse',
-    'putback',
-    'driving',
-    'alley-oop',
-    'layup',
-    'putback',
-    'dunk',
-    'makes',
-    'misses',
-    'two point',
-    'three point',
-    'regular free throw',
-    'technical free throw',
-    'free throw',
-    '1 of 1',
-    '1 of 2',
-    '2 of 2',
-    'defensive rebound',
-    'offensive rebound',
+    ' assists',
+    ' steals',
+    ' blocks',
+    ' technical',
+    ' shooting',
+    ' personal',
+    ' draws the foul',
+    ' foul',
+    ' turnover',
+    ' bad pass',
+    ' lost ball',
+    ' fadeaway',
+    ' floating',
+    ' step back',
+    ' turnaround',
+    ' hook shot',
+    ' jump shot',
+    ' reverse',
+    ' putback',
+    ' driving',
+    ' alley-oop',
+    ' layup',
+    ' putback',
+    ' dunk',
+    ' makes',
+    ' misses',
+    ' two point',
+    ' three point',
+    ' regular free throw',
+    ' technical free throw',
+    ' free throw',
+    ' 1 of 1',
+    ' 1 of 2',
+    ' 2 of 2',
+    ' defensive rebound',
+    ' offensive rebound',
     'Stoppage',
     'out of bounds step',
     'Out of bounds',
@@ -172,12 +153,12 @@ async function translateNBA(
     '的',
     '秒暫停',
     '球員：',
-    '對陣',
+    '跳球對上',
     '得到球權',
     '防守三秒',
     '助攻',
     '抄截',
-    '獲得阻攻（',
+    '獲得阻攻(蓋了',
     '技術',
     '射籃',
     '個人',
@@ -225,54 +206,8 @@ async function translateNBA(
     );
   }
   // finalString = finalString.replace(new RegExp(' ', 'g'), '');
-  console.log(finalString);
 
-  //   finalString[0] = stringOrigin;
-  //   for (let step = 1; step < 5; step++) {
-  //     finalString[step] = '';
-
-  //     for (let i = 0; i < eval('keyword' + step).length; i++) {
-  //       if (finalString[step - 1].indexOf(eval('keyword' + step)[i]) >= 0) {
-  //         eval('keywordIndex' + step).push(i);
-  //         eval('slideIndex' + step).push(
-  //           finalString[step - 1].indexOf(eval('keyword' + step)[i])
-  //         );
-  //       }
-  //     }
-  //     for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-  //       if (eval('slideIndex' + step)[i] > eval('slideIndex' + step)[i + 1]) {
-  //         let temp = eval('keywordIndex' + step)[i];
-  //         eval('keywordIndex' + step)[i] = eval('keywordIndex' + step)[i + 1];
-  //         eval('keywordIndex' + step)[i + 1] = temp;
-  //         temp = eval('slideIndex' + step)[i];
-  //         eval('slideIndex' + step)[i] = eval('slideIndex' + step)[i + 1];
-  //         eval('slideIndex' + step)[i + 1] = temp;
-  //       }
-  //     }
-
-  //     let startIndex = 0;
-
-  //     for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-  //       finalString[step] =
-  //         finalString[step] +
-  //         finalString[step - 1].substring(
-  //           startIndex,
-  //           eval('slideIndex' + step)[i]
-  //         ) +
-  //         eval('keywordTrans' + step)[eval('keywordIndex' + step)[i]];
-  //       startIndex =
-  //         eval('slideIndex' + step)[i] +
-  //         eval('keyword' + step)[eval('keywordIndex' + step)[i]].length;
-  //     }
-
-  //     finalString[step] =
-  //       finalString[step] +
-  //       finalString[step - 1].substring(startIndex, finalString[step - 1].length);
-  //   }
-  //   finalString[4] = finalString[4].substring(0, finalString[4].length - 1);
-  //   console.log(finalString[4]);
-
-  //   stepTrans(finalString[4]);
+  return finalString;
 }
 async function transFunction(stringTrans) {
   let stringAfterTrans = await modules.translate(stringTrans, {
@@ -392,4 +327,4 @@ async function stepTrans(stringTrans) {
 
   console.log(final);
 }
-module.exports = translateNBA;
+module.exports = { translateNBA };
