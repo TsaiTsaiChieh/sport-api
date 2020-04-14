@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const db = require('../../util/db');
+const db = require('../../util/dbUtil');
 const data_team_NBA = require('../../json/teams/NBA.json');
 const data_league = require('../../json/matches/league.json');
 const data_spread_NBA = require('../../json/spread/NBA.json');

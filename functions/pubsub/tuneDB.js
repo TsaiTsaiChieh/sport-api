@@ -88,7 +88,7 @@ function spreadCalculator(handicapObj, id) {
     handicapObj.handicap < 0
     // handicapObj.home_odd === handicapObj.away_odd
   ) {
-    handicapObj.away_tw = `${Math.abs(Math.ceil(handicapObj.handicap))} 輸`;
+    handicapObj.away_tw = `${Math.abs(Math.ceil(handicapObj.handicap))}輸`;
     // handicapObj.away_tw = `${Math.ceil(Math.abs(handicapObj.handicap))}贏`;
   } else if (
     handicapObj.handicap % 1 !== 0 &&
