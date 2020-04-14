@@ -21,10 +21,15 @@ function getMatchesWithDate(args) {
   return new Promise(async function (resolve, reject) {
     const flag_prematch = 1;
     const { league } = args;
-    const begin = modules.moment(args.date).utcOffset(modules.UTF).unix();
+    const begin = modules.moment(args.date).utcOffset(modules.UTF0).unix();
     const end =
-      modules.moment(args.date).utcOffset(modules.UTF).add(1, 'days').unix() -
+      modules.moment(args.date).utcOffset(modules.UTF0).add(1, 'days').unix() -
       1;
+    console.log('--------');
+    console.log(begin, end);
+
+    console.log('--------');
+
     db.sequelize.League;
     db.sequelize.models.match__league;
     try {
