@@ -1,7 +1,7 @@
 /* eslint-disable */
 const modules = require('./util/modules');
 const { Sequelize, Model, DataTypes } = require('sequelize');
-const db_name = 'sports';
+const db_name = 'dosport';
 const db_user = 'root';
 const db_password = 'dosportsSQL';
 const instance = 'sportslottery-test:us-central1:do-sports';
