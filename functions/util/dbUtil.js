@@ -12,6 +12,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   timestamps: true,
   dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
+  logging: false, // disable logging; default: console.log
   timezone: mysql.setting.timezone //for writing to database
 });
 
@@ -25,7 +26,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
 /*
  * 各聯盟資訊，ex: NBA, MLB and so on
  */
-sequelize.define(
+const League = sequelize.define(
   'match__league',
   {
     id: {
@@ -114,7 +115,7 @@ const Spread = sequelize.define(
 /*
  * 各大小分資訊，unique key 為賽事 ID + 盤口 ID
  */
-sequelize.define(
+const Totals = sequelize.define(
   'match__total',
   {
     id: {
@@ -162,7 +163,7 @@ sequelize.define(
 /*
  * NBA 各隊伍資訊，unique key 為 team_id
  */
-sequelize.define(
+const NBA_TEAM = sequelize.define(
   'match__team__NBA',
   {
     id: {
@@ -206,7 +207,7 @@ sequelize.define(
 /*
  * NBA 各賽事資訊，unique key 為 bets_id
  */
-const match_NBA = sequelize.define(
+const NBA_MATCH = sequelize.define(
   'match__NBA',
   {
     id: {
@@ -258,7 +259,12 @@ const match_NBA = sequelize.define(
 
 const dbUtil = {
   sequelize,
-  Sequelize
+  Sequelize,
+  League,
+  Spread,
+  Totals,
+  NBA_TEAM,
+  NBA_MATCH
 };
 
 module.exports = dbUtil;
