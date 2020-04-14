@@ -14,18 +14,19 @@ const https = require('https');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
-const UTF = 8;
+const UTF0 = 0;
+const UTF8 = 8;
 
-function initFirebase(){
+function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
-    console.log("initializing firebase database");
+    console.log('initializing firebase database');
     firebaseAdmin.initializeApp({
       credential: firebaseAdmin.credential.cert(envValues.cert),
       databaseURL: envValues.firebaseConfig.databaseURL,
       storageBucket: envValues.firebaseConfig.storageBucket
     });
-  }else{
-    console.log("firebase is already initialized");
+  } else {
+    console.log('firebase is already initialized');
   }
 }
 
@@ -193,5 +194,6 @@ module.exports = {
   userStatusCodebook,
   translate,
   simple2Tradition,
-  UTF
+  UTF0,
+  UTF8
 };
