@@ -15,7 +15,7 @@ async function postCollect(req, res) {
     req.body.sport = 'soccer';
   }
   const schema = {
-    required: ['sport', 'league', 'UID', 'eventID'],
+    required: ['sport', 'league', 'UID', 'eventID', 'time'],
     properties: {
       sport: {
         type: 'string',
@@ -29,6 +29,9 @@ async function postCollect(req, res) {
         type: 'string',
       },
       eventID: {
+        type: 'string',
+      },
+      time: {
         type: 'string',
       },
     },

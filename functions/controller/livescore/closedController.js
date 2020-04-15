@@ -2,10 +2,6 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreClosedModel');
 
 async function livescore(req, res) {
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -17,17 +13,20 @@ async function livescore(req, res) {
   }
   //soccer
   const schema = {
-    required: ['league', 'sport'],
+    required: ['league', 'sport', 'time'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
-      }
-    }
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+      },
+      time: {
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);

@@ -2,10 +2,6 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreGetCollectModel');
 
 async function livescore(req, res) {
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -17,7 +13,7 @@ async function livescore(req, res) {
   }
   //soccer
   const schema = {
-    required: ['league', 'sport', 'UID'],
+    required: ['league', 'sport', 'UID', 'time'],
     properties: {
       league: {
         type: 'string',
@@ -28,6 +24,9 @@ async function livescore(req, res) {
         enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       UID: {
+        type: 'string',
+      },
+      time: {
         type: 'string',
       },
     },

@@ -6,44 +6,37 @@ async function livescore(req, res) {
     req.query.category = 'prematch';
   }
 
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
-    if (!req.query.eventID) {
-      req.query.eventID = '20200312';
-    }
   }
   if (req.query.league === 'MLB') {
     req.query.sport = 'baseball';
-    if (!req.query.eventID) {
-      req.query.eventID = '20200320';
-    }
   }
   if (req.query.league === 'NHL') {
     req.query.sport = 'icehockey';
   }
   //soccer
   const schema = {
-    required: ['league', 'sport', 'eventID', 'category'],
+    required: ['league', 'sport', 'eventID', 'category', 'time'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       eventID: {
-        type: 'string'
+        type: 'string',
       },
       category: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+      time: {
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);
