@@ -56,17 +56,16 @@ module.exports = deleteCollect;
  * @apiName livescore delete collect
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```baseball```
- * @apiParam {String} league league name, the value are: ```MLB```
+ * @apiParam {String} sport sport name, the value are: ```basketball```
+ * @apiParam {String} league league name, the value are: ```NBA```
  * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
- * @apiParam {String} eventID the event want to delete, the value are: ```20200321```
+ * @apiParam {String} eventID the event want to delete, the value are: ```2114519```
  * 
  * @apiParamExample {JSON} Request-Query
  {
-   'sport' : 'baseball'
-   'league' : 'MLB'
+   'league' : 'NBA'
    'UID' : 'DLRnd5igRmakC0VrLxz5Ph443Qj1'
-   'eventID' : '20200321'
+   'eventID' : '2114519'
  }
 
  * @apiSuccessExample {JSON} Success-Response

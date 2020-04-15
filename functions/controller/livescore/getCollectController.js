@@ -51,16 +51,15 @@ module.exports = livescore;
  * @apiName livescore list collect
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```baseball```
- * @apiParam {String} league league name, the value are: ```MLB```
+ * @apiParam {String} sport sport name, the value are: ```basketball```
+ * @apiParam {String} league league name, the value are: ```NBA```
  * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
- * 
+ * @apiParam {String} time, the time are: ```1593561600000``` 
  * @apiParamExample {JSON} Request-Query
  {
-   'sport' : 'baseball'
-   'league' : 'MLB'
+   'league' : 'NBA'
    'UID' : 'DLRnd5igRmakC0VrLxz5Ph443Qj1'
-   'eventID' : '20200320'
+   'time' : '1593561600000'
  }
 * @apiSuccess {Object} event_id id of collect event 
 * @apiSuccess {String} event_id.sport name of sport

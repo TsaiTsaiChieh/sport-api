@@ -47,17 +47,15 @@ module.exports = livescore;
  * @apiName livescore information scheduled
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value enum are: ```baseball```
- * @apiParam {String} league league name, the value enum are: ```MLB```
- * @apiParam {String} time timestamp, the value enum are: ```1585039500000```
+ * @apiParam {String} sport sport name, the value enum are: ```basketball```
+ * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} time timestamp, the value enum are: ```1593561600000```
  * @apiParam {String} category the category of event, the value enum are: ```all```
  * 
  * @apiParamExample {JSON} Request-Query
- {
-   "sport" : "baseball"
-   "league" : "MLB"
-   "time" : 1585039500000
-   "catrgory" : "all"
+ { 
+   "league" : "NBA"
+   "time" : 1593561600000
  }
  * @apiSuccess {String} bets_id match id in BetsAPI
  * @apiSuccess {String} radar_id match id in Sportradar

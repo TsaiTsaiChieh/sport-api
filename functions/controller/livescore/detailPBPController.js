@@ -54,15 +54,14 @@ module.exports = livescore;
  * @apiName livescore detail/pbp
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```baseball```
- * @apiParam {String} league league name, the value are: ```MLB```
- * @apiParam {String} eventID ID of event, the value are: ```20200320```
+ * @apiParam {String} sport sport name, the value are: ```basketball```
+ * @apiParam {String} league league name, the value are: ```NBA```
+ * @apiParam {String} eventID ID of event, the value are: ```2114519```
  * 
  * @apiParamExample {JSON} Request-Query
  {
-   'sport' : 'baseball'
-   'league' : 'MLB'
-   'eventID' : '20200320'
+   'league' : 'NBA'
+   'eventID' : '2114519'
  }
 * @apiSuccess {Object} flag status of event 
 * @apiSuccess {Number} flag.status 0:closed, 1:inprogress, 2:closed 
