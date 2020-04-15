@@ -79,7 +79,7 @@ function repackage(ele, rangstr) {
   // 大神要 顯示 預設稱號
   if ([1, 2, 3, 4].includes(ele.rank_id)){
     data['rank'] = ele.rank_id;
-    data['default_title'] = ele.default_title; // 目前 使用者資料表 只有一個預設 title 值
+    data['default_title'] = ele.default_title;
     data['continune'] = ele.continue; // 連贏Ｎ場
     data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
     data['predict_rate2'] = [ele.predict_rate1, ele.predict_rate3];  // 近N日過 N
