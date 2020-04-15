@@ -96,7 +96,7 @@ function repackage(league, ele) { // 實際資料輸出格式
     league_win_lists: {},
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.displayname
+    displayname: ele.display_name
   };
 
   // 大神聯盟戰績表
