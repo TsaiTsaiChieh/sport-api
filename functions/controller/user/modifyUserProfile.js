@@ -41,6 +41,18 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
+      const uniqueNameSnapshot = await modules.checkUnique('uniqueName', uid);
+      const uniqueEmailSnapshot = await modules.checkUnique('uniqueEmail', uid);
+      const uniquePhoneSnapshot = await modules.checkUnique('uniquePhone', uid);
+
+      if(uniqueNameSnapshot.isExist || uniqueEmailSnapshot.isExist || uniquePhoneSnapshot.isExist){
+        res.status(400).json({
+          success: false,
+          message: 'user name , email or phone exists'
+        });
+        return;
+      }
+      
       data.uid = uid;
       data.displayName = args.displayName; //only new user can set displayName, none changeable value
       data.name = args.name; //only new user can set name(Actual name), none changeable value
@@ -49,8 +61,9 @@ async function modifyUserProfile(req, res) {
       data.birthday = admin.firestore.Timestamp.fromDate(
         new Date(req.body.birthday)
       );
-      if (!args.avatar)
+      if (!args.avatar){
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
+      }
       data.status = 1;
       data.signature = '';
       data.blockMessage = nowTimeStamp;
@@ -136,7 +149,7 @@ async function modifyUserProfile(req, res) {
       resultJson.data = userResult;
       resultJson.success = true;
       console.log('Added document with ID: ', ref);
-      res.status(200).json(resultJson);
+      res.status(200).json({resultJson});
     })
     .catch(e => {
       console.log('Added document with error: ', e);

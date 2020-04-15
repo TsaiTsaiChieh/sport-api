@@ -169,7 +169,20 @@ function userStatusCodebook(role) {
       return 'NORMAL';
   }
 }
+/*檢查唯一性(uniqueName、uniqueEmail、uniquePhone)*/
+async function checkUnique(collection, uid) {
+  try {
+      if (!collection || !uid) return res.status(400).json({success: false});
+      const collections = ['uniqueName', 'uniqueEmail', 'uniquePhone'];
+      if (collections.indexOf(collection) < 0) return res.status(400).json({success: false});
+      return res.json(await userUtils.checkUniqueCollection(collection, uid));
+  } catch (e) {
+      console.log(e);
+      return res.status(500).json({success: false});
+  }
+}
 module.exports = {
+  checkUnique,
   redis,
   express,
   firebaseAdmin,
