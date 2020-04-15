@@ -32,7 +32,7 @@ function godlists(args) {
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
            and titles.period = ${period}
-      `, { type: db.sequelize.QueryTypes.SELECT}); // 還少 販售條件 等待 預頁單 table
+      `, { type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
@@ -42,25 +42,6 @@ function godlists(args) {
 
       // 鑽 金 銀 銅 分類
       rankGroup(godListsQuery, godLists);
-
-      // // god_recommend_聯盟 取出是 大神資料 且 有販售
-      // // 將來有排序條件，可以orderBy，但會和下面的order衝突
-      // const godListsQuery = await modules.firestore.collection(`god_recommend_${league}`)
-      //   .where('period', '==', periods.period)
-      //   .get();
-
-      // const sortedArr = godListsQuery.docs.map(function (doc) {  // 轉換成array
-      //   return doc.data()
-      // });
-
-      // // sortedArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-      // //   return a.order > b.order; // 升 小->大
-      // // });
-
-      // // 鑽 金 銀 銅 分類
-      // rankGroup(sortedArr, godLists);
-
-      // await Promise.all(godLists);
     } catch (err) {
       console.log('Error in  rank/godlists by YuHsien:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
