@@ -53,11 +53,15 @@
     "home_id": "54379",
     "away_id": "54759",
     "sr_id": "sr:match:19098362",
-    "scheduled": 1593561600,
+    "scheduled": 1593558000,
     "flag_prematch": 1,
-    "status": 1,
+    "status": 0,
     "spread_id": "31247649",
-    "totals_id": "34366105"
+    "totals_id": "34366105",
+    "spread_result": "away",
+    "totals_result": "under",
+    "home_points": 102,
+    "away_points": 104
   },
   {
     "bets_id": "2118059",
@@ -167,7 +171,7 @@
     "bets_id": "2120646",
     "radar_id": "4e76f1fb-4950-4092-aa56-baeaae322cab",
     "home_id": "58479",
-    "away_id": "54378",
+    "away_id": "54278",
     "sr_id": "sr:match:19098372",
     "scheduled": 1593561600,
     "flag_prematch": 1,
@@ -207,6 +211,10 @@
     "flag_prematch": 1,
     "status": 0,
     "spread_id": "31298870",
-    "totals_id": "34456082"
+    "totals_id": "34456082",
+    "spread_result": "fair",
+    "totals_result": "over",
+    "home_points": 131,
+    "away_points": 136
   }
 ]

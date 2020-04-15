@@ -3,13 +3,12 @@ const modules = require('../util/modules');
 const MLBpbp = require('./pbpMLB.js');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
-
 async function checkmatch_MLB() {
-  const firestoreName = 'pagetest_MLB';
+  const firestoreName = 'page_MLB';
 
   let data = await modules.firestore.collection(firestoreName).get();
   let totalData = [];
-  data.forEach(doc => {
+  data.forEach((doc) => {
     totalData.push(doc.data());
   });
 
@@ -19,9 +18,30 @@ async function checkmatch_MLB() {
     let gameID = totalData[i].radar_id;
     let gameTime = totalData[i].scheduled._seconds * 1000;
     let nowTime = Date.now();
-
-    //event status 0:history 1:now 2:future
     let eventStatus = totalData[i].flag.status;
+    if (eventStatus === 2) {
+      // 第一次 or 特殊情況處理
+      if (gameTime <= nowTime) {
+        let inningsNow = 0; // 0 ~ 10
+        let halfNow = 0; // 0 ~ 1
+        let eventHalfNow = 0; // 0 ~ x
+        let eventAtbatNow = 0; // 0 ~ x
+        let parameter = {
+          gameID: gameID,
+          betsID: betsID,
+          inningsNow: inningsNow,
+          halfNow: halfNow,
+          eventHalfNow: eventHalfNow,
+          eventAtbatNow: eventAtbatNow,
+        };
+        MLBpbpInplay(parameter);
+      } else {
+        ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
+        await ref.set('scheduled');
+      }
+    }
+    //event status 0:history 1:now 2:future
+
     if (eventStatus === 1) {
       let realtimeData;
       realtimeData = JSON.parse(
@@ -43,7 +63,7 @@ async function checkmatch_MLB() {
           inningsNow: inningsNow,
           halfNow: halfNow,
           eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
+          eventAtbatNow: eventAtbatNow,
         };
         MLBpbpInplay(parameter);
       }
@@ -51,7 +71,7 @@ async function checkmatch_MLB() {
         let parameter = {
           gameID: gameID,
           betsID: betsID,
-          scheduled: gameTime
+          scheduled: gameTime,
         };
         MLBpbpHistory(parameter);
       }
@@ -80,7 +100,7 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: 0,
-            eventAtbatNow: 0
+            eventAtbatNow: 0,
           };
           MLBpbpInplay(parameter);
         } else {
@@ -107,37 +127,14 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: eventHalfNow,
-            eventAtbatNow: eventAtbatNow
+            eventAtbatNow: eventAtbatNow,
           };
 
           MLBpbpInplay(parameter);
         }
       }
     }
-
-    if (eventStatus === 2) {
-      // 第一次 or 特殊情況處理
-      if (gameTime <= nowTime) {
-        let inningsNow = 0; // 0 ~ 10
-        let halfNow = 0; // 0 ~ 1
-        let eventHalfNow = 0; // 0 ~ x
-        let eventAtbatNow = 0; // 0 ~ x
-        let parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          inningsNow: inningsNow,
-          halfNow: halfNow,
-          eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
-        };
-        MLBpbpInplay(parameter);
-      } else {
-        ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
-        await ref.set('scheduled');
-      }
-    }
   }
-  //res.send("ok");
 }
 
 module.exports = checkmatch_MLB;

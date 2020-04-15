@@ -6,7 +6,7 @@ const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken } = envValues;
+const { sportRadarKeys, betsToken, zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -14,18 +14,31 @@ const https = require('https');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
-const UTF = 8;
+const UTF0 = 0;
+const UTF8 = 8;
 
-function initFirebase(){
+function convertTimezone(date, operation, zone = zone_tw) {
+  if (operation) {
+    if (operation.op === 'add')
+      return moment.tz(date, zone).add(operation.value, operation.unit).unix();
+    if (operation.op === 'subtract')
+      return moment
+        .tz(date, zone)
+        .subtract(operation.value, operation.unit)
+        .unix();
+  }
+  return moment.tz(date, zone).unix();
+}
+function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
-    console.log("initializing firebase database");
+    console.log('initializing firebase database');
     firebaseAdmin.initializeApp({
       credential: firebaseAdmin.credential.cert(envValues.cert),
       databaseURL: envValues.firebaseConfig.databaseURL,
       storageBucket: envValues.firebaseConfig.storageBucket
     });
-  }else{
-    console.log("firebase is already initialized");
+  } else {
+    console.log('firebase is already initialized');
   }
 }
 
@@ -193,5 +206,7 @@ module.exports = {
   userStatusCodebook,
   translate,
   simple2Tradition,
-  UTF
+  UTF0,
+  UTF8,
+  convertTimezone
 };

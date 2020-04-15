@@ -1,224 +1,97 @@
 const modules = require('../util/modules');
-
+let firestoreName = 'pagetest_MLB';
 async function inserttest() {
-  const sport = 'basketball';
-  const league = 'NBA';
-  const betsID = '20200312';
+  let data = await modules.firestore.collection(firestoreName).get();
+  let totalData = [];
+  data.forEach((doc) => {
+    totalData.push(doc.data());
+  });
 
-  let ref = modules.database.ref(
-    `${sport}/${league}/${betsID}/Summary/periods1/event0/clock`
-  );
-  await ref.set('11:20');
-
-  //   let ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/Now_periods`
-  //   );
-  //   await ref.set(1);
-  //   ref = modules.database.ref(`${sport}/${league}/${betsID}/Summary/Now_clock`);
-  //   await ref.set('10:50');
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/scores`
-  //   );
-  //   await ref.set(29);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/two_points_att`
-  //   );
-  //   await ref.set(86);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/two_points_made`
-  //   );
-  //   await ref.set(71);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/two_points_att`
-  //   );
-  //   await ref.set(80);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/two_points_made`
-  //   );
-  //   await ref.set(45);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/three_points_att`
-  //   );
-  //   await ref.set(33);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/three_points_made`
-  //   );
-  //   await ref.set(18);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/three_points_att`
-  //   );
-  //   await ref.set(22);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/three_points_made`
-  //   );
-  //   await ref.set(11);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/free_throws_att`
-  //   );
-  //   await ref.set(8);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/free_throws_made`
-  //   );
-  //   await ref.set(7);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/free_throws_att`
-  //   );
-  //   await ref.set(12);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/free_throws_made`
-  //   );
-  //   await ref.set(7);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/rebounds`
-  //   );
-  //   await ref.set(44);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/rebounds`
-  //   );
-  //   await ref.set(32);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/assists`
-  //   );
-  //   await ref.set(20);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/assists`
-  //   );
-  //   await ref.set(12);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/blocks`
-  //   );
-  //   await ref.set(7);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/blocks`
-  //   );
-  //   await ref.set(3);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/steals`
-  //   );
-  //   await ref.set(8);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/steals`
-  //   );
-  //   await ref.set(11);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/turnovers`
-  //   );
-  //   await ref.set(7);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/turnovers`
-  //   );
-  //   await ref.set(2);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/personal_fouls`
-  //   );
-  //   await ref.set(18);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/personal_fouls`
-  //   );
-  //   await ref.set(17);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/Total/points_in_paint`
-  //   );
-  //   await ref.set(36);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/points_in_paint`
-  //   );
-  //   await ref.set(29);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/Total/scores`
-  //   );
-  //   await ref.set(20);
-  //   ref = modules.database.ref(`${sport}/${league}/${betsID}/Summary/status`);
-  //   await ref.set('inprogress');
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/periods0/points`
-  //   );
-  //   await ref.set(22);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/home/periods1/points`
-  //   );
-  //   await ref.set(7);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/periods0/points`
-  //   );
-  //   await ref.set(18);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/away/periods1/points`
-  //   );
-  //   await ref.set(2);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event0/description`
-  //   );
-  //   await ref.set(`Trevor Ariza misses three point jump shot`);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event0/description_ch`
-  //   );
-  //   await ref.set(`特雷沃阿裏紮三分不中`);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event1/description`
-  //   );
-  //   await ref.set(
-  //     `Sekou Doumbouya makes two point jump shot (Svi Mykhailiuk assists)`
-  //   );
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event1/description_ch`
-  //   );
-  //   await ref.set(`杜姆布亞，塞古兩分球進`);
-
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event2/description`
-  //   );
-  //   await ref.set(
-  //     `Tony Snell makes three point jump shot (Svi Mykhailiuk assists)`
-  //   );
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods0/event2/description_ch`
-  //   );
-  //   await ref.set(`托尼斯內爾三分球進`);
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods1/event0/description`
-  //   );
-  //   await ref.set(`Pistons defensive rebound`);
-  //   ref = modules.database.ref(
-  //     `${sport}/${league}/${betsID}/Summary/periods1/event0/description_ch`
-  //   );
-  //   await ref.set(`底特律活塞籃板球`);
-
+  for (let i = 0; i < 4; i++) {
+    console.log(totalData[i].bets_id);
+    modules.firestore
+      .collection(firestoreName)
+      .doc(totalData[i].bets_id)
+      .set(
+        {
+          history: {
+            event0: {
+              away: 2,
+              home: 0,
+              scheduled: 1583890705000,
+              spread: { 34407289: { handicap: 1 } },
+              totals: { 34408065: { handicap: 5 } },
+            },
+            event1: {
+              away: 1,
+              home: 3,
+              scheduled: 1584890705000,
+              spread: { 34407289: { handicap: 2 } },
+              totals: { 34408065: { handicap: 6 } },
+            },
+            event2: {
+              away: 4,
+              home: 1,
+              scheduled: 1585890705000,
+              spread: { 34407289: { handicap: 4 } },
+              totals: { 34408065: { handicap: 7 } },
+            },
+            event3: {
+              away: 4,
+              home: 2,
+              scheduled: 1586890705000,
+              spread: { 34407289: { handicap: 1 } },
+              totals: { 34408065: { handicap: 4 } },
+            },
+            event4: {
+              away: 5,
+              home: 2,
+              scheduled: 1587890705000,
+              spread: { 34407289: { handicap: 7 } },
+              totals: { 34408065: { handicap: 12 } },
+            },
+          },
+          stat: {
+            away: {
+              avg: 0.342,
+              h: 2,
+              hr: 7,
+              obp: 8,
+              r: 1,
+              slg: 2,
+            },
+            home: { avg: 0.289, h: 1, hr: 6, obp: 9, r: 2, slg: 3 },
+          },
+          lineups: {
+            away: {
+              pitcher: {
+                era: 0.168,
+                first_name: 'Maxwell',
+                id: '2527770b-cf48-42b9-81fa-9323756fb311',
+                jersey_number: 31,
+                k: 19,
+                last_name: 'Scherzer',
+                win: 0,
+                loss: 1,
+              },
+            },
+            home: {
+              pitcher: {
+                era: 0.153,
+                first_name: 'Zachary',
+                id: 'dc22b8c1-fc07-4f68-ae4c-254e9dcc74c1',
+                jersey_number: 56,
+                k: 11,
+                last_name: 'Eflin',
+                win: 3,
+                loss: 1,
+              },
+            },
+          },
+        },
+        { merge: true }
+      );
+  }
   console.log('ok');
 }
 inserttest();

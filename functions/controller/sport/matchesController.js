@@ -13,7 +13,7 @@ async function getMatches(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB']
+        enum: ['NBA']
       }
     }
   };
@@ -26,23 +26,30 @@ async function getMatches(req, res) {
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    console.error('Error in sport/matches API by TsaiChieh', err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      );
   }
 }
 module.exports = getMatches;
 /**
- * @api {GET} /sport/prematch?date=2020-02-28&league=NBA Get Prematch
- * @apiVersion 1.0.0
- * @apiDescription [Test version] Get prematch information included home & away team name, lineups and match scheduled time by TsaiChieh
- * @apiName prematch information
+ * @api {GET} /sport/match?league=NBA&date=2020-07-01 Get matches
+ * @apiVersion 2.0.0
+ * @apiDescription Get each match information included home & away team name and match scheduled time by TsaiChieh
+ * @apiName match information
  * @apiGroup Sport
  *
- * @apiParam {String} prematch date, ex: ```2020-04-01```
+ * @apiParam {String} prematch date, ex: ```2020-07-01```
  * @apiParam {String} league league name, the value enum are: ```NBA```
  *
  * @apiParamExample {JSON} Request-Query
  * {
- *    "date": '2020-04-01',
+ *    "date": '2020-07-01',
  *    "league": 'NBA'
  * }
  * @apiSuccess {String} id match id
@@ -55,190 +62,324 @@ module.exports = getMatches;
  * @apiSuccess {String} home.alias_ch team abbreviation Chinese name
  * @apiSuccess {String} home.image_id return image id, the URL is: https://assets.b365api.com/images/team/{image_size: s, m, b}/{image_id}.png, ex: ```https://assets.b365api.com/images/team/b/3414.png```
  * @apiSuccess {String} home.id team id
+ * @apiSuccess {String} [home.points] home points
  * @apiSuccess {Object} away away team information like home Object field, description omitted here
  * @apiSuccess {Object} handicap handicap information included the newest spread & totals
  * @apiSuccess {Object} handicap.spread the newest spread information (which will change based on the request time)
- * @apiSuccess {String}} handicap.spread.id handicap id
+ * @apiSuccess {String} handicap.spread.id handicap id
  * @apiSuccess {Number} handicap.spread.handicap handicap
  * @apiSuccess {String} handicap.spread.handicap_tw handicap format in Taiwan
- * @apiSuccess {Number} handicap.spread.add_time handicap add time which betsAPI returned
- * @apiSuccess {Number} handicap.spread.insert_time the time of the data inserted into firestore [debug used] 
+ * @apiSuccess {String} [handicap.spread.result] handicap result
  * @apiSuccess {Object} handicap.totals the newest totals information like handicap.spread field, description omitted here
  * 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
- * [
-    {
-        "id": "2119439",
-        "scheduled": 1593559800,
-        "league": "NBA",
-        "status": 0,
-        "home": {
-            "alias": "POR",
-            "name": "Portland Trail Blazers",
-            "alias_ch": "拓荒者",
-            "image_id": "3414",
-            "id": "583ed056-fb46-11e1-82cb-f4ce4684ea4c"
+ * {
+    "scheduled": [
+        {
+            "id": "2118809",
+            "scheduled": 1593574200,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "MEM",
+                "alias_tw": "灰熊",
+                "image_id": "3415"
+            },
+            "away": {
+                "alias": "ORL",
+                "alias_ch": "魔術",
+                "image_id": "3437"
+            },
+            "spread": {
+                "id": "31236860",
+                "handicap": 2,
+                "home_tw": "2平",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34364723",
+                "handicap": 218,
+                "over_tw": "218",
+                "disable": false
+            }
         },
-        "away": {
-            "alias": "PHX",
-            "name": "Phoenix Suns",
-            "alias_ch": "太陽",
-            "image_id": "3416",
-            "id": "583ecfa8-fb46-11e1-82cb-f4ce4684ea4c"
+        {
+            "id": "2118810",
+            "scheduled": 1593572400,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "SAC",
+                "alias_tw": "國王",
+                "image_id": "3413"
+            },
+            "away": {
+                "alias": "NOP",
+                "alias_ch": "鵜鶘",
+                "image_id": "5539"
+            },
+            "spread": {
+                "id": "31235573",
+                "handicap": -1.5,
+                "home_tw": null,
+                "away_tw": "1輸",
+                "disable": false
+            },
+            "totals": {
+                "id": "34458529",
+                "handicap": 232,
+                "over_tw": "232",
+                "disable": false
+            }
         },
-        "spread": {
-            "id": "31216615",
-            "handicap": 4.5,
-            "add_time": 1583831300,
-            "home_tw": "4輸",
-            "disable": true
+        {
+            "id": "2118816",
+            "scheduled": 1593568800,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "CHI",
+                "alias_tw": "公牛",
+                "image_id": "3409"
+            },
+            "away": {
+                "alias": "CLE",
+                "alias_ch": "騎士",
+                "image_id": "3432"
+            },
+            "spread": {
+                "id": "31238069",
+                "handicap": 4,
+                "home_tw": "4平",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34346860",
+                "handicap": 217.5,
+                "over_tw": "217.5",
+                "disable": false
+            }
         },
-        "totals": {
-            "id": "34334734",
-            "handicap": 233,
-            "add_time": 1583849975,
-            "away_tw": "大233",
-            "disable": true
+        {
+            "id": "2119439",
+            "scheduled": 1593568800,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "POR",
+                "alias_tw": "拓荒者",
+                "image_id": "3414"
+            },
+            "away": {
+                "alias": "PHX",
+                "alias_ch": "太陽",
+                "image_id": "3416"
+            },
+            "spread": {
+                "id": "31249410",
+                "handicap": 5.5,
+                "home_tw": "5輸",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34384039",
+                "handicap": 234,
+                "over_tw": "234",
+                "disable": false
+            }
+        },
+        {
+            "id": "2118817",
+            "scheduled": 1593567000,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "SAS",
+                "alias_tw": "馬刺",
+                "image_id": "3429"
+            },
+            "away": {
+                "alias": "DAL",
+                "alias_ch": "獨行俠",
+                "image_id": "3411"
+            },
+            "spread": {
+                "id": "31237643",
+                "handicap": -4,
+                "home_tw": "+4 -50",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34364794",
+                "handicap": 230.5,
+                "over_tw": "230.5",
+                "disable": false
+            }
+        },
+        {
+            "id": "2119917",
+            "scheduled": 1593565200,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "LAL",
+                "alias_tw": "湖人",
+                "image_id": "3427"
+            },
+            "away": {
+                "alias": "HOU",
+                "alias_ch": "火箭",
+                "image_id": "3412"
+            },
+            "spread": {
+                "id": "31296152",
+                "handicap": 6.5,
+                "home_tw": "6輸",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34452129",
+                "handicap": 231.5,
+                "over_tw": "231.5",
+                "disable": false
+            }
+        },
+        {
+            "id": "2120643",
+            "scheduled": 1593563400,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "OKC",
+                "alias_tw": "雷霆",
+                "image_id": "3418"
+            },
+            "away": {
+                "alias": "UTA",
+                "alias_ch": "爵士",
+                "image_id": "3434"
+            },
+            "spread": {
+                "id": "31298793",
+                "handicap": 3.5,
+                "home_tw": "3輸",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34456538",
+                "handicap": 218.5,
+                "over_tw": "218.5",
+                "disable": false
+            }
         }
-    },
-    {
-        "id": "2000000",
-        "scheduled": 1593561600,
-        "league": "NBA",
-        "status": 1,
-        "home": {
-            "alias": "PHI",
-            "name": "Philadelphia 76ers",
-            "alias_ch": "76人",
-            "image_id": "3420",
-            "id": "583ec87d-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "away": {
-            "alias": "DET",
-            "name": "Detroit Pistons",
-            "alias_ch": "活塞",
-            "image_id": "3424",
-            "id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "spread": {
-            "id": "spread_4",
-            "handicap": 7,
-            "add_time": 1583912049,
-            "away_tw": "+7 +50",
-            "disable": true
-        },
-        "totals": {
-            "id": "totals_2",
-            "handicap": 113,
-            "add_time": 1583933203,
-            "away_tw": "大113",
-            "disable": true
+    ],
+    "inplay": [
+        {
+            "id": "2120647",
+            "scheduled": 1593559800,
+            "status": 1,
+            "league": "NBA",
+            "home": {
+                "alias": "ORL",
+                "alias_tw": "魔術",
+                "image_id": "3437"
+            },
+            "away": {
+                "alias": "CHI",
+                "alias_ch": "公牛",
+                "image_id": "3409"
+            },
+            "spread": {
+                "id": "31296159",
+                "handicap": 7.5,
+                "home_tw": "7輸",
+                "away_tw": null,
+                "disable": true
+            },
+            "totals": {
+                "id": "34452138",
+                "handicap": 217.5,
+                "over_tw": "217.5",
+                "disable": true
+            }
         }
-    },
-    {
-        "id": "2114519",
-        "scheduled": 1593563400,
-        "league": "NBA",
-        "status": 2,
-        "home": {
-            "alias": "PHI",
-            "name": "Philadelphia 76ers",
-            "alias_ch": "76人",
-            "image_id": "3420",
-            "id": "583ec87d-fb46-11e1-82cb-f4ce4684ea4c"
+    ],
+    "end": [
+        {
+            "id": "2118058",
+            "scheduled": 1593558000,
+            "status": 0,
+            "league": "NBA",
+            "home": {
+                "alias": "LAL",
+                "alias_tw": "湖人",
+                "image_id": "3427",
+                "points": 102
+            },
+            "away": {
+                "alias": "BKN",
+                "alias_ch": "籃網",
+                "image_id": "3436",
+                "points": 104
+            },
+            "spread": {
+                "id": "31247649",
+                "handicap": 12,
+                "home_tw": "12平",
+                "away_tw": null,
+                "disable": true,
+                "result": "away"
+            },
+            "totals": {
+                "id": "34366105",
+                "handicap": 225.5,
+                "over_tw": "225.5",
+                "disable": true,
+                "result": "under"
+            }
         },
-        "away": {
-            "alias": "DET",
-            "name": "Detroit Pistons",
-            "alias_ch": "活塞",
-            "image_id": "3424",
-            "id": "583ec928-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "spread": {
-            "id": "31267231",
-            "handicap": 11.5,
-            "add_time": 1583926710,
-            "home_tw": "11輸",
-            "disable": true
-        },
-        "totals": {
-            "id": "34409340",
-            "handicap": 214.5,
-            "add_time": 1583934276,
-            "away_tw": "大214.5",
-            "disable": true
+        {
+            "id": "2121183",
+            "scheduled": 1593558000,
+            "status": 0,
+            "league": "NBA",
+            "home": {
+                "alias": "DEN",
+                "alias_tw": "老鷹",
+                "image_id": "3417",
+                "points": 131
+            },
+            "away": {
+                "alias": "NYK",
+                "alias_ch": "尼克",
+                "image_id": "3421",
+                "points": 136
+            },
+            "spread": {
+                "id": "31298870",
+                "handicap": 5,
+                "home_tw": "5平",
+                "away_tw": null,
+                "disable": true,
+                "result": "home"
+            },
+            "totals": {
+                "id": "34456082",
+                "handicap": 232.5,
+                "over_tw": "232.5",
+                "disable": true,
+                "result": "over"
+            }
         }
-    },
-    {
-        "id": "2115973",
-        "scheduled": 1593565200,
-        "league": "NBA",
-        "status": 2,
-        "home": {
-            "alias": "MIA",
-            "name": "Miami Heat",
-            "alias_ch": "熱火",
-            "image_id": "3435",
-            "id": "583ecea6-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "away": {
-            "alias": "CHA",
-            "name": "Charlotte Hornets",
-            "alias_ch": "黃蜂",
-            "image_id": "3430",
-            "id": "583ec97e-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "spread": {
-            "id": "31268919",
-            "handicap": 10.5,
-            "add_time": 1583934483,
-            "home_tw": "10輸",
-            "disable": true
-        },
-        "totals": {
-            "id": "34417671",
-            "handicap": 210.5,
-            "add_time": 1583945384,
-            "away_tw": "大210.5",
-            "disable": true
-        }
-    },
-    {
-        "id": "2117403",
-        "scheduled": 1593568800,
-        "league": "NBA",
-        "status": 2,
-        "home": {
-            "alias": "HOU",
-            "name": "Houston Rockets",
-            "alias_ch": "火箭",
-            "image_id": "3412",
-            "id": "583ecb3a-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "away": {
-            "alias": "MIN",
-            "name": "Minnesota Timberwolves",
-            "alias_ch": "灰狼",
-            "image_id": "3426",
-            "id": "583eca2f-fb46-11e1-82cb-f4ce4684ea4c"
-        },
-        "spread": {
-            "id": "31194971",
-            "handicap": 12.5,
-            "add_time": 1583788130,
-            "home_tw": "12輸",
-            "disable": true
-        },
-        "totals": {
-            "id": "34333969",
-            "handicap": 245,
-            "add_time": 1583846112,
-            "away_tw": "大245",
-            "disable": true
-        }
-    }
-]
+    ]
+}
  * @apiError 400 Bad Request
  * @apiError 500 Internal Server Error
  *
