@@ -38,14 +38,25 @@ async function createTopic(args) {
 
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {
-        allowedTags: [ 'br','b', 'i', 'u', 'a', 'img' ],
+        allowedTags: [ 'br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li' ],
         allowedAttributes: {
+          'div': [ 'style' ],
+          'span': [ 'style' ],
+          'strike': [ 'style' ],
+          'b': [ 'style' ],
           'a': [ 'href' ],
-          'img': [ 'src' ]
+          'img': [ 'src' ],
+          'font': [ 'size', 'color' ]
         },
-        selfClosing: [ 'img', 'br' ],
         allowedSchemes: [ 'http', 'https' ],
-        allowedSchemesAppliedToAttributes: [ 'href', 'src' ]
+        allowedSchemesAppliedToAttributes: [ 'href', 'src', 'style' ],
+        allowedStyles: {
+          '*': {
+            'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+            'text-align': [/^left$/, /^right$/, /^center$/],
+            'font-size': [/^\d+(?:px|em|%)$/]
+          }
+        }
       });
       
       const article = await dbCreate(insertData)

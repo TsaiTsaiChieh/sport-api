@@ -44,7 +44,7 @@ sequelize.define(
       allowNull: false
     },
     content: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: false
     },
     status: { //預設1為正常 其他可能-1為刪除之類的 待討論
