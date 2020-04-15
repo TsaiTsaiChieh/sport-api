@@ -62,14 +62,14 @@ module.exports = getMatches;
  * @apiSuccess {String} home.alias_ch team abbreviation Chinese name
  * @apiSuccess {String} home.image_id return image id, the URL is: https://assets.b365api.com/images/team/{image_size: s, m, b}/{image_id}.png, ex: ```https://assets.b365api.com/images/team/b/3414.png```
  * @apiSuccess {String} home.id team id
+ * @apiSuccess {String} [home.points] home points
  * @apiSuccess {Object} away away team information like home Object field, description omitted here
  * @apiSuccess {Object} handicap handicap information included the newest spread & totals
  * @apiSuccess {Object} handicap.spread the newest spread information (which will change based on the request time)
- * @apiSuccess {String}} handicap.spread.id handicap id
+ * @apiSuccess {String} handicap.spread.id handicap id
  * @apiSuccess {Number} handicap.spread.handicap handicap
  * @apiSuccess {String} handicap.spread.handicap_tw handicap format in Taiwan
- * @apiSuccess {Number} handicap.spread.add_time handicap add time which betsAPI returned
- * @apiSuccess {Number} handicap.spread.insert_time the time of the data inserted into firestore [debug used] 
+ * @apiSuccess {String} [handicap.spread.result] handicap result
  * @apiSuccess {Object} handicap.totals the newest totals information like handicap.spread field, description omitted here
  * 
  * @apiSuccessExample {JSON} Success-Response
@@ -164,35 +164,6 @@ module.exports = getMatches;
             }
         },
         {
-            "id": "2119917",
-            "scheduled": 1593565200,
-            "status": 2,
-            "league": "NBA",
-            "home": {
-                "alias": "LAL",
-                "alias_tw": "湖人",
-                "image_id": "3427"
-            },
-            "away": {
-                "alias": "HOU",
-                "alias_ch": "火箭",
-                "image_id": "3412"
-            },
-            "spread": {
-                "id": "31296152",
-                "handicap": 6.5,
-                "home_tw": "6輸",
-                "away_tw": null,
-                "disable": false
-            },
-            "totals": {
-                "id": "34452129",
-                "handicap": 231.5,
-                "over_tw": "231.5",
-                "disable": false
-            }
-        },
-        {
             "id": "2119439",
             "scheduled": 1593568800,
             "status": 2,
@@ -251,6 +222,35 @@ module.exports = getMatches;
             }
         },
         {
+            "id": "2119917",
+            "scheduled": 1593565200,
+            "status": 2,
+            "league": "NBA",
+            "home": {
+                "alias": "LAL",
+                "alias_tw": "湖人",
+                "image_id": "3427"
+            },
+            "away": {
+                "alias": "HOU",
+                "alias_ch": "火箭",
+                "image_id": "3412"
+            },
+            "spread": {
+                "id": "31296152",
+                "handicap": 6.5,
+                "home_tw": "6輸",
+                "away_tw": null,
+                "disable": false
+            },
+            "totals": {
+                "id": "34452129",
+                "handicap": 231.5,
+                "over_tw": "231.5",
+                "disable": false
+            }
+        },
+        {
             "id": "2120643",
             "scheduled": 1593563400,
             "status": 2,
@@ -281,64 +281,6 @@ module.exports = getMatches;
         }
     ],
     "inplay": [
-        {
-            "id": "2118058",
-            "scheduled": 1593561600,
-            "status": 1,
-            "league": "NBA",
-            "home": {
-                "alias": "LAL",
-                "alias_tw": "湖人",
-                "image_id": "3427"
-            },
-            "away": {
-                "alias": "BKN",
-                "alias_ch": "籃網",
-                "image_id": "3436"
-            },
-            "spread": {
-                "id": "31247649",
-                "handicap": 12,
-                "home_tw": "12平",
-                "away_tw": null,
-                "disable": true
-            },
-            "totals": {
-                "id": "34366105",
-                "handicap": 225.5,
-                "over_tw": "225.5",
-                "disable": true
-            }
-        },
-        {
-            "id": "2120646",
-            "scheduled": 1593561600,
-            "status": 1,
-            "league": "NBA",
-            "home": {
-                "alias": "DAL",
-                "alias_tw": "獨行俠",
-                "image_id": "3411"
-            },
-            "away": {
-                "alias": "DEN",
-                "alias_ch": "老鷹",
-                "image_id": "3417"
-            },
-            "spread": {
-                "id": "31298686",
-                "handicap": -3,
-                "home_tw": null,
-                "away_tw": "3平",
-                "disable": true
-            },
-            "totals": {
-                "id": "34449967",
-                "handicap": 220.5,
-                "over_tw": "220.5",
-                "disable": true
-            }
-        },
         {
             "id": "2120647",
             "scheduled": 1593559800,
@@ -371,6 +313,39 @@ module.exports = getMatches;
     ],
     "end": [
         {
+            "id": "2118058",
+            "scheduled": 1593558000,
+            "status": 0,
+            "league": "NBA",
+            "home": {
+                "alias": "LAL",
+                "alias_tw": "湖人",
+                "image_id": "3427",
+                "points": 102
+            },
+            "away": {
+                "alias": "BKN",
+                "alias_ch": "籃網",
+                "image_id": "3436",
+                "points": 104
+            },
+            "spread": {
+                "id": "31247649",
+                "handicap": 12,
+                "home_tw": "12平",
+                "away_tw": null,
+                "disable": true,
+                "result": "away"
+            },
+            "totals": {
+                "id": "34366105",
+                "handicap": 225.5,
+                "over_tw": "225.5",
+                "disable": true,
+                "result": "under"
+            }
+        },
+        {
             "id": "2121183",
             "scheduled": 1593558000,
             "status": 0,
@@ -378,25 +353,29 @@ module.exports = getMatches;
             "home": {
                 "alias": "DEN",
                 "alias_tw": "老鷹",
-                "image_id": "3417"
+                "image_id": "3417",
+                "points": 131
             },
             "away": {
                 "alias": "NYK",
                 "alias_ch": "尼克",
-                "image_id": "3421"
+                "image_id": "3421",
+                "points": 136
             },
             "spread": {
                 "id": "31298870",
                 "handicap": 5,
                 "home_tw": "5平",
                 "away_tw": null,
-                "disable": true
+                "disable": true,
+                "result": "home"
             },
             "totals": {
                 "id": "34456082",
                 "handicap": 232.5,
                 "over_tw": "232.5",
-                "disable": true
+                "disable": true,
+                "result": "over"
             }
         }
     ]
