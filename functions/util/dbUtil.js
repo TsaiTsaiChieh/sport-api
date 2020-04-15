@@ -157,6 +157,11 @@ const Title = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false
     },
+    default_title: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
     win_bets: { // 勝注
       type: Sequelize.INTEGER
     },
