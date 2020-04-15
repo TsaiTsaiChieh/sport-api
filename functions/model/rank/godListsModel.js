@@ -14,7 +14,8 @@ function godlists(args) {
       // 依 聯盟 取出是 大神資料 且 有販售
       // 將來有排序條件，可以orderBy，但會和下面的order衝突
       const godListsQuery = await db.sequelize.query(`
-        select titles.uid, users.avatar, users.display_name, titles.rank_id, titles.win_bets, titles.win_rate,
+        select titles.uid, users.avatar, users.display_name, titles.rank_id, titles.default_title,
+               titles.win_bets, titles.win_rate,
                titles.continune, 
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
@@ -106,6 +107,7 @@ function repackage_winBets(ele) { // 實際資料輸出格式
     avatar: ele.avatar,
     displayname: ele.display_name,
     rank: ele.rank_id,
+    default_title: ele.default_title,
     win_bets: ele.win_bets,
     sell: ele.sell,
     continune: ele.continue, // 連贏Ｎ場
@@ -125,6 +127,7 @@ function repackage_winRate(ele) { // 實際資料輸出格式
     avatar: ele.avatar,
     displayname: ele.display_name,
     rank: ele.rank,
+    default_title: ele.default_title,
     win_rate: ele.win_rate,
     sell: ele.sell,
     continune: ele.continue, // 連贏Ｎ場
