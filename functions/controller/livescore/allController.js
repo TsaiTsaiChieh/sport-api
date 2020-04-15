@@ -11,7 +11,9 @@ async function livescore(req, res) {
   if (req.query.league === 'NHL') {
     req.query.sport = 'icehockey';
   }
-
+  if (req.query.league === 'soccer') {
+    req.query.sport = 'soccer';
+  }
   //soccer
   const schema = {
     required: ['league', 'sport', 'time'],

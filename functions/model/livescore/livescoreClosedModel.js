@@ -37,7 +37,7 @@ async function repackage(sport, league, time) {
 
   let scheduled;
   let closedEvent = [];
-
+  console.log(dateNow);
   for (let i = 0; i < eventData.length; i++) {
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000

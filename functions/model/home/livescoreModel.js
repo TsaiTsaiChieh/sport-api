@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       result = await reResult(args.sport, args.league, args.time);
 
@@ -26,12 +26,12 @@ async function repackage(sport, league, time) {
     .get();
 
   let eventData = [];
-  query.forEach(doc => {
+  query.forEach((doc) => {
     eventData.push(doc.data());
   });
 
   let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
+    timeZone: 'Asia/Taipei',
   });
   dateNow = dateNow.split(' ')[0];
 
@@ -41,6 +41,7 @@ async function repackage(sport, league, time) {
   let inprogressEvent = [];
   let scheduledEvent = [];
   let outputJson = [];
+  console.log(eventData.length);
 
   for (let i = 0; i < eventData.length; i++) {
     eventData[i].sport = sport;
@@ -50,22 +51,58 @@ async function repackage(sport, league, time) {
     ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
     scheduled = scheduled.split(' ')[0];
 
-    if (scheduled === dateNow) {
-      eventToday.push(eventData[i]);
-    }
+    // if (scheduled === dateNow) {
+    //   eventToday.push(eventData[i]);
+    // }
     // 0 目前當天有幾場比賽已結束
     if (scheduled === dateNow && eventData[i].flag.status == 0) {
-      closedEvent.push(eventData[i]);
+      closedEvent.push({
+        bets_id: eventData[i].bets_id,
+        newest_spread: eventData[i].newest_spread.handicap,
+        home_tw: eventData[i].newest_spread.home_tw,
+        home: {
+          alias_ch: eventData[i].home.alias_ch,
+          image_id: eventData[i].home.image_id,
+        },
+        away: {
+          alias_ch: eventData[i].away.alias_ch,
+          image_id: eventData[i].away.image_id,
+        },
+      });
     }
 
     // 1 目前當天有幾場比賽進行中
     if (scheduled === dateNow && eventData[i].flag.status == 1) {
-      inprogressEvent.push(eventData[i]);
-      outputJson.push(eventData[i]);
+      // inprogressEvent.push(eventData[i]);
+      outputJson.push({
+        bets_id: eventData[i].bets_id,
+        newest_spread: eventData[i].newest_spread.handicap,
+        home_tw: eventData[i].newest_spread.home_tw,
+        home: {
+          alias_ch: eventData[i].home.alias_ch,
+          image_id: eventData[i].home.image_id,
+        },
+        away: {
+          alias_ch: eventData[i].away.alias_ch,
+          image_id: eventData[i].away.image_id,
+        },
+      });
     }
     // 2 目前當天有幾場比賽規劃中
     if (scheduled === dateNow && eventData[i].flag.status == 2) {
-      scheduledEvent.push(eventData[i]);
+      scheduledEvent.push({
+        bets_id: eventData[i].bets_id,
+        newest_spread: eventData[i].newest_spread.handicap,
+        home_tw: eventData[i].newest_spread.home_tw,
+        home: {
+          alias_ch: eventData[i].home.alias_ch,
+          image_id: eventData[i].home.image_id,
+        },
+        away: {
+          alias_ch: eventData[i].away.alias_ch,
+          image_id: eventData[i].away.image_id,
+        },
+      });
     }
   }
 
@@ -90,6 +127,7 @@ async function repackage(sport, league, time) {
       }
     }
   }
+
   return outputJson;
 }
 module.exports = livescore;
