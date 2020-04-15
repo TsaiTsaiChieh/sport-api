@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       let result;
 
@@ -8,7 +8,7 @@ async function livescore(args) {
         //reject
         result = 'reject';
       } else {
-        result = await reResult(args.sport, args.league, args.UID);
+        result = await reResult(args.sport, args.league, args.UID, args.time);
       }
 
       resolve(result);
@@ -19,22 +19,22 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league, UID) {
+async function reResult(sport, league, UID, time) {
   let result;
-  result = await repackage(sport, league, UID);
+  result = await repackage(sport, league, UID, time);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league, UID) {
+async function repackage(sport, league, UID, time) {
   let leagueName = `pagetest_${league}_member`;
+  let eventData = [];
 
   let query = await modules.firestore
     .collection(leagueName)
     .where(`profile.uid`, '==', UID)
     .get();
 
-  let eventData = [];
-  query.forEach(doc => {
+  query.forEach((doc) => {
     eventData.push(doc.data());
   });
 

@@ -2,10 +2,6 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreGetCollectModel');
 
 async function livescore(req, res) {
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -17,20 +13,23 @@ async function livescore(req, res) {
   }
   //soccer
   const schema = {
-    required: ['league', 'sport', 'UID'],
+    required: ['league', 'sport', 'UID', 'time'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       UID: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+      time: {
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -52,16 +51,15 @@ module.exports = livescore;
  * @apiName livescore list collect
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```baseball```
- * @apiParam {String} league league name, the value are: ```MLB```
+ * @apiParam {String} sport sport name, the value are: ```basketball```
+ * @apiParam {String} league league name, the value are: ```NBA```
  * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
- * 
+ * @apiParam {String} time, the time are: ```1593561600000``` 
  * @apiParamExample {JSON} Request-Query
  {
-   'sport' : 'baseball'
-   'league' : 'MLB'
+   'league' : 'NBA'
    'UID' : 'DLRnd5igRmakC0VrLxz5Ph443Qj1'
-   'eventID' : '20200320'
+   'time' : '1593561600000'
  }
 * @apiSuccess {Object} event_id id of collect event 
 * @apiSuccess {String} event_id.sport name of sport

@@ -446,6 +446,18 @@ const match_NBA = sequelize.define(
     },
     status: {
       type: Sequelize.INTEGER
+    },
+    home_points: {
+      type: Sequelize.INTEGER
+    },
+    away_points: {
+      type: Sequelize.INTEGER
+    },
+    spread_result: {
+      type: Sequelize.STRING
+    },
+    totals_result: {
+      type: Sequelize.STRING
     }
   },
   {
