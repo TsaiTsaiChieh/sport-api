@@ -64,10 +64,10 @@ function winBetsLists(args) {
                           ) users
                     where winlist.uid = users.uid
                   ) winlist 
-                  left join titles 
-                    on winlist.uid = titles.uid 
-                   and winlist.league_id = titles.league_id
-                   and titles.period = ${period}
+            left join titles 
+              on winlist.uid = titles.uid 
+             and winlist.league_id = titles.league_id
+             and titles.period = ${period}
         `, { limit: 30, type: db.sequelize.QueryTypes.SELECT });
 
         // const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
