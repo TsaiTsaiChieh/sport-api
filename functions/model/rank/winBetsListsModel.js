@@ -6,6 +6,7 @@ function winBetsLists(args) {
   return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
+    const period = modules.getTitlesPeriod(new Date()).period;
 
     let winBetsLists = {};
     winBetsLists[league] = []; // 像上面的範例
@@ -16,33 +17,57 @@ function winBetsLists(args) {
 
         // 依 聯盟 取出是 大神資料 且 有販售
         // 將來有排序條件，可以orderBy，但會和下面的order衝突
+
+        // select winlist.uid, users.avatar, users.display_name, 
+        //          winlist.last_month_win_bets, winlist.last_month_win_rate, 
+        //          winlist.last_week_win_bets, winlist.last_week_win_rate,
+        //          winlist.this_season_win_bets, winlist.this_season_win_rate,
+        //          winlist.this_period_win_bets, winlist.this_period_win_rate,
+        //          winlist.this_month_win_bets, winlist.this_month_win_rate,
+        //          winlist.this_week_win_bets, winlist.this_week_win_rate,
+                //  titles.rank_id, titles.default_title,
+                //  titles.continune,
+                //  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
+                //  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
+        //     from (
+
         const leagueWinBetsListsQuery = await db.sequelize.query(`
-          select winlist.uid, users.avatar, users.display_name, 
-                 winlist.last_month_win_bets, winlist.last_month_win_rate, 
-                 winlist.last_week_win_bets, winlist.last_week_win_rate,
-                 winlist.this_season_win_bets, winlist.this_season_win_rate,
-                 winlist.this_period_win_bets, winlist.this_period_win_rate,
-                 winlist.this_month_win_bets, winlist.this_month_win_rate,
-                 winlist.this_week_win_bets, winlist.this_week_win_rate,
+          select winlist.*,
                  titles.rank_id, titles.default_title,
-                 titles.continune, 
+                 titles.continune,
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-            from users__win__lists winlist,
-                 ( 
-                   select league_id 
-                     from match__leagues
-                    where name = '${league}' 
-                 ) leagues,
-                 (
-                   select * 
-                     from users
-                    where status in (1, 2)
-                 ) users
-                 left join titles on users.uid = titles.uid 
-           where winlist.league_id = leagues.league_id
-             and winlist.uid = users.uid
-           order by ${rangeCodebook(range)} desc
+            from (
+                   select winlist.*, users.avatar, users.display_name
+                     from (
+                            select uid, users__win__lists.league_id, 
+                                   last_month_win_bets, last_month_win_rate, 
+                                   last_week_win_bets, last_week_win_rate,
+                                   this_season_win_bets, this_season_win_rate,
+                                   this_period_win_bets, this_period_win_rate,
+                                   this_month_win_bets, this_month_win_rate,
+                                   this_week_win_bets, this_week_win_rate
+                              from users__win__lists,
+                                   ( 
+                                     select league_id 
+                                       from match__leagues
+                                      where name = '${league}' 
+                                   ) leagues
+                              where users__win__lists.league_id = leagues.league_id
+                              order by ${rangeCodebook(range)} desc
+                              limit 30
+                          ) winlist,
+                          (
+                            select * 
+                              from users
+                              where status in (1, 2)
+                          ) users
+                    where winlist.uid = users.uid
+                  ) winlist 
+                  left outer join titles 
+                    on winlist.uid = titles.uid 
+                   and winlist.league_id = titles.league_id
+                   and titles.period = ${period}
         `, { limit: 30, type: db.sequelize.QueryTypes.SELECT });
 
         // const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
@@ -68,7 +93,7 @@ function winBetsLists(args) {
 
 function repackage(ele, rangstr) {
   let data = {
-    win_bets: '',
+    //win_bets: ele.win_bets,
     uid: ele.uid,
     avatar: ele.avatar,
     displayname: ele.display_name,
