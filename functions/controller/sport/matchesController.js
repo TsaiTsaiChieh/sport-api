@@ -38,18 +38,18 @@ async function getMatches(req, res) {
 }
 module.exports = getMatches;
 /**
- * @api {GET} /sport/prematch?date=2020-02-28&league=NBA Get Prematch
- * @apiVersion 1.0.0
- * @apiDescription [Test version] Get prematch information included home & away team name, lineups and match scheduled time by TsaiChieh
- * @apiName prematch information
+ * @api {GET} /sport/match?league=NBA&date=2020-07-01 Get matches
+ * @apiVersion 2.0.0
+ * @apiDescription Get each match information included home & away team name and match scheduled time by TsaiChieh
+ * @apiName match information
  * @apiGroup Sport
  *
- * @apiParam {String} prematch date, ex: ```2020-04-01```
+ * @apiParam {String} prematch date, ex: ```2020-07-01```
  * @apiParam {String} league league name, the value enum are: ```NBA```
  *
  * @apiParamExample {JSON} Request-Query
  * {
- *    "date": '2020-04-01',
+ *    "date": '2020-07-01',
  *    "league": 'NBA'
  * }
  * @apiSuccess {String} id match id
@@ -82,13 +82,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "58056",
                 "alias": "MEM",
                 "alias_tw": "灰熊",
                 "image_id": "3415"
             },
             "away": {
-                "id": "56088",
                 "alias": "ORL",
                 "alias_ch": "魔術",
                 "image_id": "3437"
@@ -113,13 +111,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "55290",
                 "alias": "SAC",
                 "alias_tw": "國王",
                 "image_id": "3413"
             },
             "away": {
-                "id": "54878",
                 "alias": "NOP",
                 "alias_ch": "鵜鶘",
                 "image_id": "5539"
@@ -144,13 +140,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "52914",
                 "alias": "CHI",
                 "alias_tw": "公牛",
                 "image_id": "3409"
             },
             "away": {
-                "id": "55277",
                 "alias": "CLE",
                 "alias_ch": "騎士",
                 "image_id": "3432"
@@ -175,13 +169,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "54379",
                 "alias": "LAL",
                 "alias_tw": "湖人",
                 "image_id": "3427"
             },
             "away": {
-                "id": "52640",
                 "alias": "HOU",
                 "alias_ch": "火箭",
                 "image_id": "3412"
@@ -206,13 +198,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "55868",
                 "alias": "POR",
                 "alias_tw": "拓荒者",
                 "image_id": "3414"
             },
             "away": {
-                "id": "56107",
                 "alias": "PHX",
                 "alias_ch": "太陽",
                 "image_id": "3416"
@@ -237,13 +227,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "56087",
                 "alias": "SAS",
                 "alias_tw": "馬刺",
                 "image_id": "3429"
             },
             "away": {
-                "id": "58479",
                 "alias": "DAL",
                 "alias_ch": "獨行俠",
                 "image_id": "3411"
@@ -268,13 +256,11 @@ module.exports = getMatches;
             "status": 2,
             "league": "NBA",
             "home": {
-                "id": "52891",
                 "alias": "OKC",
                 "alias_tw": "雷霆",
                 "image_id": "3418"
             },
             "away": {
-                "id": "55289",
                 "alias": "UTA",
                 "alias_ch": "爵士",
                 "image_id": "3434"
@@ -301,13 +287,11 @@ module.exports = getMatches;
             "status": 1,
             "league": "NBA",
             "home": {
-                "id": "54379",
                 "alias": "LAL",
                 "alias_tw": "湖人",
                 "image_id": "3427"
             },
             "away": {
-                "id": "54759",
                 "alias": "BKN",
                 "alias_ch": "籃網",
                 "image_id": "3436"
@@ -317,13 +301,13 @@ module.exports = getMatches;
                 "handicap": 12,
                 "home_tw": "12平",
                 "away_tw": null,
-                "disable": false
+                "disable": true
             },
             "totals": {
                 "id": "34366105",
                 "handicap": 225.5,
                 "over_tw": "225.5",
-                "disable": false
+                "disable": true
             }
         },
         {
@@ -332,13 +316,11 @@ module.exports = getMatches;
             "status": 1,
             "league": "NBA",
             "home": {
-                "id": "58479",
                 "alias": "DAL",
                 "alias_tw": "獨行俠",
                 "image_id": "3411"
             },
             "away": {
-                "id": "55278",
                 "alias": "DEN",
                 "alias_ch": "老鷹",
                 "image_id": "3417"
@@ -348,13 +330,13 @@ module.exports = getMatches;
                 "handicap": -3,
                 "home_tw": null,
                 "away_tw": "3平",
-                "disable": false
+                "disable": true
             },
             "totals": {
                 "id": "34449967",
                 "handicap": 220.5,
                 "over_tw": "220.5",
-                "disable": false
+                "disable": true
             }
         },
         {
@@ -363,13 +345,11 @@ module.exports = getMatches;
             "status": 1,
             "league": "NBA",
             "home": {
-                "id": "56088",
                 "alias": "ORL",
                 "alias_tw": "魔術",
                 "image_id": "3437"
             },
             "away": {
-                "id": "52914",
                 "alias": "CHI",
                 "alias_ch": "公牛",
                 "image_id": "3409"
@@ -379,13 +359,13 @@ module.exports = getMatches;
                 "handicap": 7.5,
                 "home_tw": "7輸",
                 "away_tw": null,
-                "disable": false
+                "disable": true
             },
             "totals": {
                 "id": "34452138",
                 "handicap": 217.5,
                 "over_tw": "217.5",
-                "disable": false
+                "disable": true
             }
         }
     ],
@@ -396,13 +376,11 @@ module.exports = getMatches;
             "status": 0,
             "league": "NBA",
             "home": {
-                "id": "55278",
                 "alias": "DEN",
                 "alias_tw": "老鷹",
                 "image_id": "3417"
             },
             "away": {
-                "id": "54760",
                 "alias": "NYK",
                 "alias_ch": "尼克",
                 "image_id": "3421"
@@ -412,13 +390,13 @@ module.exports = getMatches;
                 "handicap": 5,
                 "home_tw": "5平",
                 "away_tw": null,
-                "disable": false
+                "disable": true
             },
             "totals": {
                 "id": "34456082",
                 "handicap": 232.5,
                 "over_tw": "232.5",
-                "disable": false
+                "disable": true
             }
         }
     ]

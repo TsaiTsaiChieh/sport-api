@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppError = require('../../util/AppErrors');
+
 const scheduledStatus = 2;
 const inPlayStatus = 1;
 const endStatus = 0;
@@ -19,33 +20,56 @@ function getMatches(args) {
 function getMatchesWithDate(args) {
   return new Promise(async function (resolve, reject) {
     const flag_prematch = 1;
-    const begin = modules.moment(args.date).utcOffset(modules.UTF).unix();
+    const { league } = args;
+    const begin = modules.moment(args.date).utcOffset(modules.UTF0).unix();
     const end =
-      modules.moment(args.date).utcOffset(modules.UTF).add(1, 'days').unix() -
+      modules.moment(args.date).utcOffset(modules.UTF0).add(1, 'days').unix() -
       1;
+    console.log('--------');
+    console.log(begin, end);
+
+    console.log('--------');
+
+    db.sequelize.League;
+    db.sequelize.models.match__league;
     try {
+      // 下面的 SELECT 是當讓分或大小分都沒開盤的情況
       const results = await db.sequelize.query(
-        `SELECT 
-        game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id,
-        home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias, home.image_id AS home_image_id,
-        away.team_id AS away_id, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id,
-        spread.spread_id AS spread_id, spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.add_time AS spread_add_time,
-        totals.totals_id AS totals_d, totals.handicap AS totals_handicap, totals.over_tw AS totals_over_tw, totals.add_time AS totals_add_time
-        FROM match__${args.league}s AS game, 
-        match__team__${args.league}s AS home,
-        match__team__${args.league}s AS away,
-        match__spreads AS spread,
-        match__totals AS totals
-        WHERE game.flag_prematch = ${flag_prematch} AND scheduled BETWEEN ${begin} AND ${end}
-        AND game.home_id = home.team_id AND game.away_id = away.team_id 
-        AND (game.spread_id = spread.spread_id AND game.bets_id = spread.match_id) AND (game.totals_id = totals.totals_id AND game.bets_id = totals.match_id)
-        `,
+        `SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, 
+                home.name AS home_name, home.alias_ch AS home_alias_ch, home.alias AS home_alias, home.image_id AS home_image_id, 
+                away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
+                spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.add_time AS spread_add_time, 
+                totals.handicap AS totals_handicap, totals.over_tw AS totals_over_tw, totals.add_time AS totals_add_time 
+          FROM  match__${league}s AS game, 
+                match__team__${league}s AS home,
+                match__team__${league}s AS away, 
+                match__spreads AS spread, 
+                match__totals AS totals 
+          WHERE game.flag_prematch = ${flag_prematch}
+            AND scheduled BETWEEN ${begin} AND ${end} 
+            AND game.home_id = home.team_id 
+            AND game.away_id = away.team_id 
+            AND (game.spread_id = spread.spread_id AND game.bets_id = spread.match_id) 
+            AND (game.totals_id = totals.totals_id AND game.bets_id = totals.match_id) 
+          UNION 
+         SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, 
+                home.name AS home_name, home.alias_ch AS home_alias_ch, home.alias AS home_alias, home.image_id AS home_image_id, 
+                away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
+                NULL AS spread_handicap, NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_add_time, 
+                NULL AS totals_handicap, NULL AS totals_over_tw, NULL AS totals_add_time 
+           FROM match__${league}s AS game, 
+                match__team__${league}s AS home, 
+                match__team__${league}s AS away 
+          WHERE game.flag_prematch = ${flag_prematch} 
+            AND game.scheduled BETWEEN ${begin} AND ${end} 
+            AND game.home_id = home.team_id 
+            AND game.away_id = away.team_id 
+            AND (game.spread_id IS NULL OR game.totals_id IS NULL)`,
         {
-          // replacements: [1, begin, end],
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      resolve(results);
+      return resolve(results);
     } catch (error) {
       return reject(new AppError.MysqlError());
     }
@@ -61,6 +85,7 @@ function repackageMatches(results, args) {
 
   for (let i = 0; i < results.length; i++) {
     const ele = results[i];
+
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
@@ -94,11 +119,18 @@ function repackageMatches(results, args) {
         disable: false
       }
     };
+    if (!ele.spread_id) temp.spread.disable = true;
+    if (!ele.totals_id) temp.totals.disable = true;
+
     if (ele.status === scheduledStatus) {
       data.scheduled.push(temp);
     } else if (ele.status === inPlayStatus) {
+      temp.spread.disable = true;
+      temp.totals.disable = true;
       data.inplay.push(temp);
     } else if (ele.status === endStatus) {
+      temp.spread.disable = true;
+      temp.totals.disable = true;
       data.end.push(temp);
     }
   }
