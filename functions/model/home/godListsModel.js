@@ -21,7 +21,8 @@ function godlists(args) {
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
           from titles,
-               ( select league_id 
+               ( 
+                 select league_id 
                    from match__leagues
                   where name = '${defaultValues['league']}' 
                ) leagues,
@@ -32,7 +33,7 @@ function godlists(args) {
                ) users
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
-           and period = ${period}
+           and titles.period = ${period}
       `, { type: db.sequelize.QueryTypes.SELECT}); // 還少 販售條件 等待 預頁單 table
       //console.log(gods);
 
