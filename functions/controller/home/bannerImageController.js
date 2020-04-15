@@ -1,50 +1,43 @@
+/* eslint-disable promise/catch-or-return */
+/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil_ifyu');
+const log = require('../../util/loggingUtil');
+const Op = require('sequelize').Op;
 /* 施工中
-    簡易資料測試 http://localhost:5000/test/bannerImage.html
+    [不可用]簡易資料測試 http://localhost:5000/test/bannerImage.html
+    改mysql 原有後台等等全部失效需重寫
 */
-async function hotTopics(req, res) {
-  const banners = [];
-  let result = [];
-  let show = [];
-  let show_key = [];
-  let hide = [];
-  let hide_tmp = [];
-
-  try {
-    const banners = await modules.firestore.collection('home_banner')
-    .get().then(querySnapshot => {
-      querySnapshot.forEach(doc => {
-        if(doc.id == 'show'){
-          let item = doc.data()
-
-          for(let i = 0; i < Object.keys(item).length; i++){
-            console.log(item[i])
-            if(item[i] != null){
-              show.push(item[i])
-              show_key.push(item[i].name)
-            }
+function dbFind() {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const result = await db.sequelize.models.home__banner.findAll({
+        order: ['sort'],
+        where: {
+          status: 1,
+          sort: {
+            [Op.ne]: null
           }
-        }else{
-          hide_tmp.push(doc.data())
         }
-      });
-      for(let i = 0; i < hide_tmp.length; i++){
-        console.log(hide_tmp[i].name, show_key)
-        if(!show_key.includes(hide_tmp[i].name)){
-          hide.push(hide_tmp[i])
-        }
-      }
-      result = show;
-    });
-
+      })
+      resolve(result)
+    } catch (error) {
+      log.data(error);
+      reject('get home banners failed');
+      return;
+    }
+  })
+}
+async function bannerImage(req, res) {
+  try {
+    const banners = await dbFind()
+    res.json({ code: 200, banners: banners });
   }catch(err){
     console.log('Error in home/bannerImage by IFYU:  %o', err);
-    return res.status(500).json({ success: false });
+    return res.status(500).json({ code: 500, error: err });
   }
-
-  return res.status(200).json({banners: result});
 }
-module.exports = hotTopics;
+module.exports = bannerImage;
 /**
  * @api {get} /bannerImage Get Home Banner Image
  * @apiVersion 1.0.0

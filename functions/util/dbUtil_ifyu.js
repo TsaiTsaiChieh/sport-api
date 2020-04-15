@@ -47,14 +47,51 @@ sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    time: {
-      type: Sequelize.DATE, 
-      defaultValue: Sequelize.NOW,
-    },
     status: { //預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
+    },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     }
+  }
+);
+
+/*
+ * 首頁圖
+ */
+sequelize.define(
+  'home__banner',
+  {
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    url: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    link: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: ''
+    },
+    sort: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1 //1為正常 -1可能為刪除 尚未實作
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['sort', 'status']
+      }
+    ]
   }
 );
 
