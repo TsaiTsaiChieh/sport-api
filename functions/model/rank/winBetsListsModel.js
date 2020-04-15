@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
+const db = require('../../util/dbUtil');
 
 function winBetsLists(args) {
   return new Promise(async function(resolve, reject) {
@@ -13,15 +14,39 @@ function winBetsLists(args) {
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
-        const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
-          .orderBy(`${rangeCodebook(range)}`, 'desc')
-          .limit(30)
-          .get();
+        // 依 聯盟 取出是 大神資料 且 有販售
+        // 將來有排序條件，可以orderBy，但會和下面的order衝突
+        const leagueWinBetsListsQuery = await db.sequelize.query(`
+          select winlist.uid, users.avatar, users.display_name, winlist.rank_id, 
+                 winlist.last_month_win_bets, winlist.last_month_win_rate, 
+                 winlist.last_week_win_bets, winlist.last_week_win_rate,
+                 winlist.this_season_win_bets, winlist.this_season_win_rate,
+                 winlist.this_period_win_bets, winlist.this_period_win_rate,
+                 winlist.this_month_win_bets, winlist.this_month_win_rate,
+                 winlist.this_week_win_bets, winlist.this_week_win_rate
+            from users__win__lists winlist,
+                 ( 
+                   select league_id 
+                     from match__leagues
+                    where name = '${league}' 
+                 ) leagues,
+                 (
+                   select * 
+                     from users
+                    where status = 2
+                 ) users
+           where winlist.league_id = leagues.league_id
+             and winlist.uid = users.uid
+        `, { limit: 30, type: db.sequelize.QueryTypes.SELECT });
+
+        // const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
+        //   .orderBy(`${rangeCodebook(range)}`, 'desc')
+        //   .limit(30)
+        //   .get();
 
         leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
           leagueWinBetsLists.push( repackage(data.data()) );
         });
-        //Promise.all(results)
 
         winBetsLists[key] = leagueWinBetsLists;
       }
