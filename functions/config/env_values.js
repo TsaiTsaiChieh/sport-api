@@ -55,3 +55,4 @@ exports.lineConfig = {
 };
 exports.betsToken = require('../auth/betsToken.json').token;
 exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
+exports.zone_tw = 'Asia/Taipei';

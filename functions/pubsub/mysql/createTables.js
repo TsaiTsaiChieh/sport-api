@@ -87,7 +87,10 @@ async function create(req, res) {
         flag_prematch: ele.flag_prematch,
         status: ele.status
       };
-
+      if (ele.spread_result) data.spread_result = ele.spread_result;
+      if (ele.totals_result) data.totals_result = ele.totals_result;
+      if (ele.home_points) data.home_points = ele.home_points;
+      if (ele.away_points) data.away_points = ele.away_points;
       Match.create(data);
     }
     res.json('ok');
