@@ -6,7 +6,7 @@ const moment = require('moment');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken } = envValues;
+const { sportRadarKeys, betsToken, zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -17,6 +17,9 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 
+function convertTimezone(timestamp, zone = zone_tw) {
+  return modules.moment(timestamp).tz(zone).unix();
+}
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
     console.log('initializing firebase database');
@@ -195,5 +198,6 @@ module.exports = {
   translate,
   simple2Tradition,
   UTF0,
-  UTF8
+  UTF8,
+  convertTimezone
 };
