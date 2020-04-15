@@ -1,4 +1,5 @@
 const userUtils = require('../../util/userUtil');
+const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;
 const envValues = require('../../config/env_values');
@@ -39,42 +40,6 @@ async function modifyUserProfile(req, res) {
       if (!valid) {
         res.status(400).json(modules.ajv.errors);
         return;
-      }
-      const uniqueNameSnapshot = await modules.firestore
-        .collection('uniqueName')
-        .doc(args.displayName)
-        .get();
-      const uniqueEmailSnapshot = await modules.firestore
-        .collection('uniqueEmail')
-        .doc(args.email)
-        .get();
-      const uniquePhoneSnapshot = await modules.firestore
-        .collection('uniquePhone')
-        .doc(args.phone)
-        .get();
-      if (
-        uniqueNameSnapshot.exists ||
-        uniqueEmailSnapshot.exists ||
-        uniquePhoneSnapshot.exists
-      ) {
-        res.status(400).json({
-          success: false,
-          message: 'user name , email or phone exists'
-        });
-        return;
-      } else {
-        modules.firestore
-          .collection('uniqueName')
-          .doc(args.displayName)
-          .set({ uid: uid });
-        modules.firestore
-          .collection('uniqueEmail')
-          .doc(args.email)
-          .set({ uid: uid });
-        modules.firestore
-          .collection('uniquePhone')
-          .doc(args.phone)
-          .set({ uid: uid });
       }
       data.uid = uid;
       data.displayName = args.displayName; //only new user can set displayName, none changeable value
@@ -160,10 +125,12 @@ async function modifyUserProfile(req, res) {
     }
   }
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  modules.firestore
-    .collection('users')
-    .doc(uid)
-    .set(data, { merge: true })
+    let users = await db.sequelize.query(
+      'SELECT * FROM users WHERE uid = $uid',
+      {
+        bind: {uid:uid},
+        type: db.sequelize.QueryTypes.SELECT
+      })
     .then(async ref => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;
@@ -175,7 +142,7 @@ async function modifyUserProfile(req, res) {
       console.log('Added document with error: ', e);
       res.status(500).json({ success: false, message: 'update failed' });
     });
-  // res.json({success: true, result: writeResult});
+    // res.json({success: true, result: writeResult});
 }
 module.exports = modifyUserProfile;
 

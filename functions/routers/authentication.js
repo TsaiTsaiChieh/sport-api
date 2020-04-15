@@ -27,5 +27,6 @@ router.get("/lineLoginHandler", require('../controller/authentication/lineHandle
 router.post('/login', require('../controller/authentication/firebaseLogin'));
 router.get('/logout', verification.token, require('../controller/authentication/logout'));
 router.post('/verifySessionCookie', verification.token, require('../controller/authentication/verifySessionCookie'));
+router.post('/uid2token', require('../controller/authentication/uid2token'));
 
 module.exports = router;
