@@ -45,94 +45,176 @@ async function repackage(sport, league, eventID, time) {
 
   eventData[0].sport = sport;
   eventData[0].league = league;
+  time = parseInt(time);
+  let d = new Date(time);
+  let scheduledDate = modules.moment(d).format('YYYY-MM-DD');
 
   //for specific league
   //nba
   if (league === 'NBA') {
-    // let queryHomeForHome = await modules.firestore
-    //   .collection(leagueName)
-    //   .where('home.alias', '==', eventData[0].home.alias)
-    //   .where('scheduled', '<', modules.moment(date).utcOffset(8))
-    //   .orderBy('scheduled', 'desc')
-    //   .limit(1)
-    //   .get();
-    //   let forLineupHome = [];
-    //   queryHomeForHome.forEach((doc) => {
-    //     forLineupHome.push(doc.data());
-    //   });
-    //   let queryAwayForHome = await modules.firestore
-    //     .collection(leagueName)
-    //     .where('away.alias', '==', eventData[0].home.alias)
-    //     .where('scheduled', '<', modules.moment(date).utcOffset(8))
-    //     .orderBy('scheduled', 'desc')
-    //     .limit(1)
-    //     .get();
-    //   let forLineupAway = [];
-    //   queryAwayForHome.forEach((doc) => {
-    //     forLineupAway.push(doc.data());
-    //   });
-    //   if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
-    //     eventData[0].history.starting_lineup = {
-    //       home: {
-    //         lineup0: forLineupHome[0].home.starting_lineup.lineup0,
-    //         lineup1: forLineupHome[0].home.starting_lineup.lineup1,
-    //         lineup2: forLineupHome[0].home.starting_lineup.lineup2,
-    //         lineup3: forLineupHome[0].home.starting_lineup.lineup3,
-    //         lineup4: forLineupHome[0].home.starting_lineup.lineup4,
-    //       },
-    //     };
-    //   } else {
-    //     eventData[0].history.starting_lineup = {
-    //       home: {
-    //         lineup0: forLineupAway[0].away.starting_lineup.lineup0,
-    //         lineup1: forLineupAway[0].away.starting_lineup.lineup1,
-    //         lineup2: forLineupAway[0].away.starting_lineup.lineup2,
-    //         lineup3: forLineupAway[0].away.starting_lineup.lineup3,
-    //         lineup4: forLineupAway[0].away.starting_lineup.lineup4,
-    //       },
-    //     };
-    //   }
-    //   forLineupHome = [];
-    //   forLineupAway = [];
-    //   let queryHomeForAway = await modules.firestore
-    //     .collection(leagueName)
-    //     .where('home.alias', '==', eventData[0].away.alias)
-    //     .where('scheduled', '<', modules.moment(date).utcOffset(8))
-    //     .orderBy('scheduled', 'desc')
-    //     .limit(1)
-    //     .get();
-    //   queryHomeForAway.forEach((doc) => {
-    //     forLineupHome.push(doc.data());
-    //   });
-    //   let queryAwayForAway = await modules.firestore
-    //     .collection(leagueName)
-    //     .where('away.alias', '==', eventData[0].away.alias)
-    //     .where('scheduled', '<', modules.moment(date).utcOffset(8))
-    //     .orderBy('scheduled', 'desc')
-    //     .limit(1)
-    //     .get();
-    //   queryAwayForAway.forEach((doc) => {
-    //     forLineupAway.push(doc.data());
-    //   });
-    //   if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
-    //     eventData[0].history.starting_lineup.away = {
-    //       lineup0: forLineupHome[0].home.starting_lineup.lineup0,
-    //       lineup1: forLineupHome[0].home.starting_lineup.lineup1,
-    //       lineup2: forLineupHome[0].home.starting_lineup.lineup2,
-    //       lineup3: forLineupHome[0].home.starting_lineup.lineup3,
-    //       lineup4: forLineupHome[0].home.starting_lineup.lineup4,
-    //     };
-    //   } else {
-    //     eventData[0].history.starting_lineup.away = {
-    //       lineup0: forLineupAway[0].away.starting_lineup.lineup0,
-    //       lineup1: forLineupAway[0].away.starting_lineup.lineup1,
-    //       lineup2: forLineupAway[0].away.starting_lineup.lineup2,
-    //       lineup3: forLineupAway[0].away.starting_lineup.lineup3,
-    //       lineup4: forLineupAway[0].away.starting_lineup.lineup4,
-    //     };
-    //   }
+    let queryHomeForHome = await modules.firestore
+      .collection(leagueName)
+      .where('home.alias', '==', eventData[0].home.alias)
+      .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+      .orderBy('scheduled', 'desc')
+      .limit(1)
+      .get();
+    let forLineupHome = [];
+    queryHomeForHome.forEach((doc) => {
+      forLineupHome.push(doc.data());
+    });
+    let queryAwayForHome = await modules.firestore
+      .collection(leagueName)
+      .where('away.alias', '==', eventData[0].home.alias)
+      .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+      .orderBy('scheduled', 'desc')
+      .limit(1)
+      .get();
+    let forLineupAway = [];
+    queryAwayForHome.forEach((doc) => {
+      forLineupAway.push(doc.data());
+    });
+
+    if (!forLineupHome.length == 0 && forLineupAway.length == 0) {
+      eventData[0].history.lineup = {
+        starter: {
+          home: {
+            lineup0: forLineupHome[0].lineups.home.starters['0'],
+            lineup1: forLineupHome[0].lineups.home.starters['1'],
+            lineup2: forLineupHome[0].lineups.home.starters['2'],
+            lineup3: forLineupHome[0].lineups.home.starters['3'],
+            lineup4: forLineupHome[0].lineups.home.starters['4'],
+          },
+        },
+      };
+    }
+    if (forLineupHome.length == 0 && !forLineupAway.length == 0) {
+      eventData[0].history.lineup = {
+        starter: {
+          home: {
+            lineup0: forLineupAway[0].lineups.away.starters['0'],
+            lineup1: forLineupAway[0].lineups.away.starters['1'],
+            lineup2: forLineupAway[0].lineups.away.starters['2'],
+            lineup3: forLineupAway[0].lineups.away.starters['3'],
+            lineup4: forLineupAway[0].lineups.away.starters['4'],
+          },
+        },
+      };
+      if (!forLineupHome.length == 0 && !forLineupAway.length == 0) {
+        if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
+          eventData[0].history.lineup = {
+            starter: {
+              home: {
+                lineup0: forLineupHome[0].lineups.home.starters['0'],
+                lineup1: forLineupHome[0].lineups.home.starters['1'],
+                lineup2: forLineupHome[0].lineups.home.starters['2'],
+                lineup3: forLineupHome[0].lineups.home.starters['3'],
+                lineup4: forLineupHome[0].lineups.home.starters['4'],
+              },
+            },
+          };
+        } else {
+          eventData[0].history.lineup = {
+            starter: {
+              home: {
+                lineup0: forLineupAway[0].lineups.away.starters['0'],
+                lineup1: forLineupAway[0].lineups.away.starters['1'],
+                lineup2: forLineupAway[0].lineups.away.starters['2'],
+                lineup3: forLineupAway[0].lineups.away.starters['3'],
+                lineup4: forLineupAway[0].lineups.away.starters['4'],
+              },
+            },
+          };
+        }
+        if (forLineupHome.length == 0 && forLineupAway.length == 0) {
+          eventData[0].history.lineup.starters = { home: 'no history data' };
+        }
+        forLineupHome = [];
+        forLineupAway = [];
+        let queryHomeForAway = await modules.firestore
+          .collection(leagueName)
+          .where('home.alias', '==', eventData[0].away.alias)
+          .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+          .orderBy('scheduled', 'desc')
+          .limit(1)
+          .get();
+        queryHomeForAway.forEach((doc) => {
+          forLineupHome.push(doc.data());
+        });
+        let queryAwayForAway = await modules.firestore
+          .collection(leagueName)
+          .where('away.alias', '==', eventData[0].away.alias)
+          .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+          .orderBy('scheduled', 'desc')
+          .limit(1)
+          .get();
+        queryAwayForAway.forEach((doc) => {
+          forLineupAway.push(doc.data());
+        });
+
+        if (!forLineupHome.length == 0 && forLineupAway.length == 0) {
+          eventData[0].history.lineup = {
+            starter: {
+              away: {
+                lineup0: forLineupHome[0].lineups.home.starters['0'],
+                lineup1: forLineupHome[0].lineups.home.starters['1'],
+                lineup2: forLineupHome[0].lineups.home.starters['2'],
+                lineup3: forLineupHome[0].lineups.home.starters['3'],
+                lineup4: forLineupHome[0].lineups.home.starters['4'],
+              },
+            },
+          };
+        }
+        if (forLineupHome.length == 0 && !forLineupAway.length == 0) {
+          eventData[0].history.lineup = {
+            starter: {
+              away: {
+                lineup0: forLineupAway[0].lineups.away.starters['0'],
+                lineup1: forLineupAway[0].lineups.away.starters['1'],
+                lineup2: forLineupAway[0].lineups.away.starters['2'],
+                lineup3: forLineupAway[0].lineups.away.starters['3'],
+                lineup4: forLineupAway[0].lineups.away.starters['4'],
+              },
+            },
+          };
+        }
+        if (!forLineupHome.length == 0 && !forLineupAway.length == 0) {
+          if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
+            eventData[0].history.lineup = {
+              starter: {
+                away: {
+                  lineup0: forLineupHome[0].lineups.home.starters['0'],
+                  lineup1: forLineupHome[0].lineups.home.starters['1'],
+                  lineup2: forLineupHome[0].lineups.home.starters['2'],
+                  lineup3: forLineupHome[0].lineups.home.starters['3'],
+                  lineup4: forLineupHome[0].lineups.home.starters['4'],
+                },
+              },
+            };
+          } else {
+            eventData[0].history.lineup.starters = {
+              starter: {
+                away: {
+                  lineup0: forLineupAway[0].lineups.away.starters['0'],
+                  lineup1: forLineupAway[0].lineups.away.starters['1'],
+                  lineup2: forLineupAway[0].lineups.away.starters['2'],
+                  lineup3: forLineupAway[0].lineups.away.starters['3'],
+                  lineup4: forLineupAway[0].lineups.away.starters['4'],
+                },
+              },
+            };
+          }
+        }
+        if (forLineupHome.length == 0 && forLineupAway.length == 0) {
+          eventData[0].history.lineup.starters = { away: 'no history data' };
+        }
+      }
+    }
+    return eventData;
   }
-  return eventData;
+  if (league === 'MLB') {
+    return eventData;
+  }
 }
 
 module.exports = livescore;

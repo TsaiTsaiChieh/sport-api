@@ -38,7 +38,14 @@ async function repackage(sport, league, UID, eventID, time) {
       .collection(leagueName)
       .doc(`${UID}`)
       .set(
-        { [`${eventID}`]: { eventID: eventID, sport: sport, league: league } },
+        {
+          [`${eventID}`]: {
+            eventID: eventID,
+            sport: sport,
+            league: league,
+            scheduled: time,
+          },
+        },
         { merge: true }
       );
     output.push(
