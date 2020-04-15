@@ -34,8 +34,9 @@ function godlists(args) {
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
            and titles.period = ${period}
-      `, { type: db.sequelize.QueryTypes.SELECT}); // 還少 販售條件 等待 預頁單 table
-      //console.log(gods);
+      `, { type: db.sequelize.QueryTypes.SELECT}); 
+      // 還少 販售條件 等待 預頁單 table
+      // 還少 使用者 預設戰績稱號
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
