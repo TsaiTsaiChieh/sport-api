@@ -64,7 +64,7 @@ function winBetsLists(args) {
                           ) users
                     where winlist.uid = users.uid
                   ) winlist 
-                  left outer join titles 
+                  left join titles 
                     on winlist.uid = titles.uid 
                    and winlist.league_id = titles.league_id
                    and titles.period = ${period}
