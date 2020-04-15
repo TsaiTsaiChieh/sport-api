@@ -17,8 +17,17 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 
-function convertTimezone(timestamp, zone = zone_tw) {
-  return modules.moment(timestamp).tz(zone).unix();
+function convertTimezone(date, operation, zone = zone_tw) {
+  if (operation) {
+    if (operation.op === 'add')
+      return moment.tz(date, zone).add(operation.value, operation.unit).unix();
+    if (operation.op === 'subtract')
+      return moment
+        .tz(date, zone)
+        .subtract(operation.value, operation.unit)
+        .unix();
+  }
+  return moment.tz(date, zone).unix();
 }
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
