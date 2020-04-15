@@ -7,8 +7,10 @@ const SSL = {
   cert: modules.fs.readFileSync('/Users/ids93216/Documents/mysql/client-cert.pem'),
   ca: modules.fs.readFileSync('/Users/ids93216/Documents/mysql/server-ca.pem')
 };
-const host = isEmulator ? '35.188.137.1': `/cloudsql/${instance}`;
-const dialectOptions = isEmulator ? {ssl:SSL} : {socketPath: host} ;
+const host = isEmulator ? '35.188.137.1' : `/cloudsql/${instance}`;
+const dialectOptions = isEmulator
+  ? { ssl: SSL }
+  : { socketPath: host, connectTimeout: 60000 };
 const setting = {
   db_name: 'dosport',
   db_user: 'root',
@@ -18,9 +20,9 @@ const setting = {
   dialectOptions: dialectOptions,
   pool: {
     max: 50,
-    min: 0,
-    acquire: 3000,
-    idle: 10000
+    min: 5, // Minimum number of connection in pool
+    acquire: 3000, // The maximum time, in milliseconds, that pool will try to get connection before throwing error
+    idle: 30000 // The maximum time, in milliseconds, that a connection can be idle before being released
   },
   timezone: '+08:00'
 };

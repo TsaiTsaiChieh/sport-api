@@ -2,10 +2,6 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreInprogressModel');
 
 async function livescore(req, res) {
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -17,17 +13,20 @@ async function livescore(req, res) {
   }
   //soccer
   const schema = {
-    required: ['league', 'sport'],
+    required: ['league', 'sport', 'time'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
-      }
-    }
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+      },
+      time: {
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -50,17 +49,15 @@ module.exports = livescore;
  * @apiName livescore information inprogress
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value enum are: ```baseball```
- * @apiParam {String} league league name, the value enum are: ```MLB```
- * @apiParam {String} time timestamp, the value enum are: ```1585039500000```
+ * @apiParam {String} sport sport name, the value enum are: ```basketball```
+ * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} time timestamp, the value enum are: ```1593561600000```
  * @apiParam {String} category the category of event, the value enum are: ```all```
  * 
  * @apiParamExample {JSON} Request-Query
- {
-   "sport" : "baseball"
-   "league" : "MLB"
-   "time" : 1585039500000
-   "catrgory" : "all"
+ { 
+   "league" : "NBA"
+   "time" : 1593561600000
  }
  * @apiSuccess {String} bets_id match id in BetsAPI
  * @apiSuccess {String} radar_id match id in Sportradar

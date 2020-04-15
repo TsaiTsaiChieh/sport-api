@@ -1,238 +1,218 @@
 const modules = require('../util/modules');
 const axios = require('axios');
-const string = 'Trevor Ariza turnover (out of bounds step)';
-translateNBA(string);
-//從summary來後，簡體to繁體
-// const temp = modules.simple2Tradition.translate(string);
 
-async function translateNBA(stringOrigin) {
-  let finalString;
+async function translateNBA(
+  stringOrigin,
+  keywordHomeOrigin,
+  keywordAwayOrigin,
+  transSimpleHomeOrigin,
+  transSimpleAwayOrigin
+  // transCompleteHomeOrigin,
+  // transCompleteAwayOrigin
+) {
+  let finalString = stringOrigin;
+  let keywordHome = keywordHomeOrigin;
+  let keywordAway = keywordAwayOrigin;
+  let transSimpleHome = transSimpleHomeOrigin;
+  let transSimpleAway = transSimpleAwayOrigin;
+  // let transCompleteHome = transCompleteHomeOrigin;
+  // let transCompleteAway = transCompleteAwayOrigin;
+  let keyword = keywordHome.concat(keywordAway);
+  // let keywordTrans = transCompleteHome.concat(transCompleteAway);
+  let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
+  // pbp : Sekou Doumbouya(#45) 兩分球進
 
-  const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
-  const gameID = '380142e6-95e7-423b-8ba9-4de32862fd06';
-  const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
-  let { data } = await axios(pbpURL);
-  let x = 20 * 1;
-  for (let xx = x; xx < x + 20; xx++) {
-    // finalString = stringOrigin;
-    finalString = data.periods[0].events[xx].description;
-    let keyword = [
-      'Sekou Doumbouya',
-      'Derrick Rose',
-      'Svi Mykhailiuk',
-      'Thon Maker',
-      'Tony Snell',
-      'Hassan Whiteside',
-      'Trevor Ariza',
-      'CJ McCollum',
-      'Carmelo Anthony',
-      'Gary Trent Jr.'
-    ];
-    let keywordTrans = [
-      '杜姆布亚，塞古',
-      '德里克 罗斯',
-      '斯维亚托斯拉夫 米凯卢克',
-      '索恩 马克',
-      '托尼 斯内尔',
-      '哈桑 怀特赛德',
-      '特雷沃 阿里扎',
-      'C.J. 麦科勒姆',
-      '卡梅罗 安东尼',
-      '加里 小特伦特'
-    ];
-
-    for (let i = 0; i < keywordTrans.length; i++) {
-      keywordTrans[i] = modules.simple2Tradition.translate(keywordTrans[i]);
-      keywordTrans[i] = keywordTrans[i].replace(' ', '．');
-      keywordTrans[i] = keywordTrans[i].replace('，', '．');
-    }
-
-    for (let i = 0; i < keyword.length; i++) {
-      finalString = await finalString.replace(
-        new RegExp(keyword[i], 'g'),
-        keywordTrans[i]
-      );
-    }
-
-    keyword = [
-      'lineup change',
-      'vs.',
-      'gains possession',
-      'Wizards',
-      'Hornets',
-      'Hawks',
-      'Heat',
-      'Magic',
-      'Knicks',
-      '76ers',
-      'Nets',
-      'Celtics',
-      'Raptors',
-      'Bulls',
-      'Cavaliers',
-      'Pacers',
-      'Pistons',
-      'Bucks',
-      'Timberwolves',
-      'Jazz',
-      'Thunder',
-      'Trail Blazers',
-      'Nuggets',
-      'Grizzlies',
-      'Rockets',
-      'Pelicans',
-      'Spurs',
-      'Mavericks',
-      'Warriors',
-      'Lakers',
-      'Clippers',
-      'Suns',
-      'Kings',
-      'assists',
-      'steals',
-      'turnover',
-      'bad pass',
-      'lost ball',
-      'makes two point jump shot',
-      'makes two point fadeaway jump shot',
-      'makes two point floating jump shot',
-      'makes two point reverse layup',
-      'makes three point jump shot',
-      'misses three point jump shot',
-      'misses regular free throw',
-      '1 of 1',
-      '1 of 2',
-      '2 of 2',
-      'defensive rebound',
-      'Stoppage',
-      'out of bounds step',
-      'Out of bounds',
-      'personal foul',
-      'shooting foul',
-      'draws the foul',
-      'Instant replay',
-      'Request: Ruling Upheld'
-    ];
-    keywordTrans = [
-      '球員：',
-      '對陣',
-      '得到球權',
-      '巫師',
-      '黃蜂',
-      '老鷹',
-      '熱火',
-      '魔術',
-      '尼克',
-      '76人',
-      '籃網',
-      '塞爾提克',
-      '暴龍',
-      '公牛',
-      '騎士',
-      '溜馬',
-      '活塞',
-      '公鹿',
-      '灰狼',
-      '爵士',
-      '雷霆',
-      '拓荒者',
-      '金塊',
-      '灰熊',
-      '火箭',
-      '鵜鶘',
-      '馬刺',
-      '獨行俠',
-      '勇士',
-      '湖人',
-      '快艇',
-      '太陽',
-      '國王',
-      '助攻',
-      '抄截',
-      '失誤',
-      '傳球失誤',
-      '掉球',
-      '跳投進兩分',
-      '後仰跳投進兩分',
-      '急停跳投進兩分',
-      '反身上籃進兩分',
-      '跳投進三分',
-      '三分跳投沒中',
-      '罰球沒中',
-      '1-1',
-      '1-2',
-      '2-2',
-      '防守籃板',
-      '暫停',
-      '出界',
-      '出界',
-      '個人犯規',
-      '投籃犯規',
-      '製造犯規',
-      '即時重播',
-      '請求：維持裁決'
-    ];
-
-    for (let i = 0; i < keyword.length; i++) {
-      finalString = await finalString.replace(
-        new RegExp(keyword[i], 'g'),
-        keywordTrans[i]
-      );
-    }
-
-    console.log(finalString);
+  for (let i = 0; i < keyword.length; i++) {
+    finalString = await finalString.replace(
+      new RegExp(keyword[i], 'g'),
+      keywordTransSimple[i]
+    );
   }
-  //   finalString[0] = stringOrigin;
-  //   for (let step = 1; step < 5; step++) {
-  //     finalString[step] = '';
+  keyword = [
+    'Wizards',
+    'Hornets',
+    'Hawks',
+    'Heat',
+    'Magic',
+    'Knicks',
+    '76ers',
+    'Nets',
+    'Celtics',
+    'Raptors',
+    'Bulls',
+    'Cavaliers',
+    'Pacers',
+    'Pistons',
+    'Bucks',
+    'Timberwolves',
+    'Jazz',
+    'Thunder',
+    'Trail Blazers',
+    'Nuggets',
+    'Grizzlies',
+    'Rockets',
+    'Pelicans',
+    'Spurs',
+    'Mavericks',
+    'Warriors',
+    'Lakers',
+    'Clippers',
+    'Suns',
+    'Kings',
+    'End of 1st Quarter.',
+    'End of 2nd Quarter.',
+    'End of 3rd Quarter.',
+    'End of 4th Quarter.',
+    'End of 1st Half.',
+    'End of 2nd Half.',
+    `'s`,
+    'second timeout',
+    'lineup change',
+    'vs.',
+    'gains possession',
+    'Defensive three second',
+    ' assists',
+    ' steals',
+    ' blocks',
+    ' technical',
+    ' shooting',
+    ' personal',
+    ' draws the foul',
+    ' foul',
+    ' turnover',
+    ' bad pass',
+    ' lost ball',
+    ' fadeaway',
+    ' floating',
+    ' step back',
+    ' turnaround',
+    ' hook shot',
+    ' jump shot',
+    ' reverse',
+    ' putback',
+    ' driving',
+    ' alley-oop',
+    ' layup',
+    ' putback',
+    ' dunk',
+    ' makes',
+    ' misses',
+    ' two point',
+    ' three point',
+    ' regular free throw',
+    ' technical free throw',
+    ' free throw',
+    ' 1 of 1',
+    ' 1 of 2',
+    ' 2 of 2',
+    ' defensive rebound',
+    ' offensive rebound',
+    'Stoppage',
+    'out of bounds step',
+    'Out of bounds',
+    'Instant replay',
+    'Request: Ruling Upheld',
+  ];
+  keywordTrans = [
+    '巫師',
+    '黃蜂',
+    '老鷹',
+    '熱火',
+    '魔術',
+    '尼克',
+    '76人',
+    '籃網',
+    '塞爾提克',
+    '暴龍',
+    '公牛',
+    '騎士',
+    '溜馬',
+    '活塞',
+    '公鹿',
+    '灰狼',
+    '爵士',
+    '雷霆',
+    '拓荒者',
+    '金塊',
+    '灰熊',
+    '火箭',
+    '鵜鶘',
+    '馬刺',
+    '獨行俠',
+    '勇士',
+    '湖人',
+    '快艇',
+    '太陽',
+    '國王',
+    '第一節結束',
+    '第二節結束',
+    '第三節結束',
+    '第四節結束',
+    '上半場結束',
+    '下半場結束',
+    '的',
+    '秒暫停',
+    '球員：',
+    '跳球對上',
+    '得到球權',
+    '防守三秒',
+    '助攻',
+    '抄截',
+    '獲得阻攻(蓋了',
+    '技術',
+    '射籃',
+    '個人',
+    '製造犯規',
+    '犯規',
+    '失誤',
+    '傳球失誤',
+    '掉球',
+    '後仰',
+    '急停',
+    '後撤步',
+    '轉身',
+    '勾射',
+    '跳投',
+    '反身',
+    '補',
+    '切入',
+    '空中接力',
+    '上籃',
+    '補',
+    '灌籃',
+    '投進',
+    '沒投進',
+    '兩分',
+    '三分',
+    '罰球',
+    '罰球',
+    '罰球',
+    '1-1',
+    '1-2',
+    '2-2',
+    '取得防守籃板',
+    '取得進攻籃板',
+    '暫停',
+    '出界',
+    '出界',
+    '即時重播',
+    '請求：維持裁決',
+  ];
 
-  //     for (let i = 0; i < eval('keyword' + step).length; i++) {
-  //       if (finalString[step - 1].indexOf(eval('keyword' + step)[i]) >= 0) {
-  //         eval('keywordIndex' + step).push(i);
-  //         eval('slideIndex' + step).push(
-  //           finalString[step - 1].indexOf(eval('keyword' + step)[i])
-  //         );
-  //       }
-  //     }
-  //     for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-  //       if (eval('slideIndex' + step)[i] > eval('slideIndex' + step)[i + 1]) {
-  //         let temp = eval('keywordIndex' + step)[i];
-  //         eval('keywordIndex' + step)[i] = eval('keywordIndex' + step)[i + 1];
-  //         eval('keywordIndex' + step)[i + 1] = temp;
-  //         temp = eval('slideIndex' + step)[i];
-  //         eval('slideIndex' + step)[i] = eval('slideIndex' + step)[i + 1];
-  //         eval('slideIndex' + step)[i + 1] = temp;
-  //       }
-  //     }
+  for (let i = 0; i < keyword.length; i++) {
+    finalString = await finalString.replace(
+      new RegExp(keyword[i], 'g'),
+      keywordTrans[i]
+    );
+  }
+  // finalString = finalString.replace(new RegExp(' ', 'g'), '');
 
-  //     let startIndex = 0;
-
-  //     for (let i = 0; i < eval('slideIndex' + step).length; i++) {
-  //       finalString[step] =
-  //         finalString[step] +
-  //         finalString[step - 1].substring(
-  //           startIndex,
-  //           eval('slideIndex' + step)[i]
-  //         ) +
-  //         eval('keywordTrans' + step)[eval('keywordIndex' + step)[i]];
-  //       startIndex =
-  //         eval('slideIndex' + step)[i] +
-  //         eval('keyword' + step)[eval('keywordIndex' + step)[i]].length;
-  //     }
-
-  //     finalString[step] =
-  //       finalString[step] +
-  //       finalString[step - 1].substring(startIndex, finalString[step - 1].length);
-  //   }
-  //   finalString[4] = finalString[4].substring(0, finalString[4].length - 1);
-  //   console.log(finalString[4]);
-
-  //   stepTrans(finalString[4]);
+  return finalString;
 }
 async function transFunction(stringTrans) {
   let stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
-    to: 'zh-tw'
+    to: 'zh-tw',
   });
   return await stringAfterTrans.text;
 }
@@ -263,7 +243,7 @@ async function stepTrans(stringTrans) {
     'W',
     'X',
     'Y',
-    'Z'
+    'Z',
   ];
   let eleSmall = [
     'a',
@@ -291,7 +271,7 @@ async function stepTrans(stringTrans) {
     'w',
     'x',
     'y',
-    'z'
+    'z',
   ];
   let matcharray = [];
 
@@ -344,6 +324,7 @@ async function stepTrans(stringTrans) {
       final = final + match[x];
     }
   }
+
   console.log(final);
 }
-module.exports = translateNBA;
+module.exports = { translateNBA };
