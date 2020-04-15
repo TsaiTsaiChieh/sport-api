@@ -475,7 +475,7 @@ sequelize.define(
     league_id:{
       type: Sequelize.INTEGER
     },
-    rank: {
+    rank_id: {
       type: Sequelize.INTEGER
     },
     avatar: {
