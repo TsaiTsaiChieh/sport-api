@@ -168,7 +168,7 @@ const Title = sequelize.define(
     win_rate: { // 勝率
       type: Sequelize.INTEGER
     },
-    continune: { // 連贏 N 天
+    continue: { // 連贏 N 天
       type: Sequelize.INTEGER
     },
     predict_rate1: { // 近N日 N過 N  // 近N日過 N
