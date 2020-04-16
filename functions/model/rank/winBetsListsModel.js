@@ -18,7 +18,7 @@ function winBetsLists(args) {
         const leagueWinBetsListsQuery = await db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, titles.default_title,
-                 titles.continune,
+                 titles.continue,
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
             from (
@@ -51,10 +51,10 @@ function winBetsLists(args) {
             left join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
-             and titles.period = ${period}
+             and titles.period = :period
            order by ${rangeWinBetsCodebook(range)} desc
         `, { 
-              replacements: {league: league, orderby: rangeWinBetsCodebook(range)}, 
+              replacements: {league: league, period: period}, 
               limit: 30, 
               type: db.sequelize.QueryTypes.SELECT 
            });
@@ -70,7 +70,8 @@ function winBetsLists(args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    resolve({ win_bets_lists: winBetsLists });
+    //resolve({ win_bets_lists: winBetsLists });
+    resolve({ userlists: winBetsLists[league] });
     return;
   });
 }
@@ -89,7 +90,7 @@ function repackage(ele, rangstr) {
   if ([1, 2, 3, 4].includes(ele.rank_id)){
     data['rank'] = ele.rank_id;
     data['default_title'] = ele.default_title;
-    data['continune'] = ele.continue; // 連贏Ｎ場
+    data['continue'] = ele.continue; // 連贏Ｎ場
     data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
     data['predict_rate2'] = [ele.predict_rate1, ele.predict_rate3];  // 近N日過 N
     data['win_bets_continue'] = ele.win_bets_continue, // 勝注連過 Ｎ日

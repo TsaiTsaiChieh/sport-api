@@ -16,7 +16,7 @@ function godlists(args) {
       const godListsQuery = await db.sequelize.query(`
         select titles.uid, users.avatar, users.display_name, titles.rank_id, titles.default_title,
                titles.win_bets, titles.win_rate,
-               titles.continune, 
+               titles.continue, 
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
           from titles,
@@ -32,8 +32,8 @@ function godlists(args) {
                ) users
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
-           and titles.period = ${period}
-      `, { replacements:{league: league}, type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
+           and titles.period = :period
+      `, { replacements:{league: league, period: period}, type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
@@ -110,7 +110,7 @@ function repackage_winBets(ele) { // 實際資料輸出格式
     default_title: ele.default_title,
     win_bets: ele.win_bets,
     sell: ele.sell,
-    continune: ele.continue, // 連贏Ｎ場
+    continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
     win_bets_continue: ele.win_bets_continue, // 勝注連過 Ｎ日
@@ -130,7 +130,7 @@ function repackage_winRate(ele) { // 實際資料輸出格式
     default_title: ele.default_title,
     win_rate: ele.win_rate,
     sell: ele.sell,
-    continune: ele.continue, // 連贏Ｎ場
+    continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
     win_bets_continue: ele.win_bets_continue, // 勝注連過 Ｎ日
