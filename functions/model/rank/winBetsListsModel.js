@@ -9,27 +9,11 @@ function winBetsLists(args) {
     const period = modules.getTitlesPeriod(new Date()).period;
 
     let winBetsLists = {};
-    winBetsLists[league] = []; // 像上面的範例
+    winBetsLists[league] = [];
 
     try {
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
-
-        // 依 聯盟 取出是 大神資料 且 有販售
-        // 將來有排序條件，可以orderBy，但會和下面的order衝突
-
-        // select winlist.uid, users.avatar, users.display_name, 
-        //          winlist.last_month_win_bets, winlist.last_month_win_rate, 
-        //          winlist.last_week_win_bets, winlist.last_week_win_rate,
-        //          winlist.this_season_win_bets, winlist.this_season_win_rate,
-        //          winlist.this_period_win_bets, winlist.this_period_win_rate,
-        //          winlist.this_month_win_bets, winlist.this_month_win_rate,
-        //          winlist.this_week_win_bets, winlist.this_week_win_rate,
-                //  titles.rank_id, titles.default_title,
-                //  titles.continune,
-                //  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
-                //  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-        //     from (
 
         const leagueWinBetsListsQuery = await db.sequelize.query(`
           select winlist.*,
@@ -54,7 +38,7 @@ function winBetsLists(args) {
                                       where name = :league
                                    ) leagues
                               where users__win__lists.league_id = leagues.league_id
-                              order by :orderby desc
+                              order by ${rangeWinBetsCodebook(range)} desc
                               limit 30
                           ) winlist,
                           (
@@ -68,15 +52,15 @@ function winBetsLists(args) {
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
              and titles.period = ${period}
-        `, { replacements: {league: league, orderby: rangeCodebook(range)}, limit: 30, type: db.sequelize.QueryTypes.SELECT });
-
-        // const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
-        //   .orderBy(`${rangeCodebook(range)}`, 'desc')
-        //   .limit(30)
-        //   .get();
+           order by ${rangeWinBetsCodebook(range)} desc
+        `, { 
+              replacements: {league: league, orderby: rangeWinBetsCodebook(range)}, 
+              limit: 30, 
+              type: db.sequelize.QueryTypes.SELECT 
+           });
 
         leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
-          leagueWinBetsLists.push( repackage(data, rangeCodebook(range)) );
+          leagueWinBetsLists.push( repackage(data, rangeWinBetsCodebook(range)) );
         });
 
         winBetsLists[key] = leagueWinBetsLists;
@@ -116,7 +100,7 @@ function repackage(ele, rangstr) {
   return data;
 }
 
-function rangeCodebook(range){
+function rangeWinBetsCodebook(range){
   'this_week', 'last_week', 'this_month', 'last_month', 'this_session'
   switch (range) {
     case 'this_week':
