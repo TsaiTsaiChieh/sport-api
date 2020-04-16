@@ -51,10 +51,10 @@ function winBetsLists(args) {
                                    ( 
                                      select league_id 
                                        from match__leagues
-                                      where name = '${league}' 
+                                      where name = :league
                                    ) leagues
                               where users__win__lists.league_id = leagues.league_id
-                              order by ${rangeCodebook(range)} desc
+                              order by :orderby desc
                               limit 30
                           ) winlist,
                           (
@@ -68,7 +68,7 @@ function winBetsLists(args) {
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
              and titles.period = ${period}
-        `, { limit: 30, type: db.sequelize.QueryTypes.SELECT });
+        `, { replacements: {league: league, orderby: rangeCodebook(range)}, limit: 30, type: db.sequelize.QueryTypes.SELECT });
 
         // const leagueWinBetsListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
         //   .orderBy(`${rangeCodebook(range)}`, 'desc')
