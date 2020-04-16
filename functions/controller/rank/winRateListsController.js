@@ -8,7 +8,7 @@ async function winRateLists(req, res) {
     properties: {
       range: {
         type: 'string',
-        enum: ['this_week', 'last_week', 'this_month', 'last_month', 'this_session']
+        enum: ['this_period', 'this_week', 'last_week', 'this_month', 'last_month', 'this_season']
       },
       league: {
         type: 'string',
@@ -42,83 +42,86 @@ module.exports = winRateLists;
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  {
-  "win_rate_lists": {
-    "NBA": [
-      {
-        "win_rate": 94,
-        "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "紅色警報",
-        "rank": "2"
-      },
-      {
-        "win_rate": 92,
-        "uid": "BimYoqVdG3ONxyxZ4Vy855lXc9q2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "中哥大",
-        "rank": "2"
-      },
-      {
-        "win_rate": 91,
-        "uid": "FZql5b9sOENEq373y4CiiHOXYe43",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "台大科技",
-        "rank": "2"
-      },
-      {
-        "win_rate": 90,
-        "uid": "6wrKIEue8MajxljlsSTujhLWNkm1",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "台大科技",
-        "rank": ""
-      },
-      {
-        "win_rate": 89,
-        "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "運測2人",
-        "rank": "3"
-      }
-    ],
-    "MLB": [
-      {
-        "win_rate": 88,
-        "uid": "B30GysZF0rMiIGGAA7FSyraf13D2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "大小人",
-        "rank": ""
-      },
-      {
-        "win_rate": 78,
-        "uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "無19",
-        "rank": ""
-      },
-      {
-        "win_rate": 78,
-        "uid": "FXzqjqFlRygUYu7S20XMqsFNxom1",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "工儘2",
-        "rank": ""
-      },
-      {
-        "win_rate": 78,
-        "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "運測2人",
-        "rank": "2"
-      },
-      {
-        "win_rate": 78,
-        "uid": "5kICOSoGJjWSExJx1vL56if0p1G2",
-        "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "珊迪",
-        "rank": "3"
-      }
-    ]
-  }
+  "userlists": [
+    {
+      "uid": "3IB0w6G4V8QUM2Ti3iCIfX4Viux1",
+      "avatar": "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/default%2Favatar%2Fdefault-profile-avatar.jpg?alt=media&token=7753385f-5457-4fe2-af8e-acef75fcccd8",
+      "displayname": "紅色警報2",
+      "win_rate": 3
+    },
+    {
+      "uid": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
+      "avatar": "https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/avatar%2F9f7ISNv4o5WSpzlpzy8p0iPbMR13%2F187345C4-A9D9-4CBA-8686-FA264C4B08B8.jpeg?alt=media&token=a1a09405-cfa9-4d03-9447-35b292d2360d",
+      "displayname": "炸裂設計師",
+      "win_rate": 3,
+      "rank": 2,
+      "default_title": 1,
+      "continue": 6,
+      "predict_rate": [
+        10,
+        6,
+        5
+      ],
+      "predict_rate2": [
+        10,
+        5
+      ],
+      "win_bets_continue": 6,
+      "matches_rate": [
+        6,
+        4
+      ],
+      "matches_continue": 6
+    },
+    {
+      "uid": "2WMRgHyUwvTLyHpLoANk7gWADZn1",
+      "avatar": "https://png.pngtree.com/png-clipart/20190629/original/pngtree-cartoon-dinosaur-hand-drawn-cute-commercial-elements-png-image_4068875.jpg",
+      "displayname": "台中大哥大",
+      "win_rate": 1,
+      "rank": 2,
+      "default_title": 1,
+      "continue": 10,
+      "predict_rate": [
+        14,
+        11,
+        9
+      ],
+      "predict_rate2": [
+        14,
+        9
+      ],
+      "win_bets_continue": 10,
+      "matches_rate": [
+        10,
+        8
+      ],
+      "matches_continue": 10
+    }
+  ]
 }
+*
+* @apiError 400 Bad Request
+*
+* @apiErrorExample {JSON} 400-Response
+* HTTP/1.1 400 Bad Request
+* [
+  {
+    "keyword": "enum",
+    "dataPath": ".range",
+    "schemaPath": "#/properties/range/enum",
+    "params": {
+      "allowedValues": [
+        "this_period",
+        "this_week",
+        "last_week",
+        "this_month",
+        "last_month",
+        "this_session"
+      ]
+    },
+    "message": "should be equal to one of the allowed values"
+  }
+]
  *
  * @apiError 500 Internal Server Error
  *
