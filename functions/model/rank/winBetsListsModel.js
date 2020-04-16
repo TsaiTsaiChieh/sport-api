@@ -84,7 +84,7 @@ function repackage(ele, rangstr) {
     displayname: ele.display_name,
   };
 
-  data[rangstr] = ele[rangstr];
+  data['win_bets'] = ele[rangstr];
 
   // 大神要 顯示 預設稱號
   if ([1, 2, 3, 4].includes(ele.rank_id)){
