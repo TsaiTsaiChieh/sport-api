@@ -553,7 +553,8 @@ const dbUtil = {
   NBA_MATCH,
   Prediction,
   User,
-  Title
+  Title,
+  Rank
 };
 
 module.exports = dbUtil;
