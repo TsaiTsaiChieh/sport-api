@@ -119,6 +119,17 @@ function leagueCodebook(league) {
   }
 }
 
+function leagueDecoder(leagueID) {
+  switch (leagueID) {
+    case '2274' || 2274:
+      return 'NBA';
+    case '3939' || 3939:
+      return 'MLB';
+    default:
+      return 'Unknown';
+  }
+}
+
 function getTitlesPeriod(date) {
   // date = new Date()
   const specificDate = '20200302';
@@ -208,5 +219,6 @@ module.exports = {
   simple2Tradition,
   UTF0,
   UTF8,
-  convertTimezone
+  convertTimezone,
+  leagueDecoder
 };
