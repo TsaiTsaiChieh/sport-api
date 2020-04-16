@@ -2,12 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
-      let result = await reResult(
-        args.sport,
-        args.league,
-        args.eventID,
-        args.time
-      );
+      let result = await reResult(args.sport, args.league, args.eventID);
 
       resolve(result);
     } catch (err) {
@@ -20,13 +15,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league, eventID, time) {
+async function reResult(sport, league, eventID) {
   let result;
-  result = await repackage(sport, league, eventID, time);
+  result = await repackage(sport, league, eventID);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league, eventID, time) {
+async function repackage(sport, league, eventID) {
   let leagueName = `pagetest_${league}`;
   let eventData = [];
   let query = await modules.firestore
@@ -45,6 +40,8 @@ async function repackage(sport, league, eventID, time) {
 
   eventData[0].sport = sport;
   eventData[0].league = league;
+
+  let time = eventData[0].scheduled._seconds * 1000;
   time = parseInt(time);
   let d = new Date(time);
   let scheduledDate = modules.moment(d).format('YYYY-MM-DD');
