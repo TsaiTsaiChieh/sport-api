@@ -22,7 +22,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  */
 
 /*
- * 文章資訊
+ * 文章
  */
 sequelize.define(
   'topic__article',
@@ -54,6 +54,39 @@ sequelize.define(
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0
+    }
+  }
+);
+
+/*
+ * 文章留言
+ */
+sequelize.define(
+  'topic__reply',
+  {
+    aid: { //文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    reply_id: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    images: { //放圖片url用
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    status: { //預設1為正常 其他可能-1為刪除之類的 待討論
+      type: Sequelize.INTEGER,
+      defaultValue: 1
     }
   }
 );

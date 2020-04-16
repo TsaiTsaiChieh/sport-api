@@ -7,6 +7,14 @@ router.get('/', function(req, res) {
   res.json(data);
 });
 
+router.get(
+  '/article/:aid',
+  require('../controller/topics/getArticleController')
+);
+router.get(
+  '/replies/:aid/:page',
+  require('../controller/topics/getRepliesController')
+);
 router.post(
   '/',
   require('../controller/topics/getTopicsController')
@@ -15,6 +23,11 @@ router.post(
   '/createTopic',
   verification.token,
   require('../controller/topics/createTopicController')
+);
+router.post(
+  '/createReply',
+  verification.token,
+  require('../controller/topics/createReplyController')
 );
 
 module.exports = router;

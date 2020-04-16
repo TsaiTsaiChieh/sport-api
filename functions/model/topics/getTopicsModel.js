@@ -1,7 +1,9 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil_ifyu');
 const log = require('../../util/loggingUtil');
+const func = require('./topicFunctions');
 const countPerPage = 20;
 function dbFind(where, page) {
   return new Promise(async function (resolve, reject) {
@@ -10,7 +12,8 @@ function dbFind(where, page) {
         where: where,
         limit: countPerPage,  //每頁幾個
         offset: countPerPage * page, //跳過幾個 = limit * index
-        distinct: true
+        distinct: true,
+        raw: true
       })
       resolve(result)
     } catch (error) {
@@ -20,25 +23,42 @@ function dbFind(where, page) {
     }
   })
 }
-async function getTopics(req, res) {
+async function getTopics(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      // const replyCount = await func.getTopicReplyCount(args.aid)
+      // console.log(replyCount)
+
       let where = {};
       let page = 0;
 
-      if(typeof req.type !== 'undefined'){
-        where['type'] = req.type
+      if(typeof args.type !== 'undefined'){
+        where['type'] = args.type
       }
-      if(typeof req.category !== 'undefined'){
-        where['category'] = req.category
+      if(typeof args.category !== 'undefined'){
+        where['category'] = args.category
       }
-      if(typeof req.page !== 'undefined'){
-        page = req.page
+      if(typeof args.page !== 'undefined'){
+        page = args.page
       }
 
       log.data(where)
 
       const topics = await dbFind(where, page)
+
+      
+      for (let i = 0; i < topics.rows.length; i++) {
+        try{
+          log.data(topics.rows[i])
+          let replyCount = await func.getTopicReplyCount(topics.rows[i].id)
+          console.log(replyCount)
+          topics.rows[i].reply_count = replyCount;
+        }catch(error){
+          console.log(error)
+          reject({ code: 500, error: 'get reply info failed' })
+        }
+      }
+
       resolve({ code: 200, topics: topics });
     } catch (err) {
       log.err(err);
