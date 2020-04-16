@@ -21,6 +21,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
  * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
+ * User ref: user__prediction
  */
 
 /*
@@ -269,6 +270,66 @@ const NBA_MATCH = sequelize.define(
   }
 );
 
+/*
+ * 預測單的資訊，unique key 為 bets_id, uid
+ */
+const Prediction = sequelize.define(
+  'user__prediction',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    bets_id: {
+      type: Sequelize.STRING
+    },
+    sell: {
+      type: Sequelize.INTEGER
+    },
+    spread_id: {
+      type: Sequelize.STRING
+    },
+    spread_option: {
+      type: Sequelize.STRING
+    },
+    spread_bets: {
+      type: Sequelize.INTEGER
+    },
+    totals_id: {
+      type: Sequelize.STRING
+    },
+    totals_option: {
+      type: Sequelize.STRING
+    },
+    totals_bets: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    user_status: {
+      type: Sequelize.STRING
+    },
+    spread_result_flag: {
+      type: Sequelize.INTEGER,
+      defaultValue: -2
+    },
+    totals_result_flag: {
+      type: Sequelize.INTEGER,
+      defaultValue: -2
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bets_id', 'uid']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -276,7 +337,8 @@ const dbUtil = {
   Spread,
   Totals,
   NBA_TEAM,
-  NBA_MATCH
+  NBA_MATCH,
+  Prediction
 };
 
 module.exports = dbUtil;
