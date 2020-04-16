@@ -145,11 +145,11 @@ function getTitlesPeriod(date) {
 
   for (let i = 0; i < Math.ceil(weeks / 2); i++) {
     const begin = moment(specificDate)
-      .utcOffset(UTF)
+      .utcOffset(UTF8)
       .add(i * 2, 'weeks')
       .valueOf();
     const end = moment(specificDate)
-      .utcOffset(UTF)
+      .utcOffset(UTF8)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
@@ -157,7 +157,7 @@ function getTitlesPeriod(date) {
       return {
         period: i, // 期數
         date: moment(specificDate)
-          .utcOffset(UTF)
+          .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
           .format('YYYYMMDD') // 該期的開始日期
       };
