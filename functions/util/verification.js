@@ -1,6 +1,8 @@
 /* eslint-disable consistent-return */
 const modules = require('../util/modules');
-
+const db = require('../util/dbUtil');
+const NORMAL_USER = 1;
+const GOD_USER = 2;
 async function admin(req, res, next) {
   try {
     const userSnapshot = await modules.getSnapshot('users', req.token.uid);
@@ -66,4 +68,45 @@ async function token(req, res, next) {
   next();
 }
 
-module.exports = { token, admin, confirmLogin };
+async function token_v2(req, res, next) {
+  try {
+    const bearerHeader = req.headers.authorization;
+    if (!bearerHeader) res.sendStatus(401);
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+      const decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(bearerToken, true);
+
+      const userResults = await db.User.findOne({
+        where: { uid: decodedIdToken.uid },
+        attributes: ['status']
+      });
+      req.token = decodedIdToken;
+      if (userResults.status === NORMAL_USER) {
+        req.token.customClaims = { role: NORMAL_USER, titles: [] };
+      } else if (userResults.status === GOD_USER) {
+        const titlesResult = await db.Title.findAll({
+          where: {
+            uid: decodedIdToken.uid,
+            period: modules.getTitlesPeriod(new Date()).period
+          },
+          attributes: ['league_id']
+        });
+        const titles = [];
+        for (let i = 0; i < titlesResult.length; i++) {
+          titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+        }
+
+        req.token.customClaims = { role: GOD_USER, titles };
+      }
+    }
+  } catch (err) {
+    console.error('Error in util/verification token_v2 functions', err);
+    res.sendStatus(401);
+  }
+  return next();
+}
+
+module.exports = { token, admin, confirmLogin, token_v2 };
