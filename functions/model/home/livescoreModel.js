@@ -29,6 +29,7 @@ async function repackage(sport, league) {
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
+
   time = '2020-07-01';
   let dateNow = new Date(time).toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
@@ -44,22 +45,25 @@ async function repackage(sport, league) {
   let outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
-    eventData[i].sport = sport;
-    eventData[i].league = league;
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000
     ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
     scheduled = scheduled.split(' ')[0];
 
-    // if (scheduled === dateNow) {
-    //   eventToday.push(eventData[i]);
-    // }
-    // 0 目前當天有幾場比賽已結束
     if (scheduled === dateNow && eventData[i].flag.status == 0) {
+      if (eventData[i].newest_spread.home_tw == '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw == '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       closedEvent.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id,
@@ -71,13 +75,20 @@ async function repackage(sport, league) {
       });
     }
 
-    // 1 目前當天有幾場比賽進行中
     if (scheduled === dateNow && eventData[i].flag.status == 1) {
-      // inprogressEvent.push(eventData[i]);
+      if (eventData[i].newest_spread.home_tw == '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw == '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       outputJson.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id,
@@ -88,12 +99,21 @@ async function repackage(sport, league) {
         },
       });
     }
-    // 2 目前當天有幾場比賽規劃中
+
     if (scheduled === dateNow && eventData[i].flag.status == 2) {
+      if (eventData[i].newest_spread.home_tw == '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw == '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       scheduledEvent.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id,

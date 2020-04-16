@@ -44,7 +44,6 @@ async function repackage(sport, league, UID, time) {
       out.push(eventData[0][Object.keys(eventData[0])[i]]);
     }
   }
-  console.log(out);
 
   return out;
 }
