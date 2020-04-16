@@ -25,7 +25,7 @@ function godlists(args) {
                ( 
                  select league_id 
                    from match__leagues
-                  where name = '${defaultValues['league']}' 
+                  where name = :league
                ) leagues,
                (
                  select * 
@@ -34,8 +34,8 @@ function godlists(args) {
                ) users
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
-           and titles.period = ${period}
-      `, { type: db.sequelize.QueryTypes.SELECT }); 
+           and titles.period = :period
+      `, { replacements: {league: defaultValues['league'], period: period}, type: db.sequelize.QueryTypes.SELECT }); 
       // 還少 販售條件 等待 預頁單 table
       // 還少 使用者 預設戰績稱號
 
