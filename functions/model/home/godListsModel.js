@@ -18,7 +18,7 @@ function godlists(args) {
       // 將來有排序條件，可以orderBy，但會和下面的order衝突
       const godListsQuery = await db.sequelize.query(`
         select titles.uid, users.avatar, users.display_name,
-               titles.rank_id, titles.default_title, titles.win_rate, titles.continune,
+               titles.rank_id, titles.default_title, titles.win_rate, titles.continue,
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
           from titles,
@@ -107,7 +107,7 @@ function repackage(league, ele) { // 實際資料輸出格式
     rank: ele.rank_id,
     default_title: ele.default_title,
     win_rate: ele.win_rate,
-    continune: ele.continue, // 連贏Ｎ場
+    continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
     win_bets_continue: ele.win_bets_continue, // 勝注連過 Ｎ日
