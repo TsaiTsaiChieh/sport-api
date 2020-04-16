@@ -24,6 +24,213 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * User ref: user__prediction
  */
 
+ /*
+ * Define schema
+ * The model will now be available in models under the name given to define
+ * Ex: sequelize.models.match
+ * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
+ */
+
+ /*
+ * 使用者資訊
+ */
+const User = sequelize.define(
+  'user',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    avatar: {
+      type: Sequelize.STRING
+    },
+    birthday: {
+      type: Sequelize.INTEGER
+    },
+    birthday_tw: {
+      type: Sequelize.DATE
+    },
+    display_name: {
+      type: Sequelize.STRING
+    },
+    dividend: {
+      type: Sequelize.INTEGER
+    },
+    email: {
+      type: Sequelize.STRING
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    phone: {
+      type: Sequelize.STRING
+    },
+    point: {
+      type: Sequelize.INTEGER
+    },
+    signature: {
+      type: Sequelize.STRING
+    },
+    default_title: {
+      type: Sequelize.STRING
+    },
+    // 改獨立成一個 titles table
+    // titles: {
+    //   type: Sequelize.STRING
+    // },
+    accuse_credit: {
+      type: Sequelize.INTEGER,
+    },
+    block_count: {
+      type: Sequelize.INTEGER
+    },  
+    block_message: {
+      type: Sequelize.INTEGER
+    },
+    block_message_tw: {
+      type: Sequelize.DATE
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    rank1_count: {
+      type: Sequelize.INTEGER
+    },
+    rank2_count: {
+      type: Sequelize.INTEGER
+    },
+    rank3_count: {
+      type: Sequelize.INTEGER
+    },
+    rank4_count: {
+      type: Sequelize.INTEGER
+    },
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid']
+      }
+    ]
+  }
+);
+
+/*
+ * 歷史大神 含 大神戰績資訊 
+ */
+const Title = sequelize.define(
+  'title',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    period: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    period_date: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    rank_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    default_title: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
+    win_bets: { // 勝注
+      type: Sequelize.INTEGER
+    },
+    win_rate: { // 勝率
+      type: Sequelize.INTEGER
+    },
+    continue: { // 連贏 N 天
+      type: Sequelize.INTEGER
+    },
+    predict_rate1: { // 近N日 N過 N  // 近N日過 N
+      type: Sequelize.INTEGER
+    },
+    predict_rate2: {
+      type: Sequelize.INTEGER
+    },
+    predict_rate3: {
+      type: Sequelize.INTEGER
+    },
+    win_bets_continue: { // 勝注連過 Ｎ日
+      type: Sequelize.INTEGER
+    },
+    matches_rate1: { // 近 Ｎ 場過 Ｎ 場
+      type: Sequelize.INTEGER
+    },
+    matches_rate2: {
+      type: Sequelize.INTEGER
+    },
+    matches_continue: { // 連贏Ｎ場
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      { fields: ['uid'] },
+      { fields: ['period'] },
+      { fields: ['period_date'] },
+      { fields: ['league_id'] },
+    ]
+  }
+);
+
+const Rank = sequelize.define(
+  'rank',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    rank_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    name: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['rank_id']
+      }
+    ]
+  }
+);
+
+
 /*
  * 各聯盟資訊，ex: NBA, MLB and so on
  */

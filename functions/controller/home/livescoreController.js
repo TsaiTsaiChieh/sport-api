@@ -1,32 +1,44 @@
 const modules = require('../../util/modules');
 const model = require('../../model/home/livescoreModel');
 async function livescore(req, res) {
-  // inprogress : query from realtime database 只會顯示三場
-  // 結束後依照league優先比重輪播（當該聯盟所有比賽都結束則自動更新成下一權重的比賽/手動選擇聯盟）
-  // closed : query from firestore
-
-  // 驗證
-
-  let out = {};
-  if (req.query.sport) {
-    out.sport = req.query.sport;
-  } else {
-    out.sport = 'baseball';
+  if (req.query.league === 'NBA') {
+    req.query.sport = 'basketball';
   }
-  if (req.query.league) {
-    out.league = req.query.league;
-  } else {
-    out.league = 'MLB';
+  if (req.query.league === 'MLB') {
+    req.query.sport = 'baseball';
   }
-  if (req.query.time) {
-    out.time = req.query.time;
-  } else {
-    // out.time = Date.now();
-    out.time = 1584982800000;
+  if (req.query.league === 'NHL') {
+    req.query.sport = 'icehockey';
+  }
+  if (req.query.league === 'soccer') {
+    req.query.sport = 'soccer';
+  }
+  //soccer
+  const schema = {
+    required: ['league', 'sport', 'time'],
+    properties: {
+      league: {
+        type: 'string',
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+      },
+      sport: {
+        type: 'string',
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+      },
+      time: {
+        type: 'string',
+      },
+    },
+  };
+
+  const valid = modules.ajv.validate(schema, req.query);
+  if (!valid) {
+    res.status(400).json(modules.ajv.errors);
+    return;
   }
 
   try {
-    res.json(await model(out));
+    res.json(await model(req.query));
   } catch (err) {
     res.status(err.code).json(err);
   }

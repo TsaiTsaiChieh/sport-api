@@ -5,45 +5,37 @@ async function livescore(req, res) {
   if (!req.query.category) {
     req.query.category = 'pbp';
   }
-
-  if (!req.query.time) {
-    //out.time = Date.now();
-    req.query.time = 1584982800000;
-  }
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
-    if (!req.query.eventID) {
-      req.query.eventID = '20200312';
-    }
   }
   if (req.query.league === 'MLB') {
     req.query.sport = 'baseball';
-    if (!req.query.eventID) {
-      req.query.eventID = '20200320';
-    }
   }
   if (req.query.league === 'NHL') {
     req.query.sport = 'icehockey';
   }
-  //soccer
+  if (req.query.league === 'soccer') {
+    req.query.sport = 'soccer';
+  }
+
   const schema = {
-    required: ['league', 'sport', 'eventID', 'category'],
+    required: ['league', 'sport', 'category', 'eventID'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
       },
       eventID: {
-        type: 'string'
+        type: 'string',
       },
       category: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -65,15 +57,14 @@ module.exports = livescore;
  * @apiName livescore detail/pbp
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```baseball```
- * @apiParam {String} league league name, the value are: ```MLB```
- * @apiParam {String} eventID ID of event, the value are: ```20200320```
+ * @apiParam {String} sport sport name, the value are: ```basketball```
+ * @apiParam {String} league league name, the value are: ```NBA```
+ * @apiParam {String} eventID ID of event, the value are: ```2114519```
  * 
  * @apiParamExample {JSON} Request-Query
  {
-   'sport' : 'baseball'
-   'league' : 'MLB'
-   'eventID' : '20200320'
+   'league' : 'NBA'
+   'eventID' : '2114519'
  }
 * @apiSuccess {Object} flag status of event 
 * @apiSuccess {Number} flag.status 0:closed, 1:inprogress, 2:closed 

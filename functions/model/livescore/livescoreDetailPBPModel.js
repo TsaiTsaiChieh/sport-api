@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       let result = await reResult(args.sport, args.league, args.eventID);
 
@@ -26,12 +26,12 @@ async function repackage(sport, league, eventID) {
     .where('bets_id', '==', eventID)
     .get();
 
-  query.forEach(doc => {
+  query.forEach((doc) => {
     eventData.push(doc.data());
   });
 
   let dateNow = new Date().toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
+    timeZone: 'Asia/Taipei',
   });
   dateNow = dateNow.split(' ')[0];
 
