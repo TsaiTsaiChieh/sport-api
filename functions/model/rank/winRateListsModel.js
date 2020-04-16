@@ -113,8 +113,9 @@ function repackage(ele, rangstr) {
 }
 
 function rangeWinRateCodebook(range){
-  'this_week', 'last_week', 'this_month', 'last_month', 'this_session'
   switch (range) {
+    case 'this_period':
+      return 'this_period_win_bets';
     case 'this_week':
       return 'this_week_win_rate';
     case 'last_week':
@@ -123,8 +124,8 @@ function rangeWinRateCodebook(range){
       return 'this_month_win_rate';
     case 'last_month':
       return 'last_month_win_rate';
-    case 'this_session':
-      return 'this_session_win_rate';
+    case 'this_season':
+      return 'this_season_win_rate';
   }
 }
 
