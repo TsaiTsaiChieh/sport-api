@@ -37,7 +37,15 @@ async function repackage(sport, league, UID, time) {
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
+  let out = [];
 
-  return eventData;
+  for (let i = 0; i < Object.keys(eventData[0]).length - 1; i++) {
+    if (time == eventData[0][Object.keys(eventData[0])[i]].scheduled) {
+      out.push(eventData[0][Object.keys(eventData[0])[i]]);
+    }
+  }
+  console.log(out);
+
+  return out;
 }
 module.exports = livescore;

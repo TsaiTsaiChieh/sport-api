@@ -30,7 +30,7 @@ async function repackage(sport, league, time) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+  let dateNow = new Date(time).toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
   });
   dateNow = dateNow.split(' ')[0];

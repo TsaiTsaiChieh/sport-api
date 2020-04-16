@@ -3,8 +3,8 @@ const axios = require('axios');
 const transNBA = require('./translateNBA.js');
 const translateNBA = transNBA.translateNBA;
 const firestoreName = 'page_NBA';
-const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
-// const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
+// const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
+const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
 // const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
 
 // 14 秒一次

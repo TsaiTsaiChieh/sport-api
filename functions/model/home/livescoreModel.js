@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
-      result = await reResult(args.sport, args.league, args.time);
+      result = await reResult(args.sport, args.league);
 
       resolve(result);
     } catch (err) {
@@ -12,13 +12,13 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league, time) {
+async function reResult(sport, league) {
   let result;
-  result = await repackage(sport, league, time);
+  result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league, time) {
+async function repackage(sport, league) {
   let leagueName = `pagetest_${league}`;
   let query = await modules.firestore
     .collection(leagueName)
@@ -29,10 +29,11 @@ async function repackage(sport, league, time) {
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
-
-  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+  time = '2020-07-01';
+  let dateNow = new Date(time).toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
   });
+
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
@@ -41,7 +42,6 @@ async function repackage(sport, league, time) {
   let inprogressEvent = [];
   let scheduledEvent = [];
   let outputJson = [];
-  console.log(eventData.length);
 
   for (let i = 0; i < eventData.length; i++) {
     eventData[i].sport = sport;
@@ -107,27 +107,33 @@ async function repackage(sport, league, time) {
   }
 
   if (outputJson.length == 0) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
   if (outputJson.length == 1) {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
   if (outputJson.length == 2) {
+    for (let i = 0; i < 2; i++) {
+      if (closedEvent[i]) {
+        outputJson.push(closedEvent[i]);
+      }
+    }
+  }
+  if (outputJson.length == 3) {
     for (let i = 0; i < 1; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-
   return outputJson;
 }
 module.exports = livescore;
