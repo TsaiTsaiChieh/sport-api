@@ -23,7 +23,7 @@ function godlists(args) {
                ( 
                  select league_id 
                    from match__leagues
-                  where name = '${league}' 
+                  where name = :league 
                ) leagues,
                (
                  select * 
@@ -33,7 +33,7 @@ function godlists(args) {
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
            and titles.period = ${period}
-      `, { type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
+      `, { replacements:{league: league}, type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
