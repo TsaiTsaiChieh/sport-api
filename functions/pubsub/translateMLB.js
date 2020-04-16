@@ -1,5 +1,4 @@
 const modules = require('../util/modules');
-
 async function translateMLB(
   stringOrigin,
   keywordHomeOrigin,
@@ -34,8 +33,8 @@ async function translateMLB(
       'oKST2',
       'oKST3',
       'oKST4',
-      'kF',
       'kFT',
+      'kF',
       'kKL',
       'kKS',
       'oBI',
@@ -73,8 +72,8 @@ async function translateMLB(
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}揮棒落空，跑者出局於二壘`,
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}揮棒落空，跑者出局於三壘`,
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}揮棒落空，跑者出局於本壘`,
-      `${stringOrigin[1]}擊出界外球`,
       `${stringOrigin[1]}擊出擦棒被捕球`,
+      `${stringOrigin[1]}擊出界外球`,
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}未揮棒`,
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}揮棒落空`,
       `${stringOrigin[1]}妨礙守備`,
@@ -93,7 +92,7 @@ async function translateMLB(
     let flag = false;
 
     for (let i = 0; i < keyword.length; i++) {
-      if (finalString[2].indexof(keyword[i]) >= 0) {
+      if (finalString[2].indexOf(keyword[i]) >= 0) {
         // miss match
         flag = true;
         break;
@@ -109,6 +108,7 @@ async function translateMLB(
         }
       }
     }
+
     return finalString[2];
   }
 
@@ -225,14 +225,17 @@ async function translateMLB(
       ' pops out to shallow center infield to',
       ' pops out to shallow right infield to',
       ' pops out to shallow left infield to',
+      ' pops out to shortstop to',
       ' grounds out to shallow infield to',
       ' grounds out to shallow center infield to',
       ' grounds out to shallow right infield to',
       ' grounds out to shallow left infield to',
+      ' grounds out to shortstop to',
       ' lines out to shallow infield to',
       ' lines out to shallow center infield to',
       ' lines out to shallow right infield to',
       ' lines out to shallow left infield to',
+      ' lines out to shortstop to',
       ' pops out to infield to',
       ' pops out to center infield to',
       ' pops out to right infield to',
@@ -526,20 +529,20 @@ async function translateMLB(
       ' out on a sacrifice fly to right center field',
       ' out on a sacrifice fly to left field',
       ' out on a sacrifice fly to left center field',
-      '(C)',
-      '(IF)',
-      '(1B)',
-      '(2B)',
-      '(3B)',
-      '(SS)',
-      '(OF)',
-      '(LF)',
-      '(CF)',
-      '(P)',
-      '(RF)',
-      '(RP)',
-      '(SP)',
-      '(DH)',
+      ' (C)',
+      ' (IF)',
+      ' (1B)',
+      ' (2B)',
+      ' (3B)',
+      ' (SS)',
+      ' (OF)',
+      ' (LF)',
+      ' (CF)',
+      ' (P)',
+      ' (RF)',
+      ' (RP)',
+      ' (SP)',
+      ' (DH)',
       'as C',
       'as P',
       'to IF ',
@@ -569,20 +572,6 @@ async function translateMLB(
       'to first',
       'to second',
       'to third',
-      '(C)',
-      '(IF)',
-      '(1B)',
-      '(2B)',
-      '(3B)',
-      '(SS)',
-      '(OF)',
-      '(LF)',
-      '(CF)',
-      '(P)',
-      '(RF)',
-      '(RP)',
-      '(SP)',
-      '(DH)',
       'pops out to',
       'grounds out to',
       'lines out to',
@@ -628,10 +617,8 @@ async function translateMLB(
       'singles',
       'doubles',
       'thirds',
-      ' C ',
-      ' P ',
-      ' C.',
-      ' P.',
+      ' as C.',
+      ' as P.',
     ];
 
     keywordTrans = [
@@ -705,7 +692,7 @@ async function translateMLB(
       '擊出中間偏左方向全壘打',
       '在一壘出局',
       '在二壘出局',
-      '在三壘出局', //
+      '在三壘出局',
       '擊出往一壘高飛球被接殺（由',
       '擊出往二壘高飛球被接殺（由',
       '擊出往三壘高飛球被接殺（由',
@@ -719,14 +706,17 @@ async function translateMLB(
       '擊出中內野高飛球被接殺（由',
       '擊出右內野高飛球被接殺（由',
       '擊出左內野高飛球被接殺（由',
+      '擊出二壘與三壘間高飛球被接殺（由',
       '擊出內野滾地球被刺殺（由',
       '擊出中內野滾地球被刺殺（由',
       '擊出右內野滾地球被刺殺（由',
       '擊出左內野滾地球被刺殺（由',
+      '擊出二壘與三壘間滾地球被接殺（由',
       '擊出內野平飛球被接殺（由',
       '擊出中內野平飛球被接殺（由',
       '擊出右內野平飛球被接殺（由',
       '擊出左內野平飛球被接殺（由',
+      '擊出二壘與三壘間平飛球被接殺（由',
       '擊出內野高飛球被接殺（由',
       '擊出中內野高飛球被接殺（由',
       '擊出右內野高飛球被接殺（由',
@@ -1060,20 +1050,6 @@ async function translateMLB(
       '上一壘',
       '上二壘',
       '上三壘',
-      '（捕手）',
-      '（內野手）',
-      '（一壘手）',
-      '（二壘手）',
-      '（三壘手）',
-      '（游擊手）',
-      '（外野手）',
-      '（左外野手）',
-      '（中外野手）',
-      '（投手）',
-      '（右外野手）',
-      '（後援投手）',
-      '（先發投手）',
-      '（指定打擊）',
       '擊出高飛球被接殺（由',
       '擊出滾地球被刺殺（由',
       '擊出平飛球被接殺（由',
@@ -1119,11 +1095,10 @@ async function translateMLB(
       '一壘安打',
       '二壘安打',
       '三壘安打',
-      ' 捕手 ',
-      ' 投手 ',
       ' 捕手.',
       ' 投手.',
     ];
+
     for (let i = 0; i < keyword.length; i++) {
       finalString = await finalString.replace(
         new RegExp(keyword[i], 'g'),
