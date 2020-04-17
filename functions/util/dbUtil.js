@@ -495,9 +495,16 @@ const Prediction = sequelize.define(
       primaryKey: true
     },
     bets_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.INTEGER
     },
     sell: {
+      type: Sequelize.INTEGER
+    },
+    match_scheduled: {
       type: Sequelize.INTEGER
     },
     spread_id: {
@@ -519,7 +526,8 @@ const Prediction = sequelize.define(
       type: Sequelize.INTEGER
     },
     uid: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false
     },
     user_status: {
       type: Sequelize.STRING
@@ -537,7 +545,19 @@ const Prediction = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['bets_id', 'uid']
+        fields: ['uid', 'bets_id', 'spread_id']
+      },
+      {
+        unique: true,
+        fields: ['uid', 'bets_id', 'totals_id']
+      },
+      {
+        unique: true,
+        fields: ['uid', 'match_scheduled']
+      },
+      {
+        unique: true,
+        fields: ['uid', 'bets_id'] // 若無這組 key，使用者分別新增讓分或大小分會是兩張預測單
       }
     ]
   }
