@@ -184,6 +184,14 @@ async function NBApbpInplay(parameter) {
             }/events${eventsCount}/description_ch`
           );
           await ref.set(descCH);
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/periods${
+              periodsCount + 1
+            }/events${eventsCount}/clock`
+          );
+          await ref.set(
+            dataPBP.periods[periodsCount].events[eventsCount].clock
+          );
           if (
             dataPBP.periods[periodsCount].events[eventsCount].event_type !=
               'review' &&
@@ -245,6 +253,7 @@ async function NBApbpInplay(parameter) {
           );
         }
       }
+
       //call summary to get player information
       await ref.set(dataSummary.home.scoring[periodsCount].points);
       ref = modules.database.ref(
@@ -297,7 +306,7 @@ async function NBApbpInplay(parameter) {
           `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
         );
         if (dataSummary.home.players[i].starter != undefined) {
-          await ref.set('1');
+          await ref.set(dataSummary.home.players[i].primary_position);
         } else {
           await ref.set('0');
         }
@@ -307,7 +316,7 @@ async function NBApbpInplay(parameter) {
         await ref.set({
           minutes: dataSummary.home.players[i].statistics.minutes,
           points: dataSummary.home.players[i].statistics.points,
-          blocks: dataSummary.home.players[i].statistics.blocks,
+          rebounds: dataSummary.home.players[i].statistics.rebounds,
           assists: dataSummary.home.players[i].statistics.assists,
         });
       }
@@ -316,7 +325,7 @@ async function NBApbpInplay(parameter) {
           `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
         );
         if (dataSummary.away.players[i].starter != undefined) {
-          await ref.set('1');
+          await ref.set(dataSummary.away.players[i].primary_position);
         } else {
           await ref.set('0');
         }
@@ -326,7 +335,7 @@ async function NBApbpInplay(parameter) {
         await ref.set({
           minutes: dataSummary.away.players[i].statistics.minutes,
           points: dataSummary.away.players[i].statistics.points,
-          blocks: dataSummary.away.players[i].statistics.blocks,
+          rebounds: dataSummary.away.players[i].statistics.rebounds,
           assists: dataSummary.away.players[i].statistics.assists,
         });
       }
