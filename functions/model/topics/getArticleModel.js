@@ -5,11 +5,13 @@ const log = require('../../util/loggingUtil');
 function dbFind(aid) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__article.findAll({
+      const result = await db.sequelize.models.topic__article.findOne({
         where: {
           'id': aid
         }
       })
+      const view_count = result.view_count + 1;
+      result.update({ view_count: view_count })
       resolve(result)
     } catch (error) {
       log.data(error);
@@ -22,10 +24,10 @@ async function getArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const article = await dbFind(args)
-      if(!article[0]){
+      if(!article){
         reject({ code: 404, error: 'article not found' });
       }
-      resolve({ code: 200, article: article[0] });
+      resolve({ code: 200, article: article });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
