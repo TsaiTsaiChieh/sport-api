@@ -74,6 +74,7 @@ app.use('/sport', require('./routers/sport'));
 app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
 app.use('/livescore', require('./routers/livescore'));
+app.use('/rank', require('./routers/rank'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
