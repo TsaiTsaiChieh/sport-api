@@ -7,16 +7,24 @@ async function predictMatches(req, res) {
   const spreadSchema = {
     type: 'array',
     items: [
-      { type: 'string' },
-      { type: 'string', enum: ['home', 'away'] },
+      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        enum: ['home', 'away']
+      },
       { type: 'integer', minimum: 1, maximum: 3 }
     ]
   };
   const totalsSchema = {
     type: 'array',
     items: [
-      { type: 'string' },
-      { type: 'string', enum: ['over', 'under'] },
+      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        enum: ['over', 'under']
+      },
       { type: 'integer', minimum: 1, maximum: 3 }
     ]
   };
@@ -30,7 +38,7 @@ async function predictMatches(req, res) {
       },
       sell: {
         type: 'integer',
-        enum: [0, 1]
+        enum: [-1, 0, 1] // -1 為一般玩家，0 為大神免費觀看，1 為大神販售
       },
       matches: {
         type: 'array',
@@ -50,7 +58,8 @@ async function predictMatches(req, res) {
           ],
           properties: {
             id: {
-              type: 'string'
+              type: 'string',
+              pattern: modules.acceptNumberAndLetter
             },
             spread: spreadSchema,
             totals: totalsSchema
