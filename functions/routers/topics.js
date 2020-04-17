@@ -25,6 +25,11 @@ router.post(
   require('../controller/topics/createTopicController')
 );
 router.post(
+  '/editArticle',
+  verification.token,
+  require('../controller/topics/editArticleController')
+);
+router.post(
   '/createReply',
   verification.token,
   require('../controller/topics/createReplyController')
