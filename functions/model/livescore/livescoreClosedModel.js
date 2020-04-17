@@ -30,14 +30,14 @@ async function repackage(sport, league, time) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date(parseInt(time)).toLocaleString('zh-TW', {
+  let dateNow = new Date(time).toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
   });
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
   let closedEvent = [];
-
+  console.log(dateNow);
   for (let i = 0; i < eventData.length; i++) {
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000
