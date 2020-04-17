@@ -10,27 +10,42 @@ function winRateLists(args) {
       `SELECT * FROM match__leagues ORDER BY ${league_id} DESC LIMIT 1`,
       {
         type: db.sequelize.QueryTypes.SELECT,
-      }).then(function(data){
-        return data[0];
-      });
+        plain: true,
+      })
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
     // let winRateLists = {
     //   NBA: [],
     //   MLB: []
     // }
+    if(defaultValues!=null){
+      defaultValues_name = defaultValues.name;
+    }else{
+      defaultValues_name = 'NBA';
+    }
+    
     let winRateLists = {};
-    winRateLists[defaultValues.name] = []; // 像上面的範例
+    winRateLists[defaultValues_name] = []; 
 
     try {
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
-        let league_id = defaultValues.league_id;
+        let defaultValues_league_id;
+        if(defaultValues!=null){
+          defaultValues_league_id = defaultValues.league_id;
+        }else{
+          defaultValues_league_id = 2274;
+        }
         let order = 'this_month_win_rate';
         let limit = 5;
         const leagueWinRateListsQuery = await db.sequelize.query(
-
-          `SELECT * FROM users__win__lists uwl INNER JOIN users u ON uwl.uid = u.uid WHERE league_id = ${league_id} ORDER BY ${order} DESC LIMIT ${limit}`,
+          `
+          SELECT * 
+            FROM users__win__lists uwl, users u 
+           WHERE uwl.uid = u.uid 
+             and league_id = ${defaultValues_league_id} 
+           ORDER BY  ${order} DESC limit ${limit}
+          `,
           {
             type: db.sequelize.QueryTypes.SELECT,
           });
