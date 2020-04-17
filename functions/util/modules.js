@@ -16,7 +16,9 @@ const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
+const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 
+// 表示輸入的時間為該時區 ，輸出會幫你轉為 GMT 時間
 function convertTimezone(date, operation, zone = zone_tw) {
   if (operation) {
     if (operation.op === 'add')
@@ -106,14 +108,17 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
+        id: 2274,
         match: db.basketball_NBA
       };
     case 'SBL':
       return {
+        id: 8251,
         match: db.basketball_SBL
       };
     case 'MLB':
       return {
+        id: 3939,
         match: db.baseball_MLB
       };
   }
@@ -220,5 +225,6 @@ module.exports = {
   UTF0,
   UTF8,
   convertTimezone,
-  leagueDecoder
+  leagueDecoder,
+  acceptNumberAndLetter
 };
