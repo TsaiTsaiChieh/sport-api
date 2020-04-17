@@ -42,8 +42,8 @@ async function getReplies(args) {
       let usersToGetUnique = [...new Set(usersToGet)];
       try{
         usersInfo = await func.getUserInfo(usersToGetUnique)
-        log.data(usersToGetUnique)
-        log.data(usersInfo)
+        // log.data(usersToGetUnique)
+        // log.data(usersInfo)
       }catch(error){
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })

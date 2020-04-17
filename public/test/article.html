@@ -18,12 +18,12 @@
       </div>
       <div style="padding:5px;" v-html="article.content"></div>
       <hr>
-      <div style="padding:5px; text-align: right;">{{article.view_count}}人已看過</div>
+      <div style="padding:5px; text-align: right;" v-if="article.user_info">作者：{{article.user_info.display_name}} / {{article.view_count}}人已看過</div>
     </div>
     <div v-for="(item, index) in replies" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
       <div style="white-space: pre; padding:5px;" v-html="item.content"></div>
       <hr>
-      <div style="padding:5px; text-align: right;">讚</div>
+      <div style="padding:5px; text-align: right;" v-if="item.user_info">作者：{{item.user_info.display_name}} / 讚</div>
     </div>
 
   </div>
