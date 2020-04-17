@@ -19,6 +19,15 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 
 // 表示輸入的時間為該時區 ，輸出會幫你轉為 GMT 時間
+/* 
+  date: 2020-07-01 or 20200701
+  operation: {
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      }
+  zone: 'America/Los_Angeles' or 'Asia/Taipei'
+*/
 function convertTimezone(date, operation, zone = zone_tw) {
   if (operation) {
     if (operation.op === 'add')
@@ -30,6 +39,9 @@ function convertTimezone(date, operation, zone = zone_tw) {
         .unix();
   }
   return moment.tz(date, zone).unix();
+}
+function convertTimezoneFormat(unix, zone = zone_tw) {
+  return moment.tz(unix * 1000, zone).format('YYYYMMDD');
 }
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
@@ -225,6 +237,7 @@ module.exports = {
   UTF0,
   UTF8,
   convertTimezone,
+  convertTimezoneFormat,
   leagueDecoder,
   acceptNumberAndLetter
 };
