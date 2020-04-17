@@ -18,24 +18,14 @@ function winBetsLists(args) {
     //   NBA: [],
     //   MLB: []
     // }
-    if(defaultValues!=null){
-      defaultValues_name = defaultValues.name;
-    }else{
-      defaultValues_name = 'NBA';
-    }
 
     let winBetsLists = {};
-    winBetsLists[defaultValues_name] = [];
+    winBetsLists[defaultValues.name] = [];
 
     try {
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
-        let defaultValues_league_id;
-        if(defaultValues!=null){
-          defaultValues_league_id = defaultValues.league_id;
-        }else{
-          defaultValues_league_id = 2274;
-        }
+        let league_id = defaultValues.league_id;
         let order = 'this_month_win_bets';
         let limit = 5;
         const leagueWinBetsListsQuery = await db.sequelize.query(
@@ -43,7 +33,7 @@ function winBetsLists(args) {
           SELECT * 
             FROM users__win__lists uwl, users u 
            WHERE uwl.uid = u.uid 
-             and league_id = ${defaultValues_league_id} 
+             and league_id = ${league_id} 
            ORDER BY  ${order} DESC limit ${limit}
           `,
           {
