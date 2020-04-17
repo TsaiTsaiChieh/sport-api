@@ -156,13 +156,18 @@ const Title = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false
     },
+    default_title: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    },
     win_bets: { // 勝注
       type: Sequelize.INTEGER
     },
     win_rate: { // 勝率
       type: Sequelize.INTEGER
     },
-    continune: { // 連贏 N 天
+    continue: { // 連贏 N 天
       type: Sequelize.INTEGER
     },
     predict_rate1: { // 近N日 N過 N  // 近N日過 N
