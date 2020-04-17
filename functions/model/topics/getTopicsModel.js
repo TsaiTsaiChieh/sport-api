@@ -42,21 +42,26 @@ async function getTopics(args) {
         page = args.page
       }
 
-      log.data(where)
-
       const topics = await dbFind(where, page)
 
-      
+      /* 下面讀取留言數 */
+      let repliesToGet = []; // 把aid存進來
+      let repliesCount = []
       for (let i = 0; i < topics.rows.length; i++) {
-        try{
-          log.data(topics.rows[i])
-          let replyCount = await func.getTopicReplyCount(topics.rows[i].id)
-          console.log(replyCount)
-          topics.rows[i].reply_count = replyCount;
-        }catch(error){
-          console.log(error)
-          reject({ code: 500, error: 'get reply info failed' })
-        }
+        repliesToGet.push(topics.rows[i].id)
+      }
+      try{
+        repliesCount = await func.getTopicReplyCount(repliesToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        log.data(repliesCount)
+      }catch(error){
+        console.log(error)
+        reject({ code: 500, error: 'get reply info failed' })
+      }
+
+      for(let i = 0; i < topics.rows.length; i++){
+        let replyCount = repliesCount.filter( obj => obj.aid === topics.rows[i].id.toString() ); // 把aid=id的那則挑出來
+        replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
+        topics.rows[i].reply_count = replyCount;
       }
 
       resolve({ code: 200, topics: topics });

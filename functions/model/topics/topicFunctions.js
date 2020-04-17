@@ -2,6 +2,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil_ifyu');
 const log = require('../../util/loggingUtil');
+const Op = require('Sequelize').Op;
 
 module.exports.getTopicInfo = async function (aid) {
   return new Promise(async function (resolve, reject) {
@@ -20,14 +21,21 @@ module.exports.getTopicInfo = async function (aid) {
     }
   })
 }
-module.exports.getTopicReplyCount = async function (aid) {
+module.exports.getTopicReplyCount = async function (articles) {
   return new Promise(async function (resolve, reject) {
     try {
-      log.info('function: get topic reply count by aid: '+aid);
-      const result = await db.sequelize.models.topic__reply.count({
+      // SQL原意：SELECT aid, COUNT(*) FROM topic__replies WHERE aid = 116 OR aid = 117 GROUP BY aid;
+      const result = db.sequelize.models.topic__reply.findAll({
+        attributes: [
+          'aid',
+          [db.sequelize.fn('COUNT', db.sequelize.col('aid')), 'count']
+        ],
         where: {
-          aid: aid
+          aid: {
+            [Op.or]: articles
+          },
         },
+        group: 'aid',
         raw: true
       })
       resolve(result)
