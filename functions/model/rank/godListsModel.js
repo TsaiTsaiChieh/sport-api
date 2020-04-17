@@ -55,19 +55,20 @@ function godlists(args) {
 
 function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   const diamondArr = [];
-  const godArr = [];
+  const goldArr = [];
   const silverArr = [];
   const copperArr = [];
 
   sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
     switch (data[`rank_id`]){ // 大神等級分類
       case 1: diamondArr.push(data); break;
-      case 2: godArr.push(data); break;
+      case 2: goldArr.push(data); break;
       case 3: silverArr.push(data); break;
       case 4: copperArr.push(data); break;
     }
   });
-
+  
+  // 底下順序將來會有可能別的條件，可以在 sort 內進行判斷
   // 鑽石 依勝注 排序
   diamondArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_bets < b.win_bets; // 降 大->小
@@ -77,10 +78,10 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   });
 
   // 金 依勝率 排序
-  godArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  goldArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['god'] = godArr.map(function(t){
+  godLists['gold'] = goldArr.map(function(t){
     return repackage_winRate(t); 
   });
 

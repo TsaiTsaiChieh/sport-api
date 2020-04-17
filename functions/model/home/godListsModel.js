@@ -66,14 +66,14 @@ function getRandom(x) {
 function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   // 鑽 金 銀 銅 隨機選一個
   const diamondArr = [];
-  const godArr = [];
+  const goldArr = [];
   const silverArr = [];
   const copperArr = [];
 
   sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
     switch (data[`rank_id`]){ // 大神等級分類
       case 1: diamondArr.push(data); break;
-      case 2: godArr.push(data); break;
+      case 2: goldArr.push(data); break;
       case 3: silverArr.push(data); break;
       case 4: copperArr.push(data); break;
       }
@@ -82,7 +82,7 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   wants = 1; // 隨機取幾個
 
   for(let i=1; i<=wants; i++){
-    [diamondArr, godArr, silverArr, copperArr].forEach(function(arr){ // 鑽 金 銀 銅 依序產生
+    [diamondArr, goldArr, silverArr, copperArr].forEach(function(arr){ // 鑽 金 銀 銅 依序產生
       if(arr.length > 0) {
         const index = getRandom(arr.length); // 取得隨機數
         lists.push(repackage(league, arr[index])); 
