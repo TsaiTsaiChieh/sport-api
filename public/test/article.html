@@ -1,0 +1,89 @@
+<head>
+  <title>article by ifyu</title>
+  <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div style="width:100%; background-color: lightskyblue;"><a href="/auth.html">[登入頁]</a> {{fbAuth ? fbAuth.displayName : '未登入'}}</div>
+    <div style="width:100%; text-align: center;"><h3>文章</h3></div>
+    <img v-show="!loaded" style="width:30px; height:30px; position:fixed; top:42px; right:13px; border:0;" src="loading.gif" />
+    <div style="width:100%; background-color: rgb(204, 204, 204);  margin-top: 10px;">
+      <div style="background-color: green; padding:5px">
+        <span style="background-color: orange;">{{article.type}}</span>
+        <span style="background-color: red;">{{article.category}}</span>
+        {{article.title}}
+      </div>
+      <div style="padding:5px;" v-html="article.content"></div>
+      <hr>
+      <div style="padding:5px; text-align: right;">{{article.view_count}}人已看過</div>
+    </div>
+    <div v-for="(item, index) in replies" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
+      <div style="white-space: pre; padding:5px;" v-html="item.content"></div>
+      <hr>
+      <div style="padding:5px; text-align: right;">讚</div>
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+    const firebaseConfig = {
+      apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+      authDomain: 'sportslottery-test.firebaseapp.com',
+      databaseURL: 'https://sportslottery-test.firebaseio.com',
+      projectId: 'sportslottery-test',
+      storageBucket: 'sportslottery-test.appspot.com',
+      messagingSenderId: '969081540385',
+      appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
+    };
+    firebase.initializeApp(firebaseConfig);
+    let dbUtil = firebase.firestore();
+    let ref = dbUtil.collection('topics')
+
+    Vue.config.devtools = true;
+    var app = new Vue({
+      el: '#app',
+      data: {
+        fbAuth: null,
+        loaded: false,
+        article: {},
+        replies: [],
+        aid: parseInt(location.hash.substring(1)),
+      },
+      mounted: function(){
+        let vm = this;
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user){
+            vm.fbAuth = user;
+          }
+        });
+        /** 程式碼寫在下面 **/
+        let res = [];
+        axios.get('/topics/article/'+vm.aid)
+        .then(function(response) {
+          console.log(response)
+          vm.article = response.data.article;
+        })
+        .catch(function(error) {
+          console.log('asios failed', error);
+          vm.loaded = true;
+        })
+        axios.get('/topics/replies/'+vm.aid+'/0')
+        .then(function(response) {
+          console.log(response)
+          vm.replies = response.data.replies.rows;
+          vm.loaded = true;
+        })
+        .catch(function(error) {
+          console.log('asios failed', error);
+          vm.loaded = true;
+        })
+      },
+      methods: {
+      }
+    })
+
+  </script>
+</body>

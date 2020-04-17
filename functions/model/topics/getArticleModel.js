@@ -22,7 +22,10 @@ async function getArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const article = await dbFind(args)
-      resolve({ code: 200, article: article });
+      if(!article[0]){
+        reject({ code: 404, error: 'article not found' });
+      }
+      resolve({ code: 200, article: article[0] });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
