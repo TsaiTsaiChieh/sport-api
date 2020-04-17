@@ -1,7 +1,7 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const db = require('../../util/dbUtil_ifyu');
+const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const Op = require('sequelize').Op;
 /* 施工中

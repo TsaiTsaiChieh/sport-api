@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const db = require('../../util/dbUtil_ifyu');
+const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 function dbFind(aid) {
   return new Promise(async function (resolve, reject) {

@@ -476,6 +476,115 @@ const NBA_MATCH = sequelize.define(
   }
 );
 
+/* 這邊給如果用 */
+
+/*
+ * 文章
+ */
+sequelize.define(
+  'topic__article',
+  {
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    type: { //球種/看板?
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    category: { //文章分類
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    status: { //預設1為正常 其他可能-1為刪除之類的 待討論
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  }
+);
+
+/*
+ * 文章留言
+ */
+sequelize.define(
+  'topic__reply',
+  {
+    aid: { //文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    reply_id: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    images: { //放圖片url用
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    status: { //預設1為正常 其他可能-1為刪除之類的 待討論
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    }
+  }
+);
+
+/*
+ * 首頁圖
+ */
+sequelize.define(
+  'home__banner',
+  {
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    url: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    link: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: ''
+    },
+    sort: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1 //1為正常 -1可能為刪除 尚未實作
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['sort', 'status']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
