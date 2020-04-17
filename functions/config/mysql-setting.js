@@ -12,7 +12,7 @@ const dialectOptions = isEmulator
   ? { ssl: SSL }
   : { socketPath: host, connectTimeout: 60000 };
 const setting = {
-  db_name: 'dosport',
+  db_name: { dev: 'dosport' },
   db_user: 'root',
   db_password: 'dosportsSQL',
   host: host,
