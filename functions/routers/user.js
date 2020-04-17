@@ -35,7 +35,7 @@ router.post(
 );
 router.post(
   '/predict_matches_v2',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/_predictMatchesController')
 );
 router.post(
