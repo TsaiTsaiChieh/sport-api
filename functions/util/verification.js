@@ -53,7 +53,7 @@ async function confirmLogin_v2(req, res, next) {
         .auth()
         .verifySessionCookie(bearerToken, true);
       req.token = decodedIdToken;
-      req.token.customClaims = getRoleAndTitles(decodedIdToken.uid);
+      req.token.customClaims = await getRoleAndTitles(decodedIdToken.uid);
     } else {
       // do nothing
     }
@@ -99,7 +99,7 @@ async function token_v2(req, res, next) {
         .auth()
         .verifySessionCookie(bearerToken, true);
       req.token = decodedIdToken;
-      req.token.customClaims = getRoleAndTitles(decodedIdToken.uid);
+      req.token.customClaims = await getRoleAndTitles(decodedIdToken.uid);
     }
   } catch (err) {
     console.error('Error in util/verification token_v2 functions', err);
