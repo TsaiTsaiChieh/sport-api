@@ -64,12 +64,6 @@ function winRateLists(args) {
               type: db.sequelize.QueryTypes.SELECT,
            });
 
-
-        // const leagueWinRateListsQuery = await modules.firestore.collection(`users_win_lists_${key}`)
-        //   .orderBy(`this_month_win_rate`, 'desc')
-        //   .limit(5)
-        //   .get();
-
         leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
           leagueWinRateLists.push( repackage(data, rangeWinRateCodebook(range)) );
         });
