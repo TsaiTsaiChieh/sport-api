@@ -14,6 +14,12 @@ class ExtendableError extends Error {
     Error.captureStackTrace(this, this.constructor.name);
   }
 }
+/* --------------------------- 200 OK ---------------------------*/
+class UserPredictFailed extends ExtendableError {
+  constructor(message, status = 1000, isPublic = true, code = httpStatus.OK) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 404 NOT FOUND ---------------------------*/
 /**
  * 找不到使用者資料 Error
@@ -41,16 +47,6 @@ class UserCouldNotSell extends ExtendableError {
   constructor(
     message = '使用者非法操作',
     status = 1201,
-    isPublic = true,
-    code = httpStatus.FORBIDDEN
-  ) {
-    super(message, status, isPublic, code);
-  }
-}
-class UserPredictFailed extends ExtendableError {
-  constructor(
-    message,
-    status = 1202,
     isPublic = true,
     code = httpStatus.FORBIDDEN
   ) {
