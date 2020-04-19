@@ -15,7 +15,7 @@ describe('GET /sport/prematch', function () {
       .set('Authorization', `bearer ${setting.godUserToken_9}`);
     expect(res.statusCode).toEqual(200);
   });
-  test('(3) (上線) 使用者未登入', async function () {
+  test('(3) (線上) 使用者未登入', async function () {
     const res = await request(setting.online_URL).get(OLD_API);
     expect(res.statusCode).toEqual(200);
   });
