@@ -206,7 +206,9 @@ function sendPrediction(args, filter) {
   return new Promise(async function (resolve, reject) {
     neededResult = isNeeded(filter.needed);
     if (!neededResult) {
-      return reject(new AppError.UserPredictFailed((message = filter.failed)));
+      return reject(
+        new AppError.UserPredictFailed((message = { failed: filter.failed }))
+      );
     } else if (neededResult) {
       await insertDB(args, filter.needed);
       return resolve(repackageReturnData(filter));
