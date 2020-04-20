@@ -22,7 +22,7 @@ async function getMatches(req, res) {
   if (!valid) {
     return res.status(400).json(modules.ajv.errors);
   }
-  //   req.args.token = req.token;
+  req.args.token = req.token;
   try {
     res.json(await model(req.query));
   } catch (err) {
@@ -38,7 +38,7 @@ async function getMatches(req, res) {
 }
 module.exports = getMatches;
 /**
- * @api {GET} /sport/match?league=NBA&date=2020-07-01 Get matches
+ * @api {GET} /sport/matches?league=NBA&date=2020-07-01 Get matches
  * @apiVersion 2.0.0
  * @apiDescription Get each match information included home & away team name and match scheduled time by TsaiChieh
  * @apiName match information

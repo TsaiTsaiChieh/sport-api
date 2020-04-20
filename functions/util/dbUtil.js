@@ -21,16 +21,17 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
  * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
+ * User ref: user__prediction
  */
 
- /*
+/*
  * Define schema
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
  * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
  */
 
- /*
+/*
  * 使用者資訊
  */
 const User = sequelize.define(
@@ -86,11 +87,11 @@ const User = sequelize.define(
     //   type: Sequelize.STRING
     // },
     accuse_credit: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER
     },
     block_count: {
       type: Sequelize.INTEGER
-    },  
+    },
     block_message: {
       type: Sequelize.INTEGER
     },
@@ -114,7 +115,7 @@ const User = sequelize.define(
     },
     rank4_count: {
       type: Sequelize.INTEGER
-    },
+    }
   },
   {
     indexes: [
@@ -127,7 +128,7 @@ const User = sequelize.define(
 );
 
 /*
- * 歷史大神 含 大神戰績資訊 
+ * 歷史大神 含 大神戰績資訊
  */
 const Title = sequelize.define(
   'title',
@@ -162,16 +163,20 @@ const Title = sequelize.define(
       allowNull: false,
       defaultValue: 1
     },
-    win_bets: { // 勝注
+    win_bets: {
+      // 勝注
       type: Sequelize.INTEGER
     },
-    win_rate: { // 勝率
+    win_rate: {
+      // 勝率
       type: Sequelize.INTEGER
     },
-    continue: { // 連贏 N 天
+    continue: {
+      // 連贏 N 天
       type: Sequelize.INTEGER
     },
-    predict_rate1: { // 近N日 N過 N  // 近N日過 N
+    predict_rate1: {
+      // 近N日 N過 N  // 近N日過 N
       type: Sequelize.INTEGER
     },
     predict_rate2: {
@@ -180,16 +185,19 @@ const Title = sequelize.define(
     predict_rate3: {
       type: Sequelize.INTEGER
     },
-    win_bets_continue: { // 勝注連過 Ｎ日
+    win_bets_continue: {
+      // 勝注連過 Ｎ日
       type: Sequelize.INTEGER
     },
-    matches_rate1: { // 近 Ｎ 場過 Ｎ 場
+    matches_rate1: {
+      // 近 Ｎ 場過 Ｎ 場
       type: Sequelize.INTEGER
     },
     matches_rate2: {
       type: Sequelize.INTEGER
     },
-    matches_continue: { // 連贏Ｎ場
+    matches_continue: {
+      // 連贏Ｎ場
       type: Sequelize.INTEGER
     }
   },
@@ -198,7 +206,7 @@ const Title = sequelize.define(
       { fields: ['uid'] },
       { fields: ['period'] },
       { fields: ['period_date'] },
-      { fields: ['league_id'] },
+      { fields: ['league_id'] }
     ]
   }
 );
@@ -228,7 +236,6 @@ const Rank = sequelize.define(
     ]
   }
 );
-
 
 /*
  * 各聯盟資訊，ex: NBA, MLB and so on
@@ -310,7 +317,6 @@ const Spread = sequelize.define(
     }
   },
   {
-    // composite index
     indexes: [
       {
         unique: true,
@@ -476,6 +482,163 @@ const NBA_MATCH = sequelize.define(
   }
 );
 
+/*
+ * 預測單的資訊，unique key 為 bets_id, uid
+ */
+const Prediction = sequelize.define(
+  'user__prediction',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    bets_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.INTEGER
+    },
+    sell: {
+      type: Sequelize.INTEGER
+    },
+    match_scheduled: {
+      type: Sequelize.INTEGER
+    },
+    spread_id: {
+      type: Sequelize.STRING
+    },
+    spread_option: {
+      type: Sequelize.STRING
+    },
+    spread_bets: {
+      type: Sequelize.INTEGER
+    },
+    totals_id: {
+      type: Sequelize.STRING
+    },
+    totals_option: {
+      type: Sequelize.STRING
+    },
+    totals_bets: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    user_status: {
+      type: Sequelize.STRING
+    },
+    spread_result_flag: {
+      type: Sequelize.INTEGER,
+      defaultValue: -2
+    },
+    totals_result_flag: {
+      type: Sequelize.INTEGER,
+      defaultValue: -2
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid', 'bets_id', 'spread_id']
+      },
+      {
+        unique: true,
+        fields: ['uid', 'bets_id', 'totals_id']
+      },
+      {
+        fields: ['uid', 'match_scheduled']
+      },
+      {
+        unique: true,
+        fields: ['uid', 'bets_id'] // 若無這組 key，使用者分別新增讓分或大小分會是兩張預測單
+      },
+      {
+        fields: ['sell', 'league_id']
+      }
+    ]
+  }
+);
+
+/*
+ * 各聯盟賽事結算資訊
+ */
+const usersWinLists = sequelize.define(
+    'users__win__lists',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        uid: {
+            type: Sequelize.STRING
+        },
+        league_id:{
+            type: Sequelize.INTEGER
+        },
+        rank_id: {
+            type: Sequelize.INTEGER
+        },
+        avatar: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        displayname: {
+            type: Sequelize.STRING
+        },
+        last_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_rate: {
+            type: Sequelize.INTEGER
+        },
+
+        this_season_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_season_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_rate: {
+            type: Sequelize.INTEGER
+        },
+    },
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['uid']
+            }
+        ]
+    }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -483,7 +646,12 @@ const dbUtil = {
   Spread,
   Totals,
   NBA_TEAM,
-  NBA_MATCH
+  NBA_MATCH,
+  Prediction,
+  User,
+  Title,
+  Rank,
+  usersWinLists
 };
 
 module.exports = dbUtil;
