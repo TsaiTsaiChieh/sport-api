@@ -10,12 +10,11 @@ const matchScheduledStatus = 2;
 
 function prematch(args) {
   return new Promise(async function (resolve, reject) {
-    // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
     try {
       // 檢查此使用者身份
-      // db.Prediction.sync({ force: true });
       await isGodBelongToLeague(args);
       await isNormalUserSell(args);
+      // 檢查賽事是否合法
       const filter = await checkMatches(args);
       return resolve(await sendPrediction(args, filter));
     } catch (err) {
@@ -24,25 +23,24 @@ function prematch(args) {
   });
 }
 
-// 檢查玩家想賣牌，是否屬於該聯盟的大神
+// 檢查當玩家送出的 sell = 0 or 1，是否屬於該聯盟的大神
 function isGodBelongToLeague(args) {
   return new Promise(function (resolve, reject) {
-    if (
-      args.sell === 1 &&
-      !args.token.customClaims.titles.includes(args.league)
-    )
-      return reject(new AppError.UserCouldNotSell());
-    else return resolve();
+    const { sell, league } = args;
+    const { titles } = args.token.customClaims;
+    (sell === 0 || sell === 1) && !titles.includes(league)
+      ? reject(new AppError.UserCouldNotSell())
+      : resolve();
   });
 }
 
-// 檢查玩家想賣牌，是否屬於大神
+// 檢查一般玩家，送出的 sell 是否不為 -1
 function isNormalUserSell(args) {
   return new Promise(function (resolve, reject) {
     role = Number.parseInt(args.token.customClaims.role);
-    if (role === NORMAL_USER && args.sell !== NORMAL_USER_SELL)
-      return reject(new AppError.UserCouldNotSell());
-    else return resolve();
+    role === NORMAL_USER && args.sell !== NORMAL_USER_SELL
+      ? reject(new AppError.UserCouldNotSell())
+      : resolve();
   });
 }
 
@@ -76,6 +74,7 @@ async function isMatchValid(args, ele, filter) {
     const { league } = args;
     const { handicapType, handicapId } = handicapProcessor(ele);
     try {
+      // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
       const results = await db.sequelize.query(
         `SELECT game.*, 
                 home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias,  
@@ -119,33 +118,35 @@ async function isMatchValid(args, ele, filter) {
   });
 }
 
-async function isGodUpdate(uid, i, filter) {
-  const ele = filter.needed[i];
-  const { handicapType, handicapId } = handicapProcessor(ele);
-  try {
-    const predictResults = await db.sequelize.query(
-      `SELECT *
+function isGodUpdate(uid, i, filter) {
+  return new Promise(async function (resolve, reject) {
+    const ele = filter.needed[i];
+    const { handicapType, handicapId } = handicapProcessor(ele);
+    try {
+      const predictResults = await db.sequelize.query(
+        `SELECT *
          FROM user__predictions AS prediction
-        WHERE prediction.uid = :uid AND
-              prediction.bets_id = ${ele.id} AND
-              ${handicapType}_id = ${handicapId}`,
-      {
-        replacements: { uid },
-        type: db.sequelize.QueryTypes.SELECT
-      }
-    );
+        WHERE prediction.uid = :uid 
+          AND prediction.bets_id = ${ele.id} 
+          AND ${handicapType}_id = ${handicapId}`,
+        {
+          replacements: { uid },
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
 
-    if (predictResults.length) {
-      const error = {
-        code: 403,
-        error: `${handicapType} id: ${handicapId} already exist, locked`
-      };
-      filterProcessor(filter, i, error);
+      if (predictResults.length) {
+        const error = {
+          code: 403,
+          error: `${handicapType} id: ${handicapId} already exist, locked`
+        };
+        filterProcessor(filter, i, error);
+      }
+      return resolve();
+    } catch (err) {
+      return reject(new AppError.MysqlError());
     }
-  } catch (err) {
-    console.log(err);
-    return reject(new AppError.MysqlError());
-  }
+  });
 }
 
 function handicapProcessor(ele) {
@@ -183,8 +184,8 @@ function isGodSellConsistent(args, i, filter) {
       const results = await db.sequelize.query(
         `SELECT prediction.sell
          FROM user__predictions AS prediction
-        WHERE prediction.uid = :uid AND
-              prediction.match_scheduled BETWEEN ${begin} AND ${end}
+        WHERE prediction.uid = :uid 
+          AND prediction.match_scheduled BETWEEN ${begin} AND ${end}
         LIMIT 1`,
         {
           replacements: { uid: args.token.uid },
