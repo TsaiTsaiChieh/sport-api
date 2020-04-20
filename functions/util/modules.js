@@ -123,6 +123,7 @@ const db = {
   basketball_NBA: 'basketball_NBA',
   // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
+  eBKA: 'eBKA',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
   prediction: 'prediction'
