@@ -40,8 +40,21 @@ function convertTimezone(date, operation, zone = zone_tw) {
   }
   return moment.tz(date, zone).unix();
 }
-function convertTimezoneFormat(unix, zone = zone_tw) {
-  return moment.tz(unix * 1000, zone).format('YYYYMMDD');
+function convertTimezoneFormat(unix, operation, zone = zone_tw) {
+  unix = unix * 1000;
+  if (operation) {
+    if (operation.op === 'add')
+      return moment
+        .tz(unix, zone)
+        .add(operation.value, operation.unit)
+        .format('YYYYMMDD');
+    else if (operation.op === 'subtract')
+      return moment
+        .tz(unix, zone)
+        .subtract(operation.value, operation.unit)
+        .format('YYYYMMDD');
+  }
+  return moment.tz(unix, zone).format('YYYYMMDD');
 }
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
