@@ -27,14 +27,44 @@ function winRateLists(args) {
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
         let league_id = defaultValues.league_id;
         let order = 'this_month_win_rate';
-        let limit = 5;
+        let limit = 10;
+        const period = modules.getTitlesPeriod(new Date()).period;
         const leagueWinRateListsQuery = await db.sequelize.query(
           `
-          SELECT * 
-            FROM users__win__lists uwl, users u 
-           WHERE uwl.uid = u.uid 
-             and league_id = ${league_id} 
-           ORDER BY  ${order} DESC limit ${limit}
+          select winlist.*, titles.rank_id
+                 
+            from (
+                  select winlist.*, users.avatar, users.display_name
+                    from (
+                            select uid, users__win__lists.league_id, 
+                                   last_month_win_bets, last_month_win_rate, 
+                                   last_week_win_bets, last_week_win_rate,
+                                   this_season_win_bets, this_season_win_rate,
+                                   this_period_win_bets, this_period_win_rate,
+                                   this_month_win_bets, this_month_win_rate,
+                                   this_week_win_bets, this_week_win_rate
+                              from users__win__lists,
+                                   ( 
+                                     select league_id 
+                                       from match__leagues
+                                       where league_id = ${league_id}
+                                   ) leagues
+                             where users__win__lists.league_id = leagues.league_id
+                             order by ${order} desc
+                             limit ${limit}
+                          ) winlist,
+                          (
+                            select * 
+                              from users
+                             where status = 2
+                          ) users
+                   where winlist.uid = users.uid
+                  ) winlist
+            left join titles 
+            on winlist.uid = titles.uid 
+            and winlist.league_id = titles.league_id
+            and titles.period = ${period}
+            order by ${order} desc
           `,
           {
             type: db.sequelize.QueryTypes.SELECT,
@@ -66,8 +96,8 @@ function repackage(ele) {
     rank: ''
   };
 
-  data['win_rate'] = ele['this_month_win_rate'];
-  data['rank'] = ele['status'];
+  data['win_rate'] = ele['this_month_win_rate'].toString();
+  data['rank'] = ele['rank_id'].toString();
 
   return data;
 }
