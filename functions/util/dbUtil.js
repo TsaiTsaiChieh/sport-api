@@ -317,7 +317,6 @@ const Spread = sequelize.define(
     }
   },
   {
-    // composite index
     indexes: [
       {
         unique: true,
@@ -552,12 +551,14 @@ const Prediction = sequelize.define(
         fields: ['uid', 'bets_id', 'totals_id']
       },
       {
-        unique: true,
         fields: ['uid', 'match_scheduled']
       },
       {
         unique: true,
         fields: ['uid', 'bets_id'] // 若無這組 key，使用者分別新增讓分或大小分會是兩張預測單
+      },
+      {
+        fields: ['sell', 'league_id']
       }
     ]
   }
