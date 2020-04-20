@@ -376,7 +376,7 @@ const Totals = sequelize.define(
 /*
  * NBA 各隊伍資訊，unique key 為 team_id
  */
-const NBA_TEAM = sequelize.define(
+const NBA_team = sequelize.define(
   'match__team__NBA',
   {
     id: {
@@ -420,7 +420,7 @@ const NBA_TEAM = sequelize.define(
 /*
  * NBA 各賽事資訊，unique key 為 bets_id
  */
-const NBA_MATCH = sequelize.define(
+const NBA_match = sequelize.define(
   'match__NBA',
   {
     id: {
@@ -568,75 +568,75 @@ const Prediction = sequelize.define(
  * 各聯盟賽事結算資訊
  */
 const usersWinLists = sequelize.define(
-    'users__win__lists',
-    {
-        id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        uid: {
-            type: Sequelize.STRING
-        },
-        league_id:{
-            type: Sequelize.INTEGER
-        },
-        rank_id: {
-            type: Sequelize.INTEGER
-        },
-        avatar: {
-            type: Sequelize.STRING,
-            allowNull: true
-        },
-        displayname: {
-            type: Sequelize.STRING
-        },
-        last_month_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        last_month_win_rate: {
-            type: Sequelize.INTEGER
-        },
-        last_week_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        last_week_win_rate: {
-            type: Sequelize.INTEGER
-        },
-
-        this_season_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        this_season_win_rate: {
-            type: Sequelize.INTEGER
-        },
-        this_period_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        this_period_win_rate: {
-            type: Sequelize.INTEGER
-        },
-        this_month_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        this_month_win_rate: {
-            type: Sequelize.INTEGER
-        },
-        this_week_win_bets: {
-            type: Sequelize.INTEGER
-        },
-        this_week_win_rate: {
-            type: Sequelize.INTEGER
-        },
+  'users__win__lists',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
-    {
-        indexes: [
-            {
-                unique: true,
-                fields: ['uid']
-            }
-        ]
+    uid: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.INTEGER
+    },
+    rank_id: {
+      type: Sequelize.INTEGER
+    },
+    avatar: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    displayname: {
+      type: Sequelize.STRING
+    },
+    last_month_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    last_month_win_rate: {
+      type: Sequelize.INTEGER
+    },
+    last_week_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    last_week_win_rate: {
+      type: Sequelize.INTEGER
+    },
+
+    this_season_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    this_season_win_rate: {
+      type: Sequelize.INTEGER
+    },
+    this_period_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    this_period_win_rate: {
+      type: Sequelize.INTEGER
+    },
+    this_month_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    this_month_win_rate: {
+      type: Sequelize.INTEGER
+    },
+    this_week_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    this_week_win_rate: {
+      type: Sequelize.INTEGER
     }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid']
+      }
+    ]
+  }
 );
 
 const dbUtil = {
@@ -645,8 +645,8 @@ const dbUtil = {
   League,
   Spread,
   Totals,
-  NBA_TEAM,
-  NBA_MATCH,
+  NBA_team,
+  NBA_match,
   Prediction,
   User,
   Title,
