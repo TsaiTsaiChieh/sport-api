@@ -41,11 +41,11 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
-      const uniqueNameSnapshot = await modules.checkUnique('uniqueName', uid);
-      const uniqueEmailSnapshot = await modules.checkUnique('uniqueEmail', uid);
-      const uniquePhoneSnapshot = await modules.checkUnique('uniquePhone', uid);
+      const uniqueNameSnapshot = checkUniqueValue('users', 'display_name', args.displayName, uid);
+      const uniqueEmailSnapshot = checkUniqueValue('users','email', args.email, uid);
+      const uniquePhoneSnapshot = checkUniqueValue('users', 'phone', args.phone, uid);
 
-      if(uniqueNameSnapshot.isExist || uniqueEmailSnapshot.isExist || uniquePhoneSnapshot.isExist){
+      if(uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot){
         res.status(400).json({
           success: false,
           message: 'user name , email or phone exists'
@@ -156,6 +156,21 @@ async function modifyUserProfile(req, res) {
       res.status(500).json({ success: false, message: 'update failed' });
     });
     // res.json({success: true, result: writeResult});
+}
+
+/*檢查唯一性(uniqueName、uniqueEmail、uniquePhone)*/
+async function checkUniqueValue(table, collection, value,uid){
+  const unique_value = await db.sequelize.query(
+    `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
+    {
+      type: db.sequelize.QueryTypes.SELECT,
+      plain: true,
+    });
+    if(unique_value.length>0){
+      return false;
+    }
+
+    
 }
 module.exports = modifyUserProfile;
 
