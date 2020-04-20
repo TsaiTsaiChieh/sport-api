@@ -549,6 +549,23 @@ sequelize.define(
 );
 
 /*
+ * 文章留言
+ */
+sequelize.define(
+  'topic__like',
+  {
+    aid: { //文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  }
+);
+
+/*
  * 首頁圖
  */
 sequelize.define(

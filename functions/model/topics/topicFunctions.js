@@ -70,3 +70,27 @@ module.exports.getTopicReplyCount = async function (articles) { //傳入array ai
     }
   })
 }
+module.exports.getTopicLikeCount = async function (articles) { //傳入array aid
+  return new Promise(async function (resolve, reject) {
+    try {
+      // SQL原意：SELECT aid, COUNT(*) FROM topic__likes WHERE aid = 116 OR aid = 117 GROUP BY aid;
+      const result = db.sequelize.models.topic__like.findAll({
+        attributes: [
+          'aid',
+          [db.sequelize.fn('COUNT', db.sequelize.col('aid')), 'count']
+        ],
+        where: {
+          aid: {
+            [Op.or]: articles
+          },
+        },
+        group: 'aid',
+        raw: true
+      })
+      resolve(result)
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  })
+}

@@ -31,8 +31,12 @@ async function getArticle(args) {
       }
 
       let userInfo = []
+      let likeCount = []
+      let replyCount = []
       try{
         userInfo = await func.getUserInfo([article.uid])
+        likeCount = await func.getTopicLikeCount([args])
+        replyCount = await func.getTopicReplyCount([args])
         log.data(userInfo)
       }catch(error){
         console.log(error)
@@ -41,6 +45,8 @@ async function getArticle(args) {
 
       article = JSON.parse( JSON.stringify(article, null, 4) ) //把sequelize的object轉成一般的obj
       article.user_info = userInfo[0]
+      article.like_count = likeCount[0].count
+      article.reply_count = replyCount[0].count
 
       resolve({ code: 200, article: article });
     } catch (err) {
