@@ -57,48 +57,15 @@ function godlists(args) {
               period: period,
               begin: begin,
               end: end
-            }, type: db.sequelize.QueryTypes.SELECT });
+            }, type: db.sequelize.QueryTypes.SELECT 
+      });
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
-      godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+      // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
+      godListsQuery.sort(function compare(a, b) {
         return a.order > b.order; // 升 小->大
       });
-      godListsQuery.forEach(async function (data, index) {
-        console.log(data)
-      }, godListsQuery);
-      
-      // 取出 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-      // const god_sell = {};
-
-      // await Promise.all(
-      //   godListsQuery.map(async function (data) {
-      //     const prediction = await db.sequelize.query(`
-      //       select CASE max(sell) 
-      //                WHEN 1 THEN 1
-      //                WHEN 0 THEN 0
-      //                ELSE -1
-      //              END sell
-      //         from user__predictions prediction
-      //        where prediction.uid = :uid
-      //          and prediction.match_scheduled between :begin and :end
-      //     `, { 
-      //       replacements:{
-      //         uid: data.uid,
-      //         begin: begin,
-      //         end: 1593572400//end
-      //       }, type: db.sequelize.QueryTypes.SELECT 
-      //     });
-
-      //     god_sell[data.uid] = prediction[0].sell;
-      //   })
-      // );
-   
-      // // 把 大神賣牌狀態 god_sell 回填到 godListQuery
-      // godListsQuery.forEach(async function (data, index) {
-      //   this[index].sell = god_sell[data.uid];
-      // }, godListsQuery);
-
 
       // 鑽 金 銀 銅 分類
       rankGroup(godListsQuery, godLists);
