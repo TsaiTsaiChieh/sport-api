@@ -2,10 +2,7 @@ const express = require('express');
 const router = express.Router();
 const verification = require('../util/verification');
 
-router.get(
-  '/getRanks/',
-  require('../controller/user/getRanks')
-);
+router.get('/getRanks/', require('../controller/user/getRanks'));
 
 router.post(
   '/getUserProfile',
@@ -36,7 +33,15 @@ router.post(
   verification.token,
   require('../controller/user/predictMatchesController')
 );
-
-router.post('/predict_info', verification.token, require('../controller/user/predictInfoController') );
+router.post(
+  '/predictions',
+  verification.token_v2,
+  require('../controller/user/_predictMatchesController')
+);
+router.post(
+  '/predict_info',
+  verification.token,
+  require('../controller/user/predictInfoController')
+);
 
 module.exports = router;
