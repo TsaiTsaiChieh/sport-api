@@ -481,7 +481,7 @@ const NBA_MATCH = sequelize.define(
 /*
  * 文章
  */
-sequelize.define(
+const Topic_Article = sequelize.define(
   'topic__article',
   {
     uid: {
@@ -518,7 +518,7 @@ sequelize.define(
 /*
  * 文章留言
  */
-sequelize.define(
+const Topic_Reply = sequelize.define(
   'topic__reply',
   {
     aid: { //文章id
@@ -551,7 +551,7 @@ sequelize.define(
 /*
  * 文章留言
  */
-sequelize.define(
+const Topic_Like = sequelize.define(
   'topic__like',
   {
     aid: { //文章id
@@ -568,7 +568,7 @@ sequelize.define(
 /*
  * 首頁圖
  */
-sequelize.define(
+const Home_Banner = sequelize.define(
   'home__banner',
   {
     name: {
@@ -609,7 +609,11 @@ const dbUtil = {
   Spread,
   Totals,
   NBA_TEAM,
-  NBA_MATCH
+  NBA_MATCH,
+  Topic_Like,
+  Topic_Reply,
+  Topic_Article,
+  Home_Banner
 };
 
 module.exports = dbUtil;
