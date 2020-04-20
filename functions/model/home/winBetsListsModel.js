@@ -29,7 +29,6 @@ function winBetsLists(args) {
         let order = 'this_month_win_bets';
         let limit = 10;
         const period = modules.getTitlesPeriod(new Date()).period;
-        console.log(modules.getTitlesPeriod(new Date()));
         const leagueWinBetsListsQuery = await db.sequelize.query(
           `
           select winlist.*, titles.rank_id
