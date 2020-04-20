@@ -564,6 +564,81 @@ const Prediction = sequelize.define(
   }
 );
 
+/*
+ * 各聯盟賽事結算資訊
+ */
+const usersWinLists = sequelize.define(
+    'users__win__lists',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        uid: {
+            type: Sequelize.STRING
+        },
+        league_id:{
+            type: Sequelize.INTEGER
+        },
+        rank_id: {
+            type: Sequelize.INTEGER
+        },
+        avatar: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        displayname: {
+            type: Sequelize.STRING
+        },
+        last_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_rate: {
+            type: Sequelize.INTEGER
+        },
+
+        this_season_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_season_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_rate: {
+            type: Sequelize.INTEGER
+        },
+    },
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['uid']
+            }
+        ]
+    }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -575,7 +650,8 @@ const dbUtil = {
   Prediction,
   User,
   Title,
-  Rank
+  Rank,
+  usersWinLists
 };
 
 module.exports = dbUtil;

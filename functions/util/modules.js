@@ -91,6 +91,12 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
+/*redis 設定-START*/
+var redis = {
+  ip: '10.106.218.244',
+  port: '6379'
+};
+/*redis 設定-END*/
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -227,6 +233,7 @@ function userStatusCodebook(role) {
   }
 }
 module.exports = {
+  redis,
   express,
   firebaseAdmin,
   firebase,
