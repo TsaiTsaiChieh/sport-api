@@ -104,7 +104,7 @@ function repackage(league, ele) { // 實際資料輸出格式
   // 大神聯盟戰績表
   // 該聯盟有賣牌才能出現
   data.league_win_lists[league] = { // 聯盟 戰績表
-    rank: ele.rank_id,
+    rank: `${ele.rank_id}`,
     default_title: ele.default_title,
     win_rate: ele.win_rate,
     continue: ele.continue, // 連贏Ｎ場

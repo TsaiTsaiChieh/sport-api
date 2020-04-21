@@ -8,7 +8,13 @@ function searchUser(args) {
       let display_name = args;
       let limit        = 10;
       const searchUser = await db.sequelize.query(
-      `SELECT * FROM users WHERE display_name LIKE '%${display_name}%' LIMIT ${limit}`,
+      `
+      SELECT uid, display_name 
+        FROM users 
+       WHERE display_name 
+        LIKE '%${display_name}%' 
+       LIMIT ${limit}
+       `,
       {
           type: db.sequelize.QueryTypes.SELECT,
       });

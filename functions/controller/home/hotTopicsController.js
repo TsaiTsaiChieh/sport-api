@@ -1,7 +1,19 @@
+/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 /* 施工中
     簡易資料測試 http://localhost:5000/test/hotTopics.html
 */
+function chkFirstTopic(){ //把非第一篇賽事分析文剔除
+  let shown_topic = [];
+  let res = [];
+  topics.forEach(topic =>{
+    if(!shown_topic.includes(topic.id)){
+      res.push(topic)
+    }
+    shown_topic.push(topic.id)
+    result = res;
+  })
+}
 async function hotTopics(req, res) {
   const topics = [];
   let result = [];
@@ -27,17 +39,6 @@ async function hotTopics(req, res) {
         topics.push(tmp)
       });
     });
-    function chkFirstTopic(){ //把非第一篇賽事分析文剔除
-      let shown_topic = [];
-      let res = [];
-      topics.forEach(topic =>{
-        if(!shown_topic.includes(topic.id)){
-          res.push(topic)
-        }
-        shown_topic.push(topic.id)
-        result = res;
-      })
-    }
     chkFirstTopic()
   }catch(err){
     console.log('Error in home/hotTopics by IFYU:  %o', err);
