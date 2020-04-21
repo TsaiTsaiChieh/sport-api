@@ -64,6 +64,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+// app.use('/sqlinit', require('./sqlinit'));
 app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
@@ -73,6 +74,7 @@ app.use('/sport', require('./routers/sport'));
 // for test pubsub endpoint
 app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
+app.use('/topics', require('./routers/topics'));
 app.use('/livescore', require('./routers/livescore'));
 app.use('/rank', require('./routers/rank'));
 exports.prematch = functions.pubsub
