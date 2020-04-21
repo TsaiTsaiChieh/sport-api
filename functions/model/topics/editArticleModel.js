@@ -41,6 +41,10 @@ function dbEdit(aid, insertData) {
 async function createTopic(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      if(typeof args.token === 'undefined'){
+        reject({ code: 403, error: 'token expired' });
+        return;
+      }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
       log.info('verify firebase user')
