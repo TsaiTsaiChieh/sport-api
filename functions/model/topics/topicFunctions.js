@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
-const Op = require('Sequelize').Op;
+const Op = require('sequelize').Op;
 
 module.exports.getUserInfo = async function (users) {
   return new Promise(async function (resolve, reject) {
