@@ -18,7 +18,7 @@ const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 
-// 表示輸入的時間為該時區 ，輸出會幫你轉為 GMT 時間
+// 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /* 
   date: 2020-07-01 or 20200701
   operation: {
@@ -40,8 +40,31 @@ function convertTimezone(date, operation, zone = zone_tw) {
   }
   return moment.tz(date, zone).unix();
 }
-function convertTimezoneFormat(unix, zone = zone_tw) {
-  return moment.tz(unix * 1000, zone).format('YYYYMMDD');
+// 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
+/* 
+  unix: Math.floor(Date.now() / 1000) 
+  operation: {
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      }
+  zone: 'America/Los_Angeles' or 'Asia/Taipei'
+*/
+function convertTimezoneFormat(unix, operation, zone = zone_tw) {
+  unix = unix * 1000;
+  if (operation) {
+    if (operation.op === 'add')
+      return moment
+        .tz(unix, zone)
+        .add(operation.value, operation.unit)
+        .format('YYYYMMDD');
+    else if (operation.op === 'subtract')
+      return moment
+        .tz(unix, zone)
+        .subtract(operation.value, operation.unit)
+        .format('YYYYMMDD');
+  }
+  return moment.tz(unix, zone).format('YYYYMMDD');
 }
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
@@ -100,6 +123,8 @@ const db = {
   basketball_NBA: 'basketball_NBA',
   // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
+  eBKA: 'eBKA',
+  eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
   prediction: 'prediction'

@@ -88,7 +88,7 @@ function returnGodUserPrediction(args) {
           unit: 'days'
         }) - 1;
       const results = await db.sequelize.query(
-        `SELECT prediction.bets_id, prediction.spread_id, prediction.totals_id
+        `SELECT prediction.bets_id, prediction.sell, prediction.spread_id, prediction.totals_id
            FROM user__predictions AS prediction
           WHERE prediction.uid = :uid AND
                 prediction.match_scheduled BETWEEN ${begin} AND ${end}`,
@@ -111,6 +111,7 @@ function isGodBelongToLeague(args) {
 }
 function repackageMatches(results, args, godPredictions) {
   const data = {
+    sell: -1,
     scheduled: [],
     inplay: [],
     end: []
@@ -153,6 +154,7 @@ function repackageMatches(results, args, godPredictions) {
       }
     };
     if (godPredictions.length) {
+      data.sell = godPredictions[0].sell;
       isHandicapDisable(ele, temp, godPredictions);
     }
     if (!ele.spread_id) temp.spread.disable = true;

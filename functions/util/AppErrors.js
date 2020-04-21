@@ -42,6 +42,16 @@ class UserNotFound extends ExtendableError {
   }
 }
 
+class BetsAPIError extends ExtendableError {
+  constructor(
+    message = '取得 BetsAPI 異常',
+    status = 1308,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 403 FORBIDDEN ---------------------------*/
 class UserCouldNotSell extends ExtendableError {
   constructor(
@@ -67,7 +77,7 @@ class GodSellInconsistent extends ExtendableError {
 /* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
 class MysqlError extends ExtendableError {
   constructor(
-    message = 'MySQL錯誤',
+    message = 'MySQL 錯誤',
     status = 1500,
     isPublic = true,
     code = httpStatus.INTERNAL_SERVER_ERROR
@@ -80,5 +90,6 @@ module.exports = {
   UserCouldNotSell,
   GodSellInconsistent,
   UserPredictFailed,
-  MysqlError
+  MysqlError,
+  BetsAPIError
 };
