@@ -74,7 +74,7 @@ function godlists(args) {
       return reject(errs.errsMsg('500', '500', err.message));
     }
 
-    resolve({ godlists: godLists });
+    resolve({ period: period, godlists: godLists });
     return;
   });
 }
