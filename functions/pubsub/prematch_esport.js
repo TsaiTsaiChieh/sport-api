@@ -1,7 +1,9 @@
 /* eslint-disable consistent-return */
 const modules = require('../util/modules');
 
-const eBKA_functions = require('./util/prematchFunction_eBKA');
+// const eBKA_functions = require('./util/prematchFunction_eBKA');
+const eSB8_functions = require('./util/prematchFunction_eSB8');
+
 async function prematch_esport() {
   const unix = Math.floor(Date.now() / 1000);
   const tomorrow = modules.convertTimezoneFormat(unix, {
@@ -11,7 +13,7 @@ async function prematch_esport() {
   });
   const now = modules.convertTimezoneFormat(unix);
   try {
-    await eBKA_functions.eBKA.upcoming(now);
+    await eSB8_functions.eSB8.upcoming(now);
   } catch (err) {
     console.error(err);
   }
