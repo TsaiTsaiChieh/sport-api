@@ -124,6 +124,7 @@ const db = {
   // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
   eBKA: 'eBKA',
+  eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
   prediction: 'prediction'
