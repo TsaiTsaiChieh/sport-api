@@ -7,6 +7,9 @@ function winBetsLists(args) {
     const range = args.range;
     const league = args.league;
     const period = modules.getTitlesPeriod(new Date()).period;
+    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+      { op: 'add', value: 1, unit: 'days' }) - 1;
 
     let winBetsLists = {};
     winBetsLists[league] = [];
@@ -15,9 +18,16 @@ function winBetsLists(args) {
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
+        // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
         const leagueWinBetsListsQuery = await db.sequelize.query(`
           select winlist.*,
-                 titles.rank_id, titles.default_title,
+                 titles.rank_id, 
+                 CASE prediction.sell
+                   WHEN 1 THEN 1
+                   WHEN 0 THEN 0
+                   ELSE -1
+                 END sell,
+                 titles.default_title,
                  titles.continue,
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
@@ -47,14 +57,27 @@ function winBetsLists(args) {
                               where status in (1, 2)
                           ) users
                     where winlist.uid = users.uid
-                  ) winlist 
+                 ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
-             and titles.period = :period
+            left join 
+                 (
+                   select uid, max(sell) sell
+                     from user__predictions
+                    where match_scheduled between :begin and :end
+                    group by uid
+                 ) prediction
+              on titles.uid = prediction.uid
+           where titles.period = :period
            order by ${rangeWinBetsCodebook(range)} desc
         `, { 
-              replacements: {league: league, period: period}, 
+              replacements:{
+                league: league,
+                period: period,
+                begin: begin,
+                end: end
+              },
               limit: 30, 
               type: db.sequelize.QueryTypes.SELECT 
            });
@@ -89,6 +112,7 @@ function repackage(ele, rangstr) {
   // 大神要 顯示 預設稱號
   if ([1, 2, 3, 4].includes(ele.rank_id)){
     data['rank'] = `${ele.rank_id}`;
+    data['sell'] = ele.sell;
     data['default_title'] = ele.default_title;
     data['continue'] = ele.continue; // 連贏Ｎ場
     data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N

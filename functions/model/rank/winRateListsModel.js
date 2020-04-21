@@ -7,6 +7,9 @@ function winRateLists(args) {
     const range = args.range;
     const league = args.league;
     const period = modules.getTitlesPeriod(new Date()).period;
+    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+      { op: 'add', value: 1, unit: 'days' }) - 1;
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
     // let winRateLists = {
@@ -22,7 +25,13 @@ function winRateLists(args) {
 
         const leagueWinRateListsQuery = await db.sequelize.query(`
           select winlist.*,
-                 titles.rank_id, titles.default_title,
+                 titles.rank_id, 
+                 CASE prediction.sell
+                   WHEN 1 THEN 1
+                   WHEN 0 THEN 0
+                   ELSE -1
+                 END sell,
+                 titles.default_title,
                  titles.continue,
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
@@ -56,10 +65,23 @@ function winRateLists(args) {
             left join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
-             and titles.period = :period
+            left join 
+                 (
+                   select uid, max(sell) sell
+                     from user__predictions
+                    where match_scheduled between :begin and :end
+                    group by uid
+                 ) prediction
+              on titles.uid = prediction.uid
+           where titles.period = :period
            order by ${rangeWinRateCodebook(range)} desc
         `, { 
-              replacements: {league: league, period: period}, 
+              replacements:{
+                league: league,
+                period: period,
+                begin: begin,
+                end: end
+              }, 
               limit: 30, 
               type: db.sequelize.QueryTypes.SELECT,
            });
@@ -94,6 +116,7 @@ function repackage(ele, rangstr) {
   // 大神要 顯示 預設稱號
   if ([1, 2, 3, 4].includes(ele.rank_id)){
     data['rank'] = `${ele.rank_id}`;
+    data['sell'] = ele.sell;
     data['default_title'] = ele.default_title;
     data['continue'] = ele.continue; // 連贏Ｎ場
     data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
