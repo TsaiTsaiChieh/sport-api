@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
 
 const db_name = mysql.setting.db_name.dev;
@@ -769,6 +770,7 @@ const Home_Banner = sequelize.define(
 const dbUtil = {
     sequelize,
     Sequelize,
+    Op,
     League,
     Spread,
     Totals,
