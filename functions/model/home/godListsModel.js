@@ -34,16 +34,10 @@ function godlists(args) {
                  select * 
                    from users
                   where status = 2
-               ) users,
-               (
-                 select *
-                   from user__predictions
-                  where match_scheduled between :begin and :end
-               ) prediction
+               ) users
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
            and titles.period = :period
-           and titles.uid = prediction.uid
       `, { 
            replacements: {
              league: defaultValues['league'], 
@@ -53,7 +47,15 @@ function godlists(args) {
            }, 
            type: db.sequelize.QueryTypes.SELECT 
          }); 
-      // 還少 販售條件 等待 預頁單 table
+      // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單 
+              //      ,
+              //  (
+              //    select *
+              //      from user__predictions
+              //     where match_scheduled between :begin and :end
+              //  ) prediction
+
+              //  and titles.uid = prediction.uid
 
       if(godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
