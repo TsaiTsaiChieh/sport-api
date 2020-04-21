@@ -38,7 +38,7 @@ async function createReply(args) {
       // log.data(topicInfo[0])
 
       const insertData = {
-        aid: args.aid,
+        article_id: args.aid,
         uid: args.token.uid,
         reply_id: null, // args.reply_id,
         images: null,

@@ -9,7 +9,7 @@ function dbFind(aid) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
-          'id': aid
+          'article_id': aid
         },
       })
       const view_count = result.view_count + 1;

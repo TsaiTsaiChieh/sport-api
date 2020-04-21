@@ -10,7 +10,7 @@ function dbFind(aid, page) {
     try {
       const result = await db.sequelize.models.topic__reply.findAndCountAll({
         where: {
-          aid: aid
+          article_id: aid
         },
         limit: countPerPage,  //每頁幾個
         offset: countPerPage * page, //跳過幾個 = limit * index

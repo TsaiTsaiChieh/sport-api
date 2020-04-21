@@ -484,6 +484,10 @@ const NBA_MATCH = sequelize.define(
 const Topic_Article = sequelize.define(
   'topic__article',
   {
+    article_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
     uid: {
       type: Sequelize.STRING,
       allowNull: false
@@ -512,6 +516,13 @@ const Topic_Article = sequelize.define(
       type: Sequelize.INTEGER,
       defaultValue: 0
     }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'type', 'category']
+      }
+    ]
   }
 );
 
@@ -521,7 +532,11 @@ const Topic_Article = sequelize.define(
 const Topic_Reply = sequelize.define(
   'topic__reply',
   {
-    aid: { //文章id
+    reply_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    article_id: { //文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -529,7 +544,7 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    reply_id: {
+    replyto_id: {
       type: Sequelize.STRING,
       allowNull: true
     },
@@ -545,6 +560,13 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.INTEGER,
       defaultValue: 1
     }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id']
+      }
+    ]
   }
 );
 
@@ -554,7 +576,7 @@ const Topic_Reply = sequelize.define(
 const Topic_Like = sequelize.define(
   'topic__like',
   {
-    aid: { //文章id
+    article_id: { //文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -562,6 +584,13 @@ const Topic_Like = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'uid']
+      }
+    ]
   }
 );
 
