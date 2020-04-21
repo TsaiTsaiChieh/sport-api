@@ -6,6 +6,9 @@ function godlists(args) {
   return new Promise(async function(resolve, reject) {
     const godLists = [];
     const period = modules.getTitlesPeriod(new Date()).period;
+    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+      { op: 'add', value: 1, unit: 'days' }) - 1;
 
     try {
       // 取得 首頁預設值
@@ -31,15 +34,28 @@ function godlists(args) {
                  select * 
                    from users
                   where status = 2
-               ) users
+               ) users,
+               (
+                 select *
+                   from user__predictions
+                  where match_scheduled between :begin and :end
+               ) prediction
          where titles.league_id = leagues.league_id
            and titles.uid = users.uid
            and titles.period = :period
-      `, { replacements: {league: defaultValues['league'], period: period}, type: db.sequelize.QueryTypes.SELECT }); 
+           and titles.uid = prediction.uid
+      `, { 
+           replacements: {
+             league: defaultValues['league'], 
+             period: period,
+             begin: begin,
+             end: end
+           }, 
+           type: db.sequelize.QueryTypes.SELECT 
+         }); 
       // 還少 販售條件 等待 預頁單 table
-      // 還少 使用者 預設戰績稱號
 
-      if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+      if(godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
       godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
         return a.order > b.order; // 升 小->大
@@ -54,8 +70,7 @@ function godlists(args) {
       return reject(errs.errsMsg('500', '500', err.message));
     }
 
-    resolve({ godlists: godLists });
-    return;
+    return resolve({ godlists: godLists });
   });
 }
 
