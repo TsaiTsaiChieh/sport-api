@@ -12,6 +12,7 @@ function prematch(args) {
   return new Promise(async function (resolve, reject) {
     try {
       // 檢查此使用者身份
+      await isGodSellValid(args);
       await isGodBelongToLeague(args);
       await isNormalUserSell(args);
       // 檢查賽事是否合法
@@ -20,6 +21,16 @@ function prematch(args) {
     } catch (err) {
       return reject(err);
     }
+  });
+}
+
+function isGodSellValid(args) {
+  return new Promise(function (resolve, reject) {
+    const { sell, league } = args;
+    const { titles } = args.token.customClaims;
+    sell === -1 && titles.includes(league)
+      ? reject(new AppError.GodSellStatusWrong())
+      : resolve();
   });
 }
 
