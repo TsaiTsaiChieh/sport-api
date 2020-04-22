@@ -5,14 +5,15 @@ const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 10;
-function dbFind (where, page) {
+
+function dbFind(where, page) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: where,
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
-        order: [ ['article_id', 'DESC'] ],
+        order: [['article_id', 'DESC']],
         distinct: true,
         raw: true
       })
@@ -23,7 +24,8 @@ function dbFind (where, page) {
     }
   })
 }
-async function getTopics (args) {
+
+async function getTopics(args) {
   return new Promise(async function (resolve, reject) {
     try {
       // const replyCount = await func.getTopicReplyCount(args.aid)
@@ -97,4 +99,5 @@ async function getTopics (args) {
     }
   });
 }
+
 module.exports = getTopics;

@@ -84,7 +84,7 @@ class GodSellStatusWrong extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
+/* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
     message = 'MySQL 錯誤',

@@ -721,7 +721,7 @@ const Topic_Article = sequelize.define(
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0
-    },
+    }
   },
   {
     indexes: [
