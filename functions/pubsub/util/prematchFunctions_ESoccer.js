@@ -28,7 +28,6 @@ async function aa(date) {
           .set(repackage_bets(ele), { merge: true })
       );
       // mysql
-      console.log(`BetsAPI soccer match id: ${ele.id}`);
     }
   } catch (error) {
     console.error(

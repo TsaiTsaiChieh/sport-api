@@ -5,6 +5,7 @@ const router = modules.express.Router();
 router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);
 router.get('/restore', require('../pubsub/backupFirestore').restoreFirestore);
 router.get('/prematch', require('../pubsub/prematch'));
+router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/lineups', require('../pubsub/lineups'));
 router.get('/title_period', require('../pubsub/titlePeriod'));

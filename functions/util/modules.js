@@ -16,7 +16,18 @@ const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
+const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 
+// 輸入的時間為該時區 ，輸出轉為 GMT 時間
+/* 
+  date: 2020-07-01 or 20200701
+  operation: {
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      }
+  zone: 'America/Los_Angeles' or 'Asia/Taipei'
+*/
 function convertTimezone(date, operation, zone = zone_tw) {
   if (operation) {
     if (operation.op === 'add')
@@ -28,6 +39,32 @@ function convertTimezone(date, operation, zone = zone_tw) {
         .unix();
   }
   return moment.tz(date, zone).unix();
+}
+// 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
+/* 
+  unix: Math.floor(Date.now() / 1000) 
+  operation: {
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      }
+  zone: 'America/Los_Angeles' or 'Asia/Taipei'
+*/
+function convertTimezoneFormat(unix, operation, zone = zone_tw) {
+  unix = unix * 1000;
+  if (operation) {
+    if (operation.op === 'add')
+      return moment
+        .tz(unix, zone)
+        .add(operation.value, operation.unit)
+        .format('YYYYMMDD');
+    else if (operation.op === 'subtract')
+      return moment
+        .tz(unix, zone)
+        .subtract(operation.value, operation.unit)
+        .format('YYYYMMDD');
+  }
+  return moment.tz(unix, zone).format('YYYYMMDD');
 }
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
@@ -54,6 +91,12 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
+/*redis 設定-START*/
+var redis = {
+  ip: '10.106.218.244',
+  port: '6379',
+};
+/*redis 設定-END*/
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -80,6 +123,8 @@ const db = {
   basketball_NBA: 'basketball_NBA',
   // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
+  eBKA: 'eBKA',
+  eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
   eSoccer: 'eSoccer',
@@ -107,16 +152,30 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
+        id: 2274,
         match: db.basketball_NBA,
       };
     case 'SBL':
       return {
+        id: 8251,
         match: db.basketball_SBL,
       };
     case 'MLB':
       return {
+        id: 3939,
         match: db.baseball_MLB,
       };
+  }
+}
+
+function leagueDecoder(leagueID) {
+  switch (leagueID) {
+    case '2274' || 2274:
+      return 'NBA';
+    case '3939' || 3939:
+      return 'MLB';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -177,6 +236,7 @@ function userStatusCodebook(role) {
   }
 }
 module.exports = {
+  redis,
   express,
   firebaseAdmin,
   firebase,
@@ -210,4 +270,7 @@ module.exports = {
   UTF0,
   UTF8,
   convertTimezone,
+  convertTimezoneFormat,
+  leagueDecoder,
+  acceptNumberAndLetter,
 };

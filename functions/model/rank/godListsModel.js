@@ -9,35 +9,61 @@ function godlists(args) {
     // 取得當期期數
     const period = modules.getTitlesPeriod(new Date()).period;
     const league = args.league;
+    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+      { op: 'add', value: 1, unit: 'days' }) - 1;
 
     try {
-      // 依 聯盟 取出是 大神資料 且 有販售
-      // 將來有排序條件，可以orderBy，但會和下面的order衝突
+      // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
       const godListsQuery = await db.sequelize.query(`
-        select titles.uid, users.avatar, users.display_name, titles.rank_id, titles.default_title,
+        select titles.uid, users.avatar, users.display_name, titles.rank_id, 
+               CASE prediction.sell
+                 WHEN 1 THEN 1
+                 WHEN 0 THEN 0
+                 ELSE -1
+               END sell,
+               titles.default_title,
                titles.win_bets, titles.win_rate,
                titles.continue, 
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-          from titles,
+          from titles
+         inner join     
                ( 
                  select league_id 
                    from match__leagues
                   where name = :league 
-               ) leagues,
+               ) leagues
+            on titles.league_id = leagues.league_id
+         inner join
                (
                  select * 
                    from users
                   where status = 2
                ) users
-         where titles.league_id = leagues.league_id
-           and titles.uid = users.uid
-           and titles.period = :period
-      `, { replacements:{league: league, period: period}, type: db.sequelize.QueryTypes.SELECT }); // 還少 販售條件 等待 預頁單 table
+            on titles.uid = users.uid
+          left join 
+               (
+                 select uid, max(sell) sell
+                  from user__predictions
+                 where match_scheduled between :begin and :end
+                 group by uid
+               ) prediction
+            on titles.uid = prediction.uid
+         where titles.period = :period
+      `, { 
+            replacements:{
+              league: league,
+              period: period,
+              begin: begin,
+              end: end
+            }, type: db.sequelize.QueryTypes.SELECT 
+      });
 
       if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
-      godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+      // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
+      godListsQuery.sort(function compare(a, b) {
         return a.order > b.order; // 升 小->大
       });
 
@@ -48,26 +74,27 @@ function godlists(args) {
       return reject(errs.errsMsg('500', '500', err.message));
     }
 
-    resolve({ godlists: godLists });
+    resolve({ period: period, godlists: godLists });
     return;
   });
 }
 
 function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   const diamondArr = [];
-  const godArr = [];
+  const goldArr = [];
   const silverArr = [];
   const copperArr = [];
 
   sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
     switch (data[`rank_id`]){ // 大神等級分類
       case 1: diamondArr.push(data); break;
-      case 2: godArr.push(data); break;
+      case 2: goldArr.push(data); break;
       case 3: silverArr.push(data); break;
       case 4: copperArr.push(data); break;
     }
   });
-
+  
+  // 底下順序將來會有可能別的條件，可以在 sort 內進行判斷
   // 鑽石 依勝注 排序
   diamondArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_bets < b.win_bets; // 降 大->小
@@ -77,10 +104,10 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   });
 
   // 金 依勝率 排序
-  godArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  goldArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['god'] = godArr.map(function(t){
+  godLists['gold'] = goldArr.map(function(t){
     return repackage_winRate(t); 
   });
 
@@ -106,10 +133,10 @@ function repackage_winBets(ele) { // 實際資料輸出格式
     uid: ele.uid,
     avatar: ele.avatar,
     displayname: ele.display_name,
-    rank: ele.rank_id,
+    rank: `${ele.rank_id}`,
+    sell: ele.sell,
     default_title: ele.default_title,
     win_bets: ele.win_bets,
-    sell: ele.sell,
     continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
@@ -126,10 +153,10 @@ function repackage_winRate(ele) { // 實際資料輸出格式
     uid: ele.uid,
     avatar: ele.avatar,
     displayname: ele.display_name,
-    rank: ele.rank,
+    rank: `${ele.rank_id}`,
+    sell: ele.sell,
     default_title: ele.default_title,
     win_rate: ele.win_rate,
-    sell: ele.sell,
     continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N

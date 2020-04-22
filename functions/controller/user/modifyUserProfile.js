@@ -1,4 +1,5 @@
 const userUtils = require('../../util/userUtil');
+const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;
 const envValues = require('../../config/env_values');
@@ -40,42 +41,18 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
-      const uniqueNameSnapshot = await modules.firestore
-        .collection('uniqueName')
-        .doc(args.displayName)
-        .get();
-      const uniqueEmailSnapshot = await modules.firestore
-        .collection('uniqueEmail')
-        .doc(args.email)
-        .get();
-      const uniquePhoneSnapshot = await modules.firestore
-        .collection('uniquePhone')
-        .doc(args.phone)
-        .get();
-      if (
-        uniqueNameSnapshot.exists ||
-        uniqueEmailSnapshot.exists ||
-        uniquePhoneSnapshot.exists
-      ) {
+      const uniqueNameSnapshot = checkUniqueValue('users', 'display_name', args.displayName, uid);
+      const uniqueEmailSnapshot = checkUniqueValue('users','email', args.email, uid);
+      const uniquePhoneSnapshot = checkUniqueValue('users', 'phone', args.phone, uid);
+
+      if(uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot){
         res.status(400).json({
           success: false,
           message: 'user name , email or phone exists'
         });
         return;
-      } else {
-        modules.firestore
-          .collection('uniqueName')
-          .doc(args.displayName)
-          .set({ uid: uid });
-        modules.firestore
-          .collection('uniqueEmail')
-          .doc(args.email)
-          .set({ uid: uid });
-        modules.firestore
-          .collection('uniquePhone')
-          .doc(args.phone)
-          .set({ uid: uid });
       }
+      
       data.uid = uid;
       data.displayName = args.displayName; //only new user can set displayName, none changeable value
       data.name = args.name; //only new user can set name(Actual name), none changeable value
@@ -84,8 +61,9 @@ async function modifyUserProfile(req, res) {
       data.birthday = admin.firestore.Timestamp.fromDate(
         new Date(req.body.birthday)
       );
-      if (!args.avatar)
+      if (!args.avatar){
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
+      }
       data.status = 1;
       data.signature = '';
       data.blockMessage = nowTimeStamp;
@@ -160,22 +138,39 @@ async function modifyUserProfile(req, res) {
     }
   }
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  modules.firestore
-    .collection('users')
-    .doc(uid)
-    .set(data, { merge: true })
+    let users = await db.sequelize.query(
+      'SELECT * FROM users WHERE uid = $uid',
+      {
+        bind: {uid:uid},
+        type: db.sequelize.QueryTypes.SELECT
+      })
     .then(async ref => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;
       resultJson.success = true;
       console.log('Added document with ID: ', ref);
-      res.status(200).json(resultJson);
+      res.status(200).json({resultJson});
     })
     .catch(e => {
       console.log('Added document with error: ', e);
       res.status(500).json({ success: false, message: 'update failed' });
     });
-  // res.json({success: true, result: writeResult});
+    // res.json({success: true, result: writeResult});
+}
+
+/*檢查唯一性(uniqueName、uniqueEmail、uniquePhone)*/
+async function checkUniqueValue(table, collection, value,uid){
+  const unique_value = await db.sequelize.query(
+    `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
+    {
+      type: db.sequelize.QueryTypes.SELECT,
+      plain: true,
+    });
+    if(unique_value.length>0){
+      return false;
+    }
+
+    
 }
 module.exports = modifyUserProfile;
 

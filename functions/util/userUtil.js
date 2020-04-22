@@ -82,13 +82,13 @@ exports.getUserProfile = async function (userId) {
 
 
 // Unique collections: uniqueName,uniqueEmail,uniquePhone
-exports.checkUniqueCollection = async function (collection, value) {
+exports.checkUniqueCollection = async function (collection, uid) {
     let returnJson = {
         success: false,
         isExist: true
     };
     try {
-        const nameCollection = await modules.firestore.collection(collection).doc(value).get();
+        const nameCollection = await modules.firestore.collection(collection).doc(uid).get();
         if (nameCollection.exists) {
             returnJson.success = true;
             returnJson.isExist = true;

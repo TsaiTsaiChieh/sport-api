@@ -8,6 +8,10 @@ router.get(
   verification.confirmLogin,
   require('../controller/sport/prematchController')
 );
-router.get('/matches', require('../controller/sport/matchesController'));
+router.get(
+  '/matches',
+  verification.confirmLogin_v2,
+  require('../controller/sport/matchesController')
+);
 
 module.exports = router;
