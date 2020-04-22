@@ -12,6 +12,7 @@ function dbFind (where, page) {
         where: where,
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
+        order: [ ['article_id', 'DESC'] ],
         distinct: true,
         raw: true
       })
