@@ -74,6 +74,16 @@ class GodSellInconsistent extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class GodSellStatusWrong extends ExtendableError {
+  constructor(
+    message = '非法的大神販售狀態',
+    status = 1204,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
 class MysqlError extends ExtendableError {
   constructor(
@@ -89,6 +99,7 @@ module.exports = {
   UserNotFound,
   UserCouldNotSell,
   GodSellInconsistent,
+  GodSellStatusWrong,
   UserPredictFailed,
   MysqlError,
   BetsAPIError
