@@ -21,80 +21,86 @@ async function checkmatch_NBA() {
     let periodName;
     let eventsNow;
     const eventStatus = totalData[i].flag.status;
-    if (eventStatus === 2) {
-      if (gameTime <= nowTime) {
-        periodsNow = 0;
-        eventsNow = 0;
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          periodsNow: periodsNow,
-          eventsNow: eventsNow
-        };
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(parameter);
-      }
-    } else {
-      const ref = await modules.database.ref(
-        `basketball/NBA/${betsID}/Summary/status`
-      );
-      ref.set('scheduled');
-    }
-    if (eventStatus === 1) {
-      const realtimeData = JSON.parse(
-        JSON.stringify(
+    switch (eventStatus) {
+      case 2: {
+        if (gameTime <= nowTime) {
+          periodsNow = 0;
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
           // eslint-disable-next-line no-await-in-loop
-          await modules.database.ref(`basketball/NBA/${betsID}`).once('value')
-        )
-      );
+          await NBApbpInplay(parameter);
+        } else {
+          const ref = await modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/status`
+          );
+          ref.set('scheduled');
+        }
+        break;
+      }
+      case 1: {
+        const realtimeData = JSON.parse(
+          JSON.stringify(
+            // eslint-disable-next-line no-await-in-loop
+            await modules.database.ref(`basketball/NBA/${betsID}`).once('value')
+          )
+        );
 
-      if (realtimeData.Summary.status === 'created') {
-        periodsNow = 0;
-        periodName = 'periods0';
-        eventsNow = 0;
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          periodsNow: periodsNow,
-          eventsNow: eventsNow
-        };
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(parameter);
-      } else if (
-        realtimeData.Summary.status === 'closed' ||
-        realtimeData.Summary.status === 'complete'
-      ) {
-        // eslint-disable-next-line no-await-in-loop
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID
-        };
-        await NBApbpHistory(parameter);
-      } else if (realtimeData.Summary.status === 'inprogress') {
-        periodsNow = Object.keys(realtimeData.PBP).length - 1; // how much periods
-        periodName = Object.keys(realtimeData.PBP);
-        eventsNow =
-          Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
+        if (realtimeData.Summary.status === 'created') {
+          periodsNow = 0;
+          periodName = 'periods0';
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await NBApbpInplay(parameter);
+        } else if (
+          realtimeData.Summary.status === 'closed' ||
+          realtimeData.Summary.status === 'complete'
+        ) {
+          // eslint-disable-next-line no-await-in-loop
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID
+          };
+          await NBApbpHistory(parameter);
+        } else if (realtimeData.Summary.status === 'inprogress') {
+          periodsNow = Object.keys(realtimeData.PBP).length - 1; // how much periods
+          periodName = Object.keys(realtimeData.PBP);
+          eventsNow =
+            Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
 
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          periodsNow: periodsNow,
-          eventsNow: eventsNow
-        };
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(parameter);
-      } else {
-        periodsNow = 0;
-        periodName = 'periods0';
-        eventsNow = 0;
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          periodsNow: periodsNow,
-          eventsNow: eventsNow
-        };
-        await NBApbpInplay(parameter);
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await NBApbpInplay(parameter);
+        } else {
+          periodsNow = 0;
+          periodName = 'periods0';
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          await NBApbpInplay(parameter);
+        }
+        break;
+      }
+      default: {
       }
     }
   }

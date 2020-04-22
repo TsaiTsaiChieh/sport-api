@@ -21,7 +21,10 @@ async function MLBpbpInplay(parameter) {
   const halfNow = parameter.halfNow;
   const eventHalfNow = parameter.eventHalfNow;
   const eventAtbatNow = parameter.eventAtbatNow;
-
+  modules.firestore
+    .collection(firestoreName)
+    .doc(betsID)
+    .set({ flag: { status: 1 } }, { merge: true });
   if (
     inningsNow === 0 &&
     halfNow === 0 &&
@@ -73,17 +76,17 @@ async function MLBpbpInplay(parameter) {
         halfNow: halfNow,
         eventHalfNow: eventHalfNow,
         eventAtbatNow: eventAtbatNow,
-        pbpURL,
+        pbpURL: pbpURL,
         betsID: betsID,
-        homeData,
-        awayData,
-        keywordHome,
-        transSimpleHome,
-        keywordAway,
-        transSimpleAway
+        homeData: homeData,
+        awayData: awayData,
+        keywordHome: keywordHome,
+        transSimpleHome: transSimpleHome,
+        keywordAway: keywordAway,
+        transSimpleAway: transSimpleAway
       };
       const parameterSummary = {
-        summaryURL,
+        summaryURL: summaryURL,
         betsID: betsID
       };
       Promise.all(doPBP(parameterPBP));
