@@ -598,6 +598,9 @@ const Prediction = sequelize.define(
       },
       {
         fields: ['sell', 'league_id']
+      },
+      {
+        fields: ['match_scheduled']
       }
     ]
   }
