@@ -5,28 +5,28 @@ const translateMLB = transMLB.translateMLB;
 const firestoreName = 'page_MLB';
 const mlb_api_key = 'x6t9jymf2hdy8nqy2ayk69db';
 // const mlb_api_key = 's7bs62gb8ye8ram6ksr7rkec';
-let baseNow = [];
-//清空壘包
+const baseNow = [];
+// 清空壘包
 baseNow[0] = 0;
 baseNow[1] = 0;
 baseNow[2] = 0;
 // 14 秒一次
 const perStep = 14000;
-//一分鐘4次
+// 一分鐘4次
 const timesPerLoop = 4;
-async function MLBpbpInplay(parameter) {
-  let gameID = parameter.gameID;
-  let betsID = parameter.betsID;
+async function MLBpbpInplay (parameter) {
+  const gameID = parameter.gameID;
+  const betsID = parameter.betsID;
   let inningsNow = parameter.inningsNow;
   let halfNow = parameter.halfNow;
   let eventHalfNow = parameter.eventHalfNow;
   let eventAtbatNow = parameter.eventAtbatNow;
 
   if (
-    inningsNow == 0 &&
-    halfNow == 0 &&
-    eventHalfNow == 0 &&
-    eventAtbatNow == 0
+    inningsNow === 0 &&
+    halfNow === 0 &&
+    eventHalfNow === 0 &&
+    eventAtbatNow === 0
   ) {
     let keywordTransHome = [];
     let keywordTransAway = [];
@@ -43,12 +43,12 @@ async function MLBpbpInplay(parameter) {
         numberHome,
         awayTeamName,
         keywordAway,
-        numberAway,
+        numberAway
       ] = await summmaryEN(gameID);
       keywordTransHome = await transFunction(keywordHome);
       keywordTransAway = await transFunction(keywordAway);
-      let transSimpleHome = [];
-      let transSimpleAway = [];
+      const transSimpleHome = [];
+      const transSimpleAway = [];
       // let transCompleteHome = [];
       // let transCompleteAway = [];
       let ref = modules.database.ref(
@@ -71,7 +71,7 @@ async function MLBpbpInplay(parameter) {
           name: keywordHome[i],
           name_ch: keywordTransHome[i],
           jersey_number: numberHome[i],
-          transSimpleHome: transSimpleHome[i],
+          transSimpleHome: transSimpleHome[i]
         });
       }
       for (let i = 0; i < keywordAway.length; i++) {
@@ -86,7 +86,7 @@ async function MLBpbpInplay(parameter) {
           name: keywordAway[i],
           name_ch: keywordTransAway[i],
           jersey_number: numberAway[i],
-          transSimpleAway: transSimpleAway[i],
+          transSimpleAway: transSimpleAway[i]
         });
       }
     } catch (error) {
@@ -106,8 +106,7 @@ async function MLBpbpInplay(parameter) {
   let eventHalfCount;
   let eventAtbatCount;
   let totalDescriptionOrEachBall;
-  let realtimeData;
-  realtimeData = JSON.parse(
+  const realtimeData = JSON.parse(
     JSON.stringify(
       // eslint-disable-next-line no-await-in-loop
       await modules.database
@@ -115,12 +114,12 @@ async function MLBpbpInplay(parameter) {
         .once('value')
     )
   );
-  let homeData = realtimeData.home;
-  let awayData = realtimeData.away;
-  let keywordHome = [];
-  let keywordAway = [];
-  let transSimpleHome = [];
-  let transSimpleAway = [];
+  const homeData = realtimeData.home;
+  const awayData = realtimeData.away;
+  const keywordHome = [];
+  const keywordAway = [];
+  const transSimpleHome = [];
+  const transSimpleAway = [];
   for (let i = 0; i < Object.keys(homeData.roster).length; i++) {
     await keywordHome.push(
       homeData.roster[Object.keys(homeData.roster)[i]].name
@@ -137,13 +136,13 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  let timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function () {
     try {
       // 目前的總比分
       let { data } = await axios(pbpURL);
-      let dataPBP = data;
+      const dataPBP = data;
       ({ data } = await axios(summaryURL));
-      let dataSummary = data;
+      const dataSummary = data;
       let ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
       await ref.set(dataPBP.game.status);
       ref = modules.database.ref(
@@ -152,7 +151,7 @@ async function MLBpbpInplay(parameter) {
       await ref.set({
         runs: dataPBP.game.scoring.home.runs,
         hits: dataPBP.game.scoring.home.hits,
-        errors: dataPBP.game.scoring.home.errors,
+        errors: dataPBP.game.scoring.home.errors
       });
       ref = modules.database.ref(
         `baseball/MLB/${betsID}/Summary/info/away/Total`
@@ -160,7 +159,7 @@ async function MLBpbpInplay(parameter) {
       await ref.set({
         runs: dataPBP.game.scoring.away.runs,
         hits: dataPBP.game.scoring.away.hits,
-        errors: dataPBP.game.scoring.away.errors,
+        errors: dataPBP.game.scoring.away.errors
       });
 
       for (
@@ -174,13 +173,12 @@ async function MLBpbpInplay(parameter) {
         await ref.set(inningsCount);
 
         // lineup
-        if (inningsCount == 0) {
-          let awayLineupLength = dataPBP.game.innings[0].halfs[0].events.length;
-          let homeLineupLength = dataPBP.game.innings[0].halfs[1].events.length;
+        if (inningsCount === 0) {
+          const awayLineupLength = dataPBP.game.innings[0].halfs[0].events.length;
+          const homeLineupLength = dataPBP.game.innings[0].halfs[1].events.length;
           for (numberCount = 0; numberCount < homeLineupLength; numberCount++) {
             // write hometeam lineup
-            let order;
-            order =
+            const order =
               dataPBP.game.innings[0].halfs[1].events[numberCount].lineup.order;
             ref = modules.database.ref(
               `baseball/MLB/${betsID}/Summary/info/home/Now_lineup/lineup${order}`
@@ -207,13 +205,12 @@ async function MLBpbpInplay(parameter) {
                   .last_name,
               jersey_number:
                 dataPBP.game.innings[0].halfs[1].events[numberCount].lineup
-                  .jersey_number,
+                  .jersey_number
             });
           }
           for (numberCount = 0; numberCount < awayLineupLength; numberCount++) {
             // write awayteam lineup
-            let order;
-            order =
+            const order =
               dataPBP.game.innings[0].halfs[0].events[numberCount].lineup.order;
             ref = modules.database.ref(
               `baseball/MLB/${betsID}/Summary/info/away/Now_lineup/lineup${order}`
@@ -240,14 +237,14 @@ async function MLBpbpInplay(parameter) {
                   .last_name,
               jersey_number:
                 dataPBP.game.innings[0].halfs[0].events[numberCount].lineup
-                  .jersey_number,
+                  .jersey_number
             });
           }
           inningsNow = inningsNow + 1;
         }
         if (inningsCount >= 1) {
           // normal play
-          if (inningsCount != inningsNow) {
+          if (inningsCount !== inningsNow) {
             inningsNow = inningsNow + 1;
             halfNow = 0;
             eventHalfNow = 0;
@@ -266,7 +263,7 @@ async function MLBpbpInplay(parameter) {
               `baseball/MLB/${betsID}/Summary/Now_halfs`
             );
             await ref.set(halfCount);
-            if (halfCount != halfNow) {
+            if (halfCount !== halfNow) {
               halfNow = halfNow + 1;
               eventHalfNow = 0;
               eventAtbatNow = 0;
@@ -293,7 +290,7 @@ async function MLBpbpInplay(parameter) {
               dataPBP.game.innings[inningsCount].halfs[halfCount].events.length;
               eventHalfCount++
             ) {
-              if (halfCount == 0) {
+              if (halfCount === 0) {
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/Summary/info/away/Innings${inningsCount}/scoring`
                 );
@@ -301,10 +298,10 @@ async function MLBpbpInplay(parameter) {
                   runs: dataPBP.game.innings[inningsCount].scoring.away.runs,
                   errors:
                     dataPBP.game.innings[inningsCount].scoring.away.errors,
-                  hits: dataPBP.game.innings[inningsCount].scoring.away.hits,
+                  hits: dataPBP.game.innings[inningsCount].scoring.away.hits
                 });
               }
-              if (halfCount == 1) {
+              if (halfCount === 1) {
                 ref = modules.database.ref(
                   `baseball/MLB/${betsID}/Summary/info/home/Innings${inningsCount}/scoring`
                 );
@@ -312,7 +309,7 @@ async function MLBpbpInplay(parameter) {
                   runs: dataPBP.game.innings[inningsCount].scoring.home.runs,
                   errors:
                     dataPBP.game.innings[inningsCount].scoring.home.errors,
-                  hits: dataPBP.game.innings[inningsCount].scoring.home.hits,
+                  hits: dataPBP.game.innings[inningsCount].scoring.home.hits
                 });
               }
               if (
@@ -321,7 +318,7 @@ async function MLBpbpInplay(parameter) {
                 ].lineup
               ) {
                 eventAtbatNow = 0;
-                if (halfCount == 0) {
+                if (halfCount === 0) {
                   ref = modules.database.ref(
                     `baseball/MLB/${betsID}/Summary/info/away/Now_lineup/lineup${dataPBP.game.innings[inningsCount].halfs[halfCount].events[eventHalfCount].lineup.order}`
                   );
@@ -343,7 +340,7 @@ async function MLBpbpInplay(parameter) {
                         .events[eventHalfCount].lineup.player_id,
                     position:
                       dataPBP.game.innings[inningsCount].halfs[halfCount]
-                        .events[eventHalfCount].lineup.position,
+                        .events[eventHalfCount].lineup.position
                   });
                 } else {
                   ref = modules.database.ref(
@@ -353,7 +350,7 @@ async function MLBpbpInplay(parameter) {
                 }
 
                 totalDescriptionOrEachBall = 0;
-                let descCH = await translateMLB(
+                const descCH = await translateMLB(
                   dataPBP.game.innings[inningsCount].halfs[halfCount].events[
                     eventHalfCount
                   ].lineup.description,
@@ -387,9 +384,8 @@ async function MLBpbpInplay(parameter) {
                     eventHalfCount
                   ].at_bat.description
                 ) {
-                  let desResultCH;
                   totalDescriptionOrEachBall = 0;
-                  desResultCH = await translateMLB(
+                  const desResultCH = await translateMLB(
                     dataPBP.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
                     ].at_bat.description,
@@ -414,12 +410,12 @@ async function MLBpbpInplay(parameter) {
                   );
                   await ref.set(desResultCH);
 
-                  let hitterID =
+                  const hitterID =
                     dataPBP.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
                     ].at_bat.hitter_id;
                   let realtimeData;
-                  if (halfCount == 0) {
+                  if (halfCount === 0) {
                     realtimeData = JSON.parse(
                       JSON.stringify(
                         // eslint-disable-next-line no-await-in-loop
@@ -440,7 +436,7 @@ async function MLBpbpInplay(parameter) {
                   }
                   for (let i = 1; i < 10; i++) {
                     if (
-                      hitterID ==
+                      hitterID ===
                       realtimeData.Now_lineup[`lineup${i}`].player_id
                     ) {
                       ref = modules.database.ref(
@@ -450,10 +446,10 @@ async function MLBpbpInplay(parameter) {
                         realtimeData.Now_lineup[`lineup${i}`].order
                       );
                     }
-                    //here
+                    // here
                   }
                 }
-                if (eventHalfCount != eventHalfNow) {
+                if (eventHalfCount !== eventHalfNow) {
                   eventHalfNow = eventHalfNow + 1;
                   eventAtbatNow = 0;
                 }
@@ -469,10 +465,10 @@ async function MLBpbpInplay(parameter) {
                   if (
                     dataPBP.game.innings[inningsCount].halfs[halfCount].events[
                       eventHalfCount
-                    ].at_bat.events[eventAtbatCount].flags.is_ab_over == false
+                    ].at_bat.events[eventAtbatCount].flags.is_ab_over === false
                   ) {
                     totalDescriptionOrEachBall = 1;
-                    let out = [];
+                    const out = [];
                     out.push(
                       dataPBP.game.innings[inningsCount].halfs[halfCount]
                         .events[eventHalfCount].at_bat.events[eventAtbatCount]
@@ -506,7 +502,7 @@ async function MLBpbpInplay(parameter) {
                         .events[eventHalfCount].at_bat.events[eventAtbatCount]
                         .outcome_id
                     );
-                    desResultCH = await translateMLB(
+                    const desResultCH = await translateMLB(
                       out,
                       out[0],
                       out[1],
@@ -525,7 +521,7 @@ async function MLBpbpInplay(parameter) {
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
                           .events[eventHalfCount].at_bat.events[eventAtbatCount]
                           .outcome_id,
-                      description_ch: desResultCH,
+                      description_ch: desResultCH
                     });
                   }
                   ref = modules.database.ref(
@@ -547,7 +543,7 @@ async function MLBpbpInplay(parameter) {
                     id:
                       dataPBP.game.innings[inningsCount].halfs[halfCount]
                         .events[eventHalfCount].at_bat.events[eventAtbatCount]
-                        .pitcher.id,
+                        .pitcher.id
                   });
                   ref = modules.database.ref(
                     `baseball/MLB/${betsID}/Summary/Now_hitter`
@@ -568,7 +564,7 @@ async function MLBpbpInplay(parameter) {
                     id:
                       dataPBP.game.innings[inningsCount].halfs[halfCount]
                         .events[eventHalfCount].at_bat.events[eventAtbatCount]
-                        .hitter.id,
+                        .hitter.id
                   });
 
                   // 球數
@@ -602,7 +598,7 @@ async function MLBpbpInplay(parameter) {
                       eventHalfCount
                     ].at_bat.events[eventAtbatCount].runners
                   ) {
-                    let baseInformation =
+                    const baseInformation =
                       dataPBP.game.innings[inningsCount].halfs[halfCount]
                         .events[eventHalfCount].at_bat.events[eventAtbatCount]
                         .runners.length;
@@ -611,19 +607,19 @@ async function MLBpbpInplay(parameter) {
                       baseCount < baseInformation;
                       baseCount++
                     ) {
-                      //壘包資訊
-                      let startBase =
+                      // 壘包資訊
+                      const startBase =
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
                           .events[eventHalfCount].at_bat.events[eventAtbatCount]
                           .runners[baseCount].starting_base;
-                      let endBase =
+                      const endBase =
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
                           .events[eventHalfCount].at_bat.events[eventAtbatCount]
                           .runners[baseCount].ending_base;
-                      if (endBase == 0) {
+                      if (endBase === 0) {
                         // 壘上出局
                         baseNow[startBase - 1] = 0;
-                      } else if (endBase == 4) {
+                      } else if (endBase === 4) {
                         // 回本壘
                         baseNow[startBase - 1] = 0;
                       } else {
@@ -652,8 +648,8 @@ async function MLBpbpInplay(parameter) {
       }
 
       if (
-        dataPBP.game.status != 'inprogress' ||
-        dataPBP.game.status != 'complete'
+        dataPBP.game.status !== 'inprogress' ||
+        dataPBP.game.status !== 'complete'
       ) {
         modules.firestore
           .collection(firestoreName)
@@ -681,15 +677,15 @@ async function MLBpbpInplay(parameter) {
   }, perStep);
 }
 
-async function MLBpbpHistory(parameter) {
-  let gameID = parameter.gameID;
-  let betsID = parameter.betsID;
-  let gameTime = parameter.scheduled;
+async function MLBpbpHistory (parameter) {
+  const gameID = parameter.gameID;
+  const betsID = parameter.betsID;
+  const gameTime = parameter.scheduled;
   const pbpURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/pbp.json?api_key=${mlb_api_key}`;
   try {
-    let { data } = await axios(pbpURL);
-    let dataPBP = data;
-    ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
+    const { data } = await axios(pbpURL);
+    const dataPBP = data;
+    const ref = await modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
     await ref.set(
       {
         bets_id: betsID,
@@ -698,45 +694,45 @@ async function MLBpbpHistory(parameter) {
         home: {
           home_runs: dataPBP.game.scoring.home.runs,
           home_hits: dataPBP.game.scoring.home.hits,
-          home_errors: dataPBP.game.scoring.home.errors,
+          home_errors: dataPBP.game.scoring.home.errors
         },
         away: {
           away_runs: dataPBP.game.scoring.away.runs,
           away_hits: dataPBP.game.scoring.away.hits,
-          away_errors: dataPBP.game.scoring.away.errors,
-        },
+          away_errors: dataPBP.game.scoring.away.errors
+        }
       },
       { merge: true }
     );
-    //pbp
+    // pbp
     for (
       let inningsCount = 0;
       inningsCount < dataPBP.game.innings.length;
       inningsCount++
     ) {
-      if (inningsCount == 0) {
+      if (inningsCount === 0) {
         for (let i = 0; i < 10; i++) {
           await ref.set(
             {
               PBP: {
-                ['innings0']: {
-                  ['halfs0']: {
-                    ['lineup' + i]: dataPBP.game.innings[0].halfs[0].events[i],
-                  },
-                },
-              },
+                innings0: {
+                  halfs0: {
+                    ['lineup' + i]: dataPBP.game.innings[0].halfs[0].events[i]
+                  }
+                }
+              }
             },
             { merge: true }
           );
           await ref.set(
             {
               PBP: {
-                ['innings0']: {
-                  ['halfs1']: {
-                    ['lineup' + i]: dataPBP.game.innings[0].halfs[1].events[i],
-                  },
-                },
-              },
+                innings0: {
+                  halfs1: {
+                    ['lineup' + i]: dataPBP.game.innings[0].halfs[1].events[i]
+                  }
+                }
+              }
             },
             { merge: true }
           );
@@ -753,7 +749,7 @@ async function MLBpbpHistory(parameter) {
             dataPBP.game.innings[inningsCount].halfs[halfsCount].events.length;
             eventHalfCount++
           ) {
-            if (halfsCount == 0) {
+            if (halfsCount === 0) {
               await ref.set(
                 {
                   PBP: {
@@ -769,12 +765,12 @@ async function MLBpbpHistory(parameter) {
                                 .hits,
                             away_errors:
                               dataPBP.game.innings[inningsCount].scoring.away
-                                .errors,
-                          },
-                        },
-                      },
-                    },
-                  },
+                                .errors
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 { merge: true }
               );
@@ -794,12 +790,12 @@ async function MLBpbpHistory(parameter) {
                                 .hits,
                             home_errors:
                               dataPBP.game.innings[inningsCount].scoring.home
-                                .errors,
-                          },
-                        },
-                      },
-                    },
-                  },
+                                .errors
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 { merge: true }
               );
@@ -817,11 +813,11 @@ async function MLBpbpHistory(parameter) {
                         ['events' + eventHalfCount]: {
                           lineup:
                             dataPBP.game.innings[inningsCount].halfs[halfsCount]
-                              .events[eventHalfCount].lineup,
-                        },
-                      },
-                    },
-                  },
+                              .events[eventHalfCount].lineup
+                        }
+                      }
+                    }
+                  }
                 },
                 { merge: true }
               );
@@ -841,12 +837,12 @@ async function MLBpbpHistory(parameter) {
                             description:
                               dataPBP.game.innings[inningsCount].halfs[
                                 halfsCount
-                              ].events[eventHalfCount].at_bat.description,
-                          },
-                        },
-                      },
-                    },
-                  },
+                              ].events[eventHalfCount].at_bat.description
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 { merge: true }
               );
@@ -867,13 +863,13 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               ['events' + eventAtbatCount]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                eventHalfCount
-                              ].at_bat.events[eventAtbatCount],
-                            },
-                          },
-                        },
-                      },
-                    },
+                                  eventHalfCount
+                                ].at_bat.events[eventAtbatCount]
+                            }
+                          }
+                        }
+                      }
+                    }
                   },
                   { merge: true }
                 );
@@ -894,10 +890,10 @@ async function MLBpbpHistory(parameter) {
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
 }
-async function transFunction(stringTrans) {
-  let keyword = ['á', 'é', 'í', 'ó', 'ú'];
-  let keywordTrans = ['a', 'e', 'i', 'o', 'u'];
-  let stringAfterTrans = [];
+async function transFunction (stringTrans) {
+  const keyword = ['á', 'é', 'í', 'ó', 'ú'];
+  const keywordTrans = ['a', 'e', 'i', 'o', 'u'];
+  const stringAfterTrans = [];
   for (let j = 0; j < stringTrans.length; j++) {
     for (let i = 0; i < keyword.length; i++) {
       stringTrans[j] = await stringTrans[j].replace(
@@ -905,32 +901,30 @@ async function transFunction(stringTrans) {
         keywordTrans[i]
       );
     }
-    let temp = await modules.translate(stringTrans[j], {
+    const temp = await modules.translate(stringTrans[j], {
       from: 'en',
-      to: 'zh-tw',
+      to: 'zh-tw'
     });
-    let temp2 = temp.text.split('（');
+    const temp2 = temp.text.split('（');
     stringAfterTrans.push(temp2[0]);
   }
 
   return stringAfterTrans;
 }
-async function summmaryEN(gameID) {
+async function summmaryEN (gameID) {
   const enSummaryURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
 
   try {
-    let homeTeamName;
-    let awayTeamName;
-    let keywordHome = [];
-    let keywordAway = [];
-    let numberHome = [];
-    let numberAway = [];
-    let { data } = await axios(enSummaryURL);
-    let dataSummary = data;
-    homeTeamName = dataSummary.game.home.name;
-    awayTeamName = dataSummary.game.away.name;
+    const keywordHome = [];
+    const keywordAway = [];
+    const numberHome = [];
+    const numberAway = [];
+    const { data } = await axios(enSummaryURL);
+    const dataSummary = data;
+    const homeTeamName = dataSummary.game.home.name;
+    const awayTeamName = dataSummary.game.away.name;
     for (let i = 0; i < dataSummary.game.home.roster.length; i++) {
-      let full_name =
+      const full_name =
         dataSummary.game.home.roster[i].first_name +
         ' ' +
         dataSummary.game.home.roster[i].last_name;
@@ -938,7 +932,7 @@ async function summmaryEN(gameID) {
       numberHome.push(dataSummary.game.home.roster[i].jersey_number);
     }
     for (let i = 0; i < dataSummary.game.away.roster.length; i++) {
-      let full_name =
+      const full_name =
         dataSummary.game.away.roster[i].first_name +
         ' ' +
         dataSummary.game.away.roster[i].last_name;
@@ -951,7 +945,7 @@ async function summmaryEN(gameID) {
       numberHome,
       awayTeamName,
       keywordAway,
-      numberAway,
+      numberAway
     ];
   } catch (error) {
     console.log(

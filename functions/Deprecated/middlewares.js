@@ -2,7 +2,7 @@
 // ref: https://cloud.google.com/functions/docs/writing/http#writing_http_files-nodejs
 const modules = require('../util/modules');
 
-function busboyProcessor(req, res, next) {
+function busboyProcessor (req, res, next) {
   const busboy = new modules.Busboy({
     headers: req.headers,
     limits: {
@@ -12,7 +12,7 @@ function busboyProcessor(req, res, next) {
   });
   const fields = {};
   // This code will process each non-file field in the form.
-  busboy.on('field', function(key, val) {
+  busboy.on('field', function (key, val) {
     fields[key] = val;
     console.log('field...', key, val, fields[key]);
   });
@@ -20,7 +20,7 @@ function busboyProcessor(req, res, next) {
   const uploads = {};
   const tmpdir = modules.os.tmpdir();
   // This code will process each file uploaded.
-  busboy.on('file', async function(
+  busboy.on('file', async function (
     fieldname,
     file,
     filename,
@@ -45,8 +45,8 @@ function busboyProcessor(req, res, next) {
     file.pipe(writeStream);
 
     // File was processed by Busboy; wait for it to be written to disk.
-    const promise = new Promise(function(resolve, reject) {
-      file.on('end', function() {
+    const promise = new Promise(function (resolve, reject) {
+      file.on('end', function () {
         writeStream.end();
       });
       writeStream.on('finish', resolve);
@@ -56,7 +56,7 @@ function busboyProcessor(req, res, next) {
   });
   // Triggered once all uploaded files are processed by Busboy.
   // We still need to wait for the disk writes (saves) to complete.
-  busboy.on('finish', async function() {
+  busboy.on('finish', async function () {
     await Promise.all(fileWrites);
     // console.log(req.body);
     // console.log('Busboy finish');
@@ -76,9 +76,9 @@ function busboyProcessor(req, res, next) {
 }
 
 // ref: https://config9.com/apps/firebase/upload-files-to-firebase-storage-using-node-js/
-async function upload2bucket(req, res, next) {
-  let gcpResponses = [];
-  let uuids = [];
+async function upload2bucket (req, res, next) {
+  const gcpResponses = [];
+  const uuids = [];
 
   for (const key in req.filePath) {
     console.log('key is', key);
@@ -86,7 +86,7 @@ async function upload2bucket(req, res, next) {
     try {
       const truetype = await modules.fileType.fromFile(req.filePath[key]);
 
-      let attribute = truetype.mime.substring(0, truetype.mime.indexOf('/'));
+      const attribute = truetype.mime.substring(0, truetype.mime.indexOf('/'));
       if (attribute !== 'video') {
         res.status(401).json({
           code: 403,
@@ -97,7 +97,7 @@ async function upload2bucket(req, res, next) {
     } catch (error) {
       console.log(error);
     }
-    let uuid = modules.uuidv1();
+    const uuid = modules.uuidv1();
     uuids.push(uuid);
 
     gcpResponses.push(
@@ -117,9 +117,9 @@ async function upload2bucket(req, res, next) {
     modules.fs.unlinkSync(req.filePath[key]);
   }
 
-  let urls = [];
+  const urls = [];
   for (let i = 0; i < gcpResponses.length; i++) {
-    let file = gcpResponses[i][0];
+    const file = gcpResponses[i][0];
     console.log('file.name....', file.name);
     // console.log('file1234....', file, modules.bucket.id);
     urls.push(
@@ -135,16 +135,16 @@ async function upload2bucket(req, res, next) {
   return await Promise.all(gcpResponses);
 }
 
-function convertToMP4(type, filepath, tmpdir, name) {
+function convertToMP4 (type, filepath, tmpdir, name) {
   if (type !== 'mp4') {
     modules
       .ffmpeg(filepath)
       .videoCodec('libx264')
       .audioCodec('libmp3lame')
-      .on('error', function(err) {
+      .on('error', function (err) {
         console.log('An error occurred: ' + err.message);
       })
-      .on('end', function() {
+      .on('end', function () {
         console.log('Finished processing');
       })
       // .save('cat.mp4');

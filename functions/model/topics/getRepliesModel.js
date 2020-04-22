@@ -5,15 +5,15 @@ const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 20;
-function dbFind(aid, page) {
+function dbFind (aid, page) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__reply.findAll({
         where: {
           article_id: aid
         },
-        limit: countPerPage,  //每頁幾個
-        offset: countPerPage * page, //跳過幾個 = limit * index
+        limit: countPerPage, // 每頁幾個
+        offset: countPerPage * page, // 跳過幾個 = limit * index
         distinct: true,
         raw: true
       })
@@ -21,30 +21,29 @@ function dbFind(aid, page) {
     } catch (error) {
       log.data(error);
       reject('get replies failed');
-      return;
     }
   })
 }
-async function getReplies(args) {
-  return new Promise(async function(resolve, reject) {
+async function getReplies (args) {
+  return new Promise(async function (resolve, reject) {
     try {
-      let aid = args.aid;
-      let page = args.page;
+      const aid = args.aid;
+      const page = args.page;
 
       const replies = await dbFind(aid, page)
 
-      let usersToGet = []
+      const usersToGet = []
       let usersInfo = []
       for (let i = 0; i < replies.length; i++) {
         usersToGet.push(replies[i].uid)
       }
       /* 下面讀取user info */
-      let usersToGetUnique = [...new Set(usersToGet)];
-      try{
+      const usersToGetUnique = [...new Set(usersToGet)];
+      try {
         usersInfo = await func.getUserInfo(usersToGetUnique)
         // log.data(usersToGetUnique)
         // log.data(usersInfo)
-      }catch(error){
+      } catch (error) {
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })
       }
@@ -57,7 +56,6 @@ async function getReplies(args) {
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

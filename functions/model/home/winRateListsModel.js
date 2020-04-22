@@ -2,15 +2,15 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winRateLists(args) {
-  return new Promise(async function(resolve, reject) {
+function winRateLists (args) {
+  return new Promise(async function (resolve, reject) {
     // 取得 首頁預設值
-    let league_id = 'league_id';
+    const league_id = 'league_id';
     const defaultValues = await db.sequelize.query(
       `SELECT * FROM match__leagues ORDER BY ${league_id} DESC LIMIT 1`,
       {
         type: db.sequelize.QueryTypes.SELECT,
-        plain: true,
+        plain: true
       })
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
@@ -18,16 +18,16 @@ function winRateLists(args) {
     //   NBA: [],
     //   MLB: []
     // }
-    
-    let winRateLists = {};
-    winRateLists[defaultValues.name] = []; 
+
+    const winRateLists = {};
+    winRateLists[defaultValues.name] = [];
 
     try {
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
-        let league_id = defaultValues.league_id;
-        let order = 'this_month_win_rate';
-        let limit = 10;
+        const league_id = defaultValues.league_id;
+        const order = 'this_month_win_rate';
+        const limit = 10;
         const period = modules.getTitlesPeriod(new Date()).period;
         const leagueWinRateListsQuery = await db.sequelize.query(
           `
@@ -67,13 +67,13 @@ function winRateLists(args) {
             order by ${order} desc
           `,
           {
-            type: db.sequelize.QueryTypes.SELECT,
+            type: db.sequelize.QueryTypes.SELECT
           });
 
         leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
-          leagueWinRateLists.push( repackage(data) );
+          leagueWinRateLists.push(repackage(data));
         });
-        //Promise.all(results)
+        // Promise.all(results)
 
         winRateLists[key] = leagueWinRateLists;
       }
@@ -83,12 +83,11 @@ function winRateLists(args) {
     }
 
     resolve({ win_rate_lists: winRateLists });
-    return;
   });
 }
 
-function repackage(ele) {
-  let data = {
+function repackage (ele) {
+  const data = {
     win_rate: '',
     uid: ele.uid,
     avatar: ele.avatar,
@@ -96,8 +95,8 @@ function repackage(ele) {
     rank: ''
   };
 
-  data['win_rate'] = ele['this_month_win_rate'].toString();
-  data['rank'] = ele['rank_id'].toString();
+  data.win_rate = ele.this_month_win_rate.toString();
+  data.rank = ele.rank_id.toString();
 
   return data;
 }

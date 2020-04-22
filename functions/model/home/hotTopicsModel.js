@@ -14,14 +14,14 @@ function dbFind(page) {
       if(page === 0 || page === null){
         const resultFirst = await db.sequelize.models.topic__article.findAll({
           where: {
-            createdAt: { //撈七天內的文
+            createdAt: { // 撈七天內的文
               [Op.lt]: new Date(),
               [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
             },
-            category: '賽事分析' //撈一篇最高的賽事分析擺第一篇
+            category: '賽事分析' // 撈一篇最高的賽事分析擺第一篇
           },
           limit: 1,
-          order: [ ['view_count', 'DESC'] ], //依瀏覽數排列
+          order: [['view_count', 'DESC']], // 依瀏覽數排列
           distinct: true,
           raw: true
         })
@@ -51,7 +51,6 @@ function dbFind(page) {
     } catch (error) {
       log.data(error);
       reject('get topics failed');
-      return;
     }
   })
 }
@@ -66,8 +65,8 @@ function chkFirstTopic(topics){ //把非第一篇賽事分析文剔除
   })
   return res;
 }
-async function getTopics(args) {
-  return new Promise(async function(resolve, reject) {
+async function getTopics (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       let page = null;
       if(typeof args.params.page !== 'undefined'){
@@ -77,9 +76,9 @@ async function getTopics(args) {
       const topics = await dbFind(page)
 
       /* 讀取一些別的資料 */
-      let usersToGet = []
+      const usersToGet = []
       let usersInfo = []
-      let infosToGet = [] // 把aid存進來
+      const infosToGet = [] // 把aid存進來
       let repliesCount = []
       let likesCount = []
       for (let i = 0; i < topics.length; i++) {
@@ -87,22 +86,22 @@ async function getTopics(args) {
         usersToGet.push(topics[i].uid)
       }
       /* 讀取留言數 */
-      try{
+      try {
         repliesCount = await func.getTopicReplyCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
-      }catch(error){
+      } catch (error) {
         console.log(error)
         reject({ code: 500, error: 'get reply count failed' })
       }
       /* 讀取留言數 */
-      try{
+      try {
         likesCount = await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
-      }catch(error){
+      } catch (error) {
         console.log(error)
         reject({ code: 500, error: 'get like count failed' })
       }
       /* 下面讀取user info */
-      let usersToGetUnique = [...new Set(usersToGet)];
-      try{
+      const usersToGetUnique = [...new Set(usersToGet)];
+      try {
         usersInfo = await func.getUserInfo(usersToGetUnique)
         // log.data(usersToGetUnique)
         // log.data(usersInfo)
@@ -117,7 +116,7 @@ async function getTopics(args) {
         let likeCount = likesCount.filter( obj => obj.article_id === topics[i].article_id.toString() ); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics[i].like_count = likeCount;
-        let userInfo = usersInfo.filter( obj => obj.uid === topics[i].uid.toString() ); // 處理userinfo 把uid=id的那則挑出來
+        let userInfo = usersInfo.filter(obj => obj.uid === topics[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null;
         topics[i].user_info = userInfo;
       }
@@ -126,7 +125,6 @@ async function getTopics(args) {
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

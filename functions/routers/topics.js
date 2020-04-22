@@ -2,8 +2,8 @@ const modules = require('../util/modules');
 const router = modules.express.Router();
 const verification = require('../util/verification');
 
-router.get('/', function(req, res) {
-  let data = { msg: 'Please use POST.' };
+router.get('/', function (req, res) {
+  const data = { msg: 'Please use POST.' };
   res.json(data);
 });
 

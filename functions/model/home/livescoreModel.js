@@ -1,47 +1,45 @@
 const modules = require('../../util/modules');
-async function livescore(args) {
+async function livescore (args) {
   return new Promise(async function (resolve, reject) {
     try {
-      result = await reResult(args.sport, args.league);
+      const result = await reResult(args.sport, args.league);
 
       resolve(result);
     } catch (err) {
       console.error('Error in sport/livescoreModel by DY', err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }
-async function reResult(sport, league) {
-  let result;
-  result = await repackage(sport, league);
+async function reResult (sport, league) {
+  const result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league) {
-  let leagueName = `pagetest_${league}`;
-  let query = await modules.firestore
+async function repackage (sport, league) {
+  const leagueName = `pagetest_${league}`;
+  const query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')
     .get();
 
-  let eventData = [];
+  const eventData = [];
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
-  time = '2020-07-01';
+  const time = '2020-07-01';
   let dateNow = new Date(time).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei',
+    timeZone: 'Asia/Taipei'
   });
 
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
-  let eventToday = [];
-  let closedEvent = [];
-  let inprogressEvent = [];
-  let scheduledEvent = [];
-  let outputJson = [];
+  const eventToday = [];
+  const closedEvent = [];
+  const inprogressEvent = [];
+  const scheduledEvent = [];
+  const outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
     eventData[i].sport = sport;
@@ -55,24 +53,24 @@ async function repackage(sport, league) {
     //   eventToday.push(eventData[i]);
     // }
     // 0 目前當天有幾場比賽已結束
-    if (scheduled === dateNow && eventData[i].flag.status == 0) {
+    if (scheduled === dateNow && eventData[i].flag.status === 0) {
       closedEvent.push({
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
 
     // 1 目前當天有幾場比賽進行中
-    if (scheduled === dateNow && eventData[i].flag.status == 1) {
+    if (scheduled === dateNow && eventData[i].flag.status === 1) {
       // inprogressEvent.push(eventData[i]);
       outputJson.push({
         bets_id: eventData[i].bets_id,
@@ -80,54 +78,54 @@ async function repackage(sport, league) {
         home_tw: eventData[i].newest_spread.home_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
     // 2 目前當天有幾場比賽規劃中
-    if (scheduled === dateNow && eventData[i].flag.status == 2) {
+    if (scheduled === dateNow && eventData[i].flag.status === 2) {
       scheduledEvent.push({
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
   }
 
-  if (outputJson.length == 0) {
+  if (outputJson.length === 0) {
     for (let i = 0; i < 4; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 1) {
+  if (outputJson.length === 1) {
     for (let i = 0; i < 3; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 2) {
+  if (outputJson.length === 2) {
     for (let i = 0; i < 2; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 3) {
+  if (outputJson.length === 3) {
     for (let i = 0; i < 1; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);

@@ -1,27 +1,26 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const replyModel = require('../../model/topics/createReplyModel');
-async function createTopic(req, res) {
-
+async function createTopic (req, res) {
 // content:{
-//   category: category, [賽事分析,球隊討論,投注分享]
-//   type: type, [MLB,NBA]
-//   title: title,
-//   content: content,
-// },
+  //   category: category, [賽事分析,球隊討論,投注分享]
+  //   type: type, [MLB,NBA]
+  //   title: title,
+  //   content: content,
+  // },
 
   const schema = {
     type: 'object',
     requied: ['aid', 'content'],
     properties: {
       aid: {
-        type: 'number',
+        type: 'number'
       },
       reply_id: {
-        type: [ 'number', 'null' ],
+        type: ['number', 'null']
       },
       content: {
-        type: 'string',
+        type: 'string'
       },
       images: {
         type: 'array',
@@ -30,8 +29,8 @@ async function createTopic(req, res) {
           { type: 'string' },
           { type: 'string' },
           { type: 'string' }
-        ],
-      },
+        ]
+      }
     }
   }
 
@@ -42,14 +41,14 @@ async function createTopic(req, res) {
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   replyModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 
 module.exports = createTopic;
@@ -74,7 +73,7 @@ module.exports = createTopic;
  *	  "title": "標題",
  *	  "content": "內容"
  * }
- * 
+ *
  * @apiSuccess {Number} type          status code
  * @apiSuccess {Object} article_id    儲存後得到的文章id
  * @apiSuccessExample {JSON} Success-Response

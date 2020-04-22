@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 
 const TAIWAN_UTF = 8;
-function prematch(args) {
+function prematch (args) {
   return new Promise(async function (resolve, reject) {
     try {
       const queries = await queryOneDay(args);
@@ -14,7 +14,7 @@ function prematch(args) {
   });
 }
 
-function queryOneDay(args) {
+function queryOneDay (args) {
   return new Promise(async function (resolve, reject) {
     const matchesRef = modules.firestore.collection(
       modules.leagueCodebook(args.league).match
@@ -46,7 +46,7 @@ function queryOneDay(args) {
   });
 }
 
-async function repackage_MLB(args, events) {
+async function repackage_MLB (args, events) {
   const results = [];
   let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
@@ -67,7 +67,7 @@ async function repackage_MLB(args, events) {
   }
   return results;
 }
-async function repackage_NBA(args, events) {
+async function repackage_NBA (args, events) {
   const results = [];
   let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
@@ -93,7 +93,7 @@ async function repackage_NBA(args, events) {
   }
   return results;
 }
-function generalData(ele, checkGogResult) {
+function generalData (ele, checkGogResult) {
   const handicapFlag = checkHandicapDisable(checkGogResult);
   const data = {
     id: ele.bets_id,
@@ -124,23 +124,25 @@ function generalData(ele, checkGogResult) {
     // }
   };
 
-  if (ele.newest_spread && ele.flag.spread === 1)
+  if (ele.newest_spread && ele.flag.spread === 1) {
     data.spread = repackageSpread(
       ele.newest_spread,
       handicapFlag.spreadDisable
     );
+  }
   if (!ele.newest_spread || ele.flag.status !== 2) data.spread.disable = true;
-  if (ele.newest_totals && ele.flag.totals === 1)
+  if (ele.newest_totals && ele.flag.totals === 1) {
     data.totals = repackageTotals(
       ele.newest_totals,
       handicapFlag.totalsDisable
     );
+  }
 
   if (!ele.newest_totals || ele.flag.status !== 2) data.totals.disable = true;
   return data;
 }
 
-function checkHandicapDisable(checkGogResult) {
+function checkHandicapDisable (checkGogResult) {
   let spreadDisable = false;
   let totalsDisable = false;
   if (checkGogResult.betFlag) {
@@ -151,7 +153,7 @@ function checkHandicapDisable(checkGogResult) {
   return { spreadDisable, totalsDisable };
 }
 
-function repackageSpread(ele, disableFlag) {
+function repackageSpread (ele, disableFlag) {
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -164,7 +166,7 @@ function repackageSpread(ele, disableFlag) {
   return data;
 }
 
-function repackageTotals(ele, disableFlag) {
+function repackageTotals (ele, disableFlag) {
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -176,7 +178,7 @@ function repackageTotals(ele, disableFlag) {
   data.disable = disableFlag;
   return data;
 }
-function repackageBasketballLineups(home, away) {
+function repackageBasketballLineups (home, away) {
   const data = {
     home: {
       starters: []
@@ -207,7 +209,7 @@ function repackageBasketballLineups(home, away) {
   }
   return data;
 }
-async function checkGodPrediction(args, match_id) {
+async function checkGodPrediction (args, match_id) {
   const predictionRef = modules.firestore.collection(modules.db.prediction);
   const query = await predictionRef
     .where('uid', '==', args.token.uid)

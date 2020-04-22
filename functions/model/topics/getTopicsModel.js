@@ -5,13 +5,13 @@ const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 10;
-function dbFind(where, page) {
+function dbFind (where, page) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: where,
-        limit: countPerPage,  //每頁幾個
-        offset: countPerPage * page, //跳過幾個 = limit * index
+        limit: countPerPage, // 每頁幾個
+        offset: countPerPage * page, // 跳過幾個 = limit * index
         distinct: true,
         raw: true
       })
@@ -19,35 +19,34 @@ function dbFind(where, page) {
     } catch (error) {
       log.data(error);
       reject('get topics failed');
-      return;
     }
   })
 }
-async function getTopics(args) {
-  return new Promise(async function(resolve, reject) {
+async function getTopics (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       // const replyCount = await func.getTopicReplyCount(args.aid)
       // console.log(replyCount)
 
-      let where = {};
+      const where = {};
       let page = 0;
 
-      if(typeof args.type !== 'undefined'){
-        where['type'] = args.type
+      if (typeof args.type !== 'undefined') {
+        where.type = args.type
       }
-      if(typeof args.category !== 'undefined'){
-        where['category'] = args.category
+      if (typeof args.category !== 'undefined') {
+        where.category = args.category
       }
-      if(typeof args.page !== 'undefined'){
+      if (typeof args.page !== 'undefined') {
         page = args.page
       }
 
       const topics = await dbFind(where, page)
 
       /* 讀取一些別的資料 */
-      let usersToGet = []
+      const usersToGet = []
       let usersInfo = []
-      let infosToGet = [] // 把aid存進來
+      const infosToGet = [] // 把aid存進來
       let repliesCount = []
       let likesCount = []
       for (let i = 0; i < topics.length; i++) {
@@ -55,9 +54,9 @@ async function getTopics(args) {
         usersToGet.push(topics[i].uid)
       }
       /* 讀取留言數 */
-      try{
+      try {
         repliesCount = await func.getTopicReplyCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
-      }catch(error){
+      } catch (error) {
         console.log(error)
         reject({ code: 500, error: 'get reply count failed' })
       }
@@ -69,12 +68,12 @@ async function getTopics(args) {
         reject({ code: 500, error: 'get like count failed' })
       }
       /* 下面讀取user info */
-      let usersToGetUnique = [...new Set(usersToGet)];
-      try{
+      const usersToGetUnique = [...new Set(usersToGet)];
+      try {
         usersInfo = await func.getUserInfo(usersToGetUnique)
         log.data(usersToGetUnique)
         log.data(usersInfo)
-      }catch(error){
+      } catch (error) {
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })
       }
@@ -94,7 +93,6 @@ async function getTopics(args) {
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

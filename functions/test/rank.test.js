@@ -29,7 +29,6 @@ describe('/home Endpoints', () => {
     expect(res.body[0]).toHaveProperty('keyword');
   });
 
-
   // win_bets_lists
   it('/rank/win_bets_lists?range=this_period&league=NBA 本期', async () => {
     const res = await request(url)

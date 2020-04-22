@@ -7,12 +7,12 @@ async function getTopics(req, res) {
     return;
   }
   topicModel(req)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 module.exports = getTopics;
 /**
