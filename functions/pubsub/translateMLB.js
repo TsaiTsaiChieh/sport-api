@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-async function translateMLB(
+async function translateMLB (
   stringOrigin,
   keywordHomeOrigin,
   keywordAwayOrigin,
@@ -10,8 +10,8 @@ async function translateMLB(
   totalDescriptionOrEachBall
 ) {
   let finalString = stringOrigin;
-  if (totalDescriptionOrEachBall == 1) {
-    keyword = [
+  if (totalDescriptionOrEachBall === 1) {
+    const keyword = [
       'aBK',
       'bAB',
       'bB',
@@ -48,9 +48,9 @@ async function translateMLB(
       'oROET4',
       'bPO',
       'rPABC',
-      'rPABO',
+      'rPABO'
     ];
-    keywordTrans = [
+    const keywordTrans = [
       `${stringOrigin[0]}發生投手假投犯規`,
       `${stringOrigin[0]}投出壞球`,
       `${stringOrigin[0]}投出壞球`,
@@ -77,17 +77,17 @@ async function translateMLB(
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}未揮棒`,
       `${stringOrigin[0]}投出好球、${stringOrigin[1]}揮棒落空`,
       `${stringOrigin[1]}妨礙守備`,
-      `守備妨礙打擊`,
-      `發生守備失誤`,
-      `發生守備失誤、使攻方推進兩個壘包`,
-      `發生守備失誤、使攻方推進三個壘包`,
-      `發生守備失誤、使攻方回本壘得分`,
-      `攻擊方發生失誤，出局於二壘`,
-      `攻擊方發生失誤，出局於三壘`,
-      `攻擊方發生失誤，出局於本壘`,
-      `跑者遭牽制出局`,
-      `經判定，該打席繼續打擊`,
-      `經判定，該打席結束打擊`,
+      '守備妨礙打擊',
+      '發生守備失誤',
+      '發生守備失誤、使攻方推進兩個壘包',
+      '發生守備失誤、使攻方推進三個壘包',
+      '發生守備失誤、使攻方回本壘得分',
+      '攻擊方發生失誤，出局於二壘',
+      '攻擊方發生失誤，出局於三壘',
+      '攻擊方發生失誤，出局於本壘',
+      '跑者遭牽制出局',
+      '經判定，該打席繼續打擊',
+      '經判定，該打席結束打擊'
     ];
     let flag = false;
 
@@ -100,29 +100,27 @@ async function translateMLB(
     }
     if (flag) {
       for (let i = 0; i < keyword.length; i++) {
-        {
-          finalString[2] = await finalString[2].replace(
-            new RegExp(keyword[i], 'g'),
-            keywordTrans[i]
-          );
-        }
+        finalString[2] = await finalString[2].replace(
+          new RegExp(keyword[i], 'g'),
+          keywordTrans[i]
+        );
       }
     }
 
     return finalString[2];
   }
 
-  if (totalDescriptionOrEachBall == 0) {
-    let keywordHome = keywordHomeOrigin;
-    let keywordAway = keywordAwayOrigin;
-    let transSimpleHome = transSimpleHomeOrigin;
-    let transSimpleAway = transSimpleAwayOrigin;
+  if (totalDescriptionOrEachBall === 0) {
+    const keywordHome = keywordHomeOrigin;
+    const keywordAway = keywordAwayOrigin;
+    const transSimpleHome = transSimpleHomeOrigin;
+    const transSimpleAway = transSimpleAwayOrigin;
     // let transCompleteHome = transCompleteHomeOrigin;
     // let transCompleteAway = transCompleteAwayOrigin;
-    keyword = keywordHome.concat(keywordAway);
+    let keyword = keywordHome.concat(keywordAway);//  須確認
     // keywordTrans = transCompleteHome.concat(transCompleteAway);
-    let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
-    //keyword = 依最嚴格條件開始替換
+    const keywordTransSimple = transSimpleHome.concat(transSimpleAway);
+    // keyword = 依最嚴格條件開始替換
 
     for (let i = 0; i < keyword.length; i++) {
       finalString = await finalString.replace(
@@ -130,8 +128,8 @@ async function translateMLB(
         keywordTransSimple[i]
       );
     }
-    let keywordEN = ['á', 'é', 'í', 'ó', 'ú'];
-    let keywordTransEN = ['a', 'e', 'i', 'o', 'u'];
+    const keywordEN = ['á', 'é', 'í', 'ó', 'ú'];
+    const keywordTransEN = ['a', 'e', 'i', 'o', 'u'];
 
     for (let i = 0; i < keyword.length; i++) {
       keyword[i] = await keyword[i].replace(
@@ -173,32 +171,32 @@ async function translateMLB(
       'Phillies',
       'hit by pitch',
       'switches from',
-      ` reaches on a fielder's choice to shallow infield`,
-      ` reaches on a fielder's choice to shallow center infield`,
-      ` reaches on a fielder's choice to shallow right infield`,
-      ` reaches on a fielder's choice to shallow left infield`,
-      ` reaches on a fielder's choice to infield`,
-      ` reaches on a fielder's choice to center infield`,
-      ` reaches on a fielder's choice to right infield`,
-      ` reaches on a fielder's choice to left infield`,
-      ` reaches on a fielder's choice to shallow field`,
-      ` reaches on a fielder's choice to shallow center field`,
-      ` reaches on a fielder's choice to shallow right field`,
-      ` reaches on a fielder's choice to shallow right center field`,
-      ` reaches on a fielder's choice to shallow left field`,
-      ` reaches on a fielder's choice to shallow left center field`,
-      ` reaches on a fielder's choice to field`,
-      ` reaches on a fielder's choice to center field`,
-      ` reaches on a fielder's choice to right field`,
-      ` reaches on a fielder's choice to right center field`,
-      ` reaches on a fielder's choice to left field`,
-      ` reaches on a fielder's choice to left center field`,
-      ` reaches on a fielder's choice to deep field`,
-      ` reaches on a fielder's choice to deep center field`,
-      ` reaches on a fielder's choice to deep right field`,
-      ` reaches on a fielder's choice to deep right center field`,
-      ` reaches on a fielder's choice to deep left field`,
-      ` reaches on a fielder's choice to deep left center field`,
+      ' reaches on a fielder\'s choice to shallow infield',
+      ' reaches on a fielder\'s choice to shallow center infield',
+      ' reaches on a fielder\'s choice to shallow right infield',
+      ' reaches on a fielder\'s choice to shallow left infield',
+      ' reaches on a fielder\'s choice to infield',
+      ' reaches on a fielder\'s choice to center infield',
+      ' reaches on a fielder\'s choice to right infield',
+      ' reaches on a fielder\'s choice to left infield',
+      ' reaches on a fielder\'s choice to shallow field',
+      ' reaches on a fielder\'s choice to shallow center field',
+      ' reaches on a fielder\'s choice to shallow right field',
+      ' reaches on a fielder\'s choice to shallow right center field',
+      ' reaches on a fielder\'s choice to shallow left field',
+      ' reaches on a fielder\'s choice to shallow left center field',
+      ' reaches on a fielder\'s choice to field',
+      ' reaches on a fielder\'s choice to center field',
+      ' reaches on a fielder\'s choice to right field',
+      ' reaches on a fielder\'s choice to right center field',
+      ' reaches on a fielder\'s choice to left field',
+      ' reaches on a fielder\'s choice to left center field',
+      ' reaches on a fielder\'s choice to deep field',
+      ' reaches on a fielder\'s choice to deep center field',
+      ' reaches on a fielder\'s choice to deep right field',
+      ' reaches on a fielder\'s choice to deep right center field',
+      ' reaches on a fielder\'s choice to deep left field',
+      ' reaches on a fielder\'s choice to deep left center field',
       ' reaches on error',
       ' Throwing error by',
       ' called out on strikes',
@@ -248,7 +246,7 @@ async function translateMLB(
       ' lines out to center infield to',
       ' lines out to right infield to',
       ' lines out to left infield to',
-      //外野出局
+      // 外野出局
       ' grounds out to shallow field to',
       ' grounds out to shallow center field to',
       ' grounds out to shallow right field to',
@@ -336,7 +334,7 @@ async function translateMLB(
       ' lines out to center infield',
       ' lines out to right infield',
       ' lines out to left infield',
-      //外野出局
+      // 外野出局
       ' grounds out to shallow field',
       ' grounds out to shallow center field',
       ' grounds out to shallow right field',
@@ -394,7 +392,7 @@ async function translateMLB(
       ' steals first',
       ' steals second',
       ' steals third',
-      //安打類型
+      // 安打類型
       ' singles to shallow infield',
       ' singles to shallow center infield',
       ' singles to shallow right infield',
@@ -618,10 +616,10 @@ async function translateMLB(
       'doubles',
       'thirds',
       ' as C.',
-      ' as P.',
+      ' as P.'
     ];
 
-    keywordTrans = [
+    const keywordTrans = [
       '天使',
       '運動家',
       '水手',
@@ -1096,7 +1094,7 @@ async function translateMLB(
       '二壘安打',
       '三壘安打',
       ' 捕手.',
-      ' 投手.',
+      ' 投手.'
     ];
 
     for (let i = 0; i < keyword.length; i++) {
@@ -1110,15 +1108,15 @@ async function translateMLB(
   }
 }
 
-async function transFunction(stringTrans) {
-  let stringAfterTrans = await modules.translate(stringTrans, {
+async function transFunction (stringTrans) {
+  const stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
-    to: 'zh-tw',
+    to: 'zh-tw'
   });
   return await stringAfterTrans.text;
 }
-async function stepTrans(stringTrans) {
-  let eleBig = [
+async function stepTrans (stringTrans) {
+  const eleBig = [
     'A',
     'B',
     'C',
@@ -1144,9 +1142,9 @@ async function stepTrans(stringTrans) {
     'W',
     'X',
     'Y',
-    'Z',
+    'Z'
   ];
-  let eleSmall = [
+  const eleSmall = [
     'a',
     'b',
     'c',
@@ -1172,29 +1170,29 @@ async function stepTrans(stringTrans) {
     'w',
     'x',
     'y',
-    'z',
+    'z'
   ];
-  let matcharray = [];
+  const matcharray = [];
 
   stringTrans = stringTrans.replace(' . ', ' ');
   for (let i = 0; i < eleSmall.length; i++) {
     stringTrans = stringTrans.replace(`${eleSmall[i]}.`, `${eleSmall[i]}`);
   }
-  let match = stringTrans.split(' ');
+  const match = stringTrans.split(' ');
 
   let flag = 1;
   for (let j = 0; j < match.length; j++) {
     flag = 1;
     for (let i = 0; i < eleBig.length; i++) {
-      if (match[j].indexOf(eleBig[i]) >= 0 && flag == 1) {
+      if (match[j].indexOf(eleBig[i]) >= 0 && flag === 1) {
         flag = 0;
         matcharray.push(j);
       }
     }
   }
-  let matcharray2 = [];
+  const matcharray2 = [];
   let matchNumber = 0;
-  let matchCount = [];
+  const matchCount = [];
   for (let i = 0; i < matcharray.length; i++) {
     if (matcharray[i] + 1 === matcharray[i + 1]) {
       matcharray2[matchNumber] =
@@ -1204,7 +1202,7 @@ async function stepTrans(stringTrans) {
     }
   }
 
-  let matchMap = [];
+  const matchMap = [];
   for (let q = 0; q < matchCount.length; q++) {
     matchMap.push(await transFunction(matcharray2[q]));
   }

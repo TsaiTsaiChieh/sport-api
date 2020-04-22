@@ -7,7 +7,7 @@ const scheduledStatus = 2;
 const inPlayStatus = 1;
 const endStatus = 0;
 
-function getMatches(args) {
+function getMatches (args) {
   return new Promise(async function (resolve, reject) {
     try {
       let godPredictions = [];
@@ -22,7 +22,7 @@ function getMatches(args) {
   });
 }
 
-function getMatchesWithDate(args) {
+function getMatchesWithDate (args) {
   return new Promise(async function (resolve, reject) {
     const flag_prematch = 1;
     const { league } = args;
@@ -77,7 +77,7 @@ function getMatchesWithDate(args) {
   });
 }
 
-function returnGodUserPrediction(args) {
+function returnGodUserPrediction (args) {
   return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
@@ -100,16 +100,15 @@ function returnGodUserPrediction(args) {
     }
   });
 }
-function isGodBelongToLeague(args) {
+function isGodBelongToLeague (args) {
   if (args.token) {
     if (
       args.token.customClaims.role === GOD_USER &&
       args.token.customClaims.titles.includes(args.league)
-    )
-      return true;
+    ) { return true; }
   } else return false;
 }
-function repackageMatches(results, args, godPredictions) {
+function repackageMatches (results, args, godPredictions) {
   const data = {
     sell: -1,
     scheduled: [],
@@ -188,7 +187,7 @@ function repackageMatches(results, args, godPredictions) {
   }
   return data;
 }
-function isHandicapDisable(ele, temp, predictions) {
+function isHandicapDisable (ele, temp, predictions) {
   for (let i = 0; i < predictions.length; i++) {
     if (ele.id === predictions[i].bets_id) {
       if (predictions[i].spread_id) {

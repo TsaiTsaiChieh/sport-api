@@ -1,15 +1,14 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/createTopicModel');
-async function createTopic(req, res) {
-
+async function createTopic (req, res) {
 /// 聯盟、看板、標題、文章（html格式）
-// content:{
-//   category: category, [賽事分析,球隊討論,投注分享]
-//   type: type, [MLB,NBA]
-//   title: title,
-//   content: content,
-// },
+  // content:{
+  //   category: category, [賽事分析,球隊討論,投注分享]
+  //   type: type, [MLB,NBA]
+  //   title: title,
+  //   content: content,
+  // },
 
   const schema = {
     type: 'object',
@@ -28,7 +27,7 @@ async function createTopic(req, res) {
         maxLength: 50
       },
       content: {
-        type: 'string',
+        type: 'string'
       }
     }
   }
@@ -40,14 +39,14 @@ async function createTopic(req, res) {
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   topicModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 
 module.exports = createTopic;
@@ -72,7 +71,7 @@ module.exports = createTopic;
  *	  "title": "標題",
  *	  "content": "內容"
  * }
- * 
+ *
  * @apiSuccess {Number} type          status code
  * @apiSuccess {Object} article_id    儲存後得到的文章id
  * @apiSuccessExample {JSON} Success-Response

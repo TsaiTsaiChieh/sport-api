@@ -1,13 +1,13 @@
 const modules = require('../util/modules');
 
-async function convertMov(req, res) {
+async function convertMov (req, res) {
   const file = modules.fs.createWriteStream('heart.MOV');
-  let uuid = modules.uuidv1();
-  let dataURL =
+  const uuid = modules.uuidv1();
+  const dataURL =
     'https://firebasestorage.googleapis.com/v0/b/sport19y0715.appspot.com/o/chat%2Fpublic%2Fssa8LE669NbzsNpjXcCCDsdVmxj2%2F15814931712569d2c4fda-08fe-ba25-b9ac-5498b6f49015.MOV?alt=media&token=36a20660-fa43-4d18-b06c-884fbcc16b0f';
 
   modules.https
-    .get(dataURL, async function(res) {
+    .get(dataURL, async function (res) {
       res.pipe(file);
       // console.log('statusCode:', res.statusCode);
       // console.log('headers:', res.headers);
@@ -20,7 +20,7 @@ async function convertMov(req, res) {
       //   }/o/${encodeURIComponent('file.mp4')}?alt=media&token=${uuid}`
       // );
     })
-    .on('error', function(e) {
+    .on('error', function (e) {
       console.error('error happened in https get... ', e);
     });
   await modules.bucket.upload('heart.MOV', {
@@ -49,15 +49,15 @@ async function convertMov(req, res) {
   // );
   res.json('ok');
 }
-function convertToMP4(filepath, tmpdir, name) {
+function convertToMP4 (filepath, tmpdir, name) {
   modules
     .ffmpeg(filepath)
     .videoCodec('libx264')
     .audioCodec('libmp3lame')
-    .on('error', function(err) {
+    .on('error', function (err) {
       console.log('An error occurred: ' + err.message);
     })
-    .on('end', function() {
+    .on('end', function () {
       console.log('Finished processing');
     })
     // .save('cat.mp4');

@@ -5,7 +5,7 @@ const data_league = require('../../json/matches/league.json');
 const data_spread_NBA = require('../../json/spread/NBA.json');
 const data_totals_NBA = require('../../json/totals/NBA.json');
 const data_match_NBA = require('../../json/matches/NBA.json');
-async function create(req, res) {
+async function create (req, res) {
   try {
     // const League = await db.sequelize.models.match__league.sync({
     //   force: true

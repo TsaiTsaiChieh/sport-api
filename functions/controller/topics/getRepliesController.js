@@ -1,24 +1,24 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const repliesModel = require('../../model/topics/getRepliesModel');
-async function getTopics(req, res) {
+async function getTopics (req, res) {
   const aid = Number(req.params.aid);
   const page = Number(req.params.page);
-  if(isNaN(aid) || !Number.isInteger(aid) || aid < 0 || aid > 9999999){
+  if (isNaN(aid) || !Number.isInteger(aid) || aid < 0 || aid > 9999999) {
     res.status(403).send('param error');
     return;
   }
-  if(isNaN(page) || !Number.isInteger(page) || page < 0 || page > 9999999){
+  if (isNaN(page) || !Number.isInteger(page) || page < 0 || page > 9999999) {
     res.status(403).send('param error');
     return;
   }
   repliesModel({ aid: aid, page: page })
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 module.exports = getTopics;
 /**

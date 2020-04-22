@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const MLB_functions = require('./util/prematchFuntions_MLB');
-function lineups_MLB() {
+function lineups_MLB () {
   const date = modules.moment();
   MLB_functions.MLB.lineups(date);
 }

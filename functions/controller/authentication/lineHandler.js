@@ -3,8 +3,8 @@ const firebaseAdmin = modules.firebaseAdmin;
 const jwt = require('jsonwebtoken');
 const envValues = require('../../config/env_values');
 const userUtils = require('../../util/userUtil');
-const line_login = require('line-login');
-const lineLogin = new line_login({
+const Line_login = require('line-login');
+const lineLogin = new Line_login({
   channel_id: envValues.lineConfig.channelID,
   channel_secret: envValues.lineConfig.channelSecret,
   callback_url: envValues.lineConfig.callbackURL,
@@ -30,7 +30,7 @@ const lineLogin = new line_login({
  */
 
 // call from Line SDK
-function loginHandler(req, res) {
+function loginHandler (req, res) {
   const lineAccessToken = req.query.code;
   if (!lineAccessToken) {
     res.status(401).send({ error: 'login failed!' });
@@ -74,7 +74,7 @@ function loginHandler(req, res) {
                 .auth()
                 .createCustomToken(userRecord.uid)
                 .then(token => {
-                    res.status(200.).json({token:token});
+                  res.status(200.0).json({ token: token });
                   // const expiresIn = 3 * 60 * 1000;
                   // const options = {maxAge: expiresIn, httpOnly: true, secure: true};
                   // const options = {maxAge: expiresIn, secure: true};
@@ -88,7 +88,7 @@ function loginHandler(req, res) {
                   // res.redirect(307, 'https://doinfo.cc/line_login.html');
                 });
             })
-            .catch(function(err) {
+            .catch(function (err) {
               console.log('id token verification failed.', err);
               res.status(500).send({ error: 'login failed!' });
             });

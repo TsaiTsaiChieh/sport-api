@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
-function dbCreate(insertData) {
+function dbCreate (insertData) {
   return new Promise(async function (resolve, reject) {
     try {
       log.info('create new article to db');
@@ -14,14 +14,13 @@ function dbCreate(insertData) {
     } catch (error) {
       log.data(error);
       reject('create article failed');
-      return;
     }
   })
 }
-async function createTopic(args) {
-  return new Promise(async function(resolve, reject) {
+async function createTopic (args) {
+  return new Promise(async function (resolve, reject) {
     try {
-      if(typeof args.token === 'undefined'){
+      if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
         return;
       }
@@ -42,33 +41,32 @@ async function createTopic(args) {
 
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {
-        allowedTags: [ 'br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li' ],
+        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
         allowedAttributes: {
-          'div': [ 'style' ],
-          'span': [ 'style' ],
-          'strike': [ 'style' ],
-          'b': [ 'style' ],
-          'a': [ 'href' ],
-          'img': [ 'src' ],
-          'font': [ 'size', 'color' ]
+          div: ['style'],
+          span: ['style'],
+          strike: ['style'],
+          b: ['style'],
+          a: ['href'],
+          img: ['src'],
+          font: ['size', 'color']
         },
-        allowedSchemes: [ 'http', 'https' ],
-        allowedSchemesAppliedToAttributes: [ 'href', 'src', 'style' ],
+        allowedSchemes: ['http', 'https'],
+        allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],
         allowedStyles: {
           '*': {
-            'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+            color: [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
             'text-align': [/^left$/, /^right$/, /^center$/],
             'font-size': [/^\d+(?:px|em|%)$/]
           }
         }
       });
-      
+
       const article = await dbCreate(insertData)
       resolve({ code: 200, article_id: article });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

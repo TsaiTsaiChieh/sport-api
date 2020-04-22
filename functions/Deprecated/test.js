@@ -15,35 +15,34 @@ const expiresIn = 60 * 60 * 24 * 7 * 1000;
 
 // const decodedIdToken = await firebaseAdmin.auth().verifyIdToken(token);
 // const sessionCookie = await firebaseAdmin.auth().createSessionCookie(token, {expiresIn});
-async function test() {
-    const accuser = await modules.getSnapshot('accuse_users', 'lz3c3ju6G0TilDOdgCQt4I7I8ep1');
-    console.log(accuser.data());
+async function test () {
+  const accuser = await modules.getSnapshot('accuse_users', 'lz3c3ju6G0TilDOdgCQt4I7I8ep1');
+  console.log(accuser.data());
 }
 
-async function test2() {
-    const temp = await modules.getSnapshot('users', 'bgrNF4In68NxJiw7PWu1zXVb2Wr2');
-    console.log(temp.exists);
-    console.log(temp.data());
+async function test2 () {
+  const temp = await modules.getSnapshot('users', 'bgrNF4In68NxJiw7PWu1zXVb2Wr2');
+  console.log(temp.exists);
+  console.log(temp.data());
 }
 
-async function test3() {
-    // const uniqueName = modules.firestore.collection('uniqueName').doc('測試2').add({uid: '111'});
-    const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({uid13: '1111'}, {merge: true});
-    console.log(uniqueName)
+async function test3 () {
+  // const uniqueName = modules.firestore.collection('uniqueName').doc('測試2').add({uid: '111'});
+  const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({ uid13: '1111' }, { merge: true });
+  console.log(uniqueName)
 }
 
-async function test4() {
-    const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({uid13: '1111'}, {merge: true});
-    console.log(uniqueName)
+async function test4 () {
+  const uniqueName = modules.firestore.collection('uniqueName').doc('fcOLEEu6sYWouQ9XlPnd').set({ uid13: '1111' }, { merge: true });
+  console.log(uniqueName)
 }
-
 
 const schema = {
-    type: 'object',
-    required: ['avatar'],
-    properties: {
-        avatar: {type: 'string', format: 'url'}
-    }
+  type: 'object',
+  required: ['avatar'],
+  properties: {
+    avatar: { type: 'string', format: 'url' }
+  }
 };
 
 // const avatar = 'https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg';

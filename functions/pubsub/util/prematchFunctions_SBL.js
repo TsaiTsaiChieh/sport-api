@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
-module.exports.SBL.upcomming = async function(date) {
+module.exports.SBL.upcomming = async function (date) {
   const _date = modules.dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=8251&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI SBL URL on ${date}: ${URL}`);
@@ -11,7 +11,7 @@ module.exports.SBL.upcomming = async function(date) {
   try {
     const { data } = await modules.axios(URL);
     for (let i = 0; i < data.results.length; i++) {
-      let ele = data.results[i];
+      const ele = data.results[i];
       results.push(
         modules.firestore
           .collection(modules.db.basketball_SBL)
@@ -28,7 +28,7 @@ module.exports.SBL.upcomming = async function(date) {
     return error;
   }
   // firestore
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {
@@ -41,8 +41,8 @@ module.exports.SBL.upcomming = async function(date) {
   });
 };
 
-function repackage_bets(ele) {
-  data = {};
+function repackage_bets (ele) {
+  const data = {};
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
@@ -67,7 +67,7 @@ function repackage_bets(ele) {
   return data;
 }
 // eslint-disable-next-line consistent-return
-function encode(name, id) {
+function encode (name, id) {
   name = name.toLowerCase();
   id = Number.parseInt(id);
 
@@ -78,7 +78,7 @@ function encode(name, id) {
   else if (name === 'bank of taiwan' || id === 193057) return 'BAN';
 }
 // eslint-disable-next-line consistent-return
-module.exports.SBL.prematch = async function(date) {
+module.exports.SBL.prematch = async function (date) {
   const _date = modules.dateFormat(date);
   // If query today information, it will return today information
   const URL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${_date.year}-${_date.month}-${_date.day}/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
@@ -113,7 +113,7 @@ module.exports.SBL.prematch = async function(date) {
     return error;
   }
 };
-async function query_SBL(date) {
+async function query_SBL (date) {
   const basketRef = modules.firestore.collection(modules.db.basketball_SBL);
   const beginningDate = modules.moment(date);
   const endDate = modules.moment(date).add(1, 'days');
@@ -124,7 +124,7 @@ async function query_SBL(date) {
       .where('scheduled', '<', endDate)
       .get();
 
-    query.forEach(async function(ele) {
+    query.forEach(async function (ele) {
       results.push(ele.data());
     });
     await Promise.all(results);
@@ -137,7 +137,7 @@ async function query_SBL(date) {
     return error;
   }
 }
-function integration(query, ele) {
+function integration (query, ele) {
   // query is BetsAPI saved in firestore, ele is SportRadar returned
   const milliseconds =
     modules.moment(ele.sport_event.start_time).valueOf() / 1000;
@@ -154,8 +154,8 @@ function integration(query, ele) {
     }
   }
 }
-function repackage_sportradar(ele) {
-  data = {};
+function repackage_sportradar (ele) {
+  const data = {};
   data.radar_id = ele.sport_event.id.replace('sr:sport_event:', '');
   data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date()
@@ -191,7 +191,7 @@ function repackage_sportradar(ele) {
 }
 
 // eslint-disable-next-line consistent-return
-function codebook(alias) {
+function codebook (alias) {
   alias = alias.toUpperCase();
   switch (alias) {
     case 'PAR':

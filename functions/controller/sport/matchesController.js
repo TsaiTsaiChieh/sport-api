@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/sport/matchesModel');
 
 // eslint-disable-next-line consistent-return
-async function getMatches(req, res) {
+async function getMatches (req, res) {
   const schema = {
     type: 'object',
     required: ['date', 'league'],
@@ -71,7 +71,7 @@ module.exports = getMatches;
  * @apiSuccess {String} handicap.spread.handicap_tw handicap format in Taiwan
  * @apiSuccess {String} [handicap.spread.result] handicap result
  * @apiSuccess {Object} handicap.totals the newest totals information like handicap.spread field, description omitted here
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
@@ -396,7 +396,7 @@ module.exports = getMatches;
         "message": "should match format \"date\""
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [
