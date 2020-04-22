@@ -21,15 +21,8 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * Define schema
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
- * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
+ * Match ref: match__league, match__spread, match__total, match__team__NBA, match__NBA
  * User ref: user__prediction
- */
-
-/*
- * Define schema
- * The model will now be available in models under the name given to define
- * Ex: sequelize.models.match
- * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
  */
 
 /*
@@ -375,10 +368,10 @@ const Totals = sequelize.define(
   }
 );
 /*
- * NBA 各隊伍資訊，unique key 為 team_id
+ * 各隊伍資訊，unique key 為 team_id
  */
-const NBA_team = sequelize.define(
-  'match__team__NBA',
+const Team = sequelize.define(
+  'match__team',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -388,6 +381,12 @@ const NBA_team = sequelize.define(
     team_id: {
       type: Sequelize.STRING,
       allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    sport_id: {
+      type: Sequelize.STRING
     },
     radar_id: {
       type: Sequelize.STRING
@@ -406,6 +405,12 @@ const NBA_team = sequelize.define(
     },
     alias_ch: {
       type: Sequelize.STRING
+    },
+    injury: {
+      type: Sequelize.TEXT
+    },
+    information: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -419,10 +424,10 @@ const NBA_team = sequelize.define(
 );
 
 /*
- * NBA 各賽事資訊，unique key 為 bets_id
+ * 各賽事資訊，unique key 為 bets_id
  */
-const NBA_match = sequelize.define(
-  'match__NBA',
+const Match = sequelize.define(
+  'match',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -430,6 +435,13 @@ const NBA_match = sequelize.define(
       primaryKey: true
     },
     bets_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    sport_id: {
       type: Sequelize.STRING
     },
     radar_id: {
@@ -453,9 +465,12 @@ const NBA_match = sequelize.define(
     scheduled: {
       type: Sequelize.INTEGER
     },
-    scheduled_tw: { type: Sequelize.DATE },
+    scheduled_tw: {
+      type: Sequelize.DATE
+    },
     flag_prematch: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     status: {
       type: Sequelize.INTEGER
@@ -471,6 +486,30 @@ const NBA_match = sequelize.define(
     },
     totals_result: {
       type: Sequelize.STRING
+    },
+    ori_league_id: {
+      type: Sequelize.STRING
+    },
+    ori_sport_id: {
+      type: Sequelize.STRING
+    },
+    home_player: {
+      type: Sequelize.TEXT
+    },
+    away_player: {
+      type: Sequelize.TEXT
+    },
+    home_team: {
+      type: Sequelize.TEXT
+    },
+    away_team: {
+      type: Sequelize.TEXT
+    },
+    home_injury: {
+      type: Sequelize.TEXT
+    },
+    away_injury: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -482,7 +521,6 @@ const NBA_match = sequelize.define(
     ]
   }
 );
-
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -771,8 +809,8 @@ const dbUtil = {
   League,
   Spread,
   Totals,
-  NBA_team,
-  NBA_match,
+  Match,
+  Team,
   Prediction,
   User,
   Title,
