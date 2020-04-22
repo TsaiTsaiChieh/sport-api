@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const winRateListsModel = require('../../model/rank/winRateListsModel');
 
-async function winRateLists(req, res) {
+async function winRateLists (req, res) {
   const schema = {
     type: 'object',
     required: ['range', 'league'],

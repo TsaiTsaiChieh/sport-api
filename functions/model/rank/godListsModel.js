@@ -2,15 +2,15 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function godlists(args) {
-  return new Promise(async function(resolve, reject) {
+function godlists (args) {
+  return new Promise(async function (resolve, reject) {
     const godLists = {};
 
     // 取得當期期數
     const period = modules.getTitlesPeriod(new Date()).period;
     const league = args.league;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     try {
@@ -51,19 +51,20 @@ function godlists(args) {
                ) prediction
             on titles.uid = prediction.uid
          where titles.period = :period
-      `, { 
-            replacements:{
-              league: league,
-              period: period,
-              begin: begin,
-              end: end
-            }, type: db.sequelize.QueryTypes.SELECT 
+      `, {
+        replacements: {
+          league: league,
+          period: period,
+          begin: begin,
+          end: end
+        },
+        type: db.sequelize.QueryTypes.SELECT
       });
 
-      if(godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+      if (godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
       // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
-      godListsQuery.sort(function compare(a, b) {
+      godListsQuery.sort(function compare (a, b) {
         return a.order > b.order; // 升 小->大
       });
 
@@ -75,61 +76,60 @@ function godlists(args) {
     }
 
     resolve({ period: period, godlists: godLists });
-    return;
   });
 }
 
-function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
+function rankGroup (sortedArr, godLists) { // 從陣列取得隨機人員
   const diamondArr = [];
   const goldArr = [];
   const silverArr = [];
   const copperArr = [];
 
   sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
-    switch (data[`rank_id`]){ // 大神等級分類
+    switch (data.rank_id) { // 大神等級分類
       case 1: diamondArr.push(data); break;
       case 2: goldArr.push(data); break;
       case 3: silverArr.push(data); break;
       case 4: copperArr.push(data); break;
     }
   });
-  
+
   // 底下順序將來會有可能別的條件，可以在 sort 內進行判斷
   // 鑽石 依勝注 排序
-  diamondArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  diamondArr.sort(function compare (a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_bets < b.win_bets; // 降 大->小
   });
-  godLists['diamond'] = diamondArr.map(function(t){
-    return repackage_winBets(t); 
+  godLists.diamond = diamondArr.map(function (t) {
+    return repackage_winBets(t);
   });
 
   // 金 依勝率 排序
-  goldArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  goldArr.sort(function compare (a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['gold'] = goldArr.map(function(t){
-    return repackage_winRate(t); 
+  godLists.gold = goldArr.map(function (t) {
+    return repackage_winRate(t);
   });
 
   // 銀 依勝率 排序
-  silverArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  silverArr.sort(function compare (a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['silver'] = silverArr.map(function(t){
-    return repackage_winRate(t); 
+  godLists.silver = silverArr.map(function (t) {
+    return repackage_winRate(t);
   });
 
   // 銅 依勝率 排序
-  copperArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+  copperArr.sort(function compare (a, b) { // 進行 order 排序，將來後台可能指定順序
     return a.win_rate < b.win_rate; // 降 大->小
   });
-  godLists['copper'] = copperArr.map(function(t){
-    return repackage_winRate(t); 
+  godLists.copper = copperArr.map(function (t) {
+    return repackage_winRate(t);
   });
 }
 
-function repackage_winBets(ele) { // 實際資料輸出格式
-  let data = {
+function repackage_winBets (ele) { // 實際資料輸出格式
+  const data = {
     uid: ele.uid,
     avatar: ele.avatar,
     displayname: ele.display_name,
@@ -148,8 +148,8 @@ function repackage_winBets(ele) { // 實際資料輸出格式
   return data;
 }
 
-function repackage_winRate(ele) { // 實際資料輸出格式
-  let data = {
+function repackage_winRate (ele) { // 實際資料輸出格式
+  const data = {
     uid: ele.uid,
     avatar: ele.avatar,
     displayname: ele.display_name,

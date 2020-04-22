@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreInprogressModel');
 
-async function livescore(req, res) {
+async function livescore (req, res) {
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -14,22 +14,22 @@ async function livescore(req, res) {
   if (req.query.league === 'soccer') {
     req.query.sport = 'soccer';
   }
-  //soccer
+  // soccer
   const schema = {
     required: ['league', 'sport', 'time'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
       },
       time: {
-        type: 'string',
-      },
-    },
+        type: 'string'
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -56,9 +56,9 @@ module.exports = livescore;
  * @apiParam {String} league league name, the value enum are: ```NBA```
  * @apiParam {String} time timestamp, the value enum are: ```1593561600000```
  * @apiParam {String} category the category of event, the value enum are: ```all```
- * 
+ *
  * @apiParamExample {JSON} Request-Query
- { 
+ {
    "league" : "NBA"
    "time" : 1593561600000
  }
@@ -433,7 +433,7 @@ module.exports = livescore;
 ]
  * @apiError 400 Bad Request ( Not inplement )
  * @apiError 500 Internal Server Error
- 
+
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {

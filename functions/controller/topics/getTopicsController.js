@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/getTopicsModel');
-async function getTopics(req, res) {
+async function getTopics (req, res) {
   const schema = {
     type: 'object',
     properties: {
@@ -28,14 +28,14 @@ async function getTopics(req, res) {
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   topicModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 module.exports = getTopics;
 /**

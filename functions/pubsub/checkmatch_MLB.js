@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-
+// scheduled time need to change
 const MLBpbp = require('./pbpMLB.js');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
@@ -7,45 +7,46 @@ const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 async function checkmatch_MLB() {
   const firestoreName = 'page_MLB';
 
-  let data = await modules.firestore.collection(firestoreName).get();
-  let totalData = [];
+  const data = await modules.firestore.collection(firestoreName).get();
+  const totalData = [];
   data.forEach((doc) => {
     totalData.push(doc.data());
   });
 
-  //event
+  // event
   for (let i = 0; i < totalData.length; i++) {
-    let betsID = totalData[i].bets_id;
-    let gameID = totalData[i].radar_id;
-    let gameTime = totalData[i].scheduled._seconds * 1000;
-    let nowTime = Date.now();
-    let eventStatus = totalData[i].flag.status;
+    const betsID = totalData[i].bets_id;
+    const gameID = totalData[i].radar_id;
+    const gameTime = totalData[i].scheduled._seconds * 1000;
+    const nowTime = Date.now();
+    const eventStatus = totalData[i].flag.status;
     if (eventStatus === 2) {
       // 第一次 or 特殊情況處理
       if (gameTime <= nowTime) {
-        let inningsNow = 0; // 0 ~ 10
-        let halfNow = 0; // 0 ~ 1
-        let eventHalfNow = 0; // 0 ~ x
-        let eventAtbatNow = 0; // 0 ~ x
-        let parameter = {
+        const inningsNow = 0; // 0 ~ 10
+        const halfNow = 0; // 0 ~ 1
+        const eventHalfNow = 0; // 0 ~ x
+        const eventAtbatNow = 0; // 0 ~ x
+        const parameter = {
           gameID: gameID,
           betsID: betsID,
           inningsNow: inningsNow,
           halfNow: halfNow,
           eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow,
+          eventAtbatNow: eventAtbatNow
         };
         MLBpbpInplay(parameter);
       } else {
-        ref = modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
-        await ref.set('scheduled');
+        const ref = await modules.database.ref(
+          `baseball/MLB/${betsID}/Summary/status`
+        );
+        ref.set('scheduled');
       }
     }
-    //event status 0:history 1:now 2:future
+    // event status 0:history 1:now 2:future
 
     if (eventStatus === 1) {
-      let realtimeData;
-      realtimeData = JSON.parse(
+      const realtimeData = JSON.parse(
         JSON.stringify(
           // eslint-disable-next-line no-await-in-loop
           await modules.database.ref(`baseball/MLB/${betsID}`).once('value')
@@ -54,58 +55,58 @@ async function checkmatch_MLB() {
 
       // from the begining
       if (realtimeData.Summary.status === 'created') {
-        let inningsNow = 0; // 0 ~ 10
-        let halfNow = 0; // 0 ~ 1
-        let eventHalfNow = 0; // 0 ~ x
-        let eventAtbatNow = 0; // 0 ~ x
-        let parameter = {
+        const inningsNow = 0; // 0 ~ 10
+        const halfNow = 0; // 0 ~ 1
+        const eventHalfNow = 0; // 0 ~ x
+        const eventAtbatNow = 0; // 0 ~ x
+        const parameter = {
           gameID: gameID,
           betsID: betsID,
           inningsNow: inningsNow,
           halfNow: halfNow,
           eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow,
+          eventAtbatNow: eventAtbatNow
         };
         MLBpbpInplay(parameter);
       }
       if (realtimeData.Summary.status === 'closed') {
-        let parameter = {
+        const parameter = {
           gameID: gameID,
           betsID: betsID,
-          scheduled: gameTime,
+          scheduled: gameTime
         };
-        MLBpbpHistory(parameter);
+        await MLBpbpHistory(parameter);
       }
 
       if (
         realtimeData.Summary.status === 'inprogress' ||
         realtimeData.Summary.status === 'complete'
       ) {
-        let inningsNow = Object.keys(realtimeData.PBP).length - 1;
-        let inningsName = Object.keys(realtimeData.PBP);
-        let halfNow =
+        const inningsNow = Object.keys(realtimeData.PBP).length - 1;
+        const inningsName = Object.keys(realtimeData.PBP);
+        const halfNow =
           Object.keys(realtimeData.PBP[inningsName[inningsNow]]).length - 1;
-        let halfName = Object.keys(realtimeData.PBP[inningsName[inningsNow]]);
-        let eventHalfNow =
+        const halfName = Object.keys(realtimeData.PBP[inningsName[inningsNow]]);
+        const eventHalfNow =
           Object.keys(
             realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
           ).length - 2;
-        let eventHalfName = Object.keys(
+        const eventHalfName = Object.keys(
           realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
         );
         if (eventHalfNow < 0) {
-          //means ９局下半沒有打
-          let parameter = {
+          // means ９局下半沒有打
+          const parameter = {
             gameID: gameID,
             betsID: betsID,
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: 0,
-            eventAtbatNow: 0,
+            eventAtbatNow: 0
           };
-          MLBpbpInplay(parameter);
+          await MLBpbpInplay(parameter);
         } else {
-          let lineChangeOrAtbat = Object.keys(
+          const lineChangeOrAtbat = Object.keys(
             realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]][
               eventHalfName[eventHalfNow]
             ]
@@ -122,16 +123,16 @@ async function checkmatch_MLB() {
                 ][lineChangeOrAtbat[0]]
               ).length - 2;
           }
-          let parameter = {
+          const parameter = {
             gameID: gameID,
             betsID: betsID,
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: eventHalfNow,
-            eventAtbatNow: eventAtbatNow,
+            eventAtbatNow: eventAtbatNow
           };
 
-          MLBpbpInplay(parameter);
+          await MLBpbpInplay(parameter);
         }
       }
     }

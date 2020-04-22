@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 
-function givePoints(args) {
-  return new Promise(async function(resolve, reject) {
+function givePoints (args) {
+  return new Promise(async function (resolve, reject) {
     /* step 1: check if user exists */
     try {
       const userDoc = await modules.getDoc('users', args.uid);

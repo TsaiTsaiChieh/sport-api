@@ -1,8 +1,8 @@
 const modules = require('../../util/modules');
 const dbEngine = require('../../util/databaseEngine');
 
-function deleteTitle(args) {
-  return new Promise(async function(resolve, reject) {
+function deleteTitle (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       const now = new Date();
       // check if user exists
@@ -20,14 +20,15 @@ function deleteTitle(args) {
     }
   });
 }
-function getTitleFromUsersTitlesCollection(uid, period) {
-  return new Promise(async function(resolve, reject) {
+function getTitleFromUsersTitlesCollection (uid, period) {
+  return new Promise(async function (resolve, reject) {
     const userTitles = await modules.getSnapshot('users_titles', uid);
-    if (!userTitles.exists)
+    if (!userTitles.exists) {
       return reject({
         code: 404,
         error: { devcode: 1306, msg: 'user status abnormal' }
       });
+    }
 
     if (userTitles.exists) {
       const titlesObj = userTitles.data();
@@ -43,14 +44,15 @@ function getTitleFromUsersTitlesCollection(uid, period) {
   });
 }
 
-function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
-  return new Promise(function(resolve, reject) {
+function deleteTitleInUsersTitlesCollection (args, titlesObj, period) {
+  return new Promise(function (resolve, reject) {
     const checkResult = checkDeleteTitle(titlesObj, args, period);
-    if (!checkResult.deleteFlag)
+    if (!checkResult.deleteFlag) {
       return reject({
         code: 404,
         error: { devcode: 1307, msg: 'delete failed' }
       });
+    }
     if (checkResult.deleteFlag) {
       updateUserStatus(
         args,
@@ -67,7 +69,7 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
   });
 }
 
-function checkDeleteTitle(titlesObj, args, period) {
+function checkDeleteTitle (titlesObj, args, period) {
   // default title check and set to null
   let deleteFlag = false;
   // should check default title
@@ -76,8 +78,7 @@ function checkDeleteTitle(titlesObj, args, period) {
     args.sport === defaultTitle.sport &&
     args.rank === defaultTitle.rank &&
     args.league === defaultTitle.league
-  )
-    titlesObj[`${period}_period`].default_title = {};
+  ) { titlesObj[`${period}_period`].default_title = {}; }
 
   for (let i = 0; i < titlesObj[`${period}_period`].titles.length; i++) {
     const ele = titlesObj[`${period}_period`].titles[i];
@@ -98,7 +99,7 @@ function checkDeleteTitle(titlesObj, args, period) {
 
   return { deleteFlag, titlesObj };
 }
-async function updateUserStatus(args, titles, uid) {
+async function updateUserStatus (args, titles, uid) {
   const NORMAL_STATUS = 1;
   const GOD_STATUS = 2;
   const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
@@ -115,7 +116,7 @@ async function updateUserStatus(args, titles, uid) {
     titles: userTitles
   });
 }
-function updateFirestore(uid, titlesObj, period) {
+function updateFirestore (uid, titlesObj, period) {
   modules.addDataInCollectionWithId('users_titles', uid, titlesObj);
   modules.addDataInCollectionWithId('users', uid, {
     titles: titlesObj[`${period}_period`].titles,

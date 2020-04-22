@@ -8,7 +8,7 @@ const Op = require('sequelize').Op;
     [不可用]簡易資料測試 http://localhost:5000/test/bannerImage.html
     改mysql 原有後台等等全部失效需重寫
 */
-function dbFind() {
+function dbFind () {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.home__banner.findAll({
@@ -24,15 +24,14 @@ function dbFind() {
     } catch (error) {
       log.data(error);
       reject('get home banners failed');
-      return;
     }
   })
 }
-async function bannerImage(req, res) {
+async function bannerImage (req, res) {
   try {
     const banners = await dbFind()
     res.json({ code: 200, banners: banners });
-  }catch(err){
+  } catch (err) {
     console.log('Error in home/bannerImage by IFYU:  %o', err);
     return res.status(500).json({ code: 500, error: err });
   }

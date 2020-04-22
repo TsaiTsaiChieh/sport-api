@@ -4,8 +4,8 @@
 const modules = require('../../util/modules');
 const messageModule = require('../../util/messageModule');
 
-function createMessage(args) {
-  return new Promise(async function(resolve, reject) {
+function createMessage (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       const insertData = {};
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
@@ -73,7 +73,7 @@ function createMessage(args) {
       }
       insertData.user = user;
       /* add message data to firestore & realtime */
-      let result = await messageDoc.set(insertData);
+      const result = await messageDoc.set(insertData);
       if (result) {
         modules.database
           .ref(`chat_${args.message.channelId}`)
@@ -87,7 +87,6 @@ function createMessage(args) {
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

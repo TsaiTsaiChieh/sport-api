@@ -4,24 +4,24 @@ const modules = require('../util/modules');
 const oddsSummaryURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const intervals = [16, 10, 8, 6];
 // async function main(req, res) {
-async function main() {
+async function main () {
   try {
     // updateEvent();
     const eventsRef = modules.firestore.collection(modules.db.sport_18);
     const spreadQuery = await eventsRef.where('spreadFlag', '==', 0).get();
-    spreadQuery.forEach(function(docs) {
-      let ele = docs.data();
+    spreadQuery.forEach(function (docs) {
+      const ele = docs.data();
       // console.log('p1', ele.id);
       timer(ele);
     });
     // for just update spread, but totals data not exists
-    setTimeout(async function() {
+    setTimeout(async function () {
       const totalsQuery = await eventsRef
         .where('spreadFlag', '==', 1)
         .where('totalsFlag', '==', 0)
         .get();
-      totalsQuery.forEach(function(docs) {
-        let ele = docs.data();
+      totalsQuery.forEach(function (docs) {
+        const ele = docs.data();
         // console.log('p2', ele.id);
         timer(ele);
       });
@@ -34,8 +34,8 @@ async function main() {
   }
 }
 
-function timer(ele) {
-  let diff = (ele.time._seconds * 1000 - Date.now()) / (1000 * 60 * 60);
+function timer (ele) {
+  const diff = (ele.time._seconds * 1000 - Date.now()) / (1000 * 60 * 60);
   // console.log('diff:', diff, ele.id);
 
   const eventSnapshot = modules.getDoc(modules.db.sport_18, ele.id);
@@ -60,7 +60,7 @@ function timer(ele) {
   }
 }
 
-async function getHandicap(ele, intervalStatus) {
+async function getHandicap (ele, intervalStatus) {
   const eventSnapshot = modules.getDoc(modules.db.sport_18, ele.id);
   const { data } = await modules.axios(
     `${oddsSummaryURL}?token=${modules.betsToken}&event_id=${ele.id}`
@@ -94,12 +94,12 @@ async function getHandicap(ele, intervalStatus) {
   }
   // else do nothing
 }
-async function updateEvent() {
-  let events = [];
+async function updateEvent () {
+  const events = [];
   const eventsRef = await modules.firestore
     .collection(modules.db.sport_18)
     .get();
-  eventsRef.docs.forEach(async function(doc) {
+  eventsRef.docs.forEach(async function (doc) {
     events.push(doc.data().id);
   });
   for (let i = 0; i < events.length; i++) {

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/sport/getEventsModel');
 
-async function getEvents(req, res) {
+async function getEvents (req, res) {
   const schema = {
     type: 'object',
     // required: ['sport_id', 'date', 'page'],
@@ -33,11 +33,9 @@ async function getEvents(req, res) {
       }
     }
   };
-  if (req.query.sport_id)
-    req.query.sport_id = Number.parseInt(req.query.sport_id);
+  if (req.query.sport_id) { req.query.sport_id = Number.parseInt(req.query.sport_id); }
   if (req.query.page) req.query.page = Number.parseInt(req.query.page);
-  if (req.query.league_id)
-    req.query.league_id = Number.parseInt(req.query.league_id);
+  if (req.query.league_id) { req.query.league_id = Number.parseInt(req.query.league_id); }
   const validate = modules.ajv.validate(schema, req.query);
   console.log(
     `sport_id: ${req.query.sport_id}, league_id: ${req.query.league_id}, page: ${req.query.page}`

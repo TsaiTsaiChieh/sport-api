@@ -13,12 +13,12 @@ module.exports.getUserInfo = async function (users) {
           'status',
           'avatar',
           'display_name',
-          'signature',
+          'signature'
         ],
         where: {
           uid: {
             [Op.or]: users
-          },
+          }
         },
         raw: true
       })
@@ -32,10 +32,10 @@ module.exports.getUserInfo = async function (users) {
 module.exports.getTopicInfo = async function (aid) {
   return new Promise(async function (resolve, reject) {
     try {
-      log.info('function: get topic info by aid:'+aid);
+      log.info('function: get topic info by aid:' + aid);
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          id: aid
+          article_id: aid
         },
         raw: true
       })
@@ -46,21 +46,21 @@ module.exports.getTopicInfo = async function (aid) {
     }
   })
 }
-module.exports.getTopicReplyCount = async function (articles) { //傳入array aid
+module.exports.getTopicReplyCount = async function (articles) { // 傳入array aid
   return new Promise(async function (resolve, reject) {
     try {
       // SQL原意：SELECT aid, COUNT(*) FROM topic__replies WHERE aid = 116 OR aid = 117 GROUP BY aid;
       const result = db.sequelize.models.topic__reply.findAll({
         attributes: [
-          'aid',
-          [db.sequelize.fn('COUNT', db.sequelize.col('aid')), 'count']
+          'article_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('article_id')), 'count']
         ],
         where: {
-          aid: {
+          article_id: {
             [Op.or]: articles
-          },
+          }
         },
-        group: 'aid',
+        group: 'article_id',
         raw: true
       })
       resolve(result)
@@ -70,21 +70,21 @@ module.exports.getTopicReplyCount = async function (articles) { //傳入array ai
     }
   })
 }
-module.exports.getTopicLikeCount = async function (articles) { //傳入array aid
+module.exports.getTopicLikeCount = async function (articles) { // 傳入array aid
   return new Promise(async function (resolve, reject) {
     try {
-      // SQL原意：SELECT aid, COUNT(*) FROM topic__likes WHERE aid = 116 OR aid = 117 GROUP BY aid;
+      // SQL原意：SELECT article_id, COUNT(*) FROM topic__likes WHERE article_id = 116 OR article_id = 117 GROUP BY article_id;
       const result = db.sequelize.models.topic__like.findAll({
         attributes: [
-          'aid',
-          [db.sequelize.fn('COUNT', db.sequelize.col('aid')), 'count']
+          'article_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('article_id')), 'count']
         ],
         where: {
-          aid: {
+          article_id: {
             [Op.or]: articles
-          },
+          }
         },
-        group: 'aid',
+        group: 'article_id',
         raw: true
       })
       resolve(result)

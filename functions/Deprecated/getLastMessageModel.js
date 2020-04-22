@@ -5,8 +5,8 @@ const modules = require('../util/modules');
 const messageModule = require('../util/messageModule');
 
 // like messages/last
-function getLastMessage(args) {
-  return new Promise(async function(resolve, reject) {
+function getLastMessage (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       // console.log(args.limit, args.offset);
       const messageCollection = await modules.firestore
@@ -18,7 +18,7 @@ function getLastMessage(args) {
         .get();
       const messages = [];
 
-      messageCollection.forEach(async function(doc) {
+      messageCollection.forEach(async function (doc) {
         try {
           const data = doc.data();
           const messageSnapshot = await modules.getSnapshot(
@@ -38,13 +38,13 @@ function getLastMessage(args) {
           await Promise.all(messages);
 
           if (messages.length === args.limit) {
-            if (args.token)
+            if (args.token) {
               resolve(
                 messageModule.orderByCreateTime(
                   await messageModule.maskMessages(messages, args.token)
                 )
               );
-            else resolve(messageModule.orderByCreateTime(messages));
+            } else resolve(messageModule.orderByCreateTime(messages));
           }
         } catch (err) {
           console.log(err);

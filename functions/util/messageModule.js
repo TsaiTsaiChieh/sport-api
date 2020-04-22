@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const folder = 'share_files';
 const day = 7;
 
-function repackageUserData(user) {
+function repackageUserData (user) {
   return {
     uid: user.uid,
     displayName: user.displayName,
@@ -12,9 +12,9 @@ function repackageUserData(user) {
   };
   // return body;
 }
-function repackageMessageData(message) {
+function repackageMessageData (message) {
   // same as insertData from model/createMessage.js
-  data = {
+  const data = {
     channelId: message.message.channelId,
     message: message.message.message,
     type: message.message.type,
@@ -29,7 +29,7 @@ function repackageMessageData(message) {
   }
   return data;
 }
-async function repackageMessageDataWithFlag(message, user, replyFlag) {
+async function repackageMessageDataWithFlag (message, user, replyFlag) {
   const body = {};
   // get messages
   body.message = {
@@ -57,12 +57,13 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
       message.replyUid
     );
     const replyUser = replyUserSnapshot.data();
-    if (replyFlag === 1)
+    if (replyFlag === 1) {
       body.reply = await repackageMessageDataWithFlag(
         replyMessage,
         replyUser,
         0
       );
+    }
   }
 
   // get file
@@ -73,7 +74,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
         `${folder}/${message.fileUploadId}.${message.fileSubname}`
       );
       const getFile = await file.get();
-      let contentType = getFile[0].metadata.contentType;
+      const contentType = getFile[0].metadata.contentType;
       const config = {
         action: 'read',
         expires: new Date(Date.now() + day * 24 * 60 * 60 * 1000)
@@ -115,7 +116,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
   return body;
 }
 
-function orderByCreateTime(messages) {
+function orderByCreateTime (messages) {
   return messages.sort((ele1, ele2) => {
     return ele1.message.createTime.seconds < ele2.message.createTime.seconds
       ? 1
@@ -123,7 +124,7 @@ function orderByCreateTime(messages) {
   });
 }
 
-async function maskMessages(messages, token) {
+async function maskMessages (messages, token) {
   // get user uid from token info
   const userSnapshot = await modules.getSnapshot('users', token.uid);
   const user = userSnapshot.data();
