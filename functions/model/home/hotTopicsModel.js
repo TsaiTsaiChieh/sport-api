@@ -3,18 +3,49 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
-const func = require('./topicFunctions');
-const countPerPage = 20;
-function dbFind(where, page) {
+const func = require('../topics/topicFunctions');
+const Op = require('sequelize').Op;
+
+const countPerPage = 25;
+function dbFind(page) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__article.findAndCountAll({
-        where: where,
+      let topics = [];
+      if(page === 0){
+        const resultFirst = await db.sequelize.models.topic__article.findAndCountAll({
+          where: {
+            createdAt: { //撈七天內的文
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
+            },
+            category: '賽事分析' //撈一篇最高的賽事分析擺第一篇
+          },
+          limit: 1,
+          order: [ ['view_count', 'DESC'] ], //依瀏覽數排列
+          distinct: true,
+          raw: true
+        })
+        topics = resultFirst.rows;
+      }
+      const resultData = await db.sequelize.models.topic__article.findAndCountAll({
+        where: {
+          createdAt: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
+          }
+        },
         limit: countPerPage,  //每頁幾個
         offset: countPerPage * page, //跳過幾個 = limit * index
+        order: [ ['view_count', 'DESC'] ],
         distinct: true,
         raw: true
       })
+
+      resultData.rows.forEach(topic =>{
+        topics.push(topic)
+      })
+      const result = chkFirstTopic(topics);
+
       resolve(result)
     } catch (error) {
       log.data(error);
@@ -23,26 +54,23 @@ function dbFind(where, page) {
     }
   })
 }
+function chkFirstTopic(topics){ //把非第一篇賽事分析文剔除
+  let shown_topic = [];
+  let res = [];
+  topics.forEach(topic =>{
+    if(!shown_topic.includes(topic.id)){
+      res.push(topic)
+    }
+    shown_topic.push(topic.id)
+  })
+  return res;
+}
 async function getTopics(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      // const replyCount = await func.getTopicReplyCount(args.aid)
-      // console.log(replyCount)
+      let page = parseInt(args.params.page)
 
-      let where = {};
-      let page = 0;
-
-      if(typeof args.type !== 'undefined'){
-        where['type'] = args.type
-      }
-      if(typeof args.category !== 'undefined'){
-        where['category'] = args.category
-      }
-      if(typeof args.page !== 'undefined'){
-        page = args.page
-      }
-
-      const topics = await dbFind(where, page)
+      const topics = await dbFind(page)
 
       /* 讀取一些別的資料 */
       let usersToGet = []
@@ -50,9 +78,9 @@ async function getTopics(args) {
       let infosToGet = [] // 把aid存進來
       let repliesCount = []
       let likesCount = []
-      for (let i = 0; i < topics.rows.length; i++) {
-        infosToGet.push(topics.rows[i].id)
-        usersToGet.push(topics.rows[i].uid)
+      for (let i = 0; i < topics.length; i++) {
+        infosToGet.push(topics[i].id)
+        usersToGet.push(topics[i].uid)
       }
       /* 讀取留言數 */
       try{
@@ -78,16 +106,16 @@ async function getTopics(args) {
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })
       }
-      for(let i = 0; i < topics.rows.length; i++){ // 把拿到的userinfo塞回去
-        let replyCount = repliesCount.filter( obj => obj.article_id === topics.rows[i].id.toString() ); // 處理留言數 把aid=id的那則挑出來
+      for(let i = 0; i < topics.length; i++){ // 把拿到的userinfo塞回去
+        let replyCount = repliesCount.filter( obj => obj.aid === topics[i].id.toString() ); // 處理留言數 把aid=id的那則挑出來
         replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        topics.rows[i].reply_count = replyCount;
-        let likeCount = likesCount.filter( obj => obj.article_id === topics.rows[i].id.toString() ); // 處理按讚數 把aid=id的那則挑出來
+        topics[i].reply_count = replyCount;
+        let likeCount = likesCount.filter( obj => obj.aid === topics[i].id.toString() ); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        topics.rows[i].like_count = likeCount;
-        let userInfo = usersInfo.filter( obj => obj.uid === topics.rows[i].uid.toString() ); // 處理userinfo 把uid=id的那則挑出來
+        topics[i].like_count = likeCount;
+        let userInfo = usersInfo.filter( obj => obj.uid === topics[i].uid.toString() ); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null;
-        topics.rows[i].user_info = userInfo;
+        topics[i].user_info = userInfo;
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
       resolve({ code: 200, topics: topics });

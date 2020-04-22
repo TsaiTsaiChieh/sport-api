@@ -9,7 +9,7 @@ function dbFind(aid) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
-          'id': aid
+          'article_id': aid
         },
       })
       const view_count = result.view_count + 1;
@@ -45,8 +45,8 @@ async function getArticle(args) {
 
       article = JSON.parse( JSON.stringify(article, null, 4) ) //把sequelize的object轉成一般的obj
       article.user_info = userInfo[0]
-      article.like_count = likeCount[0].count
-      article.reply_count = replyCount[0].count
+      article.like_count = likeCount.length > 0 ? likeCount[0].count : 0
+      article.reply_count = replyCount.length > 0 ? replyCount[0].count : 0
 
       resolve({ code: 200, article: article });
     } catch (err) {
