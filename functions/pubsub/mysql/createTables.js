@@ -85,7 +85,7 @@ async function create(req, res) {
         scheduled: ele.scheduled,
         scheduled_tw: ele.scheduled * 1000,
         flag_prematch: ele.flag_prematch,
-        status: ele.status
+        status: ele.status,
       };
       if (ele.spread_result) data.spread_result = ele.spread_result;
       if (ele.totals_result) data.totals_result = ele.totals_result;
