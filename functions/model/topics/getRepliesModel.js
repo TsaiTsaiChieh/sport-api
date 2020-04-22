@@ -47,8 +47,8 @@ async function getReplies (args) {
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })
       }
-      for(let i = 0; i < replies.length; i++){ // 把拿到的userinfo塞回去
-        let userInfo = usersInfo.filter( obj => obj.uid === replies[i].uid.toString() ); // 處理userinfo 把uid=id的那則挑出來
+      for (let i = 0; i < replies.length; i++) { // 把拿到的userinfo塞回去
+        let userInfo = usersInfo.filter(obj => obj.uid === replies[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
         replies[i].user_info = userInfo;
       }

@@ -45,8 +45,8 @@ async function createReply (args) {
         uid: args.token.uid,
         replyto_id: null, // args.reply_id,
         images: JSON.stringify(args.images),
-        content: args.content,
-      }
+        content: args.content
+      };
 
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {

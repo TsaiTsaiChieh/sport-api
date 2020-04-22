@@ -646,49 +646,42 @@ const usersWinLists = sequelize.define(
  * 文章
  */
 const Topic_Article = sequelize.define(
-    'topic__article',
-    {
-      article_id: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true
-      },
-      uid: {
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      type: { //球種/看板?
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      category: { //文章分類
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      title: {
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      content: {
-          type: Sequelize.TEXT,
-          allowNull: false
-      },
-      status: { //預設1為正常 其他可能-1為刪除之類的 待討論
-          type: Sequelize.INTEGER,
-          defaultValue: 1
-      },
-      view_count: {
-          type: Sequelize.INTEGER,
-          defaultValue: 0
-      }
+  'topic__article',
+  {
+    article_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
     },
-    {
-        indexes: [
-            {
-                fields: ['article_id', 'type', 'category']
-            }
-        ]
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
     },
+    type: { // 球種/看板?
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    category: { // 文章分類
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+  },
   {
     indexes: [
       {
@@ -702,44 +695,37 @@ const Topic_Article = sequelize.define(
  * 文章留言
  */
 const Topic_Reply = sequelize.define(
-    'topic__reply',
-    {
-      reply_id: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true
-      },
-      article_id: { //文章id
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      uid: {
-          type: Sequelize.STRING,
-          allowNull: false
-      },
-      replyto_id: {
-          type: Sequelize.STRING,
-          allowNull: true
-      },
-      content: {
-          type: Sequelize.TEXT,
-          allowNull: false
-      },
-      images: { //放圖片url用
-          type: Sequelize.TEXT,
-          allowNull: true
-      },
-      status: { //預設1為正常 其他可能-1為刪除之類的 待討論
-          type: Sequelize.INTEGER,
-          defaultValue: 1
-      }
-  },
+  'topic__reply',
   {
-      indexes: [
-          {
-              fields: ['article_id']
-          }
-      ]
+    reply_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    article_id: { // 文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    replyto_id: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    images: { // 放圖片url用
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    }
   },
   {
     indexes: [
