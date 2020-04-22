@@ -11,7 +11,7 @@ async function translateMLB(
   totalDescriptionOrEachBall
 ) {
   let finalString = stringOrigin;
-  if (totalDescriptionOrEachBall == 1) {
+  if (totalDescriptionOrEachBall === 1) {
     keyword = [
       'aBK',
       'bAB',
@@ -102,6 +102,7 @@ async function translateMLB(
     if (flag) {
       for (let i = 0; i < keyword.length; i++) {
         {
+          // eslint-disable-next-line no-await-in-loop
           finalString[2] = await finalString[2].replace(
             new RegExp(keyword[i], 'g'),
             keywordTrans[i]
@@ -126,6 +127,7 @@ async function translateMLB(
     //keyword = 依最嚴格條件開始替換
 
     for (let i = 0; i < keyword.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
       finalString = await finalString.replace(
         new RegExp(keyword[i], 'g'),
         keywordTransSimple[i]
@@ -135,6 +137,7 @@ async function translateMLB(
     let keywordTransEN = ['a', 'e', 'i', 'o', 'u'];
 
     for (let i = 0; i < keyword.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
       keyword[i] = await keyword[i].replace(
         new RegExp(keywordEN[i], 'g'),
         keywordTransEN[i]
@@ -1113,6 +1116,7 @@ async function translateMLB(
     ];
 
     for (let i = 0; i < keyword.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
       finalString = await finalString.replace(
         new RegExp(keyword[i], 'g'),
         keywordTrans[i]
@@ -1219,6 +1223,7 @@ async function stepTrans(stringTrans) {
 
   let matchMap = [];
   for (let q = 0; q < matchCount.length; q++) {
+    // eslint-disable-next-line no-await-in-loop
     matchMap.push(await transFunction(matcharray2[q]));
   }
 

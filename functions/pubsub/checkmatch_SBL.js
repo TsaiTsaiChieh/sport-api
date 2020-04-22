@@ -46,6 +46,7 @@ async function checkmatch_SBL() {
         periodName = 'periods0';
         eventNow = 0;
 
+        // eslint-disable-next-line no-await-in-loop
         await SBLpbpInplay(gameID, betsID, periodsNow, eventNow);
       }
     }

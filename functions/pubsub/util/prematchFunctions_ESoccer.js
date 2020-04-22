@@ -1,8 +1,10 @@
 const modules = require('../../util/modules');
 // const db = require('../../util/dbUtil');
 const db = require('../../util/dbUtil');
-// aa('20200420');
-module.exports.ESoccer = {};
+
+aa('20200422');
+aa('20200423');
+
 // module.exports.NBA.upcoming =
 async function aa(date) {
   //mysql----------
@@ -13,29 +15,78 @@ async function aa(date) {
   //   }
   //mysql----------
   const _date = modules.dateFormat(date);
-  let leagueID = 22537; // Esoccer Liga Pro - 12 mins play
-  const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=1&token=${modules.betsToken}&league_id=${leagueID}&day=${_date.year}${_date.month}${_date.day}`;
+  const sportID = 1;
+  const leagueArray = [22614, 22808, 22764, 22537, 22724];
   const results = [];
-  try {
-    let { data } = await modules.axios(URL);
-    let scheduledData = data;
-    for (let i = 0; i < scheduledData.results.length; i++) {
-      let ele = scheduledData.results[i];
-      results.push(
-        modules.firestore
-          .collection(modules.db.eSoccer)
-          .doc(ele.id)
-          .set(repackage_bets(ele), { merge: true })
+
+  for (let i = 0; i < leagueArray.length; i++) {
+    let leagueID = leagueArray[i];
+
+    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      let { data } = await modules.axios(URL);
+
+      for (let i = 0; i < data.results.length; i++) {
+        let ele = data.results[i];
+
+        const oddURL = `https://api.betsapi.com/v2/event/odds/summary?token=${modules.betsToken}&event_id=${ele.id}`;
+        // eslint-disable-next-line no-await-in-loop
+        ({ data } = await modules.axios(oddURL));
+        let dataBetsSummary = data;
+        const oddsURL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}`;
+        // eslint-disable-next-line no-await-in-loop
+        ({ data } = await modules.axios(oddsURL));
+        let dataBets = data;
+        // eslint-disable-next-line no-await-in-loop
+        await modules.fs.writeFile(
+          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}.json`,
+          JSON.stringify(ele),
+          // eslint-disable-next-line no-loop-func
+          function (err) {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        // eslint-disable-next-line no-await-in-loop
+        await modules.fs.writeFile(
+          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_betsSummary.json`,
+          JSON.stringify(dataBetsSummary),
+          // eslint-disable-next-line no-loop-func
+          function (err) {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        // eslint-disable-next-line no-await-in-loop
+        await modules.fs.writeFile(
+          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_bets.json`,
+          JSON.stringify(dataBets),
+          // eslint-disable-next-line no-loop-func
+          function (err) {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        // results.push(
+        //   modules.firestore
+        //     .collection(modules.db.eSoccer)
+        //     .doc(ele.id)
+        //     .set(repackage_bets(ele), { merge: true })
+        // );
+      }
+    } catch (error) {
+      console.error(
+        `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
+        error
       );
-      // mysql
+      return error;
     }
-  } catch (error) {
-    console.error(
-      `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
-      error
-    );
-    return error;
   }
+  console.log('ok');
   // firestore
   return new Promise(async function (resolve, reject) {
     try {
@@ -58,7 +109,8 @@ function repackage_bets(ele) {
     ),
     bets_id: ele.id,
     league: {
-      bets_id: ele.league.id,
+      ori_bets_id: ele.league.id,
+      bets_id: '22',
       name: ele.league.name,
     },
     home: {

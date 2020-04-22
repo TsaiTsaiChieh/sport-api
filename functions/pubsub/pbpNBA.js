@@ -33,11 +33,13 @@ async function NBApbpInplay(parameter) {
       [keywordTransHome, keywordTransAway] = await summmaryZH(gameID);
       //[主隊英文名稱、主隊隊員英文名字、主隊隊員背號、客隊英文名稱、客隊隊員英文名字、客隊隊員背號]
       for (let i = 0; i < keywordTransHome.length; i++) {
+        // eslint-disable-next-line no-await-in-loop
         keywordTransHome[i] = await modules.simple2Tradition.translate(
           keywordTransHome[i]
         );
       }
       for (let i = 0; i < keywordTransHome.length; i++) {
+        // eslint-disable-next-line no-await-in-loop
         keywordTransAway[i] = await modules.simple2Tradition.translate(
           keywordTransAway[i]
         );

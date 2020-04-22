@@ -50,11 +50,11 @@ async function repackage(sport, league) {
     ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
     scheduled = scheduled.split(' ')[0];
 
-    if (scheduled === dateNow && eventData[i].flag.status == 0) {
-      if (eventData[i].newest_spread.home_tw == '') {
+    if (scheduled === dateNow && eventData[i].flag.status === 0) {
+      if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
-      if (eventData[i].newest_spread.away_tw == '') {
+      if (eventData[i].newest_spread.away_tw === '') {
         eventData[i].newest_spread.away_tw = null;
       }
       closedEvent.push({
@@ -75,11 +75,11 @@ async function repackage(sport, league) {
       });
     }
 
-    if (scheduled === dateNow && eventData[i].flag.status == 1) {
-      if (eventData[i].newest_spread.home_tw == '') {
+    if (scheduled === dateNow && eventData[i].flag.status === 1) {
+      if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
-      if (eventData[i].newest_spread.away_tw == '') {
+      if (eventData[i].newest_spread.away_tw === '') {
         eventData[i].newest_spread.away_tw = null;
       }
       outputJson.push({
@@ -100,11 +100,11 @@ async function repackage(sport, league) {
       });
     }
 
-    if (scheduled === dateNow && eventData[i].flag.status == 2) {
-      if (eventData[i].newest_spread.home_tw == '') {
+    if (scheduled === dateNow && eventData[i].flag.status === 2) {
+      if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
-      if (eventData[i].newest_spread.away_tw == '') {
+      if (eventData[i].newest_spread.away_tw === '') {
         eventData[i].newest_spread.away_tw = null;
       }
       scheduledEvent.push({
@@ -125,29 +125,63 @@ async function repackage(sport, league) {
       });
     }
   }
+  // switch (outputJson.length) {
+  //   case 0: {
+  //     for (let i = 0; i < 4; i++) {
+  //       if (closedEvent[i]) {
+  //         outputJson.push(closedEvent[i]);
+  //       }
+  //     }
+  //     break;
+  //   }
+  //   case 1: {
+  //     for (let i = 0; i < 4; i++) {
+  //       if (closedEvent[i]) {
+  //         outputJson.push(closedEvent[i]);
+  //       }
+  //     }
+  //     break;
+  //   }
+  //   case 2: {
+  //     for (let i = 0; i < 2; i++) {
+  //       if (closedEvent[i]) {
+  //         outputJson.push(closedEvent[i]);
+  //       }
+  //     }
+  //     break;
+  //   }
+  //   case 3: {
+  //     for (let i = 0; i < 1; i++) {
+  //       if (closedEvent[i]) {
+  //         outputJson.push(closedEvent[i]);
+  //       }
+  //     }
+  //     break;
+  //   }
+  // }
 
-  if (outputJson.length == 0) {
+  if (outputJson.length === 0) {
     for (let i = 0; i < 4; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 1) {
+  if (outputJson.length === 1) {
     for (let i = 0; i < 3; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 2) {
+  if (outputJson.length === 2) {
     for (let i = 0; i < 2; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);
       }
     }
   }
-  if (outputJson.length == 3) {
+  if (outputJson.length === 3) {
     for (let i = 0; i < 1; i++) {
       if (closedEvent[i]) {
         outputJson.push(closedEvent[i]);

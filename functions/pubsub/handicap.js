@@ -5,7 +5,7 @@ const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const leagues = [
   // modules.db.basketball_NBA,
   // modules.db.basketball_SBL,
-  modules.db.baseball_MLB
+  modules.db.baseball_MLB,
 ];
 // 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
 async function handicap() {
@@ -67,7 +67,7 @@ async function updateHandicap(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
         };
         eventSnapshot.set({ handicap: { spread } }, { merge: true });
       }
@@ -85,7 +85,7 @@ async function updateHandicap(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
         };
         eventSnapshot.set({ handicap: { totals } }, { merge: true });
         console.log(
@@ -112,7 +112,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment())
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -136,7 +136,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate)
       .where('scheduled', '<=', endDate)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -178,7 +178,7 @@ async function getHandicap(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
         };
 
         eventSnapshot.set(
@@ -202,7 +202,7 @@ async function getHandicap(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
         };
 
         eventSnapshot.set(
@@ -247,7 +247,7 @@ async function getTotals(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
         };
         eventSnapshot.set(
           { flag: { totals: 1 }, handicap: { totals } },
