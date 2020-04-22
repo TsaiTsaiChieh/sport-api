@@ -650,7 +650,8 @@ const Topic_Article = sequelize.define(
   {
     article_id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     uid: {
       type: Sequelize.STRING,
@@ -698,7 +699,8 @@ const Topic_Reply = sequelize.define(
   {
     reply_id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     article_id: { // 文章id
       type: Sequelize.STRING,

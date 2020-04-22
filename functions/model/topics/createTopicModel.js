@@ -7,10 +7,10 @@ function dbCreate (insertData) {
   return new Promise(async function (resolve, reject) {
     try {
       log.info('create new article to db');
-      // await db.sequelize.models.topic__article.sync({ alter: true }); //有新增欄位時才用
+      // await db.sequelize.models.topic__article.sync({ force: false , alter : true }); //有新增欄位時才用
       const result = await db.sequelize.models.topic__article.create(insertData)
       log.succ('create article success');
-      resolve(result.get('id'))
+      resolve(result.get('article_id'))
     } catch (error) {
       log.data(error);
       reject('create article failed');

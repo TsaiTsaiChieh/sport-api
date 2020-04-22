@@ -8,7 +8,7 @@ const countPerPage = 20;
 function dbFind (aid, page) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__reply.findAndCountAll({
+      const result = await db.sequelize.models.topic__reply.findAll({
         where: {
           article_id: aid
         },
@@ -34,8 +34,8 @@ async function getReplies (args) {
 
       const usersToGet = []
       let usersInfo = []
-      for (let i = 0; i < replies.rows.length; i++) {
-        usersToGet.push(replies.rows[i].uid)
+      for (let i = 0; i < replies.length; i++) {
+        usersToGet.push(replies[i].uid)
       }
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
@@ -47,10 +47,10 @@ async function getReplies (args) {
         console.log(error)
         reject({ code: 500, error: 'get user info failed' })
       }
-      for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
-        let userInfo = usersInfo.filter(obj => obj.uid === replies.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
+      for (let i = 0; i < replies.length; i++) { // 把拿到的userinfo塞回去
+        let userInfo = usersInfo.filter(obj => obj.uid === replies[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
-        replies.rows[i].user_info = userInfo;
+        replies[i].user_info = userInfo;
       }
       resolve({ code: 200, replies: replies });
     } catch (err) {
