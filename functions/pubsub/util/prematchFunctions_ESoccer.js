@@ -7,20 +7,20 @@ const db = require('../../util/dbUtil');
 
 // module.exports.NBA.upcoming =
 async function aa(date) {
-  //mysql----------
+  // mysql----------
   //   try {
   //     // const Match = await db.eSoccer_match.sync();
   //   } catch (err) {
   //     console.error(err);
   //   }
-  //mysql----------
+  // mysql----------
   const _date = modules.dateFormat(date);
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
   const results = [];
 
   for (let i = 0; i < leagueArray.length; i++) {
-    let leagueID = leagueArray[i];
+    const leagueID = leagueArray[i];
 
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
     try {
@@ -28,16 +28,16 @@ async function aa(date) {
       let { data } = await modules.axios(URL);
 
       for (let i = 0; i < data.results.length; i++) {
-        let ele = data.results[i];
+        const ele = data.results[i];
 
         const oddURL = `https://api.betsapi.com/v2/event/odds/summary?token=${modules.betsToken}&event_id=${ele.id}`;
         // eslint-disable-next-line no-await-in-loop
         ({ data } = await modules.axios(oddURL));
-        let dataBetsSummary = data;
+        const dataBetsSummary = data;
         const oddsURL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}`;
         // eslint-disable-next-line no-await-in-loop
         ({ data } = await modules.axios(oddsURL));
-        let dataBets = data;
+        const dataBets = data;
         // eslint-disable-next-line no-await-in-loop
         await modules.fs.writeFile(
           `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}.json`,
@@ -111,24 +111,24 @@ function repackage_bets(ele) {
     league: {
       ori_bets_id: ele.league.id,
       bets_id: '22',
-      name: ele.league.name,
+      name: ele.league.name
     },
     home: {
       alias: ele.home.name,
       image_id: ele.home.image_id,
-      bets_id: ele.home.id,
+      bets_id: ele.home.id
     },
     away: {
       alias: ele.away.name,
       image_id: ele.away.image_id,
-      bets_id: ele.away.id,
+      bets_id: ele.away.id
     },
     flag: {
       spread: 0,
       totals: 0,
       status: 2,
-      prematch: 1,
-    },
+      prematch: 1
+    }
   };
 }
 module.exports = aa;

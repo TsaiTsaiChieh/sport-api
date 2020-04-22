@@ -2,14 +2,12 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
-      let result;
-
-      if (args.error) {
-        // reject
-        result = 'reject';
-      } else {
-        result = await reResult(args.sport, args.league, args.UID, args.time);
-      }
+      const result = await reResult(
+        args.sport,
+        args.league,
+        args.UID,
+        args.time
+      );
 
       resolve(result);
     } catch (err) {

@@ -48,7 +48,7 @@ async function translateMLB(
       'oROET4',
       'bPO',
       'rPABC',
-      'rPABO',
+      'rPABO'
     ];
     const keywordTrans = [
       `${stringOrigin[0]}發生投手假投犯規`,
@@ -87,7 +87,7 @@ async function translateMLB(
       '攻擊方發生失誤，出局於本壘',
       '跑者遭牽制出局',
       '經判定，該打席繼續打擊',
-      '經判定，該打席結束打擊',
+      '經判定，該打席結束打擊'
     ];
     let flag = false;
 
@@ -616,7 +616,7 @@ async function translateMLB(
       'doubles',
       'thirds',
       ' as C.',
-      ' as P.',
+      ' as P.'
     ];
 
     const keywordTransStep2 = [
@@ -1100,7 +1100,7 @@ async function translateMLB(
       '二壘安打',
       '三壘安打',
       ' 捕手.',
-      ' 投手.',
+      ' 投手.'
     ];
 
     for (let i = 0; i < keyword.length; i++) {
@@ -1118,7 +1118,7 @@ async function translateMLB(
 async function transFunction(stringTrans) {
   const stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
-    to: 'zh-tw',
+    to: 'zh-tw'
   });
   return await stringAfterTrans.text;
 }
@@ -1149,7 +1149,7 @@ async function stepTrans(stringTrans) {
     'W',
     'X',
     'Y',
-    'Z',
+    'Z'
   ];
   const eleSmall = [
     'a',
@@ -1177,7 +1177,7 @@ async function stepTrans(stringTrans) {
     'w',
     'x',
     'y',
-    'z',
+    'z'
   ];
   const matcharray = [];
 

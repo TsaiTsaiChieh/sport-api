@@ -51,7 +51,7 @@ async function NBApbpInplay(parameter) {
         numberHome,
         awayTeamName,
         keywordAway,
-        numberAway,
+        numberAway
       ] = await summmaryEN(gameID);
       const transSimpleHome = [];
       const transSimpleAway = [];
@@ -78,7 +78,7 @@ async function NBApbpInplay(parameter) {
           name: keywordHome[i],
           name_ch: keywordTransHome[i],
           jersey_number: numberHome[i],
-          transSimpleHome: transSimpleHome[i],
+          transSimpleHome: transSimpleHome[i]
         });
       }
       for (let i = 0; i < keywordAway.length; i++) {
@@ -93,7 +93,7 @@ async function NBApbpInplay(parameter) {
           name: keywordAway[i],
           name_ch: keywordTransAway[i],
           jersey_number: numberAway[i],
-          transSimpleAway: transSimpleAway[i],
+          transSimpleAway: transSimpleAway[i]
         });
       }
     } catch (error) {
@@ -194,11 +194,11 @@ async function NBApbpInplay(parameter) {
             dataPBP.periods[periodsCount].events[eventsCount].clock
           );
           if (
-            dataPBP.periods[periodsCount].events[eventsCount].event_type !=
+            dataPBP.periods[periodsCount].events[eventsCount].event_type !==
               'review' &&
-            dataPBP.periods[periodsCount].events[eventsCount].event_type !=
+            dataPBP.periods[periodsCount].events[eventsCount].event_type !==
               'stoppage' &&
-            dataPBP.periods[periodsCount].events[eventsCount].event_type !=
+            dataPBP.periods[periodsCount].events[eventsCount].event_type !==
               'endperiod'
           ) {
             ref = modules.database.ref(
@@ -208,18 +208,18 @@ async function NBApbpInplay(parameter) {
             );
             if (
               dataPBP.periods[periodsCount].events[eventsCount].attribution
-                .name == homeData.name
+                .name === homeData.name
             ) {
               await ref.set('home');
             }
             if (
               dataPBP.periods[periodsCount].events[eventsCount].attribution
-                .name == awayData.name
+                .name === awayData.name
             ) {
               await ref.set('away');
             }
           } else if (
-            dataPBP.periods[periodsCount].events[eventsCount].event_type ==
+            dataPBP.periods[periodsCount].events[eventsCount].event_type ===
             'stoppage'
           ) {
             ref = modules.database.ref(
@@ -253,92 +253,92 @@ async function NBApbpInplay(parameter) {
             }/points`
           );
         }
-      }
 
-      //call summary to get player information
-      await ref.set(dataSummary.home.scoring[periodsCount].points);
-      ref = modules.database.ref(
-        `basketball/NBA/${betsID}/Summary/info/away/periods${
-          periodsCount + 1
-        }/points`
-      );
-      await ref.set(dataSummary.away.scoring[periodsCount].points);
-
-      ref = modules.database.ref(
-        `basketball/NBA/${betsID}/Summary/info/home/Total`
-      );
-      await ref.set({
-        assists: dataSummary.home.statistics.assists,
-        blocks: dataSummary.home.statistics.blocks,
-        free_throws_att: dataSummary.home.statistics.free_throws_att,
-        free_throws_made: dataSummary.home.statistics.free_throws_made,
-        personal_fouls: dataSummary.home.statistics.personal_fouls,
-        points_in_paint: dataSummary.home.statistics.points_in_paint,
-        rebounds: dataSummary.home.statistics.rebounds,
-        points: dataSummary.home.statistics.points,
-        steals: dataSummary.home.statistics.steals,
-        three_points_att: dataSummary.home.statistics.three_points_att,
-        three_points_made: dataSummary.home.statistics.three_points_made,
-        turnovers: dataSummary.home.statistics.turnovers,
-        two_points_att: dataSummary.home.statistics.two_points_att,
-        two_points_made: dataSummary.home.statistics.two_points_made,
-      });
-      ref = modules.database.ref(
-        `basketball/NBA/${betsID}/Summary/info/away/Total`
-      );
-      await ref.set({
-        assists: dataSummary.away.statistics.assists,
-        blocks: dataSummary.away.statistics.blocks,
-        free_throws_att: dataSummary.away.statistics.free_throws_att,
-        free_throws_made: dataSummary.away.statistics.free_throws_made,
-        personal_fouls: dataSummary.away.statistics.personal_fouls,
-        points_in_paint: dataSummary.away.statistics.points_in_paint,
-        rebounds: dataSummary.away.statistics.rebounds,
-        points: dataSummary.away.statistics.points,
-        steals: dataSummary.away.statistics.steals,
-        three_points_att: dataSummary.away.statistics.three_points_att,
-        three_points_made: dataSummary.away.statistics.three_points_made,
-        turnovers: dataSummary.away.statistics.turnovers,
-        two_points_att: dataSummary.away.statistics.two_points_att,
-        two_points_made: dataSummary.away.statistics.two_points_made,
-      });
-      for (let i = 0; i < dataSummary.home.players.length; i++) {
+        // call summary to get player information
+        await ref.set(dataSummary.home.scoring[periodsCount].points);
         ref = modules.database.ref(
-          `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
+          `basketball/NBA/${betsID}/Summary/info/away/periods${
+            periodsCount + 1
+          }/points`
         );
-        if (dataSummary.home.players[i].starter != undefined) {
-          await ref.set(dataSummary.home.players[i].primary_position);
-        } else {
-          await ref.set('0');
-        }
+        await ref.set(dataSummary.away.scoring[periodsCount].points);
+
         ref = modules.database.ref(
-          `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/statistics`
+          `basketball/NBA/${betsID}/Summary/info/home/Total`
         );
         await ref.set({
-          minutes: dataSummary.home.players[i].statistics.minutes,
-          points: dataSummary.home.players[i].statistics.points,
-          rebounds: dataSummary.home.players[i].statistics.rebounds,
-          assists: dataSummary.home.players[i].statistics.assists,
+          assists: dataSummary.home.statistics.assists,
+          blocks: dataSummary.home.statistics.blocks,
+          free_throws_att: dataSummary.home.statistics.free_throws_att,
+          free_throws_made: dataSummary.home.statistics.free_throws_made,
+          personal_fouls: dataSummary.home.statistics.personal_fouls,
+          points_in_paint: dataSummary.home.statistics.points_in_paint,
+          rebounds: dataSummary.home.statistics.rebounds,
+          points: dataSummary.home.statistics.points,
+          steals: dataSummary.home.statistics.steals,
+          three_points_att: dataSummary.home.statistics.three_points_att,
+          three_points_made: dataSummary.home.statistics.three_points_made,
+          turnovers: dataSummary.home.statistics.turnovers,
+          two_points_att: dataSummary.home.statistics.two_points_att,
+          two_points_made: dataSummary.home.statistics.two_points_made
         });
-      }
-      for (let i = 0; i < dataSummary.away.players.length; i++) {
         ref = modules.database.ref(
-          `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
-        );
-        if (dataSummary.away.players[i].starter != undefined) {
-          await ref.set(dataSummary.away.players[i].primary_position);
-        } else {
-          await ref.set('0');
-        }
-        ref = modules.database.ref(
-          `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/statistics`
+          `basketball/NBA/${betsID}/Summary/info/away/Total`
         );
         await ref.set({
-          minutes: dataSummary.away.players[i].statistics.minutes,
-          points: dataSummary.away.players[i].statistics.points,
-          rebounds: dataSummary.away.players[i].statistics.rebounds,
-          assists: dataSummary.away.players[i].statistics.assists,
+          assists: dataSummary.away.statistics.assists,
+          blocks: dataSummary.away.statistics.blocks,
+          free_throws_att: dataSummary.away.statistics.free_throws_att,
+          free_throws_made: dataSummary.away.statistics.free_throws_made,
+          personal_fouls: dataSummary.away.statistics.personal_fouls,
+          points_in_paint: dataSummary.away.statistics.points_in_paint,
+          rebounds: dataSummary.away.statistics.rebounds,
+          points: dataSummary.away.statistics.points,
+          steals: dataSummary.away.statistics.steals,
+          three_points_att: dataSummary.away.statistics.three_points_att,
+          three_points_made: dataSummary.away.statistics.three_points_made,
+          turnovers: dataSummary.away.statistics.turnovers,
+          two_points_att: dataSummary.away.statistics.two_points_att,
+          two_points_made: dataSummary.away.statistics.two_points_made
         });
+        for (let i = 0; i < dataSummary.home.players.length; i++) {
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
+          );
+          if (dataSummary.home.players[i].starter !== undefined) {
+            await ref.set(dataSummary.home.players[i].primary_position);
+          } else {
+            await ref.set('0');
+          }
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/statistics`
+          );
+          await ref.set({
+            minutes: dataSummary.home.players[i].statistics.minutes,
+            points: dataSummary.home.players[i].statistics.points,
+            rebounds: dataSummary.home.players[i].statistics.rebounds,
+            assists: dataSummary.home.players[i].statistics.assists
+          });
+        }
+        for (let i = 0; i < dataSummary.away.players.length; i++) {
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
+          );
+          if (dataSummary.away.players[i].starter !== undefined) {
+            await ref.set(dataSummary.away.players[i].primary_position);
+          } else {
+            await ref.set('0');
+          }
+          ref = modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/statistics`
+          );
+          await ref.set({
+            minutes: dataSummary.away.players[i].statistics.minutes,
+            points: dataSummary.away.players[i].statistics.points,
+            rebounds: dataSummary.away.players[i].statistics.rebounds,
+            assists: dataSummary.away.players[i].statistics.assists
+          });
+        }
       }
     } catch (error) {
       console.log(
@@ -406,7 +406,7 @@ async function summmaryEN(gameID) {
       numberHome,
       awayTeamName,
       keywordAway,
-      numberAway,
+      numberAway
     ];
   } catch (error) {
     console.log('error happened in pubsub/summmaryEN function by page', error);
@@ -436,10 +436,10 @@ async function NBApbpHistory(parameter) {
       homePoints: dataPBP.home.points,
       awayPoints: dataPBP.away.points,
       winner: winner,
-      loser: loser,
+      loser: loser
     };
     const dataOutput = {
-      boxscore: finalResult,
+      boxscore: finalResult
     };
     let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
     await ref.set(dataOutput, { merge: true });
@@ -461,9 +461,9 @@ async function NBApbpHistory(parameter) {
               [`periods${periodsCount + 1}`]: {
                 [`events${eventsCount}`]: dataPBP.periods[periodsCount].events[
                   eventsCount
-                ],
-              },
-            },
+                ]
+              }
+            }
           },
           { merge: true }
         );
@@ -491,9 +491,9 @@ async function NBApbpHistory(parameter) {
           players: {
             home: dataSummary.home.players[i],
             // home: { full_name_ch: keywordTransHome },
-            away: dataSummary.away.players[i],
+            away: dataSummary.away.players[i]
             // away: { full_name_ch: keywordTransAway }
-          },
+          }
         },
         { merge: true }
       );

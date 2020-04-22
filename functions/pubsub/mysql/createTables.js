@@ -66,7 +66,7 @@ async function createTable(req, res) {
 }
 async function createTeam() {
   const team = await db.sequelize.models.match__team.sync({
-    force: true,
+    force: true
   });
   for (let i = 0; i < data_team_NBA.length; i++) {
     const ele = data_team_NBA[i];
@@ -77,7 +77,7 @@ async function createTeam() {
       alias: ele.alias,
       alias_ch: ele.alias_ch,
       name: ele.name,
-      name_ch: ele.name_ch,
+      name_ch: ele.name_ch
     });
   }
 }
@@ -100,7 +100,7 @@ async function createMatch() {
       league_id: ele.league_id,
       ori_league_id: ele.ori_league_id,
       sport_id: ele.sport_id,
-      ori_sport_id: ele.ori_sport_id,
+      ori_sport_id: ele.ori_sport_id
     };
     if (ele.spread_result) data.spread_result = ele.spread_result;
     if (ele.totals_result) data.totals_result = ele.totals_result;

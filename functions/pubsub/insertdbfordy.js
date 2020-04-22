@@ -4,7 +4,7 @@ async function inserttest() {
   const realtimeData = JSON.parse(
     JSON.stringify(
       // eslint-disable-next-line no-await-in-loop
-      await modules.database.ref(`basketball/NBA/20200501`).once('value')
+      await modules.database.ref('basketball/NBA/20200501').once('value')
     )
   );
 

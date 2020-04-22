@@ -1,33 +1,43 @@
 const modules = require('../../util/modules');
 const model = require('../../model/home/livescoreModel');
-async function livescore (req, res) {
-  if (req.query.league === 'NBA') {
-    req.query.sport = 'basketball';
+async function livescore(req, res) {
+  switch (req.query.league) {
+    case 'NBA': {
+      req.query.sport = 'basketball';
+      break;
+    }
+    case 'MLB': {
+      req.query.sport = 'baseball';
+      break;
+    }
+    case 'NHL': {
+      req.query.sport = 'icehockey';
+      break;
+    }
+    case 'soccer': {
+      req.query.sport = 'soccer';
+      break;
+    }
+    case 'esoccer': {
+      req.query.sport = 'esports';
+      break;
+    }
+    default: {
+      req.query.league = 'NBA';
+      req.query.sport = 'basketball';
+    }
   }
-  if (req.query.league === 'MLB') {
-    req.query.sport = 'baseball';
-  }
-  if (req.query.league === 'NHL') {
-    req.query.sport = 'icehockey';
-  }
-  if (req.query.league === 'soccer') {
-    req.query.sport = 'soccer';
-  }
-  if (!req.query.league) {
-    req.query.league = 'NBA';
-    req.query.sport = 'basketball';
-  }
-  // soccer
+
   const schema = {
     required: ['league', 'sport'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer', 'esoccer']
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
       }
     }
   };
@@ -37,7 +47,6 @@ async function livescore (req, res) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
-
   try {
     res.json(await model(req.query));
   } catch (err) {

@@ -17,6 +17,8 @@ async function reResult(sport, league) {
   return await Promise.all(result);
 }
 async function repackage(sport, league) {
+  // 目前時間寫死
+  const time = '2020-07-01';
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)
@@ -27,15 +29,13 @@ async function repackage(sport, league) {
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
-  const time = '2020-07-01';
-  let dateNow = new Date(time).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei',
-  });
 
+  let dateNow = new Date(time).toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei'
+  });
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
-  const eventToday = [];
   const closedEvent = [];
   const inprogressEvent = [];
   const scheduledEvent = [];
@@ -48,6 +48,7 @@ async function repackage(sport, league) {
     scheduled = scheduled.split(' ')[0];
 
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
+      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
       if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
@@ -63,16 +64,17 @@ async function repackage(sport, league) {
         away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
 
     if (scheduled === dateNow && eventData[i].flag.status === 1) {
+      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
       if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
@@ -88,16 +90,17 @@ async function repackage(sport, league) {
         away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
 
     if (scheduled === dateNow && eventData[i].flag.status === 2) {
+      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
       if (eventData[i].newest_spread.home_tw === '') {
         eventData[i].newest_spread.home_tw = null;
       }
@@ -113,50 +116,21 @@ async function repackage(sport, league) {
         away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id,
+          image_id: eventData[i].home.image_id
         },
         away: {
           alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id,
-        },
+          image_id: eventData[i].away.image_id
+        }
       });
     }
   }
-  switch (outputJson.length) {
-    case 0: {
-      for (let i = 0; i < 4; i++) {
-        if (closedEvent[i]) {
-          outputJson.push(closedEvent[i]);
-        }
-      }
-      break;
+  for (let i = 0; i < 4 - outputJson.length; i++) {
+    if (closedEvent[i]) {
+      outputJson.push(closedEvent[i]);
+    } else {
+      outputJson.push(scheduledEvent[i]);
     }
-    case 1: {
-      for (let i = 0; i < 3; i++) {
-        if (closedEvent[i]) {
-          outputJson.push(closedEvent[i]);
-        }
-      }
-      break;
-    }
-    case 2: {
-      for (let i = 0; i < 2; i++) {
-        if (closedEvent[i]) {
-          outputJson.push(closedEvent[i]);
-        }
-      }
-      break;
-    }
-    case 3: {
-      for (let i = 0; i < 1; i++) {
-        if (closedEvent[i]) {
-          outputJson.push(closedEvent[i]);
-        }
-      }
-      break;
-    }
-    default:
-      outputJson.push('error in livescoreModel.js');
   }
 
   return outputJson;

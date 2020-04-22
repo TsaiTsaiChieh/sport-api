@@ -29,7 +29,7 @@ async function repackage(sport, league, time) {
   });
 
   let dateNow = new Date(time).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei',
+    timeZone: 'Asia/Taipei'
   });
   dateNow = dateNow.split(' ')[0];
 
@@ -45,7 +45,31 @@ async function repackage(sport, league, time) {
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       eventData[i].sport = sport;
       eventData[i].league = league;
-      closedEvent.push(eventData[i]);
+      closedEvent.push({
+        home: {
+          name: eventData[i].home.name,
+          name_ch: eventData[i].home.name_ch,
+          alias: eventData[i].home.alias,
+          alias_ch: eventData[i].home.alias_ch,
+          image_id: eventData[i].home.image_id
+        },
+        away: {
+          name: eventData[i].away.name,
+          name_ch: eventData[i].away.name_ch,
+          alias: eventData[i].away.alias,
+          alias_ch: eventData[i].away.alias_ch,
+          image_id: eventData[i].away.image_id
+        },
+        newest_spread: {
+          handicap: eventData[i].newest_spread.handicap,
+          home_tw: eventData[i].newest_spread.home_tw,
+          away_tw: eventData[i].newest_spread.away_tw
+        },
+        flag: {
+          status: eventData[i].flag.status
+        },
+        bets_id: eventData[i].bets_id
+      });
     }
   }
 

@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 
-function postCollect (args) {
+function postCollect(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(
@@ -17,12 +17,12 @@ function postCollect (args) {
     }
   });
 }
-async function reResult (sport, league, UID, eventID) {
+async function reResult(sport, league, UID, eventID) {
   const result = await repackage(sport, league, UID, eventID);
 
   return await Promise.all(result);
 }
-async function repackage (sport, league, UID, eventID) {
+async function repackage(sport, league, UID, eventID) {
   const leagueName = `pagetest_${league}_member`;
   const output = [];
   const validation = await modules.firestore

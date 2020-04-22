@@ -29,7 +29,7 @@ async function checkmatch_NBA() {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventsNow: eventsNow,
+          eventsNow: eventsNow
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
@@ -56,7 +56,7 @@ async function checkmatch_NBA() {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventsNow: eventsNow,
+          eventsNow: eventsNow
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
@@ -67,7 +67,7 @@ async function checkmatch_NBA() {
         // eslint-disable-next-line no-await-in-loop
         const parameter = {
           gameID: gameID,
-          betsID: betsID,
+          betsID: betsID
         };
         await NBApbpHistory(parameter);
       } else if (realtimeData.Summary.status === 'inprogress') {
@@ -80,7 +80,7 @@ async function checkmatch_NBA() {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventsNow: eventsNow,
+          eventsNow: eventsNow
         };
         // eslint-disable-next-line no-await-in-loop
         await NBApbpInplay(parameter);
@@ -92,7 +92,7 @@ async function checkmatch_NBA() {
           gameID: gameID,
           betsID: betsID,
           periodsNow: periodsNow,
-          eventsNow: eventsNow,
+          eventsNow: eventsNow
         };
         await NBApbpInplay(parameter);
       }

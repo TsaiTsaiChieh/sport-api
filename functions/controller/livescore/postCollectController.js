@@ -1,29 +1,43 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescorePostCollectModel');
 
-async function postCollect (req, res) {
-  if (req.body.league === 'NBA') {
-    req.body.sport = 'basketball';
-  }
-  if (req.body.league === 'MLB') {
-    req.body.sport = 'baseball';
-  }
-  if (req.body.league === 'NHL') {
-    req.body.sport = 'icehockey';
-  }
-  if (req.body.league === 'soccer') {
-    req.body.sport = 'soccer';
+async function postCollect(req, res) {
+  switch (req.query.league) {
+    case 'NBA': {
+      req.query.sport = 'basketball';
+      break;
+    }
+    case 'MLB': {
+      req.query.sport = 'baseball';
+      break;
+    }
+    case 'NHL': {
+      req.query.sport = 'icehockey';
+      break;
+    }
+    case 'soccer': {
+      req.query.sport = 'soccer';
+      break;
+    }
+    case 'esoccer': {
+      req.query.sport = 'esports';
+      break;
+    }
+    default: {
+      req.query.league = 'NBA';
+      req.query.sport = 'basketball';
+    }
   }
   const schema = {
-    required: ['sport', 'league', 'UID', 'eventID', 'time'],
+    required: ['league', 'sport', 'UID', 'eventID', 'time'],
     properties: {
-      sport: {
-        type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
-      },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer']
+        enum: ['NBA', 'MLB', 'NHL', 'soccer', 'esoccer']
+      },
+      sport: {
+        type: 'string',
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
       },
       UID: {
         type: 'string'

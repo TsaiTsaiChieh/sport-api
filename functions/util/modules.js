@@ -75,7 +75,7 @@ function initFirebase() {
     firebaseAdmin.initializeApp({
       credential: firebaseAdmin.credential.cert(envValues.cert),
       databaseURL: envValues.firebaseConfig.databaseURL,
-      storageBucket: envValues.firebaseConfig.storageBucket,
+      storageBucket: envValues.firebaseConfig.storageBucket
     });
   } else {
     console.log('firebase is already initialized');
@@ -97,7 +97,7 @@ const database = firebaseAdmin.database();
 /* redis 設定-START */
 var redis = {
   ip: '10.106.218.244',
-  port: '6379',
+  port: '6379'
 };
 /* redis 設定-END */
 function getSnapshot(collection, id) {
@@ -131,13 +131,13 @@ const db = {
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
   eSoccer: 'eSoccer',
-  prediction: 'prediction',
+  prediction: 'prediction'
 };
 function dateFormat(date) {
   return {
     year: date.substring(0, 4),
     month: date.substring(5, 7),
-    day: date.substring(8, 10),
+    day: date.substring(8, 10)
   };
 }
 async function cloneFirestore(name, clonedName) {
@@ -156,17 +156,17 @@ function leagueCodebook(league) {
     case 'NBA':
       return {
         id: 2274,
-        match: db.basketball_NBA,
+        match: db.basketball_NBA
       };
     case 'SBL':
       return {
         id: 8251,
-        match: db.basketball_SBL,
+        match: db.basketball_SBL
       };
     case 'MLB':
       return {
         id: 3939,
-        match: db.baseball_MLB,
+        match: db.baseball_MLB
       };
   }
 }
@@ -196,7 +196,7 @@ function getTitlesPeriod(date) {
     2027,
     2028,
     2029,
-    2030,
+    2030
   ];
   let weeks = 0;
   for (let i = 0; i < years.length; i++) {
@@ -222,7 +222,7 @@ function getTitlesPeriod(date) {
         date: moment(specificDate)
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'), // 該期的開始日期
+          .format('YYYYMMDD') // 該期的開始日期
       };
     }
   }
@@ -276,5 +276,5 @@ module.exports = {
   convertTimezone,
   convertTimezoneFormat,
   leagueDecoder,
-  acceptNumberAndLetter,
+  acceptNumberAndLetter
 };
