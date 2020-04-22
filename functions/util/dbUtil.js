@@ -14,22 +14,15 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
   logging: false, // disable logging; default: console.log
-  timezone: mysql.setting.timezone, //for writing to database
+  timezone: mysql.setting.timezone, // for writing to database
 });
 
 /*
  * Define schema
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
- * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
+ * Match ref: match__league, match__spread, match__total, match__team__NBA, match__NBA
  * User ref: user__prediction
- */
-
-/*
- * Define schema
- * The model will now be available in models under the name given to define
- * Ex: sequelize.models.match
- * Table name: match__league, match__spread, match__total, match__team__NBA, match__NBA
  */
 
 /*
@@ -375,10 +368,10 @@ const Totals = sequelize.define(
   }
 );
 /*
- * NBA 各隊伍資訊，unique key 為 team_id
+ * 各隊伍資訊，unique key 為 team_id
  */
-const NBA_team = sequelize.define(
-  'match__team__NBA',
+const Team = sequelize.define(
+  'match__team',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -388,6 +381,12 @@ const NBA_team = sequelize.define(
     team_id: {
       type: Sequelize.STRING,
       allowNull: false,
+    },
+    league_id: {
+      type: Sequelize.STRING,
+    },
+    sport_id: {
+      type: Sequelize.STRING,
     },
     radar_id: {
       type: Sequelize.STRING,
@@ -407,6 +406,12 @@ const NBA_team = sequelize.define(
     alias_ch: {
       type: Sequelize.STRING,
     },
+    injury: {
+      type: Sequelize.TEXT,
+    },
+    information: {
+      type: Sequelize.TEXT,
+    },
   },
   {
     indexes: [
@@ -419,10 +424,10 @@ const NBA_team = sequelize.define(
 );
 
 /*
- * NBA 各賽事資訊，unique key 為 bets_id
+ * 各賽事資訊，unique key 為 bets_id
  */
-const NBA_match = sequelize.define(
-  'match__NBA',
+const Match = sequelize.define(
+  'match',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -430,6 +435,13 @@ const NBA_match = sequelize.define(
       primaryKey: true,
     },
     bets_id: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    league_id: {
+      type: Sequelize.STRING,
+    },
+    sport_id: {
       type: Sequelize.STRING,
     },
     radar_id: {
@@ -453,9 +465,12 @@ const NBA_match = sequelize.define(
     scheduled: {
       type: Sequelize.INTEGER,
     },
-    scheduled_tw: { type: Sequelize.DATE },
+    scheduled_tw: {
+      type: Sequelize.DATE,
+    },
     flag_prematch: {
       type: Sequelize.INTEGER,
+      defaultValue: 0,
     },
     status: {
       type: Sequelize.INTEGER,
@@ -471,6 +486,30 @@ const NBA_match = sequelize.define(
     },
     totals_result: {
       type: Sequelize.STRING,
+    },
+    ori_league_id: {
+      type: Sequelize.STRING,
+    },
+    ori_sport_id: {
+      type: Sequelize.STRING,
+    },
+    home_player: {
+      type: Sequelize.TEXT,
+    },
+    away_player: {
+      type: Sequelize.TEXT,
+    },
+    home_team: {
+      type: Sequelize.TEXT,
+    },
+    away_team: {
+      type: Sequelize.TEXT,
+    },
+    home_injury: {
+      type: Sequelize.TEXT,
+    },
+    away_injury: {
+      type: Sequelize.TEXT,
     },
   },
   {
@@ -542,7 +581,6 @@ const eSoccer_match = sequelize.define(
     ],
   }
 );
-
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -620,6 +658,9 @@ const Prediction = sequelize.define(
       },
       {
         fields: ['sell', 'league_id'],
+      },
+      {
+        fields: ['match_scheduled'],
       },
     ],
   }
@@ -711,18 +752,19 @@ const Topic_Article = sequelize.define(
     article_id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     uid: {
       type: Sequelize.STRING,
       allowNull: false,
     },
     type: {
-      //球種/看板?
+      // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false,
     },
     category: {
-      //文章分類
+      // 文章分類
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -735,7 +777,7 @@ const Topic_Article = sequelize.define(
       allowNull: false,
     },
     status: {
-      //預設1為正常 其他可能-1為刪除之類的 待討論
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1,
     },
@@ -762,9 +804,10 @@ const Topic_Reply = sequelize.define(
     reply_id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     article_id: {
-      //文章id
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -781,12 +824,12 @@ const Topic_Reply = sequelize.define(
       allowNull: false,
     },
     images: {
-      //放圖片url用
+      // 放圖片url用
       type: Sequelize.TEXT,
       allowNull: true,
     },
     status: {
-      //預設1為正常 其他可能-1為刪除之類的 待討論
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1,
     },
@@ -807,7 +850,7 @@ const Topic_Like = sequelize.define(
   'topic__like',
   {
     article_id: {
-      //文章id
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -850,7 +893,7 @@ const Home_Banner = sequelize.define(
     },
     status: {
       type: Sequelize.INTEGER,
-      defaultValue: 1, //1為正常 -1可能為刪除 尚未實作
+      defaultValue: 1, // 1為正常 -1可能為刪除 尚未實作
     },
   },
   {
@@ -869,8 +912,8 @@ const dbUtil = {
   League,
   Spread,
   Totals,
-  NBA_team,
-  NBA_match,
+  Match,
+  Team,
   Prediction,
   User,
   Title,

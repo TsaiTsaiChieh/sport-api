@@ -19,7 +19,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
-/* 
+/*
   date: 2020-07-01 or 20200701
   operation: {
         op: 'add',
@@ -30,19 +30,21 @@ const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 */
 function convertTimezone(date, operation, zone = zone_tw) {
   if (operation) {
-    if (operation.op === 'add')
+    if (operation.op === 'add') {
       return moment.tz(date, zone).add(operation.value, operation.unit).unix();
-    if (operation.op === 'subtract')
+    }
+    if (operation.op === 'subtract') {
       return moment
         .tz(date, zone)
         .subtract(operation.value, operation.unit)
         .unix();
+    }
   }
   return moment.tz(date, zone).unix();
 }
 // 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
-/* 
-  unix: Math.floor(Date.now() / 1000) 
+/*
+  unix: Math.floor(Date.now() / 1000)
   operation: {
         op: 'add',
         value: 1,
@@ -53,16 +55,17 @@ function convertTimezone(date, operation, zone = zone_tw) {
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
   if (operation) {
-    if (operation.op === 'add')
+    if (operation.op === 'add') {
       return moment
         .tz(unix, zone)
         .add(operation.value, operation.unit)
         .format('YYYYMMDD');
-    else if (operation.op === 'subtract')
+    } else if (operation.op === 'subtract') {
       return moment
         .tz(unix, zone)
         .subtract(operation.value, operation.unit)
         .format('YYYYMMDD');
+    }
   }
   return moment.tz(unix, zone).format('YYYYMMDD');
 }
@@ -91,12 +94,12 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
-/*redis 設定-START*/
+/* redis 設定-START */
 var redis = {
   ip: '10.106.218.244',
   port: '6379',
 };
-/*redis 設定-END*/
+/* redis 設定-END */
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -213,7 +216,7 @@ function getTitlesPeriod(date) {
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
-    if (begin <= date && date <= end)
+    if (begin <= date && date <= end) {
       return {
         period: i, // 期數
         date: moment(specificDate)
@@ -221,6 +224,7 @@ function getTitlesPeriod(date) {
           .add(i * 2 - 2, 'weeks')
           .format('YYYYMMDD'), // 該期的開始日期
       };
+    }
   }
   return 0;
 }

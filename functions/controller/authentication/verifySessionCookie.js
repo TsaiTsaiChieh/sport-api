@@ -23,13 +23,13 @@
  *       "success": "false"
  *     }
  */
-function verifySessionCookie(req, res) {
-    try{
-        res.status(200).json({success: true});
-    }catch (err) {
-        console.error('Error in util/verification token functions', err);
-        res.status(401).json({ code: 401, error: 'Unauthorized' });
-    }
+function verifySessionCookie (req, res) {
+  try {
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('Error in util/verification token functions', err);
+    res.status(401).json({ code: 401, error: 'Unauthorized' });
+  }
 }
 
 module.exports = verifySessionCookie;

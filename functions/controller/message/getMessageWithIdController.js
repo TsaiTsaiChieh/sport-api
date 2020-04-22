@@ -3,7 +3,7 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/getMessageWithIdModel');
 
-function getMessageWithId(req, res) {
+function getMessageWithId (req, res) {
   const schema = {
     type: 'object',
     required: ['id'],
@@ -13,7 +13,7 @@ function getMessageWithId(req, res) {
   };
 
   const args = {};
-  req.params.id ? (args.id = req.params.id) : '';
+  args.id = req.params.id ? req.params.id : '';
   const valid = modules.ajv.validate(schema, args);
   if (!valid) {
     res.status(400).send(modules.ajv.errors);

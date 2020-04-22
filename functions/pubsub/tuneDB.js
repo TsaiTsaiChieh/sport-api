@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const collectionName = 'NBA_TC';
-async function tuneDB() {
+async function tuneDB () {
   const collection = await modules.firestore.collection(collectionName).get();
   collection.docs.map(async function (doc) {
     const match = doc.data();
@@ -11,7 +11,7 @@ async function tuneDB() {
   });
 }
 
-function newestHandicap(data) {
+function newestHandicap (data) {
   if (data.spread) {
     const ids = [];
     const add_time = [];
@@ -19,7 +19,7 @@ function newestHandicap(data) {
       ids.push(key);
       add_time.push(data.spread[key].add_time);
     }
-    newestKey = sortTime(ids, add_time);
+    const newestKey = sortTime(ids, add_time);
 
     data.spread[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
@@ -33,17 +33,17 @@ function newestHandicap(data) {
       ids.push(key);
       add_time.push(data.totals[key].add_time);
     }
-    newestKey = sortTime(ids, add_time);
+    const newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
       newest_totals: data.totals[newestKey]
     });
   }
 }
-function sortTime(ids, add_time) {
+function sortTime (ids, add_time) {
   return ids[add_time.indexOf(Math.max(...add_time))];
 }
-async function handicapProcessor(data) {
+async function handicapProcessor (data) {
   if (data.spread) {
     for (const key in data.spread) {
       spreadCalculator(data.spread[key], data.bets_id);
@@ -64,7 +64,7 @@ async function handicapProcessor(data) {
   // return data;
 }
 
-function totalsCalculator(handicapObj, id) {
+function totalsCalculator (handicapObj, id) {
   if (
     handicapObj.over_odd === handicapObj.under_odd ||
     handicapObj.handicap % 1 !== 0
@@ -81,7 +81,7 @@ function totalsCalculator(handicapObj, id) {
     }
   }
 }
-function spreadCalculator(handicapObj, id) {
+function spreadCalculator (handicapObj, id) {
   // 賠率相同
   if (
     handicapObj.handicap % 1 !== 0 &&

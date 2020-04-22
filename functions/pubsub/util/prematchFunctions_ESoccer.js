@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 // const db = require('../../util/dbUtil');
 const db = require('../../util/dbUtil');
 
-aa('20200422');
-aa('20200423');
+// aa('20200422');
+// aa('20200423');
 
 // module.exports.NBA.upcoming =
 async function aa(date) {

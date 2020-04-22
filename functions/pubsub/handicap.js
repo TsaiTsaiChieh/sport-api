@@ -8,7 +8,7 @@ const leagues = [
   modules.db.baseball_MLB,
 ];
 // 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
-async function handicap() {
+async function handicap () {
   // go through each league
   for (let i = 0; i < leagues.length; i++) {
     // flag.spread/totals === 0 represent did not have first handicap information
@@ -47,7 +47,7 @@ async function handicap() {
     }
   }
 }
-async function updateHandicap(league, ele) {
+async function updateHandicap (league, ele) {
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -104,7 +104,7 @@ async function updateHandicap(league, ele) {
     );
   }
 }
-async function query_opening(flag, value, league) {
+async function query_opening (flag, value, league) {
   const eventsRef = modules.firestore.collection(league);
   const eles = [];
   try {
@@ -123,7 +123,7 @@ async function query_opening(flag, value, league) {
     return error;
   }
 }
-async function query_handicap(flag, value, leagues) {
+async function query_handicap (flag, value, leagues) {
   const date = modules.moment();
   const eles = [];
   const eventsRef = modules.firestore.collection(leagues);
@@ -149,7 +149,7 @@ async function query_handicap(flag, value, leagues) {
   }
 }
 
-async function getHandicap(league, ele) {
+async function getHandicap (league, ele) {
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -195,8 +195,8 @@ async function getHandicap(league, ele) {
         const totals = {};
         totals[totalsData.id] = {
           handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(spreadData.over_od),
-          under_odd: Number.parseFloat(spreadData.under_od),
+          over_odd: Number.parseFloat(totalsData.over_od),
+          under_odd: Number.parseFloat(totalsData.under_od),
           add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date(Number.parseInt(totalsData.add_time) * 1000)
           ),
@@ -221,7 +221,7 @@ async function getHandicap(league, ele) {
     );
   }
 }
-async function getTotals(league, ele) {
+async function getTotals (league, ele) {
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;

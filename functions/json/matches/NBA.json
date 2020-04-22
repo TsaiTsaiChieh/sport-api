@@ -9,7 +9,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31267231",
-    "totals_id": "34409340"
+    "totals_id": "34409340",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2115973",
@@ -21,7 +25,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31268919",
-    "totals_id": "34417671"
+    "totals_id": "34417671",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2117403",
@@ -33,7 +41,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31194971",
-    "totals_id": "34364814"
+    "totals_id": "34364814",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2117404",
@@ -45,7 +57,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31238504",
-    "totals_id": "34364292"
+    "totals_id": "34364292",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118058",
@@ -61,7 +77,11 @@
     "spread_result": "away",
     "totals_result": "under",
     "home_points": 102,
-    "away_points": 104
+    "away_points": 104,
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118059",
@@ -71,7 +91,11 @@
     "sr_id": "sr:match:19098378",
     "scheduled": 1593734400,
     "flag_prematch": 1,
-    "status": 2
+    "status": 2,
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118809",
@@ -83,7 +107,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31236860",
-    "totals_id": "34364723"
+    "totals_id": "34364723",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118810",
@@ -95,7 +123,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31235573",
-    "totals_id": "34458529"
+    "totals_id": "34458529",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118811",
@@ -105,7 +137,11 @@
     "sr_id": "sr:match:19098382",
     "scheduled": 1593743400,
     "flag_prematch": 1,
-    "status": 2
+    "status": 2,
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118816",
@@ -117,7 +153,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31238069",
-    "totals_id": "34346860"
+    "totals_id": "34346860",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2118817",
@@ -129,7 +169,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31237643",
-    "totals_id": "34364794"
+    "totals_id": "34364794",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2119439",
@@ -141,7 +185,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31249410",
-    "totals_id": "34384039"
+    "totals_id": "34384039",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2119917",
@@ -153,7 +201,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31296152",
-    "totals_id": "34452129"
+    "totals_id": "34452129",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2120643",
@@ -165,7 +217,11 @@
     "flag_prematch": 1,
     "status": 2,
     "spread_id": "31298793",
-    "totals_id": "34456538"
+    "totals_id": "34456538",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2120646",
@@ -177,7 +233,11 @@
     "flag_prematch": 1,
     "status": 1,
     "spread_id": "31298686",
-    "totals_id": "34449967"
+    "totals_id": "34449967",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2120647",
@@ -189,7 +249,11 @@
     "flag_prematch": 1,
     "status": 1,
     "spread_id": "31296159",
-    "totals_id": "34452138"
+    "totals_id": "34452138",
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2120648",
@@ -199,7 +263,11 @@
     "sr_id": "sr:match:19098380",
     "scheduled": 1593736200,
     "flag_prematch": 1,
-    "status": 2
+    "status": 2,
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   },
   {
     "bets_id": "2121183",
@@ -215,6 +283,10 @@
     "spread_result": "fair",
     "totals_result": "over",
     "home_points": 131,
-    "away_points": 136
+    "away_points": 136,
+    "sport_id": "18",
+    "ori_sport_id": "18",
+    "league_id": "2274",
+    "ori_league_id": "2274"
   }
 ]

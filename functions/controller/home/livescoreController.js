@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 const model = require('../../model/home/livescoreModel');
-async function livescore(req, res) {
+async function livescore (req, res) {
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }
@@ -17,19 +17,19 @@ async function livescore(req, res) {
     req.query.league = 'NBA';
     req.query.sport = 'basketball';
   }
-  //soccer
+  // soccer
   const schema = {
     required: ['league', 'sport'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
-      },
-    },
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -47,15 +47,15 @@ async function livescore(req, res) {
 
 module.exports = livescore;
 /**
- * @api {GET} /home/livescore?league=MLB Get Livescore 
+ * @api {GET} /home/livescore?league=MLB Get Livescore
  * @apiVersion 1.0.0
- * @apiDescription [Test version] Get information of livescore in homepage, included score, handicap and information of team. Array of three match. 
+ * @apiDescription [Test version] Get information of livescore in homepage, included score, handicap and information of team. Array of three match.
  * @apiName livescore information
  * @apiGroup Home
  *
  * @apiParam {String} sport sport name, the value enum are: ```baseball```
- * @apiParam {String} league league name, the value enum are: ```MLB``` 
- * @apiParam {Number} time timestamp, the value enum are: ```1585039500000``` 
+ * @apiParam {String} league league name, the value enum are: ```MLB```
+ * @apiParam {Number} time timestamp, the value enum are: ```1585039500000```
  * @apiParamExample {JSON} Request-Query
  {
    "league" : "MLB"
@@ -83,7 +83,7 @@ module.exports = livescore;
  * @apiSuccess {Object} away information about away team
  * @apiSuccess {String} away.name_ch chinese name of away team
  * @apiSuccess {Number} away.image_id image id of away team (front-end need to combine url to get image)
- 
+
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
 [
@@ -195,7 +195,7 @@ module.exports = livescore;
 ]
  * @apiError 400 Bad Request ( Not inplement )
  * @apiError 500 Internal Server Error
- 
+
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {

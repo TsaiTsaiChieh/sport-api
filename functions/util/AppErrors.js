@@ -3,7 +3,7 @@ const httpStatus = require('http-status');
  * @extends Error
  */
 class ExtendableError extends Error {
-  constructor(message, status, isPublic, code) {
+  constructor (message, status, isPublic, code) {
     super(message);
     this.message = message;
     this.name = this.constructor.name;
@@ -14,13 +14,13 @@ class ExtendableError extends Error {
     Error.captureStackTrace(this, this.constructor.name);
   }
 }
-/* --------------------------- 200 OK ---------------------------*/
+/* --------------------------- 200 OK --------------------------- */
 class UserPredictFailed extends ExtendableError {
-  constructor(message, status = 1000, isPublic = true, code = httpStatus.OK) {
+  constructor (message, status = 1000, isPublic = true, code = httpStatus.OK) {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 404 NOT FOUND ---------------------------*/
+/* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
  * @extends ExtendableError
@@ -32,7 +32,7 @@ class UserNotFound extends ExtendableError {
    * @param {number} status - HTTP status code of error
    * @param {boolean} isPublic - whether the message should be visible to user or not
    */
-  constructor(
+  constructor (
     message = '使用者狀態異常',
     status = 1305,
     isPublic = true,
@@ -43,7 +43,7 @@ class UserNotFound extends ExtendableError {
 }
 
 class BetsAPIError extends ExtendableError {
-  constructor(
+  constructor (
     message = '取得 BetsAPI 異常',
     status = 1308,
     isPublic = true,
@@ -52,9 +52,9 @@ class BetsAPIError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 403 FORBIDDEN ---------------------------*/
+/* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
-  constructor(
+  constructor (
     message = '使用者非法操作',
     status = 1201,
     isPublic = true,
@@ -65,7 +65,7 @@ class UserCouldNotSell extends ExtendableError {
 }
 
 class GodSellInconsistent extends ExtendableError {
-  constructor(
+  constructor (
     message = '大神和當日的販售狀態不一致',
     status = 1203,
     isPublic = true,
@@ -74,9 +74,9 @@ class GodSellInconsistent extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
+/* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
-  constructor(
+  constructor (
     message = 'MySQL 錯誤',
     status = 1500,
     isPublic = true,

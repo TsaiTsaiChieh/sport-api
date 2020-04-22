@@ -29,7 +29,7 @@ module.exports.eSB8 = {
   }
 };
 
-function repackage_bets(ele) {
+function repackage_bets (ele) {
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     scheduled: Number.parseInt(ele.time),

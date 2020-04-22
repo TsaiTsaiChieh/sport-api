@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/user/_predictMatchesModel');
 
 // eslint-disable-next-line consistent-return
-async function predictMatches(req, res) {
+async function predictMatches (req, res) {
   const now = Date.now();
   const spreadSchema = {
     type: 'array',
@@ -114,7 +114,7 @@ module.exports = predictMatches;
 {
   "league": "NBA",
   "sell": 0,
-	"matches": 
+	"matches":
 	[
 		{
 			"id": "34893434",
@@ -140,14 +140,14 @@ module.exports = predictMatches;
 			"id": "2115973",
 			"totals": ["34417671", "over", 2]
 		}
-		
+
 	]
 }
- * @apiSuccess {Array} success succeeded prediction 
- * @apiSuccess {String} success.id match id which is successful 
+ * @apiSuccess {Array} success succeeded prediction
+ * @apiSuccess {String} success.id match id which is successful
  * @apiSuccess {Array} [success.spread] spread[0] spread information array which is successful
  * @apiSuccess {Array} [success.totals] totals[0] totals information array which is successful
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
 {

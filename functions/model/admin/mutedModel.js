@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 // const firebase = require('firebase');
-function muted(args) {
-  return new Promise(async function(resolve, reject) {
+function muted (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       const userDoc = await modules.getDoc('users', args.uid);
       const userSnapshot = await userDoc.get();

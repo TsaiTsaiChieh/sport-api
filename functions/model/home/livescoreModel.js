@@ -2,35 +2,32 @@ const modules = require('../../util/modules');
 async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
-      result = await reResult(args.sport, args.league);
+      const result = await reResult(args.sport, args.league);
 
       resolve(result);
     } catch (err) {
       console.error('Error in sport/livescoreModel by DY', err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }
 async function reResult(sport, league) {
-  let result;
-  result = await repackage(sport, league);
+  const result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
 async function repackage(sport, league) {
-  let leagueName = `pagetest_${league}`;
-  let query = await modules.firestore
+  const leagueName = `pagetest_${league}`;
+  const query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')
     .get();
 
-  let eventData = [];
+  const eventData = [];
   query.forEach((doc) => {
     eventData.push(doc.data());
   });
-
-  time = '2020-07-01';
+  const time = '2020-07-01';
   let dateNow = new Date(time).toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
   });
@@ -38,11 +35,11 @@ async function repackage(sport, league) {
   dateNow = dateNow.split(' ')[0];
 
   let scheduled;
-  let eventToday = [];
-  let closedEvent = [];
-  let inprogressEvent = [];
-  let scheduledEvent = [];
-  let outputJson = [];
+  const eventToday = [];
+  const closedEvent = [];
+  const inprogressEvent = [];
+  const scheduledEvent = [];
+  const outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
     scheduled = new Date(
@@ -125,69 +122,43 @@ async function repackage(sport, league) {
       });
     }
   }
-  // switch (outputJson.length) {
-  //   case 0: {
-  //     for (let i = 0; i < 4; i++) {
-  //       if (closedEvent[i]) {
-  //         outputJson.push(closedEvent[i]);
-  //       }
-  //     }
-  //     break;
-  //   }
-  //   case 1: {
-  //     for (let i = 0; i < 4; i++) {
-  //       if (closedEvent[i]) {
-  //         outputJson.push(closedEvent[i]);
-  //       }
-  //     }
-  //     break;
-  //   }
-  //   case 2: {
-  //     for (let i = 0; i < 2; i++) {
-  //       if (closedEvent[i]) {
-  //         outputJson.push(closedEvent[i]);
-  //       }
-  //     }
-  //     break;
-  //   }
-  //   case 3: {
-  //     for (let i = 0; i < 1; i++) {
-  //       if (closedEvent[i]) {
-  //         outputJson.push(closedEvent[i]);
-  //       }
-  //     }
-  //     break;
-  //   }
-  // }
+  switch (outputJson.length) {
+    case 0: {
+      for (let i = 0; i < 4; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 1: {
+      for (let i = 0; i < 3; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 2: {
+      for (let i = 0; i < 2; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 3: {
+      for (let i = 0; i < 1; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    default:
+      outputJson.push('error in livescoreModel.js');
+  }
 
-  if (outputJson.length === 0) {
-    for (let i = 0; i < 4; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 1) {
-    for (let i = 0; i < 3; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 2) {
-    for (let i = 0; i < 2; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 3) {
-    for (let i = 0; i < 1; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
   return outputJson;
 }
 module.exports = livescore;

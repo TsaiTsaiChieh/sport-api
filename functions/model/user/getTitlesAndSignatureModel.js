@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const dbEngine = require('../../util/databaseEngine');
-function getTitlesAndSignature(args) {
-  return new Promise(async function(resolve, reject) {
+function getTitlesAndSignature (args) {
+  return new Promise(async function (resolve, reject) {
     try {
       // check if user exists
       const customClaims = await dbEngine.findUser(args.uid);
@@ -13,7 +13,7 @@ function getTitlesAndSignature(args) {
   });
 }
 
-async function getUserTitles(uid, customClaims) {
+async function getUserTitles (uid, customClaims) {
   const userSnapshot = await modules.getSnapshot('users', uid);
   const user = userSnapshot.data();
 
@@ -28,7 +28,7 @@ async function getUserTitles(uid, customClaims) {
   };
 }
 
-async function getTitleRecord(uid) {
+async function getTitleRecord (uid) {
   const usersTitlesSnapshot = await modules.getSnapshot('users_titles', uid);
   if (!usersTitlesSnapshot.exists) {
     return {

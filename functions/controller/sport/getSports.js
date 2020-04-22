@@ -1,6 +1,5 @@
 const modules = require('../../util/modules');
 
-
 /**
  * @api {get} /sport Get Sport List
  * @apiVersion 1.0.0
@@ -117,20 +116,19 @@ const modules = require('../../util/modules');
  * @apiErrorExample Error-Response:
      *     HTTP/1.1 500 Internal Server Error
  */
-async function getSports(req, res) {
-    let returnJson = {};
-    try {
-        const snapshot = await modules.firestore.collection('sports').get();
-        snapshot.forEach(function (doc) {
-            // console.log("...", doc.id, " => ", doc.data());
-            returnJson[doc.id]= doc.data();
-        });
-
-    } catch (e) {
-        console.log(e);
-        return res.status(500);
-    }
-    return res.status(200).json(returnJson);
+async function getSports (req, res) {
+  const returnJson = {};
+  try {
+    const snapshot = await modules.firestore.collection('sports').get();
+    snapshot.forEach(function (doc) {
+      // console.log("...", doc.id, " => ", doc.data());
+      returnJson[doc.id] = doc.data();
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500);
+  }
+  return res.status(200).json(returnJson);
 }
 
 module.exports = getSports;
