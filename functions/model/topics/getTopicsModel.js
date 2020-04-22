@@ -4,7 +4,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
-const countPerPage = 20;
+const countPerPage = 10;
 function dbFind(where, page) {
   return new Promise(async function (resolve, reject) {
     try {

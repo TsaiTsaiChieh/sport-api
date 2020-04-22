@@ -36,7 +36,7 @@ router.post(
 );
 router.post(
   '/likeArticle',
-  // verification.token,
+  verification.token,
   require('../controller/topics/likeArticleController')
 );
 
