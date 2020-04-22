@@ -51,7 +51,7 @@ async function getTopics(args) {
       let repliesCount = []
       let likesCount = []
       for (let i = 0; i < topics.rows.length; i++) {
-        infosToGet.push(topics.rows[i].id)
+        infosToGet.push(topics.rows[i].article_id)
         usersToGet.push(topics.rows[i].uid)
       }
       /* 讀取留言數 */
@@ -61,9 +61,9 @@ async function getTopics(args) {
         console.log(error)
         reject({ code: 500, error: 'get reply count failed' })
       }
-      /* 讀取留言數 */
+      /* 讀取按讚數 */
       try{
-        likesCount = await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        likesCount = [];//await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       }catch(error){
         console.log(error)
         reject({ code: 500, error: 'get like count failed' })

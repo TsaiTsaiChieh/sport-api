@@ -44,8 +44,8 @@ async function createReply(args) {
       const insertData = {
         article_id: args.aid,
         uid: args.token.uid,
-        reply_id: null, // args.reply_id,
-        images: null,
+        replyto_id: null, // args.reply_id,
+        images: JSON.stringify(args.images),
         content: args.content,
       }
 

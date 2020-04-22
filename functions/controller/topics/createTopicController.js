@@ -17,11 +17,11 @@ async function createTopic(req, res) {
     properties: {
       type: {
         type: 'string',
-        enum: ['MLB', 'NBA']
+        enum: ['MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球']
       },
       category: {
         type: 'string',
-        enum: ['賽事分析', '球隊討論', '投注分享']
+        enum: ['賽事分析', '球隊討論', '投注分享', '公告', '其他']
       },
       title: {
         type: 'string',

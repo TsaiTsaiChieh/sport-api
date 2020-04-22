@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const topicModel = require('../../model/home/hotTopicsModel');
 async function getTopics(req, res) {
-  if(req.params.page !== '0' && req.params.page !== '1'){
+  if(typeof req.params.page !== 'undefined' && req.params.page !== '0' && req.params.page !== '1'){
     res.status(404).json('page error');
     return;
   }
