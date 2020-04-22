@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-async function livescore (args) {
+async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
       let result;
@@ -18,12 +18,12 @@ async function livescore (args) {
     }
   });
 }
-async function reResult (sport, league, UID, time) {
+async function reResult(sport, league, UID, time) {
   const result = await repackage(sport, league, UID, time);
 
   return await Promise.all(result);
 }
-async function repackage (sport, league, UID, time) {
+async function repackage(sport, league, UID, time) {
   const leagueName = `pagetest_${league}_member`;
   const eventData = [];
 
@@ -42,7 +42,6 @@ async function repackage (sport, league, UID, time) {
       out.push(eventData[0][Object.keys(eventData[0])[i]]);
     }
   }
-  console.log(out);
 
   return out;
 }

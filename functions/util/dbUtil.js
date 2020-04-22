@@ -521,6 +521,66 @@ const Match = sequelize.define(
     ]
   }
 );
+
+/*
+ * eSoccer 各賽事資訊，unique key 為 bets_id
+ */
+const eSoccer_match = sequelize.define(
+  'match__eSoccer',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    bets_id: {
+      type: Sequelize.STRING
+    },
+    home_id: {
+      type: Sequelize.STRING
+    },
+    away_id: {
+      type: Sequelize.STRING
+    },
+    spread_id: {
+      type: Sequelize.STRING
+    },
+    totals_id: {
+      type: Sequelize.STRING
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    },
+    scheduled_tw: { type: Sequelize.DATE },
+    flag_prematch: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    home_points: {
+      type: Sequelize.INTEGER
+    },
+    away_points: {
+      type: Sequelize.INTEGER
+    },
+    spread_result: {
+      type: Sequelize.STRING
+    },
+    totals_result: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bets_id']
+      }
+    ]
+  }
+);
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -698,11 +758,13 @@ const Topic_Article = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: { // 球種/看板?
+    type: {
+      // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false
     },
-    category: { // 文章分類
+    category: {
+      // 文章分類
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -714,7 +776,8 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+    status: {
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     },
@@ -743,7 +806,8 @@ const Topic_Reply = sequelize.define(
       primaryKey: true,
       autoIncrement: true
     },
-    article_id: { // 文章id
+    article_id: {
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -759,11 +823,13 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    images: { // 放圖片url用
+    images: {
+      // 放圖片url用
       type: Sequelize.TEXT,
       allowNull: true
     },
-    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+    status: {
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     }
@@ -783,7 +849,8 @@ const Topic_Reply = sequelize.define(
 const Topic_Like = sequelize.define(
   'topic__like',
   {
-    article_id: { // 文章id
+    article_id: {
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -855,7 +922,8 @@ const dbUtil = {
   Topic_Like,
   Topic_Reply,
   Topic_Article,
-  Home_Banner
+  Home_Banner,
+  eSoccer_match
 };
 
 module.exports = dbUtil;

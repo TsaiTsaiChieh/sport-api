@@ -1,10 +1,10 @@
 const modules = require('../util/modules');
-
+// scheduled time need to change
 const MLBpbp = require('./pbpMLB.js');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 
-async function checkmatch_MLB () {
+async function checkmatch_MLB() {
   const firestoreName = 'page_MLB';
 
   const data = await modules.firestore.collection(firestoreName).get();
@@ -37,7 +37,9 @@ async function checkmatch_MLB () {
         };
         MLBpbpInplay(parameter);
       } else {
-        const ref = await modules.database.ref(`baseball/MLB/${betsID}/Summary/status`);
+        const ref = await modules.database.ref(
+          `baseball/MLB/${betsID}/Summary/status`
+        );
         ref.set('scheduled');
       }
     }
