@@ -8,7 +8,7 @@ function dbFind(aid) { //確認文章存在
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          'id': aid
+          'article_id': aid
         },
         raw: true
       })
@@ -26,7 +26,7 @@ function checkLiked(uid, aid) {
     const result = await db.sequelize.models.topic__like.count({
       where: {
         uid: uid,
-        aid: aid
+        article_id: aid
       },
       raw: true
     })
@@ -40,7 +40,7 @@ function checkLiked(uid, aid) {
 function like(uid, aid) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.create({ uid: uid, aid: aid})
+      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: aid})
       log.succ('like success');
       resolve()
     } catch (error) {
@@ -56,7 +56,7 @@ function unlike(uid, aid) {
       const result = await db.sequelize.models.topic__like.destroy({
         where: {
           uid: uid,
-          aid: aid
+          article_id: aid
         },
         raw: true
       })
@@ -73,6 +73,10 @@ function unlike(uid, aid) {
 async function likeArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      if(typeof args.token === 'undefined'){
+        reject({ code: 403, error: 'token expired' });
+        return;
+      }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
       log.info('verify firebase user')

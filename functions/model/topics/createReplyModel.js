@@ -22,6 +22,10 @@ function dbCreate(insertData) {
 async function createReply(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      if(typeof args.token === 'undefined'){
+        reject({ code: 403, error: 'token expired' });
+        return;
+      }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       const topicInfo = await func.getTopicInfo(args.aid)
 
@@ -38,7 +42,7 @@ async function createReply(args) {
       // log.data(topicInfo[0])
 
       const insertData = {
-        aid: args.aid,
+        article_id: args.aid,
         uid: args.token.uid,
         reply_id: null, // args.reply_id,
         images: null,

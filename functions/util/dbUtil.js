@@ -525,157 +525,157 @@ const Match = sequelize.define(
  * 預測單的資訊，unique key 為 bets_id, uid
  */
 const Prediction = sequelize.define(
-  'user__prediction',
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+    'user__prediction',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        bets_id: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        league_id: {
+            type: Sequelize.INTEGER
+        },
+        sell: {
+            type: Sequelize.INTEGER
+        },
+        match_scheduled: {
+            type: Sequelize.INTEGER
+        },
+        spread_id: {
+            type: Sequelize.STRING
+        },
+        spread_option: {
+            type: Sequelize.STRING
+        },
+        spread_bets: {
+            type: Sequelize.INTEGER
+        },
+        totals_id: {
+            type: Sequelize.STRING
+        },
+        totals_option: {
+            type: Sequelize.STRING
+        },
+        totals_bets: {
+            type: Sequelize.INTEGER
+        },
+        uid: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        user_status: {
+            type: Sequelize.STRING
+        },
+        spread_result_flag: {
+            type: Sequelize.INTEGER,
+            defaultValue: -2
+        },
+        totals_result_flag: {
+            type: Sequelize.INTEGER,
+            defaultValue: -2
+        }
     },
-    bets_id: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    league_id: {
-      type: Sequelize.INTEGER
-    },
-    sell: {
-      type: Sequelize.INTEGER
-    },
-    match_scheduled: {
-      type: Sequelize.INTEGER
-    },
-    spread_id: {
-      type: Sequelize.STRING
-    },
-    spread_option: {
-      type: Sequelize.STRING
-    },
-    spread_bets: {
-      type: Sequelize.INTEGER
-    },
-    totals_id: {
-      type: Sequelize.STRING
-    },
-    totals_option: {
-      type: Sequelize.STRING
-    },
-    totals_bets: {
-      type: Sequelize.INTEGER
-    },
-    uid: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    user_status: {
-      type: Sequelize.STRING
-    },
-    spread_result_flag: {
-      type: Sequelize.INTEGER,
-      defaultValue: -2
-    },
-    totals_result_flag: {
-      type: Sequelize.INTEGER,
-      defaultValue: -2
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['uid', 'bets_id', 'spread_id']
+            },
+            {
+                unique: true,
+                fields: ['uid', 'bets_id', 'totals_id']
+            },
+            {
+                fields: ['uid', 'match_scheduled']
+            },
+            {
+                unique: true,
+                fields: ['uid', 'bets_id'] // 若無這組 key，使用者分別新增讓分或大小分會是兩張預測單
+            },
+            {
+                fields: ['sell', 'league_id']
+            }
+        ]
     }
-  },
-  {
-    indexes: [
-      {
-        unique: true,
-        fields: ['uid', 'bets_id', 'spread_id']
-      },
-      {
-        unique: true,
-        fields: ['uid', 'bets_id', 'totals_id']
-      },
-      {
-        fields: ['uid', 'match_scheduled']
-      },
-      {
-        unique: true,
-        fields: ['uid', 'bets_id'] // 若無這組 key，使用者分別新增讓分或大小分會是兩張預測單
-      },
-      {
-        fields: ['sell', 'league_id']
-      }
-    ]
-  }
 );
 
 /*
  * 各聯盟賽事結算資訊
  */
 const usersWinLists = sequelize.define(
-  'users__win__lists',
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    uid: {
-      type: Sequelize.STRING
-    },
-    league_id: {
-      type: Sequelize.INTEGER
-    },
-    rank_id: {
-      type: Sequelize.INTEGER
-    },
-    avatar: {
-      type: Sequelize.STRING,
-      allowNull: true
-    },
-    displayname: {
-      type: Sequelize.STRING
-    },
-    last_month_win_bets: {
-      type: Sequelize.INTEGER
-    },
-    last_month_win_rate: {
-      type: Sequelize.INTEGER
-    },
-    last_week_win_bets: {
-      type: Sequelize.INTEGER
-    },
-    last_week_win_rate: {
-      type: Sequelize.INTEGER
-    },
+    'users__win__lists',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        uid: {
+            type: Sequelize.STRING
+        },
+        league_id: {
+            type: Sequelize.INTEGER
+        },
+        rank_id: {
+            type: Sequelize.INTEGER
+        },
+        avatar: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        displayname: {
+            type: Sequelize.STRING
+        },
+        last_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        last_week_win_rate: {
+            type: Sequelize.INTEGER
+        },
 
-    this_season_win_bets: {
-      type: Sequelize.INTEGER
+        this_season_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_season_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_period_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_month_win_rate: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_bets: {
+            type: Sequelize.INTEGER
+        },
+        this_week_win_rate: {
+            type: Sequelize.INTEGER
+        }
     },
-    this_season_win_rate: {
-      type: Sequelize.INTEGER
-    },
-    this_period_win_bets: {
-      type: Sequelize.INTEGER
-    },
-    this_period_win_rate: {
-      type: Sequelize.INTEGER
-    },
-    this_month_win_bets: {
-      type: Sequelize.INTEGER
-    },
-    this_month_win_rate: {
-      type: Sequelize.INTEGER
-    },
-    this_week_win_bets: {
-      type: Sequelize.INTEGER
-    },
-    this_week_win_rate: {
-      type: Sequelize.INTEGER
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['uid']
+            }
+        ]
     }
-  },
-  {
-    indexes: [
-      {
-        unique: true,
-        fields: ['uid']
-      }
-    ]
-  }
 );
 
 /* 這邊給如果用 */
@@ -683,123 +683,154 @@ const usersWinLists = sequelize.define(
 /*
  * 文章
  */
-const Topic_Article = sequelize.define('topic__article', {
-  uid: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  type: {
-    //球種/看板?
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  category: {
-    //文章分類
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  title: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  content: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  status: {
-    //預設1為正常 其他可能-1為刪除之類的 待討論
-    type: Sequelize.INTEGER,
-    defaultValue: 1
-  },
-  view_count: {
-    type: Sequelize.INTEGER,
-    defaultValue: 0
-  }
-});
+const Topic_Article = sequelize.define(
+    'topic__article',
+    {
+        article_id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true
+        },
+        uid: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        type: { //球種/看板?
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        category: { //文章分類
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        title: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        content: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        },
+        status: { //預設1為正常 其他可能-1為刪除之類的 待討論
+            type: Sequelize.INTEGER,
+            defaultValue: 1
+        },
+        view_count: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        }
+    },
+    {
+        indexes: [
+            {
+                fields: ['article_id', 'type', 'category']
+            }
+        ]
+    }
+);
 
 /*
  * 文章留言
  */
-const Topic_Reply = sequelize.define('topic__reply', {
-  aid: {
-    //文章id
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  uid: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  reply_id: {
-    type: Sequelize.STRING,
-    allowNull: true
-  },
-  content: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  images: {
-    //放圖片url用
-    type: Sequelize.TEXT,
-    allowNull: true
-  },
-  status: {
-    //預設1為正常 其他可能-1為刪除之類的 待討論
-    type: Sequelize.INTEGER,
-    defaultValue: 1
-  }
-});
+const Topic_Reply = sequelize.define(
+    'topic__reply',
+    {
+        reply_id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true
+        },
+        article_id: { //文章id
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        uid: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        replyto_id: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        content: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        },
+        images: { //放圖片url用
+            type: Sequelize.TEXT,
+            allowNull: true
+        },
+        status: { //預設1為正常 其他可能-1為刪除之類的 待討論
+            type: Sequelize.INTEGER,
+            defaultValue: 1
+        }
+    },
+    {
+        indexes: [
+            {
+                fields: ['article_id']
+            }
+        ]
+    }
+);
 
 /*
  * 文章留言
  */
-const Topic_Like = sequelize.define('topic__like', {
-  aid: {
-    //文章id
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  uid: {
-    type: Sequelize.STRING,
-    allowNull: false
-  }
-});
+const Topic_Like = sequelize.define(
+    'topic__like',
+    {
+        article_id: { //文章id
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        uid: {
+            type: Sequelize.STRING,
+            allowNull: false
+        }
+    },
+    {
+        indexes: [
+            {
+                fields: ['article_id', 'uid']
+            }
+        ]
+    }
+);
 
 /*
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'home__banner',
-  {
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false
+    'home__banner',
+    {
+        name: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        url: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        link: {
+            type: Sequelize.STRING,
+            allowNull: true,
+            defaultValue: ''
+        },
+        sort: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+        },
+        status: {
+            type: Sequelize.INTEGER,
+            defaultValue: 1 //1為正常 -1可能為刪除 尚未實作
+        }
     },
-    url: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    link: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: ''
-    },
-    sort: {
-      type: Sequelize.INTEGER,
-      allowNull: true
-    },
-    status: {
-      type: Sequelize.INTEGER,
-      defaultValue: 1 //1為正常 -1可能為刪除 尚未實作
+    {
+        indexes: [
+            {
+                fields: ['sort', 'status']
+            }
+        ]
     }
-  },
-  {
-    indexes: [
-      {
-        fields: ['sort', 'status']
-      }
-    ]
-  }
 );
 
 const dbUtil = {

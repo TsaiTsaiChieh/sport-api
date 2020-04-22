@@ -8,7 +8,7 @@ function dbFind(aid) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          'id': aid
+          'article_id': aid
         },
         raw: true
       })
@@ -26,7 +26,7 @@ function dbEdit(aid, insertData) {
       log.info('edit article');
       const record = await db.sequelize.models.topic__article.findOne({
         where: {
-          'id': aid
+          'article_id': aid
         }
       })
       record.update(insertData)
@@ -41,6 +41,10 @@ function dbEdit(aid, insertData) {
 async function createTopic(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      if(typeof args.token === 'undefined'){
+        reject({ code: 403, error: 'token expired' });
+        return;
+      }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
       log.info('verify firebase user')
