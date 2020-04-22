@@ -1,15 +1,14 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/likeArticleModel');
-async function likeArticle(req, res) {
-
+async function likeArticle (req, res) {
 /// 聯盟、看板、標題、文章（html格式）
-// content:{
-//   category: category, [賽事分析,球隊討論,投注分享]
-//   type: type, [MLB,NBA]
-//   title: title,
-//   content: content,
-// },
+  // content:{
+  //   category: category, [賽事分析,球隊討論,投注分享]
+  //   type: type, [MLB,NBA]
+  //   title: title,
+  //   content: content,
+  // },
 
   const schema = {
     type: 'object',
@@ -33,14 +32,14 @@ async function likeArticle(req, res) {
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   topicModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function (body) {
+      res.json(body);
+    })
+    .catch(function (err) {
+      res.status(err.code).json(err);
+    });
 }
 
 module.exports = likeArticle;
@@ -65,7 +64,7 @@ module.exports = likeArticle;
  *	  "title": "標題",
  *	  "content": "內容"
  * }
- * 
+ *
  * @apiSuccess {Number} type          status code
  * @apiSuccess {Object} article_id    儲存後得到的文章id
  * @apiSuccessExample {JSON} Success-Response

@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 const givePointsModel = require('../../model/admin/givePointsModel');
-function givePoints(req, res) {
+function givePoints (req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'points'],
@@ -25,10 +25,10 @@ function givePoints(req, res) {
     return;
   }
   givePointsModel(args)
-    .then(function(body) {
+    .then(function (body) {
       res.json(body);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       res.status(err.code).json(err);
     });
 }
@@ -38,7 +38,7 @@ module.exports = givePoints;
  * @api {post} /admin/givePoints Give Points
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者點數 by Tsai-Chieh
- * 
+ *
  * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName givePoints
  * @apiGroup Admin
@@ -53,14 +53,14 @@ module.exports = givePoints;
  *     "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *     "points": 200
  * }
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
  *    "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2",
  *    "currentPoints": 77
  * }
- * 
+ *
  * @apiError 400 Bad Request
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
@@ -79,7 +79,7 @@ module.exports = givePoints;
         "message": "should be integer"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 401-Response
  * HTTP/1.1 401 Unauthorized
  * {

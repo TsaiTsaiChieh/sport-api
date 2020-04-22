@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/admin/deleteTitleModel');
 
-async function deleteTitle(req, res) {
+async function deleteTitle (req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
@@ -127,7 +127,7 @@ module.exports = deleteTitle;
  * @api {delete} /admin/deleteTitle Delete Title
  * @apiVersion 1.0.0
  * @apiDescription 管理員給使用者頭銜 by Tsai-Chieh
- * 
+ *
  * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName deleteTitle
  * @apiGroup Admin

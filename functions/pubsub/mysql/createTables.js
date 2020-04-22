@@ -5,7 +5,7 @@ const data_league = require('../../json/matches/league.json');
 const data_spread_NBA = require('../../json/spread/NBA.json');
 const data_totals_NBA = require('../../json/totals/NBA.json');
 const data_match = require('../../json/matches/NBA.json');
-async function createTable(req, res) {
+async function createTable (req, res) {
   try {
     // const Match = await db.sequelize.models.match.sync({ force: true });
     // const League = await db.sequelize.models.match__league.sync({
@@ -64,7 +64,7 @@ async function createTable(req, res) {
     res.status(500).json(err);
   }
 }
-async function createTeam() {
+async function createTeam () {
   const team = await db.sequelize.models.match__team.sync({
     force: true
   });
@@ -81,7 +81,7 @@ async function createTeam() {
     });
   }
 }
-async function createMatch() {
+async function createMatch () {
   const Match = await db.sequelize.models.match.sync();
   for (let i = 0; i < data_match.length; i++) {
     const ele = data_match[i];

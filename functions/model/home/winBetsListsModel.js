@@ -2,15 +2,15 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winBetsLists(args) {
-  return new Promise(async function(resolve, reject) {
+function winBetsLists (args) {
+  return new Promise(async function (resolve, reject) {
     // 取得 首頁預設值
-    let league_id = 'league_id';
+    const league_id = 'league_id';
     const defaultValues = await db.sequelize.query(
       `SELECT * FROM match__leagues ORDER BY ${league_id} DESC LIMIT 1`,
       {
         type: db.sequelize.QueryTypes.SELECT,
-        plain: true,
+        plain: true
       });
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
@@ -19,15 +19,15 @@ function winBetsLists(args) {
     //   MLB: []
     // }
 
-    let winBetsLists = {};
+    const winBetsLists = {};
     winBetsLists[defaultValues.name] = [];
 
     try {
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
-        let league_id = defaultValues.league_id;
-        let order = 'this_month_win_bets';
-        let limit = 10;
+        const league_id = defaultValues.league_id;
+        const order = 'this_month_win_bets';
+        const limit = 10;
         const period = modules.getTitlesPeriod(new Date()).period;
         const leagueWinBetsListsQuery = await db.sequelize.query(
           `
@@ -67,13 +67,13 @@ function winBetsLists(args) {
             order by ${order} desc
           `,
           {
-            type: db.sequelize.QueryTypes.SELECT,
+            type: db.sequelize.QueryTypes.SELECT
           });
 
         leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
-          leagueWinBetsLists.push( repackage(data) );
+          leagueWinBetsLists.push(repackage(data));
         });
-        //Promise.all(results)
+        // Promise.all(results)
         winBetsLists[key] = leagueWinBetsLists;
       }
     } catch (err) {
@@ -82,12 +82,11 @@ function winBetsLists(args) {
     }
 
     resolve({ win_bets_lists: winBetsLists });
-    return;
   });
 }
 
-function repackage(ele) {
-  let data = {
+function repackage (ele) {
+  const data = {
     win_bets: '',
     uid: ele.uid,
     avatar: ele.avatar,
@@ -95,8 +94,8 @@ function repackage(ele) {
     rank: ''
   };
 
-  data['win_bets'] = ele['this_month_win_bets'].toString();
-  data['rank'] = ele['rank_id'].toString();
+  data.win_bets = ele.this_month_win_bets.toString();
+  data.rank = ele.rank_id.toString();
 
   return data;
 }

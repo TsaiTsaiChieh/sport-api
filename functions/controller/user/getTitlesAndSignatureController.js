@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/user/getTitlesAndSignatureModel');
 
-async function getTitlesAndSignature(req, res) {
+async function getTitlesAndSignature (req, res) {
   const schema = {
     type: 'object',
     required: ['uid'],

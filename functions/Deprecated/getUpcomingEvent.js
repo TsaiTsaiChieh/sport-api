@@ -5,7 +5,7 @@ const modules = require('../util/modules');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const token = modules.betsToken;
 // async function getUpcomingEvent(req, res) {
-async function getUpcomingEvent() {
+async function getUpcomingEvent () {
   const sport_id = 18;
   const baseketball_leagues = [
     2274, // NBA
@@ -18,20 +18,20 @@ async function getUpcomingEvent() {
     1543,
     2630
   ];
-  let result = await getUpcomingSportEvent(sport_id, baseketball_leagues);
+  const result = await getUpcomingSportEvent(sport_id, baseketball_leagues);
   console.log(result);
   // res.json(result);
   return result;
 }
 
-async function getUpcomingSportEvent(sport_id, league_ids) {
+async function getUpcomingSportEvent (sport_id, league_ids) {
   try {
     // tomorrow
     // let date = new Date(Date.now() + 24 * 60 * 60 * 1000)
     //   .toISOString()
     //   .slice(0, 10)
     //   .replace(/-/g, '');
-    let date = modules
+    const date = modules
       .moment()
       .add(1, 'days')
       .format()
@@ -49,18 +49,19 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
       pushData(events, data.results);
       // page loop
       totalPage = Math.ceil(data.pager.total / data.pager.per_page);
-      if (totalPage > 1)
+      if (totalPage > 1) {
         for (let j = 2; j <= totalPage; j++) {
           data = await modules.axios(
             `${upcomingURL}?token=${token}&sport_id=${sport_id}&league_id=${league_ids[i]}&day=${date}&page=${j}`
           );
           pushData(data.results);
         }
+      }
     }
 
     events = repackage(events);
     for (let i = 0; i < events.length; i++) {
-      let ele = events[i];
+      const ele = events[i];
       // insert data time
       ele.addTime = modules.firebaseAdmin.firestore.Timestamp.now();
       // event start time
@@ -109,15 +110,15 @@ async function getUpcomingSportEvent(sport_id, league_ids) {
     return error;
   }
 }
-function pushData(events, data) {
+function pushData (events, data) {
   if (data.length !== 0) {
-    data.forEach(function(ele) {
+    data.forEach(function (ele) {
       events.push(ele);
     });
   }
 }
-function repackage(data) {
-  data.forEach(function(ele) {
+function repackage (data) {
+  data.forEach(function (ele) {
     if (ele.time_status) delete ele.time_status;
     if (!ele.ss) delete ele.ss; // ss always null
   });

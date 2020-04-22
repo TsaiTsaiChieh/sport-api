@@ -14,7 +14,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
   logging: false, // disable logging; default: console.log
-  timezone: mysql.setting.timezone //for writing to database
+  timezone: mysql.setting.timezone // for writing to database
 });
 
 /*
@@ -691,19 +691,18 @@ const Topic_Article = sequelize.define(
   {
     article_id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     uid: {
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: {
-      //球種/看板?
+    type: { // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false
     },
-    category: {
-      //文章分類
+    category: { // 文章分類
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -715,15 +714,14 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    status: {
-      //預設1為正常 其他可能-1為刪除之類的 待討論
+    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     },
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0
-    }
+    },
   },
   {
     indexes: [
@@ -742,10 +740,10 @@ const Topic_Reply = sequelize.define(
   {
     reply_id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
-    article_id: {
-      //文章id
+    article_id: { // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -761,13 +759,11 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    images: {
-      //放圖片url用
+    images: { // 放圖片url用
       type: Sequelize.TEXT,
       allowNull: true
     },
-    status: {
-      //預設1為正常 其他可能-1為刪除之類的 待討論
+    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     }
@@ -787,8 +783,7 @@ const Topic_Reply = sequelize.define(
 const Topic_Like = sequelize.define(
   'topic__like',
   {
-    article_id: {
-      //文章id
+    article_id: { // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -831,7 +826,7 @@ const Home_Banner = sequelize.define(
     },
     status: {
       type: Sequelize.INTEGER,
-      defaultValue: 1 //1為正常 -1可能為刪除 尚未實作
+      defaultValue: 1 // 1為正常 -1可能為刪除 尚未實作
     }
   },
   {

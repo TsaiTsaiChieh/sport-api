@@ -9,16 +9,16 @@ const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
 
 // 14 秒一次
 const perStep = 14000;
-//一分鐘4次
+// 一分鐘4次
 const timesPerLoop = 4;
-//gameID, betsID, periodsNow, eventsNow
-async function NBApbpInplay(parameter) {
-  let gameID = parameter.gameID;
-  let betsID = parameter.betsID;
+// gameID, betsID, periodsNow, eventsNow
+async function NBApbpInplay (parameter) {
+  const gameID = parameter.gameID;
+  const betsID = parameter.betsID;
   let periodsNow = parameter.periodsNow;
   let eventsNow = parameter.eventsNow;
 
-  if (periodsNow == 0 && eventsNow == 0) {
+  if (periodsNow === 0 && eventsNow === 0) {
     let keywordTransHome = [];
     let keywordTransAway = [];
     let homeTeamName;
@@ -29,9 +29,9 @@ async function NBApbpInplay(parameter) {
     let numberAway = [];
     try {
       // write to json
-      //[主隊球員中文名字, 客隊球員中文名字]
+      // [主隊球員中文名字, 客隊球員中文名字]
       [keywordTransHome, keywordTransAway] = await summmaryZH(gameID);
-      //[主隊英文名稱、主隊隊員英文名字、主隊隊員背號、客隊英文名稱、客隊隊員英文名字、客隊隊員背號]
+      // [主隊英文名稱、主隊隊員英文名字、主隊隊員背號、客隊英文名稱、客隊隊員英文名字、客隊隊員背號]
       for (let i = 0; i < keywordTransHome.length; i++) {
         keywordTransHome[i] = await modules.simple2Tradition.translate(
           keywordTransHome[i]
@@ -49,10 +49,10 @@ async function NBApbpInplay(parameter) {
         numberHome,
         awayTeamName,
         keywordAway,
-        numberAway,
+        numberAway
       ] = await summmaryEN(gameID);
-      let transSimpleHome = [];
-      let transSimpleAway = [];
+      const transSimpleHome = [];
+      const transSimpleAway = [];
       // let transCompleteHome = [];
       // let transCompleteAway = [];
       let ref = modules.database.ref(
@@ -76,7 +76,7 @@ async function NBApbpInplay(parameter) {
           name: keywordHome[i],
           name_ch: keywordTransHome[i],
           jersey_number: numberHome[i],
-          transSimpleHome: transSimpleHome[i],
+          transSimpleHome: transSimpleHome[i]
         });
       }
       for (let i = 0; i < keywordAway.length; i++) {
@@ -91,7 +91,7 @@ async function NBApbpInplay(parameter) {
           name: keywordAway[i],
           name_ch: keywordTransAway[i],
           jersey_number: numberAway[i],
-          transSimpleAway: transSimpleAway[i],
+          transSimpleAway: transSimpleAway[i]
         });
       }
     } catch (error) {
@@ -106,8 +106,7 @@ async function NBApbpInplay(parameter) {
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   const summaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
 
-  let realtimeData;
-  realtimeData = JSON.parse(
+  const realtimeData = JSON.parse(
     JSON.stringify(
       // eslint-disable-next-line no-await-in-loop
       await modules.database
@@ -115,12 +114,12 @@ async function NBApbpInplay(parameter) {
         .once('value')
     )
   );
-  let homeData = realtimeData.home;
-  let awayData = realtimeData.away;
-  let keywordHome = [];
-  let keywordAway = [];
-  let transSimpleHome = [];
-  let transSimpleAway = [];
+  const homeData = realtimeData.home;
+  const awayData = realtimeData.away;
+  const keywordHome = [];
+  const keywordAway = [];
+  const transSimpleHome = [];
+  const transSimpleAway = [];
   // let transCompleteHome = [];
   // let transCompleteAway = [];
 
@@ -132,13 +131,13 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  let timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function () {
     try {
       let { data } = await axios(pbpURL);
-      let dataPBP = data;
+      const dataPBP = data;
 
       ({ data } = await axios(summaryURL));
-      let dataSummary = data;
+      const dataSummary = data;
       let ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
       await ref.set(dataPBP.status);
 
@@ -147,7 +146,7 @@ async function NBApbpInplay(parameter) {
         periodsCount < dataPBP.periods.length;
         periodsCount++
       ) {
-        if (periodsCount != periodsNow) {
+        if (periodsCount !== periodsNow) {
           periodsNow = periodsNow + 1;
           eventsNow = 0;
         }
@@ -156,7 +155,7 @@ async function NBApbpInplay(parameter) {
           eventsCount < dataPBP.periods[periodsCount].events.length;
           eventsCount++
         ) {
-          if (eventsCount != eventsNow) {
+          if (eventsCount !== eventsNow) {
             eventsNow = eventsNow + 1;
           }
           // let ref = modules.database.ref(
@@ -165,7 +164,7 @@ async function NBApbpInplay(parameter) {
           // // eslint-disable-next-line no-await-in-loop
           // await ref.set(dataPBP.periods[periodsCount].events[eventsCount]);
 
-          let descCH = await translateNBA(
+          const descCH = await translateNBA(
             dataPBP.periods[periodsCount].events[eventsCount].description,
             keywordHome,
             keywordAway,
@@ -221,7 +220,7 @@ async function NBApbpInplay(parameter) {
             three_points_made: dataSummary.home.statistics.three_points_made,
             turnovers: dataSummary.home.statistics.turnovers,
             two_points_att: dataSummary.home.statistics.two_points_att,
-            two_points_made: dataSummary.home.statistics.two_points_made,
+            two_points_made: dataSummary.home.statistics.two_points_made
           });
           ref = modules.database.ref(
             `basketball/NBA/${betsID}/Summary/info/away/Total`
@@ -240,12 +239,12 @@ async function NBApbpInplay(parameter) {
             three_points_made: dataSummary.away.statistics.three_points_made,
             turnovers: dataSummary.away.statistics.turnovers,
             two_points_att: dataSummary.away.statistics.two_points_att,
-            two_points_made: dataSummary.away.statistics.two_points_made,
+            two_points_made: dataSummary.away.statistics.two_points_made
           });
         }
       }
 
-      //call summary to get player information
+      // call summary to get player information
       for (let i = 0; i < dataSummary.home.players; i++) {
         ref = modules.database.ref(
           `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}`
@@ -260,7 +259,7 @@ async function NBApbpInplay(parameter) {
           minutes: dataSummary.home.players[i].statistics.minutes,
           scores: dataSummary.home.players[i].statistics.scores,
           blocks: dataSummary.home.players[i].statistics.blocks,
-          assists: dataSummary.home.players[i].statistics.assists,
+          assists: dataSummary.home.players[i].statistics.assists
         });
       }
       for (let i = 0; i < dataSummary.away.players; i++) {
@@ -276,7 +275,7 @@ async function NBApbpInplay(parameter) {
           minutes: dataSummary.away.players[i].statistics.minutes,
           scores: dataSummary.away.players[i].statistics.scores,
           blocks: dataSummary.away.players[i].statistics.blocks,
-          assists: dataSummary.away.players[i].statistics.assists,
+          assists: dataSummary.away.players[i].statistics.assists
         });
       }
     } catch (error) {
@@ -298,12 +297,12 @@ async function NBApbpInplay(parameter) {
   }, perStep);
   // change the status to 1
 }
-async function summmaryZH(gameID) {
+async function summmaryZH (gameID) {
   const zhSummaryURL = `http://api.sportradar.us/nba/trial/v7/zh/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   try {
-    let keywordTransHome = [];
-    let keywordTransAway = [];
-    let { data } = await axios(zhSummaryURL);
+    const keywordTransHome = [];
+    const keywordTransAway = [];
+    const { data } = await axios(zhSummaryURL);
     for (let i = 0; i < data.home.players.length; i++) {
       keywordTransHome.push(data.home.players[i].full_name);
     }
@@ -321,18 +320,16 @@ async function summmaryZH(gameID) {
     return error;
   }
 }
-async function summmaryEN(gameID) {
+async function summmaryEN (gameID) {
   const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   try {
-    let homeTeamName;
-    let awayTeamName;
-    let keywordHome = [];
-    let keywordAway = [];
-    let numberHome = [];
-    let numberAway = [];
-    let { data } = await axios(enSummaryURL);
-    homeTeamName = data.home.name;
-    awayTeamName = data.away.name;
+    const keywordHome = [];
+    const keywordAway = [];
+    const numberHome = [];
+    const numberAway = [];
+    const { data } = await axios(enSummaryURL);
+    const homeTeamName = data.home.name;
+    const awayTeamName = data.away.name;
     for (let i = 0; i < data.home.players.length; i++) {
       keywordHome.push(data.home.players[i].full_name);
       numberHome.push(data.home.players[i].jersey_number);
@@ -347,23 +344,24 @@ async function summmaryEN(gameID) {
       numberHome,
       awayTeamName,
       keywordAway,
-      numberAway,
+      numberAway
     ];
   } catch (error) {
     console.log('error happened in pubsub/summmaryEN function by page', error);
     return error;
   }
 }
-async function NBApbpHistory(parameter) {
-  let gameID = parameter.gameID;
-  let betsID = parameter.betsID;
+async function NBApbpHistory (parameter) {
+  const gameID = parameter.gameID;
+  const betsID = parameter.betsID;
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   try {
-    let { data } = await axios(pbpURL);
-    let dataPBP = data;
+    const { data } = await axios(pbpURL);
+    const dataPBP = data;
 
     let winner;
+    let loser;
     if (dataPBP.home.points > dataPBP.away.points) {
       winner = dataPBP.home.name;
       loser = dataPBP.away.name;
@@ -372,14 +370,14 @@ async function NBApbpHistory(parameter) {
       winner = dataPBP.away.name;
       loser = dataPBP.home.name;
     }
-    let finalResult = {
+    const finalResult = {
       homePoints: dataPBP.home.points,
       awayPoints: dataPBP.away.points,
       winner: winner,
-      loser: loser,
+      loser: loser
     };
-    let dataOutput = {
-      boxscore: finalResult,
+    const dataOutput = {
+      boxscore: finalResult
     };
     let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
     await ref.set(dataOutput, { merge: true });
@@ -401,9 +399,9 @@ async function NBApbpHistory(parameter) {
               [`periods${periodsCount}`]: {
                 [`events${eventsCount}`]: dataPBP.periods[periodsCount].events[
                   eventsCount
-                ],
-              },
-            },
+                ]
+              }
+            }
           },
           { merge: true }
         );
@@ -417,27 +415,26 @@ async function NBApbpHistory(parameter) {
     return error;
   }
   try {
-    let { data } = await axios(enSummaryURL);
+    const { data } = await axios(enSummaryURL);
+    const dataOutput = {}; // 請補上物件內容
 
-    let dataSummary = data;
+    const dataSummary = data;
     let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
     await ref.set(dataOutput, { merge: true });
     for (let i = 0; i < dataSummary.home.players.length; i++) {
-      {
-        ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
-        // eslint-disable-next-line no-await-in-loop
-        await ref.set(
-          {
-            players: {
-              home: dataSummary.home.players[i],
-              home: { full_name_ch: keywordTransHome },
-              away: dataSummary.away.players[i],
-              away: { full_name_ch: keywordTransAway },
-            },
-          },
-          { merge: true }
-        );
-      }
+      ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
+      // eslint-disable-next-line no-await-in-loop
+      await ref.set(
+        {
+          players: {
+            home: dataSummary.home.players[i],
+            // home: { full_name_ch: keywordTransHome },
+            away: dataSummary.away.players[i]
+            // away: { full_name_ch: keywordTransAway }
+          }
+        },
+        { merge: true }
+      );
     }
   } catch (error) {
     console.log(

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 
-function getClaim(args) {
-  return new Promise(async function(resolve, reject) {
+function getClaim (args) {
+  return new Promise(async function (resolve, reject) {
     /* step 1: check user if exists */
     try {
       const userSnapshot = await modules.getSnapshot('users', args.uid);

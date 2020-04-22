@@ -3,7 +3,7 @@
 const modules = require('../util/modules');
 const messageModel = require('./getLastMessageModel');
 
-async function getLastMessage(req, res) {
+async function getLastMessage (req, res) {
   // if user login get the user info
   const session = req.cookies.__session;
 
@@ -35,10 +35,10 @@ async function getLastMessage(req, res) {
   }
 
   messageModel(args)
-    .then(function(body) {
+    .then(function (body) {
       res.json(body);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       res.status(err.code).send(err.error);
     });
 }

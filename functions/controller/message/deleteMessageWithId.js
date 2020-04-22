@@ -3,7 +3,7 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/deleteMessageWithId');
 
-function deleteMessageWithId(req, res) {
+function deleteMessageWithId (req, res) {
   const schema = {
     type: 'object',
     required: ['messageId', 'channelId', 'deleteAction'],
@@ -26,10 +26,10 @@ function deleteMessageWithId(req, res) {
     return;
   }
   messageModel(args)
-    .then(function(body) {
+    .then(function (body) {
       res.json(body);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       res.status(err.code).json(err);
     });
 }
@@ -53,7 +53,7 @@ module.exports = deleteMessageWithId;
  *     "channelId": "public",
  *     "deleteAction": 1
  * }
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
@@ -81,7 +81,7 @@ module.exports = deleteMessageWithId;
         "message": "should be <= 1"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [

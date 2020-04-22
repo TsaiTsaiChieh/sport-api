@@ -14,13 +14,13 @@ class ExtendableError extends Error {
     Error.captureStackTrace(this, this.constructor.name);
   }
 }
-/* --------------------------- 200 OK ---------------------------*/
+/* --------------------------- 200 OK --------------------------- */
 class UserPredictFailed extends ExtendableError {
   constructor(message, status = 1000, isPublic = true, code = httpStatus.OK) {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 404 NOT FOUND ---------------------------*/
+/* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
  * @extends ExtendableError
@@ -52,7 +52,7 @@ class BetsAPIError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 403 FORBIDDEN ---------------------------*/
+/* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
     message = '使用者非法操作',

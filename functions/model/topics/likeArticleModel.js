@@ -3,12 +3,12 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
-function dbFind(aid) { //確認文章存在
+function dbFind (aid) { // 確認文章存在
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          'article_id': aid
+          article_id: aid
         },
         raw: true
       })
@@ -16,11 +16,10 @@ function dbFind(aid) { //確認文章存在
     } catch (error) {
       log.data(error);
       reject('like topics failed');
-      return;
     }
   })
 }
-function checkLiked(uid, aid) {
+function checkLiked (uid, aid) {
   return new Promise(async function (resolve, reject) {
     // await db.sequelize.models.topic__like.sync({ alter: true }); //有新增欄位時才用
     const result = await db.sequelize.models.topic__like.count({
@@ -30,27 +29,26 @@ function checkLiked(uid, aid) {
       },
       raw: true
     })
-    if(result !== 0){
+    if (result !== 0) {
       reject('this article has been liked')
-    }else{
+    } else {
       resolve()
     }
   })
 }
-function like(uid, aid) {
+function like (uid, aid) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: aid})
+      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: aid })
       log.succ('like success');
       resolve()
     } catch (error) {
       log.data(error);
       reject('like article failed');
-      return;
     }
   })
 }
-function unlike(uid, aid) {
+function unlike (uid, aid) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__like.destroy({
@@ -66,14 +64,13 @@ function unlike(uid, aid) {
     } catch (error) {
       log.data(error);
       reject('unlike article failed');
-      return;
     }
   })
 }
-async function likeArticle(args) {
-  return new Promise(async function(resolve, reject) {
+async function likeArticle (args) {
+  return new Promise(async function (resolve, reject) {
     try {
-      if(typeof args.token === 'undefined'){
+      if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
         return;
       }
@@ -88,7 +85,7 @@ async function likeArticle(args) {
       const uid = args.token.uid;
       try {
         const article = await dbFind(args.aid)
-        if(!article[0]){
+        if (!article[0]) {
           reject({ code: 404, error: 'article not found' });
           return;
         }
@@ -99,17 +96,16 @@ async function likeArticle(args) {
       }
 
       console.log(args.like)
-      if(args.like === true){
+      if (args.like === true) {
         await checkLiked(uid, args.aid)
         await like(uid, args.aid)
-      }else{
+      } else {
         await unlike(uid, args.aid)
       }
       resolve({ code: 200 });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

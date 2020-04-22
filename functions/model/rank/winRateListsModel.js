@@ -2,13 +2,13 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winRateLists(args) {
-  return new Promise(async function(resolve, reject) {
+function winRateLists (args) {
+  return new Promise(async function (resolve, reject) {
     const range = args.range;
     const league = args.league;
     const period = modules.getTitlesPeriod(new Date()).period;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
@@ -16,7 +16,7 @@ function winRateLists(args) {
     //   NBA: [],
     //   MLB: []
     // }
-    let winRateLists = {};
+    const winRateLists = {};
     winRateLists[league] = []; // 像上面的範例
 
     try {
@@ -75,19 +75,19 @@ function winRateLists(args) {
               on titles.uid = prediction.uid
            where titles.period = :period
            order by ${rangeWinRateCodebook(range)} desc
-        `, { 
-              replacements:{
-                league: league,
-                period: period,
-                begin: begin,
-                end: end
-              }, 
-              limit: 30, 
-              type: db.sequelize.QueryTypes.SELECT,
-           });
+        `, {
+          replacements: {
+            league: league,
+            period: period,
+            begin: begin,
+            end: end
+          },
+          limit: 30,
+          type: db.sequelize.QueryTypes.SELECT
+        });
 
         leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
-          leagueWinRateLists.push( repackage(data, rangeWinRateCodebook(range)) );
+          leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
         });
 
         winRateLists[key] = leagueWinRateLists;
@@ -97,39 +97,38 @@ function winRateLists(args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    //resolve({ win_rate_lists: winRateLists });
+    // resolve({ win_rate_lists: winRateLists });
     resolve({ userlists: winRateLists[league] });
-    return;
   });
 }
 
-function repackage(ele, rangstr) {
-  let data = {
-    //win_rate: ele.win_rate,
+function repackage (ele, rangstr) {
+  const data = {
+    // win_rate: ele.win_rate,
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name,
+    displayname: ele.display_name
   };
 
-  data['win_rate'] = ele[rangstr];
+  data.win_rate = ele[rangstr];
 
   // 大神要 顯示 預設稱號
-  if ([1, 2, 3, 4].includes(ele.rank_id)){
-    data['rank'] = `${ele.rank_id}`;
-    data['sell'] = ele.sell;
-    data['default_title'] = ele.default_title;
-    data['continue'] = ele.continue; // 連贏Ｎ場
-    data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
-    data['predict_rate2'] = [ele.predict_rate1, ele.predict_rate3];  // 近N日過 N
-    data['win_bets_continue'] = ele.win_bets_continue, // 勝注連過 Ｎ日
-    data['matches_rate'] = [ele.matches_rate1, ele.matches_rate2], // 近 Ｎ 場過 Ｎ 場;
-    data['matches_continue'] = ele.matches_continue // 連贏Ｎ場
+  if ([1, 2, 3, 4].includes(ele.rank_id)) {
+    data.rank = `${ele.rank_id}`;
+    data.sell = ele.sell;
+    data.default_title = ele.default_title;
+    data.continue = ele.continue; // 連贏Ｎ場
+    data.predict_rate = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
+    data.predict_rate2 = [ele.predict_rate1, ele.predict_rate3]; // 近N日過 N
+    data.win_bets_continue = ele.win_bets_continue; // 勝注連過 Ｎ日
+    data.matches_rate = [ele.matches_rate1, ele.matches_rate2]; // 近 Ｎ 場過 Ｎ 場;
+    data.matches_continue = ele.matches_continue // 連贏Ｎ場
   }
 
   return data;
 }
 
-function rangeWinRateCodebook(range){
+function rangeWinRateCodebook (range) {
   switch (range) {
     case 'this_period':
       return 'this_period_win_bets';

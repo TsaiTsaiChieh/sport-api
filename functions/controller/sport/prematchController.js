@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/sport/prematchModel');
 
 // eslint-disable-next-line consistent-return
-async function prematch(req, res) {
+async function prematch (req, res) {
   const schema = {
     type: 'object',
     required: ['date', 'league'],
@@ -62,9 +62,9 @@ module.exports = prematch;
  * @apiSuccess {Number} handicap.spread.handicap handicap
  * @apiSuccess {String} handicap.spread.handicap_tw handicap format in Taiwan
  * @apiSuccess {Number} handicap.spread.add_time handicap add time which betsAPI returned
- * @apiSuccess {Number} handicap.spread.insert_time the time of the data inserted into firestore [debug used] 
+ * @apiSuccess {Number} handicap.spread.insert_time the time of the data inserted into firestore [debug used]
  * @apiSuccess {Object} handicap.totals the newest totals information like handicap.spread field, description omitted here
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * [
@@ -255,7 +255,7 @@ module.exports = prematch;
         "message": "should match format \"date\""
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [

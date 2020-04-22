@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const setClaimModel = require('../../model/admin/setClaimModel');
 
-async function setClaim(req, res) {
+async function setClaim (req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'role'],
@@ -41,7 +41,7 @@ module.exports = setClaim;
  * @api {POST} /admin/setClaim/ Set Claim
  * @apiVersion 1.0.0
  * @apiDescription 管理員修改使用者的權限等級 by Tsai-Chieh
- * 
+ *
  * @apiName setClaim
  * @apiGroup Admin
  * @apiPermission admin
@@ -60,7 +60,7 @@ module.exports = setClaim;
  * {
  *    "data": "set user: eIQXtxPrBFPW5daGMcJSx4AicAQ2 as role: 1 successfully"
  * }
- * 
+ *
  * @apiError 401 Unauthorized
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error

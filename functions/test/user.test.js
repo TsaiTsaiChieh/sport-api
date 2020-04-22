@@ -16,18 +16,17 @@ const __badtoken = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdUWDJldyJ9.eyJpc3Mi';
 const uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
 
 beforeAll(async () => {
-  const res = await request(url).post(`/auth/uid2token`).send({
-    "uid": uid
+  const res = await request(url).post('/auth/uid2token').send({
+    uid: uid
   });
 
   const res2 = await request(url).post('/auth/login').send({
-    "token": res.body.user.stsTokenManager.accessToken
+    token: res.body.user.stsTokenManager.accessToken
   });
 
   // 登入系統取得 系統定義 token，會蓋掉上面的設定
-  res2.body.token===undefined?'照上面設定的token':token = res2.body.token;
+  res2.body.token === undefined ? '照上面設定的token' : token = res2.body.token;
 });
-
 
 // 開始測試
 describe('/user Endpoints', () => {
@@ -42,10 +41,9 @@ describe('/user Endpoints', () => {
   it('/user/predict_info', async () => {
     const res = await request(url)
       .post('/user/predict_info')
-      .set('Authorization', 'bearer ' + token);;
+      .set('Authorization', 'bearer ' + token); ;
 
     expect(res.statusCode).toEqual(200);
     expect(typeof res.body).toEqual(typeof []);
   });
-
 });

@@ -8,7 +8,7 @@ const NORMAL_USER = 1;
 const GOD_USER = 2;
 const matchScheduledStatus = 2;
 
-function prematch(args) {
+function prematch (args) {
   return new Promise(async function (resolve, reject) {
     try {
       // 檢查此使用者身份
@@ -35,7 +35,7 @@ function isGodSellValid(args) {
 }
 
 // 檢查當玩家送出的 sell = 0 or 1，是否屬於該聯盟的大神
-function isGodBelongToLeague(args) {
+function isGodBelongToLeague (args) {
   return new Promise(function (resolve, reject) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
@@ -46,16 +46,16 @@ function isGodBelongToLeague(args) {
 }
 
 // 檢查一般玩家，送出的 sell 是否不為 -1
-function isNormalUserSell(args) {
+function isNormalUserSell (args) {
   return new Promise(function (resolve, reject) {
-    role = Number.parseInt(args.token.customClaims.role);
+    const role = Number.parseInt(args.token.customClaims.role);
     role === NORMAL_USER && args.sell !== NORMAL_USER_SELL
       ? reject(new AppError.UserCouldNotSell())
       : resolve();
   });
 }
 
-async function checkMatches(args) {
+async function checkMatches (args) {
   return new Promise(async function (resolve, reject) {
     const needed = [];
     const failed = [];
@@ -80,7 +80,7 @@ async function checkMatches(args) {
     }
   });
 }
-async function isMatchValid(args, ele, filter) {
+async function isMatchValid (args, ele, filter) {
   return new Promise(async function (resolve, reject) {
     const { league } = args;
     const { handicapType, handicapId } = handicapProcessor(ele);
@@ -129,7 +129,7 @@ async function isMatchValid(args, ele, filter) {
   });
 }
 
-function isGodUpdate(uid, i, filter) {
+function isGodUpdate (uid, i, filter) {
   return new Promise(async function (resolve, reject) {
     const ele = filter.needed[i];
     const { handicapType, handicapId } = handicapProcessor(ele);
@@ -160,7 +160,7 @@ function isGodUpdate(uid, i, filter) {
   });
 }
 
-function handicapProcessor(ele) {
+function handicapProcessor (ele) {
   let handicapType = '';
   let handicapId;
 
@@ -173,7 +173,7 @@ function handicapProcessor(ele) {
   }
   return { handicapType, handicapId };
 }
-function filterProcessor(filter, i, error) {
+function filterProcessor (filter, i, error) {
   const ele = filter.needed[i];
   ele.code = error.code;
   ele.error = error.error;
@@ -182,7 +182,7 @@ function filterProcessor(filter, i, error) {
   filter.failed.push(ele);
 }
 
-function isGodSellConsistent(args, i, filter) {
+function isGodSellConsistent (args, i, filter) {
   return new Promise(async function (resolve, reject) {
     try {
       const ele = filter.needed[i];
@@ -214,12 +214,12 @@ function isGodSellConsistent(args, i, filter) {
   });
 }
 
-function sendPrediction(args, filter) {
+function sendPrediction (args, filter) {
   return new Promise(async function (resolve, reject) {
-    neededResult = isNeeded(filter.needed);
+    const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(
-        new AppError.UserPredictFailed((message = { failed: filter.failed }))
+        new AppError.UserPredictFailed(({ failed: filter.failed }))
       );
     } else if (neededResult) {
       await insertDB(args, filter.needed);
@@ -228,7 +228,7 @@ function sendPrediction(args, filter) {
   });
 }
 
-function isNeeded(needed) {
+function isNeeded (needed) {
   let count = 0;
   for (let i = 0; i < needed.length; i++) {
     const ele = needed[i];
@@ -238,7 +238,7 @@ function isNeeded(needed) {
   return true;
 }
 
-async function insertDB(args, needed) {
+async function insertDB (args, needed) {
   return new Promise(async function (resolve, reject) {
     const results = [];
     for (let i = 0; i < needed.length; i++) {
@@ -264,7 +264,7 @@ async function insertDB(args, needed) {
   });
 }
 
-function repackagePrediction(args, ele) {
+function repackagePrediction (args, ele) {
   const data = {
     bets_id: ele.id,
     league_id: ele.league_id,
@@ -284,7 +284,7 @@ function repackagePrediction(args, ele) {
   }
   return data;
 }
-function repackageReturnData(filter) {
+function repackageReturnData (filter) {
   filter.success = [];
   for (let i = 0; i < filter.needed.length; i++) {
     const ele = filter.needed[i];

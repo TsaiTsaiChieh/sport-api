@@ -1,7 +1,7 @@
-const userUtils = require("../../util/userUtil");
-const modules = require("../../util/modules");
+const userUtils = require('../../util/userUtil');
+const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
-const envValues = require("../../config/env_values");
+const envValues = require('../../config/env_values');
 
 /**
  * @api {post} /auth/login create session cookie
@@ -88,9 +88,9 @@ const envValues = require("../../config/env_values");
  *       "success": "false"
  *     }
  */
-async function firebaseLogin(req, res) {
-  let returnJson = { success: false };
-  let token = req.body.token;
+async function firebaseLogin (req, res) {
+  const returnJson = { success: false };
+  const token = req.body.token;
   if (!token) {
     console.log('Error login user: missing token');
     res.status(401).json(returnJson);
@@ -105,16 +105,16 @@ async function firebaseLogin(req, res) {
       // Create session cookie and set it.
       firebaseAdmin
         .auth()
-        .createSessionCookie(token, {expiresIn: envValues.cookieOptions.maxAge})
+        .createSessionCookie(token, { expiresIn: envValues.cookieOptions.maxAge })
         .then(async sessionCookie => {
-          let firestoreUser = await userUtils.getUserProfile(
+          const firestoreUser = await userUtils.getUserProfile(
             decodedIdToken.uid
           );
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
           if (firestoreUser) {
-            console.log("firestoreUser exist");
+            console.log('firestoreUser exist');
             if (firestoreUser.uid) {
               returnJson.uid = firestoreUser.uid;
             } else {
@@ -134,7 +134,7 @@ async function firebaseLogin(req, res) {
         })
         .catch(error => {
           console.log('Error login user: \n\t', error);
-            res.status(401).json({ devcode: '004',err:'missing tokeng' });
+          res.status(401).json({ devcode: '004', err: 'missing tokeng' });
         });
     })
     .catch(error => {

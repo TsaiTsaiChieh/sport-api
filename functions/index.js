@@ -3,7 +3,7 @@ const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
 
-let bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
 
@@ -49,13 +49,12 @@ const whitelist = [
 ];
 const localOrigin = 'http://172.16.21'
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
-    }else if(origin.includes(localOrigin)) {
+    } else if (origin.includes(localOrigin)) {
       callback(null, true);
-    }
-    else {
+    } else {
       console.log('Not allowed by CORS', origin);
       return callback(new Error('Not allowed by CORS'));
     }

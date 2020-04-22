@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 const axios = require('axios');
 
-async function translateNBA(
+async function translateNBA (
   stringOrigin,
   keywordHomeOrigin,
   keywordAwayOrigin,
@@ -11,15 +11,15 @@ async function translateNBA(
   // transCompleteAwayOrigin
 ) {
   let finalString = stringOrigin;
-  let keywordHome = keywordHomeOrigin;
-  let keywordAway = keywordAwayOrigin;
-  let transSimpleHome = transSimpleHomeOrigin;
-  let transSimpleAway = transSimpleAwayOrigin;
+  const keywordHome = keywordHomeOrigin;
+  const keywordAway = keywordAwayOrigin;
+  const transSimpleHome = transSimpleHomeOrigin;
+  const transSimpleAway = transSimpleAwayOrigin;
   // let transCompleteHome = transCompleteHomeOrigin;
   // let transCompleteAway = transCompleteAwayOrigin;
   let keyword = keywordHome.concat(keywordAway);
   // let keywordTrans = transCompleteHome.concat(transCompleteAway);
-  let keywordTransSimple = transSimpleHome.concat(transSimpleAway);
+  const keywordTransSimple = transSimpleHome.concat(transSimpleAway);
   // pbp : Sekou Doumbouya(#45) 兩分球進
 
   for (let i = 0; i < keyword.length; i++) {
@@ -65,7 +65,7 @@ async function translateNBA(
     'End of 4th Quarter.',
     'End of 1st Half.',
     'End of 2nd Half.',
-    `'s`,
+    '\'s',
     'second timeout',
     'lineup change',
     'vs.',
@@ -111,9 +111,9 @@ async function translateNBA(
     'out of bounds step',
     'Out of bounds',
     'Instant replay',
-    'Request: Ruling Upheld',
+    'Request: Ruling Upheld'
   ];
-  keywordTrans = [
+  const keywordTrans = [
     '巫師',
     '黃蜂',
     '老鷹',
@@ -196,7 +196,7 @@ async function translateNBA(
     '出界',
     '出界',
     '即時重播',
-    '請求：維持裁決',
+    '請求：維持裁決'
   ];
 
   for (let i = 0; i < keyword.length; i++) {
@@ -209,15 +209,15 @@ async function translateNBA(
 
   return finalString;
 }
-async function transFunction(stringTrans) {
-  let stringAfterTrans = await modules.translate(stringTrans, {
+async function transFunction (stringTrans) {
+  const stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
-    to: 'zh-tw',
+    to: 'zh-tw'
   });
   return await stringAfterTrans.text;
 }
-async function stepTrans(stringTrans) {
-  let eleBig = [
+async function stepTrans (stringTrans) {
+  const eleBig = [
     'A',
     'B',
     'C',
@@ -243,9 +243,9 @@ async function stepTrans(stringTrans) {
     'W',
     'X',
     'Y',
-    'Z',
+    'Z'
   ];
-  let eleSmall = [
+  const eleSmall = [
     'a',
     'b',
     'c',
@@ -271,9 +271,9 @@ async function stepTrans(stringTrans) {
     'w',
     'x',
     'y',
-    'z',
+    'z'
   ];
-  let matcharray = [];
+  const matcharray = [];
 
   stringTrans = stringTrans.replace(' . ', ' ');
   for (let i = 0; i < eleSmall.length; i++) {
@@ -282,22 +282,22 @@ async function stepTrans(stringTrans) {
   for (let i = 0; i < eleSmall.length; i++) {
     stringTrans = stringTrans.replace(`${eleSmall[i]},`, `${eleSmall[i]} ,`);
   }
-  let match = stringTrans.split(' ');
+  const match = stringTrans.split(' ');
 
   let flag = 1;
   for (let j = 0; j < match.length; j++) {
     flag = 1;
     for (let i = 0; i < eleBig.length; i++) {
-      if (match[j].indexOf(eleBig[i]) >= 0 && flag == 1) {
+      if (match[j].indexOf(eleBig[i]) >= 0 && flag === 1) {
         flag = 0;
         matcharray.push(j);
       }
     }
   }
 
-  let matcharray2 = [];
+  const matcharray2 = [];
   let matchNumber = 0;
-  let matchCount = [];
+  const matchCount = [];
   for (let i = 0; i < matcharray.length; i++) {
     if (matcharray[i] + 1 === matcharray[i + 1]) {
       matcharray2[matchNumber] =
@@ -307,7 +307,7 @@ async function stepTrans(stringTrans) {
     }
   }
 
-  let matchMap = [];
+  const matchMap = [];
   for (let q = 0; q < matchCount.length; q++) {
     matchMap.push(await transFunction(matcharray2[q]));
   }
