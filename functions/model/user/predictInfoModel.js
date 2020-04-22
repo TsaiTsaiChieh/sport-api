@@ -51,7 +51,7 @@ function predictInfo(args) {
       // 賽前 (scheduled 開賽時間 > api呼叫時間)
       // 注意 percentage 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       
-      // prediction 後面可以加上 force index(user__predictions_match_scheduled)
+      // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled)
       const predictionsInfoDocs = await db.sequelize.query(`
         select prediction.*, 
                spread.handicap spread_handicap,
