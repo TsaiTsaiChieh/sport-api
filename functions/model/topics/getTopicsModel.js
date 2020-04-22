@@ -104,4 +104,5 @@ async function getTopics(args) {
     }
   });
 }
+
 module.exports = getTopics;

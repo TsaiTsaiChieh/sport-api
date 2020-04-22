@@ -852,7 +852,6 @@ async function MLBpbpHistory(parameter) {
     const ref = await modules.firestore
       .collection(`${firestoreName}_PBP`)
       .doc(betsID);
-
     for (
       let inningsCount = 0;
       inningsCount < dataPBP.game.innings.length;
