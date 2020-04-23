@@ -698,11 +698,13 @@ const Topic_Article = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: { // 球種/看板?
+    type: {
+      // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false
     },
-    category: { // 文章分類
+    category: {
+      // 文章分類
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -714,14 +716,15 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+    status: {
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     },
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0
-    },
+    }
   },
   {
     indexes: [
@@ -743,7 +746,8 @@ const Topic_Reply = sequelize.define(
       primaryKey: true,
       autoIncrement: true
     },
-    article_id: { // 文章id
+    article_id: {
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
@@ -759,11 +763,13 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
-    images: { // 放圖片url用
+    images: {
+      // 放圖片url用
       type: Sequelize.TEXT,
       allowNull: true
     },
-    status: { // 預設1為正常 其他可能-1為刪除之類的 待討論
+    status: {
+      // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
     }
@@ -783,7 +789,8 @@ const Topic_Reply = sequelize.define(
 const Topic_Like = sequelize.define(
   'topic__like',
   {
-    article_id: { // 文章id
+    article_id: {
+      // 文章id
       type: Sequelize.STRING,
       allowNull: false
     },
