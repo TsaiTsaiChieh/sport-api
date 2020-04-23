@@ -41,17 +41,27 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
-      const uniqueNameSnapshot = checkUniqueValue('users', 'display_name', args.displayName, uid);
-      const uniqueEmailSnapshot = checkUniqueValue('users','email', args.email, uid);
-      const uniquePhoneSnapshot = checkUniqueValue('users', 'phone', args.phone, uid);
+    
+      const uniqueNameSnapshot = checkUniqueValue();
+      const uniqueEmailSnapshot = checkUniqueValue();
+      const uniquePhoneSnapshot = checkUniqueValue();
 
-      if(uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot){
-        res.status(400).json({
-          success: false,
-          message: 'user name , email or phone exists'
-        });
-        return;
-      }
+      // res.status(200).json({
+      //   'normal': normal,
+      //   'displayName':args.displayName,
+      //   'email': args.email,
+      //   'phone':args.phone,
+      //   'uniqueNameSnapshot':uniqueNameSnapshot,
+      //   'uniqueEmailSnapshot':uniqueEmailSnapshot,
+      //   'uniquePhoneSnapshot':uniquePhoneSnapshot
+      // })
+      // if(uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot){
+      //   res.status(400).json({
+      //     success: false,
+      //     message: 'user name , email or phone exists'
+      //   });
+      //   return;
+      // }
       
       data.uid = uid;
       data.displayName = args.displayName; //only new user can set displayName, none changeable value
@@ -83,6 +93,14 @@ async function modifyUserProfile(req, res) {
         displayName: req.body.displayName
       });
       admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
+      /*MySQL add new user*/
+      var now = new Date();
+      const newUser = db.sequelize.query(
+        `INSERT INTO users (uid) VALUES ('${data.uid}')`,
+        {
+          type: db.sequelize.QueryTypes.SELECT,
+          plain: true,
+        });
       break;
     case 1: //一般會員
       console.log('normal user');
@@ -159,19 +177,34 @@ async function modifyUserProfile(req, res) {
 }
 
 /*檢查唯一性(uniqueName、uniqueEmail、uniquePhone)*/
-async function checkUniqueValue(table, collection, value,uid){
-  const unique_value = await db.sequelize.query(
-    `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
-    {
-      type: db.sequelize.QueryTypes.SELECT,
-      plain: true,
-    });
-    if(unique_value.length>0){
-      return false;
-    }
-
-    
+function checkUniqueValue(){
+  return new Promise(async function(resolve, reject) {
+    const unique_value = db.sequelize.query(
+      `SELECT * FROM users`,
+      {
+        type: db.sequelize.QueryTypes.SELECT,
+        plain: true,
+      });
+      resolve(unique_value);
+      return;
+  });
 }
+  
+  
+  // const unique_value = await db.sequelize.query(
+  //   `SELECT * FROM users`,
+  //   {
+  //     type: db.sequelize.QueryTypes.SELECT,
+  //     plain: true,
+  //   });
+
+    // if(unique_value.length>0){
+    //   return unique_value;
+    // }else{
+    //   return unique_value;
+    // }
+    
+// }
 module.exports = modifyUserProfile;
 
 /**

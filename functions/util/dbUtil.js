@@ -225,6 +225,12 @@ const Rank = sequelize.define(
         },
         name: {
             type: Sequelize.STRING
+        },
+        price: {
+            type: Sequelize.INTEGER
+        },
+        sub_price: {
+            type: Sequelize.INTEGER
         }
     },
     {

@@ -5,28 +5,16 @@ const db = require('../../util/dbUtil');
 function searchUserDetail(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      
-      const searchUserDetail = []; // 儲存 聯盟處理完成資料
       const uid = args;
-    
-      const range = args.range;
-      const period = modules.getTitlesPeriod(new Date()).period;
-      const searchUserDetailQuery = await db.sequelize.query(
+      const searchUserDetail = await db.sequelize.query(
         `
-        SELECT *, u.uid as uuid FROM users u 
-          LEFT JOIN users__win__lists uwl 
-            ON u.uid = uwl.uid 
-          LEFT JOIN titles t 
-            ON t.uid=u.uid
-         WHERE u.uid = '${uid}'
+        SELECT *
+          FROM users
+         WHERE uid = '${uid}'
         `,
       {
         type: db.sequelize.QueryTypes.SELECT,
       })
-      // console.log(searchUserDetailQuery);
-      searchUserDetailQuery.forEach(function (data) { // 這裡有順序性
-        searchUserDetail.push( repackage(data) );
-      });
 
       resolve(searchUserDetail);
     } catch (err) {
@@ -52,6 +40,7 @@ function repackage(ele) {
     // 大神要 顯示 預設稱號
     if ([1, 2, 3, 4].includes(ele.rank_id)){
       data['rank'] = ele.rank_id;
+      data['sell'] = ele.sell;
       data['default_title'] = ele.default_title;
       data['continue'] = ele.continue; // 連贏Ｎ場
       data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N

@@ -43,5 +43,25 @@ router.post(
   verification.token,
   require('../controller/user/predictInfoController')
 );
+router.post(
+  '/purse/:uid',
+  verification.token,
+  require('../controller/user/purseController')
+);
+router.post(
+  '/buy/:uid',
+  verification.token,
+  require('../controller/user/buyController')
+);
+router.post(
+  '/transfer/:uid',
+  verification.token,
+  require('../controller/user/transferController')
+);
+router.post(
+  '/honor/:uid',
+  verification.token,
+  require('../controller/user/honorController')
+);
 
 module.exports = router;
