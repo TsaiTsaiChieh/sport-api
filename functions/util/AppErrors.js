@@ -52,6 +52,17 @@ class BetsAPIError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class MatchNotFound extends ExtendableError {
+  constructor(
+    message = '無任何賽事',
+    status = 1309,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
@@ -84,7 +95,7 @@ class GodSellStatusWrong extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
+/* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
     message = 'MySQL 錯誤',
@@ -98,6 +109,7 @@ class MysqlError extends ExtendableError {
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
+  MatchNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserPredictFailed,
