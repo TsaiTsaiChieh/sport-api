@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winBetsLists (args) {
-  return new Promise(async function (resolve, reject) {
+function winBetsLists(args) {
+  return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
     const period = modules.getTitlesPeriod(new Date()).period;
@@ -82,7 +82,7 @@ function winBetsLists (args) {
           type: db.sequelize.QueryTypes.SELECT
         });
 
-        leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
+        leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
           leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));
         });
 
@@ -98,7 +98,7 @@ function winBetsLists (args) {
   });
 }
 
-function repackage (ele, rangstr) {
+function repackage(ele, rangstr) {
   const data = {
     // win_bets: ele.win_bets,
     uid: ele.uid,
@@ -118,13 +118,13 @@ function repackage (ele, rangstr) {
     data.predict_rate2 = [ele.predict_rate1, ele.predict_rate3]; // 近N日過 N
     data.win_bets_continue = ele.win_bets_continue; // 勝注連過 Ｎ日
     data.matches_rate = [ele.matches_rate1, ele.matches_rate2]; // 近 Ｎ 場過 Ｎ 場;
-    data.matches_continue = ele.matches_continue // 連贏Ｎ場
+    data.matches_continue = ele.matches_continue; // 連贏Ｎ場
   }
 
   return data;
 }
 
-function rangeWinBetsCodebook (range) {
+function rangeWinBetsCodebook(range) {
   switch (range) {
     case 'this_period':
       return 'this_period_win_bets';

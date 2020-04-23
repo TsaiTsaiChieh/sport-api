@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const replyModel = require('../../model/topics/createReplyModel');
-async function createTopic (req, res) {
+async function createTopic(req, res) {
 // content:{
   //   category: category, [賽事分析,球隊討論,投注分享]
   //   type: type, [MLB,NBA]
@@ -26,7 +26,7 @@ async function createTopic (req, res) {
         type: 'object'
       }
     }
-  }
+  };
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -37,10 +37,10 @@ async function createTopic (req, res) {
   const args = req.body;
 
   replyModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

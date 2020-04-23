@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreDetailPBPModel');
 
-async function livescore (req, res) {
+async function livescore(req, res) {
   if (!req.query.category) {
     req.query.category = 'pbp';
   }

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const godListsModel = require('../../model/home/godListsModel');
 
-async function godlists (req, res) {
+async function godlists(req, res) {
   try {
     res.json(await godListsModel(req.query));
   } catch (err) {

@@ -1,6 +1,6 @@
 const godlistsLeaguesModel = require('../../model/rank/godListsLeaguesModel');
 
-async function godlistsLeagues (req, res) {
+async function godlistsLeagues(req, res) {
   try {
     res.json(await godlistsLeaguesModel());
   } catch (err) {

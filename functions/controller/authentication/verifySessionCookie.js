@@ -23,7 +23,7 @@
  *       "success": "false"
  *     }
  */
-function verifySessionCookie (req, res) {
+function verifySessionCookie(req, res) {
   try {
     res.status(200).json({ success: true });
   } catch (err) {

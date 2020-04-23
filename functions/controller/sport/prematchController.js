@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/sport/prematchModel');
 
 // eslint-disable-next-line consistent-return
-async function prematch (req, res) {
+async function prematch(req, res) {
   const schema = {
     type: 'object',
     required: ['date', 'league'],

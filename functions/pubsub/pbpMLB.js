@@ -152,7 +152,7 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       // 目前的總比分
       let { data } = await axios(pbpURL);

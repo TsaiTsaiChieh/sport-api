@@ -3,7 +3,7 @@ import { SBLpbpInplay } from './pbpSBL';
 const modules = require('../util/modules');
 const SBLpbp = require('./pbpSBL.js');
 checkmatch_SBL();
-async function checkmatch_SBL () {
+async function checkmatch_SBL() {
   const firestoreName = 'basketball_SBL';
 
   const data = await modules.firestore.collection(firestoreName).get();

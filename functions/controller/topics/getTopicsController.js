@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/getTopicsModel');
-async function getTopics (req, res) {
+async function getTopics(req, res) {
   const schema = {
     type: 'object',
     properties: {
@@ -19,7 +19,7 @@ async function getTopics (req, res) {
         minimum: 0
       }
     }
-  }
+  };
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -30,10 +30,10 @@ async function getTopics (req, res) {
   const args = req.body;
 
   topicModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

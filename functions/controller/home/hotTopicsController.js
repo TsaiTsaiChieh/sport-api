@@ -1,12 +1,12 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/home/hotTopicsModel');
-async function getTopics (req, res) {
+async function getTopics(req, res) {
   topicModel()
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

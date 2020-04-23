@@ -3,7 +3,7 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/deleteMessageWithId');
 
-function deleteMessageWithId (req, res) {
+function deleteMessageWithId(req, res) {
   const schema = {
     type: 'object',
     required: ['messageId', 'channelId', 'deleteAction'],
@@ -26,10 +26,10 @@ function deleteMessageWithId (req, res) {
     return;
   }
   messageModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

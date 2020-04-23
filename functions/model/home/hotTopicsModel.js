@@ -7,8 +7,8 @@ const func = require('../topics/topicFunctions');
 const Op = require('sequelize').Op;
 
 const countPerPage = 3;
-function dbFind () {
-  return new Promise(async function (resolve, reject) {
+function dbFind() {
+  return new Promise(async function(resolve, reject) {
     try {
       let topics = [];
       const resultFirst = await db.sequelize.models.topic__article.findAll({
@@ -23,9 +23,9 @@ function dbFind () {
         order: [['view_count', 'DESC']], // 依瀏覽數排列
         distinct: true,
         raw: true
-      })
+      });
       topics = resultFirst;
-      
+
       const resultData = await db.sequelize.models.topic__article.findAll({
         where: {
           // createdAt: {
@@ -38,69 +38,69 @@ function dbFind () {
         distinct: true,
         raw: true
         // logging: console.log
-      })
+      });
 
       resultData.forEach(topic => {
-        topics.push(topic)
-      })
+        topics.push(topic);
+      });
       const result = chkFirstTopic(topics);
 
-      resolve(result)
+      resolve(result);
     } catch (error) {
       log.data(error);
       reject('get topics failed');
     }
-  })
+  });
 }
-function chkFirstTopic (topics) { // 把非第一篇賽事分析文剔除
+function chkFirstTopic(topics) { // 把非第一篇賽事分析文剔除
   const shown_topic = [];
   const res = [];
   topics.forEach(topic => {
     if (!shown_topic.includes(topic.article_id)) {
-      res.push(topic)
+      res.push(topic);
     }
-    shown_topic.push(topic.article_id)
-  })
+    shown_topic.push(topic.article_id);
+  });
   return res;
 }
-async function getTopics (args) {
-  return new Promise(async function (resolve, reject) {
+async function getTopics(args) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const topics = await dbFind()
+      const topics = await dbFind();
 
       /* 讀取一些別的資料 */
-      const usersToGet = []
-      let usersInfo = []
-      const infosToGet = [] // 把aid存進來
-      let repliesCount = []
-      let likesCount = []
+      const usersToGet = [];
+      let usersInfo = [];
+      const infosToGet = []; // 把aid存進來
+      let repliesCount = [];
+      let likesCount = [];
       for (let i = 0; i < topics.length; i++) {
-        infosToGet.push(topics[i].article_id)
-        usersToGet.push(topics[i].uid)
+        infosToGet.push(topics[i].article_id);
+        usersToGet.push(topics[i].uid);
       }
       /* 讀取留言數 */
       try {
-        repliesCount = await func.getTopicReplyCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        repliesCount = await func.getTopicReplyCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error)
-        reject({ code: 500, error: 'get reply count failed' })
+        console.log(error);
+        reject({ code: 500, error: 'get reply count failed' });
       }
       /* 讀取留言數 */
       try {
-        likesCount = await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error)
-        reject({ code: 500, error: 'get like count failed' })
+        console.log(error);
+        reject({ code: 500, error: 'get like count failed' });
       }
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
-        usersInfo = await func.getUserInfo(usersToGetUnique)
+        usersInfo = await func.getUserInfo(usersToGetUnique);
         // log.data(usersToGetUnique)
         // log.data(usersInfo)
       } catch (error) {
-        console.log(error)
-        reject({ code: 500, error: 'get user info failed' })
+        console.log(error);
+        reject({ code: 500, error: 'get user info failed' });
       }
       for (let i = 0; i < topics.length; i++) { // 把拿到的userinfo塞回去
         let replyCount = repliesCount.filter(obj => obj.article_id === topics[i].article_id.toString()); // 處理留言數 把aid=id的那則挑出來

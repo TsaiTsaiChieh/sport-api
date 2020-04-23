@@ -3,7 +3,7 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/createMessage');
 
-function createMessage (req, res) {
+function createMessage(req, res) {
   const schema = {
     type: 'object',
     required: ['message'],
@@ -73,10 +73,10 @@ function createMessage (req, res) {
   }
   req.body.token = req.token;
   messageModel(req.body)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

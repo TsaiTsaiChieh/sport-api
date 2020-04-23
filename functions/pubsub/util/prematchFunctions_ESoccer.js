@@ -43,7 +43,7 @@ async function aa(date) {
           `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}.json`,
           JSON.stringify(ele),
           // eslint-disable-next-line no-loop-func
-          function (err) {
+          function(err) {
             if (err) {
               console.log(err);
             }
@@ -54,7 +54,7 @@ async function aa(date) {
           `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_betsSummary.json`,
           JSON.stringify(dataBetsSummary),
           // eslint-disable-next-line no-loop-func
-          function (err) {
+          function(err) {
             if (err) {
               console.log(err);
             }
@@ -65,7 +65,7 @@ async function aa(date) {
           `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_bets.json`,
           JSON.stringify(dataBets),
           // eslint-disable-next-line no-loop-func
-          function (err) {
+          function(err) {
             if (err) {
               console.log(err);
             }
@@ -88,7 +88,7 @@ async function aa(date) {
   }
   console.log('ok');
   // firestore
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {

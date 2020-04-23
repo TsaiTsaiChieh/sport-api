@@ -116,11 +116,11 @@ const modules = require('../../util/modules');
  * @apiErrorExample Error-Response:
      *     HTTP/1.1 500 Internal Server Error
  */
-async function getSports (req, res) {
+async function getSports(req, res) {
   const returnJson = {};
   try {
     const snapshot = await modules.firestore.collection('sports').get();
-    snapshot.forEach(function (doc) {
+    snapshot.forEach(function(doc) {
       // console.log("...", doc.id, " => ", doc.data());
       returnJson[doc.id] = doc.data();
     });

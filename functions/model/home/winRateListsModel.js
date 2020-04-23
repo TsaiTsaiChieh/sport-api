@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winRateLists (args) {
-  return new Promise(async function (resolve, reject) {
+function winRateLists(args) {
+  return new Promise(async function(resolve, reject) {
     // 取得 首頁預設值
     const league_id = 'league_id';
     const defaultValues = await db.sequelize.query(
@@ -11,7 +11,7 @@ function winRateLists (args) {
       {
         type: db.sequelize.QueryTypes.SELECT,
         plain: true
-      })
+      });
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
     // let winRateLists = {
@@ -70,7 +70,7 @@ function winRateLists (args) {
             type: db.sequelize.QueryTypes.SELECT
           });
 
-        leagueWinRateListsQuery.forEach(function (data) { // 這裡有順序性
+        leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
           leagueWinRateLists.push(repackage(data));
         });
         // Promise.all(results)
@@ -86,7 +86,7 @@ function winRateLists (args) {
   });
 }
 
-function repackage (ele) {
+function repackage(ele) {
   const data = {
     win_rate: '',
     uid: ele.uid,
