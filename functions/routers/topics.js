@@ -3,16 +3,18 @@ const router = modules.express.Router();
 const verification = require('../util/verification');
 
 router.get('/', function(req, res) {
-  let data = { msg: 'Please use POST.' };
+  const data = { msg: 'Please use POST.' };
   res.json(data);
 });
 
 router.get(
   '/article/:aid',
+  verification.getToken,
   require('../controller/topics/getArticleController')
 );
 router.get(
   '/replies/:aid/:page',
+  verification.getToken,
   require('../controller/topics/getRepliesController')
 );
 router.post(
@@ -38,6 +40,11 @@ router.post(
   '/likeArticle',
   verification.token,
   require('../controller/topics/likeArticleController')
+);
+router.post(
+  '/likeReply',
+  verification.token,
+  require('../controller/topics/likeReplyController')
 );
 
 module.exports = router;

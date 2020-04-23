@@ -11,7 +11,7 @@ module.exports.NBA.upcoming = async function(date) {
   try {
     const { data } = await modules.axios(URL);
     for (let i = 0; i < data.results.length; i++) {
-      let ele = data.results[i];
+      const ele = data.results[i];
       results.push(
         modules.firestore
           .collection(modules.db.basketball_NBA)
@@ -99,7 +99,7 @@ module.exports.NBA.prematch = async function(date) {
     const query = await query_NBA(date);
 
     for (let i = 0; i < data.games.length; i++) {
-      let ele = data.games[i];
+      const ele = data.games[i];
       integration(query, ele, data.league);
       console.log(`SportRadar NBA match_id: ${ele.id}`);
     }
@@ -361,7 +361,7 @@ function codebook(alias) {
 }
 module.exports.NBA.lineup = async function(date) {
   const queries = await query_before40Min(date);
-  const URL = `https://api.sportradar.us/nba/trial/v7/en/games`;
+  const URL = 'https://api.sportradar.us/nba/trial/v7/en/games';
   try {
     for (let i = 0; i < queries.length; i++) {
       const ele = queries[i];
@@ -411,7 +411,7 @@ async function query_before40Min(date) {
   }
 }
 function repackage_lineup(ele) {
-  data = {
+  const data = {
     lineups: {
       home: {
         starters: [],

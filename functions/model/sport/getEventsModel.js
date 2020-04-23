@@ -19,7 +19,7 @@ function getEvents(args) {
       body.pager = data.pager;
       body.battles = battles;
       for (let i = 0; i < battles.length; i++) {
-        let eventId = battles[i].id;
+        const eventId = battles[i].id;
         body.battles[i].odds = await oddsData(eventId);
       }
       for (let i = 0; i < battles.length; i++) {
@@ -46,11 +46,11 @@ async function oddsData(eventId) {
     `${oddsURL}?token=${token}&event_id=${eventId}&source=bet365&odds_market=2,3`
   );
 
-  body = {};
+  const body = {};
   // detect {} empty object
   if (Object.keys(data.results.odds).length !== 0) {
-    let spread = data.results.odds['18_2'][0].handicap; // 讓分（index 0 的時間最新）
-    let totals = data.results.odds['18_3'][0].handicap; // 大小分（index 0 的時間最新）
+    const spread = data.results.odds['18_2'][0].handicap; // 讓分（index 0 的時間最新）
+    const totals = data.results.odds['18_3'][0].handicap; // 大小分（index 0 的時間最新）
     if (spread) body.spread = Number.parseFloat(spread);
     if (totals) body.totals = Number.parseFloat(totals);
   }

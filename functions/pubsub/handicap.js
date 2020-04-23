@@ -195,8 +195,8 @@ async function getHandicap(league, ele) {
         const totals = {};
         totals[totalsData.id] = {
           handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(spreadData.over_od),
-          under_odd: Number.parseFloat(spreadData.under_od),
+          over_odd: Number.parseFloat(totalsData.over_od),
+          under_odd: Number.parseFloat(totalsData.under_od),
           add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date(Number.parseInt(totalsData.add_time) * 1000)
           ),

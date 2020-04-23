@@ -14,13 +14,13 @@ class ExtendableError extends Error {
     Error.captureStackTrace(this, this.constructor.name);
   }
 }
-/* --------------------------- 200 OK ---------------------------*/
+/* --------------------------- 200 OK --------------------------- */
 class UserPredictFailed extends ExtendableError {
   constructor(message, status = 1000, isPublic = true, code = httpStatus.OK) {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 404 NOT FOUND ---------------------------*/
+/* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
  * @extends ExtendableError
@@ -42,7 +42,17 @@ class UserNotFound extends ExtendableError {
   }
 }
 
-/* --------------------------- 403 FORBIDDEN ---------------------------*/
+class BetsAPIError extends ExtendableError {
+  constructor(
+    message = '取得 BetsAPI 異常',
+    status = 1308,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+/* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
     message = '使用者非法操作',
@@ -64,10 +74,20 @@ class GodSellInconsistent extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-/* --------------------------- 500  INTERNAL SERVER ERROR ---------------------------*/
+class GodSellStatusWrong extends ExtendableError {
+  constructor(
+    message = '非法的大神販售狀態',
+    status = 1204,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+/* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
-    message = 'MySQL錯誤',
+    message = 'MySQL 錯誤',
     status = 1500,
     isPublic = true,
     code = httpStatus.INTERNAL_SERVER_ERROR
@@ -79,6 +99,8 @@ module.exports = {
   UserNotFound,
   UserCouldNotSell,
   GodSellInconsistent,
+  GodSellStatusWrong,
   UserPredictFailed,
-  MysqlError
+  MysqlError,
+  BetsAPIError
 };

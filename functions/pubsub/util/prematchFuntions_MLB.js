@@ -66,7 +66,7 @@ module.exports.MLB = {
   },
   lineups: async function(date) {
     const querys = await queryBeforeOneDay(date, 'flag.prematch', 1);
-    const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games`;
+    const URL = 'http://api.sportradar.us/mlb/trial/v6.6/en/games';
     try {
       for (let i = 0; i < querys.length; i++) {
         const ele = querys[i];

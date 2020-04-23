@@ -11,7 +11,7 @@ function backupFirestore(req, res) {
   // Initiate Firebase App
   modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
   // eslint-disable-next-line promise/always-return
-  modules.firestoreService.backups(collectionName).then(function (data) {
+  modules.firestoreService.backups(collectionName).then(function(data) {
     modules.fs.writeFile(
       // './json/matches/firestore_MLB.json', // origin
       // './json/matches/NBA.json', // match
@@ -21,7 +21,7 @@ function backupFirestore(req, res) {
       // JSON.stringify(repackageMatch(data.basketball_NBA)), // match
       JSON.stringify(repackageSpread(data.basketball_NBA)), // spread
       // JSON.stringify(repackageTotals(data.basketball_NBA)), // totals
-      function (err) {
+      function(err) {
         if (err) throw err;
         console.log(`Backups complete ${new Date()}`);
         res.json(`Backups complete ${new Date()}`);
@@ -94,11 +94,11 @@ function repackageSpread(data) {
 }
 
 function backup_match(res, collectionName, path) {
-  modules.firestoreService.backups(collectionName).then(function (data) {
+  modules.firestoreService.backups(collectionName).then(function(data) {
     modules.fs.writeFile(
       path,
       JSON.stringify(repackageMatch(data.basketball_NBA)),
-      function (err) {
+      function(err) {
         if (err) throw err;
         console.log(`Backups complete ${new Date()}`);
         res.json(`Backups complete ${new Date()}`);

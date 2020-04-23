@@ -1,27 +1,25 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      let result = await reResult(args.sport, args.league, args.eventID);
+      const result = await reResult(args.sport, args.league, args.eventID);
 
       resolve(result);
     } catch (err) {
       console.error('Error in livescore/livescoreDetailPBPModel by DY', err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }
 async function reResult(sport, league, eventID) {
-  let result;
-  result = await repackage(sport, league, eventID);
+  const result = await repackage(sport, league, eventID);
 
   return await Promise.all(result);
 }
 async function repackage(sport, league, eventID) {
-  let leagueName = `pagetest_${league}`;
-  let eventData = [];
-  let query = await modules.firestore
+  const leagueName = `pagetest_${league}`;
+  const eventData = [];
+  const query = await modules.firestore
     .collection(leagueName)
     .where('bets_id', '==', eventID)
     .get();
@@ -31,7 +29,7 @@ async function repackage(sport, league, eventID) {
   });
 
   let dateNow = new Date().toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei',
+    timeZone: 'Asia/Taipei'
   });
   dateNow = dateNow.split(' ')[0];
 

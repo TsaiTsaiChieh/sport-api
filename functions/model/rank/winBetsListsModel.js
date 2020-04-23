@@ -8,10 +8,10 @@ function winBetsLists(args) {
     const league = args.league;
     const period = modules.getTitlesPeriod(new Date()).period;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'), 
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
-    let winBetsLists = {};
+    const winBetsLists = {};
     winBetsLists[league] = [];
 
     try {
@@ -71,19 +71,19 @@ function winBetsLists(args) {
               on titles.uid = prediction.uid
            where titles.period = :period
            order by ${rangeWinBetsCodebook(range)} desc
-        `, { 
-              replacements:{
-                league: league,
-                period: period,
-                begin: begin,
-                end: end
-              },
-              limit: 30, 
-              type: db.sequelize.QueryTypes.SELECT 
-           });
+        `, {
+          replacements: {
+            league: league,
+            period: period,
+            begin: begin,
+            end: end
+          },
+          limit: 30,
+          type: db.sequelize.QueryTypes.SELECT
+        });
 
-        leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
-          leagueWinBetsLists.push( repackage(data, rangeWinBetsCodebook(range)) );
+        leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
+          leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));
         });
 
         winBetsLists[key] = leagueWinBetsLists;
@@ -93,39 +93,38 @@ function winBetsLists(args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    //resolve({ win_bets_lists: winBetsLists });
+    // resolve({ win_bets_lists: winBetsLists });
     resolve({ userlists: winBetsLists[league] });
-    return;
   });
 }
 
 function repackage(ele, rangstr) {
-  let data = {
-    //win_bets: ele.win_bets,
+  const data = {
+    // win_bets: ele.win_bets,
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name,
+    displayname: ele.display_name
   };
 
-  data['win_bets'] = ele[rangstr];
+  data.win_bets = ele[rangstr];
 
   // 大神要 顯示 預設稱號
-  if ([1, 2, 3, 4].includes(ele.rank_id)){
-    data['rank'] = `${ele.rank_id}`;
-    data['sell'] = ele.sell;
-    data['default_title'] = ele.default_title;
-    data['continue'] = ele.continue; // 連贏Ｎ場
-    data['predict_rate'] = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
-    data['predict_rate2'] = [ele.predict_rate1, ele.predict_rate3];  // 近N日過 N
-    data['win_bets_continue'] = ele.win_bets_continue, // 勝注連過 Ｎ日
-    data['matches_rate'] = [ele.matches_rate1, ele.matches_rate2], // 近 Ｎ 場過 Ｎ 場;
-    data['matches_continue'] = ele.matches_continue // 連贏Ｎ場
+  if ([1, 2, 3, 4].includes(ele.rank_id)) {
+    data.rank = `${ele.rank_id}`;
+    data.sell = ele.sell;
+    data.default_title = ele.default_title;
+    data.continue = ele.continue; // 連贏Ｎ場
+    data.predict_rate = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
+    data.predict_rate2 = [ele.predict_rate1, ele.predict_rate3]; // 近N日過 N
+    data.win_bets_continue = ele.win_bets_continue; // 勝注連過 Ｎ日
+    data.matches_rate = [ele.matches_rate1, ele.matches_rate2]; // 近 Ｎ 場過 Ｎ 場;
+    data.matches_continue = ele.matches_continue; // 連贏Ｎ場
   }
 
   return data;
 }
 
-function rangeWinBetsCodebook(range){
+function rangeWinBetsCodebook(range) {
   switch (range) {
     case 'this_period':
       return 'this_period_win_bets';

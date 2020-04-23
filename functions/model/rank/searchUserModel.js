@@ -5,8 +5,8 @@ const db = require('../../util/dbUtil');
 function searchUser(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let display_name = args;
-      let limit        = 10;
+      const display_name = args;
+      const limit = 10;
       const searchUser = await db.sequelize.query(
       `
       SELECT uid, display_name 
@@ -16,7 +16,7 @@ function searchUser(args) {
        LIMIT ${limit}
        `,
       {
-          type: db.sequelize.QueryTypes.SELECT,
+        type: db.sequelize.QueryTypes.SELECT
       });
 
       resolve({ searchUser: searchUser });

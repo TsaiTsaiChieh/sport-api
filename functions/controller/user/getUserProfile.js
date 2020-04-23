@@ -2,7 +2,6 @@ const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
 
-
 /**
  * @api {post} /user/getUserProfile Get User Profile
  * @apiVersion 1.0.0
@@ -78,15 +77,14 @@ const firebaseAdmin = modules.firebaseAdmin;
  *     missing token
  */
 async function getUserProfile(req, res) {
-    let uid = req.token.uid;
-    userUtils.getUserProfile(uid).then(firestoreUser => {
-        // res.setHeader('Access-Control-Allow-Origin', '*');
-        return res.status(200).json(firestoreUser)
-    }).catch(error => {
-        console.log('getUserProfile - getUserProfile false : ', error);
-        return res.status(500).send("error");
-    });
+  const uid = req.token.uid;
+  userUtils.getUserProfile(uid).then(firestoreUser => {
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(200).json(firestoreUser);
+  }).catch(error => {
+    console.log('getUserProfile - getUserProfile false : ', error);
+    return res.status(500).send('error');
+  });
 }
-
 
 module.exports = getUserProfile;

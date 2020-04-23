@@ -15,7 +15,6 @@ function searchUserDetail(args) {
       {
         type: db.sequelize.QueryTypes.SELECT,
       })
-
       resolve(searchUserDetail);
     } catch (err) {
       console.log('Error in  rank/searchUserDetail by henry:  %o', err);
@@ -24,17 +23,15 @@ function searchUserDetail(args) {
   });
 }
 
-
 function repackage(ele) {
-
-
-    let data = {
-      //win_rate: ele.win_rate,
-      uid: ele.uuid,
-      avatar: ele.avatar,
-      displayname: ele.display_name,
-    };
+  const data = {
+    // win_rate: ele.win_rate,
+    uid: ele.uuid,
+    avatar: ele.avatar,
+    displayname: ele.display_name
+  };
   // console.log(data);
+
     data['win_rate'] = ele.win_rate;
   
     // 大神要 顯示 預設稱號
@@ -51,23 +48,27 @@ function repackage(ele) {
     }
   
     return data;
+
   }
-  
-  function rangeWinRateCodebook(range){
-    switch (range) {
-      case 'this_period':
-        return 'this_period_win_bets';
-      case 'this_week':
-        return 'this_week_win_rate';
-      case 'last_week':
-        return 'last_week_win_rate';
-      case 'this_month':
-        return 'this_month_win_rate';
-      case 'last_month':
-        return 'last_month_win_rate';
-      case 'this_season':
-        return 'this_season_win_rate';
-    }
+
+  return data;
+}
+
+function rangeWinRateCodebook(range) {
+  switch (range) {
+    case 'this_period':
+      return 'this_period_win_bets';
+    case 'this_week':
+      return 'this_week_win_rate';
+    case 'last_week':
+      return 'last_week_win_rate';
+    case 'this_month':
+      return 'this_month_win_rate';
+    case 'last_month':
+      return 'last_month_win_rate';
+    case 'this_season':
+      return 'this_season_win_rate';
   }
-  
+}
+
 module.exports = searchUserDetail;

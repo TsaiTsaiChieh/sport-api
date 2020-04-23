@@ -23,19 +23,19 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
       },
       eventID: {
-        type: 'string',
+        type: 'string'
       },
       category: {
-        type: 'string',
-      },
-    },
+        type: 'string'
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -60,14 +60,14 @@ module.exports = livescore;
  * @apiParam {String} sport sport name, the value are: ```basketball```
  * @apiParam {String} league league name, the value are: ```NBA```
  * @apiParam {String} eventID ID of event, the value are: ```2114519```
- * 
+ *
  * @apiParamExample {JSON} Request-Query
  {
    'league' : 'NBA'
    'eventID' : '2114519'
  }
-* @apiSuccess {Object} flag status of event 
-* @apiSuccess {Number} flag.status 0:closed, 1:inprogress, 2:closed 
+* @apiSuccess {Object} flag status of event
+* @apiSuccess {Number} flag.status 0:closed, 1:inprogress, 2:closed
 * @apiSuccess {Object} totals totals handicap and odds
 * @apiSuccess {Number} totals.add_time the time of handicap added
 * @apiSuccess {Number} totals.under_odd under odd
@@ -144,7 +144,6 @@ module.exports = livescore;
 * @apiSuccess {Number} stat.away.hr hr of away team
 * @apiSuccess {Number} stat.away.slg slg of away team
 * @apiSuccess {Number} stat.away.h h of away team
-
 
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
@@ -373,5 +372,5 @@ module.exports = livescore;
     "league": "MLB"
   }
 ]
- 
+
  */

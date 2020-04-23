@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 
 const TAIWAN_UTF = 8;
 function prematch(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await queryOneDay(args);
       if (args.league === 'MLB') resolve(repackage_MLB(args, queries));
@@ -15,7 +15,7 @@ function prematch(args) {
 }
 
 function queryOneDay(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const matchesRef = modules.firestore.collection(
       modules.leagueCodebook(args.league).match
     );
@@ -32,7 +32,7 @@ function queryOneDay(args) {
         .where('scheduled', '<', endDate)
         .get();
 
-      queries.docs.map(function (docs) {
+      queries.docs.map(function(docs) {
         results.push(docs.data());
       });
       resolve(await Promise.all(results));
@@ -124,17 +124,19 @@ function generalData(ele, checkGogResult) {
     // }
   };
 
-  if (ele.newest_spread && ele.flag.spread === 1)
+  if (ele.newest_spread && ele.flag.spread === 1) {
     data.spread = repackageSpread(
       ele.newest_spread,
       handicapFlag.spreadDisable
     );
+  }
   if (!ele.newest_spread || ele.flag.status !== 2) data.spread.disable = true;
-  if (ele.newest_totals && ele.flag.totals === 1)
+  if (ele.newest_totals && ele.flag.totals === 1) {
     data.totals = repackageTotals(
       ele.newest_totals,
       handicapFlag.totalsDisable
     );
+  }
 
   if (!ele.newest_totals || ele.flag.status !== 2) data.totals.disable = true;
   return data;
@@ -218,7 +220,7 @@ async function checkGodPrediction(args, match_id) {
   }
   if (query.size > 0) {
     let record = {};
-    query.forEach(async function (docs) {
+    query.forEach(async function(docs) {
       record = docs.data();
     });
     return { betFlag: true, record };

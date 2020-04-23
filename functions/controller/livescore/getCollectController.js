@@ -20,19 +20,19 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
       },
       UID: {
-        type: 'string',
+        type: 'string'
       },
       time: {
-        type: 'string',
-      },
-    },
+        type: 'string'
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -57,14 +57,14 @@ module.exports = livescore;
  * @apiParam {String} sport sport name, the value are: ```basketball```
  * @apiParam {String} league league name, the value are: ```NBA```
  * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
- * @apiParam {String} time, the time are: ```1593561600000``` 
+ * @apiParam {String} time, the time are: ```1593561600000```
  * @apiParamExample {JSON} Request-Query
  {
    'league' : 'NBA'
    'UID' : 'DLRnd5igRmakC0VrLxz5Ph443Qj1'
    'time' : '1593561600000'
  }
-* @apiSuccess {Object} event_id id of collect event 
+* @apiSuccess {Object} event_id id of collect event
 * @apiSuccess {String} event_id.sport name of sport
 * @apiSuccess {String} event_id.league name of league
 * @apiSuccess {String} event_id.event_id id of event
@@ -90,5 +90,5 @@ module.exports = livescore;
     }
   }
 ]
- 
+
  */

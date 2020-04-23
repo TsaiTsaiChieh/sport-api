@@ -135,7 +135,7 @@ module.exports = createMessage;
  * @apiSuccess {Object} message message data
  * @apiSuccess {Object} user user data
  * @apiSuccess {Object} [reply] reply data, include message and user object, not repeat again
- * 
+ *
  * @apiSuccess {String} message.channelId return channel id
  * @apiSuccess {String} message.message return message content, plain text or URL
  * @apiSuccess {String} message.messageId unique id which firebase automated generated for message
@@ -146,13 +146,13 @@ module.exports = createMessage;
  * @apiSuccess {String} user.avatar user avater URL
 
  * @apiSuccess {Object} [user.defaultTitle] user URL, must choosed from titles field
- * @apiSuccess {String} [user.defaultTitle.league] league nested default title 
- * @apiSuccess {Number} [user.defaultTitle.sport] sport nested default title 
- * @apiSuccess {String} [user.defaultTitle.rank] rank nested default title 
+ * @apiSuccess {String} [user.defaultTitle.league] league nested default title
+ * @apiSuccess {Number} [user.defaultTitle.sport] sport nested default title
+ * @apiSuccess {String} [user.defaultTitle.rank] rank nested default title
  * @apiSuccess {String} user.displayName user  URL, must be unique
  * @apiSuccess {Number} user.role user role, -1: locked user, 0: incomplete profile which registered user, 1: normal user, 2: god user, 9: admin
  * @apiSuccess {String} user.uid user unique id, firebase automated generated
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
@@ -303,7 +303,7 @@ module.exports = createMessage;
         "message": "should be equal to one of the allowed values"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [

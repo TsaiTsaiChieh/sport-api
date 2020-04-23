@@ -9,7 +9,7 @@ const Op = require('sequelize').Op;
     改mysql 原有後台等等全部失效需重寫
 */
 function dbFind() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.home__banner.findAll({
         order: ['sort'],
@@ -19,20 +19,19 @@ function dbFind() {
             [Op.ne]: null
           }
         }
-      })
-      resolve(result)
+      });
+      resolve(result);
     } catch (error) {
       log.data(error);
       reject('get home banners failed');
-      return;
     }
-  })
+  });
 }
 async function bannerImage(req, res) {
   try {
-    const banners = await dbFind()
+    const banners = await dbFind();
     res.json({ code: 200, banners: banners });
-  }catch(err){
+  } catch (err) {
     console.log('Error in home/bannerImage by IFYU:  %o', err);
     return res.status(500).json({ code: 500, error: err });
   }

@@ -19,22 +19,22 @@ async function postCollect(req, res) {
     properties: {
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer'],
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer']
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'soccer'],
+        enum: ['NBA', 'MLB', 'NHL', 'soccer']
       },
       UID: {
-        type: 'string',
+        type: 'string'
       },
       eventID: {
-        type: 'string',
+        type: 'string'
       },
       time: {
-        type: 'string',
-      },
-    },
+        type: 'string'
+      }
+    }
   };
 
   const valid = modules.ajv.validate(schema, req.body);
@@ -64,7 +64,7 @@ module.exports = postCollect;
  * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
  * @apiParam {String} eventID the event want to delete, the value are: ```2114519```
  * @apiParam {String} time, the value are: ```1593561600000```
- 
+
  * @apiParamExample {JSON} Request-Query
  {
    'league' : 'NBA'
@@ -78,5 +78,5 @@ module.exports = postCollect;
 [
   "DLRnd5igRmakC0VrLxz5Ph443Qj1 / baseball / MLB / 20200320 has collected"
 ]
- 
+
  */

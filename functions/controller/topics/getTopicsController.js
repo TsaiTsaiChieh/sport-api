@@ -7,11 +7,11 @@ async function getTopics(req, res) {
     properties: {
       type: {
         type: 'string',
-        enum: ['MLB', 'NBA']
+        enum: ['MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球']
       },
       category: {
         type: 'string',
-        enum: ['賽事分析', '球隊討論', '投注分享']
+        enum: ['賽事分析', '球隊討論', '投注分享', '公告', '其他']
       },
       page: {
         type: 'integer',
@@ -19,23 +19,24 @@ async function getTopics(req, res) {
         minimum: 0
       }
     }
-  }
+  };
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    console.log(modules.ajv.errors);
+    res.status(400).send('schema not acceptable');
     return;
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   topicModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function(body) {
+      res.json(body);
+    })
+    .catch(function(err) {
+      res.status(err.code).json(err);
+    });
 }
 module.exports = getTopics;
 /**

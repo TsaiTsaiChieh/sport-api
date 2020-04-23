@@ -5,14 +5,15 @@ const admin = modules.firebaseAdmin;
 const envValues = require('../../config/env_values');
 
 async function modifyUserProfile(req, res) {
-  let uid = req.token.uid;
+  const uid = req.token.uid;
   const userSnapshot = await modules.getSnapshot('users', uid);
   const userProfile = await userSnapshot.data();
-  let userStatus = userSnapshot.exists ? userProfile.status : 0;
-  let data = {};
-  let nowTimeStamp = await admin.firestore.Timestamp.now();
+  const userStatus = userSnapshot.exists ? userProfile.status : 0;
+  const data = {};
+  const nowTimeStamp = await admin.firestore.Timestamp.now();
   switch (userStatus) {
-    case 0: //新會員
+    case 0:
+    { // 新會員
       const args = {};
       args.displayName = req.body.displayName;
       args.name = req.body.name;
@@ -41,37 +42,28 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
-    
-      const uniqueNameSnapshot = checkUniqueValue();
-      const uniqueEmailSnapshot = checkUniqueValue();
-      const uniquePhoneSnapshot = checkUniqueValue();
 
-      // res.status(200).json({
-      //   'normal': normal,
-      //   'displayName':args.displayName,
-      //   'email': args.email,
-      //   'phone':args.phone,
-      //   'uniqueNameSnapshot':uniqueNameSnapshot,
-      //   'uniqueEmailSnapshot':uniqueEmailSnapshot,
-      //   'uniquePhoneSnapshot':uniquePhoneSnapshot
-      // })
-      // if(uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot){
-      //   res.status(400).json({
-      //     success: false,
-      //     message: 'user name , email or phone exists'
-      //   });
-      //   return;
-      // }
-      
+      const uniqueNameSnapshot = checkUniqueValue('users', 'display_name', args.displayName, uid);
+      const uniqueEmailSnapshot = checkUniqueValue('users', 'email', args.email, uid);
+      const uniquePhoneSnapshot = checkUniqueValue('users', 'phone', args.phone, uid);
+
+      if (uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot) {
+        res.status(400).json({
+          success: false,
+          message: 'user name , email or phone exists'
+        });
+        return;
+      }
+
       data.uid = uid;
-      data.displayName = args.displayName; //only new user can set displayName, none changeable value
-      data.name = args.name; //only new user can set name(Actual name), none changeable value
+      data.displayName = args.displayName; // only new user can set displayName, none changeable value
+      data.name = args.name; // only new user can set name(Actual name), none changeable value
       data.phone = args.phone;
       data.email = args.email;
       data.birthday = admin.firestore.Timestamp.fromDate(
         new Date(req.body.birthday)
       );
-      if (!args.avatar){
+      if (!args.avatar) {
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
       }
       data.status = 1;
@@ -79,14 +71,14 @@ async function modifyUserProfile(req, res) {
       data.blockMessage = nowTimeStamp;
       data.createTime = nowTimeStamp;
       data.denys = [];
-      data.coin = 0; //搞幣
-      data.dividend = 0; //搞紅利
-      data.ingot = 0; //搞錠
+      data.coin = 0; // 搞幣
+      data.dividend = 0; // 搞紅利
+      data.ingot = 0; // 搞錠
       data.titles = [];
       data.defaultTitle = {};
       data.point = 0;
       data.blockCount = 0;
-      data.accuseCredit = 20; //檢舉信用值預設20，limit 100
+      data.accuseCredit = 20; // 檢舉信用值預設20，limit 100
       admin.auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
@@ -102,21 +94,22 @@ async function modifyUserProfile(req, res) {
           plain: true,
         });
       break;
-    case 1: //一般會員
+    }
+    case 1: // 一般會員
       console.log('normal user');
       break;
-    case 2: //大神
+    case 2: // 大神
       console.log('godlike user');
       break;
-    case -1: //鎖帳號會員
+    case -1: // 鎖帳號會員
       console.log('blocked user');
       res.status(400).json({ success: false, message: 'blocked user' });
       break;
-    case 9: //管理員
+    case 9: // 管理員
       console.log('manager user');
       break;
     default:
-      throw 'user status error';
+      return res.status(401).json({ success: false, message: 'user status error' });
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
@@ -129,7 +122,7 @@ async function modifyUserProfile(req, res) {
   if (req.body.signature) data.signature = req.body.signature;
   if (req.body.title) data.defaultTitle = req.body.title;
   data.updateTime = nowTimeStamp;
-  let resultJson = {};
+  const resultJson = {};
   const refCode = req.body.refCode;
   const userReferrer = userSnapshot.exists ? userProfile.referrer : undefined;
   if (refCode && !userReferrer && refCode !== uid) {
@@ -156,18 +149,18 @@ async function modifyUserProfile(req, res) {
     }
   }
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-    let users = await db.sequelize.query(
-      'SELECT * FROM users WHERE uid = $uid',
-      {
-        bind: {uid:uid},
-        type: db.sequelize.QueryTypes.SELECT
-      })
+  const users = await db.sequelize.query(
+    'SELECT * FROM users WHERE uid = $uid',
+    {
+      bind: { uid: uid },
+      type: db.sequelize.QueryTypes.SELECT
+    })
     .then(async ref => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;
       resultJson.success = true;
       console.log('Added document with ID: ', ref);
-      res.status(200).json({resultJson});
+      res.status(200).json({ resultJson });
     })
     .catch(e => {
       console.log('Added document with error: ', e);
@@ -176,35 +169,20 @@ async function modifyUserProfile(req, res) {
     // res.json({success: true, result: writeResult});
 }
 
-/*檢查唯一性(uniqueName、uniqueEmail、uniquePhone)*/
-function checkUniqueValue(){
-  return new Promise(async function(resolve, reject) {
-    const unique_value = db.sequelize.query(
-      `SELECT * FROM users`,
-      {
-        type: db.sequelize.QueryTypes.SELECT,
-        plain: true,
-      });
-      resolve(unique_value);
-      return;
-  });
-}
-  
-  
-  // const unique_value = await db.sequelize.query(
-  //   `SELECT * FROM users`,
-  //   {
-  //     type: db.sequelize.QueryTypes.SELECT,
-  //     plain: true,
-  //   });
 
-    // if(unique_value.length>0){
-    //   return unique_value;
-    // }else{
-    //   return unique_value;
-    // }
-    
-// }
+/* 檢查唯一性(uniqueName、uniqueEmail、uniquePhone) */
+async function checkUniqueValue(table, collection, value, uid) {
+  const unique_value = await db.sequelize.query(
+    `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
+    {
+      type: db.sequelize.QueryTypes.SELECT,
+      plain: true
+    });
+  if (unique_value.length > 0) {
+    return false;
+  }
+}
+
 module.exports = modifyUserProfile;
 
 /**

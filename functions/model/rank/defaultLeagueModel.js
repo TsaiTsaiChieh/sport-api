@@ -10,13 +10,13 @@ function defaultLeague(args) {
     //   {
     //       type: db.sequelize.QueryTypes.SELECT,
     //   });
-        let defaultLeague = {
-            MLB: []
-        };
-        resolve({ defaultLeague: defaultLeague });
+      const defaultLeague = {
+        MLB: []
+      };
+      resolve({ defaultLeague: defaultLeague });
     } catch (err) {
-        console.log('Error in  rank/defaultLeauge by henry:  %o', err);
-        return reject(errs.errsMsg('500', '500', err.message));
+      console.log('Error in  rank/defaultLeauge by henry:  %o', err);
+      return reject(errs.errsMsg('500', '500', err.message));
     }
   });
 }

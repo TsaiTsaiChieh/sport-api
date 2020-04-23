@@ -2,14 +2,13 @@
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/editArticleModel');
 async function editArticle(req, res) {
-
 /// 聯盟、看板、標題、文章（html格式）
-// content:{
-//   category: category, [賽事分析,球隊討論,投注分享]
-//   type: type, [MLB,NBA]
-//   title: title,
-//   content: content,
-// },
+  // content:{
+  //   category: category, [賽事分析,球隊討論,投注分享]
+  //   type: type, [MLB,NBA]
+  //   title: title,
+  //   content: content,
+  // },
 
   const schema = {
     type: 'object',
@@ -22,37 +21,38 @@ async function editArticle(req, res) {
       },
       type: {
         type: 'string',
-        enum: ['MLB', 'NBA']
+        enum: ['MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球']
       },
       category: {
         type: 'string',
-        enum: ['賽事分析', '球隊討論', '投注分享']
+        enum: ['賽事分析', '球隊討論', '投注分享', '公告', '其他']
       },
       title: {
         type: 'string',
         maxLength: 50
       },
       content: {
-        type: 'string',
+        type: 'string'
       }
     }
-  }
+  };
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    console.log(modules.ajv.errors);
+    res.status(400).send('schema not acceptable');
     return;
   }
   req.body.token = req.token;
   const args = req.body;
-  
+
   topicModel(args)
-  .then(function(body) {
-    res.json(body);
-  })
-  .catch(function(err) {
-    res.status(err.code).json(err);
-  });
+    .then(function(body) {
+      res.json(body);
+    })
+    .catch(function(err) {
+      res.status(err.code).json(err);
+    });
 }
 
 module.exports = editArticle;
@@ -77,7 +77,7 @@ module.exports = editArticle;
  *	  "title": "標題",
  *	  "content": "內容"
  * }
- * 
+ *
  * @apiSuccess {Number} type          status code
  * @apiSuccess {Object} article_id    儲存後得到的文章id
  * @apiSuccessExample {JSON} Success-Response

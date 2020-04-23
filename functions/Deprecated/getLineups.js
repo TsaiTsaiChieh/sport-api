@@ -1,15 +1,15 @@
 const modules = require('../util/modules');
 const data = require('./lineup.json');
 const lineupsURL = 'https://api.betsapi.com/v1/event/lineup';
-async function getLineups(req, res) {
+async function getLineups (req, res) {
   // step 1: get all event id which status is upcoming(2)
-  let upcomingEvents = [];
+  const upcomingEvents = [];
   const upcomingEventsSnapshot = await modules.firestore
     .collection(modules.db.sport_18)
     .get();
 
-  upcomingEventsSnapshot.docs.forEach(async function(doc) {
-    let ele = doc.data();
+  upcomingEventsSnapshot.docs.forEach(async function (doc) {
+    const ele = doc.data();
     // if (ele.status === 2) {
     //   const { data } = await modules.axios(
     //     `${lineupsURL}?token=${modules.betsToken}&event_id=${ele.id}`

@@ -11,7 +11,7 @@ module.exports.SBL.upcomming = async function(date) {
   try {
     const { data } = await modules.axios(URL);
     for (let i = 0; i < data.results.length; i++) {
-      let ele = data.results[i];
+      const ele = data.results[i];
       results.push(
         modules.firestore
           .collection(modules.db.basketball_SBL)
@@ -42,7 +42,7 @@ module.exports.SBL.upcomming = async function(date) {
 };
 
 function repackage_bets(ele) {
-  data = {};
+  const data = {};
   data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
@@ -155,7 +155,7 @@ function integration(query, ele) {
   }
 }
 function repackage_sportradar(ele) {
-  data = {};
+  const data = {};
   data.radar_id = ele.sport_event.id.replace('sr:sport_event:', '');
   data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
     new Date()

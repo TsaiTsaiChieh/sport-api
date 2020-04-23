@@ -33,9 +33,9 @@ module.exports = muted;
  * @api {post} /admin/muted Muted User
  * @apiVersion 1.0.0
  * @apiDescription 管理員禁止某使用者發言，需要使用者登入且為管理員身份，管理員不能禁自己的發言，也不能禁其他管理員的發言
- * 
+ *
  * 禁第一次，使用者一天內不能發言；禁第二次，三天內不能發言；禁第三次，七天內不能發言，再禁第四次以上，則使用者永久不能發言 by Tsai-Chieh
- * 
+ *
  * （注意：請使用測試使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName mutedUser
  * @apiGroup Admin
@@ -48,7 +48,7 @@ module.exports = muted;
  * {
  *     "uid": "eIQXtxPrBFPW5daGMcJSx4AicAQ2"
  * }
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
@@ -73,7 +73,7 @@ module.exports = muted;
         "message": "should have required property 'uid'"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 401-Response
  * HTTP/1.1 401 Unauthorized
  * {

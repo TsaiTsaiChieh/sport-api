@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const collectionName = 'NBA_TC';
 async function tuneDB() {
   const collection = await modules.firestore.collection(collectionName).get();
-  collection.docs.map(async function (doc) {
+  collection.docs.map(async function(doc) {
     const match = doc.data();
     newestHandicap(match);
     handicapProcessor(match);
@@ -19,7 +19,7 @@ function newestHandicap(data) {
       ids.push(key);
       add_time.push(data.spread[key].add_time);
     }
-    newestKey = sortTime(ids, add_time);
+    const newestKey = sortTime(ids, add_time);
 
     data.spread[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
@@ -33,7 +33,7 @@ function newestHandicap(data) {
       ids.push(key);
       add_time.push(data.totals[key].add_time);
     }
-    newestKey = sortTime(ids, add_time);
+    const newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
     modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
       newest_totals: data.totals[newestKey]

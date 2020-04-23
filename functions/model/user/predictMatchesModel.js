@@ -9,7 +9,7 @@ const GOD_USER = 2;
 const TAIWAN_UTF = 8;
 
 function prematch(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
     try {
       // 檢查此使用者身份
@@ -26,20 +26,16 @@ function prematch(args) {
 
 // 檢查玩家想賣牌，是否屬於該聯盟的大神
 function isGodBelongToLeague(args, userTitles = []) {
-  return new Promise(function (resolve, reject) {
-    if (args.sell === 1 && !userTitles.includes(args.league))
-      return reject(new AppError.UserCouldNotSell());
-    else return resolve();
+  return new Promise(function(resolve, reject) {
+    if (args.sell === 1 && !userTitles.includes(args.league)) { return reject(new AppError.UserCouldNotSell()); } else return resolve();
   });
 }
 
 // 檢查玩家想賣牌，是否屬於大神
 function isNormalUserSell(sell, role) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     role = Number.parseInt(role);
-    if (role === NORMAL_USER && sell === 1)
-      return reject(new AppError.UserCouldNotSell());
-    else return resolve();
+    if (role === NORMAL_USER && sell === 1) { return reject(new AppError.UserCouldNotSell()); } else return resolve();
   });
 }
 
@@ -189,7 +185,7 @@ async function isGodSellConsistent(args, i, filter) {
     .get();
 
   if (query.size > 0) {
-    query.docs.map(function (doc) {
+    query.docs.map(function(doc) {
       if (doc.data().sell !== args.sell) {
         const error = {
           code: 403,
@@ -202,10 +198,10 @@ async function isGodSellConsistent(args, i, filter) {
 }
 
 function sendPrediction(args, filter) {
-  return new Promise(async function (resolve, reject) {
-    neededResult = isNeeded(filter.needed);
+  return new Promise(async function(resolve, reject) {
+    const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
-      return reject(new AppError.UserPredictFailed((message = filter.failed)));
+      return reject(new AppError.UserPredictFailed((filter.failed)));
     } else if (neededResult) {
       await insertFirestore(args, filter.needed);
       return resolve(repackageReturnData(filter));

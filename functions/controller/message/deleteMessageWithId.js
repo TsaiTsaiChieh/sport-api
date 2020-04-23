@@ -53,7 +53,7 @@ module.exports = deleteMessageWithId;
  *     "channelId": "public",
  *     "deleteAction": 1
  * }
- * 
+ *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
@@ -81,7 +81,7 @@ module.exports = deleteMessageWithId;
         "message": "should be <= 1"
     }
 ]
- * 
+ *
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [
