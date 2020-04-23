@@ -1,11 +1,11 @@
-i/* eslint-disable promise/always-return */
+/* eslint-disable promise/always-return */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../util/modules');
 const messageModule = require('../util/messageModule');
 
 // like messages/last
-function getLastMessage (args) {
+function getLastMessage(args) {
   return new Promise(async function (resolve, reject) {
     try {
       // console.log(args.limit, args.offset);
