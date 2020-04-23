@@ -1,10 +1,10 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/topics/likeArticleModel');
-async function likeArticle (req, res) {
+const model = require('../../model/topics/likeReplyModel');
+async function likeReply (req, res) {
   const schema = {
     type: 'object',
-    requied: ['article_id', 'like'],
+    requied: ['reply_id', 'like'],
     properties: {
       article_id: {
         type: 'integer',
@@ -34,4 +34,4 @@ async function likeArticle (req, res) {
     });
 }
 
-module.exports = likeArticle;
+module.exports = likeReply;

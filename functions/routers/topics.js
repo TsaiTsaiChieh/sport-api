@@ -9,10 +9,12 @@ router.get('/', function (req, res) {
 
 router.get(
   '/article/:aid',
+  verification.getToken,
   require('../controller/topics/getArticleController')
 );
 router.get(
   '/replies/:aid/:page',
+  verification.getToken,
   require('../controller/topics/getRepliesController')
 );
 router.post(
@@ -38,6 +40,11 @@ router.post(
   '/likeArticle',
   verification.token,
   require('../controller/topics/likeArticleController')
+);
+router.post(
+  '/likeReply',
+  verification.token,
+  require('../controller/topics/likeReplyController')
 );
 
 module.exports = router;

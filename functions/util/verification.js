@@ -87,6 +87,31 @@ async function token (req, res, next) {
   next();
 }
 
+async function getToken (req, res, next) { //只取得token 未登入不擋
+  try {
+    const bearerHeader = req.headers.authorization;
+
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+
+      const decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(bearerToken, true);
+      req.token = await modules.firebaseAdmin
+        .auth()
+        .getUser(decodedIdToken.uid);
+    }else{
+      req.token = null
+    }
+  } catch (err) {
+    console.error('Error in util/verification token functions', err);
+    req.token = null
+    // res.sendStatus(401);
+  }
+  next();
+}
+
 async function token_v2 (req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
@@ -131,4 +156,4 @@ async function getRoleAndTitles (uid) {
     return { role: GOD_USER, titles };
   }
 }
-module.exports = { token, token_v2, admin, confirmLogin, confirmLogin_v2 };
+module.exports = { token, token_v2, getToken, admin, confirmLogin, confirmLogin_v2 };

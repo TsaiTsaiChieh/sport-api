@@ -869,6 +869,31 @@ const Topic_Like = sequelize.define(
 );
 
 /*
+ * 留言讚
+ */
+const Topic_ReplyLike = sequelize.define(
+  'topic__replylike',
+  {
+    reply_id: {
+      // 文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['reply_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
  * 聯絡客服
  */
 const Service_Contact = sequelize.define(
@@ -949,6 +974,7 @@ const dbUtil = {
   Rank,
   usersWinLists,
   Topic_Like,
+  Topic_ReplyLike,
   Topic_Reply,
   Topic_Article,
   Home_Banner,

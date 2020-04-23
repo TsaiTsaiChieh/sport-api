@@ -7,7 +7,7 @@ const Op = require('sequelize').Op;
 module.exports.getUserInfo = async function (users) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = db.sequelize.models.user.findAll({
+      const result = await db.sequelize.models.user.findAll({
         attributes: [
           'uid',
           'status',
@@ -50,7 +50,7 @@ module.exports.getTopicReplyCount = async function (articles) { // 傳入array a
   return new Promise(async function (resolve, reject) {
     try {
       // SQL原意：SELECT aid, COUNT(*) FROM topic__replies WHERE aid = 116 OR aid = 117 GROUP BY aid;
-      const result = db.sequelize.models.topic__reply.findAll({
+      const result = await db.sequelize.models.topic__reply.findAll({
         attributes: [
           'article_id',
           [db.sequelize.fn('COUNT', db.sequelize.col('article_id')), 'count']
@@ -74,7 +74,7 @@ module.exports.getTopicLikeCount = async function (articles) { // 傳入array ai
   return new Promise(async function (resolve, reject) {
     try {
       // SQL原意：SELECT article_id, COUNT(*) FROM topic__likes WHERE article_id = 116 OR article_id = 117 GROUP BY article_id;
-      const result = db.sequelize.models.topic__like.findAll({
+      const result = await db.sequelize.models.topic__like.findAll({
         attributes: [
           'article_id',
           [db.sequelize.fn('COUNT', db.sequelize.col('article_id')), 'count']
@@ -85,6 +85,72 @@ module.exports.getTopicLikeCount = async function (articles) { // 傳入array ai
           }
         },
         group: 'article_id',
+        raw: true
+      })
+      resolve(result)
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  })
+}
+module.exports.getReplyLikeCount = async function (replies) { // 傳入array rid
+  return new Promise(async function (resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__replylike.findAll({
+        attributes: [
+          'reply_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('reply_id')), 'count']
+        ],
+        where: {
+          reply_id: {
+            [Op.or]: replies
+          }
+        },
+        group: 'reply_id',
+        raw: true
+      })
+      resolve(result)
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  })
+}
+module.exports.getIsUserLikeTopic = async function (uid, article_id) { // 取得自己有無按過讚（單篇）
+  return new Promise(async function (resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__like.count({
+        where: {
+          article_id: article_id,
+          uid: uid
+        },
+        raw: true
+      })
+      resolve(result === 0 ? false : true)
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  })
+}
+module.exports.getIsUserLikeReply = async function (uid, replies) { // 取得自己有無按過留言讚（多則）
+  return new Promise(async function (resolve, reject) {
+    try {
+      log.info(uid)
+      log.info(replies)
+      const result = await db.sequelize.models.topic__replylike.findAll({
+        attributes: [
+          'reply_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('reply_id')), 'count']
+        ],
+        where: {
+          uid: uid,
+          reply_id: {
+            [Op.or]: replies
+          }
+        },
+        group: 'reply_id',
         raw: true
       })
       resolve(result)

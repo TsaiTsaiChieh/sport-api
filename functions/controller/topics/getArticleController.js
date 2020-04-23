@@ -7,7 +7,9 @@ async function getTopics (req, res) {
     res.status(403).send('param error');
     return;
   }
-  articleModel(aid)
+  const args = {aid: aid, token: req.token};
+
+  articleModel(args)
     .then(function (body) {
       res.json(body);
     })
