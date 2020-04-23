@@ -844,7 +844,7 @@ const Topic_Reply = sequelize.define(
 );
 
 /*
- * 文章留言
+ * 文章讚
  */
 const Topic_Like = sequelize.define(
   'topic__like',
@@ -865,6 +865,35 @@ const Topic_Like = sequelize.define(
         fields: ['article_id', 'uid']
       }
     ]
+  }
+);
+
+/*
+ * 聯絡客服
+ */
+const Service_Contact = sequelize.define(
+  'service__contact',
+  {
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    images: {
+      type: Sequelize.STRING,
+      allowNull: true
+    }
   }
 );
 
@@ -923,6 +952,7 @@ const dbUtil = {
   Topic_Reply,
   Topic_Article,
   Home_Banner,
+  Service_Contact,
   eSoccer_match
 };
 

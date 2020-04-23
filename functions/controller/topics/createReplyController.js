@@ -36,7 +36,8 @@ async function createTopic (req, res) {
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    console.log(modules.ajv.errors)
+    res.status(400).send('schema not acceptable');
     return;
   }
   req.body.token = req.token;

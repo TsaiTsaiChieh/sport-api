@@ -36,6 +36,7 @@ async function getReplies (args) {
       let usersInfo = []
       for (let i = 0; i < replies.length; i++) {
         usersToGet.push(replies[i].uid)
+        replies[i].images = JSON.parse(replies[i].images)
       }
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
