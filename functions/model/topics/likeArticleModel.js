@@ -3,12 +3,12 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
-function dbFind (aid) { // 確認文章存在
+function dbFind (article_id) { // 確認文章存在
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          article_id: aid
+          article_id: article_id
         },
         raw: true
       })
@@ -19,13 +19,13 @@ function dbFind (aid) { // 確認文章存在
     }
   })
 }
-function checkLiked (uid, aid) {
+function checkLiked (uid, article_id) {
   return new Promise(async function (resolve, reject) {
     // await db.sequelize.models.topic__like.sync({ alter: true }); //有新增欄位時才用
     const result = await db.sequelize.models.topic__like.count({
       where: {
         uid: uid,
-        article_id: aid
+        article_id: article_id
       },
       raw: true
     })
@@ -36,10 +36,10 @@ function checkLiked (uid, aid) {
     }
   })
 }
-function like (uid, aid) {
+function like (uid, article_id) {
   return new Promise(async function (resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: aid })
+      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: article_id })
       log.succ('like success');
       resolve()
     } catch (error) {
@@ -48,13 +48,13 @@ function like (uid, aid) {
     }
   })
 }
-function unlike (uid, aid) {
+function unlike (uid, article_id) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__like.destroy({
         where: {
           uid: uid,
-          article_id: aid
+          article_id: article_id
         },
         raw: true
       })
@@ -97,10 +97,10 @@ async function likeArticle (args) {
 
       console.log(args.like)
       if (args.like === true) {
-        await checkLiked(uid, args.aid)
-        await like(uid, args.aid)
+        await checkLiked(uid, args.article_id)
+        await like(uid, args.article_id)
       } else {
-        await unlike(uid, args.aid)
+        await unlike(uid, args.article_id)
       }
       resolve({ code: 200 });
     } catch (err) {

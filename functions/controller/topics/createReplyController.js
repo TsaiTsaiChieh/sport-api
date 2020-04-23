@@ -13,10 +13,10 @@ async function createTopic (req, res) {
     type: 'object',
     requied: ['aid', 'content'],
     properties: {
-      aid: {
+      article_id: {
         type: 'number'
       },
-      reply_id: {
+      replyto_id: {
         type: ['number', 'null']
       },
       content: {

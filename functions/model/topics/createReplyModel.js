@@ -26,7 +26,7 @@ async function createReply (args) {
         return;
       }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-      const topicInfo = await func.getTopicInfo(args.aid)
+      const topicInfo = await func.getTopicInfo(args.article_id)
 
       log.info('verify firebase user')
       if (!userSnapshot.exists) {
@@ -41,7 +41,7 @@ async function createReply (args) {
       // log.data(topicInfo[0])
 
       const insertData = {
-        article_id: args.aid,
+        article_id: args.article_id,
         uid: args.token.uid,
         replyto_id: null, // args.reply_id,
         images: JSON.stringify(args.images),
