@@ -23,13 +23,7 @@ async function createTopic (req, res) {
         type: 'string'
       },
       images: {
-        type: 'array',
-        maxItems: 3,
-        items: [
-          { type: 'string' },
-          { type: 'string' },
-          { type: 'string' }
-        ]
+        type: 'object'
       }
     }
   }
