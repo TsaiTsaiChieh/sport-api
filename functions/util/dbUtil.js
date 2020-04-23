@@ -520,7 +520,8 @@ const Match = sequelize.define(
       {
         unique: true,
         fields: ['bets_id']
-      }
+      },
+      { fields: ['scheduled'] }
     ]
   }
 );
@@ -603,7 +604,7 @@ const Prediction = sequelize.define(
         fields: ['sell', 'league_id']
       },
       {
-        fields: ['match_scheduled']
+        fields: ['bets_id']
       }
     ]
   }
