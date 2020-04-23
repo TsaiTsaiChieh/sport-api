@@ -38,6 +38,11 @@ router.post(
   verification.token_v2,
   require('../controller/user/_predictMatchesController')
 );
+router.get(
+  '/prediction_rate',
+  verification.token_v2,
+  require('../controller/user/predictionRateController')
+);
 router.post(
   '/predict_info',
   verification.token,
