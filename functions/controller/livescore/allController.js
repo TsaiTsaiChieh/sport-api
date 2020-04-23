@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreAllModel');
 
-async function livescore (req, res) {
+async function livescore(req, res) {
   if (req.query.league === 'NBA') {
     req.query.sport = 'basketball';
   }

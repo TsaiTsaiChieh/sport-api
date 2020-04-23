@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/admin/deleteTitleModel');
 
-async function deleteTitle (req, res) {
+async function deleteTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],

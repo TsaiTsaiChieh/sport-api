@@ -47,9 +47,9 @@ const whitelist = [
   'https://dosports.web.app',
   'https://api-dosports.web.app'
 ];
-const localOrigin = 'http://172.16.21'
+const localOrigin = 'http://172.16.21';
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {

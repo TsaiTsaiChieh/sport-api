@@ -27,7 +27,7 @@
       <button @click="get">讀取</button>
     </div>
     <div v-for="(item, index) in topics" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
-      <a :href="'article.html#'+item.id" style="color:#fff; text-decoration:none;">
+      <a :href="'article.html#'+item.article_id" style="color:#fff; text-decoration:none;">
         <div style="background-color: green; padding:5px">
           <span style="background-color: orange;">{{item.type}}</span>
           <span style="background-color: red;">{{item.category}}</span>
@@ -90,7 +90,7 @@
           axios.post('/topics/', post)
           .then(function(response) {
             console.log(response)
-            vm.topics = response.data.topics.rows;
+            vm.topics = response.data.topics;
             vm.loaded = true;
           })
           .catch(function(error) {

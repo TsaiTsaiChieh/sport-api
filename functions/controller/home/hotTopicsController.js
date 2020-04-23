@@ -1,16 +1,12 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/home/hotTopicsModel');
-async function getTopics (req, res) {
-  if (typeof req.params.page !== 'undefined' && req.params.page !== '0' && req.params.page !== '1') {
-    res.status(404).json('page error');
-    return;
-  }
-  topicModel(req)
-    .then(function (body) {
+async function getTopics(req, res) {
+  topicModel()
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

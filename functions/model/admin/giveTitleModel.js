@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 
-function giveTitleModel (args) {
-  return new Promise(async function (resolve, reject) {
+function giveTitleModel(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       // check if user exists
       const user = await getUserDoc(args.uid);
@@ -18,8 +18,8 @@ function giveTitleModel (args) {
   });
 }
 
-function getUserDoc (uid) {
-  return new Promise(async function (resolve, reject) {
+function getUserDoc(uid) {
+  return new Promise(async function(resolve, reject) {
     const userSnapshot = await modules.getSnapshot('users', uid);
     if (!userSnapshot.exists) {
       return reject({ code: 404, error: 'user not found' });
@@ -30,8 +30,8 @@ function getUserDoc (uid) {
   });
 }
 
-function isAdmin (status) {
-  return new Promise(function (resolve, reject) {
+function isAdmin(status) {
+  return new Promise(function(resolve, reject) {
     if (status === 9) {
       return reject({
         code: 403,
@@ -42,8 +42,8 @@ function isAdmin (status) {
   });
 }
 
-function getTitles (uid, period) {
-  return new Promise(async function (resolve, reject) {
+function getTitles(uid, period) {
+  return new Promise(async function(resolve, reject) {
     try {
       const titlesSnapshot = await modules.getSnapshot('users_titles', uid);
       if (!titlesSnapshot.exists) return resolve([]);
@@ -62,8 +62,8 @@ function getTitles (uid, period) {
   });
 }
 
-function insertTitles (args, titles, periodObj) {
-  return new Promise(async function (resolve, reject) {
+function insertTitles(args, titles, periodObj) {
+  return new Promise(async function(resolve, reject) {
     // insert if titles.length === 0
     if (!titles.length) {
       // insert default title
@@ -89,7 +89,7 @@ function insertTitles (args, titles, periodObj) {
     );
   });
 }
-function insertDefaultTitle (args, period) {
+function insertDefaultTitle(args, period) {
   const data = {};
   const defaultTitle = {
     rank: args.rank,
@@ -104,7 +104,7 @@ function insertDefaultTitle (args, period) {
   };
   modules.addDataInCollectionWithId('users_titles', args.uid, data);
 }
-async function insertFirestore (args, titles, periodObj, updateResult = {}) {
+async function insertFirestore(args, titles, periodObj, updateResult = {}) {
   const GOD_STATUS = 2;
   if (!updateResult.updateFlag) {
     titles.push({
@@ -153,7 +153,7 @@ async function insertFirestore (args, titles, periodObj, updateResult = {}) {
     });
   }
 }
-async function getTitlesRecord (args) {
+async function getTitlesRecord(args) {
   const titlesRecord = await modules.getSnapshot('users_titles', args.uid);
   if (!titlesRecord.exists) {
     return {
@@ -174,7 +174,7 @@ async function getTitlesRecord (args) {
   }
 }
 
-function updateTitleCount (record, rank, updateResult) {
+function updateTitleCount(record, rank, updateResult) {
   if (updateResult.updateFlag) {
     if (updateResult.oldRank === 1) record.rank1_count -= 1;
     if (updateResult.oldRank === 2) record.rank2_count -= 1;
@@ -187,7 +187,7 @@ function updateTitleCount (record, rank, updateResult) {
   if (rank === 4) record.rank4_count += 1;
   return record;
 }
-function checkTitleDuplication (titles, args) {
+function checkTitleDuplication(titles, args) {
   // check if titles duplication
   let duplicatedFlag = false;
   for (let i = 0; i < titles.length; i++) {
@@ -204,7 +204,7 @@ function checkTitleDuplication (titles, args) {
   return duplicatedFlag;
 }
 
-function checkUpdateTitle (titles, args) {
+function checkUpdateTitle(titles, args) {
   let updateFlag = false;
   let oldRank = 0;
   for (let i = 0; i < titles.length; i++) {

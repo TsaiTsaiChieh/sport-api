@@ -1,6 +1,6 @@
 const predictInfoModel = require('../../model/user/predictInfoModel');
 
-async function predictInfo (req, res) {
+async function predictInfo(req, res) {
   try {
     req.body.token = req.token; // 從 cookie 取得 __session 中 token
 

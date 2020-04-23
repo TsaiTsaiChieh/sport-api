@@ -17,12 +17,12 @@ module.exports = {
   },
   rules: {
     'camelcase': 'off',
-    'semi':0,
     'no-tabs':0,
     'no-unused-vars': 0,
     'no-async-promise-executor':0,
     'prefer-promise-reject-errors':0,
     'block-spacing':0,
-    'space-before-function-paren':0
+    'space-before-function-paren':['error','never'],
+    'semi':['error','always']
   }
 };

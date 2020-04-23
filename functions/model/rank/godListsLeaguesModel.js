@@ -2,9 +2,9 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function godlistsLeagues (args) {
-  return new Promise(async function (resolve, reject) {
-     let leagueLists = []
+function godlistsLeagues(args) {
+  return new Promise(async function(resolve, reject) {
+    const leagueLists = [];
     // 取得當期期數
     const period = modules.getTitlesPeriod(new Date()).period;
 
@@ -16,13 +16,13 @@ function godlistsLeagues (args) {
          where titles.league_id = leagues.league_id
            and titles.period = :period
       `, {
-        replacements:{
+        replacements: {
           period: period
         },
         type: db.sequelize.QueryTypes.SELECT
       });
-      
-      LeagueListsQuery.forEach(function(data){
+
+      LeagueListsQuery.forEach(function(data) {
         leagueLists.push(data.name);
       });
     } catch (err) {

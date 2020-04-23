@@ -5,8 +5,8 @@ const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 20;
-function dbFind (aid, page) {
-  return new Promise(async function (resolve, reject) {
+function dbFind(aid, page) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__reply.findAll({
         where: {
@@ -16,36 +16,36 @@ function dbFind (aid, page) {
         offset: countPerPage * page, // 跳過幾個 = limit * index
         distinct: true,
         raw: true
-      })
-      resolve(result)
+      });
+      resolve(result);
     } catch (error) {
       log.data(error);
       reject('get replies failed');
     }
-  })
+  });
 }
-async function getReplies (args) {
-  return new Promise(async function (resolve, reject) {
+async function getReplies(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       const aid = args.aid;
       const page = args.page;
 
-      const replies = await dbFind(aid, page)
+      const replies = await dbFind(aid, page);
 
-      const usersToGet = []
-      let usersInfo = []
+      const usersToGet = [];
+      let usersInfo = [];
       for (let i = 0; i < replies.length; i++) {
-        usersToGet.push(replies[i].uid)
+        usersToGet.push(replies[i].uid);
       }
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
-        usersInfo = await func.getUserInfo(usersToGetUnique)
+        usersInfo = await func.getUserInfo(usersToGetUnique);
         // log.data(usersToGetUnique)
         // log.data(usersInfo)
       } catch (error) {
-        console.log(error)
-        reject({ code: 500, error: 'get user info failed' })
+        console.log(error);
+        reject({ code: 500, error: 'get user info failed' });
       }
       for (let i = 0; i < replies.length; i++) { // 把拿到的userinfo塞回去
         let userInfo = usersInfo.filter(obj => obj.uid === replies[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來

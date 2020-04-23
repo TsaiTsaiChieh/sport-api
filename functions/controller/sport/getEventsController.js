@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/sport/getEventsModel');
 
-async function getEvents (req, res) {
+async function getEvents(req, res) {
   const schema = {
     type: 'object',
     // required: ['sport_id', 'date', 'page'],

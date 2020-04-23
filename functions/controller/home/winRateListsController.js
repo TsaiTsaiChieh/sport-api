@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const winRateListsModel = require('../../model/home/winRateListsModel');
 
-async function winRateLists (req, res) {
+async function winRateLists(req, res) {
   try {
     res.json(await winRateListsModel(req.query));
   } catch (err) {

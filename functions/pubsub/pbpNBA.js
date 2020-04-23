@@ -133,7 +133,7 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       let { data } = await axios(pbpURL);
       const dataPBP = data;

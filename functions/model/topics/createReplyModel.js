@@ -4,31 +4,31 @@ const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
-function dbCreate (insertData) {
-  return new Promise(async function (resolve, reject) {
+function dbCreate(insertData) {
+  return new Promise(async function(resolve, reject) {
     try {
       log.info('create new reply to db');
       // await db.sequelize.models.topic__reply.sync({ alter: true }); //有新增欄位時才用
-      const result = await db.sequelize.models.topic__reply.create(insertData)
+      const result = await db.sequelize.models.topic__reply.create(insertData);
       log.succ('create reply success');
-      resolve(result.get('id'))
+      resolve(result.get('id'));
     } catch (error) {
       console.log(error);
       reject('create reply failed');
     }
-  })
+  });
 }
-async function createReply (args) {
-  return new Promise(async function (resolve, reject) {
+async function createReply(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
         return;
       }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-      const topicInfo = await func.getTopicInfo(args.aid)
+      const topicInfo = await func.getTopicInfo(args.article_id);
 
-      log.info('verify firebase user')
+      log.info('verify firebase user');
       if (!userSnapshot.exists) {
         reject({ code: 403, error: 'user verify failed' });
         return;
@@ -41,7 +41,7 @@ async function createReply (args) {
       // log.data(topicInfo[0])
 
       const insertData = {
-        article_id: args.aid,
+        article_id: args.article_id,
         uid: args.token.uid,
         replyto_id: null, // args.reply_id,
         images: JSON.stringify(args.images),
@@ -57,7 +57,7 @@ async function createReply (args) {
         allowedSchemes: ['http', 'https']
       });
 
-      const article = await dbCreate(insertData)
+      const article = await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
       log.err(err);

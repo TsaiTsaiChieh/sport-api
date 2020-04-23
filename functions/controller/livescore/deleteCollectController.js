@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreDeleteCollectModel');
 
-async function deleteCollect (req, res) {
+async function deleteCollect(req, res) {
   if (req.body.league === 'NBA') {
     req.body.sport = 'basketball';
   }

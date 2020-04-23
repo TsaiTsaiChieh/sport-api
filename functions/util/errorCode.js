@@ -11,7 +11,7 @@ const errorCodeLists = {
   1308: { msg: ['使用者狀態異常'], backend: ['使用者不是管理者，請確認使用者狀態', ''] }
 }
 
-function errsMsg (serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
+function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
   // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
@@ -21,7 +21,7 @@ function errsMsg (serverCode, backendcode, otherMsg = '', showOrder = 0) { // ot
       ? { code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }
       : serverCode !== 500
         ? { code: 500, err: { code: 500, msg: `${backendcode} 該後端code不存在!` } }
-        : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } }
+        : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } };
 }
 
 module.exports = { errsMsg };

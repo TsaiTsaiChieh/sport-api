@@ -76,11 +76,11 @@ const firebaseAdmin = modules.firebaseAdmin;
  *     HTTP/1.1 401 Token Missing
  *     missing token
  */
-async function getUserProfile (req, res) {
+async function getUserProfile(req, res) {
   const uid = req.token.uid;
   userUtils.getUserProfile(uid).then(firestoreUser => {
     // res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json(firestoreUser)
+    return res.status(200).json(firestoreUser);
   }).catch(error => {
     console.log('getUserProfile - getUserProfile false : ', error);
     return res.status(500).send('error');

@@ -32,7 +32,7 @@ const admin = modules.firebaseAdmin;
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error
  */
-async function accuseUser (req, res) {
+async function accuseUser(req, res) {
   try {
     const args = {};
     args.defendant = req.body.defendant;

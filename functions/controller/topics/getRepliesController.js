@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const repliesModel = require('../../model/topics/getRepliesModel');
-async function getTopics (req, res) {
+async function getTopics(req, res) {
   const aid = Number(req.params.aid);
   const page = Number(req.params.page);
   if (isNaN(aid) || !Number.isInteger(aid) || aid < 0 || aid > 9999999) {
@@ -13,10 +13,10 @@ async function getTopics (req, res) {
     return;
   }
   repliesModel({ aid: aid, page: page })
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

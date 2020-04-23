@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const searchUserDetailModel = require('../../model/rank/searchUserDetailModel');
 
-async function searchUserDetail (req, res) {
+async function searchUserDetail(req, res) {
   try {
     const schema = {
       type: 'object',

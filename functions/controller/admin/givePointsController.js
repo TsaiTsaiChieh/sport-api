@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 const givePointsModel = require('../../model/admin/givePointsModel');
-function givePoints (req, res) {
+function givePoints(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'points'],
@@ -25,10 +25,10 @@ function givePoints (req, res) {
     return;
   }
   givePointsModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

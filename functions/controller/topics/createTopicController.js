@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/createTopicModel');
-async function createTopic (req, res) {
+async function createTopic(req, res) {
 /// 聯盟、看板、標題、文章（html格式）
   // content:{
   //   category: category, [賽事分析,球隊討論,投注分享]
@@ -30,7 +30,7 @@ async function createTopic (req, res) {
         type: 'string'
       }
     }
-  }
+  };
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -41,10 +41,10 @@ async function createTopic (req, res) {
   const args = req.body;
 
   topicModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }
