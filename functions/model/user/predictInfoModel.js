@@ -10,7 +10,7 @@ function predictInfo (args) {
 
   return new Promise(async function (resolve, reject) {
     // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
-    // 2. 取得 使用者 兩天內 預測資料，該比賽必需是賽前，預測資料 排序以 bets_id 為主
+    // 2. 取得 使用者 未開賽 預測資料，該比賽必需是賽前，預測資料 排序以 開賽時間 (match_scheduled) 為主
 
     const userUid = args.token.uid;
     // onst league = args.league;
@@ -23,7 +23,6 @@ function predictInfo (args) {
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
 
       if(memberInfo === null) {
-
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1301')); // ${userUid}
       }
@@ -34,8 +33,7 @@ function predictInfo (args) {
       }
 
       // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log("memberInfo status of statusSwitch: %o",
-        modules.userStatusCodebook(memberInfo.status));
+      console.log("memberInfo status of statusSwitch: %o", modules.userStatusCodebook(memberInfo.status));
     } catch (err) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -52,7 +50,7 @@ function predictInfo (args) {
       // 賽前 (scheduled 開賽時間 > api呼叫時間)
       // 注意 percentage 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       
-      // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled)
+      // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled) 確保 match_scheduled 有使用 index 
       const predictionsInfoDocs = await db.sequelize.query(`
         select prediction.*, 
                spread.handicap spread_handicap,
@@ -63,7 +61,7 @@ function predictInfo (args) {
                         team_away.alias away_alias, team_away.alias_ch away_alias_ch,
                         prediction.spread_id, prediction.spread_option, prediction.spread_bets,
                         prediction.totals_id, prediction.totals_option, prediction.totals_bets
-                   from user__predictions prediction,
+                   from user__predictions prediction force index(user__predictions_uid_match_scheduled),
                         match__leagues league,
                         matches,
                         match__teams team_home,
