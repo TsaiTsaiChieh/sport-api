@@ -13,17 +13,23 @@ async function createTopic (req, res) {
     type: 'object',
     requied: ['aid', 'content'],
     properties: {
-      article_id: {
+      aid: {
         type: 'number'
       },
-      replyto_id: {
+      reply_id: {
         type: ['number', 'null']
       },
       content: {
         type: 'string'
       },
       images: {
-        type: 'object'
+        type: 'array',
+        maxItems: 3,
+        items: [
+          { type: 'object' },
+          { type: 'object' },
+          { type: 'object' }
+        ]
       }
     }
   }
