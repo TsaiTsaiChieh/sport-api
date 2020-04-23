@@ -7,7 +7,8 @@ const errorCodeLists = {
   1304: { msg: ['使用者一天只能擁有一份預測清單'], backend: ['使用者一天只能擁有一份預測清單', 'User can not own predictions more than one predictions list of one day.'] },
   1305: { msg: ['user status abnormal'], backend: ['使用者不存在', 'user not found.'] },
   1306: { msg: ['user status abnormal'], backend: ['users_titles doc 找不到', 'users_titles doc not found'] },
-  1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] }
+  1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] },
+  1308: { msg: ['使用者狀態異常'], backend: ['使用者不是管理者，請確認使用者狀態', ''] }
 }
 
 function errsMsg (serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入

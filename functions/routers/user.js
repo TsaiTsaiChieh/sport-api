@@ -44,4 +44,11 @@ router.post(
   require('../controller/user/predictInfoController')
 );
 
+// 結算
+router.post(
+  '/settle_matches',
+  verification.token,
+  require('../controller/user/settleMatchesController')
+);
+
 module.exports = router;
