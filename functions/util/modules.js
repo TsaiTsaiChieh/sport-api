@@ -28,9 +28,11 @@ const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
       }
   zone: 'America/Los_Angeles' or 'Asia/Taipei'
 */
-function convertTimezone (date, operation, zone = zone_tw) {
+function convertTimezone(date, operation, zone = zone_tw) {
   if (operation) {
-    if (operation.op === 'add') { return moment.tz(date, zone).add(operation.value, operation.unit).unix(); }
+    if (operation.op === 'add') {
+      return moment.tz(date, zone).add(operation.value, operation.unit).unix();
+    }
     if (operation.op === 'subtract') {
       return moment
         .tz(date, zone)
@@ -50,7 +52,7 @@ function convertTimezone (date, operation, zone = zone_tw) {
       }
   zone: 'America/Los_Angeles' or 'Asia/Taipei'
 */
-function convertTimezoneFormat (unix, operation, zone = zone_tw) {
+function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
   if (operation) {
     if (operation.op === 'add') {
@@ -67,7 +69,7 @@ function convertTimezoneFormat (unix, operation, zone = zone_tw) {
   }
   return moment.tz(unix, zone).format('YYYYMMDD');
 }
-function initFirebase () {
+function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
     console.log('initializing firebase database');
     firebaseAdmin.initializeApp({
@@ -98,21 +100,21 @@ var redis = {
   port: '6379'
 };
 /* redis 設定-END */
-function getSnapshot (collection, id) {
+function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
 
-function getDoc (collection, id) {
+function getDoc(collection, id) {
   return firestore.collection(collection).doc(id);
 }
 
-function addDataInCollection (collection, data) {
+function addDataInCollection(collection, data) {
   return firestore.collection(collection).add(data);
 }
-function addDataInCollectionWithId (collection, id, data) {
+function addDataInCollectionWithId(collection, id, data) {
   return firestore.collection(collection).doc(id).set(data, { merge: true });
 }
-function createError (code, error) {
+function createError(code, error) {
   const err = {};
   err.code = code;
   err.error = error;
@@ -128,27 +130,28 @@ const db = {
   eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
   // baseball_MLB: 'MLB_TC',
+  eSoccer: 'eSoccer',
   prediction: 'prediction'
 };
-function dateFormat (date) {
+function dateFormat(date) {
   return {
     year: date.substring(0, 4),
     month: date.substring(5, 7),
     day: date.substring(8, 10)
   };
 }
-async function cloneFirestore (name, clonedName) {
+async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
   snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
-function firebaseTimestamp (milliseconds) {
+function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
 }
 // eslint-disable-next-line consistent-return
-function leagueCodebook (league) {
+function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
@@ -168,7 +171,7 @@ function leagueCodebook (league) {
   }
 }
 
-function leagueDecoder (leagueID) {
+function leagueDecoder(leagueID) {
   switch (leagueID) {
     case '2274' || 2274:
       return 'NBA';
@@ -179,7 +182,7 @@ function leagueDecoder (leagueID) {
   }
 }
 
-function getTitlesPeriod (date) {
+function getTitlesPeriod(date) {
   // date = new Date()
   const specificDate = '20200302';
   const years = [
@@ -226,7 +229,7 @@ function getTitlesPeriod (date) {
   return 0;
 }
 
-function userStatusCodebook (role) {
+function userStatusCodebook(role) {
   switch (role) {
     case 1:
       return 'GOD';

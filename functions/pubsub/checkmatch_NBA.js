@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const NBApbp = require('./pbpNBA.js');
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
-async function checkmatch_NBA () {
+async function checkmatch_NBA() {
   const firestoreName = 'page_NBA';
 
   // maybe from firestore to mysql
@@ -35,7 +35,9 @@ async function checkmatch_NBA () {
         await NBApbpInplay(parameter);
       }
     } else {
-      const ref = await modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
+      const ref = await modules.database.ref(
+        `basketball/NBA/${betsID}/Summary/status`
+      );
       ref.set('scheduled');
     }
     if (eventStatus === 1) {

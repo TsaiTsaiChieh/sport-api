@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-async function livescore (args) {
+async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league, args.time);
@@ -11,12 +11,12 @@ async function livescore (args) {
     }
   });
 }
-async function reResult (sport, league, time) {
+async function reResult(sport, league, time) {
   const result = await repackage(sport, league, time);
 
   return await Promise.all(result);
 }
-async function repackage (sport, league, time) {
+async function repackage(sport, league, time) {
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)

@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-async function livescore (args) {
+async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league);
@@ -11,12 +11,12 @@ async function livescore (args) {
     }
   });
 }
-async function reResult (sport, league) {
+async function reResult(sport, league) {
   const result = await repackage(sport, league);
 
   return await Promise.all(result);
 }
-async function repackage (sport, league) {
+async function repackage(sport, league) {
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)
@@ -42,22 +42,25 @@ async function repackage (sport, league) {
   const outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
-    eventData[i].sport = sport;
-    eventData[i].league = league;
     scheduled = new Date(
       eventData[i].scheduled._seconds * 1000
     ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
     scheduled = scheduled.split(' ')[0];
 
-    // if (scheduled === dateNow) {
-    //   eventToday.push(eventData[i]);
-    // }
-    // 0 目前當天有幾場比賽已結束
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
+      if (eventData[i].newest_spread.home_tw === '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw === '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       closedEvent.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -69,13 +72,20 @@ async function repackage (sport, league) {
       });
     }
 
-    // 1 目前當天有幾場比賽進行中
     if (scheduled === dateNow && eventData[i].flag.status === 1) {
-      // inprogressEvent.push(eventData[i]);
+      if (eventData[i].newest_spread.home_tw === '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw === '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       outputJson.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -86,12 +96,21 @@ async function repackage (sport, league) {
         }
       });
     }
-    // 2 目前當天有幾場比賽規劃中
+
     if (scheduled === dateNow && eventData[i].flag.status === 2) {
+      if (eventData[i].newest_spread.home_tw === '') {
+        eventData[i].newest_spread.home_tw = null;
+      }
+      if (eventData[i].newest_spread.away_tw === '') {
+        eventData[i].newest_spread.away_tw = null;
+      }
       scheduledEvent.push({
+        league: league,
+        sport: sport,
         bets_id: eventData[i].bets_id,
         newest_spread: eventData[i].newest_spread.handicap,
         home_tw: eventData[i].newest_spread.home_tw,
+        away_tw: eventData[i].newest_spread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -102,36 +121,44 @@ async function repackage (sport, league) {
         }
       });
     }
+  }
+  switch (outputJson.length) {
+    case 0: {
+      for (let i = 0; i < 4; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 1: {
+      for (let i = 0; i < 3; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 2: {
+      for (let i = 0; i < 2; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    case 3: {
+      for (let i = 0; i < 1; i++) {
+        if (closedEvent[i]) {
+          outputJson.push(closedEvent[i]);
+        }
+      }
+      break;
+    }
+    default:
+      outputJson.push('error in livescoreModel.js');
   }
 
-  if (outputJson.length === 0) {
-    for (let i = 0; i < 4; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 1) {
-    for (let i = 0; i < 3; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 2) {
-    for (let i = 0; i < 2; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
-  if (outputJson.length === 3) {
-    for (let i = 0; i < 1; i++) {
-      if (closedEvent[i]) {
-        outputJson.push(closedEvent[i]);
-      }
-    }
-  }
   return outputJson;
 }
 module.exports = livescore;
