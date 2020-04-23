@@ -1,24 +1,12 @@
 const modules = require('../../util/modules');
-// const db = require('../../util/dbUtil');
 const db = require('../../util/dbUtil');
-
-// aa('20200422');
-// aa('20200423');
-
-// module.exports.NBA.upcoming =
-async function aa(date) {
-  // mysql----------
-  //   try {
-  //     // const Match = await db.eSoccer_match.sync();
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // mysql----------
+module.exports.eSoccer = {};
+module.exports.eSoccer.upcoming = async function (date) {
   const _date = modules.dateFormat(date);
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
   const results = [];
-
+  // leagueArray.length
   for (let i = 0; i < leagueArray.length; i++) {
     const leagueID = leagueArray[i];
 
@@ -26,57 +14,22 @@ async function aa(date) {
     try {
       // eslint-disable-next-line no-await-in-loop
       let { data } = await modules.axios(URL);
+      for (let j = 0; j < data.results.length; j++) {
+        const ele = data.results[j];
 
-      for (let i = 0; i < data.results.length; i++) {
-        const ele = data.results[i];
-
-        const oddURL = `https://api.betsapi.com/v2/event/odds/summary?token=${modules.betsToken}&event_id=${ele.id}`;
-        // eslint-disable-next-line no-await-in-loop
-        ({ data } = await modules.axios(oddURL));
-        const dataBetsSummary = data;
-        const oddsURL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}`;
-        // eslint-disable-next-line no-await-in-loop
-        ({ data } = await modules.axios(oddsURL));
-        const dataBets = data;
-        // eslint-disable-next-line no-await-in-loop
-        await modules.fs.writeFile(
-          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}.json`,
-          JSON.stringify(ele),
-          // eslint-disable-next-line no-loop-func
-          function (err) {
-            if (err) {
-              console.log(err);
-            }
-          }
+        results.push(
+          modules.firestore
+            .collection(modules.db.eSoccer)
+            .doc(ele.id)
+            .set(repackage_bets(ele), { merge: true })
         );
-        // eslint-disable-next-line no-await-in-loop
-        await modules.fs.writeFile(
-          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_betsSummary.json`,
-          JSON.stringify(dataBetsSummary),
-          // eslint-disable-next-line no-loop-func
-          function (err) {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        // eslint-disable-next-line no-await-in-loop
-        await modules.fs.writeFile(
-          `/Users/huangdao-yong/Desktop/esports/${date}_${ele.id}_bets.json`,
-          JSON.stringify(dataBets),
-          // eslint-disable-next-line no-loop-func
-          function (err) {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        // results.push(
-        //   modules.firestore
-        //     .collection(modules.db.eSoccer)
-        //     .doc(ele.id)
-        //     .set(repackage_bets(ele), { merge: true })
-        // );
+        // mysql----------
+        //   try {
+        //     // const Match = await db.eSoccer_match.sync();
+        //   } catch (err) {
+        //     console.error(err);
+        //   }
+        // mysql----------
       }
     } catch (error) {
       console.error(
@@ -87,7 +40,6 @@ async function aa(date) {
     }
   }
   console.log('ok');
-  // firestore
   return new Promise(async function (resolve, reject) {
     try {
       resolve(await Promise.all(results));
@@ -99,7 +51,8 @@ async function aa(date) {
       reject(error);
     }
   });
-}
+};
+
 function repackage_bets(ele) {
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
@@ -131,4 +84,3 @@ function repackage_bets(ele) {
     }
   };
 }
-module.exports = aa;

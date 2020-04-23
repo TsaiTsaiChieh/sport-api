@@ -47,7 +47,7 @@ const whitelist = [
   'https://dosports.web.app',
   'https://api-dosports.web.app'
 ];
-const localOrigin = 'http://172.16.21'
+const localOrigin = 'http://172.16.21';
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -80,10 +80,18 @@ exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
+exports.prematch_esport = functions.pubsub
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
+exports.handicap_esport = functions.pubsub
+  .schedule('0 */1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
 //   .schedule('*/10 * * * *')
 //   .timeZone('Asia/Taipei')

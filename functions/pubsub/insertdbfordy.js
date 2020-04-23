@@ -1,12 +1,12 @@
 const modules = require('../util/modules');
 
 async function inserttest() {
-  const realtimeData = JSON.parse(
-    JSON.stringify(
-      // eslint-disable-next-line no-await-in-loop
-      await modules.database.ref('basketball/NBA/20200501').once('value')
-    )
-  );
+  // const realtimeData = JSON.parse(
+  //   JSON.stringify(
+  //     // eslint-disable-next-line no-await-in-loop
+  //     await modules.database.ref('basketball/NBA/20200501').once('value')
+  //   )
+  // );
 
   // let ref = modules.database.ref(`basketball/NBA/2118058`);
   // await ref.set(realtimeData);
