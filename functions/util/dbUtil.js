@@ -264,6 +264,9 @@ const League = sequelize.define(
       {
         unique: true,
         fields: ['league_id']
+      },
+      {
+        fields: ['name']
       }
     ]
   }
