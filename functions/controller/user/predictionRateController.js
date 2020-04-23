@@ -4,15 +4,19 @@ const model = require('../../model/user/predictionRateModel');
 async function predictionRate(req, res) {
   const schema = {
     type: 'object',
-    required: ['match_id', 'handicap_type'],
+    required: ['league', 'date', 'user_type'],
     properties: {
-      match_id: {
+      league: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter
+        enum: ['NBA']
       },
-      handicap_type: {
+      date: {
         type: 'string',
-        enum: ['1', '2']
+        format: 'date'
+      },
+      user_type: {
+        type: 'string',
+        enum: ['all', 'god']
       }
     }
   };
@@ -25,7 +29,17 @@ async function predictionRate(req, res) {
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    console.error(
+      'Error in controller/user/predictRateController function by TsaiChieh',
+      err
+    );
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      );
   }
 }
 
