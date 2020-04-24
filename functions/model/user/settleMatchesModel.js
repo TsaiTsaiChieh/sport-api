@@ -12,6 +12,9 @@ function settleMatches (args) {
     const userUid = args.token.uid;
     const bets_id = args.bets_id;
 
+    const result = {};
+
+    s1 = new Date().getTime();
     // 1.  
     try{
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
@@ -34,158 +37,211 @@ function settleMatches (args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-
+    s2 = new Date().getTime();
     // 2.
     try {
+      // flag_permatch 1 才為有效賽事
+      // status 0 比賽結束
+      // home_points、away_points 最終得分 需要有值 (不可null，不可空白)
       const matchInfo = await db.sequelize.query(`
-        select *
+        select bets_id, home_id, away_id, home_points, away_points,
+               spread.handicap spread_handicap, home_odd, away_odd,
+               totals.handicap totals_handicap, over_odd, under_odd
           from matches
+          left join match__spreads spread
+            on matches.spread_id = spread.spread_id
+          left join match__totals totals
+            on matches.totals_id = totals.totals_id
          where bets_id = :bets_id
+           and flag_prematch = 1
+           and status = 0
+           and (home_points is not null and home_points != '')
+           and (away_points is not null and away_points != '')
       `, { 
         replacements:{
           bets_id: bets_id
         },
         type: db.sequelize.QueryTypes.SELECT 
       });
-console.log(matchInfo)
+      
+      if (matchInfo.length == 0 || matchInfo.length >1 ) 
+        return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`);
 
+      const mapResult = matchInfo.map(async function(data){
+        const countData = {
+          homePoints: data.home_points,
+          awayPoints: data.away_points,
+          spreadHandicap: data.spread_handicap,
+          spreadHomeOdd: data.home_odd,
+          spreadAwayOdd: data.away_odd,
+          totalsHandicap: data.totals_handicap,
+          totalsOverOdd: data.over_odd,
+          totalsUnderOdd: data.under_odd
+        };
+        
+        // null 代表 沒有handicap
+        const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
+        if (settelSpreadResult == '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
+
+        const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
+        if (settelTotalsResult == '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
+
+        // 回寫結果
+        try{ 
+          const r = await db.Match.update({
+            spread_result: settelSpreadResult,
+            totals_result: settelTotalsResult
+          }, {
+            where: {
+              bets_id: bets_id
+            }
+          });
+
+          if (r != 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
+
+          result[bets_id] = {status: 1, msg: '賽事結算成功！'};
+        } catch (err){
+          return reject(errs.errsMsg('404', '1309'));
+        }
+      });
+
+      await Promise.all(mapResult);
     } catch (err) {
       console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
-
+    s3 = new Date().getTime();
     // 3.
     try {
+      const predictMatchInfo = await db.sequelize.query(`
+        select prediction.id, prediction.uid, prediction.spread_option, prediction.totals_option,
+               matches.bets_id, home_id, away_id, home_points, away_points,
+               spread.spread_id, spread.handicap spread_handicap, home_odd, away_odd,
+               totals.totals_id, totals.handicap totals_handicap, over_odd, under_odd
+          from user__predictions prediction
+         inner join matches
+            on prediction.bets_id = matches.bets_id
+          left join match__spreads spread
+            on prediction.spread_id = spread.spread_id
+          left join match__totals totals
+            on prediction.totals_id = totals.totals_id
+         where matches.bets_id = :bets_id
+           and flag_prematch = 1
+           and status = 0
+           and (home_points is not null and home_points != '')
+           and (away_points is not null and away_points != '')
+      `, { 
+        replacements:{
+          bets_id: bets_id
+        },
+        type: db.sequelize.QueryTypes.SELECT 
+      });
 
+      const mapResult2 = predictMatchInfo.map(async function(data){
+        const countData = {
+          homePoints: data.home_points,
+          awayPoints: data.away_points,
+          spreadHandicap: data.spread_handicap,
+          spreadHomeOdd: data.home_odd,
+          spreadAwayOdd: data.away_odd,
+          totalsHandicap: data.totals_handicap,
+          totalsOverOdd: data.over_odd,
+          totalsUnderOdd: data.under_odd
+        };
+
+        // null 代表 沒有handicap
+        const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
+        if (settelSpreadResult == '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
+
+        const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
+        if (settelTotalsResult == '') return reject(errs.errsMsg('404', '1316')); // 賽事結算大小 結果不應該為空白
+
+        // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
+        const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
+        const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
+
+        // 回寫結果 
+        try{ 
+          const r = await db.Prediction.update({
+            spread_result: settelSpreadResult,
+            totals_result: settelTotalsResult,
+            spread_result_flag: spreadResultFlag,
+            totals_result_flag: totalsResultFlag,
+          }, {
+            where: {
+              id: data.id
+            }
+          });
+
+          if (r != 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
+
+          result[data.uid] = {user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！'};
+        } catch (err){
+          return reject(errs.errsMsg('404', '1313'));
+        }
+      });
+
+      await Promise.all(mapResult2);
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    let predictionsInfoList = []; // 使用者預測資訊
-    let response = {};
-
-    // 2.
-    try {
-      const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      //const tomorrow_YYYYMMDD = modules.moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = modules.moment(now_YYYYMMDD).unix(); // * 1000;
-      // const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
-
-      // 使用者預測資訊
-      // 賽前 (scheduled 開賽時間 > api呼叫時間)
-      // 注意 percentage 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
-      
-      // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled) 確保 match_scheduled 有使用 index 
-      const predictionsInfoDocs = await db.sequelize.query(`
-        select prediction.*, 
-               spread.handicap spread_handicap,
-               totals.handicap totals_handicap
-          from (
-                 select prediction.bets_id, match_scheduled, league.name league,
-                        team_home.alias home_alias, team_home.alias_ch home_alias_ch,
-                        team_away.alias away_alias, team_away.alias_ch away_alias_ch,
-                        prediction.spread_id, prediction.spread_option, prediction.spread_bets,
-                        prediction.totals_id, prediction.totals_option, prediction.totals_bets
-                   from user__predictions prediction force index(user__predictions_uid_match_scheduled),
-                        match__leagues league,
-                        matches,
-                        match__teams team_home,
-                        match__teams team_away
-                  where prediction.league_id = league.league_id
-                    and prediction.bets_id = matches.bets_id
-                    and matches.home_id = team_home.team_id
-                    and matches.away_id = team_away.team_id
-                    and prediction.uid = :uid
-                    and prediction.match_scheduled > :now
-               ) prediction
-          left join match__spreads spread
-            on prediction.spread_id = spread.spread_id
-          left join match__totals totals
-            on prediction.totals_id = totals.totals_id
-      `, { 
-        replacements:{
-          uid: userUid,
-          now: now
-        },
-        limit: 30, 
-        type: db.sequelize.QueryTypes.SELECT 
-      });
-
-      // 使用者 一開始尚未預測
-      if(predictionsInfoDocs.length == 0) {
-        // return reject(errs.errsMsg('404', '1303'));
-        return resolve(predictionsInfoList); // 回傳 空Array
-      }
-
-      // 一個使用者，一天只會有一筆記錄
-      // if(predictionsInfoDocs.size > 1) {
-      //   // console.error('Error 2. in user/predictonInfoModell by YuHsien');
-      //   return reject(errs.errsMsg('404', '1304'));
-      // }
-
-      // 把賽事資料 重包裝格式
-      groupBy(predictionsInfoDocs, 'league').forEach(function(data) { // 分聯盟陣列
-        let league = '';
-        data.forEach(function (ele) { // 取出 聯盟陣列中的賽事
-          predictionsInfoList.push(
-            repackage(ele)
-          );
-          league = ele.league;
-        });
-        response[league] = predictionsInfoList;
-        predictionsInfoList = [];
-      });
-    } catch (err) {
-      console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
-
-    return resolve(response);
+    e = new Date().getTime();
+    console.log('1. ', s2 - s1);
+    console.log('2. ', s3 - s2);
+    console.log('3. ', e - s3);
+    return resolve(result);
   });
 }
 
-function groupBy(arr, prop) { // 將陣列裡面的 object 依照 attrib 來進行分類成 array
-  const map = new Map(Array.from(arr, obj => [obj[prop], []]));
-  arr.forEach(obj => map.get(obj[prop]).push(obj));
-  return Array.from(map.values());
+function settleSpread(data){
+  // handciap: 正:主讓客  負:客讓主
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.spreadHandicap;
+  const homeOdd =  data.homeOdd;
+  const awayOdd = data.awayOdd;
+
+  // 平盤有兩情況
+  // fair 平盤 要計算注數
+  // fair2 平盤 不要計算注數
+  return handicap ?
+    (homePoints - handicap) == awayPoints ?
+        (homeOdd != awayOdd) ? 'fair' : 'fair2'
+      : 
+        (homePoints - handicap) > awayPoints ? 'home' : 'away'
+    : '';
+} 
+
+function settleTotals(data){
+  // handciap: 正:主讓客  負:客讓主
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.totalsHandicap;
+  const overOdd = data.overOdd;
+  const underOdd = data.underOdd;
+
+  // 平盤有兩情況
+  // fair 平盤 要計算注數
+  // fair2 平盤 不要計算注數
+  return handicap ?
+    (homePoints + awayPoints) == handicap ?
+        (overOdd != underOdd) ? 'fair' : 'fair2'
+      : 
+        (homePoints + awayPoints) > handicap ? 'over' : 'under'
+    : '';
 }
 
-function repackage (ele) {
-  const data = {
-    bets_id: ele.bets_id,
-    scheduled: ele.match_scheduled, // 開賽時間
-    league: ele.league,
-    home: ele.home_alias,
-    home_ch: ele.home_alias_ch,
-    away: ele.away_alias,
-    away_ch: ele.away_alias_ch,
-    spread: {},
-    totals: {}
-  };
-
-  if ( !(ele.spread_id == null) ) { // 有讓分資料
-    data['spread'] = {
-      predict: ele.spread_option,
-      spread_id: ele.spread_id,
-      handicap: ele.spread_handicap,
-      percentage: Math.floor(Math.random()*50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
-      bets: ele.spread_bets
-    }
-  }
-
-  if( !(ele.totals_id == null) ) { // 有大小資料
-    data['totals'] = {
-      predict: ele.totals_option,
-      totals_id: ele.totals_id,
-      handicap: ele.totals_handicap,
-      percentage: Math.floor(Math.random()*50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
-      bets: ele.totals_bets
-    }
-  }
-
-  return data;
+function resultFlag(option, settelResult){
+  // -2 未結算，-1 輸，0 不算，1 贏，2 平 (一半一半)
+  return settelResult == 'fair2' ? 
+    0 : settelResult == 'fair' ? 
+      2 : settelResult == option ? 
+        1 : -1;
 }
 
 module.exports = settleMatches;
