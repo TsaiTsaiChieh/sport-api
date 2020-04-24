@@ -37,7 +37,7 @@ async function getTopics(args) {
       if (typeof args.type !== 'undefined' && args.type !== null) {
         where.type = args.type;
       }
-      if (typeof args.category !== 'undefined' && args.type !== null) {
+      if (typeof args.category !== 'undefined' && args.category !== null) {
         where.category = args.category;
       }
       if (typeof args.page !== 'undefined' && args.type !== null) {

@@ -28,6 +28,7 @@ router.post(
 );
 router.post(
   '/contactService',
+  verification.getToken,
   require('../controller/user/contactServiceController')
 );
 router.get(
