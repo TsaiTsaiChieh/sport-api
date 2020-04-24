@@ -614,6 +614,9 @@ const Prediction = sequelize.define(
     spread_bets: {
       type: Sequelize.INTEGER
     },
+    spread_result: {
+      type: Sequelize.STRING
+    },
     totals_id: {
       type: Sequelize.STRING
     },
@@ -622,6 +625,9 @@ const Prediction = sequelize.define(
     },
     totals_bets: {
       type: Sequelize.INTEGER
+    },
+    totals_result: {
+      type: Sequelize.STRING
     },
     uid: {
       type: Sequelize.STRING,
