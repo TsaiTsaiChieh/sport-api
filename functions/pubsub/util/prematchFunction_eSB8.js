@@ -1,8 +1,8 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 module.exports.eSB8 = {
-  upcoming: function (date) {
-    return new Promise(async function (resolve, reject) {
+  upcoming: function(date) {
+    return new Promise(async function(resolve, reject) {
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=1&token=${modules.betsToken}&league_id=22614&day=${date}`;
       // axios
       try {
@@ -29,7 +29,7 @@ module.exports.eSB8 = {
   }
 };
 
-function repackage_bets (ele) {
+function repackage_bets(ele) {
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     scheduled: Number.parseInt(ele.time),

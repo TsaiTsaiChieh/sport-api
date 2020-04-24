@@ -8,8 +8,8 @@ const NORMAL_USER = 1;
 const GOD_USER = 2;
 const TAIWAN_UTF = 8;
 
-function prematch (args) {
-  return new Promise(async function (resolve, reject) {
+function prematch(args) {
+  return new Promise(async function(resolve, reject) {
     // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
     try {
       // 檢查此使用者身份
@@ -25,21 +25,21 @@ function prematch (args) {
 }
 
 // 檢查玩家想賣牌，是否屬於該聯盟的大神
-function isGodBelongToLeague (args, userTitles = []) {
-  return new Promise(function (resolve, reject) {
+function isGodBelongToLeague(args, userTitles = []) {
+  return new Promise(function(resolve, reject) {
     if (args.sell === 1 && !userTitles.includes(args.league)) { return reject(new AppError.UserCouldNotSell()); } else return resolve();
   });
 }
 
 // 檢查玩家想賣牌，是否屬於大神
-function isNormalUserSell (sell, role) {
-  return new Promise(function (resolve, reject) {
+function isNormalUserSell(sell, role) {
+  return new Promise(function(resolve, reject) {
     role = Number.parseInt(role);
     if (role === NORMAL_USER && sell === 1) { return reject(new AppError.UserCouldNotSell()); } else return resolve();
   });
 }
 
-async function checkMatches (args) {
+async function checkMatches(args) {
   const needed = [];
   const failed = [];
 
@@ -63,7 +63,7 @@ async function checkMatches (args) {
   return { needed, failed };
 }
 
-async function isMatchExist (args, ele, filter) {
+async function isMatchExist(args, ele, filter) {
   const matchSnapshot = await modules.getSnapshot(
     modules.leagueCodebook(args.league).match,
     ele.id
@@ -80,7 +80,7 @@ async function isMatchExist (args, ele, filter) {
   }
 }
 
-function isBeforeScheduled (now, i, filter) {
+function isBeforeScheduled(now, i, filter) {
   const ele = filter.needed[i];
   if (ele.data.flag.status !== 2) {
     // if (now >= ele.data.scheduled._seconds * 1000) {
@@ -92,7 +92,7 @@ function isBeforeScheduled (now, i, filter) {
   }
 }
 
-function filterProcessor (filter, i, error) {
+function filterProcessor(filter, i, error) {
   const ele = filter.needed[i];
   ele.code = error.code;
   ele.error = error.error;
@@ -101,7 +101,7 @@ function filterProcessor (filter, i, error) {
   filter.failed.push(ele);
 }
 
-function isOpened (i, filter) {
+function isOpened(i, filter) {
   const ele = filter.needed[i];
   if (ele.spread) {
     if (ele.data.flag.spread === 0) {
@@ -122,7 +122,7 @@ function isOpened (i, filter) {
   }
 }
 
-function isNewestHandicap (i, filter) {
+function isNewestHandicap(i, filter) {
   const ele = filter.needed[i];
   if (ele.spread) {
     if (ele.spread[0] !== ele.data.newest_spread.handicap_id) {
@@ -143,7 +143,7 @@ function isNewestHandicap (i, filter) {
   }
 }
 
-async function isGodUpdate (uid, i, filter) {
+async function isGodUpdate(uid, i, filter) {
   const ele = filter.needed[i];
   const predictionSnapshot = await modules.getSnapshot(
     modules.db.prediction,
@@ -173,7 +173,7 @@ async function isGodUpdate (uid, i, filter) {
   }
 }
 
-async function isGodSellConsistent (args, i, filter) {
+async function isGodSellConsistent(args, i, filter) {
   const date = modules
     .moment(filter.needed[i].data.scheduled._seconds * 1000)
     .utcOffset(TAIWAN_UTF)
@@ -185,7 +185,7 @@ async function isGodSellConsistent (args, i, filter) {
     .get();
 
   if (query.size > 0) {
-    query.docs.map(function (doc) {
+    query.docs.map(function(doc) {
       if (doc.data().sell !== args.sell) {
         const error = {
           code: 403,
@@ -197,8 +197,8 @@ async function isGodSellConsistent (args, i, filter) {
   }
 }
 
-function sendPrediction (args, filter) {
-  return new Promise(async function (resolve, reject) {
+function sendPrediction(args, filter) {
+  return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(new AppError.UserPredictFailed((filter.failed)));
@@ -209,7 +209,7 @@ function sendPrediction (args, filter) {
   });
 }
 
-function isNeeded (needed) {
+function isNeeded(needed) {
   let count = 0;
   for (let i = 0; i < needed.length; i++) {
     const ele = needed[i];
@@ -219,7 +219,7 @@ function isNeeded (needed) {
   return true;
 }
 
-async function insertFirestore (args, needed) {
+async function insertFirestore(args, needed) {
   const results = [];
   for (let i = 0; i < needed.length; i++) {
     const ele = needed[i];
@@ -236,7 +236,7 @@ async function insertFirestore (args, needed) {
   return await Promise.all(results);
 }
 
-function repackagePrediction (args, ele) {
+function repackagePrediction(args, ele) {
   const date = modules
     .moment(ele.data.scheduled._seconds * 1000)
     .utcOffset(TAIWAN_UTF)
@@ -282,7 +282,7 @@ function repackagePrediction (args, ele) {
   return data;
 }
 
-function repackageReturnData (filter) {
+function repackageReturnData(filter) {
   filter.success = [];
   for (let i = 0; i < filter.needed.length; i++) {
     const ele = filter.needed[i];

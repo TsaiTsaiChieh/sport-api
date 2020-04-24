@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const godListsModel = require('../../model/rank/godListsModel');
 
-async function godlists (req, res) {
+async function godlists(req, res) {
   const schema = {
     type: 'object',
     required: ['league'],

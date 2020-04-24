@@ -6,7 +6,7 @@ const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 10;
 function dbFind(where, page) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: where,
@@ -24,7 +24,7 @@ function dbFind(where, page) {
   });
 }
 async function getTopics(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // const replyCount = await func.getTopicReplyCount(args.aid)
       // console.log(replyCount)
@@ -32,13 +32,13 @@ async function getTopics(args) {
       const where = {};
       let page = 0;
 
-      if (typeof args.type !== 'undefined') {
+      if (typeof args.type !== 'undefined' && args.type !== null) {
         where.type = args.type;
       }
-      if (typeof args.category !== 'undefined') {
+      if (typeof args.category !== 'undefined' && args.type !== null) {
         where.category = args.category;
       }
-      if (typeof args.page !== 'undefined') {
+      if (typeof args.page !== 'undefined' && args.type !== null) {
         page = args.page;
       }
 
@@ -63,7 +63,7 @@ async function getTopics(args) {
       }
       /* 讀取按讚數 */
       try {
-        likesCount = []; // await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
         console.log(error);
         reject({ code: 500, error: 'get like count failed' });
@@ -81,12 +81,12 @@ async function getTopics(args) {
       for (let i = 0; i < topics.length; i++) {
         // 把拿到的userinfo塞回去
         let replyCount = repliesCount.filter(
-          (obj) => obj.article_id === topics[i].id.toString()
+          (obj) => obj.article_id === topics[i].article_id.toString()
         ); // 處理留言數 把aid=id的那則挑出來
         replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics[i].reply_count = replyCount;
         let likeCount = likesCount.filter(
-          (obj) => obj.article_id === topics[i].id.toString()
+          (obj) => obj.article_id === topics[i].article_id.toString()
         ); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics[i].like_count = likeCount;

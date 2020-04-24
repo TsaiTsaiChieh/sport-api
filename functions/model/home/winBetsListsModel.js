@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winBetsLists (args) {
-  return new Promise(async function (resolve, reject) {
+function winBetsLists(args) {
+  return new Promise(async function(resolve, reject) {
     // 取得 首頁預設值
     const league_id = 'league_id';
     const defaultValues = await db.sequelize.query(
@@ -70,7 +70,7 @@ function winBetsLists (args) {
             type: db.sequelize.QueryTypes.SELECT
           });
 
-        leagueWinBetsListsQuery.forEach(function (data) { // 這裡有順序性
+        leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
           leagueWinBetsLists.push(repackage(data));
         });
         // Promise.all(results)
@@ -85,7 +85,7 @@ function winBetsLists (args) {
   });
 }
 
-function repackage (ele) {
+function repackage(ele) {
   const data = {
     win_bets: '',
     uid: ele.uid,

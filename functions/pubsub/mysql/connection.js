@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 
-async function connection (req, res) {
+async function connection(req, res) {
   try {
     await db.sequelize.authenticate();
     res.send('Connection has been established successfully.');

@@ -4,7 +4,7 @@ const modules = require('../../util/modules');
 const admin = modules.firebaseAdmin;
 const envValues = require('../../config/env_values');
 
-async function modifyUserProfile (req, res) {
+async function modifyUserProfile(req, res) {
   const uid = req.token.uid;
   const userSnapshot = await modules.getSnapshot('users', uid);
   const userProfile = await userSnapshot.data();
@@ -161,7 +161,7 @@ async function modifyUserProfile (req, res) {
 }
 
 /* 檢查唯一性(uniqueName、uniqueEmail、uniquePhone) */
-async function checkUniqueValue (table, collection, value, uid) {
+async function checkUniqueValue(table, collection, value, uid) {
   const unique_value = await db.sequelize.query(
     `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
     {

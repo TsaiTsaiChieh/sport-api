@@ -1,17 +1,19 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const articleModel = require('../../model/topics/getArticleModel');
-async function getTopics (req, res) {
+async function getTopics(req, res) {
   const aid = Number(req.params.aid);
   if (isNaN(aid) || !Number.isInteger(aid) || aid < 0 || aid > 9999999) {
     res.status(403).send('param error');
     return;
   }
-  articleModel(aid)
-    .then(function (body) {
+  const args = { aid: aid, token: req.token };
+
+  articleModel(args)
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

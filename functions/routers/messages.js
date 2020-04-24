@@ -3,7 +3,7 @@ const modules = require('../util/modules');
 const router = modules.express.Router();
 
 // Just test
-router.get('/list', function (req, res) {
+router.get('/list', function(req, res) {
   const data = { success: true, list: ['public'] };
   res.json(data);
 });

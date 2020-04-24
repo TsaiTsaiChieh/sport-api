@@ -4,8 +4,8 @@
 const modules = require('../../util/modules');
 const messageModule = require('../../util/messageModule');
 
-function getMessageWithId (id) {
-  return new Promise(async function (resolve, reject) {
+function getMessageWithId(id) {
+  return new Promise(async function(resolve, reject) {
     try {
       const messageSnapshot = await modules.getSnapshot('messages', id);
       const message = messageSnapshot.data();

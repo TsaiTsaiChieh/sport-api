@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 
-function titlePeriod () {
+function titlePeriod() {
   const specificDate = '20200302';
   let weeks = 0;
   const years = [

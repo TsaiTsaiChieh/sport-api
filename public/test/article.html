@@ -23,7 +23,7 @@
     <div v-for="(item, index) in replies" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
       <div style="white-space: pre; padding:5px;" v-html="item.content"></div>
       <hr>
-      <div style="padding:5px; text-align: right;" v-if="item.user_info">作者：{{item.user_info.display_name}}</div>
+      <div style="padding:5px; text-align: right;" v-if="item.user_info">作者：{{item.user_info.display_name}} / 讚：{{item.like_count}}</div>
     </div>
 
   </div>
@@ -50,7 +50,7 @@
         loaded: false,
         article: {},
         replies: [],
-        aid: parseInt(location.hash.substring(1)),
+        article_id: parseInt(location.hash.substring(1)),
       },
       mounted: function(){
         let vm = this;
@@ -61,7 +61,7 @@
         });
         /** 程式碼寫在下面 **/
         let res = [];
-        axios.get('/topics/article/'+vm.aid)
+        axios.get('/topics/article/'+vm.article_id)
         .then(function(response) {
           console.log(response)
           vm.article = response.data.article;
@@ -70,10 +70,10 @@
           console.log('asios failed', error);
           vm.loaded = true;
         })
-        axios.get('/topics/replies/'+vm.aid+'/0')
+        axios.get('/topics/replies/'+vm.article_id+'/0')
         .then(function(response) {
           console.log(response)
-          vm.replies = response.data.replies.rows;
+          vm.replies = response.data.replies;
           vm.loaded = true;
         })
         .catch(function(error) {

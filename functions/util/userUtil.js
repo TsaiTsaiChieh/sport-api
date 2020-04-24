@@ -1,11 +1,11 @@
 const modules = require('./modules');
 const firebaseAdmin = modules.firebaseAdmin;
 
-exports.getFirebaseUser = function (accessToken) {
+exports.getFirebaseUser = function(accessToken) {
   // const firebaseUid = `line:${body.id}`;
   const firebaseUid = accessToken.id_token.sub.toString();
 
-  return firebaseAdmin.auth().getUser(firebaseUid).then(function (userRecord) {
+  return firebaseAdmin.auth().getUser(firebaseUid).then(function(userRecord) {
     return userRecord;
   }).catch((error) => {
     const userJson = {
@@ -46,7 +46,7 @@ exports.getFirebaseUser = function (accessToken) {
 //         });
 // }
 
-exports.getUserProfile = async function (userId) {
+exports.getUserProfile = async function(userId) {
   const returnJson = {
     success: false,
     uid: userId
@@ -81,7 +81,7 @@ exports.getUserProfile = async function (userId) {
 };
 
 // Unique collections: uniqueName,uniqueEmail,uniquePhone
-exports.checkUniqueCollection = async function (collection, uid) {
+exports.checkUniqueCollection = async function(collection, uid) {
   const returnJson = {
     success: false,
     isExist: true

@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const mutedModel = require('../../model/admin/mutedModel');
 
-function muted (req, res) {
+function muted(req, res) {
   const args = {};
   const schema = {
     required: ['uid'],
@@ -20,10 +20,10 @@ function muted (req, res) {
   }
 
   mutedModel(args)
-    .then(function (body) {
+    .then(function(body) {
       res.json(body);
     })
-    .catch(function (err) {
+    .catch(function(err) {
       res.status(err.code).json(err);
     });
 }

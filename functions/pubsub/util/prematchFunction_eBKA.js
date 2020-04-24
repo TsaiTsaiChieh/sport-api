@@ -1,8 +1,8 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 module.exports.eBKA = {
-  upcoming: function (date) {
-    return new Promise(async function (resolve, reject) {
+  upcoming: function(date) {
+    return new Promise(async function(resolve, reject) {
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=22841&day=${date}`;
       // axios
       try {
@@ -27,7 +27,7 @@ module.exports.eBKA = {
   }
 };
 
-function repackage_bets (ele) {
+function repackage_bets(ele) {
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     scheduled: Number.parseInt(ele.time),

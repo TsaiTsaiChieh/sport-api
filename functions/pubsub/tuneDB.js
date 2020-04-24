@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const collectionName = 'NBA_TC';
 async function tuneDB() {
   const collection = await modules.firestore.collection(collectionName).get();
-  collection.docs.map(async function (doc) {
+  collection.docs.map(async function(doc) {
     const match = doc.data();
     newestHandicap(match);
     handicapProcessor(match);

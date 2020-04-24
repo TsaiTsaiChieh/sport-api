@@ -6,11 +6,11 @@ const sbl_api_key = '8hhpmvusugeguqdwkuf4ftmu';
 const perStep = 14000;
 // 一分鐘4次
 const timesPerLoop = 4;
-async function SBLpbpInplay (gameID, betsID, periodsNow, eventsNow) {
+async function SBLpbpInplay(gameID, betsID, periodsNow, eventsNow) {
   let countForStatus2 = 0;
   const pbpURL = `http://api.sportradar.us/basketball/trial/v2/en/sport_events/sr:match:${gameID}/timeline.json?api_key=${sbl_api_key}`;
 
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       const { data } = await axios(pbpURL);
       let ref = modules.database.ref(`basketball/SBL/${betsID}/Summary/status`);
@@ -40,7 +40,7 @@ async function SBLpbpInplay (gameID, betsID, periodsNow, eventsNow) {
     }
   }, perStep);
 }
-async function SBLpbpHistory (gameID, betsID) {
+async function SBLpbpHistory(gameID, betsID) {
   const pbpURL = `http://api.sportradar.us/basketball/trial/v2/en/sport_events/sr:match:${gameID}/timeline.json?api_key=${sbl_api_key}`;
   try {
     const { data } = await axios(pbpURL);

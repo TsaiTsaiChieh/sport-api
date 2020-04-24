@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const defaultLeagueModel = require('../../model/rank/defaultLeagueModel');
 
-async function searchUser (req, res) {
+async function searchUser(req, res) {
   try {
     res.json(await defaultLeagueModel());
   } catch (err) {

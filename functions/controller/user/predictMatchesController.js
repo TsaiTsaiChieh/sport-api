@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/user/predictMatchesModel');
 
 // eslint-disable-next-line consistent-return
-async function predictMatches (req, res) {
+async function predictMatches(req, res) {
   const now = Date.now();
   const spreadSchema = {
     type: 'array',

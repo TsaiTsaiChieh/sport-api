@@ -30,7 +30,7 @@ const lineLogin = new Line_login({
  */
 
 // call from Line SDK
-function loginHandler (req, res) {
+function loginHandler(req, res) {
   const lineAccessToken = req.query.code;
   if (!lineAccessToken) {
     res.status(401).send({ error: 'login failed!' });
@@ -88,7 +88,7 @@ function loginHandler (req, res) {
                   // res.redirect(307, 'https://doinfo.cc/line_login.html');
                 });
             })
-            .catch(function (err) {
+            .catch(function(err) {
               console.log('id token verification failed.', err);
               res.status(500).send({ error: 'login failed!' });
             });

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const giveTitleModel = require('../../model/admin/giveTitleModel');
 
-async function giveTitle (req, res) {
+async function giveTitle(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'rank', 'sport', 'league'],
