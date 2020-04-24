@@ -2,9 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function settleMatches (args) {
-
-  return new Promise(async function (resolve, reject) {
+function settleMatches(args) {
+  return new Promise(async function(resolve, reject) {
     // 1. 管理者才能進行 API 呼叫
     // 2. 該場賽事結算
     // 3. 該場賽事-使用者有下預測單結算
@@ -15,23 +14,23 @@ function settleMatches (args) {
     const result = {};
 
     s1 = new Date().getTime();
-    // 1.  
-    try{
+    // 1.
+    try {
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
 
-      if(memberInfo === null) {
+      if (memberInfo === null) {
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1301')); // ${userUid}
       }
 
-// !!!! 記得改成 9 
-      if (!([1,2].includes(memberInfo.status))) { // 不是 管理者
+      // !!!! 記得改成 9
+      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1308'));
       }
 
       // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log("memberInfo status of statusSwitch: %o", modules.userStatusCodebook(memberInfo.status));
+      console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
     } catch (err) {
       console.error('Error 1. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -57,17 +56,16 @@ function settleMatches (args) {
            and status = 0
            and (home_points is not null and home_points != '')
            and (away_points is not null and away_points != '')
-      `, { 
-        replacements:{
+      `, {
+        replacements: {
           bets_id: bets_id
         },
-        type: db.sequelize.QueryTypes.SELECT 
+        type: db.sequelize.QueryTypes.SELECT
       });
-      
-      if (matchInfo.length == 0 || matchInfo.length >1 ) 
-        return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`);
 
-      const mapResult = matchInfo.map(async function(data){
+      if (matchInfo.length == 0 || matchInfo.length > 1) {return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`);}
+
+      const mapResult = matchInfo.map(async function(data) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -78,7 +76,7 @@ function settleMatches (args) {
           totalsOverOdd: data.over_odd,
           totalsUnderOdd: data.under_odd
         };
-        
+
         // null 代表 沒有handicap
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
         if (settelSpreadResult == '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
@@ -87,7 +85,7 @@ function settleMatches (args) {
         if (settelTotalsResult == '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
 
         // 回寫結果
-        try{ 
+        try {
           const r = await db.Match.update({
             spread_result: settelSpreadResult,
             totals_result: settelTotalsResult
@@ -99,8 +97,8 @@ function settleMatches (args) {
 
           if (r != 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
 
-          result[bets_id] = {status: 1, msg: '賽事結算成功！'};
-        } catch (err){
+          result[bets_id] = { status: 1, msg: '賽事結算成功！' };
+        } catch (err) {
           return reject(errs.errsMsg('404', '1309'));
         }
       });
@@ -131,14 +129,14 @@ function settleMatches (args) {
            and status = 0
            and (home_points is not null and home_points != '')
            and (away_points is not null and away_points != '')
-      `, { 
-        replacements:{
+      `, {
+        replacements: {
           bets_id: bets_id
         },
-        type: db.sequelize.QueryTypes.SELECT 
+        type: db.sequelize.QueryTypes.SELECT
       });
 
-      const mapResult2 = predictMatchInfo.map(async function(data){
+      const mapResult2 = predictMatchInfo.map(async function(data) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -161,13 +159,13 @@ function settleMatches (args) {
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
         const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
 
-        // 回寫結果 
-        try{ 
+        // 回寫結果
+        try {
           const r = await db.Prediction.update({
             spread_result: settelSpreadResult,
             totals_result: settelTotalsResult,
             spread_result_flag: spreadResultFlag,
-            totals_result_flag: totalsResultFlag,
+            totals_result_flag: totalsResultFlag
           }, {
             where: {
               id: data.id
@@ -176,8 +174,8 @@ function settleMatches (args) {
 
           if (r != 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
 
-          result[data.uid] = {user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！'};
-        } catch (err){
+          result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
+        } catch (err) {
           return reject(errs.errsMsg('404', '1313'));
         }
       });
@@ -196,27 +194,26 @@ function settleMatches (args) {
   });
 }
 
-function settleSpread(data){
+function settleSpread(data) {
   // handciap: 正:主讓客  負:客讓主
   const homePoints = data.homePoints;
   const awayPoints = data.awayPoints;
 
   const handicap = data.spreadHandicap;
-  const homeOdd =  data.homeOdd;
+  const homeOdd = data.homeOdd;
   const awayOdd = data.awayOdd;
 
   // 平盤有兩情況
   // fair 平盤 要計算注數
   // fair2 平盤 不要計算注數
-  return handicap ?
-    (homePoints - handicap) == awayPoints ?
-        (homeOdd != awayOdd) ? 'fair' : 'fair2'
-      : 
-        (homePoints - handicap) > awayPoints ? 'home' : 'away'
+  return handicap
+    ? (homePoints - handicap) == awayPoints
+      ? (homeOdd != awayOdd) ? 'fair' : 'fair2'
+      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
     : '';
-} 
+}
 
-function settleTotals(data){
+function settleTotals(data) {
   // handciap: 正:主讓客  負:客讓主
   const homePoints = data.homePoints;
   const awayPoints = data.awayPoints;
@@ -228,20 +225,19 @@ function settleTotals(data){
   // 平盤有兩情況
   // fair 平盤 要計算注數
   // fair2 平盤 不要計算注數
-  return handicap ?
-    (homePoints + awayPoints) == handicap ?
-        (overOdd != underOdd) ? 'fair' : 'fair2'
-      : 
-        (homePoints + awayPoints) > handicap ? 'over' : 'under'
+  return handicap
+    ? (homePoints + awayPoints) == handicap
+      ? (overOdd != underOdd) ? 'fair' : 'fair2'
+      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
     : '';
 }
 
-function resultFlag(option, settelResult){
+function resultFlag(option, settelResult) {
   // -2 未結算，-1 輸，0 不算，1 贏，2 平 (一半一半)
-  return settelResult == 'fair2' ? 
-    0 : settelResult == 'fair' ? 
-      2 : settelResult == option ? 
-        1 : -1;
+  return settelResult == 'fair2'
+    ? 0 : settelResult == 'fair'
+      ? 2 : settelResult == option
+        ? 1 : -1;
 }
 
 module.exports = settleMatches;
