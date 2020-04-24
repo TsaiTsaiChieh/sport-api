@@ -16,14 +16,14 @@ const errorCodeLists = {
   1313: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions spread_result, totals_result 失敗', ''] },
   1314: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   1315: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算讓分 結果異常，不應該為空白', ''] },
-  1316: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算大小 結果異常，不應該為空白', ''] },
-}
+  1316: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算大小 結果異常，不應該為空白', ''] }
+};
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
   // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
-  return otherMsg 
+  return otherMsg
     ? { code: serverCode, err: { code: backendcode, msg: (typeof otherMsg === 'string') ? otherMsg : otherMsg.message } }
     : Object.keys(errorCodeLists).includes(backendcode)
       ? { code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }

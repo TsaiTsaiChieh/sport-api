@@ -2,10 +2,10 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function predictInfo (args) {
+function predictInfo(args) {
   // args.token 需求 token.uid
-  
-  return new Promise(async function (resolve, reject) {
+
+  return new Promise(async function(resolve, reject) {
     // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
     // 2. 取得 使用者 未開賽 預測資料，該比賽必需是賽前，預測資料 排序以 開賽時間 (match_scheduled) 為主
 
