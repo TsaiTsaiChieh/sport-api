@@ -3,7 +3,7 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 function settleMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     // 1. 管理者才能進行 API 呼叫
     // 2. 該場賽事結算
     // 3. 該場賽事-使用者有下預測單結算
@@ -65,7 +65,7 @@ function settleMatches(args) {
 
       if (matchInfo.length === 0 || matchInfo.length > 1) { return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`); }
 
-      const mapResult = matchInfo.map(async function (data) {
+      const mapResult = matchInfo.map(async function(data) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -95,7 +95,7 @@ function settleMatches(args) {
             }
           });
 
-          if (r !== 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
+          if (r[0] !== 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
 
           result[bets_id] = { status: 1, msg: '賽事結算成功！' };
         } catch (err) {
@@ -136,7 +136,7 @@ function settleMatches(args) {
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const mapResult2 = predictMatchInfo.map(async function (data) {
+      const mapResult2 = predictMatchInfo.map(async function(data) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -172,7 +172,7 @@ function settleMatches(args) {
             }
           });
 
-          if (r !== 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
+          if (r[0] !== 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
 
           result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
         } catch (err) {
