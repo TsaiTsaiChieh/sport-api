@@ -30,6 +30,8 @@ async function EsoccerpbpHistory(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   const { data } = await axios(pbpURL);
+  const homeScores = data.results[0].ss.split('-')[0];
+  const awayScores = data.results[0].ss.split('-')[1];
   const ref = await modules.firestore
     .collection(`${firestoreName}_PBP`)
     .doc(betsID);

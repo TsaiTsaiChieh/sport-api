@@ -13,7 +13,7 @@ module.exports.eSoccer.upcoming = async function (date) {
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
     try {
       // eslint-disable-next-line no-await-in-loop
-      let { data } = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       for (let j = 0; j < data.results.length; j++) {
         const ele = data.results[j];
 

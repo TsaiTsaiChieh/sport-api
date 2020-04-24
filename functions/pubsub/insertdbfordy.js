@@ -1,9 +1,4 @@
 const modules = require('../util/modules');
-const aa = '12-9';
-const b = aa.split('-')[0];
-const c = aa.split('-')[1];
-console.log(b);
-console.log(cç);
 
 async function inserttest() {
   // const realtimeData = JSON.parse(

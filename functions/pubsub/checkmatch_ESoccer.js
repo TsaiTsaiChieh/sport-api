@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-checkmatch_esoccer();
+
 const ESoccerpbp = require('./pbpESoccer.js');
 const EsoccerpbpInplay = ESoccerpbp.EsoccerpbpInplay;
 const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
