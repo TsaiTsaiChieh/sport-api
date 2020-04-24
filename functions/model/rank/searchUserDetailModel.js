@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function searchUserDetail (args) {
-  return new Promise(async function (resolve, reject) {
+function searchUserDetail(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       const searchUserDetail = []; // 儲存 聯盟處理完成資料
       const uid = args;
@@ -21,9 +21,9 @@ function searchUserDetail (args) {
         `,
         {
           type: db.sequelize.QueryTypes.SELECT
-        })
+        });
       // console.log(searchUserDetailQuery);
-      searchUserDetailQuery.forEach(function (data) { // 這裡有順序性
+      searchUserDetailQuery.forEach(function(data) { // 這裡有順序性
         searchUserDetail.push(repackage(data));
       });
 
@@ -35,7 +35,7 @@ function searchUserDetail (args) {
   });
 }
 
-function repackage (ele) {
+function repackage(ele) {
   const data = {
     // win_rate: ele.win_rate,
     uid: ele.uuid,
@@ -54,13 +54,13 @@ function repackage (ele) {
     data.predict_rate2 = [ele.predict_rate1, ele.predict_rate3]; // 近N日過 N
     data.win_bets_continue = ele.win_bets_continue; // 勝注連過 Ｎ日
     data.matches_rate = [ele.matches_rate1, ele.matches_rate2]; // 近 Ｎ 場過 Ｎ 場;
-    data.matches_continue = ele.matches_continue // 連贏Ｎ場
+    data.matches_continue = ele.matches_continue; // 連贏Ｎ場
   }
 
   return data;
 }
 
-function rangeWinRateCodebook (range) {
+function rangeWinRateCodebook(range) {
   switch (range) {
     case 'this_period':
       return 'this_period_win_bets';

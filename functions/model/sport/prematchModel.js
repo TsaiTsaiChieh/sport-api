@@ -2,8 +2,8 @@
 const modules = require('../../util/modules');
 
 const TAIWAN_UTF = 8;
-function prematch (args) {
-  return new Promise(async function (resolve, reject) {
+function prematch(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await queryOneDay(args);
       if (args.league === 'MLB') resolve(repackage_MLB(args, queries));
@@ -14,8 +14,8 @@ function prematch (args) {
   });
 }
 
-function queryOneDay (args) {
-  return new Promise(async function (resolve, reject) {
+function queryOneDay(args) {
+  return new Promise(async function(resolve, reject) {
     const matchesRef = modules.firestore.collection(
       modules.leagueCodebook(args.league).match
     );
@@ -32,7 +32,7 @@ function queryOneDay (args) {
         .where('scheduled', '<', endDate)
         .get();
 
-      queries.docs.map(function (docs) {
+      queries.docs.map(function(docs) {
         results.push(docs.data());
       });
       resolve(await Promise.all(results));
@@ -46,7 +46,7 @@ function queryOneDay (args) {
   });
 }
 
-async function repackage_MLB (args, events) {
+async function repackage_MLB(args, events) {
   const results = [];
   let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
@@ -67,7 +67,7 @@ async function repackage_MLB (args, events) {
   }
   return results;
 }
-async function repackage_NBA (args, events) {
+async function repackage_NBA(args, events) {
   const results = [];
   let checkGogResult = { betFlag: false };
   for (let i = 0; i < events.length; i++) {
@@ -93,7 +93,7 @@ async function repackage_NBA (args, events) {
   }
   return results;
 }
-function generalData (ele, checkGogResult) {
+function generalData(ele, checkGogResult) {
   const handicapFlag = checkHandicapDisable(checkGogResult);
   const data = {
     id: ele.bets_id,
@@ -142,7 +142,7 @@ function generalData (ele, checkGogResult) {
   return data;
 }
 
-function checkHandicapDisable (checkGogResult) {
+function checkHandicapDisable(checkGogResult) {
   let spreadDisable = false;
   let totalsDisable = false;
   if (checkGogResult.betFlag) {
@@ -153,7 +153,7 @@ function checkHandicapDisable (checkGogResult) {
   return { spreadDisable, totalsDisable };
 }
 
-function repackageSpread (ele, disableFlag) {
+function repackageSpread(ele, disableFlag) {
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -166,7 +166,7 @@ function repackageSpread (ele, disableFlag) {
   return data;
 }
 
-function repackageTotals (ele, disableFlag) {
+function repackageTotals(ele, disableFlag) {
   const data = {
     id: ele.handicap_id,
     handicap: ele.handicap,
@@ -178,7 +178,7 @@ function repackageTotals (ele, disableFlag) {
   data.disable = disableFlag;
   return data;
 }
-function repackageBasketballLineups (home, away) {
+function repackageBasketballLineups(home, away) {
   const data = {
     home: {
       starters: []
@@ -209,7 +209,7 @@ function repackageBasketballLineups (home, away) {
   }
   return data;
 }
-async function checkGodPrediction (args, match_id) {
+async function checkGodPrediction(args, match_id) {
   const predictionRef = modules.firestore.collection(modules.db.prediction);
   const query = await predictionRef
     .where('uid', '==', args.token.uid)
@@ -220,7 +220,7 @@ async function checkGodPrediction (args, match_id) {
   }
   if (query.size > 0) {
     let record = {};
-    query.forEach(async function (docs) {
+    query.forEach(async function(docs) {
       record = docs.data();
     });
     return { betFlag: true, record };

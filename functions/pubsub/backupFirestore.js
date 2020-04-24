@@ -7,11 +7,11 @@ const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
 const jsonFile = require('../json/matches/firestore_NBA.json');
 const collectionName = ['basketball_NBA'];
 
-function backupFirestore (req, res) {
+function backupFirestore(req, res) {
   // Initiate Firebase App
   modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
   // eslint-disable-next-line promise/always-return
-  modules.firestoreService.backups(collectionName).then(function (data) {
+  modules.firestoreService.backups(collectionName).then(function(data) {
     modules.fs.writeFile(
       // './json/matches/firestore_MLB.json', // origin
       // './json/matches/NBA.json', // match
@@ -21,7 +21,7 @@ function backupFirestore (req, res) {
       // JSON.stringify(repackageMatch(data.basketball_NBA)), // match
       JSON.stringify(repackageSpread(data.basketball_NBA)), // spread
       // JSON.stringify(repackageTotals(data.basketball_NBA)), // totals
-      function (err) {
+      function(err) {
         if (err) throw err;
         console.log(`Backups complete ${new Date()}`);
         res.json(`Backups complete ${new Date()}`);
@@ -30,7 +30,7 @@ function backupFirestore (req, res) {
   });
 }
 
-async function restoreFirestore (req, res) {
+async function restoreFirestore(req, res) {
   // modules.firestoreService.initializeApp(
   //   officialServiceAccount,
   //   officialDatabaseURL
@@ -44,7 +44,7 @@ async function restoreFirestore (req, res) {
 
 module.exports = { backupFirestore, restoreFirestore };
 
-function repackageTotals (data) {
+function repackageTotals(data) {
   const results = [];
   for (const key in data) {
     const match = data[key];
@@ -68,7 +68,7 @@ function repackageTotals (data) {
   }
   return results;
 }
-function repackageSpread (data) {
+function repackageSpread(data) {
   const results = [];
   for (const key in data) {
     const match = data[key];
@@ -93,12 +93,12 @@ function repackageSpread (data) {
   return results;
 }
 
-function backup_match (res, collectionName, path) {
-  modules.firestoreService.backups(collectionName).then(function (data) {
+function backup_match(res, collectionName, path) {
+  modules.firestoreService.backups(collectionName).then(function(data) {
     modules.fs.writeFile(
       path,
       JSON.stringify(repackageMatch(data.basketball_NBA)),
-      function (err) {
+      function(err) {
         if (err) throw err;
         console.log(`Backups complete ${new Date()}`);
         res.json(`Backups complete ${new Date()}`);
@@ -107,7 +107,7 @@ function backup_match (res, collectionName, path) {
   });
 }
 
-function repackageMatch (data) {
+function repackageMatch(data) {
   const results = [];
   for (const key in data) {
     const ele = data[key];

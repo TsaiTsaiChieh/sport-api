@@ -5,7 +5,7 @@ const SBL_functions = require('./util/prematchFunctions_SBL');
 const MLB_functions = require('./util/prematchFuntions_MLB');
 // Just for NBA & SBL now
 // upcomming is BetsAPI, prematch is for sportradar
-async function prematch () {
+async function prematch() {
   const tomorrow = modules
     .moment()
     .utcOffset(8)

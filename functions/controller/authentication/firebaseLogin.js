@@ -88,7 +88,7 @@ const envValues = require('../../config/env_values');
  *       "success": "false"
  *     }
  */
-async function firebaseLogin (req, res) {
+async function firebaseLogin(req, res) {
   const returnJson = { success: false };
   const token = req.body.token;
   if (!token) {

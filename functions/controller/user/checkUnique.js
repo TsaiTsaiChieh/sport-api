@@ -35,7 +35,7 @@ const modules = require('../../util/modules');
     "success": false
 }
  */// Unique collections: uniqueName,uniqueEmail,uniquePhone
-async function checkUnique (req, res) {
+async function checkUnique(req, res) {
   try {
     const collection = req.body.type;
     const value = req.body.value;

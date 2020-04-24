@@ -14,20 +14,35 @@
       球種 <select v-model="type">
         <option></option>
         <option>MLB</option>
+        <option>中華職棒</option>
+        <option>韓國職棒</option>
+        <option>日本職棒</option>
+        <option>澳洲職棒</option>
+        <option>墨西哥職棒</option>
         <option>NBA</option>
+        <option>SBL</option>
+        <option>WNBA</option>
+        <option>澳洲職籃</option>
+        <option>韓國職籃</option>
+        <option>中國職籃</option>
+        <option>日本職籃</option>
+        <option>NHL冰球</option>
+        <option>足球</option>
       </select>
       分類 <select v-model="category">
         <option></option>
         <option>賽事分析</option>
         <option>球隊討論</option>
         <option>投注分享</option>
+        <option>公告</option>
+        <option>其他</option>
       </select>
       頁數
       <input type="number" v-model="page">
       <button @click="get">讀取</button>
     </div>
     <div v-for="(item, index) in topics" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
-      <a :href="'article.html#'+item.id" style="color:#fff; text-decoration:none;">
+      <a :href="'article.html#'+item.article_id" style="color:#fff; text-decoration:none;">
         <div style="background-color: green; padding:5px">
           <span style="background-color: orange;">{{item.type}}</span>
           <span style="background-color: red;">{{item.category}}</span>
@@ -90,7 +105,7 @@
           axios.post('/topics/', post)
           .then(function(response) {
             console.log(response)
-            vm.topics = response.data.topics.rows;
+            vm.topics = response.data.topics;
             vm.loaded = true;
           })
           .catch(function(error) {

@@ -5,8 +5,8 @@ const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = '35388-8IqMa0NK19LJVY';
 
-function getEvents (args) {
-  return new Promise(async function (resolve, reject) {
+function getEvents(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       // this example is soccer(1) all leagues
       const { data } = await modules.axios(
@@ -41,7 +41,7 @@ function getEvents (args) {
   });
 }
 
-async function oddsData (eventId) {
+async function oddsData(eventId) {
   const { data } = await modules.axios(
     `${oddsURL}?token=${token}&event_id=${eventId}&source=bet365&odds_market=2,3`
   );
@@ -56,8 +56,8 @@ async function oddsData (eventId) {
   }
   return body;
 }
-function repackage (data) {
-  data.forEach(function (ele) {
+function repackage(data) {
+  data.forEach(function(ele) {
     if (ele.time_status) delete ele.time_status;
     if (!ele.ss) delete ele.ss; // ss always null
   });

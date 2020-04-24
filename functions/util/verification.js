@@ -3,7 +3,7 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
-async function admin (req, res, next) {
+async function admin(req, res, next) {
   try {
     const userSnapshot = await modules.getSnapshot('users', req.token.uid);
     const user = userSnapshot.data();
@@ -20,7 +20,7 @@ async function admin (req, res, next) {
   }
 }
 
-async function confirmLogin (req, res, next) {
+async function confirmLogin(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
 
@@ -42,7 +42,7 @@ async function confirmLogin (req, res, next) {
   }
   return next();
 }
-async function confirmLogin_v2 (req, res, next) {
+async function confirmLogin_v2(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
@@ -63,7 +63,7 @@ async function confirmLogin_v2 (req, res, next) {
   return next();
 }
 
-async function token (req, res, next) {
+async function token(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
 
@@ -87,7 +87,7 @@ async function token (req, res, next) {
   next();
 }
 
-async function token_v2 (req, res, next) {
+async function token_v2(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
     if (!bearerHeader) res.sendStatus(401);
@@ -107,7 +107,32 @@ async function token_v2 (req, res, next) {
   return next();
 }
 
-async function getRoleAndTitles (uid) {
+async function getToken(req, res, next) { // 只取得token 未登入不擋
+  try {
+    const bearerHeader = req.headers.authorization;
+
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+
+      const decodedIdToken = await modules.firebaseAdmin
+        .auth()
+        .verifySessionCookie(bearerToken, true);
+      req.token = await modules.firebaseAdmin
+        .auth()
+        .getUser(decodedIdToken.uid);
+    } else {
+      req.token = null;
+    }
+  } catch (err) {
+    console.error('Error in util/verification token functions', err);
+    req.token = null;
+    // res.sendStatus(401);
+  }
+  next();
+}
+
+async function getRoleAndTitles(uid) {
   const userResults = await db.User.findOne({
     where: { uid },
     attributes: ['status']
@@ -131,4 +156,5 @@ async function getRoleAndTitles (uid) {
     return { role: GOD_USER, titles };
   }
 }
-module.exports = { token, token_v2, admin, confirmLogin, confirmLogin_v2 };
+
+module.exports = { token, token_v2, getToken, admin, confirmLogin, confirmLogin_v2 };

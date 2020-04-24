@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 const axios = require('axios');
 
-async function translateNBA (
+async function translateNBA(
   stringOrigin,
   keywordHomeOrigin,
   keywordAwayOrigin,
@@ -209,14 +209,14 @@ async function translateNBA (
 
   return finalString;
 }
-async function transFunction (stringTrans) {
+async function transFunction(stringTrans) {
   const stringAfterTrans = await modules.translate(stringTrans, {
     from: 'en',
     to: 'zh-tw'
   });
   return await stringAfterTrans.text;
 }
-async function stepTrans (stringTrans) {
+async function stepTrans(stringTrans) {
   const eleBig = [
     'A',
     'B',

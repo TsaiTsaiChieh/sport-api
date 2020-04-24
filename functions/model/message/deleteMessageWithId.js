@@ -5,8 +5,8 @@ const modules = require('../../util/modules');
 const day = 1;
 
 // like /message/delete
-function deleteMessageWithId (args) {
-  return new Promise(async function (resolve, reject) {
+function deleteMessageWithId(args) {
+  return new Promise(async function(resolve, reject) {
     // -1: admin delete, 0: user retract, 1: user delete
     try {
       const messageSnapshot = await modules.getSnapshot(

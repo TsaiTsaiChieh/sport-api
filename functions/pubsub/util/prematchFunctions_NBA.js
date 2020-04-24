@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
-module.exports.NBA.upcoming = async function (date) {
+module.exports.NBA.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=2274&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI NBA URL on ${date}: ${URL}`);
@@ -28,7 +28,7 @@ module.exports.NBA.upcoming = async function (date) {
     return error;
   }
   // firestore
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {
@@ -40,7 +40,7 @@ module.exports.NBA.upcoming = async function (date) {
     }
   });
 };
-function repackage_bets (ele) {
+function repackage_bets(ele) {
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
@@ -70,7 +70,7 @@ function repackage_bets (ele) {
     }
   };
 }
-function encode (name) {
+function encode(name) {
   name = name.toLowerCase();
   switch (name) {
     case 'gs warriors':
@@ -89,7 +89,7 @@ function encode (name) {
       return name.substring(0, 3).toUpperCase();
   }
 }
-module.exports.NBA.prematch = async function (date) {
+module.exports.NBA.prematch = async function(date) {
   const _date = modules.dateFormat(date);
   // If query today information, it will return tomorrow information
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${_date.year}/${_date.month}/${_date.day}/schedule.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
@@ -110,7 +110,7 @@ module.exports.NBA.prematch = async function (date) {
     );
   }
 };
-function integration (query, ele, league) {
+function integration(query, ele, league) {
   // query is BetsAPI saved in firestore, ele is SportRadar returned
   const milliseconds = modules.moment(ele.scheduled).valueOf() / 1000;
   for (let i = 0; i < query.length; i++) {
@@ -132,7 +132,7 @@ function integration (query, ele, league) {
     }
   }
 }
-async function query_NBA (date) {
+async function query_NBA(date) {
   const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const beginningDate = modules.moment(date).add(1, 'days');
   const endDate = modules.moment(date).add(2, 'days');
@@ -143,7 +143,7 @@ async function query_NBA (date) {
       .where('scheduled', '<=', endDate)
       .get();
 
-    query.forEach(async function (ele) {
+    query.forEach(async function(ele) {
       results.push(ele.data());
     });
     await Promise.all(results);
@@ -156,7 +156,7 @@ async function query_NBA (date) {
     return error;
   }
 }
-function repackage_sportradar (ele, query, league) {
+function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.alias.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.alias.toUpperCase() === query.away.alias;
   const data = {
@@ -199,7 +199,7 @@ function repackage_sportradar (ele, query, league) {
   return data;
 }
 // eslint-disable-next-line consistent-return
-function codebook (alias) {
+function codebook(alias) {
   switch (alias) {
     // 大西洋組
     case 'BOS':
@@ -359,7 +359,7 @@ function codebook (alias) {
       };
   }
 }
-module.exports.NBA.lineup = async function (date) {
+module.exports.NBA.lineup = async function(date) {
   const queries = await query_before40Min(date);
   const URL = 'https://api.sportradar.us/nba/trial/v7/en/games';
   try {
@@ -387,7 +387,7 @@ module.exports.NBA.lineup = async function (date) {
     );
   }
 };
-async function query_before40Min (date) {
+async function query_before40Min(date) {
   const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
   const results = [];
 
@@ -398,7 +398,7 @@ async function query_before40Min (date) {
       .where('flag.prematch', '==', 1)
       .get();
 
-    query.docs.map(function (docs) {
+    query.docs.map(function(docs) {
       results.push(docs.data());
     });
     return await Promise.all(results);
@@ -410,7 +410,7 @@ async function query_before40Min (date) {
     return error;
   }
 }
-function repackage_lineup (ele) {
+function repackage_lineup(ele) {
   const data = {
     lineups: {
       home: {
@@ -442,7 +442,7 @@ function repackage_lineup (ele) {
 
   return data;
 }
-function repackage_player (ele) {
+function repackage_player(ele) {
   return {
     name: ele.full_name,
     first_name: ele.first_name,

@@ -2,8 +2,8 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function godlists (args) {
-  return new Promise(async function (resolve, reject) {
+function godlists(args) {
+  return new Promise(async function(resolve, reject) {
     const godLists = [];
     const period = modules.getTitlesPeriod(new Date()).period;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
@@ -13,8 +13,8 @@ function godlists (args) {
     try {
       // 取得 首頁預設值
       const defaultValues = await modules.firestore.collection('doSports_settings').doc('home_gods').get()
-        .then(function (data) {
-          return data.data()
+        .then(function(data) {
+          return data.data();
         });
 
       // 依 聯盟 取出是 大神資料 且 有販售
@@ -59,7 +59,7 @@ function godlists (args) {
 
       if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
-      godListsQuery.sort(function compare (a, b) { // 進行 order 排序，將來後台可能指定順序
+      godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
         return a.order > b.order; // 升 小->大
       });
 
@@ -76,18 +76,18 @@ function godlists (args) {
   });
 }
 
-function getRandom (x) {
+function getRandom(x) {
   return Math.floor(Math.random() * x);
 }
 
-function arrRandom (league, sortedArr, lists) { // 從陣列取得隨機人員
+function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   // 鑽 金 銀 銅 隨機選一個
   const diamondArr = [];
   const goldArr = [];
   const silverArr = [];
   const copperArr = [];
 
-  sortedArr.forEach(async function (data) { // 把資料進行 鑽 金 銀 銅 分類
+  sortedArr.forEach(async function(data) { // 把資料進行 鑽 金 銀 銅 分類
     switch (data.rank_id) { // 大神等級分類
       case 1: diamondArr.push(data); break;
       case 2: goldArr.push(data); break;
@@ -99,7 +99,7 @@ function arrRandom (league, sortedArr, lists) { // 從陣列取得隨機人員
   const wants = 1; // 隨機取幾個
 
   for (let i = 1; i <= wants; i++) {
-    [diamondArr, goldArr, silverArr, copperArr].forEach(function (arr) { // 鑽 金 銀 銅 依序產生
+    [diamondArr, goldArr, silverArr, copperArr].forEach(function(arr) { // 鑽 金 銀 銅 依序產生
       if (arr.length > 0) {
         const index = getRandom(arr.length); // 取得隨機數
         lists.push(repackage(league, arr[index]));
@@ -109,7 +109,7 @@ function arrRandom (league, sortedArr, lists) { // 從陣列取得隨機人員
   }
 }
 
-function repackage (league, ele) { // 實際資料輸出格式
+function repackage(league, ele) { // 實際資料輸出格式
   const data = {
     league_win_lists: {},
     uid: ele.uid,

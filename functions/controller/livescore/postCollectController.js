@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescorePostCollectModel');
 
-async function postCollect (req, res) {
+async function postCollect(req, res) {
   if (req.body.league === 'NBA') {
     req.body.sport = 'basketball';
   }

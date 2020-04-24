@@ -3,7 +3,7 @@ import { SBLpbpInplay } from './pbpSBL';
 const modules = require('../util/modules');
 const SBLpbp = require('./pbpSBL.js');
 checkmatch_SBL();
-async function checkmatch_SBL () {
+async function checkmatch_SBL() {
   const firestoreName = 'basketball_SBL';
 
   const data = await modules.firestore.collection(firestoreName).get();
@@ -46,6 +46,7 @@ async function checkmatch_SBL () {
         periodName = 'periods0';
         eventNow = 0;
 
+        // eslint-disable-next-line no-await-in-loop
         await SBLpbpInplay(gameID, betsID, periodsNow, eventNow);
       }
     }

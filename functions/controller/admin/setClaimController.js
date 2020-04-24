@@ -2,7 +2,7 @@
 const modules = require('../../util/modules');
 const setClaimModel = require('../../model/admin/setClaimModel');
 
-async function setClaim (req, res) {
+async function setClaim(req, res) {
   const schema = {
     type: 'object',
     required: ['uid', 'role'],

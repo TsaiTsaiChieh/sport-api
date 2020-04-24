@@ -4,8 +4,8 @@
 const modules = require('../../util/modules');
 const messageModule = require('../../util/messageModule');
 
-function createMessage (args) {
-  return new Promise(async function (resolve, reject) {
+function createMessage(args) {
+  return new Promise(async function(resolve, reject) {
     try {
       const insertData = {};
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();

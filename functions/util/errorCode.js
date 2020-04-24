@@ -8,9 +8,9 @@ const errorCodeLists = {
   1305: { msg: ['user status abnormal'], backend: ['使用者不存在', 'user not found.'] },
   1306: { msg: ['user status abnormal'], backend: ['users_titles doc 找不到', 'users_titles doc not found'] },
   1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] }
-}
+};
 
-function errsMsg (serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
+function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
   // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
@@ -20,7 +20,7 @@ function errsMsg (serverCode, backendcode, otherMsg = '', showOrder = 0) { // ot
       ? { code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }
       : serverCode !== 500
         ? { code: 500, err: { code: 500, msg: `${backendcode} 該後端code不存在!` } }
-        : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } }
+        : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } };
 }
 
 module.exports = { errsMsg };

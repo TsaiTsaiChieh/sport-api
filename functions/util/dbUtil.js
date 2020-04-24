@@ -525,6 +525,66 @@ const Match = sequelize.define(
     ]
   }
 );
+
+/*
+ * eSoccer 各賽事資訊，unique key 為 bets_id
+ */
+const eSoccer_match = sequelize.define(
+  'match__eSoccer',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    bets_id: {
+      type: Sequelize.STRING
+    },
+    home_id: {
+      type: Sequelize.STRING
+    },
+    away_id: {
+      type: Sequelize.STRING
+    },
+    spread_id: {
+      type: Sequelize.STRING
+    },
+    totals_id: {
+      type: Sequelize.STRING
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    },
+    scheduled_tw: { type: Sequelize.DATE },
+    flag_prematch: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    home_points: {
+      type: Sequelize.INTEGER
+    },
+    away_points: {
+      type: Sequelize.INTEGER
+    },
+    spread_result: {
+      type: Sequelize.STRING
+    },
+    totals_result: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bets_id']
+      }
+    ]
+  }
+);
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -788,7 +848,7 @@ const Topic_Reply = sequelize.define(
 );
 
 /*
- * 文章留言
+ * 文章讚
  */
 const Topic_Like = sequelize.define(
   'topic__like',
@@ -809,6 +869,60 @@ const Topic_Like = sequelize.define(
         fields: ['article_id', 'uid']
       }
     ]
+  }
+);
+
+/*
+ * 留言讚
+ */
+const Topic_ReplyLike = sequelize.define(
+  'topic__replylike',
+  {
+    reply_id: {
+      // 文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['reply_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
+ * 聯絡客服
+ */
+const Service_Contact = sequelize.define(
+  'service__contact',
+  {
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    images: {
+      type: Sequelize.STRING,
+      allowNull: true
+    }
   }
 );
 
@@ -864,9 +978,12 @@ const dbUtil = {
   Rank,
   usersWinLists,
   Topic_Like,
+  Topic_ReplyLike,
   Topic_Reply,
   Topic_Article,
-  Home_Banner
+  Home_Banner,
+  Service_Contact,
+  eSoccer_match
 };
 
 module.exports = dbUtil;

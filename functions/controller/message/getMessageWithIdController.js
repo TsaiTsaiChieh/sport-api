@@ -3,7 +3,7 @@
 const modules = require('../../util/modules');
 const messageModel = require('../../model/message/getMessageWithIdModel');
 
-function getMessageWithId (req, res) {
+function getMessageWithId(req, res) {
   const schema = {
     type: 'object',
     required: ['id'],
