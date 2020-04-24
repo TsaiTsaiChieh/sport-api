@@ -1,20 +1,17 @@
-const userUtils = require('../../util/userUtil');
-const db = require('../../util/dbUtil');
-const modules = require('../../util/modules');
+const userUtils = require("../../util/userUtil");
+const modules = require("../../util/modules");
 const admin = modules.firebaseAdmin;
-const envValues = require('../../config/env_values');
+const envValues = require("../../config/env_values");
 
 async function modifyUserProfile(req, res) {
-  const uid = req.token.uid;
-  const userSnapshot = await modules.getSnapshot('users', uid);
+  let uid = req.token.uid;
+  const userSnapshot = await modules.getSnapshot("users", uid);
   const userProfile = await userSnapshot.data();
-  const userStatus = userSnapshot.exists ? userProfile.status : 0;
-  const data = {};
-  const nowTimeStamp = await admin.firestore.Timestamp.now();
+  let userStatus = userSnapshot.exists ? userProfile.status : 0;
+  let data = {};
+  let nowTimeStamp = await admin.firestore.Timestamp.now();
   switch (userStatus) {
-    case 0:
-    {
-      // 新會員
+    case 0: //新會員
       const args = {};
       args.displayName = req.body.displayName;
       args.name = req.body.name;
@@ -24,17 +21,17 @@ async function modifyUserProfile(req, res) {
       args.avatar = req.body.avatar;
       args.signature = req.body.signature;
       const schema = {
-        type: 'object',
-        required: ['displayName', 'name', 'phone', 'email', 'birthday'],
+        type: "object",
+        required: ["displayName", "name", "phone", "email", "birthday"],
         properties: {
-          displayName: { type: 'string', minLength: 2, maxLength: 15 },
-          name: { type: 'string', minLength: 2, maxLength: 10 },
-          phone: { type: 'string', minLength: 10, maxLength: 15 },
-          email: { type: 'string', format: 'email' },
-          birthday: { type: 'integer' },
-          avatar: { type: 'string', format: 'url' },
-          signature: { type: 'string', maxLength: 50 }
-        }
+          displayName: { type: "string", minLength: 2, maxLength: 15 },
+          name: { type: "string", minLength: 2, maxLength: 10 },
+          phone: { type: "string", minLength: 10, maxLength: 15 },
+          email: { type: "string", format: "email" },
+          birthday: { type: "integer" },
+          avatar: { type: "string", format: "url" },
+          signature: { type: "string", maxLength: 50 },
+        },
       };
       const valid = modules.ajv.validate(schema, args);
       console.log(modules.ajv.errors);
@@ -43,79 +40,92 @@ async function modifyUserProfile(req, res) {
         res.status(400).json(modules.ajv.errors);
         return;
       }
-
-      const uniqueNameSnapshot = checkUniqueValue('users', 'display_name', args.displayName, uid);
-      const uniqueEmailSnapshot = checkUniqueValue('users', 'email', args.email, uid);
-      const uniquePhoneSnapshot = checkUniqueValue('users', 'phone', args.phone, uid);
-
-      if (uniqueNameSnapshot || uniqueEmailSnapshot || uniquePhoneSnapshot) {
+      const uniqueNameSnapshot = await modules.firestore
+        .collection("uniqueName")
+        .doc(args.displayName)
+        .get();
+      const uniqueEmailSnapshot = await modules.firestore
+        .collection("uniqueEmail")
+        .doc(args.email)
+        .get();
+      const uniquePhoneSnapshot = await modules.firestore
+        .collection("uniquePhone")
+        .doc(args.phone)
+        .get();
+      if (
+        uniqueNameSnapshot.exists ||
+        uniqueEmailSnapshot.exists ||
+        uniquePhoneSnapshot.exists
+      ) {
         res.status(400).json({
           success: false,
-          message: 'user name , email or phone exists'
+          message: "user name , email or phone exists",
         });
         return;
+      } else {
+        modules.firestore
+          .collection("uniqueName")
+          .doc(args.displayName)
+          .set({ uid: uid });
+        modules.firestore
+          .collection("uniqueEmail")
+          .doc(args.email)
+          .set({ uid: uid });
+        modules.firestore
+          .collection("uniquePhone")
+          .doc(args.phone)
+          .set({ uid: uid });
       }
-
       data.uid = uid;
-      data.displayName = args.displayName; // only new user can set displayName, none changeable value
-      data.name = args.name; // only new user can set name(Actual name), none changeable value
+      data.displayName = args.displayName; //only new user can set displayName, none changeable value
+      data.name = args.name; //only new user can set name(Actual name), none changeable value
       data.phone = args.phone;
       data.email = args.email;
       data.birthday = admin.firestore.Timestamp.fromDate(
         new Date(req.body.birthday)
       );
-      if (!args.avatar) {
+      if (!args.avatar)
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
-      }
       data.status = 1;
-      data.signature = '';
+      data.signature = "";
       data.blockMessage = nowTimeStamp;
       data.createTime = nowTimeStamp;
       data.denys = [];
-      data.coin = 0; // 搞幣
-      data.dividend = 0; // 搞紅利
-      data.ingot = 0; // 搞錠
+      data.coin = 0; //搞幣
+      data.dividend = 0; //搞紅利
+      data.ingot = 0; //搞錠
       data.titles = [];
       data.defaultTitle = {};
       data.point = 0;
       data.blockCount = 0;
-      data.accuseCredit = 20; // 檢舉信用值預設20，limit 100
+      data.accuseCredit = 20; //檢舉信用值預設20，limit 100
       admin.auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
-        displayName: req.body.displayName
+        displayName: req.body.displayName,
       });
       admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
-      /*MySQL add new user*/
-      var now = new Date();
-      const newUser = db.sequelize.query(
-        `INSERT INTO users (uid) VALUES ('${data.uid}')`,
-        {
-          type: db.sequelize.QueryTypes.SELECT,
-          plain: true,
-        });
       break;
-    }
-    case 1: // 一般會員
-      console.log('normal user');
+    case 1: //一般會員
+      console.log("normal user");
       break;
-    case 2: // 大神
-      console.log('godlike user');
+    case 2: //大神
+      console.log("godlike user");
       break;
-    case -1: // 鎖帳號會員
-      console.log('blocked user');
-      res.status(400).json({ success: false, message: 'blocked user' });
+    case -1: //鎖帳號會員
+      console.log("blocked user");
+      res.status(400).json({ success: false, message: "blocked user" });
       break;
-    case 9: // 管理員
-      console.log('manager user');
+    case 9: //管理員
+      console.log("manager user");
       break;
     default:
-      return res.status(401).json({ success: false, message: 'user status error' });
+      throw "user status error";
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
     admin.auth().updateUser(uid, {
-      photoURL: req.body.avatar
+      photoURL: req.body.avatar,
     });
   }
   // if (req.body.email) data.email = req.body.email;
@@ -123,7 +133,7 @@ async function modifyUserProfile(req, res) {
   if (req.body.signature) data.signature = req.body.signature;
   if (req.body.title) data.defaultTitle = req.body.title;
   data.updateTime = nowTimeStamp;
-  const resultJson = {};
+  let resultJson = {};
   const refCode = req.body.refCode;
   const userReferrer = userSnapshot.exists ? userProfile.referrer : undefined;
   if (refCode && !userReferrer && refCode !== uid) {
@@ -134,13 +144,13 @@ async function modifyUserProfile(req, res) {
       /^[a-zA-Z0-9]{28}$/g.test(refCode) === true ||
       /^[U][a-f0-9]{32}$/g.test(refCode) === true
     ) {
-      const referrerSnapshot = await modules.getSnapshot('users', refCode);
+      const referrerSnapshot = await modules.getSnapshot("users", refCode);
       if (referrerSnapshot.exists) {
         const referrerProfile = await referrerSnapshot.data();
         // process Ref Point
         // deny if refer each other
         if (referrerProfile.referrer !== uid && referrerProfile.status > 0) {
-          console.log('set refCode give point: ', refCode);
+          console.log("set refCode give point: ", refCode);
           const userPoint = userSnapshot.exists ? userProfile.point : 0;
           data.point = userPoint + 200;
           data.referrer = refCode;
@@ -149,41 +159,24 @@ async function modifyUserProfile(req, res) {
       }
     }
   }
-  console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  const users = await db.sequelize.query(
-    'SELECT * FROM users WHERE uid = $uid',
-    {
-      bind: { uid: uid },
-      type: db.sequelize.QueryTypes.SELECT
-    })
-    .then(async ref => {
+  console.log("user profile updated : ", JSON.stringify(data, null, "\t"));
+  modules.firestore
+    .collection("users")
+    .doc(uid)
+    .set(data, { merge: true })
+    .then(async (ref) => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;
       resultJson.success = true;
-      console.log('Added document with ID: ', ref);
-      res.status(200).json({ resultJson });
+      console.log("Added document with ID: ", ref);
+      res.status(200).json(resultJson);
     })
-    .catch(e => {
-      console.log('Added document with error: ', e);
-      res.status(500).json({ success: false, message: 'update failed' });
+    .catch((e) => {
+      console.log("Added document with error: ", e);
+      res.status(500).json({ success: false, message: "update failed" });
     });
-    // res.json({success: true, result: writeResult});
+  // res.json({success: true, result: writeResult});
 }
-
-
-/* 檢查唯一性(uniqueName、uniqueEmail、uniquePhone) */
-async function checkUniqueValue(table, collection, value, uid) {
-  const unique_value = await db.sequelize.query(
-    `SELECT * FROM ${table} WHERE uid=${uid} and ${collection}='${value}'`,
-    {
-      type: db.sequelize.QueryTypes.SELECT,
-      plain: true
-    });
-  if (unique_value.length > 0) {
-    return false;
-  }
-}
-
 module.exports = modifyUserProfile;
 
 /**
