@@ -21,6 +21,40 @@ function dbFind(aid) {
     }
   });
 }
+function chkGodFavorite(uid, god_uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user__favoritegod.count({
+        where: {
+          uid: uid,
+          god_uid: god_uid
+        },
+        raw: true
+      });
+      resolve(result !== 0);
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  });
+}
+function chkArticleFavorite(uid, article_id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__favoritearticle.count({
+        where: {
+          uid: uid,
+          article_id: article_id
+        },
+        raw: true
+      });
+      resolve(result !== 0);
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  });
+}
 async function getArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -48,8 +82,12 @@ async function getArticle(args) {
       article.reply_count = replyCount.length > 0 ? replyCount[0].count : 0;
       const uid = (args.token !== null) ? args.token.uid : null;
       article.is_liked = false;
+      article.is_favoGod = false;
+      article.is_favoArticle = false;
       if (uid) {
         article.is_liked = await func.getIsUserLikeTopic(uid, args.aid);
+        article.is_favoGod = await chkGodFavorite(uid, article.user_info.uid);
+        article.is_favoArticle = await chkArticleFavorite(uid, args.aid);
       }
 
       resolve({ code: 200, article: article });

@@ -34,13 +34,13 @@ async function getTopics(args) {
       const where = {};
       let page = 0;
 
-      if (typeof args.type !== 'undefined') {
+      if (typeof args.type !== 'undefined' && args.type !== null) {
         where.type = args.type;
       }
-      if (typeof args.category !== 'undefined') {
+      if (typeof args.category !== 'undefined' && args.type !== null) {
         where.category = args.category;
       }
-      if (typeof args.page !== 'undefined') {
+      if (typeof args.page !== 'undefined' && args.type !== null) {
         page = args.page;
       }
 
