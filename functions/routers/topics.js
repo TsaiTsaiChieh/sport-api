@@ -46,5 +46,10 @@ router.post(
   verification.token,
   require('../controller/topics/likeReplyController')
 );
+router.post(
+  '/favoriteArticle',
+  verification.token,
+  require('../controller/topics/favoriteArticleController')
+);
 
 module.exports = router;
