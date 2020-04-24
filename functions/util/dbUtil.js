@@ -750,6 +750,30 @@ const usersWinLists = sequelize.define(
 /* 這邊給如果用 */
 
 /*
+ * 最愛大神
+ */
+const User_FavoriteGod = sequelize.define(
+  'user__favoritegod',
+  {
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    god_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid']
+      }
+    ]
+  }
+);
+
+/*
  * 文章
  */
 const Topic_Article = sequelize.define(
@@ -822,7 +846,7 @@ const Topic_Reply = sequelize.define(
       allowNull: false
     },
     replyto_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: true
     },
     content: {
@@ -894,6 +918,31 @@ const Topic_ReplyLike = sequelize.define(
     indexes: [
       {
         fields: ['reply_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
+ * 收藏文章
+ */
+const Topic_FavoriteArticle = sequelize.define(
+  'topic__favoritearticle',
+  {
+    article_id: {
+      // 文章id
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'uid']
       }
     ]
   }
@@ -979,10 +1028,12 @@ const dbUtil = {
   Title,
   Rank,
   usersWinLists,
+  User_FavoriteGod,
   Topic_Like,
   Topic_ReplyLike,
   Topic_Reply,
   Topic_Article,
+  Topic_FavoriteArticle,
   Home_Banner,
   Service_Contact,
   eSoccer_match

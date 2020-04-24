@@ -22,6 +22,11 @@ router.post(
   require('../controller/user/accuseUser')
 );
 router.post(
+  '/favoriteGod',
+  verification.token,
+  require('../controller/user/favoriteGodController')
+);
+router.post(
   '/contactService',
   require('../controller/user/contactServiceController')
 );
