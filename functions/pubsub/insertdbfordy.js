@@ -1,4 +1,6 @@
 const modules = require('../util/modules');
+const date = modules.moment();
+console.log(date);
 
 async function inserttest() {
   // const realtimeData = JSON.parse(

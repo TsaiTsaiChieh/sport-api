@@ -55,7 +55,7 @@ async function checkmatch_esoccer() {
           const parameter = {
             betsID: betsID
           };
-          // EsoccerpbpHistory(parameter);
+          EsoccerpbpHistory(parameter);
         }
         break;
       }

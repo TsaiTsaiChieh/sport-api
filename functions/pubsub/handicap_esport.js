@@ -6,6 +6,7 @@ const leagues = [modules.db.eSoccer];
 async function handicap_esport() {
   for (let i = 0; i < leagues.length; i++) {
     // flag.spread/totals === 0 represent did not have first handicap information
+
     const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
     const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
     const querysSpreadOpening = await query_opening(
@@ -159,7 +160,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -183,7 +184,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);

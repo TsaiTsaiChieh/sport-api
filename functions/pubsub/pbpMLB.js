@@ -66,7 +66,7 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     try {
       const parameterPBP = {
         inningsNow: inningsNow,
@@ -558,7 +558,7 @@ async function doPBP(parameter) {
                 eventHalfCount
               ].at_bat.description
             ) {
-              const totalDescriptionOrEachBall = 1;
+              const totalDescriptionOrEachBall = 0;
               const desResultCH = await translateMLB(
                 dataPBP.game.innings[inningsCount].halfs[halfCount].events[
                   eventHalfCount
@@ -599,7 +599,6 @@ async function doPBP(parameter) {
                   eventHalfCount
                 ].at_bat.events[eventAtbatCount].flags.is_ab_over === false
               ) {
-                const totalDescriptionOrEachBall = 1;
                 const out = [];
                 out.push(
                   dataPBP.game.innings[inningsCount].halfs[halfCount].events[
@@ -634,6 +633,7 @@ async function doPBP(parameter) {
                     eventHalfCount
                   ].at_bat.events[eventAtbatCount].outcome_id
                 );
+                const totalDescriptionOrEachBall = 1;
                 const desResultCH = await translateMLB(
                   out,
                   out[0],
@@ -860,7 +860,7 @@ async function MLBpbpHistory(parameter) {
       inningsCount++
     ) {
       if (inningsCount === 0) {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 9; i++) {
           await ref.set(
             {
               PBP: {
@@ -1012,8 +1012,8 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               [`events${eventAtbatCount}`]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                  eventHalfCount
-                                ].at_bat.events[eventAtbatCount]
+                                eventHalfCount
+                              ].at_bat.events[eventAtbatCount]
                             }
                           }
                         }
@@ -1051,7 +1051,7 @@ async function MLBpbpHistory(parameter) {
     );
   } catch (error) {
     console.log(
-      'error happened in pubsub/MLBpbpInplay function by page',
+      'error happened in pubsub/MLBpbpHistory function by page',
       error
     );
   }

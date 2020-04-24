@@ -49,7 +49,7 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     try {
       const parameterPBP = {
         periodsNow: periodsNow,
@@ -325,8 +325,9 @@ async function doPBP(parameter) {
   const transSimpleHome = parameter.transSimpleHome;
   const keywordAway = parameter.keywordAway;
   const transSimpleAway = parameter.transSimpleAway;
-  const { data } = axios(pbpURL);
+  let { data } = await axios(pbpURL);
   const dataPBP = data;
+
   for (
     let periodsCount = periodsNow;
     periodsCount < dataPBP.periods.length;
@@ -430,13 +431,13 @@ async function doPBP(parameter) {
           periodsCount + 1
         }/points`
       );
-      await ref.set(dataPBP.periods[periodsCount].home.points);
+      await ref.set(dataPBP.periods[periodsCount].scoring.home.points);
       ref = modules.database.ref(
         `basketball/NBA/${betsID}/Summary/info/away/periods${
           periodsCount + 1
         }/points`
       );
-      await ref.set(dataPBP.periods[periodsCount].away.points);
+      await ref.set(dataPBP.periods[periodsCount].scoring.away.points);
     }
   }
   const ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
@@ -456,7 +457,7 @@ async function doPBP(parameter) {
 async function doSummary(parameter) {
   const betsID = parameter.betsID;
   const summaryURL = parameter.summaryURL;
-  const { data } = axios(summaryURL);
+  const { data } = await axios(summaryURL);
   const dataSummary = data;
 
   let ref = modules.database.ref(
