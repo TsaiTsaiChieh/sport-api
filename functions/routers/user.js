@@ -22,6 +22,11 @@ router.post(
   require('../controller/user/accuseUser')
 );
 router.post(
+  '/favoriteGod',
+  verification.token,
+  require('../controller/user/favoriteGodController')
+);
+router.post(
   '/contactService',
   require('../controller/user/contactServiceController')
 );
@@ -51,6 +56,13 @@ router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
+);
+
+// 結算
+router.post(
+  '/settle_matches',
+  verification.token,
+  require('../controller/user/settleMatchesController')
 );
 
 module.exports = router;
