@@ -21,10 +21,7 @@ async function MLBpbpInplay(parameter) {
   const halfNow = parameter.halfNow;
   const eventHalfNow = parameter.eventHalfNow;
   const eventAtbatNow = parameter.eventAtbatNow;
-  modules.firestore
-    .collection(firestoreName)
-    .doc(betsID)
-    .set({ flag: { status: 1 } }, { merge: true });
+
   if (
     inningsNow === 0 &&
     halfNow === 0 &&
@@ -32,7 +29,7 @@ async function MLBpbpInplay(parameter) {
     eventAtbatNow === 0
   ) {
     // 初始化 realtime database 與 該場球員資訊、姓名翻譯
-    Promise.all(initRealtime(gameID, betsID));
+    await initRealtime(gameID, betsID);
   }
 
   let countForStatus2 = 0;
@@ -89,8 +86,8 @@ async function MLBpbpInplay(parameter) {
         summaryURL: summaryURL,
         betsID: betsID
       };
-      Promise.all(doPBP(parameterPBP));
-      Promise.all(doSummary(parameterSummary));
+      await doPBP(parameterPBP);
+      await doSummary(parameterSummary);
     } catch (error) {
       console.log(
         'error happened in pubsub/MLBpbpInplay function by page',
@@ -746,6 +743,11 @@ async function doPBP(parameter) {
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 0 } }, { merge: true });
+  } else {
+    modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 1 } }, { merge: true });
   }
 }
 async function doSummary(parameter) {
@@ -1010,8 +1012,8 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               [`events${eventAtbatCount}`]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                  eventHalfCount
-                                ].at_bat.events[eventAtbatCount]
+                                eventHalfCount
+                              ].at_bat.events[eventAtbatCount]
                             }
                           }
                         }

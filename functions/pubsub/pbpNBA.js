@@ -17,12 +17,9 @@ async function NBApbpInplay(parameter) {
   const betsID = parameter.betsID;
   const periodsNow = parameter.periodsNow;
   const eventsNow = parameter.eventsNow;
-  modules.firestore
-    .collection(firestoreName)
-    .doc(betsID)
-    .set({ flag: { status: 1 } }, { merge: true });
+
   if (periodsNow === 0 && eventsNow === 0) {
-    Promise.all(initRealtime(gameID, betsID));
+    await initRealtime(gameID, betsID);
   }
 
   let countForStatus2 = 0;
@@ -67,8 +64,8 @@ async function NBApbpInplay(parameter) {
         transSimpleAway: transSimpleAway
       };
       const parameterSummary = { summaryURL: summaryURL, betsID: betsID };
-      Promise.all(doPBP(parameterPBP));
-      Promise.all(doSummary(parameterSummary));
+      await doPBP(parameterPBP);
+      await doSummary(parameterSummary);
     } catch (error) {
       console.log(
         'error happened in pubsub/NBApbpInplay function by page',
@@ -449,6 +446,11 @@ async function doPBP(parameter) {
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 0 } }, { merge: true });
+  } else {
+    modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 1 } }, { merge: true });
   }
 }
 async function doSummary(parameter) {
