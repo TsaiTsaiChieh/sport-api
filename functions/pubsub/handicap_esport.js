@@ -48,40 +48,53 @@ async function updateHandicap(league, ele) {
     const { data } = await modules.axios(URL);
     const spread_odds = data.results.odds['1_2'];
     const totals_odds = data.results.odds['1_3'];
-    let newest_spreads = spread_odds[spread_odds.length - 1];
-    newest_spreads = await spreadCalculator(newest_spreads);
-    let newest_totals = totals_odds[totals_odds.length - 1];
-    newest_totals = await totalsCalculator(newest_totals);
-    eventSnapshot.set(
-      {
-        newest_spreads: {
-          handicap: Number.parseFloat(newest_spreads.handicap),
-          home_odd: Number.parseFloat(newest_spreads.home_od),
-          away_odd: Number.parseFloat(newest_spreads.away_od),
-          away_tw: newest_spreads.away_tw,
-          home_tw: newest_spreads.home_tw,
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(newest_spreads.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
+    let newest_spreads;
+
+    if (spread_odds.length > 0) {
+      newest_spreads = spread_odds[spread_odds.length - 1];
+      newest_spreads = await spreadCalculator(newest_spreads);
+
+      eventSnapshot.set(
+        {
+          newest_spreads: {
+            handicap: Number.parseFloat(newest_spreads.handicap),
+            home_odd: Number.parseFloat(newest_spreads.home_od),
+            away_odd: Number.parseFloat(newest_spreads.away_od),
+            away_tw: newest_spreads.away_tw,
+            home_tw: newest_spreads.home_tw,
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(newest_spreads.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            )
+          }
         },
-        newest_totals: {
-          handicap: Number.parseFloat(newest_totals.handicap),
-          under_odd: Number.parseFloat(newest_totals.under_od),
-          over_odd: Number.parseFloat(newest_totals.over_od),
-          over_tw: newest_totals.over_tw,
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(newest_totals.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        }
-      },
-      { merge: true }
-    );
+        { merge: true }
+      );
+    }
+    let newest_totals;
+    if (totals_odds.length > 0) {
+      newest_totals = totals_odds[totals_odds.length - 1];
+      newest_totals = await totalsCalculator(newest_totals);
+      eventSnapshot.set(
+        {
+          newest_totals: {
+            handicap: Number.parseFloat(newest_totals.handicap),
+            under_odd: Number.parseFloat(newest_totals.under_od),
+            over_odd: Number.parseFloat(newest_totals.over_od),
+            over_tw: newest_totals.over_tw,
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(newest_totals.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            )
+          }
+        },
+        { merge: true }
+      );
+    }
 
     for (let i = 0; i < spread_odds.length; i++) {
       let odd = spread_odds[i];
@@ -133,7 +146,7 @@ async function updateHandicap(league, ele) {
     }
   } catch (error) {
     console.error(
-      `Error in pubsub/handicap updateHandicap functions by Tsai-Chieh ${Date.now()}`,
+      `Error in pubsub/handicap updateHandicap functions by DY ${Date.now()}`,
       error
     );
   }
@@ -200,7 +213,8 @@ async function getHandicap(league, ele) {
     if (data.results.Bet365) {
       const odds = data.results.Bet365.odds.start;
       if (odds['1_2']) {
-        const spreadData = odds['1_2'];
+        let spreadData = odds['1_2'];
+        spreadData = spreadCalculator(spreadData);
         const spread = {};
         spread[spreadData.id] = {
           handicap: Number.parseFloat(spreadData.handicap),
@@ -211,39 +225,17 @@ async function getHandicap(league, ele) {
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
+          home_tw: spreadData.home_tw,
+          away_tw: spreadData.away_tw
         };
 
         eventSnapshot.set(
-          { flag: { spread: 1 }, handicap: { spread } },
+          { flag: { spread: 1 }, spread: spread, newest_spreads: spread },
           { merge: true }
         );
         // console.log(
         //   `${league}-event_id: ${ele.bets_id} get spread successful, URL: ${URL}`
-        // );
-      }
-
-      if (odds['1_3']) {
-        const totalsData = odds['1_3'];
-        const totals = {};
-        totals[totalsData.id] = {
-          handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(totalsData.over_od),
-          under_odd: Number.parseFloat(totalsData.under_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(totalsData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-
-        eventSnapshot.set(
-          { flag: { totals: 1 }, handicap: { totals } },
-          { merge: true }
-        );
-        // console.log(
-        //   `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
         // );
       }
     }
@@ -269,21 +261,25 @@ async function getTotals(league, ele) {
     // );
     if (data.results.Bet365) {
       const odds = data.results.Bet365.odds.start;
-
       if (odds['1_3']) {
-        const totalsData = odds['1_3'];
+        let totalsData = odds['1_3'];
         const totals = {};
+        totalsData = totalsCalculator(totalsData);
         totals[totalsData.id] = {
           handicap: Number.parseFloat(totalsData.handicap),
+          over_odd: Number.parseFloat(totalsData.over_od),
+          under_odd: Number.parseFloat(totalsData.under_od),
           add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date(Number.parseInt(totalsData.add_time) * 1000)
           ),
           insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
             new Date()
-          )
+          ),
+          over_tw: totalsData.over_tw
         };
+
         eventSnapshot.set(
-          { flag: { totals: 1 }, handicap: { totals } },
+          { flag: { totals: 1 }, totals: totals, newest_totals: totals },
           { merge: true }
         );
         // console.log(
@@ -310,7 +306,7 @@ function spreadCalculator(handicapObj) {
     // handicapObj.away_tw = `${Math.ceil(Math.abs(handicapObj.handicap))}贏`;
   } else if (
     handicapObj.handicap % 1 !== 0 &&
-    handicapObj.handicap > 0
+    handicapObj.handicap >= 0
     // handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.home_tw = `${Math.floor(handicapObj.handicap)}輸`;
@@ -318,7 +314,7 @@ function spreadCalculator(handicapObj) {
     // handicapObj.home_tw = `${Math.ceil(handicapObj.handicap)}贏`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
-    handicapObj.handicap > 0 &&
+    handicapObj.handicap >= 0 &&
     handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.home_tw = `${handicapObj.handicap}平`;
@@ -332,7 +328,7 @@ function spreadCalculator(handicapObj) {
     handicapObj.home_tw = null;
   } else if (
     handicapObj.handicap % 1 === 0 &&
-    handicapObj.handicap > 0 &&
+    handicapObj.handicap >= 0 &&
     handicapObj.home_odd !== handicapObj.away_odd
   ) {
     // 盤口為正，代表主讓客，所以主要減
@@ -362,7 +358,6 @@ function spreadCalculator(handicapObj) {
       // handicapObj.away_tw = `-${Math.abs(handicapObj.handicap)} +50`;
     }
   }
-
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {

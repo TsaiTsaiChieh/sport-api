@@ -92,14 +92,14 @@ function spreadCalculator(handicapObj, id) {
     // handicapObj.away_tw = `${Math.ceil(Math.abs(handicapObj.handicap))}贏`;
   } else if (
     handicapObj.handicap % 1 !== 0 &&
-    handicapObj.handicap > 0
+    handicapObj.handicap >= 0
     // handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.home_tw = `${Math.floor(handicapObj.handicap)}輸`;
     // handicapObj.home_tw = `${Math.ceil(handicapObj.handicap)}贏`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
-    handicapObj.handicap > 0 &&
+    handicapObj.handicap >= 0 &&
     handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.home_tw = `${handicapObj.handicap}平`;
@@ -111,7 +111,7 @@ function spreadCalculator(handicapObj, id) {
     handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
-    handicapObj.handicap > 0 &&
+    handicapObj.handicap >= 0 &&
     handicapObj.home_odd !== handicapObj.away_odd
   ) {
     // 盤口為正，代表主讓客，所以主要減

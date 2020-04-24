@@ -39,7 +39,7 @@ module.exports.eSoccer.upcoming = async function (date) {
       return error;
     }
   }
-  console.log('ok');
+  console.log('esport scheduled success');
   return new Promise(async function (resolve, reject) {
     try {
       resolve(await Promise.all(results));
