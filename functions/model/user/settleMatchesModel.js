@@ -233,10 +233,10 @@ function settleTotals(data) {
 }
 
 function resultFlag(option, settelResult) {
-  // -2 未結算，-1 輸，0 不算，1 贏，2 平 (一半一半)
+  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
   return settelResult === 'fair2'
     ? 0 : settelResult === 'fair'
-      ? 2 : settelResult === option
+      ? 0.5 : settelResult === option
         ? 1 : -1;
 }
 
