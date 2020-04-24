@@ -12,7 +12,7 @@ async function getTopics(req, res) {
     res.status(403).send('param error');
     return;
   }
-  repliesModel({ aid: aid, page: page })
+  repliesModel({ aid: aid, page: page, token: req.token })
     .then(function(body) {
       res.json(body);
     })

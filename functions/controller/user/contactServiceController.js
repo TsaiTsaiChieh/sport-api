@@ -1,16 +1,19 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const replyModel = require('../../model/topics/createReplyModel');
-async function createTopic(req, res) {
+const model = require('../../model/user/contactServiceModel');
+async function contactService(req, res) {
   const schema = {
     type: 'object',
-    requied: ['aid', 'content'],
+    requied: ['name', 'email', 'content'],
     properties: {
-      article_id: {
-        type: 'number'
+      uid: {
+        type: 'string'
       },
-      reply_id: {
-        type: ['number', 'null']
+      name: {
+        type: 'string'
+      },
+      email: {
+        type: 'string'
       },
       content: {
         type: 'string'
@@ -19,9 +22,9 @@ async function createTopic(req, res) {
         type: 'array',
         maxItems: 3,
         items: [
-          { type: 'object' },
-          { type: 'object' },
-          { type: 'object' }
+          { type: 'string' },
+          { type: 'string' },
+          { type: 'string' }
         ]
       }
     }
@@ -29,14 +32,13 @@ async function createTopic(req, res) {
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    res.status(400).json(modules.ajv.errors);
     return;
   }
   req.body.token = req.token;
   const args = req.body;
 
-  replyModel(args)
+  model(args)
     .then(function(body) {
       res.json(body);
     })
@@ -45,4 +47,4 @@ async function createTopic(req, res) {
     });
 }
 
-module.exports = createTopic;
+module.exports = contactService;

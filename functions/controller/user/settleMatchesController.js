@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const settleMatchesModel = require('../../model/user/settleMatchesModel');
 
-async function settleMatches (req, res) {
+async function settleMatches(req, res) {
   const schema = {
     type: 'object',
     required: ['bets_id'],

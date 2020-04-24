@@ -21,6 +21,10 @@ router.post(
   verification.token,
   require('../controller/user/accuseUser')
 );
+router.post(
+  '/contactService',
+  require('../controller/user/contactServiceController')
+);
 router.get(
   '/getTitlesAndSignature/:uid',
   require('../controller/user/getTitlesAndSignatureController')

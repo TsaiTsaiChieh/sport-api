@@ -1,5 +1,6 @@
 exports.indexURL = 'https://chat-api.doinfo.cc/';
-exports.productURL = 'https://chat.doinfo.cc/';
+// exports.productURL = 'https://chat.doinfo.cc/';
+exports.productURL = 'https://dosports.web.app/';
 exports.release = false;
 // 正式版 sport19y0715-dev
 // exports.domain = '.doinfo.cc';

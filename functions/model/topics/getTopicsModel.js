@@ -65,7 +65,7 @@ async function getTopics(args) {
       }
       /* 讀取按讚數 */
       try {
-        likesCount = [];// await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
         console.log(error);
         reject({ code: 500, error: 'get like count failed' });
