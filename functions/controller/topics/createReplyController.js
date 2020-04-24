@@ -9,7 +9,7 @@ async function createTopic(req, res) {
       article_id: {
         type: 'number'
       },
-      reply_id: {
+      replyto_id: {
         type: ['number', 'null']
       },
       content: {
