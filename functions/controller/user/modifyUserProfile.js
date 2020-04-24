@@ -13,7 +13,8 @@ async function modifyUserProfile(req, res) {
   const nowTimeStamp = await admin.firestore.Timestamp.now();
   switch (userStatus) {
     case 0:
-    { // 新會員
+    {
+      // 新會員
       const args = {};
       args.displayName = req.body.displayName;
       args.name = req.body.name;
