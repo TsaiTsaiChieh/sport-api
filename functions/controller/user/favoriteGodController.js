@@ -1,32 +1,19 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const replyModel = require('../../model/topics/createReplyModel');
-async function createTopic(req, res) {
+const model = require('../../model/user/favoriteGodModel');
+async function favoriteGod(req, res) {
   const schema = {
     type: 'object',
-    requied: ['aid', 'content'],
+    requied: ['god_uid', 'like'],
     properties: {
-      article_id: {
-        type: 'number'
-      },
-      replyto_id: {
-        type: ['number', 'null']
-      },
-      content: {
+      god_uid: {
         type: 'string'
       },
-      images: {
-        type: 'array',
-        maxItems: 3,
-        items: [
-          { type: 'object' },
-          { type: 'object' },
-          { type: 'object' }
-        ]
+      like: {
+        type: 'boolean'
       }
     }
   };
-
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
@@ -36,7 +23,7 @@ async function createTopic(req, res) {
   req.body.token = req.token;
   const args = req.body;
 
-  replyModel(args)
+  model(args)
     .then(function(body) {
       res.json(body);
     })
@@ -45,4 +32,4 @@ async function createTopic(req, res) {
     });
 }
 
-module.exports = createTopic;
+module.exports = favoriteGod;

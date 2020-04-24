@@ -34,13 +34,13 @@ async function getTopics(args) {
       const where = {};
       let page = 0;
 
-      if (typeof args.type !== 'undefined') {
+      if (typeof args.type !== 'undefined' && args.type !== null) {
         where.type = args.type;
       }
-      if (typeof args.category !== 'undefined') {
+      if (typeof args.category !== 'undefined' && args.type !== null) {
         where.category = args.category;
       }
-      if (typeof args.page !== 'undefined') {
+      if (typeof args.page !== 'undefined' && args.type !== null) {
         page = args.page;
       }
 
@@ -65,7 +65,7 @@ async function getTopics(args) {
       }
       /* 讀取按讚數 */
       try {
-        likesCount = [];// await func.getTopicLikeCount(infosToGet) // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
+        likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
         console.log(error);
         reject({ code: 500, error: 'get like count failed' });

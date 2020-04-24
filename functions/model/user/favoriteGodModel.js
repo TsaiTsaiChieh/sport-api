@@ -2,71 +2,70 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const log = require('../../util/loggingUtil');
-function dbFind(article_id) { // 確認文章存在
+function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__article.findAll({
+      const result = await db.sequelize.models.user.count({
         where: {
-          article_id: article_id
+          uid: god_uid
         },
         raw: true
       });
-      resolve(result);
+      resolve(result !== 0);
     } catch (error) {
       log.data(error);
-      reject('like topics failed');
+      reject('check god exists failed');
     }
   });
 }
-function checkLiked(uid, article_id) {
+function checkLiked(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
-    // await db.sequelize.models.topic__like.sync({ alter: true }); //有新增欄位時才用
-    const result = await db.sequelize.models.topic__like.count({
+    // await db.sequelize.models.user__favoritegod.sync({ alter: true }); //有新增欄位時才用
+    const result = await db.sequelize.models.user__favoritegod.count({
       where: {
         uid: uid,
-        article_id: article_id
+        god_uid: god_uid
       },
       raw: true
     });
     if (result !== 0) {
-      reject('this article has been liked');
+      reject('this god has been liked');
     } else {
       resolve();
     }
   });
 }
-function like(uid, article_id) {
+function like(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: article_id });
+      const result = await db.sequelize.models.user__favoritegod.create({ uid: uid, god_uid: god_uid });
       log.succ('like success');
       resolve();
     } catch (error) {
       log.data(error);
-      reject('like article failed');
+      reject('like god failed');
     }
   });
 }
-function unlike(uid, article_id) {
+function unlike(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.destroy({
+      const result = await db.sequelize.models.user__favoritegod.destroy({
         where: {
           uid: uid,
-          article_id: article_id
+          god_uid: god_uid
         },
         raw: true
       });
-      console.log(result);
       log.succ('unlike success');
       resolve();
     } catch (error) {
       log.data(error);
-      reject('unlike article failed');
+      reject('unlike god failed');
     }
   });
 }
-async function likeArticle(args) {
+async function favoriteGod(args) {
   return new Promise(async function(resolve, reject) {
     try {
       if (typeof args.token === 'undefined') {
@@ -83,9 +82,9 @@ async function likeArticle(args) {
 
       const uid = args.token.uid;
       try {
-        const article = await dbFind(args.article_id);
-        if (!article[0]) {
-          reject({ code: 404, error: 'article not found' });
+        const god_exists = await dbFind(args.god_uid);
+        if (!god_exists) {
+          reject({ code: 404, error: 'god not found' });
           return;
         }
       } catch (err) {
@@ -96,10 +95,10 @@ async function likeArticle(args) {
 
       console.log(args.like);
       if (args.like === true) {
-        await checkLiked(uid, args.article_id);
-        await like(uid, args.article_id);
+        await checkLiked(uid, args.god_uid);
+        await like(uid, args.god_uid);
       } else {
-        await unlike(uid, args.article_id);
+        await unlike(uid, args.god_uid);
       }
       resolve({ code: 200 });
     } catch (err) {
@@ -108,4 +107,4 @@ async function likeArticle(args) {
     }
   });
 }
-module.exports = likeArticle;
+module.exports = favoriteGod;

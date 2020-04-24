@@ -21,6 +21,15 @@ router.post(
   verification.token,
   require('../controller/user/accuseUser')
 );
+router.post(
+  '/favoriteGod',
+  verification.token,
+  require('../controller/user/favoriteGodController')
+);
+router.post(
+  '/contactService',
+  require('../controller/user/contactServiceController')
+);
 router.get(
   '/getTitlesAndSignature/:uid',
   require('../controller/user/getTitlesAndSignatureController')
