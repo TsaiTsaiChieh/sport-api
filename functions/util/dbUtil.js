@@ -699,6 +699,18 @@ const usersWinLists = sequelize.define(
     displayname: {
       type: Sequelize.STRING
     },
+    last_season_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    last_season_win_rate: {
+      type: Sequelize.INTEGER
+    },
+    last_period_win_bets: {
+      type: Sequelize.INTEGER
+    },
+    last_period_win_rate: {
+      type: Sequelize.INTEGER
+    },
     last_month_win_bets: {
       type: Sequelize.INTEGER
     },
