@@ -41,6 +41,7 @@ function checkPredictionSell(args, unix) {
         `SELECT sell
            FROM user__predictions AS prediction
           WHERE uid = "${args.token.uid}"
+            AND league_id = ${modules.leagueCodebook(args.league).id}
             AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
           LIMIT 1`,
         { type: db.sequelize.QueryTypes.SELECT }
