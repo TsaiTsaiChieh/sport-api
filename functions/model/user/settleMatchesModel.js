@@ -200,15 +200,17 @@ function settleSpread(data) {
   const awayPoints = data.awayPoints;
 
   const handicap = data.spreadHandicap;
-  const homeOdd = data.homeOdd;
-  const awayOdd = data.awayOdd;
+  const homeOdd = data.spreadHomeOdd;
+  const awayOdd = data.spreadAwayOdd;
 
   // 平盤有兩情況
   // fair 平盤 要計算注數
   // fair2 平盤 不要計算注數
   return handicap
     ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd) ? 'fair' : 'fair2'
+      ? (homeOdd !== awayOdd)
+        ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+        : 'fair2'
       : (homePoints - handicap) > awayPoints ? 'home' : 'away'
     : '';
 }
@@ -219,25 +221,37 @@ function settleTotals(data) {
   const awayPoints = data.awayPoints;
 
   const handicap = data.totalsHandicap;
-  const overOdd = data.overOdd;
-  const underOdd = data.underOdd;
+  const overOdd = data.totalsOverOdd;
+  const underOdd = data.totalsUnderOdd;
 
   // 平盤有兩情況
-  // fair 平盤 要計算注數
+  // fair 平盤 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
   return handicap
     ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd) ? 'fair' : 'fair2'
+      ? (overOdd !== underOdd)
+        ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+        : 'fair2'
       : (homePoints + awayPoints) > handicap ? 'over' : 'under'
     : '';
 }
 
 function resultFlag(option, settelResult) {
+  // 先處理 fair 平盤情況 'fair|home', 'fair|away'
+  if (['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)) {
+    const settleOption = settelResult.split('|')[1];
+    return settleOption === option ? 0.5 : -0.5;
+  }
+
   // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
   return settelResult === 'fair2'
-    ? 0 : settelResult === 'fair'
-      ? 0.5 : settelResult === option
-        ? 1 : -1;
+    ? 0 : settelResult === option
+      ? 0.95 : -1;
 }
 
-module.exports = settleMatches;
+module.exports = {
+  settleMatches,
+  settleSpread,
+  settleTotals,
+  resultFlag
+};
