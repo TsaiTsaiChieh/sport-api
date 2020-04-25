@@ -637,11 +637,11 @@ const Prediction = sequelize.define(
       type: Sequelize.STRING
     },
     spread_result_flag: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       defaultValue: -2
     },
     totals_result_flag: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       defaultValue: -2
     }
   },
