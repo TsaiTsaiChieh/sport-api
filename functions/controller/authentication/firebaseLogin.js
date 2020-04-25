@@ -1,4 +1,5 @@
-const userUtils = require('../../util/userUtil');
+// const userUtils = require('../../util/userUtil');
+const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
 const envValues = require('../../config/env_values');
@@ -107,34 +108,43 @@ async function firebaseLogin(req, res) {
         .auth()
         .createSessionCookie(token, { expiresIn: envValues.cookieOptions.maxAge })
         .then(async sessionCookie => {
-          const firestoreUser = await userUtils.getUserProfile(
-            decodedIdToken.uid
-          );
+          // const firestoreUser = await userUtils.getUserProfile(
+          //   decodedIdToken.uid
+          // );
+          const mysqlUser = await db.sequelize.query(
+            `
+              SELECT *
+                FROM users
+               WHERE uid = '${decodedIdToken.uid}'
+             `,
+            {
+              plain: true,
+              type: db.sequelize.QueryTypes.SELECT
+            });
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
-          if (firestoreUser) {
+          if (mysqlUser) {
             console.log('firestoreUser exist');
-            if (firestoreUser.uid) {
-              returnJson.uid = firestoreUser.uid;
+            if (mysqlUser.uid) {
+              returnJson.uid = mysqlUser.uid;
             } else {
               res.status(401).json({ success: false });
-              return;
             }
-            if (firestoreUser.status) {
-              returnJson.status = firestoreUser.status;
-              returnJson.data = firestoreUser.data;
+            if (mysqlUser.status) {
+              returnJson.status = mysqlUser.status;
+              returnJson.data = mysqlUser;
             }
           } else {
             returnJson.status = 0;
           }
-          returnJson.data = firestoreUser.data;
+          returnJson.data = mysqlUser;
           // res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })
         .catch(error => {
           console.log('Error login user: \n\t', error);
-          res.status(401).json({ devcode: '004', err: 'missing tokeng' });
+          res.status(401).json({ devcode: '004', err: 'missing token' });
         });
     })
     .catch(error => {

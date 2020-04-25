@@ -7,7 +7,7 @@ const inplayStatus = 1;
 const endStatus = 0;
 
 async function predictionRate(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const matches = await searchMatches(args);
       const predictions = await searchPredictions(args, matches);
@@ -20,7 +20,7 @@ async function predictionRate(args) {
 
 // 搜尋該天該聯盟的所有賽事編號，若找到會回傳該天所有賽事編號，沒有則回傳無任何賽事 404
 function searchMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const { date, league } = args;
     const begin = modules.convertTimezone(date);
     const end =
@@ -47,7 +47,7 @@ function searchMatches(args) {
 }
 // 搜尋所有符合條件的預測單
 function searchPredictions(args, matches) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const { user_type } = args;
     const matchArray = [];
     for (let i = 0; i < matches.length; i++) {

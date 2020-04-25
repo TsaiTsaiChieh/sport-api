@@ -28,6 +28,7 @@ router.post(
 );
 router.post(
   '/contactService',
+  verification.getToken,
   require('../controller/user/contactServiceController')
 );
 router.get(
@@ -61,6 +62,26 @@ router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
+);
+router.post(
+  '/purse/:uid',
+  verification.token,
+  require('../controller/user/purseController')
+);
+router.post(
+  '/buy/:uid',
+  verification.token,
+  require('../controller/user/buyController')
+);
+router.post(
+  '/transfer/:uid',
+  verification.token,
+  require('../controller/user/transferController')
+);
+router.post(
+  '/honor/:uid',
+  verification.token,
+  require('../controller/user/honorController')
 );
 
 // 結算
