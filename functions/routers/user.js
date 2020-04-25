@@ -55,7 +55,7 @@ router.get(
 router.post(
   '/sell_information',
   verification.token_v2,
-  require('../controller/user/godSellInformation')
+  require('../controller/user/godSellInformationController')
 );
 router.post(
   '/predict_info',
