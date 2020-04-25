@@ -19,7 +19,7 @@ function settleWinList(args) {
     const begin = modules.convertTimezone(args.date);
     const end = modules.convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
 
-    const result = {};
+    let result = {};
 
     const s1 = new Date().getTime();
     // 1.
@@ -66,10 +66,10 @@ function settleWinList(args) {
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const t = modules.predictionsWinList(predictMatchInfo);
-      console.log(t);
+      result = modules.predictionsWinList(predictMatchInfo);
+      console.log(result);
     } catch (err) {
-      console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
+      console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
@@ -79,52 +79,6 @@ function settleWinList(args) {
     console.log('2. ', e - s2);
     return resolve(result);
   });
-}
-
-function settleSpread(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.spreadHandicap;
-  const homeOdd = data.homeOdd;
-  const awayOdd = data.awayOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd) ? 'fair' : 'fair2'
-      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
-    : '';
-}
-
-function settleTotals(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.totalsHandicap;
-  const overOdd = data.overOdd;
-  const underOdd = data.underOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd) ? 'fair' : 'fair2'
-      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
-    : '';
-}
-
-function resultFlag(option, settelResult) {
-  // -2 未結算，-1 輸，0 不算，1 贏，2 平 (一半一半)
-  return settelResult === 'fair2'
-    ? 0 : settelResult === 'fair'
-      ? 2 : settelResult === option
-        ? 1 : -1;
 }
 
 module.exports = settleWinList;
