@@ -53,6 +53,11 @@ router.get(
   require('../controller/user/predictionRateController')
 );
 router.post(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/godSellInformation')
+);
+router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
