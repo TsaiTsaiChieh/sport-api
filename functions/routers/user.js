@@ -28,6 +28,7 @@ router.post(
 );
 router.post(
   '/contactService',
+  verification.getToken,
   require('../controller/user/contactServiceController')
 );
 router.get(
@@ -46,6 +47,11 @@ router.post(
   '/predictions',
   verification.token_v2,
   require('../controller/user/_predictMatchesController')
+);
+router.get(
+  '/prediction_rate',
+  verification.token_v2,
+  require('../controller/user/predictionRateController')
 );
 router.post(
   '/predict_info',

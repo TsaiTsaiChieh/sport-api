@@ -14,7 +14,7 @@ function dbCreate(insertData) {
     }
   });
 }
-async function createReply(args) {
+async function contactService(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let uid;
@@ -49,4 +49,4 @@ async function createReply(args) {
     }
   });
 }
-module.exports = createReply;
+module.exports = contactService;
