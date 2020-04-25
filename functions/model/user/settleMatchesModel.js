@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function settleMatches(args) {
+function settleMatchesModel(args) {
   return new Promise(async function(resolve, reject) {
     // 1. 管理者才能進行 API 呼叫
     // 2. 該場賽事結算
@@ -10,6 +10,10 @@ function settleMatches(args) {
 
     const userUid = args.token.uid;
     const bets_id = args.bets_id;
+
+    const settleSpread = modules.settleSpread;
+    const settleTotals = modules.settleTotals;
+    const resultFlag = modules.perdictionsResultFlag;
 
     const result = {};
 
@@ -158,7 +162,7 @@ function settleMatches(args) {
         // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
         const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-
+        console.log(settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
         // 回寫結果
         try {
           const r = await db.Prediction.update({
@@ -194,64 +198,4 @@ function settleMatches(args) {
   });
 }
 
-function settleSpread(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.spreadHandicap;
-  const homeOdd = data.spreadHomeOdd;
-  const awayOdd = data.spreadAwayOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd)
-        ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
-        : 'fair2'
-      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
-    : '';
-}
-
-function settleTotals(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.totalsHandicap;
-  const overOdd = data.totalsOverOdd;
-  const underOdd = data.totalsUnderOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數，會分輸贏
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd)
-        ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
-        : 'fair2'
-      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
-    : '';
-}
-
-function resultFlag(option, settelResult) {
-  // 先處理 fair 平盤情況 'fair|home', 'fair|away'
-  if (['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)) {
-    const settleOption = settelResult.split('|')[1];
-    return settleOption === option ? 0.5 : -0.5;
-  }
-
-  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
-  return settelResult === 'fair2'
-    ? 0 : settelResult === option
-      ? 0.95 : -1;
-}
-
-module.exports = {
-  settleMatches,
-  settleSpread,
-  settleTotals,
-  resultFlag
-};
+module.exports = settleMatchesModel;

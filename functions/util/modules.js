@@ -21,7 +21,7 @@ const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
   date: 2020-07-01 or 20200701
-  operation: {
+  [operation]: {
         op: 'add',
         value: 1,
         unit: 'days'
@@ -42,10 +42,11 @@ function convertTimezone(date, operation, zone = zone_tw) {
   }
   return moment.tz(date, zone).unix();
 }
+
 // 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
 /*
   unix: Math.floor(Date.now() / 1000)
-  operation: {
+  [operation]: {
         op: 'add',
         value: 1,
         unit: 'days'
@@ -69,6 +70,7 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   }
   return moment.tz(unix, zone).format('YYYYMMDD');
 }
+
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
     console.log('initializing firebase database');
@@ -100,6 +102,7 @@ var redis = {
   port: '6379'
 };
 /* redis 設定-END */
+
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -239,6 +242,164 @@ function userStatusCodebook(role) {
       return 'NORMAL';
   }
 }
+
+// 將陣列裡面的 object 依照 attrib 來進行分類成 array
+function groupBy(arr, prop) {
+  const map = new Map(Array.from(arr, obj => [obj[prop], []]));
+  arr.forEach(obj => map.get(obj[prop]).push(obj));
+  return Array.from(map.values());
+}
+
+/*
+{
+  homePoints:
+  awayPoints:
+  spreadHandicap:
+  spreadHomeOdd:
+  spreadAwayOdd:
+}
+*/
+function settleSpread(data) {
+  // handciap: 正:主讓客  負:客讓主
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.spreadHandicap;
+  const homeOdd = data.spreadHomeOdd;
+  const awayOdd = data.spreadAwayOdd;
+
+  // 平盤有兩情況
+  // fair 要計算注數，會分輸贏
+  // fair2 平盤 不要計算注數
+  return handicap
+    ? (homePoints - handicap) === awayPoints
+      ? (homeOdd !== awayOdd)
+        ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+        : 'fair2'
+      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
+    : '';
+}
+
+/*
+{
+  homePoints:
+  awayPoints:
+  totalsHandicap:
+  totalsOverOdd:
+  totalsUnderOdd:
+}
+*/
+function settleTotals(data) {
+  // handciap: 正:主讓客  負:客讓主
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.totalsHandicap;
+  const overOdd = data.totalsOverOdd;
+  const underOdd = data.totalsUnderOdd;
+
+  // 平盤有兩情況
+  // fair 平盤 要計算注數，會分輸贏
+  // fair2 平盤 不要計算注數
+  return handicap
+    ? (homePoints + awayPoints) === handicap
+      ? (overOdd !== underOdd)
+        ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+        : 'fair2'
+      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
+    : '';
+}
+
+function perdictionsResultFlag(option, settelResult) {
+  // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
+  if (['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)) {
+    const settleOption = settelResult.split('|')[1];
+    return settleOption === option ? 0.5 : -0.5;
+  }
+
+  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
+  return settelResult === 'fair2'
+    ? 0 : settelResult === option
+      ? 0.95 : -1;
+}
+
+/* 輸入資料格式
+  [
+    {
+      uid: '3IB0w6G4V8QUM2Ti3iCIfX4Viux1',
+      spread_bets: null,
+      totals_bets: 1,
+      spread_result_flag: -2,
+      totals_result_flag: -1
+    },
+    {
+      uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
+      spread_bets: 3,
+      totals_bets: 3,
+      spread_result_flag: -1,
+      totals_result_flag: 0.95
+    },
+    {
+      uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
+      spread_bets: 1,
+      totals_bets: 2,
+      spread_result_flag: 0.95,
+      totals_result_flag: -1
+    }
+  ]
+*/
+function predictionsWinList(data) {
+  const correct = [0.95, 0.5];
+  const fault = [-1, -0.5];
+  const result = {};
+
+  const rePredictMatchInfo = groupBy(data, 'uid');
+
+  rePredictMatchInfo.forEach(function(data) {
+    const totalPredictCounts = data.length;
+
+    // 勝率 winRate
+    const predictCorrectCounts =
+      data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
+      data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+
+    const predictFaultCounts =
+      data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
+      data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+
+    const winRate = predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+
+    // 勝注
+    const predictCorrectBets =
+      data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
+      data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+
+    const predictFaultBets =
+      data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
+      data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+
+    const winBets = predictCorrectBets + predictFaultBets;
+
+    result[data[0].uid] = {
+      winRate: Number((winRate * 100).toFixed(0)),
+      winBets: Number((winBets).toFixed(2))
+    };
+
+    // console.log('\n');
+    // console.log('%o totalPredictCounts: %f  predictCorrectCounts: %f  predictFaultCounts: %f',
+    //   data[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
+    // console.log('winRate: %f', winRate * 100);
+
+    // console.log('%o predictCorrectBets: %f  predictFaultBets: %f ',
+    //   data[0].uid, predictCorrectBets, predictFaultBets);
+    // console.log('winBets: %0.2f', winBets);
+
+    // console.log('\n');
+    // console.log('re: ', data);
+  });
+  return result;
+}
+
 module.exports = {
   redis,
   express,
@@ -276,5 +437,10 @@ module.exports = {
   convertTimezone,
   convertTimezoneFormat,
   leagueDecoder,
-  acceptNumberAndLetter
+  acceptNumberAndLetter,
+  groupBy,
+  settleSpread,
+  settleTotals,
+  perdictionsResultFlag,
+  predictionsWinList
 };

@@ -5,16 +5,19 @@ const db = require('../../util/dbUtil');
 function settleWinList(args) {
   return new Promise(async function(resolve, reject) {
     // 1. 管理者才能進行 API 呼叫
-    // 2.
+    // 2. 需要另一支排程進行
     //    a. 取得 這個星期的星期一日期、這個月第一天日期，更新 上星期、上個月記錄，並清空 本星期、本月記錄 設為 0
     //    b. 賽季開打 更新 上賽季記錄，並清空 本賽季記錄，設為 0
     //    c. 大神計算完畢 更新 上期大神記錄，並清空 本期記錄，設為 0
     // 3.
-    //    a. 今日 預測單 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果 的 預測單
+    //    a. 今日 預測單 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flas) 的 預測單
     //    b. 將 勝率、勝注 計算結果 直接寫入 這星期、這個月、這賽季、本期大神
 
+    // 勝率的計算比較特別，需要 總勝數 和 勝數
+
     const userUid = args.token.uid;
-    const date = args.date;
+    const begin = modules.convertTimezone(args.date);
+    const end = modules.convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
 
     const result = {};
 
@@ -41,163 +44,40 @@ function settleWinList(args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    return resolve(date);
+    const s2 = new Date().getTime();
+    // 2.
+    try {
+      // 注意 !!!  正式有資料後，要把 今日日期區間判斷 打開來
+      const predictMatchInfo = await db.sequelize.query(`
+        select prediction.id, prediction.uid,
+               spread_bets, totals_bets,
+               spread_result_flag, totals_result_flag
+          from user__predictions prediction, matches
+         where prediction.bets_id = matches.bets_id
+           -- and prediction.match_scheduled between :begin and :end
+           and matches.flag_prematch = 1
+           and matches.status = 0
+           and (spread_result_flag != -2 or totals_result_flag != -2)
+      `, {
+        replacements: {
+          begin: begin,
+          end: end
+        },
+        type: db.sequelize.QueryTypes.SELECT
+      });
 
-    // const s2 = new Date().getTime();
-    // // 2.
-    // try {
-    //   // flag_permatch 1 才為有效賽事
-    //   // status 0 比賽結束
-    //   // home_points、away_points 最終得分 需要有值 (不可null，不可空白)
-    //   const matchInfo = await db.sequelize.query(`
-    //     select bets_id, home_id, away_id, home_points, away_points,
-    //            spread.handicap spread_handicap, home_odd, away_odd,
-    //            totals.handicap totals_handicap, over_odd, under_odd
-    //       from matches
-    //       left join match__spreads spread
-    //         on matches.spread_id = spread.spread_id
-    //       left join match__totals totals
-    //         on matches.totals_id = totals.totals_id
-    //      where bets_id = :bets_id
-    //        and flag_prematch = 1
-    //        and status = 0
-    //        and (home_points is not null and home_points != '')
-    //        and (away_points is not null and away_points != '')
-    //   `, {
-    //     replacements: {
-    //       bets_id: bets_id
-    //     },
-    //     type: db.sequelize.QueryTypes.SELECT
-    //   });
+      const t = modules.predictionsWinList(predictMatchInfo);
+      console.log(t);
+    } catch (err) {
+      console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
+      return reject(errs.errsMsg('500', '500', err));
+    }
 
-    //   if (matchInfo.length === 0 || matchInfo.length > 1) { return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`); }
-
-    //   const mapResult = matchInfo.map(async function(data) {
-    //     const countData = {
-    //       homePoints: data.home_points,
-    //       awayPoints: data.away_points,
-    //       spreadHandicap: data.spread_handicap,
-    //       spreadHomeOdd: data.home_odd,
-    //       spreadAwayOdd: data.away_odd,
-    //       totalsHandicap: data.totals_handicap,
-    //       totalsOverOdd: data.over_odd,
-    //       totalsUnderOdd: data.under_odd
-    //     };
-
-    //     // null 代表 沒有handicap
-    //     const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-    //     if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
-
-    //     const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-    //     if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
-
-    //     // 回寫結果
-    //     try {
-    //       const r = await db.Match.update({
-    //         spread_result: settelSpreadResult,
-    //         totals_result: settelTotalsResult
-    //       }, {
-    //         where: {
-    //           bets_id: bets_id
-    //         }
-    //       });
-
-    //       if (r[0] !== 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
-
-    //       result[bets_id] = { status: 1, msg: '賽事結算成功！' };
-    //     } catch (err) {
-    //       return reject(errs.errsMsg('404', '1309'));
-    //     }
-    //   });
-
-    //   await Promise.all(mapResult);
-    // } catch (err) {
-    //   console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
-    //   return reject(errs.errsMsg('500', '500', err));
-    // }
-
-    // const s3 = new Date().getTime();
-    // // 3.
-    // try {
-    //   const predictMatchInfo = await db.sequelize.query(`
-    //     select prediction.id, prediction.uid, prediction.spread_option, prediction.totals_option,
-    //            matches.bets_id, home_id, away_id, home_points, away_points,
-    //            spread.spread_id, spread.handicap spread_handicap, home_odd, away_odd,
-    //            totals.totals_id, totals.handicap totals_handicap, over_odd, under_odd
-    //       from user__predictions prediction
-    //      inner join matches
-    //         on prediction.bets_id = matches.bets_id
-    //       left join match__spreads spread
-    //         on prediction.spread_id = spread.spread_id
-    //       left join match__totals totals
-    //         on prediction.totals_id = totals.totals_id
-    //      where matches.bets_id = :bets_id
-    //        and flag_prematch = 1
-    //        and status = 0
-    //        and (home_points is not null and home_points != '')
-    //        and (away_points is not null and away_points != '')
-    //   `, {
-    //     replacements: {
-    //       bets_id: bets_id
-    //     },
-    //     type: db.sequelize.QueryTypes.SELECT
-    //   });
-
-    //   const mapResult2 = predictMatchInfo.map(async function(data) {
-    //     const countData = {
-    //       homePoints: data.home_points,
-    //       awayPoints: data.away_points,
-    //       spreadHandicap: data.spread_handicap,
-    //       spreadHomeOdd: data.home_odd,
-    //       spreadAwayOdd: data.away_odd,
-    //       totalsHandicap: data.totals_handicap,
-    //       totalsOverOdd: data.over_odd,
-    //       totalsUnderOdd: data.under_odd
-    //     };
-
-    //     // null 代表 沒有handicap
-    //     const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-    //     if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
-
-    //     const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-    //     if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1316')); // 賽事結算大小 結果不應該為空白
-
-    //     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    //     const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
-    //     const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-
-    //     // 回寫結果
-    //     try {
-    //       const r = await db.Prediction.update({
-    //         spread_result: settelSpreadResult,
-    //         totals_result: settelTotalsResult,
-    //         spread_result_flag: spreadResultFlag,
-    //         totals_result_flag: totalsResultFlag
-    //       }, {
-    //         where: {
-    //           id: data.id
-    //         }
-    //       });
-
-    //       if (r[0] !== 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
-
-    //       result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
-    //     } catch (err) {
-    //       return reject(errs.errsMsg('404', '1313'));
-    //     }
-    //   });
-
-    //   await Promise.all(mapResult2);
-    // } catch (err) {
-    //   console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
-    //   return reject(errs.errsMsg('500', '500', err));
-    // }
-
-    // const e = new Date().getTime();
-    // console.log('1. ', s2 - s1);
-    // console.log('2. ', s3 - s2);
-    // console.log('3. ', e - s3);
-    // return resolve(result);
+    const e = new Date().getTime();
+    console.log('\n');
+    console.log('1. ', s2 - s1);
+    console.log('2. ', e - s2);
+    return resolve(result);
   });
 }
 
