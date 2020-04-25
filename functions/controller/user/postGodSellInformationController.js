@@ -46,7 +46,7 @@ async function godSellInformation(req, res) {
     res.json(await model(args));
   } catch (err) {
     console.error(
-      'Error in controller/user/godSellInformation function by TsaiChieh',
+      'Error in controller/user/postGodSellInformation function by TsaiChieh',
       err
     );
     res
