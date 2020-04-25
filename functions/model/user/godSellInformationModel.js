@@ -2,6 +2,7 @@ const modules = require('../../util/modules');
 const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const SELL = 1;
+
 function godSellInformation(args) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -17,6 +18,7 @@ function godSellInformation(args) {
 
       await isGodBelongToLeague(args, args.token.customClaims.titles);
       await checkPredictionSell(args, unix);
+      return resolve(await insertDB(args, unix));
     } catch (err) {
       return reject(err);
     }
@@ -25,8 +27,6 @@ function godSellInformation(args) {
 
 // 檢查是否為該聯盟的大神要填寫售牌資訊
 function isGodBelongToLeague(args, titles = []) {
-  console.log(args.token.customClaims);
-
   return new Promise(function (resolve, reject) {
     !titles.includes(args.league)
       ? reject(new AppError.UserNotBelongToGod())
@@ -50,7 +50,23 @@ function checkPredictionSell(args, unix) {
         ? resolve()
         : reject(new AppError.CouldNotFillInSellInformation());
     } catch (err) {
-      console.error(err);
+      return reject(new AppError.MysqlError());
+    }
+  });
+}
+
+function insertDB(args, unix) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      await db.PredictionDescription.upsert({
+        uid: args.token.uid,
+        league_id: modules.leagueCodebook(args.league).id,
+        day: unix.begin,
+        description: args.desc,
+        tips: args.tips
+      });
+      return resolve('Upsert successful.');
+    } catch (err) {
       return reject(new AppError.MysqlError());
     }
   });
