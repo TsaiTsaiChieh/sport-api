@@ -365,7 +365,7 @@ async function getTotals(league, ele) {
   }
 }
 function spreadCalculator(handicapObj) {
-  if ((handicapObj.handicap = 0.0)) {
+  if (handicapObj.handicap === 0.0) {
     handicapObj.handicap = 0;
   }
   if (

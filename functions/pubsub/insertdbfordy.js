@@ -4,8 +4,8 @@ const db = require('../util/dbUtil');
 inserttest();
 async function inserttest() {
   try {
-    let a = { handicap: 0, home_odd: 2.2, away_odd: 2.2 };
-    let data = spreadCalculator(a);
+    const a = { handicap: 0, home_odd: 2.2, away_odd: 2.2 };
+    const data = spreadCalculator(a);
     console.log(data);
   } catch (err) {
     console.error(err);

@@ -49,7 +49,7 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       const parameterPBP = {
         periodsNow: periodsNow,
@@ -325,7 +325,7 @@ async function doPBP(parameter) {
   const transSimpleHome = parameter.transSimpleHome;
   const keywordAway = parameter.keywordAway;
   const transSimpleAway = parameter.transSimpleAway;
-  let { data } = await axios(pbpURL);
+  const { data } = await axios(pbpURL);
   const dataPBP = data;
 
   for (
