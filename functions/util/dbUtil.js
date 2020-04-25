@@ -21,8 +21,8 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
  * Define schema
  * The model will now be available in models under the name given to define
  * Ex: sequelize.models.match
- * Match ref: match__league, match__spread, match__total, match__team__NBA, match__NBA
- * User ref: user__prediction
+ * Match ref: match, match__league, match__team, match__spread, match__total
+ * User ref: user__prediction, user__prediction__description
  */
 
 /*
@@ -677,6 +677,44 @@ const Prediction = sequelize.define(
 );
 
 /*
+ * 預測單的資訊，unique key 為 bets_id, uid
+ */
+const PredictionDescription = sequelize.define(
+  'user__prediction__description',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.INTEGER
+    },
+    day: {
+      type: Sequelize.INTEGER
+    },
+    description: {
+      type: Sequelize.TEXT
+    },
+    tips: {
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid', 'day', 'league_id']
+      }
+    ]
+  }
+);
+
+/*
  * 各聯盟賽事結算資訊
  */
 const usersWinLists = sequelize.define(
@@ -955,31 +993,28 @@ const Topic_FavoriteArticle = sequelize.define(
 /*
  * 聯絡客服
  */
-const Service_Contact = sequelize.define(
-  'service__contact',
-  {
-    uid: {
-      type: Sequelize.STRING,
-      allowNull: true
-    },
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    content: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    images: {
-      type: Sequelize.STRING,
-      allowNull: true
-    }
+const Service_Contact = sequelize.define('service__contact', {
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  name: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  images: {
+    type: Sequelize.STRING,
+    allowNull: true
   }
-);
+});
 
 /*
  * 首頁圖
@@ -1028,6 +1063,7 @@ const dbUtil = {
   Match,
   Team,
   Prediction,
+  PredictionDescription,
   User,
   Title,
   Rank,
