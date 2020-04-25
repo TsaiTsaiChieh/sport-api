@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const model = require('../../model/user/godSellInformationModel');
+const model = require('../../model/user/postGodSellInformationModel');
 
 async function godSellInformation(req, res) {
   const schema = {

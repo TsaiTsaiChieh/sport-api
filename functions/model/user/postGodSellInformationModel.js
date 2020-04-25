@@ -65,7 +65,7 @@ function insertDB(args, unix) {
         description: args.desc,
         tips: args.tips
       });
-      return resolve('Upsert successful.');
+      return resolve('Upsert successful');
     } catch (err) {
       return reject(new AppError.MysqlError());
     }
