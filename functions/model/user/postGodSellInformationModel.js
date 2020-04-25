@@ -4,7 +4,7 @@ const db = require('../../util/dbUtil');
 const SELL = 1;
 
 function godSellInformation(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const unix = {
         begin: modules.convertTimezone(args.date),
@@ -27,7 +27,7 @@ function godSellInformation(args) {
 
 // 檢查是否為該聯盟的大神要填寫售牌資訊
 function isGodBelongToLeague(args, titles = []) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     !titles.includes(args.league)
       ? reject(new AppError.UserNotBelongToGod())
       : resolve();
@@ -35,7 +35,7 @@ function isGodBelongToLeague(args, titles = []) {
 }
 // 檢查該大神該天的販售狀態是否確實為「販售」
 function checkPredictionSell(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
         `SELECT sell
@@ -56,7 +56,7 @@ function checkPredictionSell(args, unix) {
 }
 
 function insertDB(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await db.PredictionDescription.upsert({
         uid: args.token.uid,
