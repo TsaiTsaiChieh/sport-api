@@ -1,34 +1,83 @@
 const modules = require('../util/modules');
 
 const db = require('../util/dbUtil');
+inserttest();
 async function inserttest() {
   try {
-    const Match = await db.match_eSoccer.sync();
-    // try {
-    //   const data = {
-    //     bets_id: 1,
-    //     league_id: '22000',
-    //     ori_league_id: ele.league.id,
-    //     sport_id: ele.sport_id,
-    //     ori_sport_id: ele.sport_id,
-    //     home_id: ele.home.id,
-    //     away_id: ele.away.id,
-    //     scheduled: Number.parseInt(ele.time),
-    //     scheduled_tw: Number.parseInt(ele.time) * 1000,
-    //     flag_prematch: 1,
-    //     status: 2
-    //   };
-
-    //   Match.upsert(data);
-    // } catch (err) {
-    //   console.error(err);
-    // }
+    let a = { handicap: 0, home_odd: 2.2, away_odd: 2.2 };
+    let data = spreadCalculator(a);
+    console.log(data);
   } catch (err) {
     console.error(err);
   }
   console.log('ok');
 }
-inserttest();
+function spreadCalculator(handicapObj) {
+  // 賠率相同
+  if (
+    handicapObj.handicap % 1 !== 0 &&
+    handicapObj.handicap < 0
+    // handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.away_tw = `${Math.abs(Math.ceil(handicapObj.handicap))}輸`;
+    handicapObj.home_tw = null;
+    // handicapObj.away_tw = `${Math.ceil(Math.abs(handicapObj.handicap))}贏`;
+  } else if (
+    handicapObj.handicap % 1 !== 0 &&
+    handicapObj.handicap >= 0
+    // handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.home_tw = `${Math.floor(handicapObj.handicap)}輸`;
+    handicapObj.away_tw = null;
+    // handicapObj.home_tw = `${Math.ceil(handicapObj.handicap)}贏`;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap >= 0 &&
+    handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.home_tw = `${handicapObj.handicap}平`;
+    handicapObj.away_tw = null;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
+    handicapObj.home_tw = null;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap >= 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    // 盤口為正，代表主讓客，所以主要減
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      // handicapObj.home_tw = `-${handicapObj.handicap} +50`;
+      handicapObj.away_tw = `+${handicapObj.handicap} -50`;
+      handicapObj.home_tw = null;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.away_tw = `+${handicapObj.handicap} +50`;
+      handicapObj.home_tw = null;
+      // handicapObj.home_tw = `-${handicapObj.handicap} -50`;
+    }
+    // console.log(handicapObj, id);
+  } else if (
+    // 盤口為負，代表客讓主，所以客要減
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)} +50`;
+      handicapObj.away_tw = null;
+      // handicapObj.away_tw = `-${Math.abs(handicapObj.handicap)} -50`;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)} -50`;
+      handicapObj.away_tw = null;
+      // handicapObj.away_tw = `-${Math.abs(handicapObj.handicap)} +50`;
+    }
+  }
+  return handicapObj;
+}
 // const realtimeData = JSON.parse(
 //   JSON.stringify(
 //     // eslint-disable-next-line no-await-in-loop

@@ -23,6 +23,12 @@ module.exports.eSoccer.upcoming = async function (date) {
             .doc(ele.id)
             .set(repackage_bets(ele), { merge: true })
         );
+        results.push(
+          modules.firestore
+            .collection('pagetest_esoccer')
+            .doc(ele.id)
+            .set(repackage_bets(ele), { merge: true })
+        );
 
         try {
           const dataEvent = {
@@ -45,6 +51,7 @@ module.exports.eSoccer.upcoming = async function (date) {
             league_id: '22000',
             sport_id: ele.sport_id,
             name: ele.home.name,
+            alias: ele.home.name,
             image_id: ele.home.image_id
           };
           const dataAwayTeam = {
@@ -52,6 +59,7 @@ module.exports.eSoccer.upcoming = async function (date) {
             league_id: '22000',
             sport_id: ele.sport_id,
             name: ele.away.name,
+            alias: ele.home.name,
             image_id: ele.away.image_id
           };
           await MatchTeam.upsert(dataHomeTeam);
@@ -92,7 +100,7 @@ function repackage_bets(ele) {
     bets_id: ele.id,
     league: {
       ori_bets_id: ele.league.id,
-      bets_id: '22',
+      bets_id: '22000',
       name: ele.league.name
     },
     home: {

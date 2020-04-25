@@ -5,7 +5,9 @@ const EsoccerpbpInplay = ESoccerpbp.EsoccerpbpInplay;
 const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
 
 async function checkmatch_esoccer() {
-  const firestoreName = 'eSoccer';
+  // const firestoreName = 'eSoccer'; normal
+  const firestoreName = 'pagetest_esoccer'; //test
+
   const data = await modules.firestore.collection(firestoreName).get();
   const totalData = [];
   data.forEach((doc) => {

@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league);
 
@@ -19,6 +19,7 @@ async function reResult(sport, league) {
 async function repackage(sport, league) {
   // 目前時間寫死
   const time = '2020-07-01';
+  // const time = Date.now();
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)
