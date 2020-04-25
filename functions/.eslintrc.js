@@ -4,9 +4,7 @@ module.exports = {
     es6: true,
     node: true
   },
-  extends: [
-    'standard'
-  ],
+  extends: ['standard'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly'
@@ -16,13 +14,15 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
-    'camelcase': 'off',
-    'no-tabs':0,
+    camelcase: 'off',
+    semi: 0,
+    'no-tabs': 0,
+    camelcase: 'off',
+    'no-tabs': 0,
     'no-unused-vars': 0,
-    'no-async-promise-executor':0,
-    'prefer-promise-reject-errors':0,
-    'block-spacing':0,
-    'space-before-function-paren':['error','never'],
-    'semi':['error','always']
+    'no-async-promise-executor': 0,
+    'prefer-promise-reject-errors': 0,
+    'block-spacing': 0,
+    'space-before-function-paren': 0
   }
 };
