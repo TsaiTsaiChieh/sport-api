@@ -206,36 +206,36 @@ const Title = sequelize.define(
 );
 
 const Rank = sequelize.define(
-    'rank',
-    {
-        id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        rank_id: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        name: {
-            type: Sequelize.STRING
-        },
-        price: {
-            type: Sequelize.INTEGER
-        },
-        sub_price: {
-            type: Sequelize.INTEGER
-        }
+  'rank',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
-    {
-        indexes: [
-            {
-                unique: true,
-                fields: ['rank_id']
-            }
-        ]
+    rank_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    price: {
+      type: Sequelize.INTEGER
+    },
+    sub_price: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['rank_id']
+      }
+    ]
 
-    },
+  },
   {
     indexes: [
       {
