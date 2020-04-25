@@ -6,30 +6,59 @@ module.exports.eSoccer.upcoming = async function (date) {
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
   const results = [];
-  // leagueArray.length
+
   for (let i = 0; i < leagueArray.length; i++) {
     const leagueID = leagueArray[i];
 
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
     try {
-      // eslint-disable-next-line no-await-in-loop
       const { data } = await modules.axios(URL);
+      const Match = await db.Match.sync();
+      const MatchTeam = await db.Team.sync();
       for (let j = 0; j < data.results.length; j++) {
         const ele = data.results[j];
-
         results.push(
           modules.firestore
             .collection(modules.db.eSoccer)
             .doc(ele.id)
             .set(repackage_bets(ele), { merge: true })
         );
-        // mysql----------
-        //   try {
-        //     // const Match = await db.eSoccer_match.sync();
-        //   } catch (err) {
-        //     console.error(err);
-        //   }
-        // mysql----------
+
+        try {
+          const dataEvent = {
+            bets_id: ele.id,
+            league_id: '22000',
+            ori_league_id: ele.league.id,
+            sport_id: ele.sport_id,
+            ori_sport_id: ele.sport_id,
+            home_id: ele.home.id,
+            away_id: ele.away.id,
+            scheduled: Number.parseInt(ele.time),
+            scheduled_tw: Number.parseInt(ele.time) * 1000,
+            flag_prematch: 1,
+            status: 2
+          };
+
+          await Match.upsert(dataEvent);
+          const dataHomeTeam = {
+            team_id: ele.home.id,
+            league_id: '22000',
+            sport_id: ele.sport_id,
+            name: ele.home.name,
+            image_id: ele.home.image_id
+          };
+          const dataAwayTeam = {
+            team_id: ele.away.id,
+            league_id: '22000',
+            sport_id: ele.sport_id,
+            name: ele.away.name,
+            image_id: ele.away.image_id
+          };
+          await MatchTeam.upsert(dataHomeTeam);
+          await MatchTeam.upsert(dataAwayTeam);
+        } catch (err) {
+          console.error(err);
+        }
       }
     } catch (error) {
       console.error(

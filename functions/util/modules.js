@@ -143,7 +143,7 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
+  snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
@@ -167,6 +167,11 @@ function leagueCodebook(league) {
       return {
         id: 3939,
         match: db.baseball_MLB
+      };
+    case 'eSoccer':
+      return {
+        id: 22000,
+        match: db.eSoccer
       };
   }
 }
