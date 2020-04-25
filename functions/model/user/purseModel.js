@@ -5,8 +5,8 @@ const db = require('../../util/dbUtil');
 function purseModel(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let uid = args;
-      let limit        = 10;
+      const uid = args;
+      const limit = 10;
       const purse = await db.sequelize.query(
       `
       SELECT coin, point, ingot
@@ -15,7 +15,7 @@ function purseModel(args) {
        `,
       {
         plain: true,
-        type: db.sequelize.QueryTypes.SELECT,
+        type: db.sequelize.QueryTypes.SELECT
       });
 
       const bank = await db.sequelize.query(
@@ -26,13 +26,13 @@ function purseModel(args) {
          `,
         {
           plain: true,
-          type: db.sequelize.QueryTypes.SELECT,
+          type: db.sequelize.QueryTypes.SELECT
         });
-      
-      purseList = {
+
+      const purseList = {
         purse,
         bank
-      }
+      };
       resolve(purseList);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);

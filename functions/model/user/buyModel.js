@@ -1,11 +1,11 @@
-const modules = require("../../util/modules");
-const errs = require("../../util/errorCode");
-const db = require("../../util/dbUtil");
+const modules = require('../../util/modules');
+const errs = require('../../util/errorCode');
+const db = require('../../util/dbUtil');
 
 function buyModel(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      let uid = args;
+      const uid = args;
       const buy = await db.sequelize.query(
         `
         SELECT * ,
@@ -16,14 +16,14 @@ function buyModel(args) {
        
        `,
         {
-          type: db.sequelize.QueryTypes.SELECT,
+          type: db.sequelize.QueryTypes.SELECT
         }
       );
       console.log(uid);
       resolve(buy);
     } catch (err) {
-      console.log("Error in  rank/searchUser by henry:  %o", err);
-      return reject(errs.errsMsg("500", "500", err.message));
+      console.log('Error in  rank/searchUser by henry:  %o', err);
+      return reject(errs.errsMsg('500', '500', err.message));
     }
   });
 }

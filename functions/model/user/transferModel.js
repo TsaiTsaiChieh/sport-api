@@ -5,7 +5,7 @@ const db = require('../../util/dbUtil');
 function transferModel(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let uid = args;
+      const uid = args;
       const transfer = await db.sequelize.query(
       `
         SELECT transfer_id, scheduled, type, content 
@@ -13,7 +13,7 @@ function transferModel(args) {
          WHERE uid = '${uid}'
        `,
       {
-        type: db.sequelize.QueryTypes.SELECT,
+        type: db.sequelize.QueryTypes.SELECT
       });
       resolve(transfer);
     } catch (err) {

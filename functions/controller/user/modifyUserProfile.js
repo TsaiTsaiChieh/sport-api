@@ -32,7 +32,7 @@ async function modifyUserProfile(req, res) {
   data.uid = uid;
   switch (userStatus) {
     case 0: // 新會員
-
+    {
       const schema = {
         type: 'object',
         required: ['displayName', 'name', 'phone', 'email', 'birthday'],
@@ -122,6 +122,7 @@ async function modifyUserProfile(req, res) {
       });
       admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
+    }
     case 1: // 一般會員
       console.log('normal user');
       break;
@@ -136,7 +137,7 @@ async function modifyUserProfile(req, res) {
       console.log('manager user');
       break;
     default:
-      throw 'user status error';
+      return res.status(401).json({ success: false, message: 'user status error' });
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
