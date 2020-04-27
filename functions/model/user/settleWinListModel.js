@@ -123,13 +123,13 @@ function settleWinList(args) {
             const r = await db.Users_WinLists.upsert({
               uid: data.uid,
               league_id: data.league_id,
-              this_week_win_rate: Number(ele[1].correct_sum / (ele[1].correct_sum + ele[1].fault_sum)).toFixed(0),
+              this_week_win_rate: numberCount(ele[1].correct_sum, ele[1].fault_sum),
               this_week_win_bets: ele[1].sum,
-              this_month_win_rate: Number(ele[2].correct_sum / (ele[2].correct_sum + ele[2].fault_sum)).toFixed(0),
+              this_month_win_rate: numberCount(ele[2].correct_sum, ele[2].fault_sum),
               this_month_win_bets: ele[2].sum,
-              this_period_win_rate: Number(ele[3].correct_sum / (ele[3].correct_sum + ele[3].fault_sum)).toFixed(0),
+              this_period_win_rate: numberCount(ele[3].correct_sum, ele[3].fault_sum),
               this_period_win_bets: ele[3].sum,
-              this_season_win_rate: Number(ele[4].correct_sum / (ele[4].correct_sum + ele[4].fault_sum)).toFixed(0),
+              this_season_win_rate: numberCount(ele[3].correct_sum, ele[3].fault_sum),
               this_season_win_bets: ele[4].sum
             }, {
               fields: [
@@ -140,7 +140,6 @@ function settleWinList(args) {
               ]
             });
 
-            console.log('ele: %o / %o', ele[4].correct_sum, (ele[4].correct_sum + ele[4].fault_sum));
             if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
 
             result.push({ status: 1, msg: '使用者-聯盟 勝注勝率資料更新成功！', uid: data.uid, league: data.league_id });
@@ -218,6 +217,13 @@ async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, se
     //logging: console.log,
     type: db.sequelize.QueryTypes.SELECT
   });
+}
+
+function numberCount(num1, num2, f=2){
+  //console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
+  return Number(
+    Number(num1) / ( Number(num1) + Number(num2) )
+  ).toFixed(f);
 }
 
 module.exports = settleWinList;
