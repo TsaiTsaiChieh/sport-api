@@ -17,7 +17,7 @@ function dbFind(where, page) {
         distinct: true,
         raw: true
       });
-      console.log(result)
+      console.log(result);
       resolve(result);
     } catch (error) {
       log.data(error);
@@ -93,7 +93,7 @@ async function getTopics(args) {
         topics.rows[i].user_info = userInfo;
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
-      resolve({ code: 200, page: page+1 ,count: topics.count , topics: topics.rows });
+      resolve({ code: 200, page: page + 1, count: topics.count, topics: topics.rows });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });
