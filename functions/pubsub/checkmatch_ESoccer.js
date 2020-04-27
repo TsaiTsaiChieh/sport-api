@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 
-const ESoccerpbp = require('./pbpeSoccer.js');
+const ESoccerpbp = require('./pbpESoccer.js');
+
 const EsoccerpbpInplay = ESoccerpbp.EsoccerpbpInplay;
 const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
 
