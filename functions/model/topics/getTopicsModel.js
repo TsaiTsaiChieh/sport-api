@@ -40,7 +40,7 @@ async function getTopics(args) {
       if (typeof args.category !== 'undefined' && args.category !== null) {
         where.category = args.category;
       }
-      if (typeof args.page !== 'undefined' && args.type !== null) {
+      if (typeof args.page !== 'undefined' && args.page !== null) {
         page = args.page;
       }
 
