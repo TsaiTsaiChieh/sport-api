@@ -14,7 +14,7 @@ async function editArticle(req, res) {
     type: 'object',
     requied: ['category', 'type', 'title', 'content'],
     properties: {
-      aid: {
+      article_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0

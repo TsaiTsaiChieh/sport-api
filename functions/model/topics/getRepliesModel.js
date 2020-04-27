@@ -2,7 +2,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 20;
 function dbFind(aid, page) {
@@ -19,7 +18,7 @@ function dbFind(aid, page) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get replies failed');
     }
   });
@@ -49,12 +48,12 @@ async function getReplies(args) {
         usersToGet.push(replies.rows[i].uid);
         replies.rows[i].images = JSON.parse(replies.rows[i].images);
       }
-      log.info(replytoToGet)
+      // console.log(replytoToGet)
       /* 讀取按讚數 */
       try {
         likesCount = await func.getReplyLikeCount(infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get like count failed' });
       }
 
@@ -63,7 +62,7 @@ async function getReplies(args) {
         try {
           myLikes = await func.getIsUserLikeReply(uid, infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
         } catch (error) {
-          console.log(error);
+          console.error(error);
           reject({ code: 500, error: 'get my likes failed' });
         }
       }
@@ -73,7 +72,7 @@ async function getReplies(args) {
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get user info failed' });
       }
 
@@ -81,10 +80,10 @@ async function getReplies(args) {
       try {
         replytoInfo = await func.getReplyContent(replytoToGet);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get reply info failed' });
       }
-console.log(replytoInfo)
+// console.log(replytoInfo)
       for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
         let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
@@ -101,7 +100,7 @@ console.log(replytoInfo)
       }
       resolve({ code: 200, page: page+1 ,count: replies.count, replies: replies.rows });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

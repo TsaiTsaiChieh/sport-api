@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const Op = require('sequelize').Op;
 
 module.exports.getUserInfo = async function(users) {
@@ -24,7 +23,7 @@ module.exports.getUserInfo = async function(users) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -41,7 +40,7 @@ module.exports.getTopicInfo = async function(aid) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });

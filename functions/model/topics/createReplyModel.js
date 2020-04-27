@@ -1,19 +1,18 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
-      log.info('create new reply to db');
+      // console.log('create new reply to db');
       // await db.sequelize.models.topic__reply.sync({ alter: true }); //有新增欄位時才用
       const result = await db.sequelize.models.topic__reply.create(insertData);
-      log.succ('create reply success');
+      // console.log('create reply success');
       resolve(result.get('id'));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       reject('create reply failed');
     }
   });
@@ -28,7 +27,7 @@ async function createReply(args) {
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       const topicInfo = await func.getTopicInfo(args.article_id);
 
-      log.info('verify firebase user');
+      // console.log('verify firebase user');
       if (!userSnapshot.exists) {
         reject({ code: 403, error: 'user verify failed' });
         return;
@@ -38,7 +37,7 @@ async function createReply(args) {
         reject({ code: 404, error: 'topic not found' });
         return;
       }
-      // log.data(topicInfo[0])
+      // console.log(topicInfo[0])
 
       const insertData = {
         article_id: args.article_id,
@@ -61,7 +60,7 @@ async function createReply(args) {
       const article = await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

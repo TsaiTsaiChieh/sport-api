@@ -2,7 +2,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 10;
 
@@ -17,10 +16,10 @@ function dbFind(where, page) {
         distinct: true,
         raw: true
       });
-      console.log(result)
+      // console.log(result)
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get topics failed');
     }
   });
@@ -61,24 +60,24 @@ async function getTopics(args) {
       try {
         repliesCount = await func.getTopicReplyCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get reply count failed' });
       }
       /* 讀取按讚數 */
       try {
         likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get like count failed' });
       }
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
-        log.data(usersToGetUnique);
-        log.data(usersInfo);
+        // console.log(usersToGetUnique);
+        // console.log(usersInfo);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get user info failed' });
       }
       for (let i = 0; i < topics.rows.length; i++) { // 把拿到的userinfo塞回去
@@ -95,7 +94,7 @@ async function getTopics(args) {
       /* 處理完了ヽ(●´∀`●)ﾉ */
       resolve({ code: 200, page: page+1 ,count: topics.count , topics: topics.rows });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });
