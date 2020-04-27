@@ -58,7 +58,7 @@ module.exports = prematch;
  * @apiSuccess {Object} away away team information like home Object field, description omitted here
  * @apiSuccess {Object} handicap handicap information included the newest spread & totals
  * @apiSuccess {Object} handicap.spread the newest spread information (which will change based on the request time)
- * @apiSuccess {String}} handicap.spread.id handicap id
+ * @apiSuccess {String} handicap.spread.id handicap id
  * @apiSuccess {Number} handicap.spread.handicap handicap
  * @apiSuccess {String} handicap.spread.handicap_tw handicap format in Taiwan
  * @apiSuccess {Number} handicap.spread.add_time handicap add time which betsAPI returned
