@@ -8,7 +8,7 @@ async function godSellInformation(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'eSoccer']
       },
       date: {
         type: 'string',
