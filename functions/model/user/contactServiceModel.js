@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
@@ -44,7 +43,7 @@ async function contactService(args) {
       await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 
 function dbFind(aid) {
@@ -16,7 +15,7 @@ function dbFind(aid) {
       result.update({ view_count: view_count });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get topics failed');
     }
   });
@@ -33,7 +32,7 @@ function chkGodFavorite(uid, god_uid) {
       });
       resolve(result !== 0);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -50,7 +49,7 @@ function chkArticleFavorite(uid, article_id) {
       });
       resolve(result !== 0);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -70,9 +69,9 @@ async function getArticle(args) {
         userInfo = await func.getUserInfo([article.uid]);
         likeCount = await func.getTopicLikeCount([args.aid]);
         replyCount = await func.getTopicReplyCount([args.aid]);
-        log.data(userInfo);
+        // console.log(userInfo);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get user info failed' });
       }
 
@@ -92,7 +91,7 @@ async function getArticle(args) {
 
       resolve({ code: 200, article: article });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });
