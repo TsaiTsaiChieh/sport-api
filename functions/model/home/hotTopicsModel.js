@@ -1,10 +1,8 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('../topics/topicFunctions');
-const Op = require('sequelize').Op;
+// const Op = require('sequelize').Op;
 
 const countPerPage = 3;
 function dbFind() {
@@ -47,7 +45,7 @@ function dbFind() {
 
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get topics failed');
     }
   });
@@ -96,8 +94,8 @@ async function getTopics(args) {
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
-        // log.data(usersToGetUnique)
-        // log.data(usersInfo)
+        // console.log(usersToGetUnique)
+        // console.log(usersInfo)
       } catch (error) {
         console.log(error);
         reject({ code: 500, error: 'get user info failed' });
@@ -116,7 +114,7 @@ async function getTopics(args) {
       /* 處理完了ヽ(●´∀`●)ﾉ */
       resolve({ code: 200, topics: topics });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

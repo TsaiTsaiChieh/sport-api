@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const Op = require('sequelize').Op;
 
 module.exports.getUserInfo = async function(users) {
@@ -24,7 +23,7 @@ module.exports.getUserInfo = async function(users) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -32,7 +31,7 @@ module.exports.getUserInfo = async function(users) {
 module.exports.getTopicInfo = async function(aid) {
   return new Promise(async function(resolve, reject) {
     try {
-      log.info('function: get topic info by aid:' + aid);
+      console.log('function: get topic info by aid:' + aid);
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
           article_id: aid
@@ -41,7 +40,7 @@ module.exports.getTopicInfo = async function(aid) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -65,7 +64,7 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -89,7 +88,7 @@ module.exports.getTopicLikeCount = async function(articles) { // 傳入array aid
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -112,7 +111,26 @@ module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+module.exports.getReplyContent = async function(replies) { // 傳入array rid
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__reply.findAll({
+        where: {
+          reply_id: {
+            [Op.or]: replies
+          }
+        },
+        group: 'reply_id',
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
       reject(error);
     }
   });
@@ -129,7 +147,7 @@ module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得�
       });
       resolve(result !== 0);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });
@@ -137,8 +155,8 @@ module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得�
 module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自己有無按過留言讚（多則）
   return new Promise(async function(resolve, reject) {
     try {
-      log.info(uid);
-      log.info(replies);
+      console.log(uid);
+      console.log(replies);
       const result = await db.sequelize.models.topic__replylike.findAll({
         attributes: [
           'reply_id',
@@ -155,7 +173,7 @@ module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自�
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject(error);
     }
   });

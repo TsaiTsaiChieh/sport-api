@@ -917,6 +917,10 @@ const Topic_Reply = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: true
     },
+    replyto_floor: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
     content: {
       type: Sequelize.TEXT,
       allowNull: false

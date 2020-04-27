@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
@@ -13,7 +12,7 @@ function dbFind(god_uid) { // 確認大神存在
       });
       resolve(result !== 0);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('check god exists failed');
     }
   });
@@ -38,11 +37,11 @@ function checkLiked(uid, god_uid) {
 function like(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.create({ uid: uid, god_uid: god_uid });
-      log.succ('like success');
+      await db.sequelize.models.user__favoritegod.create({ uid: uid, god_uid: god_uid });
+      // console.log('like success');
       resolve();
     } catch (error) {
-      log.data(error);
+      // console.log(error);
       reject('like god failed');
     }
   });
@@ -50,17 +49,17 @@ function like(uid, god_uid) {
 function unlike(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.destroy({
+      await db.sequelize.models.user__favoritegod.destroy({
         where: {
           uid: uid,
           god_uid: god_uid
         },
         raw: true
       });
-      log.succ('unlike success');
+      // console.log('unlike success');
       resolve();
     } catch (error) {
-      log.data(error);
+      // console.log(error);
       reject('unlike god failed');
     }
   });
@@ -74,7 +73,7 @@ async function favoriteGod(args) {
       }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
-      log.info('verify firebase user');
+      // console.log('verify firebase user');
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });
         return;
@@ -88,7 +87,7 @@ async function favoriteGod(args) {
           return;
         }
       } catch (err) {
-        log.err(err);
+        console.error(err);
         reject({ code: 500, error: err });
         return;
       }
@@ -102,7 +101,7 @@ async function favoriteGod(args) {
       }
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

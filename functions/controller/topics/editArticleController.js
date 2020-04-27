@@ -14,7 +14,7 @@ async function editArticle(req, res) {
     type: 'object',
     requied: ['category', 'type', 'title', 'content'],
     properties: {
-      aid: {
+      article_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0
@@ -72,6 +72,7 @@ module.exports = editArticle;
  *
  * @apiParamExample {JSON} Request-Example
  * {
+ *    "article_id": 123,
  *    "type": "MLB",
  *	  "category": "賽事分析",
  *	  "title": "標題",
@@ -83,8 +84,7 @@ module.exports = editArticle;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
  * {
- *    "code": 200,
- *    "article_id": 119
+ *    "code": 200
  * }
  *
  * @apiError 400 Bad Request
