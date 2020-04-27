@@ -8,7 +8,7 @@ const perStep = 14000;
 // 一分鐘4次
 const timesPerLoop = 4;
 
-async function EsoccerpbpInplay(parameter) {
+async function ESoccerpbpInplay(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   let countForStatus2 = 0;
@@ -26,7 +26,7 @@ async function EsoccerpbpInplay(parameter) {
     }
   }, perStep);
 }
-async function EsoccerpbpHistory(parameter) {
+async function ESoccerpbpHistory(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   const { data } = await axios(pbpURL);
@@ -139,4 +139,4 @@ async function doPBP(parameter) {
       .set({ flag: { status: 1 } }, { merge: true });
   }
 }
-module.exports = { EsoccerpbpInplay, EsoccerpbpHistory };
+module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };

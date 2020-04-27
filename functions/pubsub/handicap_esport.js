@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-// const leagues = [modules.db.eSoccer]; normal
+
 const leagues = ['pagetest_eSoccer'];
 
 async function handicap_esport() {

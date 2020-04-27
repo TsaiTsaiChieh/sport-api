@@ -2,11 +2,10 @@ const modules = require('../util/modules');
 
 const ESoccerpbp = require('./pbpESoccer.js');
 
-const EsoccerpbpInplay = ESoccerpbp.EsoccerpbpInplay;
-const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
+const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
+const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 
-async function checkmatch_eSoccer() {
-  // const firestoreName = 'eSoccer'; normal
+async function checkmatch_ESoccer() {
   const firestoreName = 'pagetest_eSoccer';
 
   const data = await modules.firestore.collection(firestoreName).get();
@@ -25,7 +24,7 @@ async function checkmatch_eSoccer() {
           const parameter = {
             betsID: betsID
           };
-          EsoccerpbpInplay(parameter);
+          ESoccerpbpInplay(parameter);
         } else {
           const ref = await modules.database.ref(
             `esports/eSoccer/${betsID}/Summary/status`
@@ -46,19 +45,19 @@ async function checkmatch_eSoccer() {
           const parameter = {
             betsID: betsID
           };
-          EsoccerpbpInplay(parameter);
+          ESoccerpbpInplay(parameter);
         }
         if (realtimeData.Summary.status === 2) {
           const parameter = {
             betsID: betsID
           };
-          EsoccerpbpInplay(parameter);
+          ESoccerpbpInplay(parameter);
         }
         if (realtimeData.Summary.status === 3) {
           const parameter = {
             betsID: betsID
           };
-          EsoccerpbpHistory(parameter);
+          ESoccerpbpHistory(parameter);
         }
         break;
       }
@@ -67,4 +66,4 @@ async function checkmatch_eSoccer() {
     }
   }
 }
-module.exports = checkmatch_eSoccer;
+module.exports = checkmatch_ESoccer;
