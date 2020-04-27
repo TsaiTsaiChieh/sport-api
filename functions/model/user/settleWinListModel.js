@@ -11,8 +11,8 @@ function settleWinList(args) {
     //    c. 大神計算完畢 更新 上期大神記錄，並清空 本期記錄，設為 0
     // 3.
     //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flas) 的 預測單
-    //    b. 記錄 勝率、勝注、勝場數、總場數  今日、周、月、季
-    //    c. 將 勝率、勝注 計算結果 直接累加寫入 這星期、這個月、這賽季、本期大神
+    //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
+    //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期大神
     //    d. 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結速，要重算前天勝率、勝注
 
     // 勝率的計算比較特別，需要 總勝數 和 勝數
@@ -53,8 +53,9 @@ function settleWinList(args) {
     }
 
     const s2 = new Date().getTime();
-    // 2.
+    // 3.
     try {
+      // a.
       // 注意 !!!  正式有資料後，要把 今日日期區間判斷 打開來
       const predictMatchInfo = await db.sequelize.query(`
         select prediction.id, prediction.uid, prediction.league_id,
@@ -75,8 +76,9 @@ function settleWinList(args) {
       });
 
       const resultWinList = modules.predictionsWinList(predictMatchInfo);
-      console.log('resultWinList: ', resultWinList);
+      // console.log('resultWinList: ', resultWinList);
 
+      // b.
       // 回寫結果
       try {
         const upsertResult = resultWinList.map(async function(data) {
@@ -94,18 +96,66 @@ function settleWinList(args) {
             season: season
           },
           {
-            fields: ['uid', 'league_id', 'date', 'period', 'week', 'month', 'season']
+            fields: ['win_bets', 'win_rate', 'correct_counts', 'fault_counts']
           });
 
-          result.push({ status: 1, msg: '使用者-聯盟資料更新成功！', uid: data.uid, league: data.league_id });
+          result.push({ status: 1, msg: '使用者-聯盟 歷史勝注勝率資料更新成功！', uid: data.uid, league: data.league_id });
         });
 
         await Promise.all(upsertResult);
       } catch (err) {
         return reject(errs.errsMsg('404', '1317'));
       }
+
+      // c.
+      // 這星期、這個月、這賽季、本期大神 
+      // this_week、this_month、this_season、this_period
+      try {
+        const updateResult = resultWinList.map(async function(data) {
+          const allTotalCount = await winBetsRateTotalCount(data.uid, data.league_id, 
+            dayOfYear, week, month, season, period);
+
+          // row: 0 date, 1 week, 2 month, 3 period, 4 season
+          // 回寫結果 到users__win__lists
+          const ele = allTotalCount;
+
+          try {
+            const r = await db.Users_WinLists.upsert({
+              uid: data.uid,
+              league_id: data.league_id,
+              this_week_win_rate: Number(ele[1].correct_sum / (ele[1].correct_sum + ele[1].fault_sum)).toFixed(0),
+              this_week_win_bets: ele[1].sum,
+              this_month_win_rate: Number(ele[2].correct_sum / (ele[2].correct_sum + ele[2].fault_sum)).toFixed(0),
+              this_month_win_bets: ele[2].sum,
+              this_period_win_rate: Number(ele[3].correct_sum / (ele[3].correct_sum + ele[3].fault_sum)).toFixed(0),
+              this_period_win_bets: ele[3].sum,
+              this_season_win_rate: Number(ele[4].correct_sum / (ele[4].correct_sum + ele[4].fault_sum)).toFixed(0),
+              this_season_win_bets: ele[4].sum
+            }, {
+              fields: [
+                'this_week_win_rate', 'this_week_win_bets', 
+                'this_month_win_rate', 'this_month_win_bets', 
+                'this_period_win_rate', 'this_period_win_bets', 
+                'this_season_win_rate', 'this_season_win_bets'
+              ]
+            });
+
+            console.log('ele: %o / %o', ele[4].correct_sum, (ele[4].correct_sum + ele[4].fault_sum));
+            if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
+
+            result.push({ status: 1, msg: '使用者-聯盟 勝注勝率資料更新成功！', uid: data.uid, league: data.league_id });
+          } catch (err) {
+            return reject(errs.errsMsg('404', '1321'));
+          }
+        });
+
+        await Promise.all(updateResult);
+      } catch (err) {
+        return reject(errs.errsMsg('404', '1319'));
+      }
+
     } catch (err) {
-      console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
+      console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
@@ -114,6 +164,59 @@ function settleWinList(args) {
     console.log('1. ', s2 - s1);
     console.log('2. ', e - s2);
     return resolve(result);
+  });
+}
+
+// rang： date、week、month、season、period
+// sum(win_bets), sum(correct_counts), sum(fault_counts)
+async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, season=0, period=0){
+  return await db.sequelize.query(`
+    select date, '' week, '' month, '' season, '' period,
+           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and date = ${date}
+     group by date
+    union
+    select '' date, week, '' month, '' season, '' period,
+           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and week = ${week}
+     group by week
+    union
+    select '' date, '' week, month, '' season, '' period,
+           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and month = ${month}
+     group by month
+    union
+    select '' date, '' week, '' month, '' season, period,
+          sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and period = ${period}
+     group by period
+     union
+    select '' date, '' week, '' month, season, '' period,
+           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and season = ${season}
+     group by season
+  `, {
+    replacements: {
+      uid: uid,
+      league_id: league_id
+    },
+    //logging: console.log,
+    type: db.sequelize.QueryTypes.SELECT
   });
 }
 

@@ -17,8 +17,11 @@ const errorCodeLists = {
   1314: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   1315: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算讓分 結果異常，不應該為空白', ''] },
   1316: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算大小 結果異常，不應該為空白', ''] },
-  1317: { msg: ['更新 使用者勝歷史資料 失敗'], backend: ['更新 users__win_lists_history 失敗', ''] },
-  1318: { msg: ['更新 使用者勝歷史資料 失敗'], backend: ['更新 users__win_lists_history 異常 筆數不正確，只能一筆才對', ''] }
+  1317: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 users__win_lists_history 失敗', ''] },
+  1318: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 users__win_lists_history 異常 筆數不正確，只能一筆才對', ''] },
+  1319: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
+  1320: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 資料欄位 異常 筆數不正確，只能一筆才對', ''] },
+  1321: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
 };
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入

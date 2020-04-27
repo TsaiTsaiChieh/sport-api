@@ -690,57 +690,58 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.INTEGER
     },
     last_season_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_season_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_period_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_period_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_month_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_month_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_week_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_week_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_season_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_season_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_period_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_period_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_month_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_month_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_week_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_week_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     }
   },
   {
     indexes: [
       {
+        unique: true,
         fields: ['uid', 'league_id']
       }
     ]
@@ -765,10 +766,10 @@ const Users_WinListsHistory = sequelize.define(
       type: Sequelize.INTEGER
     },
     win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     correct_counts: {
       type: Sequelize.INTEGER
