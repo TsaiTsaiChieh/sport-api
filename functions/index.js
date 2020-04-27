@@ -49,7 +49,7 @@ const whitelist = [
 ];
 const localOrigin = 'http://172.16.21';
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
@@ -111,7 +111,7 @@ exports.lineups_MLB = functions.pubsub
 exports.pbp_eSoccer = functions.pubsub
   .schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_eSoccer'));
+  .onRun(require('./pubsub/checkmatch_ESoccer'));
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {

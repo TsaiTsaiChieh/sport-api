@@ -1,10 +1,10 @@
 const modules = require('../util/modules');
 
-const ESoccerpbp = require('./pbpeSoccer.js');
+const ESoccerpbp = require('./pbpESoccer');
 const EsoccerpbpInplay = ESoccerpbp.EsoccerpbpInplay;
 const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
 
-async function checkmatch_eSoccer() {
+async function checkmatch_ESoccer() {
   // const firestoreName = 'eSoccer'; normal
   const firestoreName = 'pagetest_eSoccer';
 
@@ -66,4 +66,4 @@ async function checkmatch_eSoccer() {
     }
   }
 }
-module.exports = checkmatch_eSoccer;
+module.exports = checkmatch_ESoccer;

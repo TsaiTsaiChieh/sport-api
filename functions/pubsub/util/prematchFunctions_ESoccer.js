@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 module.exports.eSoccer = {};
 // const firebaseName = modules.db.eSoccer; normal
 const firebaseName = 'pagetest_eSoccer';
-module.exports.eSoccer.upcoming = async function (date) {
+module.exports.eSoccer.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
@@ -79,7 +79,7 @@ module.exports.eSoccer.upcoming = async function (date) {
     }
   }
   console.log('esport scheduled success');
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       resolve(await Promise.all(results));
     } catch (error) {
