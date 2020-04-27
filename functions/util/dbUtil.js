@@ -550,65 +550,6 @@ const Match = sequelize.define(
 );
 
 /*
- * eSoccer 各賽事資訊，unique key 為 bets_id
- */
-const eSoccer_match = sequelize.define(
-  'match__eSoccer',
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    bets_id: {
-      type: Sequelize.STRING
-    },
-    home_id: {
-      type: Sequelize.STRING
-    },
-    away_id: {
-      type: Sequelize.STRING
-    },
-    spread_id: {
-      type: Sequelize.STRING
-    },
-    totals_id: {
-      type: Sequelize.STRING
-    },
-    scheduled: {
-      type: Sequelize.INTEGER
-    },
-    scheduled_tw: { type: Sequelize.DATE },
-    flag_prematch: {
-      type: Sequelize.INTEGER,
-      defaultValue: 1
-    },
-    status: {
-      type: Sequelize.INTEGER
-    },
-    home_points: {
-      type: Sequelize.INTEGER
-    },
-    away_points: {
-      type: Sequelize.INTEGER
-    },
-    spread_result: {
-      type: Sequelize.STRING
-    },
-    totals_result: {
-      type: Sequelize.STRING
-    }
-  },
-  {
-    indexes: [
-      {
-        unique: true,
-        fields: ['bets_id']
-      }
-    ]
-  }
-);
-/*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
 const Prediction = sequelize.define(
@@ -1105,8 +1046,7 @@ const dbUtil = {
   Topic_Article,
   Topic_FavoriteArticle,
   Home_Banner,
-  Service_Contact,
-  eSoccer_match
+  Service_Contact
 };
 
 module.exports = dbUtil;
