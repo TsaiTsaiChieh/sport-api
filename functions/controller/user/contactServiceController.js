@@ -6,9 +6,6 @@ async function contactService(req, res) {
     type: 'object',
     requied: ['name', 'email', 'content'],
     properties: {
-      uid: {
-        type: 'string'
-      },
       name: {
         type: 'string'
       },
