@@ -2,7 +2,8 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = [modules.db.eSoccer];
+// const leagues = [modules.db.eSoccer]; normal
+const leagues = ['pagetest_eSoccer'];
 
 async function handicap_esport() {
   for (let i = 0; i < leagues.length; i++) {
@@ -62,7 +63,7 @@ async function updateHandicap(league, ele) {
 
       await eventSnapshot.set(
         {
-          newest_spreads: {
+          newest_spread: {
             handicap: Number.parseFloat(newest_spreads.handicap),
             home_odd: Number.parseFloat(newest_spreads.home_od),
             away_odd: Number.parseFloat(newest_spreads.away_od),
@@ -129,7 +130,7 @@ async function updateHandicap(league, ele) {
           away_tw: odd.away_tw,
           home_tw: odd.home_tw
         };
-        await eventSnapshot.set({ spread: spread }, { merge: true });
+        await eventSnapshot.set({ spreads: spread }, { merge: true });
         await MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
@@ -195,7 +196,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function (docs) {
+    querys.forEach(function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -219,7 +220,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function (docs) {
+    querys.forEach(async function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -270,7 +271,11 @@ async function getHandicap(league, ele) {
         };
 
         await eventSnapshot.set(
-          { flag: { spread: 1 }, spread: spread, newest_spreads: spread },
+          {
+            flag: { spread: 1 },
+            spread: spread,
+            newest_spread: spread[spreadData.id]
+          },
           { merge: true }
         );
         await Match.upsert({
@@ -335,7 +340,11 @@ async function getTotals(league, ele) {
         };
 
         await eventSnapshot.set(
-          { flag: { totals: 1 }, totals: totals, newest_totals: totals },
+          {
+            flag: { totals: 1 },
+            totals: totals,
+            newest_totals: totals[totalsData.id]
+          },
           { merge: true }
         );
         await Match.upsert({

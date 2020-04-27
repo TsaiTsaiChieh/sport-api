@@ -6,7 +6,7 @@ const EsoccerpbpHistory = ESoccerpbp.EsoccerpbpHistory;
 
 async function checkmatch_esoccer() {
   // const firestoreName = 'eSoccer'; normal
-  const firestoreName = 'pagetest_esoccer'; // test
+  const firestoreName = 'pagetest_eSoccer';
 
   const data = await modules.firestore.collection(firestoreName).get();
   const totalData = [];
@@ -29,7 +29,7 @@ async function checkmatch_esoccer() {
           const ref = await modules.database.ref(
             `esports/eSoccer/${betsID}/Summary/status`
           );
-          ref.set(0);
+          ref.set('scheduled');
         }
         break;
       }

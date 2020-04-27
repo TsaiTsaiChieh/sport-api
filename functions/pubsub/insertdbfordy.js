@@ -4,9 +4,43 @@ const db = require('../util/dbUtil');
 inserttest();
 async function inserttest() {
   try {
-    const a = { handicap: 0, home_odd: 2.2, away_odd: 2.2 };
-    const data = spreadCalculator(a);
-    console.log(data);
+    const query = await modules.firestore
+      .collection('pagetest_NBA')
+      .orderBy('scheduled', 'desc')
+      .get();
+    const eventData = [];
+    query.forEach((doc) => {
+      eventData.push(doc.data());
+    });
+
+    for (let i = 0; i < eventData.length; i++) {
+      const ref = await modules.firestore
+        .collection('pagetest_NBA')
+        .doc(eventData[i].bets_id);
+      // if (eventData[i].newest_spreads) {
+      //   const name = Object.keys(eventData[i].newest_spreads);
+      //   eventData[i].newest_spread = eventData[i].newest_spreads;
+      // }
+      // if (eventData[i].newest_totals) {
+      //   const name = Object.keys(eventData[i].newest_totals);
+      //   eventData[i].newest_total = eventData[i].newest_totals;
+      // }
+      // if (eventData[i].spread) {
+      //   eventData[i].spreads = eventData[i].spread;
+      // }
+      // if (eventData[i].total) {
+      //   eventData[i].totals = eventData[i].totals;
+      // }
+      if (eventData[i].newest_spread) {
+        if (eventData[i].newest_spread.away_tw) {
+          eventData[i].newest_spread.home_tw = null;
+        }
+        if (eventData[i].newest_spread.home_tw) {
+          eventData[i].newest_spread.away_tw = null;
+        }
+      }
+      // ref.set(eventData[i]);
+    }
   } catch (err) {
     console.error(err);
   }

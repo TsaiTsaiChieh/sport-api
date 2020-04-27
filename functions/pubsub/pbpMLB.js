@@ -4,6 +4,7 @@ const transMLB = require('./translateMLB');
 const translateMLB = transMLB.translateMLB;
 const firestoreName = 'page_MLB';
 const mlb_api_key = 'x6t9jymf2hdy8nqy2ayk69db';
+const db = require('../util/dbUtil');
 // const mlb_api_key = 's7bs62gb8ye8ram6ksr7rkec';
 const baseNow = [];
 baseNow[0] = 0;
@@ -1049,6 +1050,12 @@ async function MLBpbpHistory(parameter) {
       },
       { merge: true }
     );
+    const Match = await db.Match.sync();
+    await Match.upsert({
+      bets_id: betsID,
+      home_points: dataSummary.game.home.runs,
+      away_points: dataSummary.game.away.runs
+    });
   } catch (error) {
     console.log(
       'error happened in pubsub/MLBpbpHistory function by page',

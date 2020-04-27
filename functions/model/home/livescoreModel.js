@@ -18,8 +18,13 @@ async function reResult(sport, league) {
 }
 async function repackage(sport, league) {
   // 目前時間寫死
-  const time = '2020-07-01';
-  // const time = Date.now();
+  let time;
+  if (league === 'eSoccer') {
+    time = Date.now(); //  normal
+  } else {
+    time = '2020-07-01';
+  }
+
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)
@@ -43,26 +48,40 @@ async function repackage(sport, league) {
   const outputJson = [];
 
   for (let i = 0; i < eventData.length; i++) {
-    scheduled = new Date(
-      eventData[i].scheduled._seconds * 1000
-    ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+    scheduled = new Date(eventData[i].scheduled * 1000).toLocaleString(
+      'zh-TW',
+      { timeZone: 'Asia/Taipei' }
+    );
     scheduled = scheduled.split(' ')[0];
+    let newestSpread;
+    if (eventData[i].newest_spread) {
+      newestSpread = eventData[i].newest_spread;
+    } else {
+      newestSpread = {
+        handicap: 'no data',
+        home_tw: 'no data',
+        away_tw: 'no data'
+      };
+    }
+    let newestTotal;
+    if (eventData[i].newest_totals) {
+      newestTotal = eventData[i].newest_totals;
+    } else {
+      newestTotal = {
+        handicap: 'no data',
+        over_tw: 'no data'
+      };
+    }
 
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
-      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
-      if (eventData[i].newest_spread.home_tw === '') {
-        eventData[i].newest_spread.home_tw = null;
-      }
-      if (eventData[i].newest_spread.away_tw === '') {
-        eventData[i].newest_spread.away_tw = null;
-      }
       closedEvent.push({
         league: league,
         sport: sport,
+        status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
-        newest_spread: eventData[i].newest_spread.handicap,
-        home_tw: eventData[i].newest_spread.home_tw,
-        away_tw: eventData[i].newest_spread.away_tw,
+        newest_spread: newestSpread.handicap,
+        home_tw: newestSpread.home_tw,
+        away_tw: newestSpread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -75,20 +94,14 @@ async function repackage(sport, league) {
     }
 
     if (scheduled === dateNow && eventData[i].flag.status === 1) {
-      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
-      if (eventData[i].newest_spread.home_tw === '') {
-        eventData[i].newest_spread.home_tw = null;
-      }
-      if (eventData[i].newest_spread.away_tw === '') {
-        eventData[i].newest_spread.away_tw = null;
-      }
       outputJson.push({
         league: league,
         sport: sport,
+        status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
-        newest_spread: eventData[i].newest_spread.handicap,
-        home_tw: eventData[i].newest_spread.home_tw,
-        away_tw: eventData[i].newest_spread.away_tw,
+        newest_spread: newestSpread.handicap,
+        home_tw: newestSpread.home_tw,
+        away_tw: newestSpread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -101,20 +114,14 @@ async function repackage(sport, league) {
     }
 
     if (scheduled === dateNow && eventData[i].flag.status === 2) {
-      // 針對讀取 firestore 做處理，配合 mysql 的 table 中會有 null 值的情況
-      if (eventData[i].newest_spread.home_tw === '') {
-        eventData[i].newest_spread.home_tw = null;
-      }
-      if (eventData[i].newest_spread.away_tw === '') {
-        eventData[i].newest_spread.away_tw = null;
-      }
       scheduledEvent.push({
         league: league,
         sport: sport,
+        status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
-        newest_spread: eventData[i].newest_spread.handicap,
-        home_tw: eventData[i].newest_spread.home_tw,
-        away_tw: eventData[i].newest_spread.away_tw,
+        newest_spread: newestSpread.handicap,
+        home_tw: newestSpread.home_tw,
+        away_tw: newestSpread.away_tw,
         home: {
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
@@ -126,11 +133,16 @@ async function repackage(sport, league) {
       });
     }
   }
-  for (let i = 0; i < 4 - outputJson.length; i++) {
-    if (closedEvent[i]) {
-      outputJson.push(closedEvent[i]);
+  let countClose = 0;
+  let counScheduled = 0;
+  const lengthNow = outputJson.length;
+  for (let i = 0; i < 4 - lengthNow; i++) {
+    if (closedEvent[countClose]) {
+      outputJson.push(closedEvent[countClose]);
+      countClose = countClose + 1;
     } else {
-      outputJson.push(scheduledEvent[i]);
+      outputJson.push(scheduledEvent[counScheduled]);
+      counScheduled = counScheduled + 1;
     }
   }
 

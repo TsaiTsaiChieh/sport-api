@@ -35,13 +35,32 @@ async function repackage(sport, league, time) {
 
   let scheduled;
   const closedEvent = [];
-  console.log(dateNow);
-  for (let i = 0; i < eventData.length; i++) {
-    scheduled = new Date(
-      eventData[i].scheduled._seconds * 1000
-    ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
-    scheduled = scheduled.split(' ')[0];
 
+  for (let i = 0; i < eventData.length; i++) {
+    scheduled = new Date(eventData[i].scheduled * 1000).toLocaleString(
+      'zh-TW',
+      { timeZone: 'Asia/Taipei' }
+    );
+    scheduled = scheduled.split(' ')[0];
+    let newestSpread;
+    if (eventData[i].newest_spread) {
+      newestSpread = eventData[i].newest_spread;
+    } else {
+      newestSpread = {
+        handicap: 'no data',
+        home_tw: 'no data',
+        away_tw: 'no data'
+      };
+    }
+    let newestTotal;
+    if (eventData[i].newest_total) {
+      newestTotal = eventData[i].newest_total;
+    } else {
+      newestTotal = {
+        handicap: 'no data',
+        over_tw: 'no data'
+      };
+    }
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       eventData[i].sport = sport;
       eventData[i].league = league;
@@ -61,9 +80,9 @@ async function repackage(sport, league, time) {
           image_id: eventData[i].away.image_id
         },
         newest_spread: {
-          handicap: eventData[i].newest_spread.handicap,
-          home_tw: eventData[i].newest_spread.home_tw,
-          away_tw: eventData[i].newest_spread.away_tw
+          handicap: newestSpread.handicap,
+          home_tw: newestSpread.home_tw,
+          away_tw: newestSpread.away_tw
         },
         flag: {
           status: eventData[i].flag.status

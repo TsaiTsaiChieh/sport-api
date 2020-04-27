@@ -1,6 +1,8 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 module.exports.eSoccer = {};
+// const firebaseName = modules.db.eSoccer; normal
+const firebaseName = 'pagetest_eSoccer';
 module.exports.eSoccer.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
   const sportID = 1;
@@ -19,13 +21,13 @@ module.exports.eSoccer.upcoming = async function(date) {
         const ele = data.results[j];
         results.push(
           modules.firestore
-            .collection(modules.db.eSoccer)
+            .collection(firebaseName)
             .doc(ele.id)
             .set(repackage_bets(ele), { merge: true })
         );
         results.push(
           modules.firestore
-            .collection('pagetest_esoccer')
+            .collection(firebaseName)
             .doc(ele.id)
             .set(repackage_bets(ele), { merge: true })
         );
