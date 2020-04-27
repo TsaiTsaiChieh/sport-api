@@ -1,8 +1,6 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const Op = require('sequelize').Op;
 /* 施工中
     [不可用]簡易資料測試 http://localhost:5000/test/bannerImage.html
@@ -22,7 +20,7 @@ function dbFind() {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get home banners failed');
     }
   });

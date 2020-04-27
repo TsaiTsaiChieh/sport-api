@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 function dbFind(reply_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
     try {
@@ -13,7 +12,7 @@ function dbFind(reply_id) { // 確認文章存在
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('like reply failed');
     }
   });
@@ -38,11 +37,11 @@ function checkLiked(uid, reply_id) {
 function like(uid, reply_id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__replylike.create({ uid: uid, reply_id: reply_id });
-      log.succ('like success');
+      await db.sequelize.models.topic__replylike.create({ uid: uid, reply_id: reply_id });
+      // console.log('like success');
       resolve();
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('like reply failed');
     }
   });
@@ -57,11 +56,11 @@ function unlike(uid, reply_id) {
         },
         raw: true
       });
-      console.log(result);
-      log.succ('unlike success');
+      // console.log(result);
+      // console.log('unlike success');
       resolve();
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('unlike reply failed');
     }
   });
@@ -75,7 +74,7 @@ async function likeReply(args) {
       }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
-      log.info('verify firebase user');
+      // console.log('verify firebase user');
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });
         return;
@@ -89,12 +88,12 @@ async function likeReply(args) {
           return;
         }
       } catch (err) {
-        log.err(err);
+        console.error(err);
         reject({ code: 500, error: err });
         return;
       }
 
-      console.log(args.like);
+      // console.log(args.like);
       if (args.like === true) {
         await checkLiked(uid, args.reply_id);
         await like(uid, args.reply_id);
@@ -103,7 +102,7 @@ async function likeReply(args) {
       }
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

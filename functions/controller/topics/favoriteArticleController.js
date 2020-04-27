@@ -35,3 +35,31 @@ async function likeArticle(req, res) {
 }
 
 module.exports = likeArticle;
+/**
+ * @api {GET} /topics/favoriteArticle/
+ * @apiName favoriteArticle
+ * @apiGroup Topics
+ * @apiVersion 1.0.0
+ * @apiDescription 收藏文章 by ifyu
+ *
+ * @apiParamExample {JSON} Request-Example
+ * {
+    "article_id": 124,
+    "like": false
+   }
+ *
+ * @apiSuccess {String} response
+ * {
+    "code": 200
+   }
+ * @apiErrorExample 400-Response
+ * HTTP/1.1 400 Bad Request
+ * schema not acceptable
+ *
+ * @apiErrorExample {JSON} 500-Response
+ * HTTP/1.1 500 Internal Server Error
+ * {
+    "code": 500,
+    "error": "this article has been favorite"
+   }
+ */
