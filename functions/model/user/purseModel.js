@@ -1,0 +1,44 @@
+const modules = require('../../util/modules');
+const errs = require('../../util/errorCode');
+const db = require('../../util/dbUtil');
+
+function purseModel(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const uid = args;
+      const limit = 10;
+      const purse = await db.sequelize.query(
+      `
+      SELECT coin, point, ingot
+        FROM users 
+       WHERE uid = '${uid}'
+       `,
+      {
+        plain: true,
+        type: db.sequelize.QueryTypes.SELECT
+      });
+
+      const bank = await db.sequelize.query(
+        `
+        SELECT bank_code, bank_username, bank_account
+          FROM banks
+         WHERE uid = '${uid}'
+         `,
+        {
+          plain: true,
+          type: db.sequelize.QueryTypes.SELECT
+        });
+
+      const purseList = {
+        purse,
+        bank
+      };
+      resolve(purseList);
+    } catch (err) {
+      console.log('Error in  rank/searchUser by henry:  %o', err);
+      return reject(errs.errsMsg('500', '500', err.message));
+    }
+  });
+}
+
+module.exports = purseModel;

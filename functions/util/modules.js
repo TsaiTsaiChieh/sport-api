@@ -11,6 +11,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const https = require('https');
+const httpStatus = require('http-status');
 const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
@@ -69,6 +70,19 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   }
   return moment.tz(unix, zone).format('YYYYMMDD');
 }
+
+// 會根據 Array 裡 object 的 key 群組
+function groupBy(array, key) {
+  return array.reduce(function(result, currentValue) {
+    // If an array already present for key, push it to the array. Else create an array and push the object
+    (result[currentValue[key]] = result[currentValue[key]] || []).push(
+      currentValue
+    );
+    // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
+    return result;
+  }, {});
+}
+
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
     console.log('initializing firebase database');
@@ -124,12 +138,10 @@ function createError(code, error) {
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
-  // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
   eBKA: 'eBKA',
   eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
-  // baseball_MLB: 'MLB_TC',
   eSoccer: 'eSoccer',
   prediction: 'prediction'
 };
@@ -168,6 +180,11 @@ function leagueCodebook(league) {
         id: 3939,
         match: db.baseball_MLB
       };
+    case 'eSoccer':
+      return {
+        id: 22000,
+        match: db.eSoccer
+      };
   }
 }
 
@@ -177,6 +194,8 @@ function leagueDecoder(leagueID) {
       return 'NBA';
     case '3939' || 3939:
       return 'MLB';
+    case '22000' || 22000:
+      return 'eSoccer';
     default:
       return 'Unknown';
   }
@@ -276,5 +295,7 @@ module.exports = {
   convertTimezone,
   convertTimezoneFormat,
   leagueDecoder,
-  acceptNumberAndLetter
+  acceptNumberAndLetter,
+  httpStatus,
+  groupBy
 };
