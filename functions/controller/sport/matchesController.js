@@ -13,7 +13,7 @@ async function getMatches(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'eSoccer']
       }
     }
   };

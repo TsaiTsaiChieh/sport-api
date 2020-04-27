@@ -8,7 +8,7 @@ const countPerPage = 20;
 function dbFind(aid, page) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__reply.findAll({
+      const result = await db.sequelize.models.topic__reply.findAndCountAll({
         where: {
           article_id: aid
         },
@@ -40,10 +40,10 @@ async function getReplies(args) {
       const infosToGet = []; // reply_id array
       let likesCount = [];
       let myLikes = [];
-      for (let i = 0; i < replies.length; i++) {
-        infosToGet.push(replies[i].reply_id);
-        usersToGet.push(replies[i].uid);
-        replies[i].images = JSON.parse(replies[i].images);
+      for (let i = 0; i < replies.rows.length; i++) {
+        infosToGet.push(replies.rows[i].reply_id);
+        usersToGet.push(replies.rows[i].uid);
+        replies.rows[i].images = JSON.parse(replies.rows[i].images);
       }
       /* 讀取按讚數 */
       try {
@@ -72,18 +72,18 @@ async function getReplies(args) {
         reject({ code: 500, error: 'get user info failed' });
       }
 
-      for (let i = 0; i < replies.length; i++) { // 把拿到的userinfo塞回去
-        let likeCount = likesCount.filter(obj => obj.reply_id === replies[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+      for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
+        let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        replies[i].like_count = likeCount;
-        let myLike = myLikes.filter(obj => obj.reply_id === replies[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+        replies.rows[i].like_count = likeCount;
+        let myLike = myLikes.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
         myLike = !!myLike[0]; // 解析格式 沒有資料的留言數為0
-        replies[i].is_liked = myLike;
-        let userInfo = usersInfo.filter(obj => obj.uid === replies[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
+        replies.rows[i].is_liked = myLike;
+        let userInfo = usersInfo.filter(obj => obj.uid === replies.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
-        replies[i].user_info = userInfo;
+        replies.rows[i].user_info = userInfo;
       }
-      resolve({ code: 200, replies: replies });
+      resolve({ code: 200, page: page + 1, count: replies.count, replies: replies.rows });
     } catch (err) {
       log.err(err);
       reject({ code: 500, error: err });

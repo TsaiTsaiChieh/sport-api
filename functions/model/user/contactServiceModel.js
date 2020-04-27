@@ -14,11 +14,11 @@ function dbCreate(insertData) {
     }
   });
 }
-async function createReply(args) {
+async function contactService(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let uid;
-      if (typeof args.token !== 'undefined') {
+      if (typeof args.token !== 'undefined' && args.token !== null) {
         uid = args.token.uid;
       } else {
         uid = null;
@@ -29,7 +29,7 @@ async function createReply(args) {
         name: args.name,
         email: args.email,
         content: args.content,
-        images: null
+        images: JSON.stringify(args.images)
       };
 
       // 過濾html tags
@@ -49,4 +49,4 @@ async function createReply(args) {
     }
   });
 }
-module.exports = createReply;
+module.exports = contactService;
