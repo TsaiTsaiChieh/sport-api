@@ -536,7 +536,7 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
-      { fields: ['scheduled'] }
+      { fields: ['scheduled', 'flag_prematch', 'status'] }
     ]
   }
 );
