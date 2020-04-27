@@ -44,6 +44,7 @@ async function createReply(args) {
         article_id: args.article_id,
         uid: args.token.uid,
         replyto_id: args.replyto_id, // args.reply_id,
+        replyto_floor: args.replyto_floor,
         images: JSON.stringify(args.images),
         content: args.content
       };

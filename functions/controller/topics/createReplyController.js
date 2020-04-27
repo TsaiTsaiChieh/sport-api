@@ -12,6 +12,9 @@ async function createTopic(req, res) {
       replyto_id: {
         type: ['number', 'null']
       },
+      replyto_floor: {
+        type: ['number', 'null']
+      },
       content: {
         type: 'string'
       },
@@ -46,3 +49,32 @@ async function createTopic(req, res) {
 }
 
 module.exports = createTopic;
+/**
+ * @api {GET} /topics/createReply/
+ * @apiName createReply
+ * @apiGroup Topics
+ * @apiVersion 1.0.0
+ * @apiDescription 回覆文章 by ifyu
+ *
+ * @apiParamExample {JSON} Request-Example
+ * {
+    "article_id": 116,
+    "replyto_id": null,
+    "content": "aaaaa"
+   }
+ * 
+ * @apiSuccess {String} response
+ * {
+    "code": 200
+   }
+ * @apiErrorExample 400-Response
+ * HTTP/1.1 400 Bad Request
+ * schema not acceptable
+ *
+ * @apiErrorExample {JSON} 500-Response
+ * HTTP/1.1 500 Internal Server Error
+ * {
+    "code": 500,
+    "error": {}
+   }
+ */

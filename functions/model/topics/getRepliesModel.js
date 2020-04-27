@@ -32,19 +32,24 @@ async function getReplies(args) {
 
       const replies = await dbFind(aid, page);
 
-      console.log(args.token);
       const uid = (args.token !== null) ? args.token.uid : null;
 
-      const usersToGet = [];
+      let usersToGet = [];
       let usersInfo = [];
-      const infosToGet = []; // reply_id array
+      let infosToGet = []; // reply_id array
       let likesCount = [];
       let myLikes = [];
+      let replytoToGet = [];
+      let replytoInfo = [];
       for (let i = 0; i < replies.rows.length; i++) {
+        if(replies.rows[i].replyto_id){
+          replytoToGet.push(replies.rows[i].replyto_id);
+        }
         infosToGet.push(replies.rows[i].reply_id);
         usersToGet.push(replies.rows[i].uid);
         replies.rows[i].images = JSON.parse(replies.rows[i].images);
       }
+      log.info(replytoToGet)
       /* 讀取按讚數 */
       try {
         likesCount = await func.getReplyLikeCount(infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
@@ -63,7 +68,7 @@ async function getReplies(args) {
         }
       }
 
-      /* 下面讀取user info */
+      /* 讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
@@ -72,6 +77,14 @@ async function getReplies(args) {
         reject({ code: 500, error: 'get user info failed' });
       }
 
+      /* 讀取要取得的被回覆內容 */
+      try {
+        replytoInfo = await func.getReplyContent(replytoToGet);
+      } catch (error) {
+        console.log(error);
+        reject({ code: 500, error: 'get reply info failed' });
+      }
+console.log(replytoInfo)
       for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
         let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
@@ -82,6 +95,9 @@ async function getReplies(args) {
         let userInfo = usersInfo.filter(obj => obj.uid === replies.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
         replies.rows[i].user_info = userInfo;
+        let replyInfo = replytoInfo.filter(obj => obj.reply_id === replies.rows[i].replyto_id); // 處理userinfo 把uid=id的那則挑出來
+        replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
+        replies.rows[i].replyto_info = replyInfo;
       }
       resolve({ code: 200, page: page+1 ,count: replies.count, replies: replies.rows });
     } catch (err) {

@@ -15,7 +15,7 @@ function dbFind(aid) {
       resolve(result);
     } catch (error) {
       log.data(error);
-      reject('get topics failed');
+      reject(error);
     }
   });
 }

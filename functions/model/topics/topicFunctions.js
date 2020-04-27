@@ -117,6 +117,25 @@ module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
     }
   });
 };
+module.exports.getReplyContent = async function(replies) { // 傳入array rid
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__reply.findAll({
+        where: {
+          reply_id: {
+            [Op.or]: replies
+          }
+        },
+        group: 'reply_id',
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      log.data(error);
+      reject(error);
+    }
+  });
+};
 module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得自己有無按過讚（單篇）
   return new Promise(async function(resolve, reject) {
     try {
