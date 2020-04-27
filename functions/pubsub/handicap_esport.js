@@ -24,22 +24,22 @@ async function handicap_esport() {
 
     if (querysSpread.length) {
       for (let j = 0; j < querysSpread.length; j++) {
-        getHandicap(leagues[i], querysSpread[j]);
+        await getHandicap(leagues[i], querysSpread[j]);
       }
     }
     if (querysTotals.length) {
       for (let j = 0; j < querysTotals.length; j++) {
-        getTotals(leagues[i], querysTotals[j]);
+        await getTotals(leagues[i], querysTotals[j]);
       }
     }
     if (querysSpreadOpening.length) {
       for (let j = 0; j < querysSpreadOpening.length; j++) {
-        updateHandicap(leagues[i], querysSpreadOpening[j]);
+        await updateHandicap(leagues[i], querysSpreadOpening[j]);
       }
     }
     if (querysTotalsOpening.length) {
       for (let j = 0; j < querysTotalsOpening.length; j++) {
-        updateHandicap(leagues[i], querysTotalsOpening[j]);
+        await updateHandicap(leagues[i], querysTotalsOpening[j]);
       }
     }
   }
@@ -196,7 +196,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -220,7 +220,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);

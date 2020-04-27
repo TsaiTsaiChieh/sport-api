@@ -17,10 +17,9 @@ async function reResult(sport, league) {
   return await Promise.all(result);
 }
 async function repackage(sport, league) {
-  // 目前時間寫死
   let time;
   if (league === 'eSoccer') {
-    time = Date.now(); //  normal
+    time = Date.now();
   } else {
     time = '2020-07-01';
   }

@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 
 const db = require('../util/dbUtil');
-inserttest();
+
 async function inserttest() {
   try {
     const query = await modules.firestore

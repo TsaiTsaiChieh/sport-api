@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 const modules = require('../util/modules');
 
-const eSoccer_functions = require('./util/prematchFunctions_ESoccer');
+const eSoccer_functions = require('./util/prematchFunctions_eSoccer');
 
 async function prematch_esport() {
   const unix = Math.floor(Date.now() / 1000);

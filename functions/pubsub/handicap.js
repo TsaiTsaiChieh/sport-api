@@ -112,7 +112,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment())
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -136,7 +136,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate)
       .where('scheduled', '<=', endDate)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);

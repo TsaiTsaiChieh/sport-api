@@ -1,7 +1,7 @@
 const modules = require('../util/modules');
 const axios = require('axios');
 
-const firestoreName = 'eSoccer';
+const firestoreName = 'pagetest_eSoccer';
 
 // 14 秒一次
 const perStep = 14000;
@@ -12,7 +12,7 @@ async function EsoccerpbpInplay(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL
@@ -76,7 +76,7 @@ async function EsoccerpbpHistory(parameter) {
     { merge: true }
   );
   modules.firestore
-    .collection('eSoccer')
+    .collection('pagetest_eSoccer')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
 }
