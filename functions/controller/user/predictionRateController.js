@@ -8,7 +8,7 @@ async function predictionRate(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'eSoccer']
       },
       date: {
         type: 'string',
@@ -53,7 +53,7 @@ module.exports = predictionRate;
  * @apiPermission login user with completed data
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
- * @apiParam {String} league league name, the value enum are: `NBA`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`
  * @apiParam {String} date ex: `2020-07-01`
  * @apiParam {String} user_type ex: `all`(所有玩家), `god`(大神玩家)
  *

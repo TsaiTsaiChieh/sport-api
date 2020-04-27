@@ -95,6 +95,26 @@ class GodSellStatusWrong extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class UserNotBelongToGod extends ExtendableError {
+  constructor(
+    message = '使用者非大神玩家',
+    status = 1205,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class CouldNotFillInSellInformation extends ExtendableError {
+  constructor(
+    message = '無法填寫售牌資料',
+    status = 1206,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -112,6 +132,8 @@ module.exports = {
   MatchNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
+  UserNotBelongToGod,
+  CouldNotFillInSellInformation,
   UserPredictFailed,
   MysqlError,
   BetsAPIError

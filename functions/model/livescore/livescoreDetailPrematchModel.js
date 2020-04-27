@@ -31,18 +31,11 @@ async function repackage(sport, league, eventID) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date().toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
-  });
-  dateNow = dateNow.split(' ')[0];
-
   eventData[0].sport = sport;
   eventData[0].league = league;
 
-  let time = eventData[0].scheduled._seconds * 1000;
-  time = parseInt(time);
-  const d = new Date(time);
-  const scheduledDate = modules.moment(d).format('YYYY-MM-DD');
+  const time = eventData[0].scheduled * 1000;
+  const dateNow = Date.now();
 
   // for specific league
   // nba
@@ -50,7 +43,7 @@ async function repackage(sport, league, eventID) {
     const queryHomeForHome = await modules.firestore
       .collection(leagueName)
       .where('home.alias', '==', eventData[0].home.alias)
-      .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+      .where('scheduled', '<', time)
       .orderBy('scheduled', 'desc')
       .limit(1)
       .get();
@@ -61,7 +54,7 @@ async function repackage(sport, league, eventID) {
     const queryAwayForHome = await modules.firestore
       .collection(leagueName)
       .where('away.alias', '==', eventData[0].home.alias)
-      .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+      .where('scheduled', '<', time)
       .orderBy('scheduled', 'desc')
       .limit(1)
       .get();
@@ -129,7 +122,7 @@ async function repackage(sport, league, eventID) {
         const queryHomeForAway = await modules.firestore
           .collection(leagueName)
           .where('home.alias', '==', eventData[0].away.alias)
-          .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+          .where('scheduled', '<', time)
           .orderBy('scheduled', 'desc')
           .limit(1)
           .get();
@@ -139,7 +132,7 @@ async function repackage(sport, league, eventID) {
         const queryAwayForAway = await modules.firestore
           .collection(leagueName)
           .where('away.alias', '==', eventData[0].away.alias)
-          .where('scheduled', '<', modules.moment(scheduledDate).utcOffset(8))
+          .where('scheduled', '<', time)
           .orderBy('scheduled', 'desc')
           .limit(1)
           .get();
@@ -208,6 +201,9 @@ async function repackage(sport, league, eventID) {
     return eventData;
   }
   if (league === 'MLB') {
+    return eventData;
+  }
+  if (league === 'eSoccer') {
     return eventData;
   }
 }

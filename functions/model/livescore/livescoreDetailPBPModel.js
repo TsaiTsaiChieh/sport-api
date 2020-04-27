@@ -28,11 +28,6 @@ async function repackage(sport, league, eventID) {
     eventData.push(doc.data());
   });
 
-  let dateNow = new Date().toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
-  });
-  dateNow = dateNow.split(' ')[0];
-
   eventData[0].sport = sport;
   eventData[0].league = league;
   return eventData;

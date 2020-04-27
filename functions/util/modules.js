@@ -138,12 +138,10 @@ function createError(code, error) {
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
-  // basketball_NBA: 'NBA_TC',
   basketball_SBL: 'basketball_SBL',
   eBKA: 'eBKA',
   eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
-  // baseball_MLB: 'MLB_TC',
   eSoccer: 'eSoccer',
   prediction: 'prediction'
 };
@@ -182,6 +180,11 @@ function leagueCodebook(league) {
         id: 3939,
         match: db.baseball_MLB
       };
+    case 'eSoccer':
+      return {
+        id: 22000,
+        match: db.eSoccer
+      };
   }
 }
 
@@ -191,6 +194,8 @@ function leagueDecoder(leagueID) {
       return 'NBA';
     case '3939' || 3939:
       return 'MLB';
+    case '22000' || 22000:
+      return 'eSoccer';
     default:
       return 'Unknown';
   }

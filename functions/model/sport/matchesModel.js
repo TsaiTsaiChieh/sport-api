@@ -41,13 +41,14 @@ function getMatchesWithDate(args) {
                 away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
                 spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.add_time AS spread_add_time, 
                 totals.handicap AS totals_handicap, totals.over_tw AS totals_over_tw, totals.add_time AS totals_add_time 
-          FROM  match__${league}s AS game, 
-                match__team__${league}s AS home,
-                match__team__${league}s AS away, 
+          FROM  matches AS game, 
+                match__teams AS home,
+                match__teams AS away, 
                 match__spreads AS spread, 
                 match__totals AS totals 
           WHERE game.flag_prematch = ${flag_prematch}
             AND scheduled BETWEEN ${begin} AND ${end} 
+            AND game.league_id = ${modules.leagueCodebook(league).id}
             AND game.home_id = home.team_id 
             AND game.away_id = away.team_id 
             AND (game.spread_id = spread.spread_id AND game.bets_id = spread.match_id) 
@@ -58,11 +59,12 @@ function getMatchesWithDate(args) {
                 away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
                 NULL AS spread_handicap, NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_add_time, 
                 NULL AS totals_handicap, NULL AS totals_over_tw, NULL AS totals_add_time 
-           FROM match__${league}s AS game, 
-                match__team__${league}s AS home, 
-                match__team__${league}s AS away 
+           FROM matches AS game, 
+                match__teams AS home, 
+                match__teams AS away 
           WHERE game.flag_prematch = ${flag_prematch} 
             AND game.scheduled BETWEEN ${begin} AND ${end} 
+            AND game.league_id = ${modules.leagueCodebook(league).id}
             AND game.home_id = home.team_id 
             AND game.away_id = away.team_id 
             AND (game.spread_id IS NULL OR game.totals_id IS NULL)`,

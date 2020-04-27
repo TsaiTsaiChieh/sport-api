@@ -2,13 +2,12 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const func = require('./topicFunctions');
 const countPerPage = 20;
 function dbFind(aid, page) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__reply.findAll({
+      const result = await db.sequelize.models.topic__reply.findAndCountAll({
         where: {
           article_id: aid
         },
@@ -19,7 +18,7 @@ function dbFind(aid, page) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('get replies failed');
     }
   });
@@ -32,7 +31,6 @@ async function getReplies(args) {
 
       const replies = await dbFind(aid, page);
 
-      console.log(args.token);
       const uid = (args.token !== null) ? args.token.uid : null;
 
       const usersToGet = [];
@@ -40,16 +38,22 @@ async function getReplies(args) {
       const infosToGet = []; // reply_id array
       let likesCount = [];
       let myLikes = [];
-      for (let i = 0; i < replies.length; i++) {
-        infosToGet.push(replies[i].reply_id);
-        usersToGet.push(replies[i].uid);
-        replies[i].images = JSON.parse(replies[i].images);
+      const replytoToGet = [];
+      let replytoInfo = [];
+      for (let i = 0; i < replies.rows.length; i++) {
+        if (replies.rows[i].replyto_id) {
+          replytoToGet.push(replies.rows[i].replyto_id);
+        }
+        infosToGet.push(replies.rows[i].reply_id);
+        usersToGet.push(replies.rows[i].uid);
+        replies.rows[i].images = JSON.parse(replies.rows[i].images);
       }
+      // console.log(replytoToGet)
       /* 讀取按讚數 */
       try {
         likesCount = await func.getReplyLikeCount(infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get like count failed' });
       }
 
@@ -58,34 +62,45 @@ async function getReplies(args) {
         try {
           myLikes = await func.getIsUserLikeReply(uid, infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
         } catch (error) {
-          console.log(error);
+          console.error(error);
           reject({ code: 500, error: 'get my likes failed' });
         }
       }
 
-      /* 下面讀取user info */
+      /* 讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get user info failed' });
       }
 
-      for (let i = 0; i < replies.length; i++) { // 把拿到的userinfo塞回去
-        let likeCount = likesCount.filter(obj => obj.reply_id === replies[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
-        likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        replies[i].like_count = likeCount;
-        let myLike = myLikes.filter(obj => obj.reply_id === replies[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
-        myLike = !!myLike[0]; // 解析格式 沒有資料的留言數為0
-        replies[i].is_liked = myLike;
-        let userInfo = usersInfo.filter(obj => obj.uid === replies[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
-        userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
-        replies[i].user_info = userInfo;
+      /* 讀取要取得的被回覆內容 */
+      try {
+        replytoInfo = await func.getReplyContent(replytoToGet);
+      } catch (error) {
+        console.error(error);
+        reject({ code: 500, error: 'get reply info failed' });
       }
-      resolve({ code: 200, replies: replies });
+      // console.log(replytoInfo)
+      for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
+        let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+        likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
+        replies.rows[i].like_count = likeCount;
+        let myLike = myLikes.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+        myLike = !!myLike[0]; // 解析格式 沒有資料的留言數為0
+        replies.rows[i].is_liked = myLike;
+        let userInfo = usersInfo.filter(obj => obj.uid === replies.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
+        userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
+        replies.rows[i].user_info = userInfo;
+        let replyInfo = replytoInfo.filter(obj => obj.reply_id === replies.rows[i].replyto_id); // 處理userinfo 把uid=id的那則挑出來
+        replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
+        replies.rows[i].replyto_info = replyInfo;
+      }
+      resolve({ code: 200, page: page + 1, count: replies.count, replies: replies.rows });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

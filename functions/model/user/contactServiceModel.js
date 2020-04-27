@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
@@ -18,7 +17,7 @@ async function contactService(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let uid;
-      if (typeof args.token !== 'undefined') {
+      if (typeof args.token !== 'undefined' && args.token !== null) {
         uid = args.token.uid;
       } else {
         uid = null;
@@ -29,7 +28,7 @@ async function contactService(args) {
         name: args.name,
         email: args.email,
         content: args.content,
-        images: null
+        images: JSON.stringify(args.images)
       };
 
       // 過濾html tags
@@ -44,7 +43,7 @@ async function contactService(args) {
       await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });
