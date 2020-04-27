@@ -675,7 +675,7 @@ const Prediction = sequelize.define(
 /*
  * 各聯盟賽事結算資訊
  */
-const usersWinLists = sequelize.define(
+const Users_WinLists = sequelize.define(
   'users__win__lists',
   {
     id: {
@@ -688,16 +688,6 @@ const usersWinLists = sequelize.define(
     },
     league_id: {
       type: Sequelize.INTEGER
-    },
-    rank_id: {
-      type: Sequelize.INTEGER
-    },
-    avatar: {
-      type: Sequelize.STRING,
-      allowNull: true
-    },
-    displayname: {
-      type: Sequelize.STRING
     },
     last_season_win_bets: {
       type: Sequelize.INTEGER
@@ -723,7 +713,6 @@ const usersWinLists = sequelize.define(
     last_week_win_rate: {
       type: Sequelize.INTEGER
     },
-
     this_season_win_bets: {
       type: Sequelize.INTEGER
     },
@@ -752,9 +741,54 @@ const usersWinLists = sequelize.define(
   {
     indexes: [
       {
-        unique: true,
-        fields: ['uid']
+        fields: ['uid', 'league_id']
       }
+    ]
+  }
+);
+
+/*
+ * 各聯盟賽事結算資訊歷史記錄表
+ */
+const Users_WinListsHistory = sequelize.define(
+  'users__win__lists__history',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.INTEGER
+    },
+    win_bets: {
+      type: Sequelize.INTEGER
+    },
+    win_rate: {
+      type: Sequelize.INTEGER
+    },
+    date: {
+      type: Sequelize.STRING
+    },
+    week: {
+      type: Sequelize.STRING
+    },
+    month: {
+      type: Sequelize.STRING
+    },
+    season: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      { fields: ['uid', 'league_id', 'date'] },
+      { fields: ['uid', 'league_id', 'week'] },
+      { fields: ['uid', 'league_id', 'month'] },
+      { fields: ['uid', 'league_id', 'season'] }
     ]
   }
 );
@@ -1039,7 +1073,8 @@ const dbUtil = {
   User,
   Title,
   Rank,
-  usersWinLists,
+  Users_WinLists,
+  Users_WinListsHistory,
   User_FavoriteGod,
   Topic_Like,
   Topic_ReplyLike,
