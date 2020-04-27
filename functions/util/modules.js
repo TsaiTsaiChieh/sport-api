@@ -219,6 +219,7 @@ function getTitlesPeriod(date) {
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
+
     if (begin <= date && date <= end) {
       return {
         period: i, // 期數
@@ -351,51 +352,60 @@ function perdictionsResultFlag(option, settelResult) {
 function predictionsWinList(data) {
   const correct = [0.95, 0.5];
   const fault = [-1, -0.5];
-  const result = {};
+  const result = [];
 
+  // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
 
-  rePredictMatchInfo.forEach(function(data) {
+  rePredictMatchInfo.forEach(function(uids) {
     const totalPredictCounts = data.length;
 
-    // 勝率 winRate
-    const predictCorrectCounts =
+    const reLeagues = groupBy(uids, 'league_id');
+
+    reLeagues.forEach(function(data) {
+      // 勝率 winRate
+      const predictCorrectCounts =
       data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
       data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
-    const predictFaultCounts =
-      data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-      data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+      const predictFaultCounts =
+        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
+        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
-    const winRate = predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      const winRate = predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
-    // 勝注
-    const predictCorrectBets =
-      data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-      data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+      // 勝注
+      const predictCorrectBets =
+        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
+        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
 
-    const predictFaultBets =
-      data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-      data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+      const predictFaultBets =
+        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
+        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
 
-    const winBets = predictCorrectBets + predictFaultBets;
+      const winBets = predictCorrectBets + predictFaultBets;
 
-    result[data[0].uid] = {
-      winRate: Number((winRate * 100).toFixed(0)),
-      winBets: Number((winBets).toFixed(2))
-    };
+      result.push({
+        uid: data[0].uid,
+        league_id: data[0].league_id,
+        win_rate: Number((winRate * 100).toFixed(0)),
+        win_bets: Number((winBets).toFixed(2)),
+        correct_counts: predictCorrectCounts,
+        fault_counts: predictFaultCounts
+      });
 
-    // console.log('\n');
-    // console.log('%o totalPredictCounts: %f  predictCorrectCounts: %f  predictFaultCounts: %f',
-    //   data[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
-    // console.log('winRate: %f', winRate * 100);
+      // console.log('\n');
+      // console.log('%o totalPredictCounts: %f  predictCorrectCounts: %f  predictFaultCounts: %f',
+      //   data[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
+      // console.log('winRate: %f', winRate * 100);
 
-    // console.log('%o predictCorrectBets: %f  predictFaultBets: %f ',
-    //   data[0].uid, predictCorrectBets, predictFaultBets);
-    // console.log('winBets: %0.2f', winBets);
+      // console.log('%o predictCorrectBets: %f  predictFaultBets: %f ',
+      //   data[0].uid, predictCorrectBets, predictFaultBets);
+      // console.log('winBets: %0.2f', winBets);
 
-    // console.log('\n');
-    // console.log('re: ', data);
+      // console.log('\n');
+      // console.log('re: ', data);
+    });
   });
   return result;
 }

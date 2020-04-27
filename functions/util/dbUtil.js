@@ -770,25 +770,38 @@ const Users_WinListsHistory = sequelize.define(
     win_rate: {
       type: Sequelize.INTEGER
     },
+    correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    fault_counts: {
+      type: Sequelize.INTEGER
+    },
     date: {
-      type: Sequelize.STRING
+      type: Sequelize.INTEGER
+    },
+    period: {
+      type: Sequelize.INTEGER
     },
     week: {
-      type: Sequelize.STRING
+      type: Sequelize.INTEGER
     },
     month: {
-      type: Sequelize.STRING
+      type: Sequelize.INTEGER
     },
     season: {
-      type: Sequelize.STRING
+      type: Sequelize.INTEGER
     }
   },
   {
     indexes: [
-      { fields: ['uid', 'league_id', 'date'] },
-      { fields: ['uid', 'league_id', 'week'] },
-      { fields: ['uid', 'league_id', 'month'] },
-      { fields: ['uid', 'league_id', 'season'] }
+      {
+        name: 'uldwms',
+        fields: ['uid', 'league_id', 'date', 'period', 'week', 'month', 'season'],
+        unique: true
+      }
+      // { fields: ['uid', 'league_id', 'week'] },
+      // { fields: ['uid', 'league_id', 'month'] },
+      // { fields: ['uid', 'league_id', 'season'] }
     ]
   }
 );
