@@ -264,20 +264,28 @@ const League = sequelize.define(
     radar_id: {
       type: Sequelize.STRING
     },
-    sport: {
+    sport_id: {
       type: Sequelize.INTEGER
     },
     name: {
       type: Sequelize.STRING
     },
+    ori_name: {
+      type: Sequelize.STRING
+    },
     name_ch: {
+      type: Sequelize.STRING
+    },
+    ori_league_id: {
+      type: Sequelize.STRING
+    },
+    ori_sport_id: {
       type: Sequelize.STRING
     }
   },
   {
     indexes: [
       {
-        unique: true,
         fields: ['league_id']
       },
       {
