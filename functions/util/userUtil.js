@@ -89,12 +89,11 @@ exports.checkUniqueCollection = async function(collection, value) {
   };
 
   try {
-    
-    const corr= [];
-    corr['uniqueName'] = 'display_name';
-    corr['uniqueEmail'] = 'email';
-    corr['uniquePhone'] = 'phone';
-   
+    const corr = [];
+    corr.uniqueName = 'display_name';
+    corr.uniqueEmail = 'email';
+    corr.uniquePhone = 'phone';
+
     const collect = corr[collection];
     const nameCollection = await db.sequelize.query(
       `
@@ -102,11 +101,11 @@ exports.checkUniqueCollection = async function(collection, value) {
        `,
       {
         plain: true,
-        logging:true,
+        logging: true,
         type: db.sequelize.QueryTypes.SELECT
       });
-      console.log(nameCollection);
-    if (nameCollection!=null) {
+    console.log(nameCollection);
+    if (nameCollection != null) {
       returnJson.success = true;
       returnJson.isExist = true;
     } else {
