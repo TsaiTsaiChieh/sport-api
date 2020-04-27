@@ -7,20 +7,8 @@ const data_totals_NBA = require('../../json/totals/NBA.json');
 const data_match = require('../../json/matches/NBA.json');
 async function createTable(req, res) {
   try {
-    // const Match = await db.sequelize.models.match.sync({ force: true });
-    // const League = await db.sequelize.models.match__league.sync({
-    //   force: true
-    // });
-    // for (let i = 0; i < data_league.length; i++) {
-    //   const ele = data_league[i];
-    //   League.create({
-    //     league_id: ele.league_id,
-    //     radar_id: ele.radar_id,
-    //     sport: ele.sport,
-    //     name: ele.name,
-    //     name_ch: ele.name_ch
-    //   });
-    // }
+    createLeague();
+
     // const Spread = await db.sequelize.models.match__spread.sync({
     //   force: true
     // });
@@ -62,6 +50,25 @@ async function createTable(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json(err);
+  }
+}
+
+async function createLeague() {
+  const League = await db.sequelize.models.match__league.sync({
+    force: true
+  });
+  for (let i = 0; i < data_league.length; i++) {
+    const ele = data_league[i];
+    League.create({
+      league_id: ele.league_id,
+      radar_id: ele.radar_id,
+      sport_id: ele.sport_id,
+      name: ele.name,
+      name_ch: ele.name_ch,
+      ori_league_id: ele.ori_league_id,
+      ori_sport_id: ele.ori_sport_id,
+      ori_name: ele.ori_name
+    });
   }
 }
 async function createTeam() {

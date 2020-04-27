@@ -2,6 +2,7 @@ const modules = require('../../util/modules');
 const model = require('../../model/user/postGodSellInformationModel');
 
 async function godSellInformation(req, res) {
+  const now = new Date();
   const schema = {
     type: 'object',
     required: ['league', 'date', 'desc', 'tips'],
@@ -35,7 +36,8 @@ async function godSellInformation(req, res) {
     league: req.query.league,
     date: req.query.date,
     desc: req.body.desc,
-    tips: req.body.tips
+    tips: req.body.tips,
+    now
   };
   const valid = modules.ajv.validate(schema, args);
   if (!valid) {

@@ -45,7 +45,7 @@ async function predictionRate(req, res) {
 
 module.exports = predictionRate;
 /**
- * @api {get} /user/prediction_rate get prediction rate
+ * @api {get} /user/prediction_rate Get prediction rate
  * @apiVersion 1.0.0
  * @apiDescription User can observe each match of prediction rate with specific date and league by Tsai-Chieh
  * @apiName Get prediction rate
