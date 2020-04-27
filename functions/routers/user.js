@@ -58,21 +58,25 @@ router.post(
   verification.token,
   require('../controller/user/predictInfoController')
 );
+/* 錢包 */
 router.post(
   '/purse/:uid',
   verification.token,
   require('../controller/user/purseController')
 );
+/* 購牌紀錄 */
 router.post(
   '/buy/:uid',
   verification.token,
   require('../controller/user/buyController')
 );
+/* 轉換紀錄 */
 router.post(
   '/transfer/:uid',
   verification.token,
   require('../controller/user/transferController')
 );
+/* 榮譽戰績 */
 router.post(
   '/honor/:uid',
   verification.token,
