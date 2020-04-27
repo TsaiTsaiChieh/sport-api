@@ -44,3 +44,49 @@ async function godSellInformation(req, res) {
 }
 
 module.exports = godSellInformation;
+/**
+ * @api {GET} /user/sell_information?league=NBA&date=2020-07-01 Post sell information
+ * @apiVersion 1.0.0
+ * @apiDescription Get sell information included description(說明文) and tips(武功秘笈) by TsaiChieh
+ * @apiName Get sell information
+ * @apiGroup User
+ *
+ * @apiParam {String} prematch date, ex: ```2020-07-01```
+ * @apiParam {String} league league name, the value enum are: ```NBA```
+ *
+ * @apiSuccess {String} response
+ * {
+    "desc": "大家快來買我的牌，我預測了超多！我又新增了兩場喔",
+    "tips": "買了就送你 my precious"
+}
+ * @apiSuccessExample {JSON} Success-Response
+ *  HTTP/1.1 200 OK
+ * "Upsert successful"
+ *
+ * @apiError 400 Bad Request
+ * @apiError 401 Unauthorized
+ * @apiError 500 Internal Server Error
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+    {
+        "keyword": "enum",
+        "dataPath": ".league",
+        "schemaPath": "#/properties/league/enum",
+        "params": {
+            "allowedValues": [
+                "NBA"
+            ]
+        },
+        "message": "should be equal to one of the allowed values"
+    }
+]
+ *
+ * @apiErrorExample {JSON} 500-Response
+ * HTTP/1.1 500 Internal Server Error
+ * {
+    "code": 500,
+    "error": {}
+}
+ */
