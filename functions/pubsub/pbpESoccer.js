@@ -12,7 +12,7 @@ async function ESoccerpbpInplay(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL
