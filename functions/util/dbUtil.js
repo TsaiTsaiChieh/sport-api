@@ -714,6 +714,9 @@ const PredictionDescription = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
+    rank_id: {
+      type: Sequelize.STRING
+    },
     league_id: {
       type: Sequelize.INTEGER
     },
