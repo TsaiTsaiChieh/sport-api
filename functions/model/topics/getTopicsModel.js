@@ -92,7 +92,7 @@ async function getTopics(args) {
         topics.rows[i].user_info = userInfo;
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
-      resolve({ code: 200, page: page+1 ,count: topics.count , topics: topics.rows });
+      resolve({ code: 200, page: page + 1, count: topics.count, topics: topics.rows });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

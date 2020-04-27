@@ -98,7 +98,7 @@ async function getReplies(args) {
         replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
         replies.rows[i].replyto_info = replyInfo;
       }
-      resolve({ code: 200, page: page+1 ,count: replies.count, replies: replies.rows });
+      resolve({ code: 200, page: page + 1, count: replies.count, replies: replies.rows });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
