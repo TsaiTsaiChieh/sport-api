@@ -11,12 +11,10 @@ function deletePredictions(args) {
   return new Promise(async function (resolve, reject) {
     try {
       await isNormalUser(args);
-
-      const filter = await checkMatches(args);
-
-      await deletePrediction(args, filter);
+      await checkMatches(args);
+      await deletePredictions(args, filter);
       console.log('===', filter, '===');
-      return resolve();
+      return resolve(returnData(filter));
     } catch (err) {
       return reject(err);
     }
@@ -26,8 +24,7 @@ function deletePredictions(args) {
 // 檢查使用者是否為一般玩家
 function isNormalUser(args) {
   return new Promise(function (resolve, reject) {
-    const { role } = args.token.customClaims;
-    role === NORMAL_USER
+    args.token.customClaims === NORMAL_USER
       ? resolve()
       : reject(new AppError.OnlyAcceptNormalUser());
   });
@@ -46,7 +43,7 @@ async function checkMatches(args) {
       for (let i = 0; i < needed.length; i++) {
         await isHandicapExist(args, i, { needed, failed });
       }
-      return resolve({ needed, failed });
+      return resolve();
     } catch (err) {
       return reject(err);
     }
@@ -56,7 +53,6 @@ async function checkMatches(args) {
 // 檢查賽事是否合法
 function isMatchValid(args, ele, filter) {
   return new Promise(async function (resolve, reject) {
-    const { league } = args;
     try {
       const result = await db.sequelize.query(
         `SELECT bets_id
@@ -72,7 +68,7 @@ function isMatchValid(args, ele, filter) {
       // 若賽事 id 無效，推到 failed；反之，推到 needed
       if (!result.length) {
         ele.code = 404;
-        ele.error = `Match id: ${ele.id} in ${league} not found`;
+        ele.error = `Match id: ${ele.id} in ${args.league} not found`;
         filter.failed.push(ele);
       } else {
         filter.needed.push(ele);
@@ -86,7 +82,6 @@ function isMatchValid(args, ele, filter) {
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
   return new Promise(async function (resolve, reject) {
-    const { league } = args;
     const ele = filter.needed[i];
     try {
       const { handicapType, handicapId } = handicapProcessor(ele);
@@ -107,7 +102,7 @@ function isHandicapExist(args, i, filter) {
       if (!result.length) {
         const error = {
           code: 404,
-          error: `${handicapType} id: ${handicapId} in ${league} not found`
+          error: `${handicapType} id: ${handicapId} in ${args.league} not found`
         };
         filterProcessor(filter, i, error);
       }
@@ -141,13 +136,49 @@ function filterProcessor(filter, i, error) {
   filter.failed.push(ele);
 }
 
-function deletePrediction(args, filter) {
+function deletePredictions(args, filter) {
   return new Promise(async function (resolve, reject) {
+    try {
+      for (let i = 0; i < filter.needed.length; i++) {
+        const ele = filter.needed[i];
+        const { handicapType, handicapId } = handicapProcessor(ele);
+        if (ele.length === undefined) {
+          const result = await db.sequelize.query(
+            `UPDATE user__predictions
+              SET ${handicapType}_id = NULL, ${handicapType}_bets = NULL, ${handicapType}_option = NULL
+            WHERE ${handicapType}_id = "${handicapId}"
+              AND bets_id = :id
+              AND uid = "${args.token.uid}"`,
+            {
+              type: db.sequelize.QueryTypes.UPDATE,
+              replacements: { id: ele.id }
+            }
+          );
+          // result = [undefined, 1] 代表有更新成功；反之 [undefined, 0]
+          if (!result[1]) {
+            const error = {
+              code: 404,
+              error: `${handicapType} id: ${handicapId} in ${args.league} update failed`
+            };
+            filterProcessor(filter, i, error);
+          }
+        }
+      }
+      return resolve(filter);
+    } catch (err) {
+      return reject(new AppError.MysqlError());
+    }
+  });
+}
+
+function returnData(filter) {
+  return new Promise(function (resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
-      return reject(new AppError.UserPredictFailed({ failed: filter.failed }));
+      return reject(
+        new AppError.DeletePredictionsFailed({ failed: filter.failed })
+      );
     } else if (neededResult) {
-      await deleteFromDB(args, filter);
       return resolve(repackageReturnData(filter));
     }
   });
@@ -230,14 +261,13 @@ function repackageReturnData(filter) {
       filter.success.push(ele);
     }
   }
-  for (let i = 0; i < filter.failed.length; i++) {
-    const ele = filter.failed[i];
-    if (ele.length === undefined) {
-      delete ele.league_id;
-      delete ele.match_scheduled;
-    }
-  }
-  delete filter.needed;
+  // for (let i = 0; i < filter.failed.length; i++) {
+  //   const ele = filter.failed[i];
+  //   if (ele.length === undefined) {
+
+  //   }
+  // }
+  // delete filter.needed;
   return filter;
 }
 module.exports = deletePredictions;
