@@ -7,6 +7,7 @@ function settleMatchesModel(args) {
     // 1. 管理者才能進行 API 呼叫
     // 2. 該場賽事結算
     // 3. 該場賽事-使用者有下預測單結算
+    // !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
 
     const userUid = args.token.uid;
     const bets_id = args.bets_id;
