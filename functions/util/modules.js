@@ -372,7 +372,10 @@ function predictionsWinList(data) {
         data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
         data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
-      const winRate = predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      // 避免分母是0 平盤無效
+      const winRate = (predictCorrectCounts + predictFaultCounts) === 0 
+        ? 0 
+        : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注
       const predictCorrectBets =
