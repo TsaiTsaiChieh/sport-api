@@ -1,8 +1,13 @@
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
-const topicModel = require('../../model/home/hotTopicsModel');
+const model = require('../../model/home/hotTopicsModel');
 async function getTopics(req, res) {
-  topicModel()
+  let page = Number(req.params.page);
+  if (isNaN(page) || !Number.isInteger(page) || page < 0 || page > 9999999) {
+    page = null;
+  }else{
+    page = Number(req.params.page);
+  }
+  model({page: page})
     .then(function(body) {
       res.json(body);
     })
