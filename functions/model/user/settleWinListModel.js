@@ -10,13 +10,14 @@ function settleWinList(args) {
     //    b. 賽季開打 更新 上賽季記錄，並清空 本賽季記錄，設為 0
     //    c. 大神計算完畢 更新 上期大神記錄，並清空 本期記錄，設為 0
     // 3.
-    //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flas) 的 預測單
+    //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flags) 的 預測單
     //       因為比賽跨日結束，會導致再次重算，因此怎麼區分累加計算過的資料不再計算，會是個問題
     //       可能需要條件來重算，減少運算量
     //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
     //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期
     //    d. 再更新 大神售牌標語 titles
     //    !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
+    //       所以 比賽結束呼叫結算後，要再呼叫這支API，輸入日期為前一天
 
     // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
@@ -73,6 +74,7 @@ function settleWinList(args) {
     const s2 = new Date().getTime();
     let s21 = 0;
     let s22 = 0;
+    let s23 = 0;
     // 3.
     try {
       // a.
@@ -189,6 +191,7 @@ function settleWinList(args) {
             return reject(errs.errsMsg('404', '1321'));
           }
 
+          s23 = new Date().getTime();
           // d.
           // 回寫 win_bets、win_rate 到 titles
           try {
@@ -223,7 +226,8 @@ function settleWinList(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleWinListModel 1# %o ms   21# %o ms   22# %o ms   e# %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
+    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms', 
+      s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
     return resolve(result);
   });
 }
