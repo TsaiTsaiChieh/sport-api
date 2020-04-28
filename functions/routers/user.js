@@ -43,14 +43,9 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 
 // 預測頁
 router.post(
-  '/predict_matches',
-  verification.token,
-  require('../controller/user/predictMatchesController')
-);
-router.post(
   '/predictions',
   verification.token_v2,
-  require('../controller/user/_predictMatchesController')
+  require('../Deprecated/predictMatchesController')
 );
 router.get(
   '/prediction_rate',
