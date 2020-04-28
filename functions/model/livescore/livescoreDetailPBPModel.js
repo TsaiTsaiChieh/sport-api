@@ -28,6 +28,9 @@ async function repackage(sport, league, eventID) {
     eventData.push(doc.data());
   });
 
+  if (league === 'eSoccer') {
+    league = eventData[0].league.name;
+  }
   eventData[0].sport = sport;
   eventData[0].league = league;
   return eventData;

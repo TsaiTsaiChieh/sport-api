@@ -8,8 +8,8 @@ let countPerPage = 3;
 function dbFind(page) {
   return new Promise(async function(resolve, reject) {
     try {
-      let resultFirst = []
-      if(page === null || page === 0){
+      let resultFirst = [];
+      if (page === null || page === 0) {
         resultFirst = await db.sequelize.models.topic__article.findAll({
           where: {
             // createdAt: { // 撈七天內的文
@@ -24,11 +24,11 @@ function dbFind(page) {
           raw: true
         });
       }
-      let topics = resultFirst;
+      const topics = resultFirst;
 
-      if(page !== null){
+      if (page !== null) {
         countPerPage = 10;
-      }else{
+      } else {
         page = 0;
       }
 
@@ -52,7 +52,7 @@ function dbFind(page) {
       });
       const result = chkFirstTopic(topics);
 
-      resolve({ topics:result, count:resultData.count });
+      resolve({ topics: result, count: resultData.count });
     } catch (error) {
       console.error(error);
       reject('get topics failed');

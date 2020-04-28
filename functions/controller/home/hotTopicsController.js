@@ -4,10 +4,10 @@ async function getTopics(req, res) {
   let page = Number(req.params.page);
   if (isNaN(page) || !Number.isInteger(page) || page < 0 || page > 9999999) {
     page = null;
-  }else{
+  } else {
     page = Number(req.params.page);
   }
-  model({page: page})
+  model({ page: page })
     .then(function(body) {
       res.json(body);
     })
