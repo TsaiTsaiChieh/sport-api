@@ -92,6 +92,7 @@ function settleWinList(args) {
             win_rate: data.win_rate,
             correct_counts: data.correct_counts,
             fault_counts: data.fault_counts,
+            date_timestamp: begin,
             date: dayOfYear,
             period: period,
             week: week,

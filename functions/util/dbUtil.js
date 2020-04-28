@@ -786,6 +786,9 @@ const Users_WinListsHistory = sequelize.define(
     fault_counts: {
       type: Sequelize.INTEGER
     },
+    date_timestamp: {
+      type: Sequelize.INTEGER
+    },
     date: {
       type: Sequelize.INTEGER
     },
@@ -806,7 +809,7 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date', 'period', 'week', 'month', 'season'],
+        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
