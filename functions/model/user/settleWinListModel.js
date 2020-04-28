@@ -13,9 +13,9 @@ function settleWinList(args) {
     //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flas) 的 預測單
     //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
     //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期大神
-    //    d. 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結速，要重算前天勝率、勝注
+    //    !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
 
-    // 勝率的計算比較特別，需要 總勝數 和 勝數
+    // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
     const userUid = args.token.uid;
     const begin = modules.convertTimezone(args.date);
@@ -53,6 +53,8 @@ function settleWinList(args) {
     }
 
     const s2 = new Date().getTime();
+    let s21 = 0;
+    let s22 = 0;
     // 3.
     try {
       // a.
@@ -78,6 +80,7 @@ function settleWinList(args) {
       const resultWinList = modules.predictionsWinList(predictMatchInfo);
       // console.log('resultWinList: ', resultWinList);
 
+      s21 = new Date().getTime();
       // b.
       // 回寫結果
       try {
@@ -107,6 +110,7 @@ function settleWinList(args) {
         return reject(errs.errsMsg('404', '1317'));
       }
 
+      s22 = new Date().getTime();
       // c.
       // 這星期、這個月、這賽季、本期大神 
       // this_week、this_month、this_season、this_period
@@ -115,21 +119,35 @@ function settleWinList(args) {
           const allTotalCount = await winBetsRateTotalCount(data.uid, data.league_id, 
             dayOfYear, week, month, season, period);
 
-          // row: 0 date, 1 week, 2 month, 3 period, 4 season
-          // 回寫結果 到users__win__lists
-          const ele = allTotalCount;
+          // 檢查 是否有5筆資料
+          if (allTotalCount.length !== 5) return reject(errs.errsMsg('404', '1322')); // 筆數異常
 
+          // 檢查是否為數字
+          const ele = allTotalCount;
+          const this_week_win_rate = numberCount(ele[1].correct_sum, ele[1].fault_sum);
+          const this_month_win_rate = numberCount(ele[2].correct_sum, ele[2].fault_sum);
+          const this_period_win_rate = numberCount(ele[3].correct_sum, ele[3].fault_sum);
+          const this_season_win_rate = numberCount(ele[4].correct_sum, ele[4].fault_sum);
+
+          if (isNotANumber(this_week_win_rate)) return reject(errs.errsMsg('404', '1323'));
+          if (isNotANumber(this_month_win_rate)) return reject(errs.errsMsg('404', '1323'));
+          if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323'));
+          if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323'));
+
+          // row: 0 date, 1 week, 2 month, 3 period, 4 season
+          // 0 date 目前未使用
+          // 回寫結果 到users__win__lists
           try {
             const r = await db.Users_WinLists.upsert({
               uid: data.uid,
               league_id: data.league_id,
-              this_week_win_rate: numberCount(ele[1].correct_sum, ele[1].fault_sum),
+              this_week_win_rate: this_week_win_rate,
               this_week_win_bets: ele[1].sum,
-              this_month_win_rate: numberCount(ele[2].correct_sum, ele[2].fault_sum),
+              this_month_win_rate: this_month_win_rate,
               this_month_win_bets: ele[2].sum,
-              this_period_win_rate: numberCount(ele[3].correct_sum, ele[3].fault_sum),
+              this_period_win_rate: this_period_win_rate,
               this_period_win_bets: ele[3].sum,
-              this_season_win_rate: numberCount(ele[3].correct_sum, ele[3].fault_sum),
+              this_season_win_rate: this_season_win_rate,
               this_season_win_bets: ele[4].sum
             }, {
               fields: [
@@ -159,13 +177,13 @@ function settleWinList(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n');
-    console.log('1. ', s2 - s1);
-    console.log('2. ', e - s2);
+    console.log('\n 1. %o ms   21. %o ms   22. %o ms   e. %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
     return resolve(result);
   });
 }
 
+// 計算出 本周、本月、本期、本賽季 統計資料
+// 輸出資料要確定是否5筆
 // rang： date、week、month、season、period
 // sum(win_bets), sum(correct_counts), sum(fault_counts)
 async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, season=0, period=0){
@@ -224,6 +242,18 @@ function numberCount(num1, num2, f=2){
   return Number(
     Number(num1) / ( Number(num1) + Number(num2) )
   ).toFixed(f);
+}
+
+function isNotANumber(inputData) { 
+　// isNaN(inputData)不能判斷空串或一個空格 
+　// 如果是一個空串或是一個空格，而isNaN是做為數字0進行處理的，
+  // 而parseInt與parseFloat是返回一個錯誤訊息，這個isNaN檢查不嚴密而導致的。 
+　if (parseFloat(inputData).toString() == 'NaN') { 
+　　　//alert(“請輸入數字……”); 
+　　　return true; 
+　} else { 
+　　　return false; 
+　} 
 }
 
 module.exports = settleWinList;
