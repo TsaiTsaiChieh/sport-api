@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league, args.eventID);
 
@@ -29,7 +29,7 @@ async function repackage(sport, league, eventID) {
   });
 
   if (league === 'eSoccer') {
-    league = eventData[i].league.name;
+    league = eventData[0].league.name;
   }
   eventData[0].sport = sport;
   eventData[0].league = league;
