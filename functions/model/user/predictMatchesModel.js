@@ -6,10 +6,10 @@ const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
 const GOD_USER = 2;
-const matchScheduledStatus = 2;
+const scheduledStatus = 2;
 
 function prematch(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       // 檢查此使用者身份
       await isGodSellValid(args);
@@ -25,7 +25,7 @@ function prematch(args) {
 }
 
 function isGodSellValid(args) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     sell === NORMAL_USER_SELL && titles.includes(league)
@@ -36,7 +36,7 @@ function isGodSellValid(args) {
 
 // 檢查當玩家送出的 sell = 0 or 1，是否屬於該聯盟的大神
 function isGodBelongToLeague(args) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     (sell === 0 || sell === 1) && !titles.includes(league)
@@ -47,7 +47,7 @@ function isGodBelongToLeague(args) {
 
 // 檢查一般玩家，送出的 sell 是否不為 -1
 function isNormalUserSell(args) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const role = Number.parseInt(args.token.customClaims.role);
     role === NORMAL_USER && args.sell !== NORMAL_USER_SELL
       ? reject(new AppError.UserCouldNotSell())
@@ -56,7 +56,7 @@ function isNormalUserSell(args) {
 }
 
 async function checkMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const needed = [];
     const failed = [];
 
@@ -81,7 +81,7 @@ async function checkMatches(args) {
   });
 }
 async function isMatchValid(args, ele, filter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const { league } = args;
     const { handicapType, handicapId } = handicapProcessor(ele);
     try {
@@ -95,7 +95,7 @@ async function isMatchValid(args, ele, filter) {
                 match__teams AS away
           WHERE game.bets_id = :id
             AND game.${handicapType}_id = :handicapId
-            AND game.status = ${matchScheduledStatus}
+            AND game.status = ${scheduledStatus}
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
@@ -130,7 +130,7 @@ async function isMatchValid(args, ele, filter) {
 }
 
 function isGodUpdate(uid, i, filter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const ele = filter.needed[i];
     const { handicapType, handicapId } = handicapProcessor(ele);
     try {
@@ -183,7 +183,7 @@ function filterProcessor(filter, i, error) {
 }
 
 function isGodSellConsistent(args, i, filter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const ele = filter.needed[i];
       const date = modules.convertTimezoneFormat(ele.match_scheduled);
@@ -215,7 +215,7 @@ function isGodSellConsistent(args, i, filter) {
 }
 
 function sendPrediction(args, filter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(new AppError.UserPredictFailed({ failed: filter.failed }));
@@ -237,7 +237,7 @@ function isNeeded(needed) {
 }
 
 async function insertDB(args, needed) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const results = [];
     for (let i = 0; i < needed.length; i++) {
       const ele = needed[i];
