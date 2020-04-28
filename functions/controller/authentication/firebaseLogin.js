@@ -134,11 +134,11 @@ async function firebaseLogin(req, res) {
               {
                 type: db.sequelize.QueryTypes.SELECT
               });
-              var titles = {};
-              titlesQuery.forEach(function(data) { // 這裡有順序性
-                titles[data.name]=repackage(data);
-                mysqlUser.titles = titles;
-              });
+          var titles = {};
+          titlesQuery.forEach(function(data) { // 這裡有順序性
+            titles[data.name] = repackage(data);
+            mysqlUser.titles = titles;
+          });
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
