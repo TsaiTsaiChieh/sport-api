@@ -4,7 +4,6 @@ const model = require('../../model/user/favoriteGodModel');
 async function favoriteGod(req, res) {
   const schema = {
     type: 'object',
-    requied: ['god_uid', 'like'],
     properties: {
       god_uid: {
         type: 'string'
@@ -12,7 +11,8 @@ async function favoriteGod(req, res) {
       like: {
         type: 'boolean'
       }
-    }
+    },
+    required: ['god_uid', 'like'],
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {

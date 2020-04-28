@@ -4,7 +4,7 @@ const model = require('../../model/topics/deleteArticleModel');
 async function deleteArticle(req, res) {
   const schema = {
     type: 'object',
-    requied: ['article_id'],
+    required: ['article_id'],
     properties: {
       article_id: {
         type: 'integer',
