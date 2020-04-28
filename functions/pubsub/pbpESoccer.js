@@ -169,7 +169,28 @@ async function doPBP(parameter) {
   }
 
   const ref = modules.database.ref(`esports/eSoccer/${betsID}/Summary/`);
-
+  let eventStatus = '';
+  if (data.results[0].time_status === '3') {
+    eventStatus = 'closed';
+    modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 0 } }, { merge: true });
+  }
+  if (data.results[0].time_status === '2') {
+    eventStatus = 'inprogress';
+    modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 1 } }, { merge: true });
+  }
+  if (data.results[0].time_status === '1') {
+    eventStatus = 'inprogress';
+    modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 1 } }, { merge: true });
+  }
   await ref.set({
     league: {
       name: data.results[0].league.name,
@@ -205,18 +226,8 @@ async function doPBP(parameter) {
         yellowcards: data.results[0].stats.yellowcards[1],
         redcards: data.results[0].stats.redcards[1]
       }
-    }
+    },
+    status: eventStatus
   });
-  if (data.results[0].time_status === '3') {
-    modules.firestore
-      .collection(firestoreName)
-      .doc(betsID)
-      .set({ flag: { status: 0 } }, { merge: true });
-  } else {
-    modules.firestore
-      .collection(firestoreName)
-      .doc(betsID)
-      .set({ flag: { status: 1 } }, { merge: true });
-  }
 }
 module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };
