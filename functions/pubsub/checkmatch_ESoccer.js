@@ -67,6 +67,5 @@ async function checkmatch_ESoccer() {
       }
     }
   }
-  console.log('checkmatch_ESoccer success');
 }
 module.exports = checkmatch_ESoccer;

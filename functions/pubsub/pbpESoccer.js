@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const axios = require('axios');
-
+const db = require('../util/dbUtil');
 const firestoreName = 'pagetest_eSoccer';
 
 // 14 秒一次
@@ -12,7 +12,7 @@ async function ESoccerpbpInplay(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL
@@ -22,6 +22,7 @@ async function ESoccerpbpInplay(parameter) {
 
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 >= timesPerLoop) {
+      console.log('checkmatch_ESoccer success');
       clearInterval(timerForStatus2);
     }
   }, perStep);
@@ -116,12 +117,19 @@ async function ESoccerpbpHistory(parameter) {
     },
     { merge: true }
   );
-  modules.firestore
+  await modules.firestore
     .collection('pagetest_eSoccer')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
+
+  await Match.upsert({
+    bets_id: betsID,
+    status: 0
+  });
+  console.log('checkmatch_ESoccer success');
 }
 async function doPBP(parameter) {
+  const Match = await db.Match.sync();
   const betsID = parameter.betsID;
   const pbpURL = parameter.pbpURL;
   const { data } = await axios(pbpURL);
@@ -171,22 +179,34 @@ async function doPBP(parameter) {
   const ref = modules.database.ref(`esports/eSoccer/${betsID}/Summary/`);
   let eventStatus = '';
   if (data.results[0].time_status === '3') {
+    await Match.upsert({
+      bets_id: betsID,
+      status: 0
+    });
     eventStatus = 'closed';
-    modules.firestore
+    await modules.firestore
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 0 } }, { merge: true });
   }
   if (data.results[0].time_status === '2') {
     eventStatus = 'inprogress';
-    modules.firestore
+    await Match.upsert({
+      bets_id: betsID,
+      status: 1
+    });
+    await modules.firestore
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 1 } }, { merge: true });
   }
   if (data.results[0].time_status === '1') {
     eventStatus = 'inprogress';
-    modules.firestore
+    await Match.upsert({
+      bets_id: betsID,
+      status: 1
+    });
+    await modules.firestore
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 1 } }, { merge: true });

@@ -196,7 +196,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -220,7 +220,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -250,52 +250,54 @@ async function getHandicap(league, ele) {
     //   `
     // );
     // if no data, the data.results will be { }
-    if (data.results.Bet365) {
-      const odds = data.results.Bet365.odds.start;
-      if (odds['1_2']) {
-        let spreadData = odds['1_2'];
-        spreadData = await spreadCalculator(spreadData);
-        const spread = {};
-        spread[spreadData.id] = {
-          handicap: Number.parseFloat(spreadData.handicap),
-          home_odd: Number.parseFloat(spreadData.home_od),
-          away_odd: Number.parseFloat(spreadData.away_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(spreadData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          ),
-          home_tw: spreadData.home_tw,
-          away_tw: spreadData.away_tw
-        };
+    if (data.results) {
+      if (data.results.Bet365) {
+        const odds = data.results.Bet365.odds.start;
+        if (odds['1_2']) {
+          let spreadData = odds['1_2'];
+          spreadData = await spreadCalculator(spreadData);
+          const spread = {};
+          spread[spreadData.id] = {
+            handicap: Number.parseFloat(spreadData.handicap),
+            home_odd: Number.parseFloat(spreadData.home_od),
+            away_odd: Number.parseFloat(spreadData.away_od),
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(spreadData.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            ),
+            home_tw: spreadData.home_tw,
+            away_tw: spreadData.away_tw
+          };
 
-        await eventSnapshot.set(
-          {
-            flag: { spread: 1 },
-            spread: spread,
-            newest_spread: spread[spreadData.id]
-          },
-          { merge: true }
-        );
-        await Match.upsert({
-          bets_id: ele.bets_id,
-          spread_id: spreadData.id
-        });
-        await MatchSpread.upsert({
-          spread_id: spreadData.id,
-          match_id: ele.bets_id,
-          league_id: '22000',
-          handicap: Number.parseFloat(spreadData.handicap),
-          home_odd: Number.parseFloat(spreadData.home_od),
-          away_odd: Number.parseFloat(spreadData.away_od),
-          home_tw: spreadData.home_tw,
-          away_tw: spreadData.away_tw,
-          add_time: Number.parseInt(spreadData.add_time) * 1000
-        });
-        // console.log(
-        //   `${league}-event_id: ${ele.bets_id} get spread successful, URL: ${URL}`
-        // );
+          await eventSnapshot.set(
+            {
+              flag: { spread: 1 },
+              spread: spread,
+              newest_spread: spread[spreadData.id]
+            },
+            { merge: true }
+          );
+          await Match.upsert({
+            bets_id: ele.bets_id,
+            spread_id: spreadData.id
+          });
+          await MatchSpread.upsert({
+            spread_id: spreadData.id,
+            match_id: ele.bets_id,
+            league_id: '22000',
+            handicap: Number.parseFloat(spreadData.handicap),
+            home_odd: Number.parseFloat(spreadData.home_od),
+            away_odd: Number.parseFloat(spreadData.away_od),
+            home_tw: spreadData.home_tw,
+            away_tw: spreadData.away_tw,
+            add_time: Number.parseInt(spreadData.add_time) * 1000
+          });
+          // console.log(
+          //   `${league}-event_id: ${ele.bets_id} get spread successful, URL: ${URL}`
+          // );
+        }
       }
     }
   } catch (error) {
@@ -320,50 +322,52 @@ async function getTotals(league, ele) {
     //     .format('llll')}
     //   `
     // );
-    if (data.results.Bet365) {
-      const odds = data.results.Bet365.odds.start;
-      if (odds['1_3']) {
-        let totalsData = odds['1_3'];
-        const totals = {};
-        totalsData = await totalsCalculator(totalsData);
-        totals[totalsData.id] = {
-          handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(totalsData.over_od),
-          under_odd: Number.parseFloat(totalsData.under_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(totalsData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          ),
-          over_tw: totalsData.over_tw
-        };
+    if (data.results) {
+      if (data.results.Bet365) {
+        const odds = data.results.Bet365.odds.start;
+        if (odds['1_3']) {
+          let totalsData = odds['1_3'];
+          const totals = {};
+          totalsData = await totalsCalculator(totalsData);
+          totals[totalsData.id] = {
+            handicap: Number.parseFloat(totalsData.handicap),
+            over_odd: Number.parseFloat(totalsData.over_od),
+            under_odd: Number.parseFloat(totalsData.under_od),
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(totalsData.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            ),
+            over_tw: totalsData.over_tw
+          };
 
-        await eventSnapshot.set(
-          {
-            flag: { totals: 1 },
-            totals: totals,
-            newest_totals: totals[totalsData.id]
-          },
-          { merge: true }
-        );
-        await Match.upsert({
-          bets_id: ele.bets_id,
-          totals_id: totalsData.id
-        });
-        await MatchTotals.upsert({
-          totals_id: totalsData.id,
-          match_id: ele.bets_id,
-          league_id: '22000',
-          handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(totalsData.over_od),
-          under_odd: Number.parseFloat(totalsData.under_od),
-          over_tw: totalsData.over_tw,
-          add_time: Number.parseInt(totalsData.add_time) * 1000
-        });
-        // console.log(
-        //   `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
-        // );
+          await eventSnapshot.set(
+            {
+              flag: { totals: 1 },
+              totals: totals,
+              newest_totals: totals[totalsData.id]
+            },
+            { merge: true }
+          );
+          await Match.upsert({
+            bets_id: ele.bets_id,
+            totals_id: totalsData.id
+          });
+          await MatchTotals.upsert({
+            totals_id: totalsData.id,
+            match_id: ele.bets_id,
+            league_id: '22000',
+            handicap: Number.parseFloat(totalsData.handicap),
+            over_odd: Number.parseFloat(totalsData.over_od),
+            under_odd: Number.parseFloat(totalsData.under_od),
+            over_tw: totalsData.over_tw,
+            add_time: Number.parseInt(totalsData.add_time) * 1000
+          });
+          // console.log(
+          //   `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
+          // );
+        }
       }
     }
   } catch (error) {
