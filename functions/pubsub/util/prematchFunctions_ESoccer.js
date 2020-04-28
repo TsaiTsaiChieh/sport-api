@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 module.exports.eSoccer = {};
-// const firebaseName = modules.db.eSoccer; normal
+
 const firebaseName = 'pagetest_eSoccer';
 module.exports.eSoccer.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
@@ -47,7 +47,7 @@ module.exports.eSoccer.upcoming = async function(date) {
             status: 2
           };
 
-          await Match.create(dataEvent);
+          await Match.upsert(dataEvent);
           const dataHomeTeam = {
             team_id: ele.home.id,
             league_id: '22000',
