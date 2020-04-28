@@ -192,7 +192,7 @@ function settleMatchesModel(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleMatchesModel 1. %o ms   2. %o ms   3. %o ms', s2 - s1, s3 - s2, e - s3);
+    console.log('\n settleMatchesModel 1# %o ms   2# %o ms   3#ß %o ms', s2 - s1, s3 - s2, e - s3);
     return resolve(result);
   });
 }

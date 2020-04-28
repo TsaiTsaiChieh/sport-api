@@ -11,6 +11,8 @@ function settleWinList(args) {
     //    c. 大神計算完畢 更新 上期大神記錄，並清空 本期記錄，設為 0
     // 3.
     //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flas) 的 預測單
+    //       因為比賽跨日結束，會導致再次重算，因此怎麼區分累加計算過的資料不再計算，會是個問題
+    //       可能需要條件來重算，減少運算量
     //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
     //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期大神
     //    !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
@@ -27,7 +29,18 @@ function settleWinList(args) {
     const month = momentObject.months + 1;
     const season = momentObject.years;
 
-    const result = [];
+    const result = {
+      status: {
+        '1': {
+          msg: '使用者-聯盟 歷史勝注勝率資料更新成功！',
+          lists: []
+        },
+        '2': {
+          msg: '使用者-聯盟 勝注勝率資料更新成功！',
+          lists: []
+        }
+      }
+    };
 
     const s1 = new Date().getTime();
     // 1.
@@ -82,7 +95,7 @@ function settleWinList(args) {
 
       s21 = new Date().getTime();
       // b.
-      // 回寫結果
+      // 回寫結果 到 users_win_lists_history 記錄 該日 的 勝率、勝注 並 加上其他值 供以後查詢使用
       try {
         const upsertResult = resultWinList.map(async function(data) {
           const r = await db.Users_WinListsHistory.upsert({
@@ -103,7 +116,7 @@ function settleWinList(args) {
             fields: ['win_bets', 'win_rate', 'correct_counts', 'fault_counts']
           });
 
-          result.push({ status: 1, msg: '使用者-聯盟 歷史勝注勝率資料更新成功！', uid: data.uid, league: data.league_id });
+          result.status['1'].lists.push({ uid: data.uid, league: data.league_id });
         });
 
         await Promise.all(upsertResult);
@@ -130,14 +143,14 @@ function settleWinList(args) {
           const this_period_win_rate = numberCount(ele[3].correct_sum, ele[3].fault_sum);
           const this_season_win_rate = numberCount(ele[4].correct_sum, ele[4].fault_sum);
 
-          if (isNotANumber(this_week_win_rate)) return reject(errs.errsMsg('404', '1323'));
-          if (isNotANumber(this_month_win_rate)) return reject(errs.errsMsg('404', '1323'));
-          if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323'));
-          if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323'));
+          if (isNotANumber(this_week_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
+          if (isNotANumber(this_month_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
+          if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
+          if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
 
-          // row: 0 day_of_year, 1 week, 2 month, 3 period, 4 season
+          // row: 0 day_of_year、 1 week、 2 month、 3 period、 4 season
           // 0 day_of_year 目前未使用
-          // 回寫結果 到users__win__lists
+          // 回寫結果 到 users__win__lists
           try {
             const r = await db.Users_WinLists.upsert({
               uid: data.uid,
@@ -161,7 +174,7 @@ function settleWinList(args) {
 
             if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
 
-            result.push({ status: 1, msg: '使用者-聯盟 勝注勝率資料更新成功！', uid: data.uid, league: data.league_id });
+            result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
           } catch (err) {
             return reject(errs.errsMsg('404', '1321'));
           }
@@ -178,7 +191,7 @@ function settleWinList(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleWinListModel 1. %o ms   21. %o ms   22. %o ms   e. %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
+    console.log('\n settleWinListModel 1# %o ms   21# %o ms   22# %o ms   e# %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
     return resolve(result);
   });
 }
