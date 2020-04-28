@@ -129,7 +129,7 @@ function repackageMatches(results, args, godPredictions) {
       home: {
         id: ele.home_id,
         alias: ele.home_alias,
-        alias_tw: ele.home_alias_ch,
+        alias_ch: ele.home_alias_ch,
         image_id: ele.home_image_id
       },
       away: {
