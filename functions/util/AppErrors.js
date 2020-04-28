@@ -126,6 +126,17 @@ class CouldNotModifySellInformation extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class OnlyAcceptNormalUser extends ExtendableError {
+  constructor(
+    message = '此功能只允許一般玩家操作',
+    status = 1208,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -146,6 +157,7 @@ module.exports = {
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
+  OnlyAcceptNormalUser,
   UserPredictFailed,
   MysqlError,
   BetsAPIError
