@@ -136,10 +136,10 @@ function isGodUpdate(uid, i, filter) {
     try {
       const predictResults = await db.sequelize.query(
         `SELECT *
-         FROM user__predictions AS prediction
-        WHERE prediction.uid = :uid 
-          AND prediction.bets_id = ${ele.id} 
-          AND ${handicapType}_id = ${handicapId}`,
+           FROM user__predictions AS prediction
+          WHERE prediction.uid = :uid 
+            AND prediction.bets_id = ${ele.id} 
+            AND ${handicapType}_id = ${handicapId}`,
         {
           replacements: { uid },
           type: db.sequelize.QueryTypes.SELECT
@@ -194,10 +194,10 @@ function isGodSellConsistent(args, i, filter) {
 
       const results = await db.sequelize.query(
         `SELECT prediction.sell
-         FROM user__predictions AS prediction
-        WHERE prediction.uid = :uid 
-          AND prediction.match_scheduled BETWEEN ${begin} AND ${end}
-        LIMIT 1`,
+           FROM user__predictions AS prediction
+          WHERE prediction.uid = :uid 
+            AND prediction.match_scheduled BETWEEN ${begin} AND ${end}
+          LIMIT 1`,
         {
           replacements: { uid: args.token.uid },
           type: db.sequelize.QueryTypes.SELECT
