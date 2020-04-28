@@ -9,20 +9,21 @@ function dbFind(page) {
   return new Promise(async function(resolve, reject) {
     try {
       let resultFirst = []
-      if(page === null || page === 0)
-      resultFirst = await db.sequelize.models.topic__article.findAll({
-        where: {
-          // createdAt: { // 撈七天內的文
-          //   [Op.lt]: new Date(),
-          //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
-          // },
-          category: '賽事分析' // 撈一篇最高的賽事分析擺第一篇
-        },
-        limit: 1,
-        order: [['view_count', 'DESC']], // 依瀏覽數排列
-        distinct: true,
-        raw: true
-      });
+      if(page === null || page === 0){
+        resultFirst = await db.sequelize.models.topic__article.findAll({
+          where: {
+            // createdAt: { // 撈七天內的文
+            //   [Op.lt]: new Date(),
+            //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
+            // },
+            category: '賽事分析' // 撈一篇最高的賽事分析擺第一篇
+          },
+          limit: 1,
+          order: [['view_count', 'DESC']], // 依瀏覽數排列
+          distinct: true,
+          raw: true
+        });
+      }
       let topics = resultFirst;
 
       if(page !== null){
@@ -31,7 +32,7 @@ function dbFind(page) {
         page = 0;
       }
 
-      const resultData = await db.sequelize.models.topic__article.findAll({
+      const resultData = await db.sequelize.models.topic__article.findAndCountAll({
         where: {
           // createdAt: {
           //   [Op.lt]: new Date(),
@@ -46,12 +47,12 @@ function dbFind(page) {
         // logging: console.log
       });
 
-      resultData.forEach(topic => {
+      resultData.rows.forEach(topic => {
         topics.push(topic);
       });
       const result = chkFirstTopic(topics);
 
-      resolve(result);
+      resolve({ topics:result, count:resultData.count });
     } catch (error) {
       console.error(error);
       reject('get topics failed');
@@ -72,7 +73,9 @@ function chkFirstTopic(topics) { // 把非第一篇賽事分析文剔除
 async function getTopics(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const topics = await dbFind(args.page);
+      const topicsFind = await dbFind(args.page);
+      const topics = topicsFind.topics;
+      const count = topicsFind.count;
 
       /* 讀取一些別的資料 */
       const usersToGet = [];
@@ -120,7 +123,7 @@ async function getTopics(args) {
         topics[i].user_info = userInfo;
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
-      resolve({ code: 200, topics: topics });
+      resolve({ code: 200, page: args.page, count: count, topics: topics });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
