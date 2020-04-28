@@ -45,7 +45,7 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 router.post(
   '/predictions',
   verification.token_v2,
-  require('../Deprecated/predictMatchesController')
+  require('../controller/user/predictMatchesController')
 );
 router.get(
   '/prediction_rate',
