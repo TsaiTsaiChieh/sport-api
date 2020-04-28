@@ -31,10 +31,6 @@ router.post(
   verification.getToken,
   require('../controller/user/contactServiceController')
 );
-router.get( // 後台完成後移至後台
-  '/servicedata',
-  require('../controller/user/contactService_data')
-);
 router.get(
   '/getTitlesAndSignature/:uid',
   require('../controller/user/getTitlesAndSignatureController')
@@ -56,16 +52,6 @@ router.get(
   '/prediction_rate',
   verification.token_v2,
   require('../controller/user/predictionRateController')
-);
-router.get(
-  '/sell_information',
-  verification.token_v2,
-  require('../controller/user/getGodSellInformationController')
-);
-router.post(
-  '/sell_information',
-  verification.token_v2,
-  require('../controller/user/postGodSellInformationController')
 );
 router.post(
   '/predict_info',
@@ -95,6 +81,18 @@ router.post(
   '/honor/:uid',
   verification.token,
   require('../controller/user/honorController')
+);
+/* 消息通知 */
+router.post(
+  '/news/:uid',
+  verification.token,
+  require('../controller/user/newsController')
+);
+/* 最愛玩家 */
+router.post(
+  '/favorite_player',
+  verification.token,
+  require('../controller/user/favoritePlayerController')
 );
 
 // 結算

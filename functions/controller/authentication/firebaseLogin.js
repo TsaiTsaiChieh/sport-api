@@ -134,7 +134,7 @@ async function firebaseLogin(req, res) {
               {
                 type: db.sequelize.QueryTypes.SELECT
               });
-              var titles = {};
+              const titles = {};
               titlesQuery.forEach(function(data) { // 這裡有順序性
                 titles[data.name]=repackage(data);
                 mysqlUser.titles = titles;
