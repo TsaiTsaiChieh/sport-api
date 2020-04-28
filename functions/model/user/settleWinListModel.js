@@ -157,6 +157,7 @@ function settleWinList(args) {
           if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
           if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
 
+          // c.
           // row: 0 day_of_year、 1 week、 2 month、 3 period、 4 season
           // 0 day_of_year 目前未使用
           // 回寫結果 到 users__win__lists
@@ -188,7 +189,8 @@ function settleWinList(args) {
             return reject(errs.errsMsg('404', '1321'));
           }
 
-          //回寫 win_bets、win_rate 到 titles
+          // d.
+          // 回寫 win_bets、win_rate 到 titles
           try {
             const r = await db.Title.update({
               win_bets: ele[3].sum,
@@ -196,13 +198,15 @@ function settleWinList(args) {
             }, {
               where: {
                 uid: uid,
-                league_id: league_id
+                league_id: league_id,
+                period: period
               }
             });
 
-            if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
+            // 有可能不是大神，無更新筆數
+            // if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
 
-            result.status['3'].lists.push({ uid: data.uid, league: data.league_id });            
+            if (r[0] === 1) result.status['3'].lists.push({ uid: data.uid, league: data.league_id });            
           } catch (err) {
             return reject(errs.errsMsg('404', '1321'));
           }
