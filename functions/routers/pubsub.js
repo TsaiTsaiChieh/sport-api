@@ -7,10 +7,11 @@ router.get('/restore', require('../pubsub/backupFirestore').restoreFirestore);
 router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
+router.get('/handicap_esport', require('../pubsub/handicap_esport'));
 router.get('/lineups', require('../pubsub/lineups'));
 router.get('/title_period', require('../pubsub/titlePeriod'));
 // router.get('/tune_db', require('../pubsub/tuneDB'));
 router.get('/mysql', require('../pubsub/mysql/connection'));
-router.get('/esoccer', require('../pubsub/util/prematchFunctions_ESoccer'));
+
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 module.exports = router;

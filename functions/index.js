@@ -80,10 +80,18 @@ exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
+exports.prematch_esport = functions.pubsub
+  .schedule('0 3 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
+exports.handicap_esport = functions.pubsub
+  .schedule('0 */1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
 //   .schedule('*/10 * * * *')
 //   .timeZone('Asia/Taipei')
@@ -100,6 +108,10 @@ exports.lineups_MLB = functions.pubsub
 //   .schedule('* * * * *')
 //   .timeZone('Asia/Taipei')
 //   .onRun(require('./pubsub/checkmatch_NBA'));
+exports.pbp_eSoccer = functions.pubsub
+  .schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_ESoccer'));
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {

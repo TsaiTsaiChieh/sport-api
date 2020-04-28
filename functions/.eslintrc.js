@@ -5,9 +5,7 @@ module.exports = {
     node: true,
     jest: true
   },
-  extends: [
-    'standard'
-  ],
+  extends: ['standard'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly'

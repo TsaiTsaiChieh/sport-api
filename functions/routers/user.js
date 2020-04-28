@@ -28,7 +28,12 @@ router.post(
 );
 router.post(
   '/contactService',
+  verification.getToken,
   require('../controller/user/contactServiceController')
+);
+router.get( // 後台完成後移至後台
+  '/servicedata',
+  require('../controller/user/contactService_data')
 );
 router.get(
   '/getTitlesAndSignature/:uid',
@@ -47,10 +52,49 @@ router.post(
   verification.token_v2,
   require('../controller/user/_predictMatchesController')
 );
+router.get(
+  '/prediction_rate',
+  verification.token_v2,
+  require('../controller/user/predictionRateController')
+);
+router.get(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/getGodSellInformationController')
+);
+router.post(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/postGodSellInformationController')
+);
 router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
+);
+/* 錢包 */
+router.post(
+  '/purse/:uid',
+  verification.token,
+  require('../controller/user/purseController')
+);
+/* 購牌紀錄 */
+router.post(
+  '/buy/:uid',
+  verification.token,
+  require('../controller/user/buyController')
+);
+/* 轉換紀錄 */
+router.post(
+  '/transfer/:uid',
+  verification.token,
+  require('../controller/user/transferController')
+);
+/* 榮譽戰績 */
+router.post(
+  '/honor/:uid',
+  verification.token,
+  require('../controller/user/honorController')
 );
 
 // 結算

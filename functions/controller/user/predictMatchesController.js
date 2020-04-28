@@ -26,7 +26,7 @@ async function predictMatches(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA']
+        enum: ['NBA', 'eSoccer']
       },
       sell: {
         type: 'integer',
@@ -94,7 +94,7 @@ module.exports = predictMatches;
  * @apiPermission login user with completed data
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
- * @apiParam {String} league league name, the value enum are: `NBA`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`
  * @apiParam {Number} sell 0: free, 1: sell, just god like user can sell
  * @apiParam {Array} matches prediction form
  * @apiParam {String} matches.id match id

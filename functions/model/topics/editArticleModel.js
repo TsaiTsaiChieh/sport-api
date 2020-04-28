@@ -1,7 +1,6 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const log = require('../../util/loggingUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbFind(aid) {
   return new Promise(async function(resolve, reject) {
@@ -14,15 +13,15 @@ function dbFind(aid) {
       });
       resolve(result);
     } catch (error) {
-      log.data(error);
-      reject('get topics failed');
+      console.error(error);
+      reject('get topic failed');
     }
   });
 }
 function dbEdit(aid, insertData) {
   return new Promise(async function(resolve, reject) {
     try {
-      log.info('edit article');
+      // console.log('edit article');
       const record = await db.sequelize.models.topic__article.findOne({
         where: {
           article_id: aid
@@ -31,7 +30,7 @@ function dbEdit(aid, insertData) {
       record.update(insertData);
       resolve();
     } catch (error) {
-      log.data(error);
+      console.error(error);
       reject('edit article failed');
     }
   });
@@ -45,7 +44,7 @@ async function createTopic(args) {
       }
       const userSnapshot = await modules.getSnapshot('users', args.token.uid);
 
-      log.info('verify firebase user');
+      // console.log('verify firebase user');
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });
         return;
@@ -54,14 +53,14 @@ async function createTopic(args) {
       // 撈原文
       let orig_article;
       try {
-        const article = await dbFind(args.aid);
+        const article = await dbFind(args.article_id);
         if (!article[0]) {
           reject({ code: 404, error: 'article not found' });
           return;
         }
         orig_article = article[0]; // 原文
       } catch (err) {
-        log.err(err);
+        console.error(err);
         reject({ code: 500, error: err });
         return;
       }
@@ -70,7 +69,7 @@ async function createTopic(args) {
         reject({ code: 403, error: 'not your article' });
         return;
       }
-      console.log(orig_article);
+      // console.log(orig_article);
       const insertData = {
         type: args.type,
         category: args.category,
@@ -100,10 +99,10 @@ async function createTopic(args) {
         }
       });
 
-      const article = await dbEdit(args.aid, insertData);
+      await dbEdit(args.article_id, insertData);
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });

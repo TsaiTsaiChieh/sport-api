@@ -17,112 +17,17 @@ async function checkmatch_MLB() {
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
     const gameID = totalData[i].radar_id;
-    const gameTime = totalData[i].scheduled._seconds * 1000;
+    // test : scheduled._seconds
+    const gameTime = totalData[i].scheduled * 1000;
     const nowTime = Date.now();
     const eventStatus = totalData[i].flag.status;
-    if (eventStatus === 2) {
-      // 第一次 or 特殊情況處理
-      if (gameTime <= nowTime) {
-        const inningsNow = 0; // 0 ~ 10
-        const halfNow = 0; // 0 ~ 1
-        const eventHalfNow = 0; // 0 ~ x
-        const eventAtbatNow = 0; // 0 ~ x
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          inningsNow: inningsNow,
-          halfNow: halfNow,
-          eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
-        };
-        MLBpbpInplay(parameter);
-      } else {
-        const ref = await modules.database.ref(
-          `baseball/MLB/${betsID}/Summary/status`
-        );
-        ref.set('scheduled');
-      }
-    }
-    // event status 0:history 1:now 2:future
-
-    if (eventStatus === 1) {
-      const realtimeData = JSON.parse(
-        JSON.stringify(
-          // eslint-disable-next-line no-await-in-loop
-          await modules.database.ref(`baseball/MLB/${betsID}`).once('value')
-        )
-      );
-
-      // from the begining
-      if (realtimeData.Summary.status === 'created') {
-        const inningsNow = 0; // 0 ~ 10
-        const halfNow = 0; // 0 ~ 1
-        const eventHalfNow = 0; // 0 ~ x
-        const eventAtbatNow = 0; // 0 ~ x
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          inningsNow: inningsNow,
-          halfNow: halfNow,
-          eventHalfNow: eventHalfNow,
-          eventAtbatNow: eventAtbatNow
-        };
-        MLBpbpInplay(parameter);
-      }
-      if (realtimeData.Summary.status === 'closed') {
-        const parameter = {
-          gameID: gameID,
-          betsID: betsID,
-          scheduled: gameTime
-        };
-        await MLBpbpHistory(parameter);
-      }
-
-      if (
-        realtimeData.Summary.status === 'inprogress' ||
-        realtimeData.Summary.status === 'complete'
-      ) {
-        const inningsNow = Object.keys(realtimeData.PBP).length - 1;
-        const inningsName = Object.keys(realtimeData.PBP);
-        const halfNow =
-          Object.keys(realtimeData.PBP[inningsName[inningsNow]]).length - 1;
-        const halfName = Object.keys(realtimeData.PBP[inningsName[inningsNow]]);
-        const eventHalfNow =
-          Object.keys(
-            realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
-          ).length - 2;
-        const eventHalfName = Object.keys(
-          realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
-        );
-        if (eventHalfNow < 0) {
-          // means ９局下半沒有打
-          const parameter = {
-            gameID: gameID,
-            betsID: betsID,
-            inningsNow: inningsNow,
-            halfNow: halfNow,
-            eventHalfNow: 0,
-            eventAtbatNow: 0
-          };
-          await MLBpbpInplay(parameter);
-        } else {
-          const lineChangeOrAtbat = Object.keys(
-            realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]][
-              eventHalfName[eventHalfNow]
-            ]
-          );
-          let eventAtbatNow;
-          if (lineChangeOrAtbat[0] === 'lineup') {
-            eventAtbatNow = 0;
-          }
-          if (lineChangeOrAtbat[0] === 'at_bat') {
-            eventAtbatNow =
-              Object.keys(
-                realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]][
-                  eventHalfName[eventHalfNow]
-                ][lineChangeOrAtbat[0]]
-              ).length - 2;
-          }
+    switch (eventStatus) {
+      case 2: {
+        if (gameTime <= nowTime) {
+          const inningsNow = 0; // 0 ~ 10
+          const halfNow = 0; // 0 ~ 1
+          const eventHalfNow = 0; // 0 ~ x
+          const eventAtbatNow = 0; // 0 ~ x
           const parameter = {
             gameID: gameID,
             betsID: betsID,
@@ -131,9 +36,108 @@ async function checkmatch_MLB() {
             eventHalfNow: eventHalfNow,
             eventAtbatNow: eventAtbatNow
           };
-
-          await MLBpbpInplay(parameter);
+          MLBpbpInplay(parameter);
+        } else {
+          const ref = await modules.database.ref(
+            `baseball/MLB/${betsID}/Summary/status`
+          );
+          ref.set('scheduled');
         }
+        break;
+      }
+      case 1: {
+        const realtimeData = JSON.parse(
+          JSON.stringify(
+            // eslint-disable-next-line no-await-in-loop
+            await modules.database.ref(`baseball/MLB/${betsID}`).once('value')
+          )
+        );
+        if (realtimeData.Summary.status === 'created') {
+          const inningsNow = 0; // 0 ~ 10
+          const halfNow = 0; // 0 ~ 1
+          const eventHalfNow = 0; // 0 ~ x
+          const eventAtbatNow = 0; // 0 ~ x
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            inningsNow: inningsNow,
+            halfNow: halfNow,
+            eventHalfNow: eventHalfNow,
+            eventAtbatNow: eventAtbatNow
+          };
+          MLBpbpInplay(parameter);
+        }
+        if (realtimeData.Summary.status === 'closed') {
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            scheduled: gameTime
+          };
+          await MLBpbpHistory(parameter);
+        }
+
+        if (
+          realtimeData.Summary.status === 'inprogress' ||
+          realtimeData.Summary.status === 'complete'
+        ) {
+          const inningsNow = Object.keys(realtimeData.PBP).length - 1;
+          const inningsName = Object.keys(realtimeData.PBP);
+          const halfNow =
+            Object.keys(realtimeData.PBP[inningsName[inningsNow]]).length - 1;
+          const halfName = Object.keys(
+            realtimeData.PBP[inningsName[inningsNow]]
+          );
+          const eventHalfNow =
+            Object.keys(
+              realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
+            ).length - 2;
+          const eventHalfName = Object.keys(
+            realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]]
+          );
+          if (eventHalfNow < 0) {
+            // means ９局下半沒有打
+            const parameter = {
+              gameID: gameID,
+              betsID: betsID,
+              inningsNow: inningsNow,
+              halfNow: halfNow,
+              eventHalfNow: 0,
+              eventAtbatNow: 0
+            };
+            await MLBpbpInplay(parameter);
+          } else {
+            const lineChangeOrAtbat = Object.keys(
+              realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]][
+                eventHalfName[eventHalfNow]
+              ]
+            );
+            let eventAtbatNow;
+            if (lineChangeOrAtbat[0] === 'lineup') {
+              eventAtbatNow = 0;
+            }
+            if (lineChangeOrAtbat[0] === 'at_bat') {
+              eventAtbatNow =
+                Object.keys(
+                  realtimeData.PBP[inningsName[inningsNow]][halfName[halfNow]][
+                    eventHalfName[eventHalfNow]
+                  ][lineChangeOrAtbat[0]]
+                ).length - 2;
+            }
+            const parameter = {
+              gameID: gameID,
+              betsID: betsID,
+              inningsNow: inningsNow,
+              halfNow: halfNow,
+              eventHalfNow: eventHalfNow,
+              eventAtbatNow: eventAtbatNow
+            };
+
+            await MLBpbpInplay(parameter);
+          }
+        }
+        break;
+      }
+      default: {
       }
     }
   }

@@ -1,12 +1,11 @@
 const modules = require('../util/modules');
+
 async function translateMLB(
   stringOrigin,
   keywordHomeOrigin,
   keywordAwayOrigin,
   transSimpleHomeOrigin,
   transSimpleAwayOrigin,
-  // transCompleteHomeOrigin,
-  // transCompleteAwayOrigin,
   totalDescriptionOrEachBall
 ) {
   let finalString = stringOrigin;
@@ -1103,7 +1102,7 @@ async function translateMLB(
       ' 投手.'
     ];
 
-    for (let i = 0; i < keyword.length; i++) {
+    for (let i = 0; i < keywordStep2.length; i++) {
       // eslint-disable-next-line no-await-in-loop
       finalString = await finalString.replace(
         new RegExp(keywordStep2[i], 'g'),
