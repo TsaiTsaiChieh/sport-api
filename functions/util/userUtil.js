@@ -1,4 +1,5 @@
 const modules = require('./modules');
+const db = require('../util/dbUtil');
 const firebaseAdmin = modules.firebaseAdmin;
 
 exports.getFirebaseUser = function(accessToken) {
@@ -81,14 +82,30 @@ exports.getUserProfile = async function(userId) {
 };
 
 // Unique collections: uniqueName,uniqueEmail,uniquePhone
-exports.checkUniqueCollection = async function(collection, uid) {
+exports.checkUniqueCollection = async function(collection, value) {
   const returnJson = {
     success: false,
     isExist: true
   };
+
   try {
-    const nameCollection = await modules.firestore.collection(collection).doc(uid).get();
-    if (nameCollection.exists) {
+    const corr = [];
+    corr.uniqueName = 'display_name';
+    corr.uniqueEmail = 'email';
+    corr.uniquePhone = 'phone';
+
+    const collect = corr[collection];
+    const nameCollection = await db.sequelize.query(
+      `
+        SELECT * FROM users WHERE ${collect} = '${value}'
+       `,
+      {
+        plain: true,
+        logging: true,
+        type: db.sequelize.QueryTypes.SELECT
+      });
+    console.log(nameCollection);
+    if (nameCollection != null) {
       returnJson.success = true;
       returnJson.isExist = true;
     } else {

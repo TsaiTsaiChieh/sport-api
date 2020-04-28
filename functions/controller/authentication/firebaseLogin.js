@@ -92,6 +92,7 @@ const envValues = require('../../config/env_values');
 async function firebaseLogin(req, res) {
   const returnJson = { success: false };
   const token = req.body.token;
+  const period = modules.getTitlesPeriod(new Date()).period;
   if (!token) {
     console.log('Error login user: missing token');
     res.status(401).json(returnJson);
@@ -114,13 +115,30 @@ async function firebaseLogin(req, res) {
           const mysqlUser = await db.sequelize.query(
             `
               SELECT *
-                FROM users
-               WHERE uid = '${decodedIdToken.uid}'
+                FROM users u, titles t
+               WHERE u.uid = '${decodedIdToken.uid}'
              `,
             {
               plain: true,
               type: db.sequelize.QueryTypes.SELECT
             });
+
+          const titlesQuery = await db.sequelize.query(
+              `
+                SELECT ml.name, ml.sport_id, t.rank_id 
+                  FROM titles t, match__leagues ml
+                 WHERE t.league_id = ml.league_id
+                   AND uid = '${decodedIdToken.uid}'
+                   AND period = '${period}'
+               `,
+              {
+                type: db.sequelize.QueryTypes.SELECT
+              });
+          var titles = {};
+          titlesQuery.forEach(function(data) { // 這裡有順序性
+            titles[data.name] = repackage(data);
+            mysqlUser.titles = titles;
+          });
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
@@ -152,5 +170,12 @@ async function firebaseLogin(req, res) {
       res.status(401).json({ success: false });
     });
 }
+function repackage(ele) {
+  const data = {};
+  data.league = ele.name;
+  data.sport = ele.sport_id.toString();
+  data.rank = ele.rank_id.toString();
 
+  return data;
+}
 module.exports = firebaseLogin;
