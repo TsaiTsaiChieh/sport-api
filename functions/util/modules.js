@@ -334,7 +334,7 @@ function perdictionsResultFlag(option, settelResult) {
   [
     {
       uid: '3IB0w6G4V8QUM2Ti3iCIfX4Viux1',
-      league_id: 3939
+      league_id: 3939,
       spread_bets: null,
       totals_bets: 1,
       spread_result_flag: -2,
