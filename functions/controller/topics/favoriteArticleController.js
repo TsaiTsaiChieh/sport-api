@@ -47,7 +47,7 @@ module.exports = likeArticle;
     "article_id": 124,
     "like": false
    }
- * 
+ *
  * @apiSuccess {String} response
  * {
     "code": 200

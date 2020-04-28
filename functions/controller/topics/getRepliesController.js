@@ -28,7 +28,7 @@ module.exports = getTopics;
  * @apiDescription 取得文章留言
  * @apiGroup Topics
  * @apiPermission no
- * 
+ *
  * @apiParam {String} article_id    文章ID
  * @apiParam {String} page    頁數，從0開始為第一頁
  */

@@ -115,6 +115,17 @@ class CouldNotFillInSellInformation extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class CouldNotModifySellInformation extends ExtendableError {
+  constructor(
+    message = '只能在開賽前新增/編輯售牌資訊',
+    status = 1207,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -134,6 +145,7 @@ module.exports = {
   GodSellStatusWrong,
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
+  CouldNotModifySellInformation,
   UserPredictFailed,
   MysqlError,
   BetsAPIError

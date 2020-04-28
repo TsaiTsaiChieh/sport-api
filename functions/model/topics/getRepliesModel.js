@@ -33,15 +33,15 @@ async function getReplies(args) {
 
       const uid = (args.token !== null) ? args.token.uid : null;
 
-      let usersToGet = [];
+      const usersToGet = [];
       let usersInfo = [];
-      let infosToGet = []; // reply_id array
+      const infosToGet = []; // reply_id array
       let likesCount = [];
       let myLikes = [];
-      let replytoToGet = [];
+      const replytoToGet = [];
       let replytoInfo = [];
       for (let i = 0; i < replies.rows.length; i++) {
-        if(replies.rows[i].replyto_id){
+        if (replies.rows[i].replyto_id) {
           replytoToGet.push(replies.rows[i].replyto_id);
         }
         infosToGet.push(replies.rows[i].reply_id);
@@ -83,7 +83,7 @@ async function getReplies(args) {
         console.error(error);
         reject({ code: 500, error: 'get reply info failed' });
       }
-// console.log(replytoInfo)
+      // console.log(replytoInfo)
       for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
         let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0

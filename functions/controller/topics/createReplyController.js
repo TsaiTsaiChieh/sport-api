@@ -62,7 +62,7 @@ module.exports = createTopic;
     "replyto_id": null,
     "content": "aaaaa"
    }
- * 
+ *
  * @apiSuccess {String} response
  * {
     "code": 200

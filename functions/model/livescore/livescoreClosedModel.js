@@ -35,17 +35,60 @@ async function repackage(sport, league, time) {
 
   let scheduled;
   const closedEvent = [];
-  console.log(dateNow);
-  for (let i = 0; i < eventData.length; i++) {
-    scheduled = new Date(
-      eventData[i].scheduled._seconds * 1000
-    ).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
-    scheduled = scheduled.split(' ')[0];
 
+  for (let i = 0; i < eventData.length; i++) {
+    scheduled = new Date(eventData[i].scheduled * 1000).toLocaleString(
+      'zh-TW',
+      { timeZone: 'Asia/Taipei' }
+    );
+    scheduled = scheduled.split(' ')[0];
+    let newestSpread;
+    if (eventData[i].newest_spread) {
+      newestSpread = eventData[i].newest_spread;
+    } else {
+      newestSpread = {
+        handicap: 'no data',
+        home_tw: 'no data',
+        away_tw: 'no data'
+      };
+    }
+    let newestTotal;
+    if (eventData[i].newest_total) {
+      newestTotal = eventData[i].newest_total;
+    } else {
+      newestTotal = {
+        handicap: 'no data',
+        over_tw: 'no data'
+      };
+    }
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       eventData[i].sport = sport;
       eventData[i].league = league;
-      closedEvent.push(eventData[i]);
+      closedEvent.push({
+        home: {
+          name: eventData[i].home.name,
+          name_ch: eventData[i].home.name_ch,
+          alias: eventData[i].home.alias,
+          alias_ch: eventData[i].home.alias_ch,
+          image_id: eventData[i].home.image_id
+        },
+        away: {
+          name: eventData[i].away.name,
+          name_ch: eventData[i].away.name_ch,
+          alias: eventData[i].away.alias,
+          alias_ch: eventData[i].away.alias_ch,
+          image_id: eventData[i].away.image_id
+        },
+        newest_spread: {
+          handicap: newestSpread.handicap,
+          home_tw: newestSpread.home_tw,
+          away_tw: newestSpread.away_tw
+        },
+        flag: {
+          status: eventData[i].flag.status
+        },
+        bets_id: eventData[i].bets_id
+      });
     }
   }
 

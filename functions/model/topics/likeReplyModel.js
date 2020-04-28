@@ -102,7 +102,7 @@ async function likeReply(args) {
       }
       resolve({ code: 200 });
     } catch (err) {
-      log.err(err);
+      console.error(err);
       reject({ code: 500, error: err });
     }
   });
