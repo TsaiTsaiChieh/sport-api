@@ -93,7 +93,7 @@ function settleWinList(args) {
             correct_counts: data.correct_counts,
             fault_counts: data.fault_counts,
             date_timestamp: begin,
-            date: dayOfYear,
+            day_of_year: dayOfYear,
             period: period,
             week: week,
             month: month,
@@ -135,8 +135,8 @@ function settleWinList(args) {
           if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323'));
           if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323'));
 
-          // row: 0 date, 1 week, 2 month, 3 period, 4 season
-          // 0 date 目前未使用
+          // row: 0 day_of_year, 1 week, 2 month, 3 period, 4 season
+          // 0 day_of_year 目前未使用
           // 回寫結果 到users__win__lists
           try {
             const r = await db.Users_WinLists.upsert({
@@ -187,17 +187,17 @@ function settleWinList(args) {
 // 輸出資料要確定是否5筆
 // rang： date、week、month、season、period
 // sum(win_bets), sum(correct_counts), sum(fault_counts)
-async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, season=0, period=0){
+async function winBetsRateTotalCount(uid, league_id, day_of_year=0, week=0, month=0, season=0, period=0){
   return await db.sequelize.query(`
-    select date, '' week, '' month, '' season, '' period,
+    select day_of_year, '' week, '' month, '' season, '' period,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
        and league_id = :league_id
-       and date = ${date}
-     group by date
+       and day_of_year = ${day_of_year}
+     group by day_of_year
     union
-    select '' date, week, '' month, '' season, '' period,
+    select '' day_of_year, week, '' month, '' season, '' period,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -205,7 +205,7 @@ async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, se
        and week = ${week}
      group by week
     union
-    select '' date, '' week, month, '' season, '' period,
+    select '' day_of_year, '' week, month, '' season, '' period,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -213,7 +213,7 @@ async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, se
        and month = ${month}
      group by month
     union
-    select '' date, '' week, '' month, '' season, period,
+    select '' day_of_year, '' week, '' month, '' season, period,
           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -221,7 +221,7 @@ async function winBetsRateTotalCount(uid, league_id, date=0, week=0, month=0, se
        and period = ${period}
      group by period
      union
-    select '' date, '' week, '' month, season, '' period,
+    select '' day_of_year, '' week, '' month, season, '' period,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid

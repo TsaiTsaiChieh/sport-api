@@ -789,7 +789,7 @@ const Users_WinListsHistory = sequelize.define(
     date_timestamp: {
       type: Sequelize.INTEGER
     },
-    date: {
+    day_of_year: {
       type: Sequelize.INTEGER
     },
     period: {
