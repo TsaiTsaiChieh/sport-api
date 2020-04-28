@@ -3,14 +3,65 @@
     "radar_id": "4353138d-4c22-4396-95d8-5f587d2df25c",
     "league_id": "2274",
     "name": "NBA",
-    "sport": 18,
-    "name_ch": "美國國家籃球協會"
+    "ori_name": "NBA",
+    "sport_id": "18",
+    "name_ch": "美國國家籃球協會",
+    "ori_league_id": "2274",
+    "ori_sport_id": "18"
   },
   {
     "radar_id": "2fa448bc-fc17-4d3d-be03-e60e080fdc26",
     "league_id": "3939",
     "name": "MLB",
-    "sport": 16,
-    "name_ch": "美國職棒大聯盟"
+    "ori_name": "MLB_PRE",
+    "sport_id": "16",
+    "name_ch": "美國職棒大聯盟熱身賽",
+    "ori_league_id": "3939",
+    "ori_sport_id": "16"
+  },
+  {
+    "league_id": "22000",
+    "name": "eSoccer",
+    "ori_name": "eSB8",
+    "sport_id": "22",
+    "name_ch": "足球電競之戰－8分鐘",
+    "ori_league_id": "22614",
+    "ori_sport_id": "1"
+  },
+  {
+    "league_id": "22000",
+    "name": "eSoccer",
+    "ori_name": "eLiga12",
+    "sport_id": "22",
+    "name_ch": "墨西哥聯賽－12分鐘",
+    "ori_league_id": "22808",
+    "ori_sport_id": "1"
+  },
+  {
+    "league_id": "22000",
+    "name": "eSoccer",
+    "ori_name": "eFUFV12",
+    "sport_id": "22",
+    "name_ch": "FUFV聯賽－12分鐘",
+    "ori_league_id": "22764",
+    "ori_sport_id": "1"
+  },
+  {
+    "league_id": "22000",
+    "name": "eSoccer",
+    "ori_name": "ePro12",
+    "sport_id": "22",
+    "name_ch": "職業聯賽－12分鐘",
+    "ori_league_id": "22537",
+    "ori_sport_id": "1"
+  },
+  {
+    "league_id": "22000",
+    "name": "eSoccer",
+    "ori_name": "ePlayer12",
+    "sport_id": "22",
+    "name_ch": "職業球員盃－12分鐘",
+    "ori_league_id": "22724",
+    "ori_sport_id": "1"
   }
 ]

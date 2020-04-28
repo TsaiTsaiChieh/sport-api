@@ -123,7 +123,7 @@ async function firebaseLogin(req, res) {
               type: db.sequelize.QueryTypes.SELECT
             });
 
-            const titlesQuery = await db.sequelize.query(
+          const titlesQuery = await db.sequelize.query(
               `
                 SELECT ml.name, ml.sport_id, t.rank_id 
                   FROM titles t, match__leagues ml
@@ -171,7 +171,6 @@ async function firebaseLogin(req, res) {
     });
 }
 function repackage(ele) {
-  
   const data = {};
   data.league = ele.name;
   data.sport = ele.sport_id.toString();
