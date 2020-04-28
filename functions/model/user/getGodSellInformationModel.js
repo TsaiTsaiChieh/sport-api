@@ -1,7 +1,6 @@
 const modules = require('../../util/modules');
 const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
-const SELL = 1;
 
 function godSellInformation(args) {
   return new Promise(async function(resolve, reject) {
@@ -15,6 +14,7 @@ function godSellInformation(args) {
             unit: 'days'
           }) - 1
       };
+
       const result = await getPredictionDescription(args, unix);
       return resolve(repackageReturnData(result));
     } catch (err) {
