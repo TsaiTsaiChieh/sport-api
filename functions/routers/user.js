@@ -103,5 +103,11 @@ router.post(
   verification.token,
   require('../controller/user/settleMatchesController')
 );
+router.post(
+  '/settle_win_list',
+  verification.token,
+  require('../controller/user/settleWinListController')
+);
+
 
 module.exports = router;
