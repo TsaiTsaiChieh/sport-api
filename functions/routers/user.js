@@ -84,7 +84,7 @@ router.post(
 );
 /* 消息通知 */
 router.post(
-  '/news/:uid',
+  '/news/',
   verification.token,
   require('../controller/user/newsController')
 );
