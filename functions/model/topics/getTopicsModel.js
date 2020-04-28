@@ -31,7 +31,9 @@ async function getTopics(args) {
       // const replyCount = await func.getTopicReplyCount(args.aid)
       // console.log(replyCount)
 
-      const where = {};
+      const where = {
+        status: 1
+      };
       let page = 0;
 
       if (typeof args.type !== 'undefined' && args.type !== null) {

@@ -8,6 +8,7 @@ function dbFind(aid) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
+          status: 1,
           article_id: aid
         }
       });

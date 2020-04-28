@@ -16,6 +16,7 @@ function dbFind(page) {
             //   [Op.lt]: new Date(),
             //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
             // },
+            status: 1,
             category: '賽事分析' // 撈一篇最高的賽事分析擺第一篇
           },
           limit: 1,
@@ -38,6 +39,7 @@ function dbFind(page) {
           //   [Op.lt]: new Date(),
           //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
           // }
+          status: 1
         },
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page,
@@ -123,7 +125,7 @@ async function getTopics(args) {
         topics[i].user_info = userInfo;
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
-      resolve({ code: 200, page: args.page, count: count, topics: topics });
+      resolve({ code: 200, page: args.page + 1, count: count, topics: topics });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
