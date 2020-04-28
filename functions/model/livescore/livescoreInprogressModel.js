@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league, args.time);
 
@@ -61,11 +61,15 @@ async function repackage(sport, league, time) {
         over_tw: 'no data'
       };
     }
+    if (league === 'eSoccer') {
+      league = eventData[i].league.name;
+    }
     // 1 目前當天有幾場比賽進行中
     if (scheduled === dateNow && eventData[i].flag.status === 1) {
-      eventData[i].sport = sport;
-      eventData[i].league = league;
       inprogressEvent.push({
+        sport: sport,
+        league: league,
+        scheduled: eventData[i].scheduled * 1000,
         home: {
           name: eventData[i].home.name,
           name_ch: eventData[i].home.name_ch,

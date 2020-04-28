@@ -15,7 +15,7 @@ async function checkmatch_ESoccer() {
   });
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
-    const gameTime = totalData[i].scheduled;
+    const gameTime = totalData[i].scheduled * 1000;
     const nowTime = Date.now();
     const eventStatus = totalData[i].flag.status;
     switch (eventStatus) {
@@ -37,7 +37,9 @@ async function checkmatch_ESoccer() {
         const realtimeData = JSON.parse(
           JSON.stringify(
             // eslint-disable-next-line no-await-in-loop
-            await modules.database.ref(`baseball/MLB/${betsID}`).once('value')
+            await modules.database
+              .ref(`esports/eSoccer/${betsID}`)
+              .once('value')
           )
         );
         //
@@ -65,5 +67,6 @@ async function checkmatch_ESoccer() {
       }
     }
   }
+  console.log('checkmatch_ESoccer success');
 }
 module.exports = checkmatch_ESoccer;
