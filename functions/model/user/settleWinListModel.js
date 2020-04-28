@@ -178,7 +178,7 @@ function settleWinList(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n 1. %o ms   21. %o ms   22. %o ms   e. %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
+    console.log('\n settleWinListModel 1. %o ms   21. %o ms   22. %o ms   e. %o ms', s2 - s1, s21 - s2, s22 - s21, e - s22);
     return resolve(result);
   });
 }
