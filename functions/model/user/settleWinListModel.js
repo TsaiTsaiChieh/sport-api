@@ -14,7 +14,8 @@ function settleWinList(args) {
     //       因為比賽跨日結束，會導致再次重算，因此怎麼區分累加計算過的資料不再計算，會是個問題
     //       可能需要條件來重算，減少運算量
     //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
-    //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期大神
+    //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期
+    //    d. 再更新 大神售牌標語 titles
     //    !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
 
     // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
@@ -37,6 +38,10 @@ function settleWinList(args) {
         },
         '2': {
           msg: '使用者-聯盟 勝注勝率資料更新成功！',
+          lists: []
+        },
+        '3': {
+          msg: '大神 稱號資料更新成功！',
           lists: []
         }
       }
@@ -126,11 +131,15 @@ function settleWinList(args) {
 
       s22 = new Date().getTime();
       // c.
+      // d.
       // 這星期、這個月、這賽季、本期大神 
       // this_week、this_month、this_season、this_period
       try {
         const updateResult = resultWinList.map(async function(data) {
-          const allTotalCount = await winBetsRateTotalCount(data.uid, data.league_id, 
+          const uid = data.uid;
+          const league_id = data.league_id;
+
+          const allTotalCount = await winBetsRateTotalCount(uid, league_id, 
             dayOfYear, week, month, season, period);
 
           // 檢查 是否有5筆資料
@@ -153,8 +162,8 @@ function settleWinList(args) {
           // 回寫結果 到 users__win__lists
           try {
             const r = await db.Users_WinLists.upsert({
-              uid: data.uid,
-              league_id: data.league_id,
+              uid: uid,
+              league_id: league_id,
               this_week_win_rate: this_week_win_rate,
               this_week_win_bets: ele[1].sum,
               this_month_win_rate: this_month_win_rate,
@@ -175,6 +184,25 @@ function settleWinList(args) {
             if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
 
             result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
+          } catch (err) {
+            return reject(errs.errsMsg('404', '1321'));
+          }
+
+          //回寫 win_bets、win_rate 到 titles
+          try {
+            const r = await db.Title.update({
+              win_bets: ele[3].sum,
+              win_rate: this_period_win_rate
+            }, {
+              where: {
+                uid: uid,
+                league_id: league_id
+              }
+            });
+
+            if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
+
+            result.status['3'].lists.push({ uid: data.uid, league: data.league_id });            
           } catch (err) {
             return reject(errs.errsMsg('404', '1321'));
           }
