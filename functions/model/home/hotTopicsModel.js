@@ -4,12 +4,13 @@ const db = require('../../util/dbUtil');
 const func = require('../topics/topicFunctions');
 // const Op = require('sequelize').Op;
 
-const countPerPage = 3;
-function dbFind() {
+let countPerPage = 3;
+function dbFind(page) {
   return new Promise(async function(resolve, reject) {
     try {
-      let topics = [];
-      const resultFirst = await db.sequelize.models.topic__article.findAll({
+      let resultFirst = []
+      if(page === null || page === 0)
+      resultFirst = await db.sequelize.models.topic__article.findAll({
         where: {
           // createdAt: { // 撈七天內的文
           //   [Op.lt]: new Date(),
@@ -22,7 +23,13 @@ function dbFind() {
         distinct: true,
         raw: true
       });
-      topics = resultFirst;
+      let topics = resultFirst;
+
+      if(page !== null){
+        countPerPage = 10;
+      }else{
+        page = 0;
+      }
 
       const resultData = await db.sequelize.models.topic__article.findAll({
         where: {
@@ -32,6 +39,7 @@ function dbFind() {
           // }
         },
         limit: countPerPage, // 每頁幾個
+        offset: countPerPage * page,
         order: [['view_count', 'DESC']],
         distinct: true,
         raw: true
@@ -64,7 +72,7 @@ function chkFirstTopic(topics) { // 把非第一篇賽事分析文剔除
 async function getTopics(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const topics = await dbFind();
+      const topics = await dbFind(args.page);
 
       /* 讀取一些別的資料 */
       const usersToGet = [];
