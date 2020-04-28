@@ -67,6 +67,11 @@ router.post(
   verification.token,
   require('../controller/user/predictInfoController')
 );
+router.delete(
+  '/predictions',
+  verification.token_v2,
+  require('../controller/user/deletePredictsController')
+);
 /* 錢包 */
 router.post(
   '/purse/:uid',
