@@ -334,6 +334,7 @@ function perdictionsResultFlag(option, settelResult) {
   [
     {
       uid: '3IB0w6G4V8QUM2Ti3iCIfX4Viux1',
+      league_id: 3939
       spread_bets: null,
       totals_bets: 1,
       spread_result_flag: -2,
@@ -341,6 +342,7 @@ function perdictionsResultFlag(option, settelResult) {
     },
     {
       uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
+      league_id: 3939,
       spread_bets: 3,
       totals_bets: 3,
       spread_result_flag: -1,
@@ -348,6 +350,7 @@ function perdictionsResultFlag(option, settelResult) {
     },
     {
       uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
+      league_id: 3939,
       spread_bets: 1,
       totals_bets: 2,
       spread_result_flag: 0.95,
