@@ -206,7 +206,7 @@ function settleWinList(args) {
             // 有可能不是大神，無更新筆數
             // if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
 
-            if (r[0] === 1) result.status['3'].lists.push({ uid: data.uid, league: data.league_id });            
+            if (r[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });            
           } catch (err) {
             return reject(errs.errsMsg('404', '1321'));
           }
