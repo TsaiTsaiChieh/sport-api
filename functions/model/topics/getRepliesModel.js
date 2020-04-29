@@ -97,7 +97,7 @@ async function getReplies(args) {
         let replyInfo = replytoInfo.filter(obj => obj.reply_id === replies.rows[i].replyto_id); // 處理userinfo 把uid=id的那則挑出來
         replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
         replies.rows[i].replyto_info = replyInfo;
-        if(replyInfo !== null){
+        if (replyInfo !== null) {
           replies.rows[i].replyto_info.images = JSON.parse(replyInfo.images);
         }
       }
