@@ -93,14 +93,14 @@ async function getTopics(args) {
       try {
         repliesCount = await func.getTopicReplyCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get reply count failed' });
       }
       /* 讀取留言數 */
       try {
         likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get like count failed' });
       }
       /* 下面讀取user info */
@@ -110,7 +110,7 @@ async function getTopics(args) {
         // console.log(usersToGetUnique)
         // console.log(usersInfo)
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject({ code: 500, error: 'get user info failed' });
       }
       for (let i = 0; i < topics.length; i++) { // 把拿到的userinfo塞回去
