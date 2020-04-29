@@ -4,7 +4,7 @@ const replyModel = require('../../model/topics/createReplyModel');
 async function createTopic(req, res) {
   const schema = {
     type: 'object',
-    required: ['aid', 'content'],
+    required: ['article_id', 'content'],
     properties: {
       article_id: {
         type: 'number'
