@@ -12,9 +12,13 @@ function dbFind(aid) {
           article_id: aid
         }
       });
-      const view_count = result.view_count + 1;
-      result.update({ view_count: view_count });
-      resolve(result);
+      if(result) {
+        const view_count = result.view_count + 1;
+        result.update({ view_count: view_count });
+        resolve(result);
+      } else {
+        resolve(false);
+      }
     } catch (error) {
       console.error(error);
       reject('get topics failed');
