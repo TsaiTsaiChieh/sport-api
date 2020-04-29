@@ -196,7 +196,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function (docs) {
+    querys.forEach(function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -220,7 +220,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function (docs) {
+    querys.forEach(async function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -381,60 +381,60 @@ function spreadCalculator(handicapObj) {
   handicapObj.handicap = handicapObj.handicap.toString();
 
   if (handicapObj.handicap.indexOf(',') !== -1) {
-    //同時有兩個盤口值
+    // 同時有兩個盤口值
     const firstHandicap = parseFloat(handicapObj.handicap.split(',')[0]);
     const secondHandicap = parseFloat(handicapObj.handicap.split(',')[1]);
 
     if (firstHandicap % 1 !== 0) {
-      //第一盤口為小數，則顯示為+
+      // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0) {
-        //顯示在主隊區
+        // 顯示在主隊區
         handicapObj.home_tw = secondHandicap + '+50';
         handicapObj.away_tw = null;
       } else {
-        //顯示在客隊區
+        // 顯示在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw = Math.abs(secondHandicap) + '+50';
       }
     } else {
-      //第一盤口為整數，則顯示為-
+      // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
-        //顯示在主隊區
+        // 顯示在主隊區
         handicapObj.home_tw = firstHandicap + '-50';
         handicapObj.away_tw = null;
       } else {
-        //顯示在客隊區
+        // 顯示在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw = Math.abs(firstHandicap) + '-50';
       }
     }
   } else {
-    //只有一個盤口值
+    // 只有一個盤口值
     handicapObj.handicap = parseFloat(handicapObj.handicap);
 
     if (handicapObj.handicap === 0) {
-      //讓 0 分
+      // 讓 0 分
       handicapObj.home_tw = 'pk(0+0)';
       handicapObj.away_tw = null;
     } else if (handicapObj.handicap % 1 === 0) {
       // 整數
       if (handicapObj.handicap >= 0) {
-        //放在主隊區
+        // 放在主隊區
         handicapObj.home_tw = handicapObj.handicap + '平';
         handicapObj.away_tw = null;
       } else {
-        //放在客隊區
+        // 放在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw = Math.abs(handicapObj.handicap) + '平';
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
-        //放在主隊區
+        // 放在主隊區
         handicapObj.home_tw = Math.floor(Math.abs(handicapObj.handicap)) + '輸';
         handicapObj.away_tw = null;
       } else {
-        //放在客隊區
+        // 放在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw = Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
       }

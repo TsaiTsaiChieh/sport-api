@@ -12,7 +12,7 @@ async function ESoccerpbpInplay(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL
@@ -121,6 +121,7 @@ async function ESoccerpbpHistory(parameter) {
     .collection('pagetest_eSoccer')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
+  const Match = await db.Match.sync();
   await Match.upsert({
     bets_id: betsID,
     home_points: homeScores,
@@ -251,8 +252,7 @@ async function doPBP(parameter) {
           redcards: data.results[0].stats.redcards[1]
         }
       }
-    },
-    status: eventStatus
+    }
   });
 }
 module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };

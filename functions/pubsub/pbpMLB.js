@@ -67,7 +67,7 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       const parameterPBP = {
         inningsNow: inningsNow,
@@ -1020,8 +1020,8 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               [`events${eventAtbatCount}`]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                eventHalfCount
-                              ].at_bat.events[eventAtbatCount]
+                                  eventHalfCount
+                                ].at_bat.events[eventAtbatCount]
                             }
                           }
                         }
@@ -1057,27 +1057,27 @@ async function MLBpbpHistory(parameter) {
       },
       { merge: true }
     );
+
+    await modules.firestore
+      .collection('pagetest_MLB')
+      .doc(betsID)
+      .set({ flag: { status: 0 } }, { merge: true });
+    await modules.database
+      .ref(`baseball/MLB/${betsID}/Summary/statuts`)
+      .set('closed');
+    const Match = await db.Match.sync();
+    await Match.upsert({
+      bets_id: betsID,
+      home_points: dataSummary.game.home.runs,
+      away_points: dataSummary.game.away.runs,
+      status: 0
+    });
   } catch (error) {
     console.log(
       'error happened in pubsub/MLBpbpHistory function by page',
       error
     );
   }
-
-  await modules.firestore
-    .collection('pagetest_MLB')
-    .doc(betsID)
-    .set({ flag: { status: 0 } }, { merge: true });
-  await modules.database
-    .ref(`baseball/MLB/${betsID}/Summary/statuts`)
-    .set('closed');
-  const Match = await db.Match.sync();
-  await Match.upsert({
-    bets_id: betsID,
-    home_points: dataSummary.game.home.runs,
-    away_points: dataSummary.game.away.runs,
-    status: 0
-  });
 }
 async function transFunction(stringTrans) {
   const keyword = ['á', 'é', 'í', 'ó', 'ú'];

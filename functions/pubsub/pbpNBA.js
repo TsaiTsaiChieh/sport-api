@@ -50,7 +50,7 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       const parameterPBP = {
         periodsNow: periodsNow,
@@ -139,11 +139,9 @@ async function NBApbpHistory(parameter) {
   const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
   const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
   try {
-    const { data } = await axios(pbpURL);
+    let { data } = await axios(pbpURL);
     const dataPBP = data;
-    const ref = modules.firestore
-      .collection(`${firestoreName}_PBP`)
-      .doc(betsID);
+    let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
 
     for (
       let periodsCount = 0;
@@ -172,9 +170,8 @@ async function NBApbpHistory(parameter) {
       }
     }
 
-    const { data } = await axios(enSummaryURL);
+    ({ data } = await axios(enSummaryURL));
     const dataSummary = data;
-
     for (let i = 0; i < dataSummary.home.players.length; i++) {
       ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
       // eslint-disable-next-line no-await-in-loop
@@ -188,6 +185,20 @@ async function NBApbpHistory(parameter) {
         { merge: true }
       );
     }
+    await modules.firestore
+      .collection(firestoreName)
+      .doc(betsID)
+      .set({ flag: { status: 0 } }, { merge: true });
+    await modules.database
+      .ref(`basketball/NBA/${betsID}/Summary/statuts`)
+      .set('closed');
+    const Match = await db.Match.sync();
+    await Match.upsert({
+      bets_id: betsID,
+      home_points: dataSummary.home.statistics.points,
+      away_points: dataSummary.away.statistics.points,
+      status: 0
+    });
   } catch (error) {
     console.log(
       'error happened in pubsub/NBApbpHistory function by page',
@@ -195,22 +206,6 @@ async function NBApbpHistory(parameter) {
     );
     return error;
   }
-  // change the status to 1
-  await modules.firestore
-    .collection(firestoreName)
-    .doc(betsID)
-    .set({ flag: { status: 0 } }, { merge: true });
-  await modules.database
-    .ref(`basketball/NBA/${betsID}/Summary/statuts`)
-    .set('closed');
-  const Match = await db.Match.sync();
-  await Match.upsert({
-    bets_id: betsID,
-    //here
-    home_points: dataSummary.home.statistics.points,
-    away_points: dataSummary.away.statistics.points,
-    status: 0
-  });
 }
 async function initRealtime(gameID, betsID) {
   let keywordTransHome = [];
