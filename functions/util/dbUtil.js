@@ -780,6 +780,9 @@ const Users_WinListsHistory = sequelize.define(
     win_rate: {
       type: Sequelize.FLOAT
     },
+    matches_count:{
+      type: Sequelize.INTEGER
+    },
     correct_counts: {
       type: Sequelize.INTEGER
     },

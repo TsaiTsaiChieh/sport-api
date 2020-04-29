@@ -110,6 +110,7 @@ function settleWinList(args) {
             league_id: data.league_id,
             win_bets: data.win_bets,
             win_rate: data.win_rate,
+            matches_count: data.matches_count,
             correct_counts: data.correct_counts,
             fault_counts: data.fault_counts,
             date_timestamp: begin,
@@ -120,7 +121,7 @@ function settleWinList(args) {
             season: season
           },
           {
-            fields: ['win_bets', 'win_rate', 'correct_counts', 'fault_counts']
+            fields: ['win_bets', 'win_rate', 'matches_count', 'correct_counts', 'fault_counts']
           });
 
           result.status['1'].lists.push({ uid: data.uid, league: data.league_id });

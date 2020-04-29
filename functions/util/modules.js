@@ -402,6 +402,7 @@ function predictionsWinList(data) {
         league_id: data[0].league_id,
         win_rate: Number((winRate * 100).toFixed(0)),
         win_bets: Number((winBets).toFixed(2)),
+        matches_count: data.length,
         correct_counts: predictCorrectCounts,
         fault_counts: predictFaultCounts
       });
