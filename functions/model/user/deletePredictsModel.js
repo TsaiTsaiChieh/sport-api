@@ -8,7 +8,7 @@ const scheduledStatus = 2;
 const NORMAL_USER_SELL = -1;
 
 function deletePredictions(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await isNormalUser(args);
       const filter = await checkMatches(args);
@@ -24,7 +24,7 @@ function deletePredictions(args) {
 
 // 檢查使用者是否為一般玩家
 function isNormalUser(args) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     args.token.customClaims.role === NORMAL_USER
       ? resolve()
       : reject(new AppError.OnlyAcceptNormalUser());
@@ -32,7 +32,7 @@ function isNormalUser(args) {
 }
 
 async function checkMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const needed = [];
     const failed = [];
 
@@ -53,7 +53,7 @@ async function checkMatches(args) {
 
 // 檢查賽事是否合法
 function isMatchValid(args, ele, filter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
         `SELECT game.bets_id, game.status,
@@ -107,7 +107,7 @@ function isMatchValid(args, ele, filter) {
 }
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const ele = filter.needed[i];
     try {
       const { handicapType, handicapId } = handicapProcessor(ele);
@@ -164,7 +164,7 @@ function filterProcessor(filter, i, error) {
 }
 
 function updateFromDB(args, filter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < filter.needed.length; i++) {
         const ele = filter.needed[i];
@@ -200,7 +200,7 @@ function updateFromDB(args, filter) {
 }
 // 偵測一般玩家讓分和大小分的下注單是否都為空，若是的話需刪除
 function deleteDB() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await db.sequelize.query(
         `DELETE 
@@ -214,7 +214,7 @@ function deleteDB() {
   });
 }
 function returnData(filter) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(

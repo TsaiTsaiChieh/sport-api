@@ -91,12 +91,12 @@ module.exports = deletePredictions;
  * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`
  * @apiParam {Array} matches prediction form
  * @apiParam {String} matches.id match id
- * @apiParam {String} [matches.spread] spread id 
+ * @apiParam {String} [matches.spread] spread id
  * @apiParam {String} [matches.totals] totals id
  *
  * @apiParamExample {JSON} Request-Example
 {
-	"league":"NBA", 
+	"league":"NBA",
 	"matches":[
 		{ "id": "2120643", "spread":"31298793" },
 		{ "id": "2120643", "totals":"34456538" }
