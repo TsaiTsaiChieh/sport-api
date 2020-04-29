@@ -59,24 +59,10 @@ function newsModel(method, args, uid) {
         }
         resolve(newsList);
       }else if(method=='DELETE'){
-        const del_join = args.join(",");
+        const items = args.items.join(',');
+        const del_res = db.sequelize.query(`DELETE FROM user__news WHERE uid = '${uid}' AND news_id in (${items})`);
 
-        const del_res = db.sequelize.query(`DELETE FROM user__news WHERE uid = '${uid}' news_id in (${del_join})`);
-        
-        if(del_res){
-          const result = {
-            "code" : "200",
-            "msg"  : "刪除成功"
-          };
-          resolve(result);
-        }else{
-          const result = {
-            "code" : "400",
-            "msg"  : "刪除失敗"
-          };
-          resolve(result);
-        }
-        
+        resolve(args.items);
       }
     } catch (err) {
       console.log('error happened...', err);
