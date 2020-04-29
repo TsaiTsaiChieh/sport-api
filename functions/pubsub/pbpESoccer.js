@@ -217,34 +217,36 @@ async function doPBP(parameter) {
       id: data.results[0].league.id
     },
     Now_clock: `${data.results[0].timer.tm}:${data.results[0].timer.ts}`,
-    home: {
-      name: data.results[0].home.name,
-      Total: {
-        score: homeScores,
-        attacks: data.results[0].stats.attacks[0],
-        ball_safe: data.results[0].stats.ball_safe[0],
-        corners: data.results[0].stats.corners[0],
-        dangerous_attacks: data.results[0].stats.dangerous_attacks[0],
-        goals: data.results[0].stats.goals[0],
-        off_target: data.results[0].stats.off_target[0],
-        on_target: data.results[0].stats.on_target[0],
-        yellowcards: data.results[0].stats.yellowcards[0],
-        redcards: data.results[0].stats.redcards[0]
-      }
-    },
-    away: {
-      name: data.results[0].away.name,
-      Total: {
-        score: awayScores,
-        attacks: data.results[0].stats.attacks[1],
-        ball_safe: data.results[0].stats.ball_safe[1],
-        corners: data.results[0].stats.corners[1],
-        dangerous_attacks: data.results[0].stats.dangerous_attacks[1],
-        goals: data.results[0].stats.goals[1],
-        off_target: data.results[0].stats.off_target[1],
-        on_target: data.results[0].stats.on_target[1],
-        yellowcards: data.results[0].stats.yellowcards[1],
-        redcards: data.results[0].stats.redcards[1]
+    info: {
+      home: {
+        name: data.results[0].home.name,
+        Total: {
+          score: homeScores,
+          attacks: data.results[0].stats.attacks[0],
+          ball_safe: data.results[0].stats.ball_safe[0],
+          corners: data.results[0].stats.corners[0],
+          dangerous_attacks: data.results[0].stats.dangerous_attacks[0],
+          goals: data.results[0].stats.goals[0],
+          off_target: data.results[0].stats.off_target[0],
+          on_target: data.results[0].stats.on_target[0],
+          yellowcards: data.results[0].stats.yellowcards[0],
+          redcards: data.results[0].stats.redcards[0]
+        }
+      },
+      away: {
+        name: data.results[0].away.name,
+        Total: {
+          score: awayScores,
+          attacks: data.results[0].stats.attacks[1],
+          ball_safe: data.results[0].stats.ball_safe[1],
+          corners: data.results[0].stats.corners[1],
+          dangerous_attacks: data.results[0].stats.dangerous_attacks[1],
+          goals: data.results[0].stats.goals[1],
+          off_target: data.results[0].stats.off_target[1],
+          on_target: data.results[0].stats.on_target[1],
+          yellowcards: data.results[0].stats.yellowcards[1],
+          redcards: data.results[0].stats.redcards[1]
+        }
       }
     },
     status: eventStatus
