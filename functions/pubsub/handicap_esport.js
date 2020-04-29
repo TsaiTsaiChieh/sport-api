@@ -2,13 +2,13 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-
 const leagues = ['pagetest_eSoccer'];
+const Match = db.Match;
+const MatchSpread = db.Spread;
+const MatchTotals = db.Totals;
 
 async function handicap_esport() {
   for (let i = 0; i < leagues.length; i++) {
-    // flag.spread/totals === 0 represent did not have first handicap information
-
     const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
     const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
     const querysSpreadOpening = await query_opening(
@@ -24,31 +24,28 @@ async function handicap_esport() {
 
     if (querysSpread.length) {
       for (let j = 0; j < querysSpread.length; j++) {
-        getHandicap(leagues[i], querysSpread[j]);
+        await getHandicap(leagues[i], querysSpread[j]);
       }
     }
     if (querysTotals.length) {
       for (let j = 0; j < querysTotals.length; j++) {
-        getTotals(leagues[i], querysTotals[j]);
+        await getTotals(leagues[i], querysTotals[j]);
       }
     }
     if (querysSpreadOpening.length) {
       for (let j = 0; j < querysSpreadOpening.length; j++) {
-        updateHandicap(leagues[i], querysSpreadOpening[j]);
+        await updateHandicap(leagues[i], querysSpreadOpening[j]);
       }
     }
     if (querysTotalsOpening.length) {
       for (let j = 0; j < querysTotalsOpening.length; j++) {
-        updateHandicap(leagues[i], querysTotalsOpening[j]);
+        await updateHandicap(leagues[i], querysTotalsOpening[j]);
       }
     }
   }
   console.log('handicap_esports success');
 }
 async function updateHandicap(league, ele) {
-  const Match = await db.Match.sync();
-  const MatchSpread = await db.Spread.sync();
-  const MatchTotals = await db.Totals.sync();
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -106,6 +103,7 @@ async function updateHandicap(league, ele) {
         },
         { merge: true }
       );
+
       await Match.upsert({
         bets_id: ele.bets_id,
         totals_id: newest_totals.id
@@ -131,6 +129,7 @@ async function updateHandicap(league, ele) {
           home_tw: odd.home_tw
         };
         await eventSnapshot.set({ spreads: spread }, { merge: true });
+
         await MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
@@ -162,6 +161,7 @@ async function updateHandicap(league, ele) {
           over_tw: odd.over_tw
         };
         await eventSnapshot.set({ totals: totals }, { merge: true });
+
         await MatchTotals.upsert({
           totals_id: odd.id,
           match_id: ele.bets_id,
@@ -196,7 +196,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function(docs) {
+    querys.forEach(function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -220,7 +220,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function(docs) {
+    querys.forEach(async function (docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -234,9 +234,6 @@ async function query_handicap(flag, value, leagues) {
 }
 
 async function getHandicap(league, ele) {
-  const Match = await db.Match.sync();
-  const MatchSpread = await db.Spread.sync();
-
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -279,6 +276,7 @@ async function getHandicap(league, ele) {
             },
             { merge: true }
           );
+
           await Match.upsert({
             bets_id: ele.bets_id,
             spread_id: spreadData.id
@@ -308,8 +306,6 @@ async function getHandicap(league, ele) {
   }
 }
 async function getTotals(league, ele) {
-  const Match = await db.Match.sync();
-  const MatchTotals = await db.Totals.sync();
   try {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -350,10 +346,12 @@ async function getTotals(league, ele) {
             },
             { merge: true }
           );
+
           await Match.upsert({
             bets_id: ele.bets_id,
             totals_id: totalsData.id
           });
+
           await MatchTotals.upsert({
             totals_id: totalsData.id,
             match_id: ele.bets_id,

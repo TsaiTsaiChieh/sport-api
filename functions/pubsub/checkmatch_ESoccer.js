@@ -13,6 +13,12 @@ async function checkmatch_ESoccer() {
   data.forEach((doc) => {
     totalData.push(doc.data());
   });
+  const realtimeData = JSON.parse(
+    JSON.stringify(
+      // eslint-disable-next-line no-await-in-loop
+      await modules.database.ref('esports/eSoccer').once('value')
+    )
+  );
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
     const gameTime = totalData[i].scheduled * 1000;
@@ -34,22 +40,14 @@ async function checkmatch_ESoccer() {
         break;
       }
       case 1: {
-        const realtimeData = JSON.parse(
-          JSON.stringify(
-            // eslint-disable-next-line no-await-in-loop
-            await modules.database
-              .ref(`esports/eSoccer/${betsID}`)
-              .once('value')
-          )
-        );
-        if (realtimeData.Summary.status === 'inprogress') {
+        if (realtimeData[`${betsID}`].Summary.status === 'inprogress') {
           const parameter = {
             betsID: betsID
           };
           ESoccerpbpInplay(parameter);
         }
 
-        if (realtimeData.Summary.status === 'closed') {
+        if (realtimeData[`${betsID}`].Summary.status === 'closed') {
           const parameter = {
             betsID: betsID
           };

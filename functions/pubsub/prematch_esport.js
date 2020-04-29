@@ -13,6 +13,7 @@ async function prematch_esport() {
   const now = modules.convertTimezoneFormat(unix);
   try {
     await eSoccer_functions.eSoccer.upcoming(now);
+    await eSoccer_functions.eSoccer.upcoming(tomorrow);
   } catch (err) {
     console.error(err);
   }

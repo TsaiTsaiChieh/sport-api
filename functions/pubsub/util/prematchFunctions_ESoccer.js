@@ -7,7 +7,6 @@ module.exports.eSoccer.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
-  const results = [];
 
   for (let i = 0; i < leagueArray.length; i++) {
     const leagueID = leagueArray[i];
@@ -15,8 +14,9 @@ module.exports.eSoccer.upcoming = async function(date) {
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
     try {
       const { data } = await modules.axios(URL);
-      const Match = await db.Match.sync();
-      const MatchTeam = await db.Team.sync();
+
+      const Match = db.Match;
+      const MatchTeam = db.Team;
       for (let j = 0; j < data.results.length; j++) {
         const ele = data.results[j];
         if (ele.home.name.indexOf('Esports') !== -1) {
@@ -26,19 +26,15 @@ module.exports.eSoccer.upcoming = async function(date) {
         if (ele.away.name.indexOf('Esports') !== -1) {
           ele.away.name = ele.away.name.replace('Esports', '');
         }
-        results.push(
-          modules.firestore
-            .collection(firebaseName)
-            .doc(ele.id)
-            .set(repackage_bets(ele), { merge: true })
-        );
-        results.push(
-          modules.firestore
-            .collection(firebaseName)
-            .doc(ele.id)
-            .set(repackage_bets(ele), { merge: true })
-        );
 
+        await modules.firestore
+          .collection(firebaseName)
+          .doc(ele.id)
+          .set(repackage_bets(ele), { merge: true });
+
+        await modules.database
+          .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+          .set('scheduled');
         try {
           const dataEvent = {
             bets_id: ele.id,
@@ -53,8 +49,8 @@ module.exports.eSoccer.upcoming = async function(date) {
             flag_prematch: 1,
             status: 2
           };
-          await Match.upsert(dataEvent);
 
+          await Match.upsert(dataEvent);
           const dataHomeTeam = {
             team_id: ele.home.id,
             league_id: '22000',
@@ -74,6 +70,7 @@ module.exports.eSoccer.upcoming = async function(date) {
             alias_ch: ele.away.name,
             image_id: ele.away.image_id
           };
+
           await MatchTeam.upsert(dataHomeTeam);
           await MatchTeam.upsert(dataAwayTeam);
         } catch (err) {
@@ -90,17 +87,17 @@ module.exports.eSoccer.upcoming = async function(date) {
   }
 
   console.log('esport scheduled success');
-  return new Promise(async function(resolve, reject) {
-    try {
-      resolve(await Promise.all(results));
-    } catch (error) {
-      console.error(
-        `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
-        error
-      );
-      reject(error);
-    }
-  });
+  // return new Promise(async function (resolve, reject) {
+  //   try {
+  //     resolve(await Promise.all(results));
+  //   } catch (error) {
+  //     console.error(
+  //       `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
+  //       error
+  //     );
+  //     reject(error);
+  //   }
+  // });
 };
 
 function repackage_bets(ele) {
