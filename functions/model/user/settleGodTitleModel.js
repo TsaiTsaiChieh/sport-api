@@ -4,34 +4,45 @@ const db = require('../../util/dbUtil');
 
 function settleGodTitle(args) {
   return new Promise(async function(resolve, reject) {
-    return resolve({});
-
     // 1. 管理者才能進行 API 呼叫
-    // 2. 需要另一支排程進行
-    //    a. 取得 這個星期的星期一日期、這個月第一天日期，更新 上星期、上個月記錄，並清空 本星期、本月記錄 設為 0
-    //    b. 賽季開打 更新 上賽季記錄，並清空 本賽季記錄，設為 0
-    //    c. 大神計算完畢 更新 上期大神記錄，並清空 本期記錄，設為 0
-    // 3.
-    //    a. 今日 預測單 區分聯盟 且 比賽 為 有效、比賽結束 且 讓分或大小 有結果(result_flags) 的 預測單
-    //       因為比賽跨日結束，會導致再次重算，因此怎麼區分累加計算過的資料不再計算，會是個問題
-    //       可能需要條件來重算，減少運算量
-    //    b. 將 勝率、勝注、勝場數、總場數 計算結果 今日、周、月、季 先寫入歷史 user__win__lists__history
-    //    c. 再從 歷史 將 勝率、勝注 依照累加計算寫入 這星期、這個月、這賽季、本期
-    //    d. 再更新 大神售牌標語 titles
-    //    !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
-    //       所以 比賽結束呼叫結算後，要再呼叫這支API，輸入日期為前一天
+    // 2. 抓取近三十天資料 是 這期大神的使用者才需要計算
+    //   a. 使用 users__win__lists_histories
+    //   b. 使用 users_predictions
+    // 2.1. 連贏Ｎ天
+    // 2.2. 勝注連過 Ｎ日
+    // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ
+    // 2.4. 近 Ｎ 場過 Ｎ 場
+    // 2.5. 連贏Ｎ場
 
-    // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
+    // 產生 30 天測試用資料
+    // start = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    // console.log('start: %o  %o', modules.moment().utcOffset(8).format('YYYY-MM-DD'), start)
+
+    // for(i=1; i<=30; i++){
+    //   subtract = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
+
+    //   const period = modules.getTitlesPeriod(subtract).period;
+    //   const dayOfYear = modules.moment(subtract).format('DDD'); // 日期是 一年中的第幾天
+    //   const week = modules.moment(subtract).week();
+    //   const momentObject = modules.moment(subtract).toObject();
+    //   const month = momentObject.months + 1;
+    //   const season = momentObject.years;
+
+    //   console.log('subtract %o: %o  %o period: %o  dayOfYear: %o  week: %o  month: %o  season: %o', 
+    //     i, modules.moment(subtract).utcOffset(8).format('YYYY-MM-DD'), subtract/1000,
+    //     period, dayOfYear, week, month, season)
+    // }
+    //===============
 
     const userUid = args.token.uid;
-    const begin = modules.convertTimezone(args.date);
-    const end = modules.convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
-    const period = modules.getTitlesPeriod(begin * 1000).period;
-    const dayOfYear = modules.moment(begin * 1000).format('DDD'); // 日期是 一年中的第幾天
-    const week = modules.moment(begin * 1000).week();
-    const momentObject = modules.moment(begin * 1000).toObject();
-    const month = momentObject.months + 1;
-    const season = momentObject.years;
+    const period = args.period;
+    const days = 30;
+
+    // 近 30 天
+    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+      { op: 'subtract', value: days, unit: 'days' }) - 1;
 
     const result = {
       status: {
@@ -77,153 +88,214 @@ function settleGodTitle(args) {
     let s21 = 0;
     let s22 = 0;
     let s23 = 0;
-    // 3.
+    let s24 = 0;
+    let s25 = 0;
+    // 2.
     try {
-      // a.
+      // a. 使用 users__win__lists_histories
       // 注意 !!!  正式有資料後，要把 今日日期區間判斷 打開來
-      const predictMatchInfo = await db.sequelize.query(`
-        select prediction.id, prediction.uid, prediction.league_id,
-               spread_bets, totals_bets,
-               spread_result_flag, totals_result_flag
-          from user__predictions prediction, matches
-         where prediction.bets_id = matches.bets_id
-           -- and prediction.match_scheduled between :begin and :end
-           and matches.flag_prematch = 1
-           and matches.status = 0
-           and (spread_result_flag != -2 or totals_result_flag != -2)
+      const usersWinListsHistories = await db.sequelize.query(`
+        select *
+          from users__win__lists__histories history, 
+               (
+                 select uid, league_id
+                   from titles
+                  where period = :period
+               ) title_user
+         where history.uid = title_user.uid
+           and history.league_id = title_user.league_id
+           and history.date_timestamp between :begin and :end
       `, {
         replacements: {
+          period: period,
           begin: begin,
           end: end
         },
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const resultWinList = modules.predictionsWinList(predictMatchInfo);
-      // console.log('resultWinList: ', resultWinList);
+      const reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
 
-      s21 = new Date().getTime();
-      // b.
-      // 回寫結果 到 users_win_lists_history 記錄 該日 的 勝率、勝注 並 加上其他值 供以後查詢使用
-      try {
-        const upsertResult = resultWinList.map(async function(data) {
-          const r = await db.Users_WinListsHistory.upsert({
-            uid: data.uid,
-            league_id: data.league_id,
-            win_bets: data.win_bets,
-            win_rate: data.win_rate,
-            correct_counts: data.correct_counts,
-            fault_counts: data.fault_counts,
-            date_timestamp: begin,
-            day_of_year: dayOfYear,
-            period: period,
-            week: week,
-            month: month,
-            season: season
-          },
-          {
-            fields: ['win_bets', 'win_rate', 'correct_counts', 'fault_counts']
+      const uidHistory = modules.groupBy(usersWinListsHistories, 'uid');
+
+      uidHistory.map(function(data){
+        const uidLeagueHistory = modules.groupBy(data, 'league_id');
+
+        uidLeagueHistory.forEach(function(data2){
+          data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+            //console.log('a. %o  b. %o  %o', a.date_timestamp, b.date_timestamp, a.date_timestamp - b.date_timestamp)
+            return b.date_timestamp - a.date_timestamp; // 降 大->小
           });
 
-          result.status['1'].lists.push({ uid: data.uid, league: data.league_id });
+          reformatHistory.push({uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days)})
+        });
+        
+      });
+
+      // 依 使用者-聯盟 進行 稱號判斷
+      // console.log('usersWinListsHistories: ', usersWinListsHistories);
+      // console.log('uidHistory: ', uidHistory);
+      // console.log('uidLeagueUidHistory: ', uidLeagueUidHistory);
+
+      
+      reformatHistory.forEach(function(uid_league_data){
+        // 2.1. 連贏Ｎ天 countinue
+        let countinue = 0;
+        uid_league_data.lists.every(function(lists, index){
+          //console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
+          countinue = index;
+          return ((lists.correct_counts - lists.fault_counts) > 0 ) ? true : false; // 代表過盤
         });
 
-        await Promise.all(upsertResult);
-      } catch (err) {
-        return reject(errs.errsMsg('404', '1317'));
-      }
 
-      s22 = new Date().getTime();
-      // c.
-      // d.
-      // 這星期、這個月、這賽季、本期大神 
-      // this_week、this_month、this_season、this_period
-      try {
-        const updateResult = resultWinList.map(async function(data) {
-          const uid = data.uid;
-          const league_id = data.league_id;
-
-          const allTotalCount = await winBetsRateTotalCount(uid, league_id, 
-            dayOfYear, week, month, season, period);
-
-          // 檢查 是否有5筆資料
-          if (allTotalCount.length !== 5) return reject(errs.errsMsg('404', '1322')); // 筆數異常
-
-          // 檢查是否為數字
-          const ele = allTotalCount;
-          const this_week_win_rate = numberCount(ele[1].correct_sum, ele[1].fault_sum);
-          const this_month_win_rate = numberCount(ele[2].correct_sum, ele[2].fault_sum);
-          const this_period_win_rate = numberCount(ele[3].correct_sum, ele[3].fault_sum);
-          const this_season_win_rate = numberCount(ele[4].correct_sum, ele[4].fault_sum);
-
-          if (isNotANumber(this_week_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
-          if (isNotANumber(this_month_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
-          if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
-          if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
-
-          // c.
-          // row: 0 day_of_year、 1 week、 2 month、 3 period、 4 season
-          // 0 day_of_year 目前未使用
-          // 回寫結果 到 users__win__lists
-          try {
-            const r = await db.Users_WinLists.upsert({
-              uid: uid,
-              league_id: league_id,
-              this_week_win_rate: this_week_win_rate,
-              this_week_win_bets: ele[1].sum,
-              this_month_win_rate: this_month_win_rate,
-              this_month_win_bets: ele[2].sum,
-              this_period_win_rate: this_period_win_rate,
-              this_period_win_bets: ele[3].sum,
-              this_season_win_rate: this_season_win_rate,
-              this_season_win_bets: ele[4].sum
-            }, {
-              fields: [
-                'this_week_win_rate', 'this_week_win_bets', 
-                'this_month_win_rate', 'this_month_win_bets', 
-                'this_period_win_rate', 'this_period_win_bets', 
-                'this_season_win_rate', 'this_season_win_bets'
-              ]
-            });
-
-            if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
-
-            result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
-          } catch (err) {
-            return reject(errs.errsMsg('404', '1321'));
-          }
-
-          s23 = new Date().getTime();
-          // d.
-          // 回寫 win_bets、win_rate 到 titles
-          try {
-            const r = await db.Title.update({
-              win_bets: ele[3].sum,
-              win_rate: this_period_win_rate
-            }, {
-              where: {
-                uid: uid,
-                league_id: league_id,
-                period: period
-              }
-            });
-
-            // 有可能不是大神，無更新筆數
-            // if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
-
-            if (r[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });            
-          } catch (err) {
-            return reject(errs.errsMsg('404', '1321'));
-          }
+        // 2.2. 勝注連過 Ｎ日 win_bets_continue
+        let win_bets_continue = 0;
+        uid_league_data.lists.every(function(lists, index){
+          win_bets_continue = index;
+          return (lists.win_bets > 0 ) ? true : false; // 代表過盤
         });
 
-        await Promise.all(updateResult);
-      } catch (err) {
-        return reject(errs.errsMsg('404', '1319'));
-      }
+
+        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1、predict_rate2、predict_rate3
+        // acc 累計
+        let predict_rate1,predict_rate2, predict_rate3 = 0;
+        let allRecords = []; // 記錄所有資料
+
+        uid_league_data.lists.forEach(function(lists, index){
+          const item = {};
+          item.days = index + 1;
+
+          if (index === 0){ // 第一筆 直接計算
+            item['totalsCountAcc'] = (lists.correct_counts + lists.fault_counts);
+            item['correctCountsAcc'] = lists.correct_counts;
+          } else { // 第二筆之後 要累計
+            item['totalsCountAcc'] = allRecords[index - 1].totalsCountAcc + (lists.correct_counts + lists.fault_counts);
+            item['correctCountsAcc']  = allRecords[index - 1].correctCountsAcc + lists.correct_counts;
+          }
+
+          item['winRateAcc'] = (item.totalsCountAcc === 0) 
+          ? 0 
+          : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+
+          allRecords.push(item);
+        });
+
+        allRecords.sort(function compare(a, b) {
+          return b.winRateAcc - a.winRateAcc; // 降 大->小
+        });
+        
+        // 要至少計算五場，選擇機率最高者 >= 5場
+        if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+          // console.log(allRecords[0])
+          predict_rate1 = allRecords[0].days;
+          predict_rate2 = allRecords[0].totalsCountAcc;
+          predict_rate3 = allRecords[0].correctCountsAcc;
+        };
+
+
+        console.log('countinue: %o  win_bets_continue: %o', countinue, win_bets_continue);
+        console.log('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3)
+      });
+
+
+
+      //b. 使用 users_predictions
+      const usersPrediction = await db.sequelize.query(`
+        select *
+          from user__predictions prediction, 
+               (
+                 select uid, league_id
+                   from titles
+                  where period = :period
+               ) title_user
+         where prediction.uid = title_user.uid
+           and prediction.league_id = title_user.league_id
+          -- and prediction.match_scheduled between :begin and :end
+           and (
+                    spread_result_flag in (-1, 0.95, 0.5, -0.5) 
+                 or totals_result_flag in (-1, 0.95, 0.5, -0.5)
+               )
+      `, {
+        replacements: {
+          period: period,
+          begin: begin,
+          end: end
+        },
+        logging: console.log,
+        type: db.sequelize.QueryTypes.SELECT
+      });
+
+      const reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
+
+      const uidPredictionHistory = modules.groupBy(usersPrediction, 'uid');
+
+      uidPredictionHistory.map(function(data){
+        const uidLeaguePredictionHistory = modules.groupBy(data, 'league_id');
+
+        uidLeaguePredictionHistory.forEach(function(data2){
+          data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+            return b.match_scheduled - a.match_scheduled; // 降 大->小
+          });
+
+          reformatPrediction.push({uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days)})
+        });
+        
+      });
+
+      reformatPrediction.forEach(function(uid_league_data){
+        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1、matches_rate2
+        // acc 累計
+        let matches_rate1, matches_rate2 = 0;
+        let allRecords = []; // 記錄所有資料
+
+        uid_league_data.lists.forEach(function(lists, index){
+          const item = {};
+          item.days = index + 1;
+
+          item['totalsCountAcc'] = 0;
+          item['correctCountsAcc'] = 0;
+
+          item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.spread_result_flag)? 1 : 0;
+          item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.totals_result_flag)? 1 : 0;
+
+          if (index === 0){ // 第一筆 直接計算
+            item['totalsCountAcc'] = [0.95, 0.5, -1, -0.5].includes(lists.spread_result_flag)? 1 : 0;
+            item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.totals_result_flag)? 1 : 0;
+            item['correctCountsAcc'] = [0.95, 0.5].includeslists.spread_result_flag? 1 : 0;
+            item['correctCountsAcc'] =+ [0.95, 0.5].includeslists.totals_result_flag? 1 : 0;
+          } else { // 第二筆之後 要累計
+            item['totalsCountAcc'] = allRecords[index - 1].totalsCountAcc + (lists.correct_counts + lists.fault_counts);
+            item['correctCountsAcc']  = allRecords[index - 1].correctCountsAcc + lists.correct_counts;
+          }
+
+          item['winRateAcc'] = (item.totalsCountAcc === 0) 
+          ? 0 
+          : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+
+          allRecords.push(item);
+        });
+
+        allRecords.sort(function compare(a, b) {
+          return b.winRateAcc - a.winRateAcc; // 降 大->小
+        });
+        
+        // 要至少計算五場，選擇機率最高者 >= 5場
+        if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+          // console.log(allRecords[0])
+          predict_rate1 = allRecords[0].days;
+          predict_rate2 = allRecords[0].totalsCountAcc;
+          predict_rate3 = allRecords[0].correctCountsAcc;
+        };
+
+
+
+        // 2.5. 連贏Ｎ場 matches_continue
+        let matches_continue = 0;
+
+      });
 
     } catch (err) {
-      console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
+      console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
@@ -234,78 +306,18 @@ function settleGodTitle(args) {
   });
 }
 
-// 計算出 本周、本月、本期、本賽季 統計資料
-// 輸出資料要確定是否5筆
-// rang： date、week、month、season、period
-// sum(win_bets), sum(correct_counts), sum(fault_counts)
-async function winBetsRateTotalCount(uid, league_id, day_of_year=0, week=0, month=0, season=0, period=0){
-  return await db.sequelize.query(`
-    select day_of_year, '' week, '' month, '' season, '' period,
-           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
-      from users__win__lists__histories
-     where uid = :uid
-       and league_id = :league_id
-       and day_of_year = ${day_of_year}
-     group by day_of_year
-    union
-    select '' day_of_year, week, '' month, '' season, '' period,
-           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
-      from users__win__lists__histories
-     where uid = :uid
-       and league_id = :league_id
-       and week = ${week}
-     group by week
-    union
-    select '' day_of_year, '' week, month, '' season, '' period,
-           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
-      from users__win__lists__histories
-     where uid = :uid
-       and league_id = :league_id
-       and month = ${month}
-     group by month
-    union
-    select '' day_of_year, '' week, '' month, '' season, period,
-          sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
-      from users__win__lists__histories
-     where uid = :uid
-       and league_id = :league_id
-       and period = ${period}
-     group by period
-     union
-    select '' day_of_year, '' week, '' month, season, '' period,
-           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
-      from users__win__lists__histories
-     where uid = :uid
-       and league_id = :league_id
-       and season = ${season}
-     group by season
-  `, {
-    replacements: {
-      uid: uid,
-      league_id: league_id
-    },
-    //logging: console.log,
-    type: db.sequelize.QueryTypes.SELECT
-  });
-}
-
-function numberCount(num1, num2, f=2){
+function numberRate(num1, num2, f=2){
   //console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
   return Number(
-    Number(num1) / ( Number(num1) + Number(num2) )
+    Number(num1) /  Number(num2 )
   ).toFixed(f);
 }
 
-function isNotANumber(inputData) { 
-　// isNaN(inputData)不能判斷空串或一個空格 
-　// 如果是一個空串或是一個空格，而isNaN是做為數字0進行處理的，
-  // 而parseInt與parseFloat是返回一個錯誤訊息，這個isNaN檢查不嚴密而導致的。 
-　if (parseFloat(inputData).toString() == 'NaN') { 
-　　　//alert(“請輸入數字……”); 
-　　　return true; 
-　} else { 
-　　　return false; 
-　} 
+// 勝場才記錄，其它不用記錄
+function wlMark(num){
+  if ([0.95, 0.5].includes(num)) { return 1 };
+  // if ([-1, -0.5].includes(num)) { return -1 };
+  return 0;
 }
 
 module.exports = settleGodTitle;
