@@ -12,8 +12,7 @@ async function admin(req, res, next) {
       req.adminUid = req.token.uid;
       return next();
     } else {
-      res.status(401).json({ code: 401, error: 'Unauthorized admin' });
-      return;
+      return res.status(401).json({ code: 401, error: 'Unauthorized admin' });
     }
   } catch (err) {
     res.status(401).json({ code: 401, error: 'Unauthorized admin' });
