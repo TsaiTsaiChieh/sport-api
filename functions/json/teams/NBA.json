@@ -223,5 +223,14 @@
     "alias": "OKC",
     "name_ch": "奧克拉荷馬雷霆",
     "image_id": "3418"
+  },
+  {
+    "radar_id": "583ed102-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "54278",
+    "alias_ch": "金塊",
+    "name": "Denver Nuggets",
+    "alias": "DEN",
+    "name_ch": "丹佛金塊",
+    "image_id": "3417"
   }
 ]
