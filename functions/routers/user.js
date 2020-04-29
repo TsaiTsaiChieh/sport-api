@@ -84,7 +84,12 @@ router.post(
 );
 /* 消息通知 */
 router.post(
-  '/news/',
+  '/news',
+  verification.token,
+  require('../controller/user/newsController')
+);
+router.delete(
+  '/news',
   verification.token,
   require('../controller/user/newsController')
 );

@@ -115,11 +115,10 @@ async function firebaseLogin(req, res) {
           const mysqlUser = await db.sequelize.query(
             `
               SELECT *
-                FROM users u, titles t
-               WHERE u.uid = '${decodedIdToken.uid}'
+                FROM users
+               WHERE uid = '${decodedIdToken.uid}'
              `,
             {
-              plain: true,
               type: db.sequelize.QueryTypes.SELECT
             });
 
@@ -143,7 +142,8 @@ async function firebaseLogin(req, res) {
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
-          if (mysqlUser) {
+ 
+          if (mysqlUser.uid) {
             console.log('firestoreUser exist');
             if (mysqlUser.uid) {
               returnJson.uid = mysqlUser.uid;
