@@ -36,10 +36,6 @@ router.post(
   verification.getToken,
   require('../controller/user/contactServiceController')
 );
-router.get( // 後台完成後移至後台
-  '/servicedata',
-  require('../controller/user/contactService_data')
-);
 router.get(
   '/getTitlesAndSignature/:uid',
   require('../controller/user/getTitlesAndSignatureController')
@@ -48,20 +44,26 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 
 // 預測頁
 router.post(
-  '/predict_matches',
-  verification.token,
-  require('../controller/user/predictMatchesController')
-);
-router.post(
   '/predictions',
   verification.token_v2,
-  require('../controller/user/_predictMatchesController')
+  require('../controller/user/predictMatchesController')
 );
 router.get(
   '/prediction_rate',
   verification.token_v2,
   require('../controller/user/predictionRateController')
 );
+router.post(
+  '/predict_info',
+  verification.token,
+  require('../controller/user/predictInfoController')
+);
+router.delete(
+  '/predictions',
+  verification.token_v2,
+  require('../controller/user/deletePredictsController')
+);
+// 大神售牌資訊
 router.get(
   '/sell_information',
   verification.token_v2,
@@ -71,11 +73,6 @@ router.post(
   '/sell_information',
   verification.token_v2,
   require('../controller/user/postGodSellInformationController')
-);
-router.post(
-  '/predict_info',
-  verification.token,
-  require('../controller/user/predictInfoController')
 );
 /* 錢包 */
 router.post(
@@ -100,6 +97,23 @@ router.post(
   '/honor/:uid',
   verification.token,
   require('../controller/user/honorController')
+);
+/* 消息通知 */
+router.post(
+  '/news',
+  verification.token,
+  require('../controller/user/newsController')
+);
+router.delete(
+  '/news',
+  verification.token,
+  require('../controller/user/newsController')
+);
+/* 最愛玩家 */
+router.post(
+  '/favorite_player',
+  verification.token,
+  require('../controller/user/favoritePlayerController')
 );
 
 // 結算

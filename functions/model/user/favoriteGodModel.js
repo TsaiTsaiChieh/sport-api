@@ -96,7 +96,7 @@ async function favoriteGod(args) {
       if (args.like === true) {
         await checkLiked(uid, args.god_uid);
         await like(uid, args.god_uid);
-      } else if (args.like === false)  {
+      } else if (args.like === false) {
         await unlike(uid, args.god_uid);
       } else {
         reject({ code: 400, error: 'missing like' });

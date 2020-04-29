@@ -20,6 +20,11 @@ class UserPredictFailed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class DeletePredictionsFailed extends ExtendableError {
+  constructor(message, status = 1001, isPublic = true, code = httpStatus.OK) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
@@ -126,6 +131,17 @@ class CouldNotModifySellInformation extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class OnlyAcceptNormalUser extends ExtendableError {
+  constructor(
+    message = '此功能只允許一般玩家操作',
+    status = 1208,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -146,7 +162,9 @@ module.exports = {
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
+  OnlyAcceptNormalUser,
   UserPredictFailed,
+  DeletePredictionsFailed,
   MysqlError,
   BetsAPIError
 };

@@ -12,7 +12,7 @@ async function favoriteGod(req, res) {
         type: 'boolean'
       }
     },
-    required: ['god_uid', 'like'],
+    required: ['god_uid', 'like']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {

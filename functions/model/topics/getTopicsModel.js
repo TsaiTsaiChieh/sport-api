@@ -93,11 +93,11 @@ async function getTopics(args) {
         let userInfo = usersInfo.filter(obj => obj.uid === topics.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null;
         topics.rows[i].user_info = userInfo;
-        if(topics.rows[i].status !== 1){
-          topics.rows[i].type = '已刪除'
-          topics.rows[i].category = '已刪除'
-          topics.rows[i].title = '(本文已被刪除)'
-          topics.rows[i].content = null
+        if (topics.rows[i].status !== 1) {
+          topics.rows[i].type = '已刪除';
+          topics.rows[i].category = '已刪除';
+          topics.rows[i].title = '(本文已被刪除)';
+          topics.rows[i].content = null;
         }
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
