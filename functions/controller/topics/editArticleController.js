@@ -12,7 +12,7 @@ async function editArticle(req, res) {
 
   const schema = {
     type: 'object',
-    requied: ['category', 'type', 'title', 'content'],
+    required: ['category', 'type', 'title', 'content'],
     properties: {
       article_id: {
         type: 'integer',

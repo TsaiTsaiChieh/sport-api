@@ -32,6 +32,11 @@ router.post(
   require('../controller/topics/editArticleController')
 );
 router.post(
+  '/deleteArticle',
+  verification.token,
+  require('../controller/topics/deleteArticleController')
+);
+router.post(
   '/createReply',
   verification.token,
   require('../controller/topics/createReplyController')

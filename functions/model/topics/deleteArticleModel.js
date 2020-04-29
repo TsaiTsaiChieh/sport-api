@@ -1,13 +1,11 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const sanitizeHtml = require('sanitize-html');
 function dbFind(aid) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          status: 1,
           article_id: aid
         },
         raw: true
@@ -22,7 +20,6 @@ function dbFind(aid) {
 function dbEdit(aid, insertData) {
   return new Promise(async function(resolve, reject) {
     try {
-      // console.log('edit article');
       const record = await db.sequelize.models.topic__article.findOne({
         where: {
           article_id: aid
@@ -32,7 +29,7 @@ function dbEdit(aid, insertData) {
       resolve();
     } catch (error) {
       console.error(error);
-      reject('edit article failed');
+      reject('delete article failed');
     }
   });
 }
@@ -70,37 +67,8 @@ async function createTopic(args) {
         reject({ code: 403, error: 'not your article' });
         return;
       }
-      // console.log(orig_article);
-      const insertData = {
-        type: args.type,
-        category: args.category,
-        title: args.title
-      };
 
-      // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
-        allowedAttributes: {
-          div: ['style'],
-          span: ['style'],
-          strike: ['style'],
-          b: ['style'],
-          a: ['href'],
-          img: ['src'],
-          font: ['size', 'color']
-        },
-        allowedSchemes: ['http', 'https'],
-        allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],
-        allowedStyles: {
-          '*': {
-            color: [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-            'text-align': [/^left$/, /^right$/, /^center$/],
-            'font-size': [/^\d+(?:px|em|%)$/]
-          }
-        }
-      });
-
-      await dbEdit(args.article_id, insertData);
+      await dbEdit(args.article_id, { status: -1 });
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);

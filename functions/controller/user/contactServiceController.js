@@ -4,7 +4,7 @@ const model = require('../../model/user/contactServiceModel');
 async function contactService(req, res) {
   const schema = {
     type: 'object',
-    requied: ['name', 'email', 'content'],
+    required: ['name', 'email', 'content'],
     properties: {
       name: {
         type: 'string'
