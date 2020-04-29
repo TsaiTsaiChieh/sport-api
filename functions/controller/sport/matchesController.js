@@ -83,7 +83,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "MEM",
-                "alias_tw": "灰熊",
+                "alias_ch": "灰熊",
                 "image_id": "3415"
             },
             "away": {
@@ -112,7 +112,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "SAC",
-                "alias_tw": "國王",
+                "alias_ch": "國王",
                 "image_id": "3413"
             },
             "away": {
@@ -141,7 +141,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "CHI",
-                "alias_tw": "公牛",
+                "alias_ch": "公牛",
                 "image_id": "3409"
             },
             "away": {
@@ -170,7 +170,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "POR",
-                "alias_tw": "拓荒者",
+                "alias_ch": "拓荒者",
                 "image_id": "3414"
             },
             "away": {
@@ -199,7 +199,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "SAS",
-                "alias_tw": "馬刺",
+                "alias_ch": "馬刺",
                 "image_id": "3429"
             },
             "away": {
@@ -228,7 +228,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "LAL",
-                "alias_tw": "湖人",
+                "alias_ch": "湖人",
                 "image_id": "3427"
             },
             "away": {
@@ -257,7 +257,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "OKC",
-                "alias_tw": "雷霆",
+                "alias_ch": "雷霆",
                 "image_id": "3418"
             },
             "away": {
@@ -288,7 +288,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "ORL",
-                "alias_tw": "魔術",
+                "alias_ch": "魔術",
                 "image_id": "3437"
             },
             "away": {
@@ -319,7 +319,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "LAL",
-                "alias_tw": "湖人",
+                "alias_ch": "湖人",
                 "image_id": "3427",
                 "points": 102
             },
@@ -352,7 +352,7 @@ module.exports = getMatches;
             "league": "NBA",
             "home": {
                 "alias": "DEN",
-                "alias_tw": "老鷹",
+                "alias_ch": "老鷹",
                 "image_id": "3417",
                 "points": 131
             },

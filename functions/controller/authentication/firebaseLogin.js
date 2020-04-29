@@ -137,13 +137,13 @@ async function firebaseLogin(req, res) {
 
           const titles = {};
           titlesQuery.forEach(function(data) { // 這裡有順序性
-            titles[data.name]=repackage(data);
+            titles[data.name] = repackage(data);
             mysqlUser.titles = titles;
           });
           returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
- 
+
           if (mysqlUser.uid) {
             console.log('firestoreUser exist');
             if (mysqlUser.uid) {

@@ -39,14 +39,9 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 
 // 預測頁
 router.post(
-  '/predict_matches',
-  verification.token,
-  require('../controller/user/predictMatchesController')
-);
-router.post(
   '/predictions',
   verification.token_v2,
-  require('../controller/user/_predictMatchesController')
+  require('../controller/user/predictMatchesController')
 );
 router.get(
   '/prediction_rate',
@@ -57,6 +52,22 @@ router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
+);
+router.delete(
+  '/predictions',
+  verification.token_v2,
+  require('../controller/user/deletePredictsController')
+);
+// 大神售牌資訊
+router.get(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/getGodSellInformationController')
+);
+router.post(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/postGodSellInformationController')
 );
 /* 錢包 */
 router.post(

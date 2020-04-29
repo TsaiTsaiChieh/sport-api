@@ -234,7 +234,6 @@ const Rank = sequelize.define(
         fields: ['rank_id']
       }
     ]
-
   },
   {
     indexes: [
@@ -635,6 +634,9 @@ const Prediction = sequelize.define(
       },
       {
         fields: ['bets_id']
+      },
+      {
+        fields: ['spread_id', 'totals_id'] // 為了刪除注單功能：清空 spread_id 和 totals_id 同時為空的無效注單
       }
     ]
   }
