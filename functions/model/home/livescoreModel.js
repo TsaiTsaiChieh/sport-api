@@ -74,7 +74,8 @@ async function repackage(sport, league) {
 
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       closedEvent.push({
-        league: league,
+        league: eventData[i].league.name_ch,
+        ori_league: eventData[i].league.name,
         sport: sport,
         status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
@@ -82,10 +83,16 @@ async function repackage(sport, league) {
         home_tw: newestSpread.home_tw,
         away_tw: newestSpread.away_tw,
         home: {
+          team_name: eventData[i].home.team_name,
+          player_name: eventData[i].home.player_name,
+          name: eventData[i].home.name,
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
         },
         away: {
+          team_name: eventData[i].away.team_name,
+          player_name: eventData[i].away.player_name,
+          name: eventData[i].away.name,
           alias_ch: eventData[i].away.alias_ch,
           image_id: eventData[i].away.image_id
         }
@@ -94,7 +101,8 @@ async function repackage(sport, league) {
 
     if (scheduled === dateNow && eventData[i].flag.status === 1) {
       outputJson.push({
-        league: league,
+        league: eventData[i].league.name_ch,
+        ori_league: eventData[i].league.name,
         sport: sport,
         status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
@@ -102,10 +110,16 @@ async function repackage(sport, league) {
         home_tw: newestSpread.home_tw,
         away_tw: newestSpread.away_tw,
         home: {
+          team_name: eventData[i].home.team_name,
+          player_name: eventData[i].home.player_name,
+          name: eventData[i].home.name,
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
         },
         away: {
+          team_name: eventData[i].away.team_name,
+          player_name: eventData[i].away.player_name,
+          name: eventData[i].away.name,
           alias_ch: eventData[i].away.alias_ch,
           image_id: eventData[i].away.image_id
         }
@@ -114,7 +128,8 @@ async function repackage(sport, league) {
 
     if (scheduled === dateNow && eventData[i].flag.status === 2) {
       scheduledEvent.push({
-        league: league,
+        league: eventData[i].league.name_ch,
+        ori_league: eventData[i].league.name,
         sport: sport,
         status: eventData[i].flag.status,
         bets_id: eventData[i].bets_id,
@@ -122,10 +137,16 @@ async function repackage(sport, league) {
         home_tw: newestSpread.home_tw,
         away_tw: newestSpread.away_tw,
         home: {
+          team_name: eventData[i].home.team_name,
+          player_name: eventData[i].home.player_name,
+          name: eventData[i].home.name,
           alias_ch: eventData[i].home.alias_ch,
           image_id: eventData[i].home.image_id
         },
         away: {
+          team_name: eventData[i].away.team_name,
+          player_name: eventData[i].away.player_name,
+          name: eventData[i].away.name,
           alias_ch: eventData[i].away.alias_ch,
           image_id: eventData[i].away.image_id
         }

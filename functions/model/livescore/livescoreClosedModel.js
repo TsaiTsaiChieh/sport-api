@@ -67,9 +67,12 @@ async function repackage(sport, league, time) {
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       closedEvent.push({
         sport: sport,
-        league: league,
+        league: eventData[i].league.name_ch,
+        ori_league: eventData[i].league.name,
         scheduled: eventData[i].scheduled * 1000,
         home: {
+          team_name: eventData[i].home.team_name,
+          player_name: eventData[i].home.player_name,
           name: eventData[i].home.name,
           name_ch: eventData[i].home.name_ch,
           alias: eventData[i].home.alias,
@@ -77,6 +80,8 @@ async function repackage(sport, league, time) {
           image_id: eventData[i].home.image_id
         },
         away: {
+          team_name: eventData[i].away.team_name,
+          player_name: eventData[i].away.player_name,
           name: eventData[i].away.name,
           name_ch: eventData[i].away.name_ch,
           alias: eventData[i].away.alias,
