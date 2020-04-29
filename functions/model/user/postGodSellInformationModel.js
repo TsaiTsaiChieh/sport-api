@@ -4,7 +4,7 @@ const db = require('../../util/dbUtil');
 const SELL = 1;
 
 function godSellInformation(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const unix = {
         begin: modules.convertTimezone(args.date),
@@ -27,7 +27,7 @@ function godSellInformation(args) {
 }
 
 function isBeforeScheduled(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
         `SELECT scheduled
@@ -53,7 +53,7 @@ function isBeforeScheduled(args, unix) {
 
 // 檢查是否為該聯盟的大神要填寫售牌資訊
 function isGodBelongToLeague(args, titles = []) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     !titles.includes(args.league)
       ? reject(new AppError.UserNotBelongToGod())
       : resolve();
@@ -61,7 +61,7 @@ function isGodBelongToLeague(args, titles = []) {
 }
 // 檢查該大神該天的販售狀態是否確實為「販售」
 function checkPredictionSell(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
         `SELECT sell
@@ -83,7 +83,7 @@ function checkPredictionSell(args, unix) {
 }
 // 取得該大神的階級
 function getTitleRank(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await db.Title.findOne({
         where: {
@@ -101,7 +101,7 @@ function getTitleRank(args) {
   });
 }
 async function insertDB(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await db.PredictionDescription.upsert({
         uid: args.token.uid,
