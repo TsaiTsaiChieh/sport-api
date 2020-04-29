@@ -108,6 +108,11 @@ router.post(
   verification.token,
   require('../controller/user/settleWinListController')
 );
+router.post(
+  '/settle_god_title',
+  verification.token,
+  require('../controller/user/settleGodTitleController')
+);
 
 
 module.exports = router;
