@@ -1,19 +1,19 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/user/favoriteGodModel');
-async function favoriteGod(req, res) {
+const model = require('../../model/topics/deleteArticleModel');
+async function deleteArticle(req, res) {
   const schema = {
     type: 'object',
+    required: ['article_id'],
     properties: {
-      god_uid: {
-        type: 'string'
-      },
-      like: {
-        type: 'boolean'
+      article_id: {
+        type: 'integer',
+        maximum: 9999999,
+        minimum: 0
       }
-    },
-    required: ['god_uid', 'like']
+    }
   };
+
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
@@ -32,4 +32,4 @@ async function favoriteGod(req, res) {
     });
 }
 
-module.exports = favoriteGod;
+module.exports = deleteArticle;

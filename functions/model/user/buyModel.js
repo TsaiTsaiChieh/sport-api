@@ -13,7 +13,6 @@ function buyModel(args) {
         FROM buys b, ranks r, user__predictions p
         WHERE b.god_rank = r.rank_id
         AND b.uid = p.uid
-       
        `,
         {
           type: db.sequelize.QueryTypes.SELECT

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 module.exports.eSoccer = {};
-// const firebaseName = modules.db.eSoccer; normal
+
 const firebaseName = 'pagetest_eSoccer';
 module.exports.eSoccer.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
@@ -19,6 +19,13 @@ module.exports.eSoccer.upcoming = async function(date) {
       const MatchTeam = await db.Team.sync();
       for (let j = 0; j < data.results.length; j++) {
         const ele = data.results[j];
+        if (ele.home.name.indexOf('Esports') !== -1) {
+          ele.home.name = ele.home.name.replace('Esports', '');
+        }
+
+        if (ele.away.name.indexOf('Esports') !== -1) {
+          ele.away.name = ele.away.name.replace('Esports', '');
+        }
         results.push(
           modules.firestore
             .collection(firebaseName)
@@ -46,22 +53,25 @@ module.exports.eSoccer.upcoming = async function(date) {
             flag_prematch: 1,
             status: 2
           };
+          await Match.upsert(dataEvent);
 
-          await Match.create(dataEvent);
           const dataHomeTeam = {
             team_id: ele.home.id,
             league_id: '22000',
             sport_id: ele.sport_id,
             name: ele.home.name,
             alias: ele.home.name,
+            alias_ch: ele.home.name,
             image_id: ele.home.image_id
           };
+
           const dataAwayTeam = {
             team_id: ele.away.id,
             league_id: '22000',
             sport_id: ele.sport_id,
             name: ele.away.name,
-            alias: ele.home.name,
+            alias: ele.away.name,
+            alias_ch: ele.away.name,
             image_id: ele.away.image_id
           };
           await MatchTeam.upsert(dataHomeTeam);
@@ -78,6 +88,7 @@ module.exports.eSoccer.upcoming = async function(date) {
       return error;
     }
   }
+
   console.log('esport scheduled success');
   return new Promise(async function(resolve, reject) {
     try {
@@ -93,6 +104,51 @@ module.exports.eSoccer.upcoming = async function(date) {
 };
 
 function repackage_bets(ele) {
+  let leagueCH = '';
+  switch (ele.league.id) {
+    case '22614': {
+      leagueCH = '足球電競之戰－8分鐘';
+      break;
+    }
+    case '22808': {
+      leagueCH = '墨西哥聯賽－12分鐘';
+      break;
+    }
+    case '22764': {
+      leagueCH = 'FUFV聯賽－12分鐘';
+      break;
+    }
+    case '22537': {
+      leagueCH = '職業聯賽－12分鐘';
+      break;
+    }
+    case '22724': {
+      leagueCH = '職業球員盃－12分鐘';
+      break;
+    }
+    default: {
+    }
+  }
+  let homeTeamName = '';
+  let homePlayerName = '';
+  let awayTeamName = '';
+  let awayPlayerName = '';
+
+  if (ele.home.name.indexOf('(') !== -1) {
+    homeTeamName = ele.home.name.split('(')[0];
+    homePlayerName = ele.home.name.split('(')[1].replace(')', '');
+  } else {
+    homeTeamName = ele.home.name;
+    homePlayerName = null;
+  }
+  if (ele.away.name.indexOf('(') !== -1) {
+    awayTeamName = ele.away.name.split('(')[0];
+    awayPlayerName = ele.away.name.split('(')[1].replace(')', '');
+  } else {
+    awayTeamName = ele.away.name;
+    awayPlayerName = null;
+  }
+
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     scheduled: Number.parseInt(ele.time),
@@ -103,15 +159,24 @@ function repackage_bets(ele) {
     league: {
       ori_bets_id: ele.league.id,
       bets_id: '22000',
-      name: ele.league.name
+      name: 'eSoccer',
+      name_ch: leagueCH
     },
     home: {
+      name: ele.home.name,
       alias: ele.home.name,
+      alias_ch: ele.home.name,
+      team_name: homeTeamName,
+      player_name: homePlayerName,
       image_id: ele.home.image_id,
       bets_id: ele.home.id
     },
     away: {
+      name: ele.away.name,
       alias: ele.away.name,
+      alias_ch: ele.away.name,
+      team_name: awayTeamName,
+      player_name: awayPlayerName,
       image_id: ele.away.image_id,
       bets_id: ele.away.id
     },

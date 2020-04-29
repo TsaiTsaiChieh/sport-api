@@ -830,7 +830,7 @@ const Topic_Article = sequelize.define(
   {
     indexes: [
       {
-        fields: ['article_id', 'type', 'category']
+        fields: ['article_id', 'uid', 'type', 'category']
       }
     ]
   }
