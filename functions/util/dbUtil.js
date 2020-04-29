@@ -847,7 +847,7 @@ const Topic_Reply = sequelize.define(
     },
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -894,7 +894,7 @@ const Topic_Like = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -919,7 +919,7 @@ const Topic_ReplyLike = sequelize.define(
   {
     reply_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -944,7 +944,7 @@ const Topic_FavoriteArticle = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -960,6 +960,36 @@ const Topic_FavoriteArticle = sequelize.define(
     ]
   }
 );
+
+/*
+ * 檢舉文章
+ */
+const Service_ReportTopics = sequelize.define('service__reporttopic', {
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  article_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  reply: {
+    type: Sequelize.STRING
+  },
+});
 
 /*
  * 聯絡客服

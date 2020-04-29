@@ -17,6 +17,10 @@ router.get(
   verification.getToken,
   require('../controller/topics/getRepliesController')
 );
+router.get(
+  '/reply/:rid',
+  require('../controller/topics/getReplyController')
+);
 router.post(
   '/',
   require('../controller/topics/getTopicsController')
