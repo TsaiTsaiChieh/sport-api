@@ -1,8 +1,9 @@
 const modules = require('../util/modules');
 const axios = require('axios');
+const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');
 const translateNBA = transNBA.translateNBA;
-const firestoreName = 'page_NBA';
+const firestoreName = 'pagetest_NBA';
 // const nba_api_key = 'y7uxzm4stjju6dmkspnabaav';
 const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
 // const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
@@ -49,7 +50,7 @@ async function NBApbpInplay(parameter) {
     await keywordAway.push(awayData.lineup[`lineup${i}`].name);
     await transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     try {
       const parameterPBP = {
         periodsNow: periodsNow,
@@ -140,28 +141,10 @@ async function NBApbpHistory(parameter) {
   try {
     const { data } = await axios(pbpURL);
     const dataPBP = data;
+    const ref = modules.firestore
+      .collection(`${firestoreName}_PBP`)
+      .doc(betsID);
 
-    let winner;
-    let loser;
-    if (dataPBP.home.points > dataPBP.away.points) {
-      winner = dataPBP.home.name;
-      loser = dataPBP.away.name;
-    }
-    if (dataPBP.home.points < dataPBP.away.points) {
-      winner = dataPBP.away.name;
-      loser = dataPBP.home.name;
-    }
-    const finalResult = {
-      homePoints: dataPBP.home.points,
-      awayPoints: dataPBP.away.points,
-      winner: winner,
-      loser: loser
-    };
-    const dataOutput = {
-      boxscore: finalResult
-    };
-    let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
-    await ref.set(dataOutput, { merge: true });
     for (
       let periodsCount = 0;
       periodsCount < dataPBP.periods.length;
@@ -188,24 +171,13 @@ async function NBApbpHistory(parameter) {
         );
       }
     }
-  } catch (error) {
-    console.log(
-      'error happened in pubsub/NBApbpHistory function by page',
-      error
-    );
-    return error;
-  }
-  try {
-    const { data } = await axios(enSummaryURL);
-    const dataOutput = {}; // 請補上物件內容
 
+    const { data } = await axios(enSummaryURL);
     const dataSummary = data;
-    let ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
-    await ref.set(dataOutput, { merge: true });
+
     for (let i = 0; i < dataSummary.home.players.length; i++) {
       ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
       // eslint-disable-next-line no-await-in-loop
-
       await ref.set(
         {
           players: {
@@ -224,10 +196,21 @@ async function NBApbpHistory(parameter) {
     return error;
   }
   // change the status to 1
-  modules.firestore
+  await modules.firestore
     .collection(firestoreName)
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
+  await modules.database
+    .ref(`basketball/NBA/${betsID}/Summary/statuts`)
+    .set('closed');
+  const Match = await db.Match.sync();
+  await Match.upsert({
+    bets_id: betsID,
+    //here
+    home_points: dataSummary.home.statistics.points,
+    away_points: dataSummary.away.statistics.points,
+    status: 0
+  });
 }
 async function initRealtime(gameID, betsID) {
   let keywordTransHome = [];
@@ -440,18 +423,24 @@ async function doPBP(parameter) {
       await ref.set(dataPBP.periods[periodsCount].scoring.away.points);
     }
   }
-  const ref = modules.database.ref(`basketball/NBA/${betsID}/Summary/status`);
-  await ref.set(dataPBP.status);
+
   if (dataPBP.status !== 'inprogress') {
-    modules.firestore
-      .collection(firestoreName)
-      .doc(betsID)
-      .set({ flag: { status: 0 } }, { merge: true });
+    await modules.database
+      .ref(`basketball/NBA/${betsID}/Summary/status`)
+      .set('closed');
   } else {
-    modules.firestore
+    await modules.firestore
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 1 } }, { merge: true });
+    await modules.database
+      .ref(`basketball/NBA/${betsID}/Summary/status`)
+      .set('inprogress');
+    const Match = await db.Match.sync();
+    await Match.upsert({
+      bets_id: betsID,
+      status: 1
+    });
   }
 }
 async function doSummary(parameter) {

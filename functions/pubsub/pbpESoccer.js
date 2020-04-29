@@ -121,11 +121,15 @@ async function ESoccerpbpHistory(parameter) {
     .collection('pagetest_eSoccer')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
-
   await Match.upsert({
     bets_id: betsID,
+    home_points: homeScores,
+    away_points: awayScores,
     status: 0
   });
+  await modules.database
+    .ref(`esports/eSoccer/${betsID}/Summary/statuts`)
+    .set('closed');
   console.log('checkmatch_ESoccer success');
 }
 async function doPBP(parameter) {
@@ -176,21 +180,16 @@ async function doPBP(parameter) {
     data.results[0].stats.redcards = ['no data', 'no data'];
   }
 
-  const ref = modules.database.ref(`esports/eSoccer/${betsID}/Summary/`);
-  let eventStatus = '';
   if (data.results[0].time_status === '3') {
-    await Match.upsert({
-      bets_id: betsID,
-      status: 0
-    });
-    eventStatus = 'closed';
-    await modules.firestore
-      .collection(firestoreName)
-      .doc(betsID)
-      .set({ flag: { status: 0 } }, { merge: true });
+    await modules.database
+      .ref(`esports/eSoccer/${betsID}/Summary/statuts`)
+      .set('closed');
   }
   if (data.results[0].time_status === '2') {
-    eventStatus = 'inprogress';
+    await modules.database
+      .ref(`esports/eSoccer/${betsID}/Summary/statuts`)
+      .set('inprogress');
+
     await Match.upsert({
       bets_id: betsID,
       status: 1
@@ -201,7 +200,10 @@ async function doPBP(parameter) {
       .set({ flag: { status: 1 } }, { merge: true });
   }
   if (data.results[0].time_status === '1') {
-    eventStatus = 'inprogress';
+    await modules.database
+      .ref(`esports/eSoccer/${betsID}/Summary/statuts`)
+      .set('inprogress');
+
     await Match.upsert({
       bets_id: betsID,
       status: 1
@@ -211,6 +213,7 @@ async function doPBP(parameter) {
       .doc(betsID)
       .set({ flag: { status: 1 } }, { merge: true });
   }
+  const ref = modules.database.ref(`esports/eSoccer/${betsID}/Summary/`);
   await ref.set({
     league: {
       name: data.results[0].league.name,

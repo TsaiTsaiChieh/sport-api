@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const axios = require('axios');
 const transMLB = require('./translateMLB');
 const translateMLB = transMLB.translateMLB;
-const firestoreName = 'page_MLB';
+const firestoreName = 'pagetest_MLB';
 const mlb_api_key = 'x6t9jymf2hdy8nqy2ayk69db';
 const db = require('../util/dbUtil');
 // const mlb_api_key = 's7bs62gb8ye8ram6ksr7rkec';
@@ -67,7 +67,7 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     try {
       const parameterPBP = {
         inningsNow: inningsNow,
@@ -740,15 +740,22 @@ async function doPBP(parameter) {
     }
   }
   if (dataPBP.game.status !== 'inprogress') {
-    modules.firestore
-      .collection(firestoreName)
-      .doc(betsID)
-      .set({ flag: { status: 0 } }, { merge: true });
+    await modules.database
+      .ref(`baseball/MLB/${betsID}/Summary/statuts`)
+      .set('closed');
   } else {
-    modules.firestore
+    await modules.firestore
       .collection(firestoreName)
       .doc(betsID)
       .set({ flag: { status: 1 } }, { merge: true });
+    await modules.database
+      .ref(`baseball/MLB/${betsID}/Summary/statuts`)
+      .set('inprogress');
+    const Match = await db.Match.sync();
+    await Match.upsert({
+      bets_id: betsID,
+      status: 1
+    });
   }
 }
 async function doSummary(parameter) {
@@ -1013,8 +1020,8 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               [`events${eventAtbatCount}`]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                  eventHalfCount
-                                ].at_bat.events[eventAtbatCount]
+                                eventHalfCount
+                              ].at_bat.events[eventAtbatCount]
                             }
                           }
                         }
@@ -1050,22 +1057,27 @@ async function MLBpbpHistory(parameter) {
       },
       { merge: true }
     );
-    const Match = await db.Match.sync();
-    await Match.upsert({
-      bets_id: betsID,
-      home_points: dataSummary.game.home.runs,
-      away_points: dataSummary.game.away.runs
-    });
   } catch (error) {
     console.log(
       'error happened in pubsub/MLBpbpHistory function by page',
       error
     );
   }
-  modules.firestore
+
+  await modules.firestore
     .collection('pagetest_MLB')
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });
+  await modules.database
+    .ref(`baseball/MLB/${betsID}/Summary/statuts`)
+    .set('closed');
+  const Match = await db.Match.sync();
+  await Match.upsert({
+    bets_id: betsID,
+    home_points: dataSummary.game.home.runs,
+    away_points: dataSummary.game.away.runs,
+    status: 0
+  });
 }
 async function transFunction(stringTrans) {
   const keyword = ['á', 'é', 'í', 'ó', 'ú'];

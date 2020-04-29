@@ -42,20 +42,14 @@ async function checkmatch_ESoccer() {
               .once('value')
           )
         );
-        //
-        if (realtimeData.Summary.status === 1) {
+        if (realtimeData.Summary.status === 'inprogress') {
           const parameter = {
             betsID: betsID
           };
           ESoccerpbpInplay(parameter);
         }
-        if (realtimeData.Summary.status === 2) {
-          const parameter = {
-            betsID: betsID
-          };
-          ESoccerpbpInplay(parameter);
-        }
-        if (realtimeData.Summary.status === 3) {
+
+        if (realtimeData.Summary.status === 'closed') {
           const parameter = {
             betsID: betsID
           };

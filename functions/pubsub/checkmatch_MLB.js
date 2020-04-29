@@ -5,29 +5,26 @@ const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 
 async function checkmatch_MLB() {
-  const firestoreName = 'page_MLB';
+  const firestoreName = 'pagetest_MLB';
 
   const data = await modules.firestore.collection(firestoreName).get();
   const totalData = [];
   data.forEach((doc) => {
     totalData.push(doc.data());
   });
-
-  // event
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
     const gameID = totalData[i].radar_id;
-    // test : scheduled._seconds
     const gameTime = totalData[i].scheduled * 1000;
     const nowTime = Date.now();
     const eventStatus = totalData[i].flag.status;
     switch (eventStatus) {
       case 2: {
         if (gameTime <= nowTime) {
-          const inningsNow = 0; // 0 ~ 10
-          const halfNow = 0; // 0 ~ 1
-          const eventHalfNow = 0; // 0 ~ x
-          const eventAtbatNow = 0; // 0 ~ x
+          const inningsNow = 0;
+          const halfNow = 0;
+          const eventHalfNow = 0;
+          const eventAtbatNow = 0;
           const parameter = {
             gameID: gameID,
             betsID: betsID,
@@ -53,10 +50,10 @@ async function checkmatch_MLB() {
           )
         );
         if (realtimeData.Summary.status === 'created') {
-          const inningsNow = 0; // 0 ~ 10
-          const halfNow = 0; // 0 ~ 1
-          const eventHalfNow = 0; // 0 ~ x
-          const eventAtbatNow = 0; // 0 ~ x
+          const inningsNow = 0;
+          const halfNow = 0;
+          const eventHalfNow = 0;
+          const eventAtbatNow = 0;
           const parameter = {
             gameID: gameID,
             betsID: betsID,

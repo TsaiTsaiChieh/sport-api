@@ -4,7 +4,7 @@ const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 checkmatch_NBA();
 async function checkmatch_NBA() {
-  const firestoreName = 'page_NBA';
+  const firestoreName = 'pagetest_NBA';
 
   // maybe from firestore to mysql
   const data = await modules.firestore.collection(firestoreName).get();
