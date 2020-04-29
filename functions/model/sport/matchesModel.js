@@ -8,7 +8,7 @@ const inPlayStatus = 1;
 const endStatus = 0;
 
 function getMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       let godPredictions = [];
       const matches = await getMatchesWithDate(args);
@@ -23,7 +23,7 @@ function getMatches(args) {
 }
 
 function getMatchesWithDate(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const flag_prematch = 1;
     const { league } = args;
     const begin = modules.convertTimezone(args.date);
@@ -81,7 +81,7 @@ function getMatchesWithDate(args) {
 }
 
 function returnGodUserPrediction(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
