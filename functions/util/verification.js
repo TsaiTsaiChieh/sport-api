@@ -78,11 +78,11 @@ async function token(req, res, next) {
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
-      res.sendStatus(401);
+      return res.sendStatus(401);
     }
   } catch (err) {
     console.error('Error in util/verification token functions', err);
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
   next();
 }
@@ -102,7 +102,7 @@ async function token_v2(req, res, next) {
     }
   } catch (err) {
     console.error('Error in util/verification token_v2 functions', err);
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
   return next();
 }

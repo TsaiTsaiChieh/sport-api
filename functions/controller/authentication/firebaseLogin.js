@@ -119,6 +119,7 @@ async function firebaseLogin(req, res) {
                WHERE uid = '${decodedIdToken.uid}'
              `,
             {
+              plain:true,
               type: db.sequelize.QueryTypes.SELECT
             });
 
