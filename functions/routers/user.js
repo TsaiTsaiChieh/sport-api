@@ -58,6 +58,17 @@ router.delete(
   verification.token_v2,
   require('../controller/user/deletePredictsController')
 );
+// 大神售牌資訊
+router.get(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/getGodSellInformationController')
+);
+router.post(
+  '/sell_information',
+  verification.token_v2,
+  require('../controller/user/postGodSellInformationController')
+);
 /* 錢包 */
 router.post(
   '/purse/:uid',
