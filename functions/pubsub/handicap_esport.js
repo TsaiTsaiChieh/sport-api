@@ -22,22 +22,22 @@ async function handicap_esport() {
       leagues[i]
     );
 
-    if (querysSpread.length) {
+    if (querysSpread.length > 0) {
       for (let z = 0; z < querysSpread.length; z++) {
         getHandicap(leagues[i], querysSpread[z]);
       }
     }
-    if (querysTotals.length) {
+    if (querysTotals.length > 0) {
       for (let x = 0; x < querysTotals.length; x++) {
         getTotals(leagues[i], querysTotals[x]);
       }
     }
-    if (querysSpreadOpening.length) {
+    if (querysSpreadOpening.length > 0) {
       for (let c = 0; c < querysSpreadOpening.length; c++) {
         updateHandicap(leagues[i], querysSpreadOpening[c]);
       }
     }
-    if (querysTotalsOpening.length) {
+    if (querysTotalsOpening.length > 0) {
       for (let v = 0; v < querysTotalsOpening.length; v++) {
         updateHandicap(leagues[i], querysTotalsOpening[v]);
       }
@@ -50,13 +50,13 @@ async function updateHandicap(league, ele) {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
     const { data } = await modules.axios(URL);
-    let spread_odds;
-    let totals_odds;
+    let spread_odds = [];
+    let totals_odds = [];
     /* 因為 res 可能為 {
     "success": 1,
     "results": {}
-    }*/
-    if (data.results) {
+    } */
+    if (!data.results.odds) {
       spread_odds = data.results.odds['1_2'];
       totals_odds = data.results.odds['1_3'];
     }
@@ -64,63 +64,88 @@ async function updateHandicap(league, ele) {
 
     if (spread_odds.length > 0) {
       newest_spread = spread_odds[spread_odds.length - 1];
-      newest_spread = await spreadCalculator(newest_spread);
-
-      await eventSnapshot.set(
-        {
-          newest_spread: {
-            handicap: Number.parseFloat(newest_spread.handicap),
-            home_odd: Number.parseFloat(newest_spread.home_od),
-            away_odd: Number.parseFloat(newest_spread.away_od),
-            away_tw: newest_spread.away_tw,
-            home_tw: newest_spread.home_tw,
-            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(Number.parseInt(newest_spread.add_time) * 1000)
-            ),
-            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date()
-            )
-          }
-        },
-        { merge: true }
-      );
-
-      await Match.upsert({
-        bets_id: ele.bets_id,
-        spread_id: newest_spread.id
-      });
+      try {
+        newest_spread = await spreadCalculator(newest_spread);
+      } catch (error) {
+        console.log('updateHandicap : spreadCalculator error');
+      }
+      try {
+        await eventSnapshot.set(
+          {
+            newest_spread: {
+              handicap: Number.parseFloat(newest_spread.handicap),
+              home_odd: Number.parseFloat(newest_spread.home_od),
+              away_odd: Number.parseFloat(newest_spread.away_od),
+              away_tw: newest_spread.away_tw,
+              home_tw: newest_spread.home_tw,
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(newest_spread.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              )
+            }
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.log('updateHandicap : set newestspread to firebase error');
+      }
+      try {
+        await Match.upsert({
+          bets_id: ele.bets_id,
+          spread_id: newest_spread.id
+        });
+      } catch (error) {
+        console.log('updateHandicap : set newest spread to mysql error');
+      }
     }
     let newest_totals;
     if (totals_odds.length > 0) {
       newest_totals = totals_odds[totals_odds.length - 1];
-      newest_totals = await totalsCalculator(newest_totals);
-      await eventSnapshot.set(
-        {
-          newest_totals: {
-            handicap: Number.parseFloat(newest_totals.handicap),
-            under_odd: Number.parseFloat(newest_totals.under_od),
-            over_odd: Number.parseFloat(newest_totals.over_od),
-            over_tw: newest_totals.over_tw,
-            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(Number.parseInt(newest_totals.add_time) * 1000)
-            ),
-            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date()
-            )
-          }
-        },
-        { merge: true }
-      );
-
-      await Match.upsert({
-        bets_id: ele.bets_id,
-        totals_id: newest_totals.id
-      });
+      try {
+        newest_totals = await totalsCalculator(newest_totals);
+      } catch (error) {
+        console.log('updateHandicap : totalscalculator error');
+      }
+      try {
+        await eventSnapshot.set(
+          {
+            newest_totals: {
+              handicap: Number.parseFloat(newest_totals.handicap),
+              under_odd: Number.parseFloat(newest_totals.under_od),
+              over_odd: Number.parseFloat(newest_totals.over_od),
+              over_tw: newest_totals.over_tw,
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(newest_totals.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              )
+            }
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.log('updateHandicap : set newesttotals to firestore error');
+      }
+      try {
+        await Match.upsert({
+          bets_id: ele.bets_id,
+          totals_id: newest_totals.id
+        });
+      } catch (error) {
+        console.log('updateHandicap : set newesttotals to mysql error');
+      }
     }
 
     for (let i = 0; i < spread_odds.length; i++) {
       let odd = spread_odds[i];
-      odd = await spreadCalculator(odd);
+      try {
+        odd = await spreadCalculator(odd);
+      } catch (error) {
+        console.log('updateHandicap : spreadcalculator error');
+      }
       if (odd.home_od && odd.handicap && odd.away_od) {
         const spread = {};
         spread[odd.id] = {
@@ -136,24 +161,35 @@ async function updateHandicap(league, ele) {
           away_tw: odd.away_tw,
           home_tw: odd.home_tw
         };
-        await eventSnapshot.set({ spreads: spread }, { merge: true });
-
-        await MatchSpread.upsert({
-          spread_id: odd.id,
-          match_id: ele.bets_id,
-          league_id: '22000',
-          handicap: Number.parseFloat(odd.handicap),
-          home_odd: Number.parseFloat(odd.home_od),
-          away_odd: Number.parseFloat(odd.away_od),
-          home_tw: odd.home_tw,
-          away_tw: odd.away_tw,
-          add_time: Number.parseInt(odd.add_time) * 1000
-        });
+        try {
+          await eventSnapshot.set({ spreads: spread }, { merge: true });
+        } catch (error) {
+          console.log('updateHandicap : set spreads to firestore error');
+        }
+        try {
+          await MatchSpread.upsert({
+            spread_id: odd.id,
+            match_id: ele.bets_id,
+            league_id: '22000',
+            handicap: Number.parseFloat(odd.handicap),
+            home_odd: Number.parseFloat(odd.home_od),
+            away_odd: Number.parseFloat(odd.away_od),
+            home_tw: odd.home_tw,
+            away_tw: odd.away_tw,
+            add_time: Number.parseInt(odd.add_time) * 1000
+          });
+        } catch (error) {
+          console.log('updateHandicap : set totals to mysql error');
+        }
       }
     }
     for (let i = 0; i < totals_odds.length; i++) {
       let odd = totals_odds[i];
-      odd = await totalsCalculator(odd);
+      try {
+        odd = await totalsCalculator(odd);
+      } catch (error) {
+        console.log('updateHandicap : totalscalculator error');
+      }
       if (odd.over_od && odd.handicap && odd.under_od) {
         const totals = {};
         totals[odd.id] = {
@@ -168,18 +204,25 @@ async function updateHandicap(league, ele) {
           ),
           over_tw: odd.over_tw
         };
-        await eventSnapshot.set({ totals: totals }, { merge: true });
-
-        await MatchTotals.upsert({
-          totals_id: odd.id,
-          match_id: ele.bets_id,
-          league_id: '22000',
-          handicap: Number.parseFloat(odd.handicap),
-          over_odd: Number.parseFloat(odd.over_od),
-          under_odd: Number.parseFloat(odd.under_od),
-          over_tw: odd.over_tw,
-          add_time: Number.parseInt(odd.add_time) * 1000
-        });
+        try {
+          await eventSnapshot.set({ totals: totals }, { merge: true });
+        } catch (error) {
+          console.log('updateHandicap : set totals to firestore error');
+        }
+        try {
+          await MatchTotals.upsert({
+            totals_id: odd.id,
+            match_id: ele.bets_id,
+            league_id: '22000',
+            handicap: Number.parseFloat(odd.handicap),
+            over_odd: Number.parseFloat(odd.over_od),
+            under_odd: Number.parseFloat(odd.under_od),
+            over_tw: odd.over_tw,
+            add_time: Number.parseInt(odd.add_time) * 1000
+          });
+        } catch (error) {
+          console.log('updateHandicap : set totals to mysql error');
+        }
         // console.log(
         //   `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${
         //     ele.away.alias
@@ -204,7 +247,7 @@ async function query_opening(flag, value, league) {
       .where(flag, '==', value)
       .where('scheduled', '>', modules.moment() / 1000)
       .get();
-    querys.forEach(function (docs) {
+    querys.forEach(function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -228,7 +271,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function (docs) {
+    querys.forEach(async function(docs) {
       eles.push(docs.data());
     });
     return await Promise.all(eles);
@@ -255,12 +298,16 @@ async function getHandicap(league, ele) {
     //   `
     // );
     // if no data, the data.results will be { }
-    if (data.results) {
+    if (data.results.Bet365 !== undefined) {
       if (data.results.Bet365) {
         const odds = data.results.Bet365.odds.start;
         if (odds['1_2']) {
           let spreadData = odds['1_2'];
-          spreadData = await spreadCalculator(spreadData);
+          try {
+            spreadData = await spreadCalculator(spreadData);
+          } catch (error) {
+            console.log('gethandicap : spreadcalculator error');
+          }
           const spread = {};
           spread[spreadData.id] = {
             handicap: Number.parseFloat(spreadData.handicap),
@@ -275,31 +322,41 @@ async function getHandicap(league, ele) {
             home_tw: spreadData.home_tw,
             away_tw: spreadData.away_tw
           };
-
-          await eventSnapshot.set(
-            {
-              flag: { spread: 1 },
-              spread: spread,
-              newest_spread: spread[spreadData.id]
-            },
-            { merge: true }
-          );
-
-          await Match.upsert({
-            bets_id: ele.bets_id,
-            spread_id: spreadData.id
-          });
-          await MatchSpread.upsert({
-            spread_id: spreadData.id,
-            match_id: ele.bets_id,
-            league_id: '22000',
-            handicap: Number.parseFloat(spreadData.handicap),
-            home_odd: Number.parseFloat(spreadData.home_od),
-            away_odd: Number.parseFloat(spreadData.away_od),
-            home_tw: spreadData.home_tw,
-            away_tw: spreadData.away_tw,
-            add_time: Number.parseInt(spreadData.add_time) * 1000
-          });
+          try {
+            await eventSnapshot.set(
+              {
+                flag: { spread: 1 },
+                spread: spread,
+                newest_spread: spread[spreadData.id]
+              },
+              { merge: true }
+            );
+          } catch (error) {
+            console.log('gethandicap : set spread to firestore error');
+          }
+          try {
+            await Match.upsert({
+              bets_id: ele.bets_id,
+              spread_id: spreadData.id
+            });
+          } catch (error) {
+            console.log('gethandicap : set spread to mysql-match error');
+          }
+          try {
+            await MatchSpread.upsert({
+              spread_id: spreadData.id,
+              match_id: ele.bets_id,
+              league_id: '22000',
+              handicap: Number.parseFloat(spreadData.handicap),
+              home_odd: Number.parseFloat(spreadData.home_od),
+              away_odd: Number.parseFloat(spreadData.away_od),
+              home_tw: spreadData.home_tw,
+              away_tw: spreadData.away_tw,
+              add_time: Number.parseInt(spreadData.add_time) * 1000
+            });
+          } catch (error) {
+            console.log('gethandicap : set spread to mysqk-matchspread error');
+          }
           // console.log(
           //   `${league}-event_id: ${ele.bets_id} get spread successful, URL: ${URL}`
           // );
@@ -326,13 +383,17 @@ async function getTotals(league, ele) {
     //     .format('llll')}
     //   `
     // );
-    if (data.results) {
+    if (data.results.Bet365 !== undefined) {
       if (data.results.Bet365) {
         const odds = data.results.Bet365.odds.start;
         if (odds['1_3']) {
           let totalsData = odds['1_3'];
           const totals = {};
-          totalsData = await totalsCalculator(totalsData);
+          try {
+            totalsData = await totalsCalculator(totalsData);
+          } catch (error) {
+            console.log('getTotals : totalsCalculator error');
+          }
           totals[totalsData.id] = {
             handicap: Number.parseFloat(totalsData.handicap),
             over_odd: Number.parseFloat(totalsData.over_od),
@@ -345,31 +406,40 @@ async function getTotals(league, ele) {
             ),
             over_tw: totalsData.over_tw
           };
-
-          await eventSnapshot.set(
-            {
-              flag: { totals: 1 },
-              totals: totals,
-              newest_totals: totals[totalsData.id]
-            },
-            { merge: true }
-          );
-
-          await Match.upsert({
-            bets_id: ele.bets_id,
-            totals_id: totalsData.id
-          });
-
-          await MatchTotals.upsert({
-            totals_id: totalsData.id,
-            match_id: ele.bets_id,
-            league_id: '22000',
-            handicap: Number.parseFloat(totalsData.handicap),
-            over_odd: Number.parseFloat(totalsData.over_od),
-            under_odd: Number.parseFloat(totalsData.under_od),
-            over_tw: totalsData.over_tw,
-            add_time: Number.parseInt(totalsData.add_time) * 1000
-          });
+          try {
+            await eventSnapshot.set(
+              {
+                flag: { totals: 1 },
+                totals: totals,
+                newest_totals: totals[totalsData.id]
+              },
+              { merge: true }
+            );
+          } catch (error) {
+            console.log('getTotals : set totals to firestore error');
+          }
+          try {
+            await Match.upsert({
+              bets_id: ele.bets_id,
+              totals_id: totalsData.id
+            });
+          } catch (error) {
+            console.log('getTotals : set totals to mysql-match error');
+          }
+          try {
+            await MatchTotals.upsert({
+              totals_id: totalsData.id,
+              match_id: ele.bets_id,
+              league_id: '22000',
+              handicap: Number.parseFloat(totalsData.handicap),
+              over_odd: Number.parseFloat(totalsData.over_od),
+              under_odd: Number.parseFloat(totalsData.under_od),
+              over_tw: totalsData.over_tw,
+              add_time: Number.parseInt(totalsData.add_time) * 1000
+            });
+          } catch (error) {
+            console.log('getTotals : set totals to mysql-matchtotals error');
+          }
           // console.log(
           //   `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
           // );

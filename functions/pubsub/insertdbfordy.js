@@ -1,20 +1,17 @@
 const modules = require('../util/modules');
 inserttest();
 async function inserttest() {
-  for (let i = 0; i < 10; i++) {
-    ab(i);
-  }
-}
-async function ab(i) {
-  const timesPerLoop = 4;
-  let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
-    console.log(i);
+  // const realtimeData = JSON.parse(
+  //   JSON.stringify(
+  //     // eslint-disable-next-line no-await-in-loop
+  //     await modules.database.ref(`esports/eSoccer/2336641`).once('value')
+  //   )
+  // );
+  const a = await (
+    await modules.database.ref('esports/eSoccer/2336641').once('value')
+  ).val();
+  console.log(a);
 
-    countForStatus2 = countForStatus2 + 1;
-    if (countForStatus2 >= timesPerLoop) {
-      console.log('checkmatch_ESoccer success');
-      clearInterval(timerForStatus2);
-    }
-  }, 3000);
+  // console.log(a.data);
+  // console.log(realtimeData);
 }

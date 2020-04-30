@@ -13,12 +13,7 @@ async function checkmatch_ESoccer() {
   data.forEach((doc) => {
     totalData.push(doc.data());
   });
-  const realtimeData = JSON.parse(
-    JSON.stringify(
-      // eslint-disable-next-line no-await-in-loop
-      await modules.database.ref('esports/eSoccer').once('value')
-    )
-  );
+
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
     const gameTime = totalData[i].scheduled * 1000;
@@ -26,13 +21,19 @@ async function checkmatch_ESoccer() {
     const eventStatus = totalData[i].flag.status;
     switch (eventStatus) {
       case 2: {
+        const realtimeData = await modules.database
+          .ref(`esports/eSoccer/${betsID}`)
+          .once('value')
+          .val();
+
         if (gameTime <= nowTime) {
           const parameter = {
-            betsID: betsID
+            betsID: betsID,
+            realtimeData: realtimeData
           };
-          ESoccerpbpInplay(parameter);
+          await ESoccerpbpInplay(parameter);
         } else {
-          const ref = await modules.database.ref(
+          const ref = modules.database.ref(
             `esports/eSoccer/${betsID}/Summary/status`
           );
           ref.set('scheduled');
@@ -40,18 +41,24 @@ async function checkmatch_ESoccer() {
         break;
       }
       case 1: {
-        if (realtimeData[`${betsID}`].Summary.status === 'inprogress') {
+        const realtimeData = await modules.database
+          .ref(`esports/eSoccer/${betsID}`)
+          .once('value')
+          .val();
+
+        if (realtimeData.Summary.status === 'inprogress') {
           const parameter = {
-            betsID: betsID
+            betsID: betsID,
+            realtimeData: realtimeData
           };
-          ESoccerpbpInplay(parameter);
+          await ESoccerpbpInplay(parameter);
         }
 
-        if (realtimeData[`${betsID}`].Summary.status === 'closed') {
+        if (realtimeData.Summary.status === 'closed') {
           const parameter = {
             betsID: betsID
           };
-          ESoccerpbpHistory(parameter);
+          await ESoccerpbpHistory(parameter);
         }
         break;
       }
