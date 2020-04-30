@@ -3,79 +3,96 @@ const db = require('../../util/dbUtil');
 module.exports.eSoccer = {};
 
 const firebaseName = 'pagetest_eSoccer';
-module.exports.eSoccer.upcoming = async function(date) {
-  const _date = modules.dateFormat(date);
+const Match = db.Match;
+const MatchTeam = db.Team;
+module.exports.eSoccer.upcoming = async function (date) {
   const sportID = 1;
   const leagueArray = [22614, 22808, 22764, 22537, 22724];
 
   for (let i = 0; i < leagueArray.length; i++) {
     const leagueID = leagueArray[i];
-
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
     try {
       const { data } = await modules.axios(URL);
+      if (data.results) {
+        for (let j = 0; j < data.results.length; j++) {
+          const ele = data.results[j];
+          if (ele.home.name.indexOf('Esports') !== -1) {
+            ele.home.name = ele.home.name.replace('Esports', '');
+          }
 
-      const Match = db.Match;
-      const MatchTeam = db.Team;
-      for (let j = 0; j < data.results.length; j++) {
-        const ele = data.results[j];
-        if (ele.home.name.indexOf('Esports') !== -1) {
-          ele.home.name = ele.home.name.replace('Esports', '');
+          if (ele.away.name.indexOf('Esports') !== -1) {
+            ele.away.name = ele.away.name.replace('Esports', '');
+          }
+          try {
+            await modules.firestore
+              .collection(firebaseName)
+              .doc(ele.id)
+              .set(repackage_bets(ele), { merge: true });
+          } catch (error) {
+            console.log('prematch : set firestore error');
+          }
+          try {
+            await modules.database
+              .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+              .set('scheduled');
+          } catch (error) {
+            console.log('prematch : set realtime error');
+          }
+          try {
+            const dataEvent = {
+              bets_id: ele.id,
+              league_id: '22000',
+              ori_league_id: ele.league.id,
+              sport_id: ele.sport_id,
+              ori_sport_id: ele.sport_id,
+              home_id: ele.home.id,
+              away_id: ele.away.id,
+              scheduled: Number.parseInt(ele.time),
+              scheduled_tw: Number.parseInt(ele.time) * 1000,
+              flag_prematch: 1,
+              status: 2
+            };
+            try {
+              await Match.upsert(dataEvent);
+            } catch (error) {
+              console.log('prematch : set mysql error');
+            }
+            const dataHomeTeam = {
+              team_id: ele.home.id,
+              league_id: '22000',
+              sport_id: ele.sport_id,
+              name: ele.home.name,
+              alias: ele.home.name,
+              alias_ch: ele.home.name,
+              image_id: ele.home.image_id
+            };
+
+            const dataAwayTeam = {
+              team_id: ele.away.id,
+              league_id: '22000',
+              sport_id: ele.sport_id,
+              name: ele.away.name,
+              alias: ele.away.name,
+              alias_ch: ele.away.name,
+              image_id: ele.away.image_id
+            };
+            try {
+              await MatchTeam.upsert(dataHomeTeam);
+            } catch (error) {
+              console.log('prematch : set mysql match-home team error');
+            }
+            try {
+              await MatchTeam.upsert(dataAwayTeam);
+            } catch (error) {
+              console.log('prematch : set mysql match-away team error');
+            }
+          } catch (err) {
+            console.error(err);
+          }
         }
-
-        if (ele.away.name.indexOf('Esports') !== -1) {
-          ele.away.name = ele.away.name.replace('Esports', '');
-        }
-
-        await modules.firestore
-          .collection(firebaseName)
-          .doc(ele.id)
-          .set(repackage_bets(ele), { merge: true });
-
-        await modules.database
-          .ref(`esports/eSoccer/${ele.id}/Summary/status`)
-          .set('scheduled');
-        try {
-          const dataEvent = {
-            bets_id: ele.id,
-            league_id: '22000',
-            ori_league_id: ele.league.id,
-            sport_id: ele.sport_id,
-            ori_sport_id: ele.sport_id,
-            home_id: ele.home.id,
-            away_id: ele.away.id,
-            scheduled: Number.parseInt(ele.time),
-            scheduled_tw: Number.parseInt(ele.time) * 1000,
-            flag_prematch: 1,
-            status: 2
-          };
-
-          await Match.upsert(dataEvent);
-          const dataHomeTeam = {
-            team_id: ele.home.id,
-            league_id: '22000',
-            sport_id: ele.sport_id,
-            name: ele.home.name,
-            alias: ele.home.name,
-            alias_ch: ele.home.name,
-            image_id: ele.home.image_id
-          };
-
-          const dataAwayTeam = {
-            team_id: ele.away.id,
-            league_id: '22000',
-            sport_id: ele.sport_id,
-            name: ele.away.name,
-            alias: ele.away.name,
-            alias_ch: ele.away.name,
-            image_id: ele.away.image_id
-          };
-
-          await MatchTeam.upsert(dataHomeTeam);
-          await MatchTeam.upsert(dataAwayTeam);
-        } catch (err) {
-          console.error(err);
-        }
+      } else {
+        console.log(leagueID + 'has no upcoming event now');
       }
     } catch (error) {
       console.error(
