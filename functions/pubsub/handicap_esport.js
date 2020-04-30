@@ -23,23 +23,23 @@ async function handicap_esport() {
     );
 
     if (querysSpread.length) {
-      for (let j = 0; j < querysSpread.length; j++) {
-        await getHandicap(leagues[i], querysSpread[j]);
+      for (let z = 0; z < querysSpread.length; z++) {
+        getHandicap(leagues[i], querysSpread[z]);
       }
     }
     if (querysTotals.length) {
-      for (let j = 0; j < querysTotals.length; j++) {
-        await getTotals(leagues[i], querysTotals[j]);
+      for (let x = 0; x < querysTotals.length; x++) {
+        getTotals(leagues[i], querysTotals[x]);
       }
     }
     if (querysSpreadOpening.length) {
-      for (let j = 0; j < querysSpreadOpening.length; j++) {
-        await updateHandicap(leagues[i], querysSpreadOpening[j]);
+      for (let c = 0; c < querysSpreadOpening.length; c++) {
+        updateHandicap(leagues[i], querysSpreadOpening[c]);
       }
     }
     if (querysTotalsOpening.length) {
-      for (let j = 0; j < querysTotalsOpening.length; j++) {
-        await updateHandicap(leagues[i], querysTotalsOpening[j]);
+      for (let v = 0; v < querysTotalsOpening.length; v++) {
+        updateHandicap(leagues[i], querysTotalsOpening[v]);
       }
     }
   }
@@ -50,8 +50,16 @@ async function updateHandicap(league, ele) {
     const eventSnapshot = modules.getDoc(league, ele.bets_id);
     const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
     const { data } = await modules.axios(URL);
-    const spread_odds = data.results.odds['1_2'];
-    const totals_odds = data.results.odds['1_3'];
+    let spread_odds;
+    let totals_odds;
+    /* 因為 res 可能為 {
+    "success": 1,
+    "results": {}
+    }*/
+    if (data.results) {
+      spread_odds = data.results.odds['1_2'];
+      totals_odds = data.results.odds['1_3'];
+    }
     let newest_spread;
 
     if (spread_odds.length > 0) {

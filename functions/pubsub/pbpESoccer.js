@@ -31,10 +31,6 @@ async function ESoccerpbpHistory(parameter) {
   const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
   const { data } = await modules.axios(pbpURL);
 
-  const ref = await modules.firestore
-    .collection(`${firestoreName}_PBP`)
-    .doc(betsID);
-
   if (!data.results[0].timer) {
     data.results[0].timer = { tm: 'xx', ts: 'xx' };
   }
@@ -75,7 +71,7 @@ async function ESoccerpbpHistory(parameter) {
     homeScores = data.results[0].ss.split('-')[0];
     awayScores = data.results[0].ss.split('-')[1];
   }
-
+  const ref = modules.firestore.collection(`${firestoreName}_PBP`).doc(betsID);
   await ref.set(
     {
       league: {
@@ -134,7 +130,7 @@ async function ESoccerpbpHistory(parameter) {
 async function doPBP(parameter) {
   const betsID = parameter.betsID;
   const pbpURL = parameter.pbpURL;
-  const realtimeData = await JSON.parse(
+  const realtimeData = JSON.parse(
     JSON.stringify(
       await modules.database.ref(`esports/eSoccer/${betsID}`).once('value')
     )
