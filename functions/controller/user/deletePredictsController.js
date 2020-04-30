@@ -110,80 +110,129 @@ module.exports = deletePredictions;
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK
 {
-    "failed": [],
-    "success": [
+    "failed": [
         {
-            "id": "2115973",
-            "spread": [
-                "31268919",
-                "home",
-                3
-            ]
+            "id": "2120646",
+            "totals": "ss",
+            "home": {
+                "id": "58479",
+                "alias": "DAL",
+                "alias_ch": "獨行俠"
+            },
+            "away": {
+                "id": "54278",
+                "alias": "DEN",
+                "alias_ch": "金塊"
+            },
+            "league_id": 2274,
+            "code": 403,
+            "error": "Match id: 2120646 in NBA already started or ended"
         },
         {
-            "id": "2115973",
-            "totals": [
-                "34417671",
-                "over",
-                2
-            ]
+            "id": "212064x6",
+            "totals": "ss",
+            "code": 404,
+            "error": "Match id: 212064x6 in NBA not found"
+        }
+    ],
+    "success": [
+        {
+            "id": "2120643",
+            "spread": "31298793",
+            "home": {
+                "id": "52891",
+                "alias": "OKC",
+                "alias_ch": "雷霆"
+            },
+            "away": {
+                "id": "55289",
+                "alias": "UTA",
+                "alias_ch": "爵士"
+            }
+        },
+        {
+            "id": "2120643",
+            "totals": "34456538",
+            "home": {
+                "id": "52891",
+                "alias": "OKC",
+                "alias_ch": "雷霆"
+            },
+            "away": {
+                "id": "55289",
+                "alias": "UTA",
+                "alias_ch": "爵士"
+            }
         }
     ]
 }
 
- * @apiError 200 OK (but all predictions are failed)
+ * @apiError 200 OK (but maybe failed)
  * @apiError 400 Bad Request
  * @apiError 403 Forbidden
  *
  * @apiErrorExample {JSON} 200-Response
  * {
-    "error": "UserPredictFailed",
-    "devcode": 1000,
+    "error": "DeletePredictionsFailed",
+    "devcode": 1001,
     "message": {
         "failed": [
             {
-                "id": "2118810",
-                "spread": [
-                    "31235573",
-                    "home",
-                    3
-                ],
-                "match_scheduled": 1593572400,
+                "id": "2120646",
+                "totals": "ss",
                 "home": {
-                    "id": "55290",
-                    "alias": "SAC",
-                    "alias_ch": "國王"
+                    "id": "58479",
+                    "alias": "DAL",
+                    "alias_ch": "獨行俠"
                 },
                 "away": {
-                    "id": "54878",
-                    "alias": "NOP",
-                    "alias_ch": "鵜鶘"
+                    "id": "54278",
+                    "alias": "DEN",
+                    "alias_ch": "金塊"
                 },
                 "league_id": 2274,
                 "code": 403,
-                "error": "spread id: 31235573 already exist, locked"
+                "error": "Match id: 2120646 in NBA already started or ended"
             },
             {
-                "id": "2118810",
-                "totals": [
-                    "34458529",
-                    "under",
-                    1
-                ],
-                "match_scheduled": 1593572400,
+                "id": "212064x6",
+                "totals": "ss",
+                "code": 404,
+                "error": "Match id: 212064x6 in NBA not found"
+            },
+            {
+                "id": "2120643",
+                "spread": "31298793",
                 "home": {
-                    "id": "55290",
-                    "alias": "SAC",
-                    "alias_ch": "國王"
+                    "id": "52891",
+                    "alias": "OKC",
+                    "alias_ch": "雷霆"
                 },
                 "away": {
-                    "id": "54878",
-                    "alias": "NOP",
-                    "alias_ch": "鵜鶘"
+                    "id": "55289",
+                    "alias": "UTA",
+                    "alias_ch": "爵士"
                 },
                 "league_id": 2274,
-                "code": 403,
-                "error": "totals id: 34458529 already exist, locked"
+                "code": 404,
+                "error": "spread id: 31298793 in NBA not found"
+            },
+            {
+                "id": "2120643",
+                "totals": "34456538",
+                "home": {
+                    "id": "52891",
+                    "alias": "OKC",
+                    "alias_ch": "雷霆"
+                },
+                "away": {
+                    "id": "55289",
+                    "alias": "UTA",
+                    "alias_ch": "爵士"
+                },
+                "league_id": 2274,
+                "code": 404,
+                "error": "totals id: 34456538 in NBA not found"
             }
         ]
     }
@@ -203,12 +252,6 @@ module.exports = deletePredictions;
         "message": "should be equal to one of the allowed values"
     }
 ]
-* @apiErrorExample {JSON} 403-Response
- * HTTP/1.1 403 Bad Request
- * {
-    "error": "UserPredictFailed",
-    "devcode": 1202
-}
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {

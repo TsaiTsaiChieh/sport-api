@@ -30,15 +30,19 @@ function isBeforeScheduled(args, unix) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
-         `SELECT scheduled
-            FROM matches
-           WHERE scheduled BETWEEN ${unix.begin} AND ${unix.end}
-             AND league_id = "${modules.leagueCodebook(args.league).id}"
-        ORDER BY scheduled
-           LIMIT 1`,
-         { type: db.sequelize.QueryTypes.SELECT });
+        `SELECT scheduled
+           FROM matches
+          WHERE scheduled BETWEEN ${unix.begin} AND ${unix.end}
+            AND league_id = "${modules.leagueCodebook(args.league).id}"
+       ORDER BY scheduled DESC
+          LIMIT 1`,
+        { type: db.sequelize.QueryTypes.SELECT }
+      );
 
-      args.now < result[0].scheduled ? resolve() : reject(new AppError.CouldNotModifySellInformation());
+      const now = modules.moment(args.now).unix();
+      now < result[0].scheduled
+        ? resolve()
+        : reject(new AppError.CouldNotModifySellInformation());
     } catch (err) {
       console.log(err);
 
