@@ -8,6 +8,10 @@ router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/handicap_esport', require('../pubsub/handicap_esport'));
+router.get(
+  '/settlement',
+  require('../pubsub/handicap/settlementAccordingMatch')
+);
 router.get('/checkmatch_esport', require('../pubsub/checkmatch_ESoccer'));
 router.get('/lineups', require('../pubsub/lineups'));
 router.get('/title_period', require('../pubsub/titlePeriod'));
