@@ -24,14 +24,7 @@ async function createReply(args) {
         reject({ code: 403, error: 'token expired' });
         return;
       }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       const topicInfo = await func.getTopicInfo(args.article_id);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 403, error: 'user verify failed' });
-        return;
-      }
 
       if (topicInfo.length === 0) {
         reject({ code: 404, error: 'topic not found' });
