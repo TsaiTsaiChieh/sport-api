@@ -89,9 +89,11 @@ function settleGodTitle(args) {
     let s22 = 0;
     let s23 = 0;
     let s24 = 0;
-    let s25 = 0;
+    let mixAll = {};
+
     // 2.
     try {
+      s21 = new Date().getTime();
       // a. 使用 users__win__lists_histories
       // 注意 !!!  正式有資料後，要把 今日日期區間判斷 打開來
       const usersWinListsHistories = await db.sequelize.query(`
@@ -137,8 +139,11 @@ function settleGodTitle(args) {
       // console.log('uidHistory: ', uidHistory);
       // console.log('uidLeagueUidHistory: ', uidLeagueUidHistory);
 
-      
+      s22 = new Date().getTime();
+      console.group('\n2.1 2.2 2.3'); 
       reformatHistory.forEach(function(uid_league_data){
+        console.log('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
+
         // 2.1. 連贏Ｎ天 countinue
         let countinue = 0;
         uid_league_data.lists.every(function(lists, index){
@@ -192,13 +197,36 @@ function settleGodTitle(args) {
           predict_rate3 = allRecords[0].correctCountsAcc;
         };
 
-
         console.log('countinue: %o  win_bets_continue: %o', countinue, win_bets_continue);
-        console.log('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3)
+        console.log('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3);
+
+        
+        mixAll = mergeDeep(mixAll, {
+          uid: uid_league_data.uid, 
+          league_id: uid_league_data.league_id,
+          countinue: countinue,
+          win_bets_continue: win_bets_continue,
+          predict_rate1: predict_rate1,
+          predict_rate2: predict_rate2,
+          predict_rate3: predict_rate3
+        });
+
+        // mixAll.push({
+        //   uid: uid_league_data.uid, 
+        //   league_id: uid_league_data.league_id,
+        //   values: {
+        //     countinue: countinue,
+        //     win_bets_continue: win_bets_continue,
+        //     predict_rate1: predict_rate1,
+        //     predict_rate2: predict_rate2,
+        //     predict_rate3: predict_rate3
+        //   }
+        // });
       });
+      console.groupEnd();
 
 
-
+      s23 = new Date().getTime();
       //b. 使用 users_predictions
       const usersPrediction = await db.sequelize.query(`
         select *
@@ -241,7 +269,10 @@ function settleGodTitle(args) {
         
       });
 
+      s24 = new Date().getTime();
+      console.group('\n2.4 2.5');
       reformatPrediction.forEach(function(uid_league_data){
+        console.log('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
         // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2
         // acc 累計
         let matches_rate1 = 0, matches_rate2 = 0;
@@ -272,11 +303,58 @@ function settleGodTitle(args) {
 
         // 2.5. 連贏Ｎ場 matches_continue
         let matches_continue = 0;
+        let allRecords2 = []; // 記錄所有資料
+        let nn = 0; // 這裡場次算是過盤
 
-        
+        uid_league_data.lists.forEach(function(lists){
+          const r = passN(nn, allRecords2, lists.spread_result_flag, lists.match_scheduled);        
+          nn = r.n;
+          allRecords2.push(r.item);
 
-        console.log('matches_rate: %o  %o', matches_rate1, matches_rate2)
-        console.log('matches_continue: %o', matches_continue)
+          const r2 = passN(nn, allRecords2, lists.totals_result_flag, lists.match_scheduled);
+          nn = r2.n;
+          allRecords2.push(r2.item);
+        });
+
+        allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
+        allRecords2.every(function(data, index){
+          matches_continue = index;
+          return (data.correctMark === '-1' ) ? false : true; // 代表過盤
+        });
+
+        console.log('matches_rate: %o  %o', matches_rate1, matches_rate2);
+        console.log('matches_continue: %o', matches_continue);
+
+        mixAll = mergeDeep(mixAll, {
+          uid: uid_league_data.uid, 
+          league_id: uid_league_data.league_id,
+          matches_rate1: matches_rate1,
+          matches_rate2: matches_rate2,
+          matches_continue: matches_continue
+        })
+        // mixAll.push({
+        //   uid: uid_league_data.uid, 
+        //   league_id: uid_league_data.league_id,
+        //   values: {
+        //     matches_rate1: matches_rate1,
+        //     matches_rate2: matches_rate2,
+        //     matches_continue: matches_continue
+        //   }
+        // });
+      });
+      console.groupEnd();
+
+      console.log('\nmixAll: ', mixAll)
+      mixAll.forEach(function(data){
+        // db.Title.update({
+          
+        // }, {
+        //   where: {
+        //     uid: data.uid,
+        //     league_id: data.league_id,
+        //     period: period
+        //   }
+        // });
       });
 
     } catch (err) {
@@ -285,8 +363,8 @@ function settleGodTitle(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms', 
-      s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
+    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms   24# %o ms', 
+      s2 - s1, s21 - s2, s22 - s21, s23 - s22, s24 - s23, e - s24);
     return resolve(result);
   });
 }
@@ -319,6 +397,76 @@ function nPassN(n, allRecords, result_flag ){
   item.days = n;
 
   return {n: n, item: item};
+}
+
+// 連贏Ｎ場v計算專用的
+function passN(n, allRecords, result_flag, match_scheduled){
+  const item = {};
+  preTotalsCountAcc = 0;
+  preCorrectCountsAcc = 0;
+
+  if(n!==0) { // 不是第一筆時，取得之前的累計值
+    preTotalsCountAcc = allRecords[n - 1].totalsCountAcc;
+    preCorrectCountsAcc = allRecords[n - 1].correctCountsAcc;
+  }
+
+  item['totalsCountAcc'] = preTotalsCountAcc + [0.95, 0.5, -1, -0.5].includes(result_flag)? 1 : 0;
+  item['correctCountsAcc'] = preCorrectCountsAcc + [0.95, 0.5].includes(result_flag)? 1 : 0;
+  item['winRateAcc'] = (item.totalsCountAcc === 0) 
+    ? 0 
+    : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+
+  n++;
+  item.days = n;
+  item['match_scheduled'] = match_scheduled;
+  item['correctMark'] = [0.95, 0.5].includes(result_flag)
+    ? 1 
+    : [-1, -0.5].includes(result_flag)
+      ? -1
+      : 0;
+
+  return {n: n, item: item};
+}
+
+/**
+ * Simple object check.
+ * @param item
+ * @returns {boolean}
+ */
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+/**
+ * Deep merge two objects.
+ * @param target
+ * @param ...sources
+ */
+function mergeDeep(target, ...sources) {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+
+  return mergeDeep(target, ...sources);
+}
+
+// https://stackoverflow.com/a/1215401
+DEBUG = true;
+old_console_log = console.log;
+console.log = function() {
+    if ( DEBUG ) {
+        old_console_log.apply(this, arguments);
+    }
 }
 
 module.exports = settleGodTitle;
