@@ -48,6 +48,7 @@ const whitelist = [
   'https://api-dosports.web.app'
 ];
 const localOrigin = 'http://172.16.21';
+
 const corsOptions = {
   origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -60,6 +61,12 @@ const corsOptions = {
     }
   }
 };
+
+const runtimeOpts = {
+  timeoutSeconds: 300,
+  memory: '1GB'
+};
+
 app.use(cors(corsOptions));
 
 app.use(express.json());
@@ -108,7 +115,7 @@ exports.lineups_MLB = functions.pubsub
 //   .schedule('* * * * *')
 //   .timeZone('Asia/Taipei')
 //   .onRun(require('./pubsub/checkmatch_NBA'));
-exports.pbp_eSoccer = functions.pubsub
+exports.pbp_eSoccer = functions.runWith(runtimeOpts).pubsub
   .schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_ESoccer'));
@@ -118,4 +125,4 @@ app.get('/awakeAPI', (req, res) => {
   res.status(200).json({ test: 'awake' });
 });
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.runWith(runtimeOpts).https.onRequest(app);

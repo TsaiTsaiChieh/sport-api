@@ -12,7 +12,7 @@ function dbFind(article_id) {
           article_id: article_id
         }
       });
-      if(result) {
+      if (result) {
         const view_count = result.view_count + 1;
         result.update({ view_count: view_count });
         resolve(result);

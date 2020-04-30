@@ -14,11 +14,11 @@ function dbCreate(insertData) {
 async function reportTopic(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      let uid = args.token.uid;
+      const uid = args.token.uid;
 
       const insertData = {
         uid: uid,
-        type: 'article', //args.type,
+        type: 'article', // args.type,
         article_id: args.article_id,
         content: args.content
       };

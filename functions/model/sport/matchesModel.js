@@ -8,7 +8,7 @@ const inPlayStatus = 1;
 const endStatus = 0;
 
 function getMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       let godPredictions = [];
       const matches = await getMatchesWithDate(args);
@@ -23,7 +23,7 @@ function getMatches(args) {
 }
 
 function getMatchesWithDate(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const flag_prematch = 1;
     const { league } = args;
     const begin = modules.convertTimezone(args.date);
@@ -81,7 +81,7 @@ function getMatchesWithDate(args) {
 }
 
 function returnGodUserPrediction(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
@@ -132,14 +132,22 @@ function repackageMatches(results, args, godPredictions) {
       league: args.league,
       home: {
         id: ele.home_id,
-        alias: ele.home_alias,
-        alias_ch: ele.home_alias_ch,
+        // alias: ele.home_alias,
+        // alias_ch: ele.home_alias_ch,
+        team_name: ele.home_alias,
+        alias: sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: sliceTeamAndPlayer(ele.home_alias_ch).team,
+        player_name: sliceTeamAndPlayer(ele.home_alias).player_name,
         image_id: ele.home_image_id
       },
       away: {
         id: ele.away_id,
-        alias: ele.away_alias,
-        alias_ch: ele.away_alias_ch,
+        // alias: ele.away_alias,
+        // alias_ch: ele.away_alias_ch,
+        team_name: ele.away_alias,
+        alias: sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: sliceTeamAndPlayer(ele.away_alias_ch).team,
+        player_name: sliceTeamAndPlayer(ele.away_alias).player_name,
         image_id: ele.away_image_id
       },
       spread: {
@@ -205,4 +213,19 @@ function isHandicapDisable(ele, temp, predictions) {
     }
   }
 }
+
+function sliceTeamAndPlayer(name) {
+  if (name.includes('(')) {
+    const index = name.indexOf('(');
+    return {
+      team: name.slice(0, index).trim(),
+      player_name: name.slice(index).replace('(', '').replace(')', '').trim()
+    };
+  }
+  return {
+    team: name,
+    player_name: null
+  };
+}
+
 module.exports = getMatches;
