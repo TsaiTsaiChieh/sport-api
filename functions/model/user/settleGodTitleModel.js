@@ -156,9 +156,9 @@ function settleGodTitle(args) {
         });
 
 
-        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1、predict_rate2、predict_rate3
+        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3
         // acc 累計
-        let predict_rate1,predict_rate2, predict_rate3 = 0;
+        let predict_rate1 = 0,predict_rate2 = 0, predict_rate3 = 0;
         let allRecords = []; // 記錄所有資料
 
         uid_league_data.lists.forEach(function(lists, index){
@@ -221,7 +221,6 @@ function settleGodTitle(args) {
           begin: begin,
           end: end
         },
-        logging: console.log,
         type: db.sequelize.QueryTypes.SELECT
       });
 
@@ -243,55 +242,41 @@ function settleGodTitle(args) {
       });
 
       reformatPrediction.forEach(function(uid_league_data){
-        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1、matches_rate2
+        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2
         // acc 累計
-        let matches_rate1, matches_rate2 = 0;
+        let matches_rate1 = 0, matches_rate2 = 0;
         let allRecords = []; // 記錄所有資料
+        let n = 0; // 這裡場次算是過盤
 
-        uid_league_data.lists.forEach(function(lists, index){
-          const item = {};
-          item.days = index + 1;
+        uid_league_data.lists.forEach(function(lists){
+          const r = nPassN(n, allRecords, lists.spread_result_flag);        
+          n = r.n;
+          allRecords.push(r.item);
 
-          item['totalsCountAcc'] = 0;
-          item['correctCountsAcc'] = 0;
-
-          item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.spread_result_flag)? 1 : 0;
-          item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.totals_result_flag)? 1 : 0;
-
-          if (index === 0){ // 第一筆 直接計算
-            item['totalsCountAcc'] = [0.95, 0.5, -1, -0.5].includes(lists.spread_result_flag)? 1 : 0;
-            item['totalsCountAcc'] =+ [0.95, 0.5, -1, -0.5].includes(lists.totals_result_flag)? 1 : 0;
-            item['correctCountsAcc'] = [0.95, 0.5].includeslists.spread_result_flag? 1 : 0;
-            item['correctCountsAcc'] =+ [0.95, 0.5].includeslists.totals_result_flag? 1 : 0;
-          } else { // 第二筆之後 要累計
-            item['totalsCountAcc'] = allRecords[index - 1].totalsCountAcc + (lists.correct_counts + lists.fault_counts);
-            item['correctCountsAcc']  = allRecords[index - 1].correctCountsAcc + lists.correct_counts;
-          }
-
-          item['winRateAcc'] = (item.totalsCountAcc === 0) 
-          ? 0 
-          : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
-
-          allRecords.push(item);
+          const r2 = nPassN(n, allRecords, lists.totals_result_flag);
+          n = r2.n;
+          allRecords.push(r2.item);
         });
 
         allRecords.sort(function compare(a, b) {
           return b.winRateAcc - a.winRateAcc; // 降 大->小
         });
         
-        // 要至少計算五場，選擇機率最高者 >= 5場
+        // 要至少計算五場，選擇機率最高者 >= 5場 才給值
         if (allRecords.length >= 5 && allRecords[0].days >= 5) {
           // console.log(allRecords[0])
-          predict_rate1 = allRecords[0].days;
-          predict_rate2 = allRecords[0].totalsCountAcc;
-          predict_rate3 = allRecords[0].correctCountsAcc;
+          matches_rate1 = allRecords[0].days;
+          matches_rate2 = allRecords[0].correctCountsAcc;
         };
-
 
 
         // 2.5. 連贏Ｎ場 matches_continue
         let matches_continue = 0;
 
+        
+
+        console.log('matches_rate: %o  %o', matches_rate1, matches_rate2)
+        console.log('matches_continue: %o', matches_continue)
       });
 
     } catch (err) {
@@ -313,11 +298,27 @@ function numberRate(num1, num2, f=2){
   ).toFixed(f);
 }
 
-// 勝場才記錄，其它不用記錄
-function wlMark(num){
-  if ([0.95, 0.5].includes(num)) { return 1 };
-  // if ([-1, -0.5].includes(num)) { return -1 };
-  return 0;
+// 近 Ｎ 場過 Ｎ 場 計算專用的
+function nPassN(n, allRecords, result_flag ){
+  const item = {};
+  preTotalsCountAcc = 0;
+  preCorrectCountsAcc = 0;
+
+  if(n!==0) { // 不是第一筆時，取得之前的累計值
+    preTotalsCountAcc = allRecords[n - 1].totalsCountAcc;
+    preCorrectCountsAcc = allRecords[n - 1].correctCountsAcc;
+  }
+
+  item['totalsCountAcc'] = preTotalsCountAcc + [0.95, 0.5, -1, -0.5].includes(result_flag)? 1 : 0;
+  item['correctCountsAcc'] = preCorrectCountsAcc + [0.95, 0.5].includes(result_flag)? 1 : 0;
+  item['winRateAcc'] = (item.totalsCountAcc === 0) 
+    ? 0 
+    : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+
+  n++;
+  item.days = n;
+
+  return {n: n, item: item};
 }
 
 module.exports = settleGodTitle;
