@@ -3,13 +3,13 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 
-function dbFind(aid) {
+function dbFind(article_id) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
           status: 1,
-          article_id: aid
+          article_id: article_id
         }
       });
       if (result) {
