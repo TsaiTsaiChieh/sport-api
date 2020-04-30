@@ -1,7 +1,5 @@
 const modules = require('../util/modules');
-
 const ESoccerpbp = require('./pbpESoccer.js');
-
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 
@@ -13,7 +11,6 @@ async function checkmatch_ESoccer() {
   data.forEach((doc) => {
     totalData.push(doc.data());
   });
-
   for (let i = 0; i < totalData.length; i++) {
     const betsID = totalData[i].bets_id;
     const gameTime = totalData[i].scheduled * 1000;
@@ -21,12 +18,11 @@ async function checkmatch_ESoccer() {
     const eventStatus = totalData[i].flag.status;
     switch (eventStatus) {
       case 2: {
-        const realtimeData = await modules.database
-          .ref(`esports/eSoccer/${betsID}`)
-          .once('value')
-          .val();
-
         if (gameTime <= nowTime) {
+          const realtimeData = await modules.database
+            .ref(`esports/eSoccer/${betsID}`)
+            .once('value')
+            .val();
           const parameter = {
             betsID: betsID,
             realtimeData: realtimeData
@@ -36,7 +32,7 @@ async function checkmatch_ESoccer() {
           const ref = modules.database.ref(
             `esports/eSoccer/${betsID}/Summary/status`
           );
-          ref.set('scheduled');
+          await ref.set('scheduled');
         }
         break;
       }

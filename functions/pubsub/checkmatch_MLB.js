@@ -1,5 +1,4 @@
 const modules = require('../util/modules');
-// scheduled time need to change
 const MLBpbp = require('./pbpMLB.js');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
@@ -21,6 +20,10 @@ async function checkmatch_MLB() {
     switch (eventStatus) {
       case 2: {
         if (gameTime <= nowTime) {
+          const realtimeData = await modules.database
+            .ref(`baseball/MLB/${betsID}`)
+            .once('value')
+            .val();
           const inningsNow = 0;
           const halfNow = 0;
           const eventHalfNow = 0;
@@ -31,24 +34,23 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: eventHalfNow,
-            eventAtbatNow: eventAtbatNow
+            eventAtbatNow: eventAtbatNow,
+            realtimeData: realtimeData
           };
-          MLBpbpInplay(parameter);
+          await MLBpbpInplay(parameter);
         } else {
-          const ref = await modules.database.ref(
+          const ref = modules.database.ref(
             `baseball/MLB/${betsID}/Summary/status`
           );
-          ref.set('scheduled');
+          await ref.set('scheduled');
         }
         break;
       }
       case 1: {
-        const realtimeData = JSON.parse(
-          JSON.stringify(
-            // eslint-disable-next-line no-await-in-loop
-            await modules.database.ref(`baseball/MLB/${betsID}`).once('value')
-          )
-        );
+        const realtimeData = await modules.database
+          .ref(`baseball/MLB/${betsID}`)
+          .once('value')
+          .val();
         if (realtimeData.Summary.status === 'created') {
           const inningsNow = 0;
           const halfNow = 0;
@@ -60,9 +62,10 @@ async function checkmatch_MLB() {
             inningsNow: inningsNow,
             halfNow: halfNow,
             eventHalfNow: eventHalfNow,
-            eventAtbatNow: eventAtbatNow
+            eventAtbatNow: eventAtbatNow,
+            realtimeData: realtimeData
           };
-          MLBpbpInplay(parameter);
+          await MLBpbpInplay(parameter);
         }
         if (realtimeData.Summary.status === 'closed') {
           const parameter = {
