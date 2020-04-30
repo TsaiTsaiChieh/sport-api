@@ -4,7 +4,7 @@ const model = require('../../model/user/reportTopicModel');
 async function reportTopic(req, res) {
   const schema = {
     type: 'object',
-    required: [/*'type', */'article_id', 'content'],
+    required: [/* 'type', */'article_id', 'content'],
     properties: {
       type: {
         type: 'string',

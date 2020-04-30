@@ -990,7 +990,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
   },
   reply: {
     type: Sequelize.STRING
-  },
+  }
 });
 
 /*
