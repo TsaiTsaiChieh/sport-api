@@ -29,7 +29,7 @@ async function getReplies(args) {
       if(replies.count === 0){
         reject({ code: 404, error: 'reply not found' });
       }
-      console.log(replies)
+      // console.log(replies)
 
       const usersToGet = [];
       let usersInfo = [];
