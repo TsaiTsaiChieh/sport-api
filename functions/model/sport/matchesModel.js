@@ -172,8 +172,10 @@ function repackageMatches(results, args, godPredictions) {
     }
     if (!ele.spread_id) temp.spread.disable = true;
     if (!ele.totals_id) temp.totals.disable = true;
-    if (ele.home_points) temp.home.points = ele.home_points;
-    if (ele.away_points) temp.away.points = ele.away_points;
+    if (ele.home_points || ele.home_points === 0)
+      temp.home.points = ele.home_points;
+    if (ele.away_points || ele.away_points === 0)
+      temp.away.points = ele.away_points;
     // 中分洞要亮原本顯示的盤口，否則亮過盤結果
     if (ele.spread_result) {
       if (ele.spread_result === 'fair') {
