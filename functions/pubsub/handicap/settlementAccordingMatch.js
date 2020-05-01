@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const endStatus = 0;
@@ -7,27 +6,36 @@ const spreadResult = {
   away: 'away',
   fair: 'fair'
 };
-async function settlement(req, res) {
-  // 1. query match status = 0 and spread_id is not null
-  let spreadMetadata = await queryMatchWhichSpreadIsNotNull();
-  // 2. query match__spreads table with spread_id
+const totalsResult = {
+  over: 'over',
+  under: 'under',
+  fair: 'fair'
+};
+async function settlement() {
+  // 1. query match status = 0 and spread_id || totals_id is not null
+  let spreadMetadata = await queryMatchWhichHandicapIsNotNull('spread');
+  let totalsMetadata = await queryMatchWhichHandicapIsNotNull('totals');
+  // 2. query match__spreads || match__totals table with spread_id || totals_id
   spreadMetadata = await querySpread(spreadMetadata);
-  // 3. settle the spread result
+  totalsMetadata = await queryTotals(totalsMetadata);
+  // 3. settle the spread || totals result
   spreadMetadata = calculateSpreads(spreadMetadata);
-  // 4. insert to db
-  await insertSpreadData(spreadMetadata);
+  totalsMetadata = calculateTotals(totalsMetadata);
+  // 4. update to db
+  await updateSpreadData(spreadMetadata);
+  await updateTotalsData(totalsMetadata);
 }
 
-function queryMatchWhichSpreadIsNotNull() {
+function queryMatchWhichHandicapIsNotNull(handicapType) {
   return new Promise(async function (resolve, reject) {
     try {
-      // index is range
-      // TODO AND spread_result IS NULL
+      // index is range, taking 169ms
+      // TODO AND ${handicapType}_result IS NULL
       const result = await db.sequelize.query(
-        `SELECT bets_id, spread_id, home_points, away_points
+        `SELECT bets_id, ${handicapType}_id, home_points, away_points
            FROM matches
           WHERE status = ${endStatus}
-            AND spread_id IS NOT NULL
+            AND ${handicapType}_id IS NOT NULL
             AND home_points IS NOT NULL
             AND away_points IS NOT NULL`,
         {
@@ -45,12 +53,12 @@ function querySpread(spreadMetadata) {
     try {
       for (let i = 0; i < spreadMetadata.length; i++) {
         const ele = spreadMetadata[i];
-        // index is const
+        // index is const, taking 164ms
         const result = await db.sequelize.query(
-          `SELECT handicap, home_odd, away_odd, home_tw, away_tw
+          `SELECT handicap, home_odd, away_odd
              FROM match__spreads
-            WHERE spread_id = ${ele.spread_id}
-              AND match_id = ${ele.bets_id}`,
+            WHERE spread_id = "${ele.spread_id}"
+              AND match_id = "${ele.bets_id}"`,
           {
             type: db.sequelize.QueryTypes.SELECT
           }
@@ -61,8 +69,6 @@ function querySpread(spreadMetadata) {
           spreadMetadata[i].handicap = result[0].handicap;
           spreadMetadata[i].home_odd = result[0].home_odd;
           spreadMetadata[i].away_odd = result[0].away_odd;
-          spreadMetadata[i].home_tw = result[0].home_tw;
-          spreadMetadata[i].away_tw = result[0].away_tw;
         } else {
           spreadMetadata[i].valid = false;
         }
@@ -85,7 +91,7 @@ function settleSpread(ele) {
   /**
    * @description handicap 為正，代表主隊讓客隊；反之，代表客隊讓主隊，讓分隊須減去盤口數
    * @example 1. 當盤口為正「小數」：若主隊總分減去讓分數大於客隊總分，則押主隊的為贏；反之，押客隊為贏，沒有平盤狀況
-   * @example 2. 當盤口為負「小數」：若客隊總分減去讓分數大於主隊總分，則押客隊的為贏；反之，押主隊為贏，沒有平盤狀
+   * @example 2. 當盤口為負「小數」：若客隊總分減去讓分數大於主隊總分，則押客隊的為贏；反之，押主隊為贏，沒有平盤狀況
    * @example 3. 當盤口為正「整數」且賠率皆一樣時：若主隊總分減去讓分數大於客隊總分，則押主隊的為贏；反之，押客隊為贏，中分洞則平盤
    * @example 4. 當盤口為負「整數」且賠率皆一樣時：若客隊總分減去讓分數大於主隊總分，則押客隊的為贏；反之，押主隊為贏，中分洞則平盤
    * @example 5. 當盤口為正「整數」且主隊賠率大於客隊時：若主隊總分減去讓分數大於客隊總分，則押主隊的為贏；反之，押客隊為贏，中分洞則押主隊贏，因為主隊賠率大於客隊
@@ -182,7 +188,7 @@ function settleSpread(ele) {
       ele.spread_result = spreadResult.away;
   }
 }
-function insertSpreadData(spreadMetadata) {
+function updateSpreadData(spreadMetadata) {
   return new Promise(async function (resolve, reject) {
     try {
       const results = [];
@@ -205,6 +211,95 @@ function insertSpreadData(spreadMetadata) {
     }
   });
 }
+function updateTotalsData(metadata) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const results = [];
+      for (let i = 0; i < metadata.length; i++) {
+        const ele = metadata[i];
+        if (ele.valid) {
+          results.push(
+            db.Match.update(
+              {
+                totals_result: ele.totals_result
+              },
+              { where: { bets_id: ele.bets_id } }
+            )
+          );
+        }
+      }
+      return resolve(await Promise.all(results));
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(`${err} by TsaiChieh`));
+    }
+  });
+}
+function queryTotals(totalsMetadata) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      for (let i = 0; i < totalsMetadata.length; i++) {
+        const ele = totalsMetadata[i];
+        // index is const, taking 160ms
+        const result = await db.sequelize.query(
+          `SELECT handicap, under_odd, over_odd
+             FROM match__totals
+            WHERE totals_id = "${ele.totals_id}"
+              AND match_id = "${ele.bets_id}"`,
+          { type: db.sequelize.QueryTypes.SELECT }
+        );
+        if (result.length !== 0) {
+          totalsMetadata[i].valid = true;
+          totalsMetadata[i].handicap = result[0].handicap;
+          totalsMetadata[i].under_odd = result[0].under_odd;
+          totalsMetadata[i].over_odd = result[0].over_odd;
+        } else {
+          totalsMetadata[i].valid = false;
+        }
+      }
+      return resolve(totalsMetadata);
+    } catch (err) {
+      console.log(err);
+      return reject(new AppErrors.MysqlError(`${err} by TsaiChieh`));
+    }
+  });
+}
+function calculateTotals(totalsMetadata) {
+  for (let i = 0; i < totalsMetadata.length; i++) {
+    if (totalsMetadata[i].valid) {
+      settleTotals(totalsMetadata[i]);
+    }
+  }
+  return totalsMetadata;
+}
+function settleTotals(ele) {
+  /**
+   * @description 大小分的盤口皆為正
+   * @example 1. 當盤口為小數：主客隊總分相加大於大小分數，押大分贏；反之，押小分贏，無平盤情況
+   * @example 2. 當盤口為整數且賠率皆一樣時：主客隊總分相加大於大小分數，押大分贏；反之，押小分贏，中分洞則平盤
+   * @example 3. 當盤口為整數且大分的賠率大於小分時：主客隊總分相加大於大小分數，押大分贏；反之，押小分贏，中分洞則押大分贏，因為大分的賠率大於小分
+   * @example 4. 當盤口為整數且小分的賠率大於大分時：主客隊總分相加大於大小分數，押大分贏；反之，押小分贏，中分洞則押小分贏，因為小分的賠率大於大分
+   */
+  const sum = ele.home_points + ele.away_points;
+  // 1. 當盤口為小數
+  if (!Number.isInteger(ele.handicap)) {
+    if (sum > ele.handicap) ele.totals_result = totalsResult.over;
+    else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
+    // 2. 當盤口為整數且賠率皆一樣
+  } else if (Number.isInteger(ele.handicap) && ele.over_odd === ele.under_odd) {
+    if (sum > ele.handicap) ele.totals_result = totalsResult.over;
+    else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
+    else if (sum === ele.handicap) ele.totals_result = totalsResult.fair;
+    // 3. 當盤口為整數且大分賠率大於小分
+  } else if (Number.isInteger(ele.handicap) && ele.over_odd > ele.under_odd) {
+    if (sum > ele.handicap) ele.totals_result = totalsResult.over;
+    else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
+    else if (sum === ele.handicap) ele.totals_result = totalsResult.under;
+    // 3. 當盤口為整數且小分賠率大於大分
+  } else if (Number.isInteger(ele.handicap) && ele.over_odd < ele.under_odd) {
+    if (sum > ele.handicap) ele.totalsResult = totalsResult.over;
+    else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
+    else if (sum === ele.handicap) ele.totals_result = totalsResult.under;
+  }
+}
 
-// function
 module.exports = settlement;
