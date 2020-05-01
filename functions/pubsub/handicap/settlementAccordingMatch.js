@@ -30,14 +30,15 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
   return new Promise(async function (resolve, reject) {
     try {
       // index is range, taking 169ms
-      // TODO AND ${handicapType}_result IS NULL
       const result = await db.sequelize.query(
         `SELECT bets_id, ${handicapType}_id, home_points, away_points
-           FROM matches
+           FROM matches 
+          FORCE INDEX(matches_status_${handicapType}_id)
           WHERE status = ${endStatus}
             AND ${handicapType}_id IS NOT NULL
             AND home_points IS NOT NULL
-            AND away_points IS NOT NULL`,
+            AND away_points IS NOT NULL
+            AND ${handicapType}_result IS NULL`,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
@@ -204,6 +205,9 @@ function updateSpreadData(spreadMetadata) {
             )
           );
         }
+        console.log(
+          `Update the result of match_id: ${ele.bets_id}, spread_id: ${ele.spread_id} to ${ele.spread_result}`
+        );
       }
       return resolve(await Promise.all(results));
     } catch (err) {
@@ -227,6 +231,9 @@ function updateTotalsData(metadata) {
             )
           );
         }
+        console.log(
+          `Update the result of match_id: ${ele.bets_id}, totals_id: ${ele.totals_id} to ${ele.totals_result}`
+        );
       }
       return resolve(await Promise.all(results));
     } catch (err) {
