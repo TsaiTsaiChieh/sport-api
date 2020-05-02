@@ -177,6 +177,16 @@ class AxiosError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class HandicapEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球盤口排程錯誤',
+    status = 1506,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -192,5 +202,6 @@ module.exports = {
   PrematchEsoccerError,
   FirebaseCollectError,
   FirebaseRealtimeError,
-  AxiosError
+  AxiosError,
+  HandicapEsoccerError
 };
