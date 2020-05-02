@@ -3,18 +3,22 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 
-function dbFind(aid) {
+function dbFind(article_id) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
           status: 1,
-          article_id: aid
+          article_id: article_id
         }
       });
-      const view_count = result.view_count + 1;
-      result.update({ view_count: view_count });
-      resolve(result);
+      if (result) {
+        const view_count = result.view_count + 1;
+        result.update({ view_count: view_count });
+        resolve(result);
+      } else {
+        resolve(false);
+      }
     } catch (error) {
       console.error(error);
       reject('get topics failed');

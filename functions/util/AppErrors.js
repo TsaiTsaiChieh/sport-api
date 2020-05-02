@@ -123,7 +123,7 @@ class CouldNotFillInSellInformation extends ExtendableError {
 
 class CouldNotModifySellInformation extends ExtendableError {
   constructor(
-    message = '只能在開賽前新增/編輯售牌資訊',
+    message = '只能在當天最後一場賽事開賽前新增/編輯售牌資訊',
     status = 1207,
     isPublic = true,
     code = httpStatus.FORBIDDEN

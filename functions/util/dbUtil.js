@@ -817,14 +817,24 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
+    like_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
     status: {
       // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
-      defaultValue: 1
+      defaultValue: 1,
+      allowNull: false
     },
-    view_count: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
+    delete_reason: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -849,7 +859,7 @@ const Topic_Reply = sequelize.define(
     },
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -896,7 +906,7 @@ const Topic_Like = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -921,7 +931,7 @@ const Topic_ReplyLike = sequelize.define(
   {
     reply_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -946,7 +956,7 @@ const Topic_FavoriteArticle = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -962,6 +972,36 @@ const Topic_FavoriteArticle = sequelize.define(
     ]
   }
 );
+
+/*
+ * 檢舉文章
+ */
+const Service_ReportTopics = sequelize.define('service__reporttopic', {
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  article_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  reply: {
+    type: Sequelize.STRING
+  }
+});
 
 /*
  * 聯絡客服

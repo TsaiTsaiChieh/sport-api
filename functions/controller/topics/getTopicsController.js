@@ -16,6 +16,16 @@ async function getTopics(req, res) {
         type: ['string', 'null'],
         enum: [null, '賽事分析', '球隊討論', '投注分享', '公告', '其他']
       },
+      count: {
+        type: 'integer',
+        maximum: 50,
+        minimum: 0,
+        default: 10
+      },
+      sortByLike: {
+        type: 'boolean',
+        default: false
+      },
       page: {
         type: 'integer',
         maximum: 99999,

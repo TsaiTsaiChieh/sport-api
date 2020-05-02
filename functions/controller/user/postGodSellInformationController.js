@@ -33,8 +33,8 @@ async function godSellInformation(req, res) {
   };
   const args = {
     token: req.token,
-    league: req.query.league,
-    date: req.query.date,
+    league: req.body.league,
+    date: req.body.date,
     desc: req.body.desc,
     tips: req.body.tips,
     now
@@ -63,7 +63,7 @@ async function godSellInformation(req, res) {
 
 module.exports = godSellInformation;
 /**
- * @api {POST} /user/sell_information?league=NBA&date=2020-07-01 Post sell information
+ * @api {POST} /user/sell_information Post sell information
  * @apiVersion 1.0.0
  * @apiDescription Post sell information included description(說明文) and tips(武功秘笈) by TsaiChieh
  * @apiName Post sell information
@@ -71,11 +71,15 @@ module.exports = godSellInformation;
  *
  * @apiParam {String} prematch date, ex: ```2020-07-01```
  * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} desc 說明文
+ * @apiParam {String} tips 武功秘笈
  *
  * @apiParamExample {JSON} Request-Query
 {
-	"desc": "大家快來買我的牌，我預測了超多！我又新增了兩場喔",
-	"tips": "買了就送你 my precious"
+	"league": "NBA",
+	"date": "2020-07-01",
+	"desc": "我預測得超好",
+	"tips": "買了就送你myprecious"
 }
  * @apiSuccess {String} response
  *

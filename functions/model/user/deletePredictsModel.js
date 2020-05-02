@@ -13,7 +13,6 @@ function deletePredictions(args) {
       await isNormalUser(args);
       const filter = await checkMatches(args);
       await updateFromDB(args, filter);
-      console.log('===', filter, '===');
       await deleteDB();
       return resolve(returnData(filter));
     } catch (err) {
@@ -71,28 +70,16 @@ function isMatchValid(args, ele, filter) {
           replacements: { id: ele.id }
         }
       );
-      console.log(ele.id, result, `==${result.length}`);
 
       // 若賽事 id 無效，推到 failed；反之，推到 needed
       if (result.length === 0) {
-        // ele.code = modules.httpStatus.NOT_FOUND;
-        ele.code = 666;
+        ele.code = modules.httpStatus.NOT_FOUND;
         ele.error = `Match id: ${ele.id} in ${args.league} not found`;
         filter.failed.push(ele);
       } else {
+        addTeamInformation(args, ele, result[0]);
         if (result[0].status !== scheduledStatus) {
           ele.code = modules.httpStatus.FORBIDDEN;
-          ele.home = {
-            id: result[0].home_id,
-            alias: result[0].home_alias,
-            alias_ch: result[0].home_alias_ch
-          };
-          ele.away = {
-            id: result[0].away_id,
-            alias: result[0].away_alias,
-            alias_ch: result[0].away_alias_ch
-          };
-          ele.league_id = modules.leagueCodebook(args.league).id;
           ele.error = `Match id: ${ele.id} in ${args.league} already started or ended`;
           filter.failed.push(ele);
         } else filter.needed.push(ele);
@@ -104,6 +91,20 @@ function isMatchValid(args, ele, filter) {
       return reject(new AppError.MysqlError());
     }
   });
+}
+
+function addTeamInformation(args, ele, result) {
+  ele.home = {
+    id: result.home_id,
+    alias: result.home_alias,
+    alias_ch: result.home_alias_ch
+  };
+  ele.away = {
+    id: result.away_id,
+    alias: result.away_alias,
+    alias_ch: result.away_alias_ch
+  };
+  ele.league_id = modules.leagueCodebook(args.league).id;
 }
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
@@ -236,26 +237,6 @@ function isNeeded(needed) {
   return true;
 }
 
-function repackagePrediction(args, ele) {
-  const data = {
-    bets_id: ele.id,
-    league_id: ele.league_id,
-    sell: args.sell,
-    match_scheduled: ele.match_scheduled,
-    uid: args.token.uid,
-    user_status: args.token.customClaims.role
-  };
-  if (ele.spread) {
-    data.spread_id = ele.spread[0];
-    data.spread_option = ele.spread[1];
-    data.spread_bets = ele.spread[2];
-  } else if (ele.totals) {
-    data.totals_id = ele.totals[0];
-    data.totals_option = ele.totals[1];
-    data.totals_bets = ele.totals[2];
-  }
-  return data;
-}
 function repackageReturnData(filter) {
   filter.success = [];
   for (let i = 0; i < filter.needed.length; i++) {
@@ -266,12 +247,6 @@ function repackageReturnData(filter) {
       filter.success.push(ele);
     }
   }
-  // for (let i = 0; i < filter.failed.length; i++) {
-  //   const ele = filter.failed[i];
-  //   if (ele.length === undefined) {
-
-  //   }
-  // }
   delete filter.needed;
   return filter;
 }
