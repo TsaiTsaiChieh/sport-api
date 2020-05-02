@@ -2,11 +2,9 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function purseModel(args) {
+function purseModel(uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const uid = args;
-      const limit = 10;
       const purse = await db.sequelize.query(
       `
       SELECT coin, point, ingot

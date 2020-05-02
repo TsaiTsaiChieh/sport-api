@@ -2,15 +2,17 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function transferModel(args) {
+function transferModel(args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const uid = args;
+      const begin = args.begin;
+      const end = args.end;
       const transfer = await db.sequelize.query(
       `
         SELECT transfer_id, scheduled, type, content 
           FROM transfer_logs 
          WHERE uid = '${uid}'
+           AND updatedAt BETWEEN '${begin}' AND '${end}'
        `,
       {
         type: db.sequelize.QueryTypes.SELECT

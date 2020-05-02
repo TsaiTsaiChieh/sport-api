@@ -206,7 +206,7 @@ const Title = sequelize.define(
 );
 
 const Rank = sequelize.define(
-  'rank',
+  'user__rank',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -993,7 +993,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'home__banner',
+  'user__home__banner',
   {
     name: {
       type: Sequelize.STRING,
@@ -1026,6 +1026,73 @@ const Home_Banner = sequelize.define(
   }
 );
 
+
+
+const Buy = sequelize.define(
+  "user__buy",
+  {
+    buy_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    league_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: "",
+    },
+    god_id: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    god_rank: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1, // 1為正常 -1可能為刪除 尚未實作
+    },
+  },
+  {
+    indexes: [
+      {
+        fields: ["buy_id", "uid", "league_id"],
+      },
+    ],
+  }
+);
+
+const Honor_board = sequelize.define(
+  "user__honor__board",
+  {
+    honor_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+	league_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: "",
+    },
+    rank_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: "",
+    },
+  },
+  {
+    indexes: [
+      {
+        fields: ["honor_id", "uid", "rank_id"],
+      },
+    ],
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1048,7 +1115,9 @@ const dbUtil = {
   Topic_Article,
   Topic_FavoriteArticle,
   Home_Banner,
-  Service_Contact
+  Service_Contact,
+  Buy,
+  Honor_board
 };
 
 module.exports = dbUtil;

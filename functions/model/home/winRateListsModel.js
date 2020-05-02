@@ -60,7 +60,7 @@ function winRateLists(args) {
                           ) users
                    where winlist.uid = users.uid
                   ) winlist
-            left join titles 
+            inner join titles 
             on winlist.uid = titles.uid 
             and winlist.league_id = titles.league_id
             and titles.period = ${period}
@@ -95,8 +95,9 @@ function repackage(ele) {
     rank: ''
   };
 
-  data.win_rate = ele.this_month_win_rate.toString();
-  data.rank = ele.rank_id.toString();
+  /*欄位無資料防呆*/
+  data.win_rate = ele.this_month_win_rate==null ? null : ele.this_month_win_rate.toString();
+  data.rank = ele.rank_id==null ? null : ele.rank_id.toString();
 
   return data;
 }

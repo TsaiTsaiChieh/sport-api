@@ -71,25 +71,25 @@ router.post(
 );
 /* 錢包 */
 router.post(
-  '/purse/:uid',
+  '/purse',
   verification.token,
   require('../controller/user/purseController')
 );
 /* 購牌紀錄 */
 router.post(
-  '/buy/:uid',
+  '/buy',
   verification.token,
   require('../controller/user/buyController')
 );
 /* 轉換紀錄 */
 router.post(
-  '/transfer/:uid',
+  '/transfer',
   verification.token,
   require('../controller/user/transferController')
 );
 /* 榮譽戰績 */
 router.post(
-  '/honor/:uid',
+  '/honor',
   verification.token,
   require('../controller/user/honorController')
 );
