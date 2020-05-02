@@ -11,6 +11,7 @@ const totalsResult = {
   under: 'under',
   fair: 'fair'
 };
+
 function settlement() {
   return new Promise(async function (resolve, reject) {
     try {
@@ -58,6 +59,7 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
     }
   });
 }
+
 function querySpread(spreadMetadata) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -89,6 +91,7 @@ function querySpread(spreadMetadata) {
     }
   });
 }
+
 function calculateSpreads(spreadMetadata) {
   for (let i = 0; i < spreadMetadata.length; i++) {
     if (spreadMetadata[i].valid) {
@@ -97,6 +100,7 @@ function calculateSpreads(spreadMetadata) {
   }
   return spreadMetadata;
 }
+
 function settleSpread(ele) {
   /**
    * @description handicap 為正，代表主隊讓客隊；反之，代表客隊讓主隊，讓分隊須減去盤口數
@@ -198,6 +202,7 @@ function settleSpread(ele) {
       ele.spread_result = spreadResult.away;
   }
 }
+
 function updateSpreadData(spreadMetadata) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -224,6 +229,7 @@ function updateSpreadData(spreadMetadata) {
     }
   });
 }
+
 function updateTotalsData(metadata) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -250,6 +256,7 @@ function updateTotalsData(metadata) {
     }
   });
 }
+
 function queryTotals(totalsMetadata) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -279,6 +286,7 @@ function queryTotals(totalsMetadata) {
     }
   });
 }
+
 function calculateTotals(totalsMetadata) {
   for (let i = 0; i < totalsMetadata.length; i++) {
     if (totalsMetadata[i].valid) {
@@ -287,6 +295,7 @@ function calculateTotals(totalsMetadata) {
   }
   return totalsMetadata;
 }
+
 function settleTotals(ele) {
   /**
    * @description 大小分的盤口皆為正
