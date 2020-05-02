@@ -153,6 +153,16 @@ class MysqlError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class SettlementAccordingMatch extends ExtendableError {
+  constructor(
+    message = '結算所有完賽的賽事排程錯誤',
+    status = 1501,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -166,5 +176,6 @@ module.exports = {
   UserPredictFailed,
   DeletePredictionsFailed,
   MysqlError,
-  BetsAPIError
+  BetsAPIError,
+  SettlementAccordingMatch
 };
