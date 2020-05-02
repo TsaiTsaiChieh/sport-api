@@ -1,14 +1,15 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const AppErrors = require('../../util/AppErrors');
 module.exports.eSoccer = {};
-
 const firebaseName = 'pagetest_eSoccer';
 const Match = db.Match;
 const MatchTeam = db.Team;
+const leagueUniteID = '22000';
+const leagueUniteName = 'eSoccer';
+const sportID = 1;
+const leagueArray = [22614, 22808, 22764, 22537, 22724];
 module.exports.eSoccer.upcoming = async function (date) {
-  const sportID = 1;
-  const leagueArray = [22614, 22808, 22764, 22537, 22724];
-
   for (let i = 0; i < leagueArray.length; i++) {
     const leagueID = leagueArray[i];
     const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
@@ -17,32 +18,41 @@ module.exports.eSoccer.upcoming = async function (date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
+          // 去除 Esports 字眼
           if (ele.home.name.indexOf('Esports') !== -1) {
             ele.home.name = ele.home.name.replace('Esports', '');
           }
-
           if (ele.away.name.indexOf('Esports') !== -1) {
             ele.away.name = ele.away.name.replace('Esports', '');
           }
+          //寫入 firestore
           try {
             await modules.firestore
               .collection(firebaseName)
               .doc(ele.id)
               .set(repackage_bets(ele), { merge: true });
           } catch (error) {
-            console.log('prematch : set firestore error');
+            return reject(
+              new AppErrors.FirebaseCollectError(
+                `${err} at prematchFunctions_ESoccer by DY`
+              )
+            );
           }
           try {
             await modules.database
               .ref(`esports/eSoccer/${ele.id}/Summary/status`)
               .set('scheduled');
           } catch (error) {
-            console.log('prematch : set realtime error');
+            return reject(
+              new AppErrors.FirebaseRealtimeError(
+                `${err} at prematchFunctions_ESoccer by DY`
+              )
+            );
           }
           try {
             const dataEvent = {
               bets_id: ele.id,
-              league_id: '22000',
+              league_id: leagueUniteID,
               ori_league_id: ele.league.id,
               sport_id: ele.sport_id,
               ori_sport_id: ele.sport_id,
@@ -56,11 +66,15 @@ module.exports.eSoccer.upcoming = async function (date) {
             try {
               await Match.upsert(dataEvent);
             } catch (error) {
-              console.log('prematch : set mysql error');
+              return reject(
+                new AppErrors.MysqlError(
+                  `${err} at prematchFunctions_ESoccer by DY`
+                )
+              );
             }
             const dataHomeTeam = {
               team_id: ele.home.id,
-              league_id: '22000',
+              league_id: leagueUniteID,
               sport_id: ele.sport_id,
               name: ele.home.name,
               alias: ele.home.name,
@@ -70,7 +84,7 @@ module.exports.eSoccer.upcoming = async function (date) {
 
             const dataAwayTeam = {
               team_id: ele.away.id,
-              league_id: '22000',
+              league_id: leagueUniteID,
               sport_id: ele.sport_id,
               name: ele.away.name,
               alias: ele.away.name,
@@ -80,26 +94,36 @@ module.exports.eSoccer.upcoming = async function (date) {
             try {
               await MatchTeam.upsert(dataHomeTeam);
             } catch (error) {
-              console.log('prematch : set mysql match-home team error');
+              return reject(
+                new AppErrors.MysqlError(
+                  `${err} at prematchFunctions_ESoccer by DY`
+                )
+              );
             }
             try {
               await MatchTeam.upsert(dataAwayTeam);
             } catch (error) {
-              console.log('prematch : set mysql match-away team error');
+              return reject(
+                new AppErrors.MysqlError(
+                  `${err} at prematchFunctions_ESoccer by DY`
+                )
+              );
             }
           } catch (err) {
-            console.error(err);
+            return reject(
+              new AppErrors.PrematchEsoccerError(
+                `${err} at prematchFunctions_ESoccer by DY`
+              )
+            );
           }
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
       }
     } catch (error) {
-      console.error(
-        `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
-        error
+      return reject(
+        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
       );
-      return error;
     }
   }
 
@@ -172,8 +196,8 @@ function repackage_bets(ele) {
     bets_id: ele.id,
     league: {
       ori_bets_id: ele.league.id,
-      bets_id: '22000',
-      name: 'eSoccer',
+      bets_id: leagueUniteID,
+      name: leagueUniteName,
       name_ch: leagueCH
     },
     home: {

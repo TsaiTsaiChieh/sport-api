@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 const modules = require('../util/modules');
-
+const AppErrors = require('../util/AppErrors');
 const eSoccer_functions = require('./util/prematchFunctions_ESoccer');
 
 async function prematch_esport() {
@@ -15,7 +15,9 @@ async function prematch_esport() {
     await eSoccer_functions.eSoccer.upcoming(now);
     await eSoccer_functions.eSoccer.upcoming(tomorrow);
   } catch (err) {
-    console.error(err);
+    return reject(
+      new AppErrors.PrematchEsoccerError(`${err} at prematch_esports by DY`)
+    );
   }
 }
 

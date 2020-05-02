@@ -137,6 +137,46 @@ class MysqlError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class PrematchEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球賽前排程錯誤',
+    status = 1502,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class FirebaseCollectError extends ExtendableError {
+  constructor(
+    message = 'Firebase 錯誤 | 存入 collection 錯誤',
+    status = 1503,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class FirebaseRealtimeError extends ExtendableError {
+  constructor(
+    message = 'Firebase 錯誤 | 存入 realtime 錯誤',
+    status = 1504,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class AxiosError extends ExtendableError {
+  constructor(
+    message = 'Axios 錯誤',
+    status = 1505,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -148,5 +188,9 @@ module.exports = {
   CouldNotModifySellInformation,
   UserPredictFailed,
   MysqlError,
-  BetsAPIError
+  BetsAPIError,
+  PrematchEsoccerError,
+  FirebaseCollectError,
+  FirebaseRealtimeError,
+  AxiosError
 };
