@@ -66,6 +66,7 @@ async function NBApbpInplay(parameter) {
 
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 >= timesPerLoop) {
+      console.log('pbpNBA is success');
       clearInterval(timerForStatus2);
     }
   }, perStep);

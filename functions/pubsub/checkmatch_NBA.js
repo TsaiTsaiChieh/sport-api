@@ -17,7 +17,6 @@ async function checkmatch_NBA() {
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const gameID = totalData[i].radar_id;
-        // test : scheduled._seconds
         const gameTime = totalData[i].scheduled * 1000;
         const nowTime = Date.now();
         let periodsNow;
