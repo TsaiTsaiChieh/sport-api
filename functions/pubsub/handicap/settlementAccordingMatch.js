@@ -11,19 +11,28 @@ const totalsResult = {
   under: 'under',
   fair: 'fair'
 };
-async function settlement() {
-  // 1. query match status = 0 and spread_id || totals_id is not null
-  let spreadMetadata = await queryMatchWhichHandicapIsNotNull('spread');
-  let totalsMetadata = await queryMatchWhichHandicapIsNotNull('totals');
-  // 2. query match__spreads || match__totals table with spread_id || totals_id
-  spreadMetadata = await querySpread(spreadMetadata);
-  totalsMetadata = await queryTotals(totalsMetadata);
-  // 3. settle the spread || totals result
-  spreadMetadata = calculateSpreads(spreadMetadata);
-  totalsMetadata = calculateTotals(totalsMetadata);
-  // 4. update to db
-  await updateSpreadData(spreadMetadata);
-  await updateTotalsData(totalsMetadata);
+function settlement() {
+  return new Promise(async function (resolve, reject) {
+    try {
+      // 1. query match status = 0 and spread_id || totals_id is not null
+      let spreadMetadata = await queryMatchWhichHandicapIsNotNull('spread');
+      let totalsMetadata = await queryMatchWhichHandicapIsNotNull('totals');
+      // 2. query match__spreads || match__totals table with spread_id || totals_id
+      spreadMetadata = await querySpread(spreadMetadata);
+      totalsMetadata = await queryTotals(totalsMetadata);
+      // 3. settle the spread || totals result
+      spreadMetadata = calculateSpreads(spreadMetadata);
+      totalsMetadata = calculateTotals(totalsMetadata);
+      // 4. update to db
+      await updateSpreadData(spreadMetadata);
+      await updateTotalsData(totalsMetadata);
+      return resolve();
+    } catch (err) {
+      return reject(
+        new AppErrors.SettlementAccordingMatch(`${err} by TsaiChieh`)
+      );
+    }
+  });
 }
 
 function queryMatchWhichHandicapIsNotNull(handicapType) {
