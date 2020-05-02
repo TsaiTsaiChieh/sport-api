@@ -1,23 +1,27 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/user/favoriteGodModel');
-async function favoriteGod(req, res) {
+const model = require('../../model/user/reportTopicModel');
+async function reportTopic(req, res) {
   const schema = {
     type: 'object',
+    required: [/* 'type', */'article_id', 'content'],
     properties: {
-      god_uid: {
-        type: 'string'
+      type: {
+        type: 'string',
+        enum: ['article', 'reply']
       },
-      like: {
-        type: 'boolean'
+      article_id: {
+        type: 'integer'
+      },
+      content: {
+        type: 'string'
       }
-    },
-    required: ['god_uid', 'like']
+    }
   };
+
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    res.status(400).json(modules.ajv.errors);
     return;
   }
   req.body.token = req.token;
@@ -32,4 +36,4 @@ async function favoriteGod(req, res) {
     });
 }
 
-module.exports = favoriteGod;
+module.exports = reportTopic;

@@ -1,5 +1,5 @@
-const modules = require('../../util/modules');
-const model = require('../../model/sport/getEventsModel');
+const modules = require('../util/modules');
+const model = require('../model/sport/getEventsModel');
 
 async function getEvents(req, res) {
   const schema = {

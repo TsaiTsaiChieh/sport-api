@@ -4,7 +4,7 @@ const model = require('../../model/topics/favoriteArticleModel');
 async function likeArticle(req, res) {
   const schema = {
     type: 'object',
-    requied: ['article_id', 'like'],
+    required: ['article_id', 'like'],
     properties: {
       article_id: {
         type: 'integer',

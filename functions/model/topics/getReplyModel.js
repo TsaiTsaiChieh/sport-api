@@ -1,43 +1,41 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
-const countPerPage = 20;
-function dbFind(aid, page) {
+function dbFind(rid) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__reply.findAndCountAll({
         where: {
-          article_id: aid
+          status: 1,
+          reply_id: rid
         },
-        limit: countPerPage, // 每頁幾個
-        offset: countPerPage * page, // 跳過幾個 = limit * index
-        distinct: true,
         raw: true
       });
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject('get replies failed');
+      reject('get reply failed');
     }
   });
 }
 async function getReplies(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const aid = args.aid;
-      const page = args.page;
+      const rid = args.rid;
 
-      const replies = await dbFind(aid, page);
+      const replies = await dbFind(rid);
 
-      const uid = (args.token !== null) ? args.token.uid : null;
+      if (replies.count === 0) {
+        reject({ code: 404, error: 'reply not found' });
+      }
+      // console.log(replies)
 
       const usersToGet = [];
       let usersInfo = [];
       const infosToGet = []; // reply_id array
       let likesCount = [];
-      let myLikes = [];
+      const myLikes = [];
       const replytoToGet = [];
       let replytoInfo = [];
       for (let i = 0; i < replies.rows.length; i++) {
@@ -55,16 +53,6 @@ async function getReplies(args) {
       } catch (error) {
         console.error(error);
         reject({ code: 500, error: 'get like count failed' });
-      }
-
-      /* 讀取我按過的讚 */
-      if (uid) {
-        try {
-          myLikes = await func.getIsUserLikeReply(uid, infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
-        } catch (error) {
-          console.error(error);
-          reject({ code: 500, error: 'get my likes failed' });
-        }
       }
 
       /* 讀取user info */
@@ -101,7 +89,7 @@ async function getReplies(args) {
           replies.rows[i].replyto_info.images = JSON.parse(replyInfo.images);
         }
       }
-      resolve({ code: 200, page: page + 1, count: replies.count, replies: replies.rows });
+      resolve({ code: 200, reply: replies.rows[0] });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

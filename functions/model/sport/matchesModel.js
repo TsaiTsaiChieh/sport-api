@@ -36,7 +36,7 @@ function getMatchesWithDate(args) {
     try {
       // 下面的 SELECT 是當讓分或大小分都沒開盤的情況
       const results = await db.sequelize.query(
-        `SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, game.home_points, game.away_points, game.spread_result, game.totals_result,
+        `(SELECT game.bets_id AS id, game.scheduled, game.scheduled_tw, game.status, game.spread_id, game.totals_id, game.home_points, game.away_points, game.spread_result, game.totals_result,
                 home.name AS home_name, home.alias_ch AS home_alias_ch, home.alias AS home_alias, home.image_id AS home_image_id, 
                 away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
                 spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.add_time AS spread_add_time, 
@@ -52,9 +52,9 @@ function getMatchesWithDate(args) {
             AND game.home_id = home.team_id 
             AND game.away_id = away.team_id 
             AND (game.spread_id = spread.spread_id AND game.bets_id = spread.match_id) 
-            AND (game.totals_id = totals.totals_id AND game.bets_id = totals.match_id) 
+            AND (game.totals_id = totals.totals_id AND game.bets_id = totals.match_id)) 
           UNION 
-         SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, game.home_points, game.away_points, game.spread_result, game.totals_result,
+         (SELECT game.bets_id AS id, game.scheduled, game.scheduled_tw, game.status, game.spread_id, game.totals_id, game.home_points, game.away_points, game.spread_result, game.totals_result,
                 home.name AS home_name, home.alias_ch AS home_alias_ch, home.alias AS home_alias, home.image_id AS home_image_id, 
                 away.name AS away_name, away.alias_ch AS away_alias_ch, away.alias AS away_alias, away.image_id AS away_image_id, 
                 NULL AS spread_handicap, NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_add_time, 
@@ -67,7 +67,8 @@ function getMatchesWithDate(args) {
             AND game.league_id = ${modules.leagueCodebook(league).id}
             AND game.home_id = home.team_id 
             AND game.away_id = away.team_id 
-            AND (game.spread_id IS NULL OR game.totals_id IS NULL)`,
+            AND (game.spread_id IS NULL OR game.totals_id IS NULL))
+       ORDER BY scheduled`,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
@@ -107,7 +108,9 @@ function isGodBelongToLeague(args) {
     if (
       args.token.customClaims.role === GOD_USER &&
       args.token.customClaims.titles.includes(args.league)
-    ) { return true; }
+    ) {
+      return true;
+    }
   } else return false;
 }
 function repackageMatches(results, args, godPredictions) {
@@ -124,18 +127,27 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
+      scheduled_tw: ele.scheduled_tw,
       status: ele.status,
       league: args.league,
       home: {
         id: ele.home_id,
-        alias: ele.home_alias,
-        alias_tw: ele.home_alias_ch,
+        // alias: ele.home_alias,
+        // alias_ch: ele.home_alias_ch,
+        team_name: ele.home_alias,
+        alias: sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: sliceTeamAndPlayer(ele.home_alias_ch).team,
+        player_name: sliceTeamAndPlayer(ele.home_alias).player_name,
         image_id: ele.home_image_id
       },
       away: {
         id: ele.away_id,
-        alias: ele.away_alias,
-        alias_ch: ele.away_alias_ch,
+        // alias: ele.away_alias,
+        // alias_ch: ele.away_alias_ch,
+        team_name: ele.away_alias,
+        alias: sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: sliceTeamAndPlayer(ele.away_alias_ch).team,
+        player_name: sliceTeamAndPlayer(ele.away_alias).player_name,
         image_id: ele.away_image_id
       },
       spread: {
@@ -201,4 +213,19 @@ function isHandicapDisable(ele, temp, predictions) {
     }
   }
 }
+
+function sliceTeamAndPlayer(name) {
+  if (name.includes('(')) {
+    const index = name.indexOf('(');
+    return {
+      team: name.slice(0, index).trim(),
+      player_name: name.slice(index).replace('(', '').replace(')', '').trim()
+    };
+  }
+  return {
+    team: name,
+    player_name: null
+  };
+}
+
 module.exports = getMatches;

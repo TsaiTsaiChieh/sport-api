@@ -17,6 +17,10 @@ router.get(
   verification.getToken,
   require('../controller/topics/getRepliesController')
 );
+router.get(
+  '/reply/:rid',
+  require('../controller/topics/getReplyController')
+);
 router.post(
   '/',
   require('../controller/topics/getTopicsController')
@@ -30,6 +34,11 @@ router.post(
   '/editArticle',
   verification.token,
   require('../controller/topics/editArticleController')
+);
+router.post(
+  '/deleteArticle',
+  verification.token,
+  require('../controller/topics/deleteArticleController')
 );
 router.post(
   '/createReply',

@@ -23,13 +23,6 @@ async function createTopic(args) {
         reject({ code: 403, error: 'token expired' });
         return;
       }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
-        return;
-      }
 
       const insertData = {
         uid: args.token.uid,

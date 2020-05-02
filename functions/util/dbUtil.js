@@ -234,7 +234,6 @@ const Rank = sequelize.define(
         fields: ['rank_id']
       }
     ]
-
   },
   {
     indexes: [
@@ -635,6 +634,9 @@ const Prediction = sequelize.define(
       },
       {
         fields: ['bets_id']
+      },
+      {
+        fields: ['spread_id', 'totals_id'] // 為了刪除注單功能：清空 spread_id 和 totals_id 同時為空的無效注單
       }
     ]
   }
@@ -815,20 +817,30 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
+    like_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
     status: {
       // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
-      defaultValue: 1
+      defaultValue: 1,
+      allowNull: false
     },
-    view_count: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
+    delete_reason: {
+      type: Sequelize.TEXT
     }
   },
   {
     indexes: [
       {
-        fields: ['article_id', 'type', 'category']
+        fields: ['article_id', 'uid', 'type', 'category']
       }
     ]
   }
@@ -847,7 +859,7 @@ const Topic_Reply = sequelize.define(
     },
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -894,7 +906,7 @@ const Topic_Like = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -919,7 +931,7 @@ const Topic_ReplyLike = sequelize.define(
   {
     reply_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -944,7 +956,7 @@ const Topic_FavoriteArticle = sequelize.define(
   {
     article_id: {
       // 文章id
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     uid: {
@@ -960,6 +972,36 @@ const Topic_FavoriteArticle = sequelize.define(
     ]
   }
 );
+
+/*
+ * 檢舉文章
+ */
+const Service_ReportTopics = sequelize.define('service__reporttopic', {
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  article_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  reply: {
+    type: Sequelize.STRING
+  }
+});
 
 /*
  * 聯絡客服
