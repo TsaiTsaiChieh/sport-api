@@ -187,6 +187,36 @@ class HandicapEsoccerError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class PBPEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球文字直播排程錯誤',
+    status = 1507,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class PBPNBAError extends ExtendableError {
+  constructor(
+    message = 'NBA文字直播排程錯誤',
+    status = 1508,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class PBPMLBError extends ExtendableError {
+  constructor(
+    message = 'MLB文字直播排程錯誤',
+    status = 1509,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -203,5 +233,8 @@ module.exports = {
   FirebaseCollectError,
   FirebaseRealtimeError,
   AxiosError,
-  HandicapEsoccerError
+  HandicapEsoccerError,
+  PBPEsoccerError,
+  PBPNBAError,
+  PBPMLBError
 };

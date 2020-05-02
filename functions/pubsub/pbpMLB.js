@@ -54,7 +54,7 @@ async function MLBpbpInplay(parameter) {
       awayData.roster[Object.keys(awayData.roster)[i]].transSimpleAway
     );
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     try {
       const parameterPBP = {
         inningsNow: inningsNow,
@@ -1004,8 +1004,8 @@ async function MLBpbpHistory(parameter) {
                             at_bat: {
                               [`events${eventAtbatCount}`]: dataPBP.game
                                 .innings[inningsCount].halfs[halfsCount].events[
-                                eventHalfCount
-                              ].at_bat.events[eventAtbatCount]
+                                  eventHalfCount
+                                ].at_bat.events[eventAtbatCount]
                             }
                           }
                         }
