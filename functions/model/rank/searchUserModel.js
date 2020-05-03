@@ -12,10 +12,11 @@ function searchUser(args) {
       SELECT uid, display_name 
         FROM users 
        WHERE display_name 
-        LIKE '%${display_name}%' 
-       LIMIT ${limit}
+        LIKE '%${display_name}%'
+       LIMIT $limit
        `,
       {
+        bind:{ limit:limit},
         type: db.sequelize.QueryTypes.SELECT
       });
 

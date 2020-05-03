@@ -123,4 +123,12 @@ router.post(
   require('../controller/user/settleMatchesController')
 );
 
+
+/*大神結算*/
+router.post(
+  '/settle_god_list',
+  verification.token,
+  require('../controller/user/settleGodListController')
+);
+
 module.exports = router;

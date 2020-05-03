@@ -10,11 +10,12 @@ function transferModel(args, uid) {
       const transfer = await db.sequelize.query(
       `
         SELECT transfer_id, scheduled, type, content 
-          FROM transfer_logs 
-         WHERE uid = '${uid}'
-           AND updatedAt BETWEEN '${begin}' AND '${end}'
+          FROM user__transfer__logs 
+         WHERE uid = $uid
+           AND updatedAt BETWEEN $begin AND $end
        `,
       {
+        bind: { uid:uid, begin:begin, end:end},
         type: db.sequelize.QueryTypes.SELECT
       });
       resolve(transfer);
