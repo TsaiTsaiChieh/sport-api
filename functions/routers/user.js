@@ -63,6 +63,11 @@ router.delete(
   verification.token_v2,
   require('../controller/user/deletePredictsController')
 );
+router.get(
+  '/prediction_results',
+  verification.token_v2,
+  require('../controller/user/predictionResultsController')
+);
 // 大神售牌資訊
 router.get(
   '/sell_information',
@@ -134,6 +139,16 @@ router.post(
   '/settle_matches',
   verification.token,
   require('../controller/user/settleMatchesController')
+);
+router.post(
+  '/settle_win_list',
+  verification.token,
+  require('../controller/user/settleWinListController')
+);
+router.post(
+  '/settle_god_title',
+  verification.token,
+  require('../controller/user/settleGodTitleController')
 );
 
 /* 大神結算 */

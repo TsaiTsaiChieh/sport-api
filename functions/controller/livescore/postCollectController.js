@@ -24,8 +24,8 @@ async function postCollect(req, res) {
       break;
     }
     default: {
-      req.query.league = 'NBA';
-      req.query.sport = 'basketball';
+      req.query.league = 'eSoccer';
+      req.query.sport = 'esports';
     }
   }
   const schema = {

@@ -543,7 +543,13 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
-      { fields: ['scheduled', 'flag_prematch', 'status'] }
+      { fields: ['scheduled', 'flag_prematch', 'status'] },
+      {
+        fields: ['status', 'spread_id']
+      },
+      {
+        fields: ['status', 'totals_id']
+      }
     ]
   }
 );
@@ -604,11 +610,11 @@ const Prediction = sequelize.define(
       type: Sequelize.STRING
     },
     spread_result_flag: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       defaultValue: -2
     },
     totals_result_flag: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       defaultValue: -2
     }
   },
@@ -686,7 +692,7 @@ const PredictionDescription = sequelize.define(
 /*
  * 各聯盟賽事結算資訊
  */
-const usersWinLists = sequelize.define(
+const Users_WinLists = sequelize.define(
   'users__win__lists',
   {
     id: {
@@ -700,60 +706,126 @@ const usersWinLists = sequelize.define(
     league_id: {
       type: Sequelize.INTEGER
     },
-    rank_id: {
-      type: Sequelize.INTEGER
+    last_season_win_bets: {
+      type: Sequelize.FLOAT
     },
-    avatar: {
-      type: Sequelize.STRING,
-      allowNull: true
+    last_season_win_rate: {
+      type: Sequelize.FLOAT
     },
-    displayname: {
-      type: Sequelize.STRING
+    last_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    last_period_win_rate: {
+      type: Sequelize.FLOAT
     },
     last_month_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_month_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_week_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     last_week_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
-
     this_season_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_season_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_period_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_period_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_month_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_month_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_week_win_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     this_week_win_rate: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     }
   },
   {
     indexes: [
       {
         unique: true,
-        fields: ['uid']
+        fields: ['uid', 'league_id']
       }
+    ]
+  }
+);
+
+/*
+ * 各聯盟賽事結算資訊歷史記錄表
+ */
+const Users_WinListsHistory = sequelize.define(
+  'users__win__lists__history',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.INTEGER
+    },
+    win_bets: {
+      type: Sequelize.FLOAT
+    },
+    win_rate: {
+      type: Sequelize.FLOAT
+    },
+    matches_count: {
+      type: Sequelize.INTEGER
+    },
+    correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    fault_counts: {
+      type: Sequelize.INTEGER
+    },
+    date_timestamp: {
+      type: Sequelize.INTEGER
+    },
+    day_of_year: {
+      type: Sequelize.INTEGER
+    },
+    period: {
+      type: Sequelize.INTEGER
+    },
+    week: {
+      type: Sequelize.INTEGER
+    },
+    month: {
+      type: Sequelize.INTEGER
+    },
+    season: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        name: 'uldwms',
+        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
+        unique: true
+      }
+      // { fields: ['uid', 'league_id', 'week'] },
+      // { fields: ['uid', 'league_id', 'month'] },
+      // { fields: ['uid', 'league_id', 'season'] }
     ]
   }
 );
@@ -1211,7 +1283,8 @@ const dbUtil = {
   User,
   Title,
   Rank,
-  usersWinLists,
+  Users_WinLists,
+  Users_WinListsHistory,
   User_FavoriteGod,
   Topic_Like,
   Topic_ReplyLike,
