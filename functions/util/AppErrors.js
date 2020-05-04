@@ -153,6 +153,86 @@ class MysqlError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class PrematchEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球賽前排程錯誤',
+    status = 1502,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class FirebaseCollectError extends ExtendableError {
+  constructor(
+    message = 'Firebase 錯誤 | 存入 collection 錯誤',
+    status = 1503,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class FirebaseRealtimeError extends ExtendableError {
+  constructor(
+    message = 'Firebase 錯誤 | 存入 realtime 錯誤',
+    status = 1504,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class AxiosError extends ExtendableError {
+  constructor(
+    message = 'Axios 錯誤',
+    status = 1505,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class HandicapEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球盤口排程錯誤',
+    status = 1506,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class PBPEsoccerError extends ExtendableError {
+  constructor(
+    message = '電競足球文字直播排程錯誤',
+    status = 1507,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class PBPNBAError extends ExtendableError {
+  constructor(
+    message = 'NBA文字直播排程錯誤',
+    status = 1508,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class PBPMLBError extends ExtendableError {
+  constructor(
+    message = 'MLB文字直播排程錯誤',
+    status = 1509,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 class SettlementAccordingMatch extends ExtendableError {
   constructor(
     message = '結算所有完賽的賽事排程錯誤',
@@ -177,5 +257,13 @@ module.exports = {
   DeletePredictionsFailed,
   MysqlError,
   BetsAPIError,
+  PrematchEsoccerError,
+  FirebaseCollectError,
+  FirebaseRealtimeError,
+  AxiosError,
+  HandicapEsoccerError,
+  PBPEsoccerError,
+  PBPNBAError,
+  PBPMLBError,
   SettlementAccordingMatch
 };

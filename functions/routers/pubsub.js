@@ -11,7 +11,7 @@ router.get(
   '/settlement',
   require('../pubsub/handicap/settlementAccordingMatch')
 );
-router.get('/checkmatch_esport', require('../pubsub/checkmatch_ESoccer'));
+router.get('/checkmatch_esport', require('../pubsub/checkmatch_eSoccer'));
 router.get('/lineups', require('../pubsub/lineups'));
 router.get('/title_period', require('../pubsub/titlePeriod'));
 // router.get('/tune_db', require('../pubsub/tuneDB'));
