@@ -98,7 +98,7 @@ async function getReplies(args) {
         replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
         replies.rows[i].replyto_info = replyInfo;
         if (replyInfo !== null && replyInfo !== '[]') {
-          console.log(typeof replyInfo.images)
+          // console.log(typeof replyInfo.images)
           if(typeof replyInfo.images === 'string'){
             replies.rows[i].replyto_info.images = JSON.parse(replyInfo.images);
           }
