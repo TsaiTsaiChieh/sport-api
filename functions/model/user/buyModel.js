@@ -7,7 +7,6 @@ function buyModel(args, uid) {
     try {
       const begin = args.begin;
       const end = args.end;
-      
 
       const buy = await db.sequelize.query(
         `
@@ -27,7 +26,7 @@ function buyModel(args, uid) {
         
        `,
         {
-          bind:{ uid:uid, begin:begin, end:end },
+          bind: { uid: uid, begin: begin, end: end },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

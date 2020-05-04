@@ -123,8 +123,7 @@ router.post(
   require('../controller/user/settleMatchesController')
 );
 
-
-/*大神結算*/
+/* 大神結算 */
 router.post(
   '/settle_god_list',
   verification.token,

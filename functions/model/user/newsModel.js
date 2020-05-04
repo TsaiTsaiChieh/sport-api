@@ -57,11 +57,9 @@ function newsModel(method, args, uid) {
         };
         resolve(newsList);
       } else if (method === 'DELETE') {
-
         const items = args.items;
         const del_join = items.join(',');
 
-       
         const del_res = db.sequelize.query(
           `
             DELETE 
@@ -70,7 +68,7 @@ function newsModel(method, args, uid) {
               AND news_id in (${del_join})
           `,
           {
-            logging:true,
+            logging: true,
             type: db.sequelize.QueryTypes.DELETE
           }
         );

@@ -14,15 +14,15 @@ async function settleGodList(req, res) {
 //     }
 //   };
 
-//   const valid = modules.ajv.validate(schema, req.body);
-//   if (!valid) {
-//     return res.status(400).json(modules.ajv.errors);
-//   }
+  //   const valid = modules.ajv.validate(schema, req.body);
+  //   if (!valid) {
+  //     return res.status(400).json(modules.ajv.errors);
+  //   }
 
   try {
     req.body.token = req.token;
 
-    res.json(await settleMatchesModel(req.body));
+    res.json(await settleGodListModel(req.body));
   } catch (err) {
     res.status(err.code).json(err.err);
   }
