@@ -3,6 +3,7 @@ const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const firebase = require('firebase');
 const moment = require('moment');
+const tz = require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
@@ -73,7 +74,7 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 
 // 會根據 Array 裡 object 的 key 群組
 function groupBy(array, key) {
-  return array.reduce(function(result, currentValue) {
+  return array.reduce(function (result, currentValue) {
     // If an array already present for key, push it to the array. Else create an array and push the object
     (result[currentValue[key]] = result[currentValue[key]] || []).push(
       currentValue
@@ -155,7 +156,7 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
+  snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }

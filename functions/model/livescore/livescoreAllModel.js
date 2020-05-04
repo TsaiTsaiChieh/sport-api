@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league, args.time);
 
@@ -17,11 +17,14 @@ async function reResult(sport, league, time) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, time) {
+  const date1 = Date.now();
+
   const leagueName = `pagetest_${league}`;
   const query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')
     .get();
+  const date2 = Date.now();
 
   const eventData = [];
   query.forEach((doc) => {
@@ -102,6 +105,10 @@ async function repackage(sport, league, time) {
       });
     }
   }
+  const date3 = Date.now();
+  console.log(date2 - date1); // query collection的時間
+  console.log(date3 - date2); // 我的部分
+  console.log(date3 - date1); // 總時間
 
   return eventToday;
 }

@@ -47,7 +47,7 @@ async function handicap_esport() {
   console.log('handicap_esports success');
 }
 async function updateHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -281,6 +281,7 @@ async function updateHandicap(league, ele) {
           // );
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at handicap_esports by DY`)
@@ -289,7 +290,7 @@ async function updateHandicap(league, ele) {
   });
 }
 async function query_opening(flag, value, league) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const eventsRef = modules.firestore.collection(league);
     const eles = [];
     try {
@@ -297,7 +298,7 @@ async function query_opening(flag, value, league) {
         .where(flag, '==', value)
         .where('scheduled', '>', modules.moment() / 1000)
         .get();
-      querys.forEach(function(docs) {
+      querys.forEach(function (docs) {
         eles.push(docs.data());
       });
       return await Promise.all(eles);
@@ -311,7 +312,7 @@ async function query_opening(flag, value, league) {
   });
 }
 async function query_handicap(flag, value, leagues) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const date = modules.moment();
     const eles = [];
     const eventsRef = modules.firestore.collection(leagues);
@@ -324,10 +325,10 @@ async function query_handicap(flag, value, leagues) {
         .where('scheduled', '>=', beginningDate / 1000)
         .where('scheduled', '<=', endDate / 1000)
         .get();
-      querys.forEach(async function(docs) {
+      querys.forEach(async function (docs) {
         eles.push(docs.data());
       });
-      return await Promise.all(eles);
+      return resolve(await Promise.all(eles));
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
@@ -339,7 +340,7 @@ async function query_handicap(flag, value, leagues) {
 }
 
 async function getHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -434,6 +435,7 @@ async function getHandicap(league, ele) {
           }
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
@@ -444,7 +446,7 @@ async function getHandicap(league, ele) {
   });
 }
 async function getTotals(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -536,6 +538,7 @@ async function getTotals(league, ele) {
           }
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(

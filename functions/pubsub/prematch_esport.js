@@ -15,6 +15,7 @@ async function prematch_esport() {
     try {
       await eSoccer_functions.eSoccer.upcoming(now);
       await eSoccer_functions.eSoccer.upcoming(tomorrow);
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.PrematchEsoccerError(`${err} at prematch_esports by DY`)

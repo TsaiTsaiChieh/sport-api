@@ -9,140 +9,143 @@ const leagueUniteID = '22000';
 const leagueUniteName = 'eSoccer';
 const sportID = 1;
 const leagueArray = [22614, 22808, 22764, 22537, 22724];
-module.exports.eSoccer.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
-    for (let i = 0; i < leagueArray.length; i++) {
-      const leagueID = leagueArray[i];
-      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
-      try {
-        const { data } = await modules.axios(URL);
+module.exports.eSoccer.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      for (let i = 0; i < leagueArray.length; i++) {
+        const leagueID = leagueArray[i];
+        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+        const data = await axiosForUpcoming(URL);
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {
             const ele = data.results[j];
-            // 去除 Esports 字眼
             if (ele.home.name.indexOf('Esports') !== -1) {
               ele.home.name = ele.home.name.replace('Esports', '');
             }
             if (ele.away.name.indexOf('Esports') !== -1) {
               ele.away.name = ele.away.name.replace('Esports', '');
             }
-            // 寫入 firestore
-            try {
-              await modules.firestore
-                .collection(firebaseName)
-                .doc(ele.id)
-                .set(repackage_bets(ele), { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at prematchFunctions_ESoccer by DY`
-                )
-              );
-            }
-            try {
-              await modules.database
-                .ref(`esports/eSoccer/${ele.id}/Summary/status`)
-                .set('scheduled');
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at prematchFunctions_ESoccer by DY`
-                )
-              );
-            }
-            try {
-              const dataEvent = {
-                bets_id: ele.id,
-                league_id: leagueUniteID,
-                ori_league_id: ele.league.id,
-                sport_id: ele.sport_id,
-                ori_sport_id: ele.sport_id,
-                home_id: ele.home.id,
-                away_id: ele.away.id,
-                scheduled: Number.parseInt(ele.time),
-                scheduled_tw: Number.parseInt(ele.time) * 1000,
-                flag_prematch: 1,
-                status: 2
-              };
-              try {
-                await Match.upsert(dataEvent);
-              } catch (err) {
-                return reject(
-                  new AppErrors.MysqlError(
-                    `${err} at prematchFunctions_ESoccer by DY`
-                  )
-                );
-              }
-              const dataHomeTeam = {
-                team_id: ele.home.id,
-                league_id: leagueUniteID,
-                sport_id: ele.sport_id,
-                name: ele.home.name,
-                alias: ele.home.name,
-                alias_ch: ele.home.name,
-                image_id: ele.home.image_id
-              };
-
-              const dataAwayTeam = {
-                team_id: ele.away.id,
-                league_id: leagueUniteID,
-                sport_id: ele.sport_id,
-                name: ele.away.name,
-                alias: ele.away.name,
-                alias_ch: ele.away.name,
-                image_id: ele.away.image_id
-              };
-              try {
-                await MatchTeam.upsert(dataHomeTeam);
-              } catch (err) {
-                return reject(
-                  new AppErrors.MysqlError(
-                    `${err} at prematchFunctions_ESoccer by DY`
-                  )
-                );
-              }
-              try {
-                await MatchTeam.upsert(dataAwayTeam);
-              } catch (err) {
-                return reject(
-                  new AppErrors.MysqlError(
-                    `${err} at prematchFunctions_ESoccer by DY`
-                  )
-                );
-              }
-            } catch (err) {
-              return reject(
-                new AppErrors.PrematchEsoccerError(
-                  `${err} at prematchFunctions_ESoccer by DY`
-                )
-              );
-            }
+            await write2firestore(ele);
+            await write2realtime(ele);
+            await write2MysqlOfMatch(ele);
+            await write2MysqlOfMatchTeam(ele);
           }
         } else {
           console.log(leagueID + 'has no upcoming event now');
         }
-      } catch (err) {
-        return reject(
-          new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
-        );
       }
+      console.log('esport scheduled success');
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.PrematchEsoccerError(
+          `${err} at prematchFunctions_ESoccer by DY`
+        )
+      );
     }
-
-    console.log('esport scheduled success');
-    // return new Promise(async function (resolve, reject) {
-    //   try {
-    //     resolve(await Promise.all(results));
-    //   } catch (error) {
-    //     console.error(
-    //       `Error in pubsub/util/prematchFunctions_ESoccer upcoming axios by DY on ${Date.now()}`,
-    //       error
-    //     );
-    //     reject(error);
-    //   }
-    // });
   });
 };
-
+async function axiosForUpcoming(URL) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const { data } = await modules.axios(URL);
+      return resolve(data);
+    } catch (err) {
+      return reject(
+        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
+      );
+    }
+  });
+}
+async function write2firestore(ele) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      await modules.firestore
+        .collection(firebaseName)
+        .doc(ele.id)
+        .set(repackage_bets(ele), { merge: true });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at prematchFunctions_ESoccer by DY`
+        )
+      );
+    }
+  });
+}
+async function write2realtime(ele) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      await modules.database
+        .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+        .set('scheduled');
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseRealtimeError(
+          `${err} at prematchFunctions_ESoccer by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatch(ele) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const dataEvent = {
+        bets_id: ele.id,
+        league_id: leagueUniteID,
+        ori_league_id: ele.league.id,
+        sport_id: ele.sport_id,
+        ori_sport_id: ele.sport_id,
+        home_id: ele.home.id,
+        away_id: ele.away.id,
+        scheduled: Number.parseInt(ele.time),
+        scheduled_tw: Number.parseInt(ele.time) * 1000,
+        flag_prematch: 1,
+        status: 2
+      };
+      await Match.upsert(dataEvent);
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchTeam(ele) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const dataHomeTeam = {
+        team_id: ele.home.id,
+        league_id: leagueUniteID,
+        sport_id: ele.sport_id,
+        name: ele.home.name,
+        alias: ele.home.name,
+        alias_ch: ele.home.name,
+        image_id: ele.home.image_id
+      };
+      const dataAwayTeam = {
+        team_id: ele.away.id,
+        league_id: leagueUniteID,
+        sport_id: ele.sport_id,
+        name: ele.away.name,
+        alias: ele.away.name,
+        alias_ch: ele.away.name,
+        image_id: ele.away.image_id
+      };
+      await MatchTeam.upsert(dataHomeTeam);
+      await MatchTeam.upsert(dataAwayTeam);
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+      );
+    }
+  });
+}
 function repackage_bets(ele) {
   let leagueCH = '';
   switch (ele.league.id) {

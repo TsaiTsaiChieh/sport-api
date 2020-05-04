@@ -111,6 +111,7 @@ async function checkmatch_eSoccer() {
           }
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(`${err} at checkmatch_ESoccer by DY`)
