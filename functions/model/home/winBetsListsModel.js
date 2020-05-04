@@ -60,7 +60,7 @@ function winBetsLists(args) {
                           ) users
                    where winlist.uid = users.uid
                   ) winlist
-            left join titles 
+            inner join titles 
             on winlist.uid = titles.uid 
             and winlist.league_id = titles.league_id
             and titles.period = ${period}
@@ -94,8 +94,9 @@ function repackage(ele) {
     rank: ''
   };
 
-  data.win_bets = ele.this_month_win_bets.toString();
-  data.rank = ele.rank_id.toString();
+  /* 欄位無資料防呆 */
+  data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
+  data.rank = ele.rank_id == null ? null : ele.rank_id.toString();
 
   return data;
 }

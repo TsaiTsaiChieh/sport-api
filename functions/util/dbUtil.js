@@ -206,7 +206,7 @@ const Title = sequelize.define(
 );
 
 const Rank = sequelize.define(
-  'rank',
+  'user__rank',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -1039,7 +1039,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'home__banner',
+  'user__home__banner',
   {
     name: {
       type: Sequelize.STRING,
@@ -1072,6 +1072,108 @@ const Home_Banner = sequelize.define(
   }
 );
 
+const Buy = sequelize.define(
+  'user__buy',
+  {
+    buy_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: ''
+    },
+    god_id: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    god_rank: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['buy_id', 'uid', 'league_id']
+      }
+    ]
+  }
+);
+
+const Honor_board = sequelize.define(
+  'user__honor__board',
+  {
+    honor_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: ''
+    },
+    rank_id: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: ''
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['honor_id', 'uid', 'rank_id']
+      }
+    ]
+  }
+);
+
+const News = sequelize.define(
+  'user__new',
+  {
+    news_id: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    content: {
+      type: Sequelize.STRING
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['honor_id', 'uid', 'rank_id']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1094,7 +1196,10 @@ const dbUtil = {
   Topic_Article,
   Topic_FavoriteArticle,
   Home_Banner,
-  Service_Contact
+  Service_Contact,
+  Buy,
+  Honor_board,
+  News
 };
 
 module.exports = dbUtil;
