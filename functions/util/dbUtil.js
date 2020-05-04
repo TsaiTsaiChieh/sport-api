@@ -834,7 +834,7 @@ const Topic_Article = sequelize.define(
       allowNull: false
     },
     delete_reason: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT
     }
   },
   {

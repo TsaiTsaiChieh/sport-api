@@ -78,7 +78,7 @@ function countLikes(article_id) {
         article_id: article_id
       }
     });
-    if(article) {
+    if (article) {
       article.update({ like_count: result });
       resolve();
     } else {
@@ -116,7 +116,7 @@ async function likeArticle(args) {
         await unlike(uid, args.article_id);
       }
 
-      await countLikes(args.article_id)
+      await countLikes(args.article_id);
 
       resolve({ code: 200 });
     } catch (err) {

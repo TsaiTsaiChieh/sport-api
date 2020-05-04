@@ -98,7 +98,7 @@ async function getTopics(args) {
         if (topics.rows[i].status !== 1) {
           topics.rows[i].type = '已刪除';
           topics.rows[i].category = '已刪除';
-          //topics.rows[i].title = '(本文已被刪除)';
+          // topics.rows[i].title = '(本文已被刪除)';
           topics.rows[i].content = null;
         }
       }
