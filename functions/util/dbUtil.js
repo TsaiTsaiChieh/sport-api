@@ -1090,7 +1090,10 @@ const Buy = sequelize.define(
     },
     god_rank: {
       type: Sequelize.INTEGER,
-      defaultValue: 1, // 1為正常 -1可能為刪除 尚未實作
+      defaultValue: 1,  
+    },
+    scheduled: {
+      type: Sequelize.INTEGER,
     },
   },
   {
@@ -1113,7 +1116,7 @@ const Honor_board = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false,
     },
-	league_id: {
+	  league_id: {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: "",
@@ -1122,6 +1125,9 @@ const Honor_board = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: "",
+    },
+    scheduled: {
+      type: Sequelize.INTEGER,
     },
   },
   {
@@ -1132,6 +1138,39 @@ const Honor_board = sequelize.define(
     ],
   }
 );
+
+
+const News = sequelize.define(
+  "user__new",
+  {
+    news_id: {
+      type: Sequelize.INTEGER,
+    },
+    uid: {
+      type: Sequelize.STRING,
+    },
+	  title: {
+      type: Sequelize.STRING,
+    },
+    content: {
+      type: Sequelize.STRING,
+    },
+    status: {
+      type: Sequelize.INTEGER,
+    },
+    scheduled: {
+      type: Sequelize.INTEGER,
+    },
+  },
+  {
+    indexes: [
+      {
+        fields: ["honor_id", "uid", "rank_id"],
+      },
+    ],
+  }
+);
+
 
 const dbUtil = {
   sequelize,
@@ -1157,7 +1196,8 @@ const dbUtil = {
   Home_Banner,
   Service_Contact,
   Buy,
-  Honor_board
+  Honor_board,
+  News
 };
 
 module.exports = dbUtil;
