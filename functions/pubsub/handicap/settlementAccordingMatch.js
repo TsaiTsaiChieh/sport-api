@@ -5,12 +5,16 @@ const validMatch = 1;
 const spreadResult = {
   home: 'home',
   away: 'away',
-  fair: 'fair'
+  fair: 'fair2',
+  fairHome: 'fair|home',
+  fairAway: 'fair|away',
 };
 const totalsResult = {
   over: 'over',
   under: 'under',
-  fair: 'fair'
+  fair: 'fair2', 
+  fairUnder: 'fair|under',
+  fairOver: 'fair|over',
 };
 
 function settlement() {
@@ -59,6 +63,7 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err} by TsaiChieh`));
     }
+  
   });
 }
 
@@ -117,7 +122,7 @@ function settleSpread(ele) {
    */
 
   const homeSubtraction = ele.home_points - ele.handicap;
-  const awaySubtraction = ele.away_points - ele.handicap;
+  const awaySubtraction = ele.away_points - Math.abs(ele.handicap);
   // 1. 當盤口為正小數
   if (!Number.isInteger(ele.handicap) && ele.handicap > 0) {
     if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
@@ -152,7 +157,7 @@ function settleSpread(ele) {
   ) {
     if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
     else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
-    else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.home;
+    else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.fairHome;
     // 6. 當盤口為正整數且客隊賠率大於主隊賠率時
   } else if (
     Number.isInteger(ele.handicap) &&
@@ -161,7 +166,7 @@ function settleSpread(ele) {
   ) {
     if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
     else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
-    else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.away;
+    else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.fairAway;
     // 7. 當盤口為負整數且主隊賠率大於客隊賠率時
   } else if (
     Number.isInteger(ele.handicap) &&
@@ -170,7 +175,7 @@ function settleSpread(ele) {
   ) {
     if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
     else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
-    else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.home;
+    else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.fairHome;
   } else if (
     // 8. 當盤口為負整數且客隊賠率大於主隊賠率時
     Number.isInteger(ele.handicap) &&
@@ -179,7 +184,7 @@ function settleSpread(ele) {
   ) {
     if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
     else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
-    else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.away;
+    else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.fairAway;
   }
 }
 
@@ -246,8 +251,8 @@ function queryTotals(totalsMetadata) {
         const result = await db.sequelize.query(
           `SELECT handicap, under_odd, over_odd
              FROM match__totals
-            WHERE totals_id = "${ele.totals_id}"
-              AND match_id = "${ele.bets_id}"`,
+            WHERE totals_id = '${ele.totals_id}'
+              AND match_id = '${ele.bets_id}'`,
           { type: db.sequelize.QueryTypes.SELECT }
         );
         if (result.length !== 0) {
@@ -298,12 +303,12 @@ function settleTotals(ele) {
   } else if (Number.isInteger(ele.handicap) && ele.over_odd > ele.under_odd) {
     if (sum > ele.handicap) ele.totals_result = totalsResult.over;
     else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
-    else if (sum === ele.handicap) ele.totals_result = totalsResult.under;
+    else if (sum === ele.handicap) ele.totals_result = totalsResult.fairOver;
     // 3. 當盤口為整數且小分賠率大於大分
   } else if (Number.isInteger(ele.handicap) && ele.over_odd < ele.under_odd) {
     if (sum > ele.handicap) ele.totalsResult = totalsResult.over;
     else if (sum < ele.handicap) ele.totals_result = totalsResult.under;
-    else if (sum === ele.handicap) ele.totals_result = totalsResult.under;
+    else if (sum === ele.handicap) ele.totals_result = totalsResult.fairUnder;
   }
 }
 
