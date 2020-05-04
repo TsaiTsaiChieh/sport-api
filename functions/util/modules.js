@@ -265,6 +265,52 @@ const fieldSorter = (fields) => (a, b) => fields.map(o => {
   return a[o] > b[o] ? dir : a[o] < b[o] ? -(dir) : 0;
 }).reduce((p, n) => p ? p : n, 0);
 
+/**
+ * Simple object check.
+ * @param item
+ * @returns {boolean}
+ */
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+/**
+ * Deep merge two objects.
+ * @param target
+ * @param ...sources
+ * https://www.itranslater.com/qa/details/2115518846294557696
+ */
+// function mergeDeep(target, ...sources) {
+//   if (!sources.length) return target;
+//   const source = sources.shift();
+
+//   if (isObject(target) && isObject(source)) {
+//     for (const key in source) {
+//       if (isObject(source[key])) {
+//         if (!target[key]) Object.assign(target, { [key]: {} });
+//         mergeDeep(target[key], source[key]);
+//       } else {
+//         Object.assign(target, { [key]: source[key] });
+//       }
+//     }
+//   }
+
+//   return mergeDeep(target, ...sources);
+// }
+
+const mergeDeep = (target, source) => {
+  const isDeep = prop => 
+    isObject(source[prop]) && target.hasOwnProperty(prop) && isObject(target[prop]);
+  const replaced = Object.getOwnPropertyNames(source)
+    .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
+    .reduce((a, b) => ({ ...a, ...b }), {});
+
+  return {
+    ...target,
+    ...replaced
+  };
+};
+
 /*
 {
   homePoints:
@@ -472,6 +518,7 @@ module.exports = {
   httpStatus,
   groupBy,
   fieldSorter,
+  mergeDeep,
   settleSpread,
   settleTotals,
   perdictionsResultFlag,
