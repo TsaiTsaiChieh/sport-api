@@ -823,14 +823,24 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
+    view_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
+    like_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    },
     status: {
       // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
-      defaultValue: 1
+      defaultValue: 1,
+      allowNull: false
     },
-    view_count: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
+    delete_reason: {
+      type: Sequelize.TEXT
     }
   },
   {
