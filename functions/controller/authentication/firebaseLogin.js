@@ -144,9 +144,9 @@ async function firebaseLogin(req, res) {
           returnJson.success = true;
           returnJson.status = 0;
 
-          if (mysqlUser.uid) {
+          if (mysqlUser) {
             console.log('firestoreUser exist');
-            if (mysqlUser.uid) {
+            if (mysqlUser) {
               returnJson.uid = mysqlUser.uid;
             } else {
               res.status(401).json({ success: false });

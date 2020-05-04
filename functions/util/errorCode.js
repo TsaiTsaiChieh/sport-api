@@ -16,7 +16,15 @@ const errorCodeLists = {
   1313: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions spread_result, totals_result 失敗', ''] },
   1314: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   1315: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算讓分 結果異常，不應該為空白', ''] },
-  1316: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算大小 結果異常，不應該為空白', ''] }
+  1316: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 user__predictions 賽事結算大小 結果異常，不應該為空白', ''] },
+  1317: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 users__win_lists_history 失敗', ''] },
+  1318: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 users__win_lists_history 異常 筆數不正確，只能一筆才對', ''] },
+  1319: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
+  1320: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 資料欄位 異常 筆數不正確，只能一筆才對', ''] },
+  1321: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
+  1322: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗 異常 筆數不正確，要五筆才對', ''] },
+  1323: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['非數字情況，可能原因是自串相加、資料為空字串', ''] },
+  1324: { msg: ['更新 大神稱號 失敗'], backend: ['更新 titles 異常 筆數不正確，只能一筆才對', ''] }
 };
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
