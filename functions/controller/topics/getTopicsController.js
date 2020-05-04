@@ -5,6 +5,9 @@ async function getTopics(req, res) {
   const schema = {
     type: 'object',
     properties: {
+      uid: {
+        type: ['string', 'null']
+      },
       type: {
         type: ['string', 'null'],
         enum: [null, 'MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球']
@@ -12,6 +15,16 @@ async function getTopics(req, res) {
       category: {
         type: ['string', 'null'],
         enum: [null, '賽事分析', '球隊討論', '投注分享', '公告', '其他']
+      },
+      count: {
+        type: 'integer',
+        maximum: 50,
+        minimum: 0,
+        default: 10
+      },
+      sortByLike: {
+        type: 'boolean',
+        default: false
       },
       page: {
         type: 'integer',

@@ -11,7 +11,7 @@ router.get(
   '/win_bets_lists',
   require('../controller/home/winBetsListsController')
 );
-router.get('/hotTopics/', require('../controller/home/hotTopicsController'));
+router.get('/hotTopics/:page*?', require('../controller/home/hotTopicsController'));
 router.get('/bannerImage', require('../controller/home/bannerImageController'));
 router.get('/livescore', require('../controller/home/livescoreController'));
 

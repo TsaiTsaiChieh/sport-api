@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-// const leagues = [modules.db.eSoccer]; normal
+
 const leagues = ['pagetest_eSoccer'];
 
 async function handicap_esport() {
@@ -55,22 +55,22 @@ async function updateHandicap(league, ele) {
     const { data } = await modules.axios(URL);
     const spread_odds = data.results.odds['1_2'];
     const totals_odds = data.results.odds['1_3'];
-    let newest_spreads;
+    let newest_spread;
 
     if (spread_odds.length > 0) {
-      newest_spreads = spread_odds[spread_odds.length - 1];
-      newest_spreads = await spreadCalculator(newest_spreads);
+      newest_spread = spread_odds[spread_odds.length - 1];
+      newest_spread = await spreadCalculator(newest_spread);
 
       await eventSnapshot.set(
         {
           newest_spread: {
-            handicap: Number.parseFloat(newest_spreads.handicap),
-            home_odd: Number.parseFloat(newest_spreads.home_od),
-            away_odd: Number.parseFloat(newest_spreads.away_od),
-            away_tw: newest_spreads.away_tw,
-            home_tw: newest_spreads.home_tw,
+            handicap: Number.parseFloat(newest_spread.handicap),
+            home_odd: Number.parseFloat(newest_spread.home_od),
+            away_odd: Number.parseFloat(newest_spread.away_od),
+            away_tw: newest_spread.away_tw,
+            home_tw: newest_spread.home_tw,
             add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(Number.parseInt(newest_spreads.add_time) * 1000)
+              new Date(Number.parseInt(newest_spread.add_time) * 1000)
             ),
             insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
               new Date()
@@ -82,7 +82,7 @@ async function updateHandicap(league, ele) {
 
       await Match.upsert({
         bets_id: ele.bets_id,
-        spread_id: newest_spreads.id
+        spread_id: newest_spread.id
       });
     }
     let newest_totals;

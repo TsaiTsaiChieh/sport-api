@@ -200,10 +200,16 @@ async function repackage(sport, league, eventID) {
     }
     return eventData;
   }
+
   if (league === 'MLB') {
+    eventData[0].sport = sport;
+    eventData[0].league = league;
     return eventData;
   }
   if (league === 'eSoccer') {
+    league = eventData[0].league.name;
+    eventData[0].sport = sport;
+    eventData[0].league = league;
     return eventData;
   }
 }

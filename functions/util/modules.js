@@ -208,6 +208,7 @@ function getTitlesPeriod(date) {
     2030
   ];
   let weeks = 0;
+  let weekPeriod = 0;
   for (let i = 0; i < years.length; i++) {
     const year = years[i];
     const weeksInYear = moment(year).isoWeeksInYear(); // always 53
@@ -220,19 +221,27 @@ function getTitlesPeriod(date) {
       .utcOffset(UTF8)
       .add(i * 2, 'weeks')
       .valueOf();
+
     const end = moment(specificDate)
       .utcOffset(UTF8)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
 
+    const week1 = moment(specificDate)
+      .utcOffset(UTF8)
+      .add(i, 'weeks')
+      .valueOf();
+    const week2 = begin;
+    week1 <= date && date < week2 ? (weekPeriod = 1) : (weekPeriod = 2);
     if (begin <= date && date <= end) {
       return {
         period: i, // 期數
         date: moment(specificDate)
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD') // 該期的開始日期
+          .format('YYYYMMDD'), // 該期的開始日期
+        weekPeriod
       };
     }
   }
@@ -261,9 +270,9 @@ function groupBy(arr, prop) {
 // https://stackoverflow.com/a/30446887
 const fieldSorter = (fields) => (a, b) => fields.map(o => {
   let dir = 1;
-  if (o[0] === '-') { dir = -1; o=o.substring(1); }
+  if (o[0] === '-') { dir = -1; o = o.substring(1); }
   return a[o] > b[o] ? dir : a[o] < b[o] ? -(dir) : 0;
-}).reduce((p, n) => p ? p : n, 0);
+}).reduce((p, n) => p || n, 0);
 
 /**
  * Simple object check.
@@ -299,8 +308,14 @@ function isObject(item) {
 // }
 
 const mergeDeep = (target, source) => {
+<<<<<<< HEAD
   const isDeep = prop => 
     isObject(source[prop]) && Object.prototype.hasOwnProperty.call(target, prop) && isObject(target[prop]);
+=======
+  const isDeep = prop =>
+    // eslint-disable-next-line no-prototype-builtins
+    isObject(source[prop]) && target.hasOwnProperty(prop) && isObject(target[prop]);
+>>>>>>> test
   const replaced = Object.getOwnPropertyNames(source)
     .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
     .reduce((a, b) => ({ ...a, ...b }), {});
@@ -436,8 +451,8 @@ function predictionsWinList(data) {
         data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
       // 避免分母是0 平盤無效
-      const winRate = (predictCorrectCounts + predictFaultCounts) === 0 
-        ? 0 
+      const winRate = (predictCorrectCounts + predictFaultCounts) === 0
+        ? 0
         : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注

@@ -31,10 +31,11 @@ module.exports.getUserInfo = async function(users) {
 module.exports.getTopicInfo = async function(aid) {
   return new Promise(async function(resolve, reject) {
     try {
-      console.log('function: get topic info by aid:' + aid);
+      // console.log('function: get topic info by aid:' + aid);
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
-          article_id: aid
+          article_id: aid,
+          status: 1
         },
         raw: true
       });
@@ -56,6 +57,7 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
         ],
         where: {
           article_id: {
+            status: 1,
             [Op.or]: articles
           }
         },
@@ -80,6 +82,7 @@ module.exports.getTopicLikeCount = async function(articles) { // 傳入array aid
         ],
         where: {
           article_id: {
+            status: 1,
             [Op.or]: articles
           }
         },
@@ -103,6 +106,7 @@ module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
         ],
         where: {
           reply_id: {
+            status: 1,
             [Op.or]: replies
           }
         },
@@ -122,6 +126,7 @@ module.exports.getReplyContent = async function(replies) { // 傳入array rid
       const result = await db.sequelize.models.topic__reply.findAll({
         where: {
           reply_id: {
+            status: 1,
             [Op.or]: replies
           }
         },
@@ -155,8 +160,8 @@ module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得�
 module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自己有無按過留言讚（多則）
   return new Promise(async function(resolve, reject) {
     try {
-      console.log(uid);
-      console.log(replies);
+      // console.log(uid);
+      // console.log(replies);
       const result = await db.sequelize.models.topic__replylike.findAll({
         attributes: [
           'reply_id',

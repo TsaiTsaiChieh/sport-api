@@ -7,6 +7,7 @@ function dbFind(aid) {
     try {
       const result = await db.sequelize.models.topic__article.findAll({
         where: {
+          status: 1,
           article_id: aid
         },
         raw: true
@@ -40,13 +41,6 @@ async function createTopic(args) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
-        return;
-      }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
         return;
       }
 

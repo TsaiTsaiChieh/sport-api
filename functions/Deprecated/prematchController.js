@@ -1,5 +1,5 @@
-const modules = require('../../util/modules');
-const model = require('../../model/sport/prematchModel');
+const modules = require('../util/modules');
+const model = require('../model/sport/prematchModel');
 
 // eslint-disable-next-line consistent-return
 async function prematch(req, res) {

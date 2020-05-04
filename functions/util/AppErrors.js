@@ -20,6 +20,11 @@ class UserPredictFailed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class DeletePredictionsFailed extends ExtendableError {
+  constructor(message, status = 1001, isPublic = true, code = httpStatus.OK) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
@@ -118,8 +123,19 @@ class CouldNotFillInSellInformation extends ExtendableError {
 
 class CouldNotModifySellInformation extends ExtendableError {
   constructor(
-    message = '只能在開賽前新增/編輯售牌資訊',
+    message = '只能在當天最後一場賽事開賽前新增/編輯售牌資訊',
     status = 1207,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class OnlyAcceptNormalUser extends ExtendableError {
+  constructor(
+    message = '此功能只允許一般玩家操作',
+    status = 1208,
     isPublic = true,
     code = httpStatus.FORBIDDEN
   ) {
@@ -137,6 +153,16 @@ class MysqlError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class SettlementAccordingMatch extends ExtendableError {
+  constructor(
+    message = '結算所有完賽的賽事排程錯誤',
+    status = 1501,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -146,7 +172,10 @@ module.exports = {
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
+  OnlyAcceptNormalUser,
   UserPredictFailed,
+  DeletePredictionsFailed,
   MysqlError,
-  BetsAPIError
+  BetsAPIError,
+  SettlementAccordingMatch
 };

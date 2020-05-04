@@ -7,16 +7,24 @@ async function predictMatches(req, res) {
   const spreadSchema = {
     type: 'array',
     items: [
-      { type: 'string' },
-      { type: 'string', enum: ['home', 'away'] },
+      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        enum: ['home', 'away']
+      },
       { type: 'integer', minimum: 1, maximum: 3 }
     ]
   };
   const totalsSchema = {
     type: 'array',
     items: [
-      { type: 'string' },
-      { type: 'string', enum: ['over', 'under'] },
+      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        enum: ['over', 'under']
+      },
       { type: 'integer', minimum: 1, maximum: 3 }
     ]
   };
@@ -30,7 +38,7 @@ async function predictMatches(req, res) {
       },
       sell: {
         type: 'integer',
-        enum: [0, 1]
+        enum: [-1, 0, 1] // -1 為一般玩家，0 為大神免費觀看，1 為大神販售
       },
       matches: {
         type: 'array',
@@ -50,7 +58,8 @@ async function predictMatches(req, res) {
           ],
           properties: {
             id: {
-              type: 'string'
+              type: 'string',
+              pattern: modules.acceptNumberAndLetter
             },
             spread: spreadSchema,
             totals: totalsSchema
@@ -86,8 +95,8 @@ async function predictMatches(req, res) {
 module.exports = predictMatches;
 
 /**
- * @api {post} /user/predict_matches Predict Matches
- * @apiVersion 1.0.0
+ * @api {post} /user/predictions Predict Matches
+ * @apiVersion 2.0.0
  * @apiDescription User send own prediction form by Tsai-Chieh
  * @apiName Create or update own prediction form
  * @apiGroup User
@@ -95,7 +104,7 @@ module.exports = predictMatches;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`
- * @apiParam {Number} sell 0: free, 1: sell, just god like user can sell
+ * @apiParam {Number} sell -1: normal user used, 0: free, 1: sell, just god user can determine sell or free
  * @apiParam {Array} matches prediction form
  * @apiParam {String} matches.id match id
  * @apiParam {String} [matches.spread] spread information array, spread[0] is spread id, spread[1] enum are: `home`, `away`, spread[2] is chip number, max is 3, min is 1
@@ -145,88 +154,101 @@ module.exports = predictMatches;
     "failed": [],
     "success": [
         {
-            "id": "2115973",
+            "id": "2120643",
             "spread": [
-                "31268919",
-                "home",
-                3
-            ]
-        },
-        {
-            "id": "2115973",
-            "totals": [
-                "34417671",
-                "over",
-                2
-            ]
-        }
-    ]
-}
-* @apiSuccessExample {JSON} Success-Response
-{
-    "failed": [
-        {
-            "id": "2115973",
-            "spread": [
-                "31268919",
+                "31298793",
                 "home",
                 3
             ],
-            "code": 403,
-            "error": "Spread id: 31268919 OTB, forbidden"
+            "home": {
+                "id": "52891",
+                "alias": "OKC",
+                "alias_ch": "雷霆"
+            },
+            "away": {
+                "id": "55289",
+                "alias": "UTA",
+                "alias_ch": "爵士"
+            }
         },
         {
-            "id": "2118058",
+            "id": "2120643",
             "totals": [
-                "ssstest",
-                "over",
-                1
-            ],
-            "code": 403,
-            "error": "Totals id: ssstest OTB, forbidden"
-        },
-        {
-            "id": "2115973",
-            "totals": [
-                "null",
+                "34456538",
                 "under",
                 1
             ],
-            "code": 403,
-            "error": "Totals id: null conflict with the newest"
-        }
-    ],
-    "success": [
-        {
-            "id": "2117403",
-            "spread": [
-                "31194971",
-                "away",
-                1
-            ]
-        },
-        {
-            "id": "2117404",
-            "totals": [
-                "34334768",
-                "under",
-                2
-            ]
-        },
-        {
-            "id": "2114519",
-            "totals": [
-                "34409340",
-                "under",
-                1
-            ]
+            "home": {
+                "id": "52891",
+                "alias": "OKC",
+                "alias_ch": "雷霆"
+            },
+            "away": {
+                "id": "55289",
+                "alias": "UTA",
+                "alias_ch": "爵士"
+            }
         }
     ]
 }
- *
+
+ * @apiError 200 OK (but all predictions are failed)
  * @apiError 400 Bad Request
  * @apiError 403 Forbidden
  *
+ * @apiErrorExample {JSON} 200-Response
+ * {
+    "error": "UserPredictFailed",
+    "devcode": 1000,
+    "message": {
+        "failed": [
+            {
+                "id": "2118810",
+                "spread": [
+                    "31235573",
+                    "home",
+                    3
+                ],
+                "match_scheduled": 1593572400,
+                "home": {
+                    "id": "55290",
+                    "alias": "SAC",
+                    "alias_ch": "國王"
+                },
+                "away": {
+                    "id": "54878",
+                    "alias": "NOP",
+                    "alias_ch": "鵜鶘"
+                },
+                "league_id": 2274,
+                "code": 403,
+                "error": "spread id: 31235573 already exist, locked"
+            },
+            {
+                "id": "2118810",
+                "totals": [
+                    "34458529",
+                    "under",
+                    1
+                ],
+                "match_scheduled": 1593572400,
+                "home": {
+                    "id": "55290",
+                    "alias": "SAC",
+                    "alias_ch": "國王"
+                },
+                "away": {
+                    "id": "54878",
+                    "alias": "NOP",
+                    "alias_ch": "鵜鶘"
+                },
+                "league_id": 2274,
+                "code": 403,
+                "error": "totals id: 34458529 already exist, locked"
+            }
+        ]
+    }
+}
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [

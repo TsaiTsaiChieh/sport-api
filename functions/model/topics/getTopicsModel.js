@@ -1,18 +1,17 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
-const countPerPage = 10;
+let countPerPage;
 
-function dbFind(where, page) {
+function dbFind(where, page, sortByLike) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findAndCountAll({
         where: where,
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
-        order: [['article_id', 'DESC']],
+        order: sortByLike ? [['like_count', 'DESC']] : [['article_id', 'DESC']],
         distinct: true,
         raw: true
       });
@@ -33,7 +32,13 @@ async function getTopics(args) {
 
       const where = {};
       let page = 0;
+      countPerPage = args.count;
 
+      if (typeof args.uid !== 'undefined' && args.uid !== null) {
+        where.uid = args.uid;
+      } else {
+        where.status = 1;
+      }
       if (typeof args.type !== 'undefined' && args.type !== null) {
         where.type = args.type;
       }
@@ -44,7 +49,7 @@ async function getTopics(args) {
         page = args.page;
       }
 
-      const topics = await dbFind(where, page);
+      const topics = await dbFind(where, page, args.sortByLike);
 
       /* 讀取一些別的資料 */
       const usersToGet = [];
@@ -90,6 +95,12 @@ async function getTopics(args) {
         let userInfo = usersInfo.filter(obj => obj.uid === topics.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null;
         topics.rows[i].user_info = userInfo;
+        if (topics.rows[i].status !== 1) {
+          topics.rows[i].type = '已刪除';
+          topics.rows[i].category = '已刪除';
+          // topics.rows[i].title = '(本文已被刪除)';
+          topics.rows[i].content = null;
+        }
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
       resolve({ code: 200, page: page + 1, count: topics.count, topics: topics.rows });

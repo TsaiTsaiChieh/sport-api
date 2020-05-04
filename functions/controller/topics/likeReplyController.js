@@ -4,7 +4,7 @@ const model = require('../../model/topics/likeReplyModel');
 async function likeReply(req, res) {
   const schema = {
     type: 'object',
-    requied: ['reply_id', 'like'],
+    required: ['reply_id', 'like'],
     properties: {
       article_id: {
         type: 'integer',
