@@ -1,11 +1,11 @@
 const modules = require('../util/modules');
-const MLBpbp = require('./pbpMLB.js');
+const MLBpbp = require('./pbp_MLB');
 const AppErrors = require('../util/AppErrors');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 
 async function checkmatch_MLB() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const firestoreName = 'pagetest_MLB';
     try {
       const data = await modules.firestore.collection(firestoreName).get();

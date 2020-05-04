@@ -1,11 +1,11 @@
 const modules = require('../util/modules');
-const ESoccerpbp = require('./pbpESoccer.js');
+const ESoccerpbp = require('./pbp_eSoccer');
 const AppErrors = require('../util/AppErrors');
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 
-async function checkmatch_ESoccer() {
-  return new Promise(async function(resolve, reject) {
+async function checkmatch_eSoccer() {
+  return new Promise(async function (resolve, reject) {
     const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore.collection(firestoreName).get();
@@ -118,4 +118,4 @@ async function checkmatch_ESoccer() {
     }
   });
 }
-module.exports = checkmatch_ESoccer;
+module.exports = checkmatch_eSoccer;
