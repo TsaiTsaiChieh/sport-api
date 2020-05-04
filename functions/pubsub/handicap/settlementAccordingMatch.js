@@ -7,14 +7,14 @@ const spreadResult = {
   away: 'away',
   fair: 'fair2',
   fairHome: 'fair|home',
-  fairAway: 'fair|away',
+  fairAway: 'fair|away'
 };
 const totalsResult = {
   over: 'over',
   under: 'under',
-  fair: 'fair2', 
+  fair: 'fair2',
   fairUnder: 'fair|under',
-  fairOver: 'fair|over',
+  fairOver: 'fair|over'
 };
 
 function settlement() {
@@ -63,7 +63,6 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err} by TsaiChieh`));
     }
-  
   });
 }
 
