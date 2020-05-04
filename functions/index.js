@@ -88,7 +88,7 @@ exports.prematch = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.prematch_esport = functions.pubsub
-  .schedule('* */3 * * *')
+  .schedule('0 */3 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub
@@ -96,7 +96,7 @@ exports.handicap = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
 exports.handicap_esport = functions.pubsub
-  .schedule('* */1 * * *')
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub

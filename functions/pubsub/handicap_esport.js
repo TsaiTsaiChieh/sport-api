@@ -25,22 +25,22 @@ async function handicap_esport() {
 
     if (querysSpread.length > 0) {
       for (let z = 0; z < querysSpread.length; z++) {
-        getHandicap(leagues[i], querysSpread[z]);
+        await getHandicap(leagues[i], querysSpread[z]);
       }
     }
     if (querysTotals.length > 0) {
       for (let x = 0; x < querysTotals.length; x++) {
-        getTotals(leagues[i], querysTotals[x]);
+        await getTotals(leagues[i], querysTotals[x]);
       }
     }
     if (querysSpreadOpening.length > 0) {
       for (let c = 0; c < querysSpreadOpening.length; c++) {
-        updateHandicap(leagues[i], querysSpreadOpening[c]);
+        await updateHandicap(leagues[i], querysSpreadOpening[c]);
       }
     }
     if (querysTotalsOpening.length > 0) {
       for (let v = 0; v < querysTotalsOpening.length; v++) {
-        updateHandicap(leagues[i], querysTotalsOpening[v]);
+        await updateHandicap(leagues[i], querysTotalsOpening[v]);
       }
     }
   }
@@ -588,24 +588,24 @@ function spreadCalculator(handicapObj) {
     if (firstHandicap % 1 !== 0) {
       // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0) {
-        // 顯示在主隊區
-        handicapObj.home_tw = secondHandicap + '+50';
+        // 顯示在主隊區，代表主讓
+        handicapObj.home_tw = '主讓' + secondHandicap + '分+50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(secondHandicap) + '+50';
+        handicapObj.away_tw = '客讓' + Math.abs(secondHandicap) + '分+50%';
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw = firstHandicap + '-50';
+        handicapObj.home_tw = '主讓' + firstHandicap + '分-50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(firstHandicap) + '-50';
+        handicapObj.away_tw = '客讓' + Math.abs(firstHandicap) + '分-50%';
       }
     }
   } else {
@@ -620,23 +620,25 @@ function spreadCalculator(handicapObj) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = handicapObj.handicap + '平';
+        handicapObj.home_tw = '主讓' + handicapObj.handicap + '分平';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(handicapObj.handicap) + '平';
+        handicapObj.away_tw = '客讓' + Math.abs(handicapObj.handicap) + '分平';
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = Math.floor(Math.abs(handicapObj.handicap)) + '輸';
+        handicapObj.home_tw =
+          '主讓' + Math.floor(Math.abs(handicapObj.handicap)) + '分輸';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
+        handicapObj.away_tw =
+          '客讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '分輸';
       }
     }
   }

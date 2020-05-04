@@ -178,15 +178,15 @@ function repackage_bets(ele) {
   let awayPlayerName = '';
 
   if (ele.home.name.indexOf('(') !== -1) {
-    homeTeamName = ele.home.name.split('(')[0];
-    homePlayerName = ele.home.name.split('(')[1].replace(')', '');
+    homeTeamName = ele.home.name.split('(')[0].trim();
+    homePlayerName = ele.home.name.split('(')[1].replace(')', '').trim();
   } else {
     homeTeamName = ele.home.name;
     homePlayerName = null;
   }
   if (ele.away.name.indexOf('(') !== -1) {
-    awayTeamName = ele.away.name.split('(')[0];
-    awayPlayerName = ele.away.name.split('(')[1].replace(')', '');
+    awayTeamName = ele.away.name.split('(')[0].trim();
+    awayPlayerName = ele.away.name.split('(')[1].replace(')', '').trim();
   } else {
     awayTeamName = ele.away.name;
     awayPlayerName = null;
