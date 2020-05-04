@@ -1,6 +1,5 @@
 const modules = require('../../util/modules');
 
-
 /**
  * @api {get} /user/getRanks Get Rank List
  * @apiVersion 1.0.0
@@ -33,19 +32,18 @@ const modules = require('../../util/modules');
      *     HTTP/1.1 500 Internal Server Error
  */
 async function getRanks(req, res) {
-    let returnJson = {};
-    try {
-        const snapshot = await modules.firestore.collection('rank').get();
-        returnJson = {};
-        snapshot.forEach(function (doc) {
-            returnJson[doc.id]= doc.data();
-        });
-
-    } catch (e) {
-        console.log(e);
-        return res.status(500);
-    }
-    res.status(200).json(returnJson);
+  let returnJson = {};
+  try {
+    const snapshot = await modules.firestore.collection('rank').get();
+    returnJson = {};
+    snapshot.forEach(function(doc) {
+      returnJson[doc.id] = doc.data();
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500);
+  }
+  res.status(200).json(returnJson);
 }
 
 module.exports = getRanks;

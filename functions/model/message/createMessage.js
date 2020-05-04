@@ -73,7 +73,7 @@ function createMessage(args) {
       }
       insertData.user = user;
       /* add message data to firestore & realtime */
-      let result = await messageDoc.set(insertData);
+      const result = await messageDoc.set(insertData);
       if (result) {
         modules.database
           .ref(`chat_${args.message.channelId}`)
@@ -87,7 +87,6 @@ function createMessage(args) {
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
-      return;
     }
   });
 }

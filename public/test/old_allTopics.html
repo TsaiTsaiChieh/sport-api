@@ -1,0 +1,68 @@
+<head>
+  <title>topics by ifyu</title>
+  <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div style="width:100%; background-color: lightskyblue;"><a href="/auth.html">[登入頁]</a> {{fbAuth ? fbAuth.displayName : '未登入'}}</div>
+    <div style="width:100%; text-align: center;"><h3>所有文章</h3></div>
+    <img v-show="!loaded" style="width:30px; height:30px; position:fixed; top:42px; right:13px; border:0;" src="loading.gif" />
+    <div v-for="(item, index) in topics" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
+      <div style="background-color: green; padding:5px">
+        <span style="background-color: red;">{{item.content.category}}</span>
+        {{item.content.title}}
+      </div>
+      <div style="white-space: pre; padding:5px;">{{item.content.content}}</div>
+      <hr>
+      <div style="padding:5px; text-align: right;">讚 {{item.like.length}} / 留言 {{item.reply.length}} / {{item.ranking.viewCount}}人已看過</div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    const firebaseConfig = {
+      apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+      authDomain: 'sportslottery-test.firebaseapp.com',
+      databaseURL: 'https://sportslottery-test.firebaseio.com',
+      projectId: 'sportslottery-test',
+      storageBucket: 'sportslottery-test.appspot.com',
+      messagingSenderId: '969081540385',
+      appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
+    };
+    firebase.initializeApp(firebaseConfig);
+    let dbUtil = firebase.firestore();
+    let ref = dbUtil.collection('topics')
+
+    Vue.config.devtools = true;
+    var app = new Vue({
+      el: '#app',
+      data: {
+        fbAuth: null,
+        loaded: false,
+        topics: [],
+      },
+      mounted: function(){
+        let vm = this;
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user){
+            vm.fbAuth = user;
+          }
+        });
+        /** 程式碼寫在下面 **/
+        let res = [];
+        /* 直接存取firestore(撈全部資料) */
+        ref.get().then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            res.push(doc.data())
+          });
+          console.log(res)
+          this.topics = res;
+          this.loaded = true;
+        });
+      }
+    })
+
+  </script>
+</body>

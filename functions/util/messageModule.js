@@ -14,7 +14,7 @@ function repackageUserData(user) {
 }
 function repackageMessageData(message) {
   // same as insertData from model/createMessage.js
-  data = {
+  const data = {
     channelId: message.message.channelId,
     message: message.message.message,
     type: message.message.type,
@@ -57,12 +57,13 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
       message.replyUid
     );
     const replyUser = replyUserSnapshot.data();
-    if (replyFlag === 1)
+    if (replyFlag === 1) {
       body.reply = await repackageMessageDataWithFlag(
         replyMessage,
         replyUser,
         0
       );
+    }
   }
 
   // get file
@@ -73,7 +74,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
         `${folder}/${message.fileUploadId}.${message.fileSubname}`
       );
       const getFile = await file.get();
-      let contentType = getFile[0].metadata.contentType;
+      const contentType = getFile[0].metadata.contentType;
       const config = {
         action: 'read',
         expires: new Date(Date.now() + day * 24 * 60 * 60 * 1000)

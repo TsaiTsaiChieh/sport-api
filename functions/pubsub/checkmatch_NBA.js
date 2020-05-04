@@ -1,87 +1,111 @@
-const modules = require("../util/modules");
-const NBApbp = require("./pbpNBA.js");
+const modules = require('../util/modules');
+const NBApbp = require('./pbpNBA.js');
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
+checkmatch_NBA();
+async function checkmatch_NBA() {
+  const firestoreName = 'page_NBA';
 
-async function checkmatch_NBA(req, res) {
-  const firestoreName = "pagetest_NBA";
-  //read event information from firestore
-
-  let data = await modules.firestore.collection(firestoreName).get();
-  let totalData = [];
-  data.forEach(doc => {
+  // maybe from firestore to mysql
+  const data = await modules.firestore.collection(firestoreName).get();
+  const totalData = [];
+  data.forEach((doc) => {
     totalData.push(doc.data());
   });
 
-  //the time show on front-end
-  //   let gameTimeTaipei = new Date(
-  //     totalData[0].scheduleTime._seconds * 1000
-  //   ).toString();
-  //   let nowTimeTaipei = new Date(Date.now()).toString();
-
-  // 所有賽事判斷
-
   for (let i = 0; i < totalData.length; i++) {
-    let betsID = totalData[i].bets_id;
-    let gameID = totalData[i].radar_id;
-    let gameTime = totalData[i].scheduled._seconds * 1000;
-    let nowTime = Date.now();
-
-    //event status 0:history 1:now 2:future
-    let eventStatus = totalData[i].flag.status;
-    if (eventStatus === 1) {
-      let realtimeData;
-      realtimeData = JSON.parse(
-        JSON.stringify(
+    const betsID = totalData[i].bets_id;
+    const gameID = totalData[i].radar_id;
+    // test : scheduled._seconds
+    const gameTime = totalData[i].scheduled * 1000;
+    const nowTime = Date.now();
+    let periodsNow;
+    let periodName;
+    let eventsNow;
+    const eventStatus = totalData[i].flag.status;
+    switch (eventStatus) {
+      case 2: {
+        if (gameTime <= nowTime) {
+          periodsNow = 0;
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
           // eslint-disable-next-line no-await-in-loop
-          await modules.database.ref(`basketball/NBA/${betsID}`).once("value")
-        )
-      );
-      let periodsNow;
-      let periodName;
-      let eventNow;
-
-      if (realtimeData.Summary.status === "created") {
-        periodsNow = 0;
-        periodName = "periods0";
-        eventNow = 0;
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
-      } else if (
-        realtimeData.Summary.status === "closed" ||
-        realtimeData.Summary.status === "complete"
-      ) {
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpHistory(gameID, betsID);
-      } else if (realtimeData.Summary.status === "inprogress") {
-        periodsNow = Object.keys(realtimeData.PBP).length - 1; //how much periods
-        periodName = Object.keys(realtimeData.PBP);
-        eventNow =
-          Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
-
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
-      } else {
-        periodsNow = 0; //realtime database has no data
-        periodName = "periods0";
-        eventNow = 0;
-
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+          await NBApbpInplay(parameter);
+        } else {
+          const ref = await modules.database.ref(
+            `basketball/NBA/${betsID}/Summary/status`
+          );
+          ref.set('scheduled');
+        }
+        break;
       }
-      //write to the firebase realtime
-    }
-    if (eventStatus === 2) {
-      if (gameTime <= nowTime) {
-        // write to firebase realtime
-        periodsNow = 0;
-        eventNow = 0;
-        // eslint-disable-next-line no-await-in-loop
-        await NBApbpInplay(gameID, betsID, periodsNow, eventNow);
+      case 1: {
+        const realtimeData = JSON.parse(
+          JSON.stringify(
+            // eslint-disable-next-line no-await-in-loop
+            await modules.database.ref(`basketball/NBA/${betsID}`).once('value')
+          )
+        );
+
+        if (realtimeData.Summary.status === 'created') {
+          periodsNow = 0;
+          periodName = 'periods0';
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await NBApbpInplay(parameter);
+        } else if (
+          realtimeData.Summary.status === 'closed' ||
+          realtimeData.Summary.status === 'complete'
+        ) {
+          // eslint-disable-next-line no-await-in-loop
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID
+          };
+          await NBApbpHistory(parameter);
+        } else if (realtimeData.Summary.status === 'inprogress') {
+          periodsNow = Object.keys(realtimeData.PBP).length - 1; // how much periods
+          periodName = Object.keys(realtimeData.PBP);
+          eventsNow =
+            Object.keys(realtimeData.PBP[periodName[periodsNow]]).length - 1;
+
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await NBApbpInplay(parameter);
+        } else {
+          periodsNow = 0;
+          periodName = 'periods0';
+          eventsNow = 0;
+          const parameter = {
+            gameID: gameID,
+            betsID: betsID,
+            periodsNow: periodsNow,
+            eventsNow: eventsNow
+          };
+          await NBApbpInplay(parameter);
+        }
+        break;
+      }
+      default: {
       }
     }
   }
-  //res.json(realtimeData);
-  //res.json({ process: "success" });
 }
 
 module.exports = checkmatch_NBA;

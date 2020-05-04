@@ -1,5 +1,6 @@
 exports.indexURL = 'https://chat-api.doinfo.cc/';
-exports.productURL = 'https://chat.doinfo.cc/';
+// exports.productURL = 'https://chat.doinfo.cc/';
+exports.productURL = 'https://dosports.web.app/';
 exports.release = false;
 // 正式版 sport19y0715-dev
 // exports.domain = '.doinfo.cc';
@@ -14,8 +15,18 @@ exports.release = false;
 //   messagingSenderId: '179049951227',
 //   appId: '1:179049951227:web:15b2ae874d653216'
 // };
+// exports.cookieOptions = {
+//   maxAge: 60 * 60 * 24 * 7 * 1000,
+//   httpOnly: true,
+//   sameSite: 'none',
+//   secure:true,
+//   domain: '.doinfo.cc'
+//   // domain: 'http://localhost:8080'
+// };
+
 // 測試版 sportslottery-test-adminsdk
-exports.domain = 'dosports.web.app';
+exports.domain = '.web.app';
+// exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
 exports.projectId = 'sportslottery-test';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
@@ -28,6 +39,12 @@ exports.firebaseConfig = {
   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
   measurementId: 'G-WRP22SQG9M'
 };
+exports.cookieOptions = {
+  maxAge: 60 * 60 * 24 * 7 * 1000,
+  sameSite: 'None',
+  httpOnly: true,
+  secure: true
+};
 
 exports.lineConfig = {
   profileURL: 'https://api.line.me/v2/profile',
@@ -39,3 +56,4 @@ exports.lineConfig = {
 };
 exports.betsToken = require('../auth/betsToken.json').token;
 exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
+exports.zone_tw = 'Asia/Taipei';

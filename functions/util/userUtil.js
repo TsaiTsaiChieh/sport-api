@@ -1,25 +1,26 @@
 const modules = require('./modules');
+const db = require('../util/dbUtil');
 const firebaseAdmin = modules.firebaseAdmin;
 
-exports.getFirebaseUser = function (accessToken) {
-    // const firebaseUid = `line:${body.id}`;
-    const firebaseUid = accessToken.id_token.sub.toString();
+exports.getFirebaseUser = function(accessToken) {
+  // const firebaseUid = `line:${body.id}`;
+  const firebaseUid = accessToken.id_token.sub.toString();
 
-    return firebaseAdmin.auth().getUser(firebaseUid).then(function (userRecord) {
-        return userRecord;
-    }).catch((error) => {
-        let userJson = {
-            identifier: "Line",
-            uid: firebaseUid,
-            displayName: accessToken.id_token.name,
-            photoURL: accessToken.id_token.picture,
-            email: accessToken.id_token.email
-        };
-        if (error.code === 'auth/user-not-found') {
-            return firebaseAdmin.auth().createUser(userJson);
-        }
-        return Promise.reject(error);
-    });
+  return firebaseAdmin.auth().getUser(firebaseUid).then(function(userRecord) {
+    return userRecord;
+  }).catch((error) => {
+    const userJson = {
+      identifier: 'Line',
+      uid: firebaseUid,
+      displayName: accessToken.id_token.name,
+      photoURL: accessToken.id_token.picture,
+      email: accessToken.id_token.email
+    };
+    if (error.code === 'auth/user-not-found') {
+      return firebaseAdmin.auth().createUser(userJson);
+    }
+    return Promise.reject(error);
+  });
 };
 
 // async function getUserProfile(req, res) {
@@ -46,58 +47,73 @@ exports.getFirebaseUser = function (accessToken) {
 //         });
 // }
 
-exports.getUserProfile = async function (userId) {
-    let returnJson = {
-        success: false,
-        uid: userId
-    };
+exports.getUserProfile = async function(userId) {
+  const returnJson = {
+    success: false,
+    uid: userId
+  };
     // let userIdStr = userId.toString().trim();
-    let userIdStr = userId;
-    if (userIdStr.length < 1) {
-        console.warn('firebaseGetUserData no userId : ', userId);
-        return returnJson;
-    }
-
-    await modules.firestore.collection('users').doc(userIdStr).get().then(userRecord => {
-        if (!userRecord.exists) {
-            console.log('No such document!');
-            returnJson.status = 0;
-            returnJson.success = true;
-        } else {
-            console.log("document found!", userRecord.createTime);
-            returnJson.data = userRecord.data();
-            returnJson.status = returnJson.data.status;
-            returnJson.success = true;
-            // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
-        }
-        console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
-        return returnJson;
-    }).catch(err => {
-        console.warn('firebaseGetUserData', err);
-        returnJson.success = false;
-    });
-    console.log('No such document! 2');
+  const userIdStr = userId;
+  if (userIdStr.length < 1) {
+    console.warn('firebaseGetUserData no userId : ', userId);
     return returnJson;
+  }
+
+  await modules.firestore.collection('users').doc(userIdStr).get().then(userRecord => {
+    if (!userRecord.exists) {
+      console.log('No such document!');
+      returnJson.status = 0;
+      returnJson.success = true;
+    } else {
+      console.log('document found!', userRecord.createTime);
+      returnJson.data = userRecord.data();
+      returnJson.status = returnJson.data.status;
+      returnJson.success = true;
+      // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
+    }
+    console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+    return returnJson;
+  }).catch(err => {
+    console.warn('firebaseGetUserData', err);
+    returnJson.success = false;
+  });
+  console.log('No such document! 2');
+  return returnJson;
 };
 
-
 // Unique collections: uniqueName,uniqueEmail,uniquePhone
-exports.checkUniqueCollection = async function (collection, value) {
-    let returnJson = {
-        success: false,
-        isExist: true
-    };
-    try {
-        const nameCollection = await modules.firestore.collection(collection).doc(value).get();
-        if (nameCollection.exists) {
-            returnJson.success = true;
-            returnJson.isExist = true;
-        } else {
-            returnJson.success = true;
-            returnJson.isExist = false;
-        }
-    } catch (e) {
-        console.log(e);
+exports.checkUniqueCollection = async function(collection, value) {
+  const returnJson = {
+    success: false,
+    isExist: true
+  };
+
+  try {
+    const corr = [];
+    corr.uniqueName = 'display_name';
+    corr.uniqueEmail = 'email';
+    corr.uniquePhone = 'phone';
+
+    const collect = corr[collection];
+    const nameCollection = await db.sequelize.query(
+      `
+        SELECT * FROM users WHERE ${collect} = '${value}'
+       `,
+      {
+        plain: true,
+        logging: true,
+        type: db.sequelize.QueryTypes.SELECT
+      });
+    console.log(nameCollection);
+    if (nameCollection != null) {
+      returnJson.success = true;
+      returnJson.isExist = true;
+    } else {
+      returnJson.success = true;
+      returnJson.isExist = false;
     }
-    return returnJson;
+  } catch (e) {
+    console.log(e);
+  }
+  return returnJson;
 };

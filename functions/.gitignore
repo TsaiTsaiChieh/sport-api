@@ -2,11 +2,11 @@ node_modules/
 .DS_Store
 auth/
 ./firtebase_request.js
-./package-lock.json
 .BAK
 .env
+
 #www/
-#server/
 #vue-ssr-client-manifest.json
+#server/
 #vue-ssr-server-bundle.json
 #ssr.js

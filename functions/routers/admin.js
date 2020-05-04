@@ -1,38 +1,38 @@
-const modules = require("../util/modules");
-const verification = require("../util/verification");
+const modules = require('../util/modules');
+const verification = require('../util/verification');
 const router = modules.express.Router();
 
 router.post(
-  "/muted",
+  '/muted',
   verification.token,
   verification.admin,
-  require("../controller/admin/mutedController")
+  require('../controller/admin/mutedController')
 );
 router.post(
-  "/givePoints",
+  '/givePoints',
   verification.token,
   verification.admin,
-  require("../controller/admin/givePointsController")
+  require('../controller/admin/givePointsController')
 );
 router.post(
-  "/giveTitle",
+  '/giveTitle',
   verification.token,
   verification.admin,
-  require("../controller/admin/giveTitleController")
+  require('../controller/admin/giveTitleController')
 );
 router.delete(
-  "/deleteTitle",
+  '/deleteTitle',
   verification.token,
   verification.admin,
-  require("../controller/admin/deleteTitleController")
+  require('../controller/admin/deleteTitleController')
 );
 
 // can comment out verification.admin, if auth is not allowed
 router.post(
-  "/setClaim",
+  '/setClaim',
   verification.token,
   verification.admin,
-  require("../controller/admin/setClaimController")
+  require('../controller/admin/setClaimController')
 );
 
 module.exports = router;

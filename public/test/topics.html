@@ -1,0 +1,120 @@
+<head>
+  <title>topics by ifyu</title>
+  <script src="/__/firebase/6.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div style="width:100%; background-color: lightskyblue;"><a href="/auth.html">[登入頁]</a> {{fbAuth ? fbAuth.displayName : '未登入'}}</div>
+    <div style="width:100%; text-align: center;"><h3>所有文章</h3></div>
+    <img v-show="!loaded" style="width:30px; height:30px; position:fixed; top:42px; right:13px; border:0;" src="loading.gif" />
+    <div>
+      球種 <select v-model="type">
+        <option></option>
+        <option>MLB</option>
+        <option>中華職棒</option>
+        <option>韓國職棒</option>
+        <option>日本職棒</option>
+        <option>澳洲職棒</option>
+        <option>墨西哥職棒</option>
+        <option>NBA</option>
+        <option>SBL</option>
+        <option>WNBA</option>
+        <option>澳洲職籃</option>
+        <option>韓國職籃</option>
+        <option>中國職籃</option>
+        <option>日本職籃</option>
+        <option>NHL冰球</option>
+        <option>足球</option>
+      </select>
+      分類 <select v-model="category">
+        <option></option>
+        <option>賽事分析</option>
+        <option>球隊討論</option>
+        <option>投注分享</option>
+        <option>公告</option>
+        <option>其他</option>
+      </select>
+      頁數
+      <input type="number" v-model="page">
+      <button @click="get">讀取</button>
+    </div>
+    <div v-for="(item, index) in topics" style="width:100%; background-color: gray; color: white; margin-top: 10px;">
+      <a :href="'article.html#'+item.article_id" style="color:#fff; text-decoration:none;">
+        <div style="background-color: green; padding:5px">
+          <span style="background-color: orange;">{{item.type}}</span>
+          <span style="background-color: red;">{{item.category}}</span>
+          {{item.title}}
+        </div>
+      </a>
+      <div style="white-space: pre; padding:5px;">{{item.content}}</div>
+      <hr>
+      <div style="padding:5px; text-align: right;">作者：{{item.user_info.display_name}} / 讚 {{item.like_count}} / 留言 {{item.reply_count}} / {{item.view_count}}人已看過</div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    const firebaseConfig = {
+      apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+      authDomain: 'sportslottery-test.firebaseapp.com',
+      databaseURL: 'https://sportslottery-test.firebaseio.com',
+      projectId: 'sportslottery-test',
+      storageBucket: 'sportslottery-test.appspot.com',
+      messagingSenderId: '969081540385',
+      appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
+    };
+    firebase.initializeApp(firebaseConfig);
+    let dbUtil = firebase.firestore();
+    let ref = dbUtil.collection('topics')
+
+    Vue.config.devtools = true;
+    var app = new Vue({
+      el: '#app',
+      data: {
+        fbAuth: null,
+        loaded: false,
+        topics: [],
+        type: '',
+        category: '',
+        page: 0
+      },
+      mounted: function(){
+        let vm = this;
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user){
+            vm.fbAuth = user;
+          }
+        });
+        /** 程式碼寫在下面 **/
+        vm.loaded = true;
+      },
+      methods: {
+        get(){
+          let vm = this;
+          let res = [];
+          let post = { page: Number(this.page) }
+          vm.loaded = false;
+          if(this.type !== ''){
+            post.type = this.type
+          }
+          if(this.category !== ''){
+            post.category = this.category
+          }
+          axios.post('/topics/', post)
+          .then(function(response) {
+            console.log(response)
+            vm.topics = response.data.topics;
+            vm.loaded = true;
+          })
+          .catch(function(error) {
+            console.log('asios failed', error);
+            vm.loaded = true;
+          })
+        }
+      }
+    })
+
+  </script>
+</body>

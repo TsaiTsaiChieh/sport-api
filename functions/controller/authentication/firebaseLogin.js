@@ -1,7 +1,8 @@
-const userUtils = require("../../util/userUtil");
-const modules = require("../../util/modules");
+// const userUtils = require('../../util/userUtil');
+const db = require('../../util/dbUtil');
+const modules = require('../../util/modules');
 const firebaseAdmin = modules.firebaseAdmin;
-const envValues = require("../../config/env_values");
+const envValues = require('../../config/env_values');
 
 /**
  * @api {post} /auth/login create session cookie
@@ -28,6 +29,7 @@ const envValues = require("../../config/env_values");
   "success": true,
   "status": 1,
   "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
+  "token":"eyJhbGciOiJSUzI1NiIsImtp..."
   "data": {
     "blockMessage": {
       "_seconds": 1575907200,
@@ -88,8 +90,9 @@ const envValues = require("../../config/env_values");
  *     }
  */
 async function firebaseLogin(req, res) {
-  let returnJson = { success: false };
-  let token = req.body.token;
+  const returnJson = { success: false };
+  const token = req.body.token;
+  const period = modules.getTitlesPeriod(new Date()).period;
   if (!token) {
     console.log('Error login user: missing token');
     res.status(401).json(returnJson);
@@ -102,46 +105,66 @@ async function firebaseLogin(req, res) {
     // eslint-disable-next-line promise/always-return
     .then(decodedIdToken => {
       // Create session cookie and set it.
-      let expiresIn = 60 * 60 * 24 * 7 * 1000;
       firebaseAdmin
         .auth()
-        .createSessionCookie(token, { expiresIn })
+        .createSessionCookie(token, { expiresIn: envValues.cookieOptions.maxAge })
         .then(async sessionCookie => {
-          let firestoreUser = await userUtils.getUserProfile(
-            decodedIdToken.uid
-          );
+          // const firestoreUser = await userUtils.getUserProfile(
+          //   decodedIdToken.uid
+          // );
+          const mysqlUser = await db.sequelize.query(
+            `
+              SELECT *
+                FROM users
+               WHERE uid = '${decodedIdToken.uid}'
+             `,
+            {
+              plain: true,
+              type: db.sequelize.QueryTypes.SELECT
+            });
+
+          const titlesQuery = await db.sequelize.query(
+              `
+                SELECT ml.name, ml.sport_id, t.rank_id 
+                  FROM titles t, match__leagues ml
+                 WHERE t.league_id = ml.league_id
+                   AND uid = '${decodedIdToken.uid}'
+                   AND period = '${period}'
+               `,
+              {
+                type: db.sequelize.QueryTypes.SELECT
+              });
+
+          const titles = {};
+          titlesQuery.forEach(function(data) { // 這裡有順序性
+            titles[data.name] = repackage(data);
+            mysqlUser.titles = titles;
+          });
+          returnJson.token = sessionCookie;
           returnJson.success = true;
           returnJson.status = 0;
-          if (firestoreUser) {
-            console.log("firestoreUser exist");
-            if (firestoreUser.uid) {
-              returnJson.uid = firestoreUser.uid;
+
+          if (mysqlUser) {
+            console.log('firestoreUser exist');
+            if (mysqlUser) {
+              returnJson.uid = mysqlUser.uid;
             } else {
               res.status(401).json({ success: false });
-              return;
             }
-            if (firestoreUser.status) {
-              returnJson.status = firestoreUser.status;
-              returnJson.data = firestoreUser.data;
+            if (mysqlUser.status) {
+              returnJson.status = mysqlUser.status;
+              returnJson.data = mysqlUser;
             }
           } else {
             returnJson.status = 0;
           }
-          returnJson.data = firestoreUser.data;
-          // let options = {maxAge: expiresIn, httpOnly: true};
-          let options = {
-            maxAge: expiresIn,
-            httpOnly: true,
-            sameSite: 'none'
-            // domain: 'http://localhost:8080'
-          };
-
-          res.cookie('__session', sessionCookie, options);
+          returnJson.data = mysqlUser;
+          // res.cookie('__session', sessionCookie, envValues.cookieOptions);
           res.status(200).json(returnJson);
         })
         .catch(error => {
           console.log('Error login user: \n\t', error);
-          res.status(401).json({ success: false });
+          res.status(401).json({ devcode: '004', err: 'missing token' });
         });
     })
     .catch(error => {
@@ -149,5 +172,12 @@ async function firebaseLogin(req, res) {
       res.status(401).json({ success: false });
     });
 }
+function repackage(ele) {
+  const data = {};
+  data.league = ele.name;
+  data.sport = ele.sport_id.toString();
+  data.rank = ele.rank_id.toString();
 
+  return data;
+}
 module.exports = firebaseLogin;

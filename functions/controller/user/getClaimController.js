@@ -14,7 +14,7 @@ module.exports = getClaim;
  * @api {get} /user/getClaim/:uid Get Claim
  * @apiVersion 1.0.0
  * @apiDescription 查看使用者權限等級 by Tsai-Chieh
- * 
+ *
  * （注意：請使用此使用者 uid: eIQXtxPrBFPW5daGMcJSx4AicAQ2）
  * @apiName getClaim
  * @apiGroup User
@@ -26,7 +26,7 @@ module.exports = getClaim;
  *    "id": eIQXtxPrBFPW5daGMcJSx4AicAQ2
  * };
  * @apiSuccessExample {JSON} Request-Example
- * 
+ *
  *  HTTP/1.1 200 OK
  * {
  *     "role": 1

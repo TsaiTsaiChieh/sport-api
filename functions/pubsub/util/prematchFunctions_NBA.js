@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
-module.exports.NBA.upcomming = async function(date) {
+module.exports.NBA.upcoming = async function(date) {
   const _date = modules.dateFormat(date);
   const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=18&token=${modules.betsToken}&league_id=2274&day=${_date.year}${_date.month}${_date.day}`;
   console.log(`BetsAPI NBA URL on ${date}: ${URL}`);
@@ -11,7 +11,7 @@ module.exports.NBA.upcomming = async function(date) {
   try {
     const { data } = await modules.axios(URL);
     for (let i = 0; i < data.results.length; i++) {
-      let ele = data.results[i];
+      const ele = data.results[i];
       results.push(
         modules.firestore
           .collection(modules.db.basketball_NBA)
@@ -22,7 +22,7 @@ module.exports.NBA.upcomming = async function(date) {
     }
   } catch (error) {
     console.error(
-      `Error in pubsub/util/prematchFunctions_NBA upcomming axios by TsaiChieh on ${Date.now()}`,
+      `Error in pubsub/util/prematchFunctions_NBA upcoming axios by TsaiChieh on ${Date.now()}`,
       error
     );
     return error;
@@ -33,7 +33,7 @@ module.exports.NBA.upcomming = async function(date) {
       resolve(await Promise.all(results));
     } catch (error) {
       console.error(
-        `Error in pubsub/util/prematchFunctions_NBA upcomming function by TsaiChieh on ${Date.now()}`,
+        `Error in pubsub/util/prematchFunctions_NBA upcoming function by TsaiChieh on ${Date.now()}`,
         error
       );
       reject(error);
@@ -65,7 +65,8 @@ function repackage_bets(ele) {
       spread: 0,
       totals: 0,
       status: 2,
-      lineup: 0
+      lineup: 0,
+      prematch: 0
     }
   };
 }
@@ -98,7 +99,7 @@ module.exports.NBA.prematch = async function(date) {
     const query = await query_NBA(date);
 
     for (let i = 0; i < data.games.length; i++) {
-      let ele = data.games[i];
+      const ele = data.games[i];
       integration(query, ele, data.league);
       console.log(`SportRadar NBA match_id: ${ele.id}`);
     }
@@ -189,6 +190,9 @@ function repackage_sportradar(ele, query, league) {
       name: ele.venue.name,
       city: ele.venue.city,
       country: ele.venue.country
+    },
+    flag: {
+      prematch: 1
     }
   };
   if (ele.sr_id) data.sr_id = ele.sr_id;
@@ -356,22 +360,24 @@ function codebook(alias) {
   }
 }
 module.exports.NBA.lineup = async function(date) {
-  const querys = await query_before40Min(date);
-  const URL = `https://api.sportradar.us/nba/trial/v7/en/games`;
+  const queries = await query_before40Min(date);
+  const URL = 'https://api.sportradar.us/nba/trial/v7/en/games';
   try {
-    for (let i = 0; i < querys.length; i++) {
-      const ele = querys[i];
+    for (let i = 0; i < queries.length; i++) {
+      const ele = queries[i];
+      const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
       // eslint-disable-next-line no-await-in-loop
-      const { data } = await modules.axios.get(
-        `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
-      );
+      const { data } = await modules.axios.get(completeURL);
       console.log(
-        `SportRadarAPI NBA lineups at ${date}: ${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`
+        `${modules.db.basketball_NBA}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+          ele.away.alias
+        }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
+          .moment(ele.scheduled._seconds * 1000)
+          .format('ll')}, URL: ${completeURL}`
       );
-
       modules.firestore
         .collection(modules.db.basketball_NBA)
-        .doc(querys[i].bets_id)
+        .doc(queries[i].bets_id)
         .set(repackage_lineup(data), { merge: true });
     }
   } catch (error) {
@@ -389,7 +395,7 @@ async function query_before40Min(date) {
     const query = await eventsRef
       .where('scheduled', '>=', date)
       .where('scheduled', '<=', modules.moment().add(40, 'minutes'))
-      .where('flag.lineup', '==', 0)
+      .where('flag.prematch', '==', 1)
       .get();
 
     query.docs.map(function(docs) {
@@ -405,10 +411,7 @@ async function query_before40Min(date) {
   }
 }
 function repackage_lineup(ele) {
-  data = {
-    flag: {
-      lineup: 1
-    },
+  const data = {
     lineups: {
       home: {
         starters: [],

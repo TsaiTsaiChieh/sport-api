@@ -16,10 +16,10 @@ const envValues = require('../../config/env_values');
  *     }
  */
 function logout(req, res) {
-    // res.setHeader('Access-Control-Allow-Origin', '*');
-    // res.clearCookie('__session');
-    res.clearCookie('__session', {path: '/', domain: envValues.domain});
-    res.json({success: true});
+  // res.setHeader('Access-Control-Allow-Origin', '*');
+  // res.clearCookie('__session');
+  res.clearCookie('__session', { path: '/', domain: envValues.domain });
+  res.json({ success: true });
 }
 
 module.exports = logout;
