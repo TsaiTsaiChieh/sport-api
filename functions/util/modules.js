@@ -300,7 +300,7 @@ function isObject(item) {
 
 const mergeDeep = (target, source) => {
   const isDeep = prop => 
-    isObject(source[prop]) && target.hasOwnProperty(prop) && isObject(target[prop]);
+    isObject(source[prop]) && Object.prototype.hasOwnProperty.call(target, prop) && isObject(target[prop]);
   const replaced = Object.getOwnPropertyNames(source)
     .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
     .reduce((a, b) => ({ ...a, ...b }), {});
