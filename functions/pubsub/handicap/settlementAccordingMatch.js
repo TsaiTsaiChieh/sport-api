@@ -1,6 +1,7 @@
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const endStatus = 0;
+const validMatch = 1;
 const spreadResult = {
   home: 'home',
   away: 'away',
@@ -9,7 +10,7 @@ const spreadResult = {
 const totalsResult = {
   over: 'over',
   under: 'under',
-  fair: 'fair'
+  fair: 'fair',
 };
 
 function settlement() {
@@ -46,9 +47,10 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
           FORCE INDEX(matches_status_${handicapType}_id)
           WHERE status = ${endStatus}
             AND ${handicapType}_id IS NOT NULL
-            AND home_points IS NOT NULL
-            AND away_points IS NOT NULL
-            AND ${handicapType}_result IS NULL`,
+            AND (home_points IS NOT NULL AND home_points != '')
+            AND (away_points IS NOT NULL AND away_points != '')
+            AND (${handicapType}_result IS NULL OR ${handicapType}_result = '')
+            AND flag_prematch = ${validMatch}`,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
@@ -69,8 +71,8 @@ function querySpread(spreadMetadata) {
         const result = await db.sequelize.query(
           `SELECT handicap, home_odd, away_odd
              FROM match__spreads
-            WHERE spread_id = "${ele.spread_id}"
-              AND match_id = "${ele.bets_id}"`,
+            WHERE spread_id = '${ele.spread_id}'
+              AND match_id = '${ele.bets_id}'`,
           {
             type: db.sequelize.QueryTypes.SELECT
           }
@@ -115,7 +117,7 @@ function settleSpread(ele) {
    */
 
   const homeSubtraction = ele.home_points - ele.handicap;
-  const awaySubtraction = ele.home_points - ele.handicap;
+  const awaySubtraction = ele.away_points - ele.handicap;
   // 1. 當盤口為正小數
   if (!Number.isInteger(ele.handicap) && ele.handicap > 0) {
     if (homeSubtraction > ele.away_points)
