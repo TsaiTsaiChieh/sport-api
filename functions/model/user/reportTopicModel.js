@@ -20,6 +20,7 @@ async function reportTopic(args) {
         uid: uid,
         type: args.type,
         article_id: args.article_id,
+        reason: args.reason,
         content: args.content,
         images: JSON.stringify(args.images),
       };

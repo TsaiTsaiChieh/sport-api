@@ -773,6 +773,10 @@ const User_FavoriteGod = sequelize.define(
     god_uid: {
       type: Sequelize.STRING,
       allowNull: false
+    },
+    type: {
+      type: Sequelize.STRING,
+      allowNull: false
     }
   },
   {
