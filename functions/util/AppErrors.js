@@ -227,6 +227,12 @@ class PBPMLBError extends ExtendableError {
   constructor(
     message = 'MLB文字直播排程錯誤',
     status = 1509,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 class SettlementAccordingMatch extends ExtendableError {
   constructor(
     message = '結算所有完賽的賽事排程錯誤',
@@ -251,7 +257,6 @@ module.exports = {
   DeletePredictionsFailed,
   MysqlError,
   BetsAPIError,
-<<<<<<< HEAD
   PrematchEsoccerError,
   FirebaseCollectError,
   FirebaseRealtimeError,
@@ -259,8 +264,6 @@ module.exports = {
   HandicapEsoccerError,
   PBPEsoccerError,
   PBPNBAError,
-  PBPMLBError
-=======
+  PBPMLBError,
   SettlementAccordingMatch
->>>>>>> test
 };
