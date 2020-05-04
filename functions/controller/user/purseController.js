@@ -3,7 +3,7 @@ const purseModel = require('../../model/user/purseModel');
 
 async function purse(req, res) {
   try {
-    res.json(await purseModel(req.token.uid));
+    res.json(await purseModel(req.body, req.method, req.token.uid));
   } catch (err) {
     res.status(err.code).json(err.err);
   }

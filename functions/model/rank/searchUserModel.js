@@ -16,7 +16,7 @@ function searchUser(args) {
        LIMIT $limit
        `,
       {
-        bind:{ limit:limit},
+        bind: { limit: limit },
         type: db.sequelize.QueryTypes.SELECT
       });
 

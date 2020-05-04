@@ -15,7 +15,7 @@ function transferModel(args, uid) {
            AND updatedAt BETWEEN $begin AND $end
        `,
       {
-        bind: { uid:uid, begin:begin, end:end},
+        bind: { uid: uid, begin: begin, end: end },
         type: db.sequelize.QueryTypes.SELECT
       });
       resolve(transfer);

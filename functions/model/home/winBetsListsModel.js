@@ -94,9 +94,9 @@ function repackage(ele) {
     rank: ''
   };
 
-  /*欄位無資料防呆*/
-  data.win_bets = ele.this_month_win_bets==null ? null : ele.this_month_win_bets.toString();
-  data.rank = ele.rank_id==null ? null : ele.rank_id.toString();
+  /* 欄位無資料防呆 */
+  data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
+  data.rank = ele.rank_id == null ? null : ele.rank_id.toString();
 
   return data;
 }
