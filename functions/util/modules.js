@@ -261,9 +261,9 @@ function groupBy(arr, prop) {
 // https://stackoverflow.com/a/30446887
 const fieldSorter = (fields) => (a, b) => fields.map(o => {
   let dir = 1;
-  if (o[0] === '-') { dir = -1; o=o.substring(1); }
+  if (o[0] === '-') { dir = -1; o = o.substring(1); }
   return a[o] > b[o] ? dir : a[o] < b[o] ? -(dir) : 0;
-}).reduce((p, n) => p ? p : n, 0);
+}).reduce((p, n) => p || n, 0);
 
 /**
  * Simple object check.
@@ -299,7 +299,8 @@ function isObject(item) {
 // }
 
 const mergeDeep = (target, source) => {
-  const isDeep = prop => 
+  const isDeep = prop =>
+    // eslint-disable-next-line no-prototype-builtins
     isObject(source[prop]) && target.hasOwnProperty(prop) && isObject(target[prop]);
   const replaced = Object.getOwnPropertyNames(source)
     .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
@@ -436,8 +437,8 @@ function predictionsWinList(data) {
         data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
       // 避免分母是0 平盤無效
-      const winRate = (predictCorrectCounts + predictFaultCounts) === 0 
-        ? 0 
+      const winRate = (predictCorrectCounts + predictFaultCounts) === 0
+        ? 0
         : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注

@@ -24,7 +24,7 @@ const errorCodeLists = {
   1321: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
   1322: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗 異常 筆數不正確，要五筆才對', ''] },
   1323: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['非數字情況，可能原因是自串相加、資料為空字串', ''] },
-  1324: { msg: ['更新 大神稱號 失敗'], backend: ['更新 titles 異常 筆數不正確，只能一筆才對', ''] },
+  1324: { msg: ['更新 大神稱號 失敗'], backend: ['更新 titles 異常 筆數不正確，只能一筆才對', ''] }
 };
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入

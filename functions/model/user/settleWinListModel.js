@@ -33,15 +33,15 @@ function settleWinList(args) {
 
     const result = {
       status: {
-        '1': {
+        1: {
           msg: '使用者-聯盟 歷史勝注勝率資料更新成功！',
           lists: []
         },
-        '2': {
+        2: {
           msg: '使用者-聯盟 勝注勝率資料更新成功！',
           lists: []
         },
-        '3': {
+        3: {
           msg: '大神 稱號資料更新成功！',
           lists: []
         }
@@ -135,14 +135,14 @@ function settleWinList(args) {
       s22 = new Date().getTime();
       // c.
       // d.
-      // 這星期、這個月、這賽季、本期大神 
+      // 這星期、這個月、這賽季、本期大神
       // this_week、this_month、this_season、this_period
       try {
         const updateResult = resultWinList.map(async function(data) {
           const uid = data.uid;
           const league_id = data.league_id;
 
-          const allTotalCount = await winBetsRateTotalCount(uid, league_id, 
+          const allTotalCount = await winBetsRateTotalCount(uid, league_id,
             dayOfYear, week, month, season, period);
 
           // 檢查 是否有5筆資料
@@ -178,9 +178,9 @@ function settleWinList(args) {
               this_season_win_bets: ele[4].sum
             }, {
               fields: [
-                'this_week_win_rate', 'this_week_win_bets', 
-                'this_month_win_rate', 'this_month_win_bets', 
-                'this_period_win_rate', 'this_period_win_bets', 
+                'this_week_win_rate', 'this_week_win_bets',
+                'this_month_win_rate', 'this_month_win_bets',
+                'this_period_win_rate', 'this_period_win_bets',
                 'this_season_win_rate', 'this_season_win_bets'
               ]
             });
@@ -210,7 +210,7 @@ function settleWinList(args) {
             // 有可能不是大神，無更新筆數
             // if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
 
-            if (r[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });            
+            if (r[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
           } catch (err) {
             return reject(errs.errsMsg('404', '1321'));
           }
@@ -220,14 +220,13 @@ function settleWinList(args) {
       } catch (err) {
         return reject(errs.errsMsg('404', '1319'));
       }
-
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
     const e = new Date().getTime();
-    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms', 
+    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
       s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
     return resolve(result);
   });
@@ -237,7 +236,7 @@ function settleWinList(args) {
 // 輸出資料要確定是否5筆
 // rang： date、week、month、season、period
 // sum(win_bets), sum(correct_counts), sum(fault_counts)
-async function winBetsRateTotalCount(uid, league_id, day_of_year=0, week=0, month=0, season=0, period=0){
+async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, month = 0, season = 0, period = 0) {
   return await db.sequelize.query(`
     select day_of_year, '' week, '' month, '' season, '' period,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
@@ -283,28 +282,28 @@ async function winBetsRateTotalCount(uid, league_id, day_of_year=0, week=0, mont
       uid: uid,
       league_id: league_id
     },
-    //logging: console.log,
+    // logging: console.log,
     type: db.sequelize.QueryTypes.SELECT
   });
 }
 
-function numberCount(num1, num2, f=2){
-  //console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
+function numberCount(num1, num2, f = 2) {
+  // console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
   return Number(
-    Number(num1) / ( Number(num1) + Number(num2) )
+    Number(num1) / (Number(num1) + Number(num2))
   ).toFixed(f);
 }
 
-function isNotANumber(inputData) { 
-　// isNaN(inputData)不能判斷空串或一個空格 
-　// 如果是一個空串或是一個空格，而isNaN是做為數字0進行處理的，
-  // 而parseInt與parseFloat是返回一個錯誤訊息，這個isNaN檢查不嚴密而導致的。 
-　if (parseFloat(inputData).toString() == 'NaN') { 
-　　　//alert(“請輸入數字……”); 
-　　　return true; 
-　} else { 
-　　　return false; 
-　} 
+function isNotANumber(inputData) {
+  // isNaN(inputData)不能判斷空串或一個空格
+  // 如果是一個空串或是一個空格，而isNaN是做為數字0進行處理的，
+  // 而parseInt與parseFloat是返回一個錯誤訊息，這個isNaN檢查不嚴密而導致的。
+  if (parseFloat(inputData).toString() === 'NaN') {
+    // alert(“請輸入數字……”);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 module.exports = settleWinList;

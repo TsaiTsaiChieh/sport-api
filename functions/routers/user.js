@@ -133,7 +133,6 @@ router.post(
   require('../controller/user/settleGodTitleController')
 );
 
-
 /* 大神結算 */
 router.post(
   '/settle_god_list',
