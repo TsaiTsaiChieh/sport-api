@@ -10,7 +10,7 @@ const spreadResult = {
 const totalsResult = {
   over: 'over',
   under: 'under',
-  fair: 'fair',
+  fair: 'fair'
 };
 
 function settlement() {
@@ -198,7 +198,7 @@ function settleSpread(ele) {
   ) {
     if (awaySubtraction > ele.home_points)
       ele.spread_result = spreadResult.away;
-    else if (subtraction < ele.home_points)
+    else if (awaySubtraction < ele.home_points)
       ele.spread_result = spreadResult.home;
     else if (awaySubtraction === ele.home_points)
       ele.spread_result = spreadResult.away;
