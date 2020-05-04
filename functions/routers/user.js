@@ -63,6 +63,11 @@ router.delete(
   verification.token_v2,
   require('../controller/user/deletePredictsController')
 );
+router.get(
+  '/prediction_results',
+  verification.token_v2,
+  require('../controller/user/predictionResultsController')
+);
 // 大神售牌資訊
 router.get(
   '/sell_information',
