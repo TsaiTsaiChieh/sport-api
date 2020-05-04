@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league);
 
@@ -13,7 +13,6 @@ async function livescore(args) {
 }
 async function reResult(sport, league) {
   const result = await repackage(sport, league);
-
   return await Promise.all(result);
 }
 async function repackage(sport, league) {
