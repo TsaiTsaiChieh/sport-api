@@ -218,6 +218,7 @@ function getTitlesPeriod(date) {
     2030
   ];
   let weeks = 0;
+  let weekPeriod = 0;
   for (let i = 0; i < years.length; i++) {
     const year = years[i];
     const weeksInYear = moment(year).isoWeeksInYear(); // always 53
@@ -230,18 +231,26 @@ function getTitlesPeriod(date) {
       .utcOffset(UTF8)
       .add(i * 2, 'weeks')
       .valueOf();
+
     const end = moment(specificDate)
       .utcOffset(UTF8)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
+    const week1 = moment(specificDate)
+      .utcOffset(UTF8)
+      .add(i, 'weeks')
+      .valueOf();
+    const week2 = begin;
+    week1 <= date && date < week2 ? (weekPeriod = 1) : (weekPeriod = 2);
     if (begin <= date && date <= end) {
       return {
         period: i, // 期數
         date: moment(specificDate)
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD') // 該期的開始日期
+          .format('YYYYMMDD'), // 該期的開始日期
+        weekPeriod
       };
     }
   }
