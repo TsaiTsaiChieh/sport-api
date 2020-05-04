@@ -57,9 +57,23 @@ function newsModel(method, args, uid) {
         };
         resolve(newsList);
       } else if (method === 'DELETE') {
-        const del_join = args.join(',');
 
-        const del_res = db.sequelize.query(`DELETE FROM user__news WHERE uid = '${uid}' news_id in (${del_join})`);
+        const items = args.items;
+        const del_join = items.join(',');
+
+       
+        const del_res = db.sequelize.query(
+          `
+            DELETE 
+              FROM user__news 
+            WHERE uid = '${uid}' 
+              AND news_id in (${del_join})
+          `,
+          {
+            logging:true,
+            type: db.sequelize.QueryTypes.DELETE
+          }
+        );
 
         if (del_res) {
           const result = {
