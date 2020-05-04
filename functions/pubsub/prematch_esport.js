@@ -4,7 +4,7 @@ const AppErrors = require('../util/AppErrors');
 const eSoccer_functions = require('./util/prematchFunctions_eSoccer');
 
 async function prematch_esport() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
