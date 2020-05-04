@@ -200,28 +200,18 @@ function settleGodTitle(args) {
         console.log('countinue: %o  win_bets_continue: %o', countinue, win_bets_continue);
         console.log('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3);
 
-        
-        mixAll = mergeDeep(mixAll, {
-          uid: uid_league_data.uid, 
-          league_id: uid_league_data.league_id,
-          countinue: countinue,
-          win_bets_continue: win_bets_continue,
-          predict_rate1: predict_rate1,
-          predict_rate2: predict_rate2,
-          predict_rate3: predict_rate3
+        mixAll = modules.mergeDeep(mixAll, {
+          [uid_league_data.uid]: {
+            [uid_league_data.league_id]: {
+              countinue: countinue,
+              win_bets_continue: win_bets_continue,
+              predict_rate1: predict_rate1,
+              predict_rate2: predict_rate2,
+              predict_rate3: predict_rate3
+            }
+          }
         });
 
-        // mixAll.push({
-        //   uid: uid_league_data.uid, 
-        //   league_id: uid_league_data.league_id,
-        //   values: {
-        //     countinue: countinue,
-        //     win_bets_continue: win_bets_continue,
-        //     predict_rate1: predict_rate1,
-        //     predict_rate2: predict_rate2,
-        //     predict_rate3: predict_rate3
-        //   }
-        // });
       });
       console.groupEnd();
 
@@ -325,37 +315,38 @@ function settleGodTitle(args) {
         console.log('matches_rate: %o  %o', matches_rate1, matches_rate2);
         console.log('matches_continue: %o', matches_continue);
 
-        mixAll = mergeDeep(mixAll, {
-          uid: uid_league_data.uid, 
-          league_id: uid_league_data.league_id,
-          matches_rate1: matches_rate1,
-          matches_rate2: matches_rate2,
-          matches_continue: matches_continue
-        })
-        // mixAll.push({
-        //   uid: uid_league_data.uid, 
-        //   league_id: uid_league_data.league_id,
-        //   values: {
-        //     matches_rate1: matches_rate1,
-        //     matches_rate2: matches_rate2,
-        //     matches_continue: matches_continue
-        //   }
-        // });
+        mixAll = modules.mergeDeep(mixAll, {
+          [uid_league_data.uid]: {
+            [uid_league_data.league_id]: {
+              matches_rate1: matches_rate1,
+              matches_rate2: matches_rate2,
+              matches_continue: matches_continue
+            },
+          }
+        });
+
       });
       console.groupEnd();
 
-      console.log('\nmixAll: ', mixAll)
-      mixAll.forEach(function(data){
-        // db.Title.update({
+      // 把 所有計算出來的資料寫入 Title
+      //console.log('\nmixAll: ', mixAll);
+      for (const [uid, value] of Object.entries(mixAll)) {
+        console.log('\nuid: ', uid);
+        for (const [league_id, value2] of Object.entries(value)) {
+          console.log('league_id: ', league_id);
+          console.log('value2: ', value2);
+          // db.Title.update({
           
-        // }, {
-        //   where: {
-        //     uid: data.uid,
-        //     league_id: data.league_id,
-        //     period: period
-        //   }
-        // });
-      });
+          // }, {
+          //   where: {
+          //     uid: data.uid,
+          //     league_id: data.league_id,
+          //     period: period
+          //   }
+          // });
+
+        };
+      };
 
     } catch (err) {
       console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
@@ -426,38 +417,6 @@ function passN(n, allRecords, result_flag, match_scheduled){
       : 0;
 
   return {n: n, item: item};
-}
-
-/**
- * Simple object check.
- * @param item
- * @returns {boolean}
- */
-function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
-}
-
-/**
- * Deep merge two objects.
- * @param target
- * @param ...sources
- */
-function mergeDeep(target, ...sources) {
-  if (!sources.length) return target;
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(target[key], source[key]);
-      } else {
-        Object.assign(target, { [key]: source[key] });
-      }
-    }
-  }
-
-  return mergeDeep(target, ...sources);
 }
 
 // https://stackoverflow.com/a/1215401
