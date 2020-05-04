@@ -10,6 +10,7 @@
     "henry": "firebase deploy --only functions:redistest2",
     "logs": "firebase functions:log",
     "grunt": "grunt",
+    "henry_test": "jest test/rank --testTimeout=30000", 
     "test": "jest test/ --testTimeout=30000"
   },
   "engines": {
