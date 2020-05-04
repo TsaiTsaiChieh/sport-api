@@ -5,7 +5,7 @@ const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 
 async function checkmatch_eSoccer() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore.collection(firestoreName).get();
@@ -22,10 +22,10 @@ async function checkmatch_eSoccer() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
-                const realtimeData = await modules.database
+                let realtimeData = await modules.database
                   .ref(`esports/eSoccer/${betsID}`)
-                  .once('value')
-                  .val();
+                  .once('value');
+                realtimeData = realtimeData.val();
                 const parameter = {
                   betsID: betsID,
                   realtimeData: realtimeData
@@ -63,11 +63,10 @@ async function checkmatch_eSoccer() {
           }
           case 1: {
             try {
-              const realtimeData = await modules.database
+              let realtimeData = await modules.database
                 .ref(`esports/eSoccer/${betsID}`)
-                .once('value')
-                .val();
-
+                .once('value');
+              realtimeData = realtimeData.val();
               if (realtimeData.Summary.status === 'inprogress') {
                 const parameter = {
                   betsID: betsID,
@@ -111,12 +110,12 @@ async function checkmatch_eSoccer() {
           }
         }
       }
-      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(`${err} at checkmatch_ESoccer by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 module.exports = checkmatch_eSoccer;

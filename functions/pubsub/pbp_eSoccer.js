@@ -18,7 +18,7 @@ async function ESoccerpbpInplay(parameter) {
     pbpURL: pbpURL,
     realtimeData: realtimeData
   };
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     await doPBP(parameterPBP);
 
     countForStatus2 = countForStatus2 + 1;
@@ -29,7 +29,7 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     try {
@@ -165,16 +165,16 @@ async function ESoccerpbpHistory(parameter) {
           )
         );
       }
-      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at pbpESoccer of PBPHistory by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -384,12 +384,12 @@ async function doPBP(parameter) {
           );
         }
       }
-      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at pbpESoccer of doPBP by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };

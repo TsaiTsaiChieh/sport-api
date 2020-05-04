@@ -5,7 +5,7 @@ const MLBpbpInplay = MLBpbp.MLBpbpInplay;
 const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 
 async function checkmatch_MLB() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_MLB';
     try {
       const data = await modules.firestore.collection(firestoreName).get();

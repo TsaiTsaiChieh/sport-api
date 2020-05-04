@@ -50,7 +50,7 @@ const whitelist = [
 const localOrigin = 'http://172.16.21';
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
@@ -96,7 +96,7 @@ exports.handicap = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
 exports.handicap_esport = functions.pubsub
-  .schedule('*/10 * * * *')
+  .schedule('* */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
