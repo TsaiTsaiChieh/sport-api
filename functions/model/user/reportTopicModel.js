@@ -18,9 +18,10 @@ async function reportTopic(args) {
 
       const insertData = {
         uid: uid,
-        type: 'article', // args.type,
+        type: args.type,
         article_id: args.article_id,
-        content: args.content
+        content: args.content,
+        images: JSON.stringify(args.images),
       };
       await dbCreate(insertData);
       resolve({ code: 200 });

@@ -993,6 +993,11 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
     type: Sequelize.STRING,
     allowNull: false
   },
+  images: {
+    // 放圖片url用
+    type: Sequelize.TEXT,
+    allowNull: true
+  },
   status: {
     type: Sequelize.INTEGER,
     allowNull: false,
