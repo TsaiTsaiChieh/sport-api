@@ -122,6 +122,17 @@ router.post(
   verification.token,
   require('../controller/user/settleMatchesController')
 );
+router.post(
+  '/settle_win_list',
+  verification.token,
+  require('../controller/user/settleWinListController')
+);
+router.post(
+  '/settle_god_title',
+  verification.token,
+  require('../controller/user/settleGodTitleController')
+);
+
 
 /* 大神結算 */
 router.post(
