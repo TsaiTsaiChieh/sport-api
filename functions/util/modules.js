@@ -159,22 +159,26 @@ function leagueCodebook(league) {
     case 'NBA':
       return {
         id: 2274,
-        match: db.basketball_NBA
+        match: db.basketball_NBA,
+        name_ch: '美國國家籃球協會'
       };
     case 'SBL':
       return {
         id: 8251,
-        match: db.basketball_SBL
+        match: db.basketball_SBL,
+        name_ch: '超級籃球聯賽'
       };
     case 'MLB':
       return {
         id: 3939,
-        match: db.baseball_MLB
+        match: db.baseball_MLB,
+        name_ch: '美國職棒大聯盟'
       };
     case 'eSoccer':
       return {
         id: 22000,
-        match: db.eSoccer
+        match: db.eSoccer,
+        name_ch: '足球電競'
       };
   }
 }
