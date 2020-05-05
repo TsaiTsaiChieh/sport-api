@@ -244,7 +244,7 @@ function settleWinList(args) {
 // 輸出資料要確定是否5筆
 // rang： date、week、month、season、period
 // sum(win_bets), sum(correct_counts), sum(fault_counts)
-async function winBetsRateTotalCount(uid, league_id, 
+async function winBetsRateTotalCount(uid, league_id,
   day_of_year = 0, week = 0, month = 0, season = 0, period = 0, week_of_period = 1) {
   return await db.sequelize.query(`
     select day_of_year, '' week, '' month, '' period, '' week1_of_period, '' season,
