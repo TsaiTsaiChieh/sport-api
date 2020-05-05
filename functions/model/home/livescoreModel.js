@@ -13,7 +13,6 @@ async function livescore(args) {
 }
 async function reResult(sport, league) {
   const result = await repackage(sport, league);
-
   return await Promise.all(result);
 }
 async function repackage(sport, league) {

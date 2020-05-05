@@ -20,7 +20,6 @@ async function ESoccerpbpInplay(parameter) {
   };
   const timerForStatus2 = setInterval(async function() {
     await doPBP(parameterPBP);
-
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 >= timesPerLoop) {
       console.log(`${betsID} : checkmatch_ESoccer success`);
