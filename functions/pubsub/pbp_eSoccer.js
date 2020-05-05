@@ -18,7 +18,7 @@ async function ESoccerpbpInplay(parameter) {
     pbpURL: pbpURL,
     realtimeData: realtimeData
   };
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     await doPBP(parameterPBP);
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 >= timesPerLoop) {
@@ -28,7 +28,7 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     try {
@@ -173,7 +173,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -191,7 +191,7 @@ async function doPBP(parameter) {
               } catch (err) {
                 return reject(
                   new AppErrors.FirebaseCollectError(
-                    `${err} at doPBP of status by DY`
+                    `${err} at doPBP of status on ${betsID} by DY`
                   )
                 );
               }
@@ -207,7 +207,7 @@ async function doPBP(parameter) {
               } catch (err) {
                 return reject(
                   new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP of status by DY`
+                    `${err} at doPBP of status on ${betsID} by DY`
                   )
                 );
               }
@@ -218,7 +218,9 @@ async function doPBP(parameter) {
                 });
               } catch (err) {
                 return reject(
-                  new AppErrors.MysqlError(`${err} at doPBP of Match by DY`)
+                  new AppErrors.MysqlError(
+                    `${err} at doPBP of Match on ${betsID} by DY`
+                  )
                 );
               }
               try {
@@ -244,7 +246,7 @@ async function doPBP(parameter) {
               } catch (err) {
                 return reject(
                   new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP of status by DY`
+                    `${err} at doPBP of status on ${betsID} by DY`
                   )
                 );
               }
@@ -255,7 +257,9 @@ async function doPBP(parameter) {
                 });
               } catch (err) {
                 return reject(
-                  new AppErrors.MysqlError(`${err} at doPBP of status by DY`)
+                  new AppErrors.MysqlError(
+                    `${err} at doPBP of status on ${betsID} by DY`
+                  )
                 );
               }
               try {
@@ -266,7 +270,7 @@ async function doPBP(parameter) {
               } catch (err) {
                 return reject(
                   new AppErrors.FirebaseCollectError(
-                    `${err} at doPBP of status by DY`
+                    `${err} at doPBP of status on ${betsID} by DY`
                   )
                 );
               }
@@ -326,7 +330,7 @@ async function doPBP(parameter) {
         } catch (err) {
           return reject(
             new AppErrors.FirebaseRealtimeError(
-              `${err} at doPBP of league by DY`
+              `${err} at doPBP of league on ${betsID} by DY`
             )
           );
         }
@@ -338,7 +342,7 @@ async function doPBP(parameter) {
         } catch (err) {
           return reject(
             new AppErrors.FirebaseRealtimeError(
-              `${err} at doPBP of now_clock by DY`
+              `${err} at doPBP of now_clock on ${betsID} by DY`
             )
           );
         }
@@ -379,13 +383,17 @@ async function doPBP(parameter) {
             });
         } catch (err) {
           return reject(
-            new AppErrors.FirebaseRealtimeError(`${err} at doPBP of info by DY`)
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP of info on ${betsID} by DY`
+            )
           );
         }
       }
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at pbpESoccer of doPBP by DY`)
+        new AppErrors.AxiosError(
+          `${err} at pbpESoccer of doPBP on ${betsID} by DY`
+        )
       );
     }
     return resolve('ok');
