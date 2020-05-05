@@ -91,7 +91,7 @@ function repackage(ele) {
     win_rate: '',
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name,
+    display_name: ele.display_name,
     rank: ''
   };
 
