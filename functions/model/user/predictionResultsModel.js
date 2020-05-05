@@ -16,10 +16,7 @@ function predictionResult(args) {
           }) - 1
       };
       const predictions = await queryUserPredictionWhichIsSettled(args, unix);
-      const a = repackage(predictions);
-      console.log('這裏---', a);
-      return resolve(a);
-      // return resolve(repackage(predictions));
+      return resolve(repackage(predictions));
     } catch (err) {}
   });
 }
@@ -70,23 +67,66 @@ function queryUserPredictionWhichIsSettled(args, unix) {
 
 function repackage(predictions) {
   try {
+    let temp = [];
     const data = {};
-    // const a = modules.groupBy(predictions, 'league');
-    // a.forEach(function (data) {
-    //   console.log(data);
-    // });
-
-    for (let i = 0; i < predictions.length; i++) {
-      const ele = predictions[i];
-      console.log(ele);
-
-      data[ele.league].push('ss');
-    }
-    console.log('--', data);
-
-    return data;
+    modules.groupBy(predictions, 'league').forEach(function (groupByData) {
+      let league;
+      groupByData.forEach(function (ele) {
+        // 取出 聯盟陣列中的賽事
+        temp.push(repackageMatch(ele));
+        league = ele.league;
+      });
+      data[league] = temp;
+      temp = [];
+    });
+    return response;
   } catch (err) {
-    console.log('---?????', err);
+    return new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  }
+}
+
+function repackageMatch(ele) {
+  try {
+    return {
+      id: ele.bets_id,
+      scheduled: ele.match_scheduled,
+      scheduled_tw: modules
+        .moment(ele.match_scheduled * 1000)
+        .format('A hh:mm'),
+      league_id: ele.league_id,
+      league: ele.league,
+      home: {
+        id: ele.home_id,
+        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name
+      },
+      away: {
+        id: ele.away_id,
+        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
+        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name
+      },
+      spread: {
+        id: ele.spread_id ? ele.spread_id : null,
+        handicap: ele.spread_handicap ? ele.spread_handicap : null,
+        home_tw: ele.home_tw ? ele.home_tw : null,
+        away_tw: ele.away_tw ? ele.home_tw : null,
+        predict: ele.spread_option ? ele.spread_option : null,
+        bets: ele.spread_bets ? ele.spread_bets : null,
+        result: ele.spread_option ? ele.spread_result_flag : null
+      },
+      totals: {
+        id: ele.totals_id ? ele.totals_id : null,
+        handicap: ele.totals_handicap ? ele.totals_handicap : null,
+        over_tw: ele.over_tw ? ele.over_tw : null,
+        predict: ele.totals_option ? ele.totals_option : null,
+        bets: ele.totals_bets ? ele.totals_bets : null,
+        result: ele.totals_option ? ele.totals_result_flag : null
+      }
+    };
+  } catch (err) {
+    return new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 module.exports = predictionResult;
