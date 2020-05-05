@@ -10,7 +10,14 @@ function honorModel(uid) {
       //    WHERE uwlh.uid = '${uid}'
       const now = new Date();
       const period = await modules.getTitlesPeriod(now);
-      console.log(period);return;
+      const next = {
+        "next_god_date":period.end,
+        "next_period_date":{
+          "begin": period.date,
+          "end": period.end
+        }
+      };
+
       const wins = await db.sequelize.query(
         `
           SELECT  this_month_win_rate as win_rate, 
@@ -34,11 +41,6 @@ function honorModel(uid) {
       //   }
       // );
 
-      const rtype =
-      {
-        
-      };
-
       const rewards = await db.sequelize.query(
         `
           SELECT 
@@ -57,7 +59,7 @@ function honorModel(uid) {
 
       const event = await db.sequelize.query(
         `
-          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, CONCAT(ml.name, '第', hb.period, '期', r.name) as description
+          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, ml.name as name, ml.name_ch as name_ch, hb.period as period, r.name as rank_name
           FROM user__honor__boards hb, match__leagues ml, user__ranks r
          WHERE hb.uid = $uid
            AND hb.league_id = ml.league_id
@@ -69,19 +71,14 @@ function honorModel(uid) {
         }
       );
 
-      const next = [
-        {
-          next_time: '11/9',
-          next_range: '10/27-11/9'
-        }
-      ];
+
 
       const honorList = {
+        next: next,
         wins: wins,
-        rtype: rtype,
-        reward: rewards,
-        event: event,
-        next: next
+ 
+        rewards: rewards,
+        event: event
       };
 
       resolve(honorList);
