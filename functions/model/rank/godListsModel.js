@@ -13,7 +13,7 @@ function godlists(args) {
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
     const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
-    
+
     try {
       // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
       const godListsQuery = await db.sequelize.query(`
