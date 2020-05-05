@@ -17,6 +17,8 @@ function godlists(args) {
           return data.data();
         });
 
+      const league_id = modules.leagueCodebook(defaultValues.league).id;
+
       // 依 聯盟 取出是 大神資料 且 有販售
       // 將來有排序條件，可以orderBy，但會和下面的order衝突
       const godListsQuery = await db.sequelize.query(`
@@ -25,22 +27,17 @@ function godlists(args) {
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
           from titles,
-               ( 
-                 select league_id 
-                   from match__leagues
-                  where name = :league
-               ) leagues,
                (
                  select * 
                    from users
                   where status = 2
                ) users
-         where titles.league_id = leagues.league_id
-           and titles.uid = users.uid
+         where titles.uid = users.uid
+           and titles.league_id = :league_id
            and titles.period = :period
       `, {
         replacements: {
-          league: defaultValues.league,
+          league_id: league_id,
           period: period,
           begin: begin,
           end: end
