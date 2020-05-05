@@ -99,7 +99,7 @@ async function getReplies(args) {
         replies.rows[i].replyto_info = replyInfo;
         if (replyInfo !== null && replyInfo !== '[]') {
           // console.log(typeof replyInfo.images)
-          if(typeof replyInfo.images === 'string'){
+          if (typeof replyInfo.images === 'string') {
             replies.rows[i].replyto_info.images = JSON.parse(replyInfo.images);
           }
         }
