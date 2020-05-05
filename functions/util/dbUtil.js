@@ -854,7 +854,7 @@ const User_FavoriteGod = sequelize.define(
   {
     indexes: [
       {
-        fields: ['uid']
+        fields: ['uid', 'god_uid', 'type']
       }
     ]
   }
@@ -1067,7 +1067,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
   },
   content: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: true
   },
   images: {
     // 放圖片url用
@@ -1114,7 +1114,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'user__home__banner',
+  'home__banner',
   {
     name: {
       type: Sequelize.STRING,
