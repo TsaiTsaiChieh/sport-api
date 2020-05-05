@@ -28,35 +28,35 @@ module.exports = winRateLists;
         "win_rate": 94,
         "uid": "MyOPA8SzgVUq8iARhOa8mzQLC3e2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "紅色警報",
+        "display_name": "紅色警報",
         "rank": "2"
       },
       {
         "win_rate": 92,
         "uid": "BimYoqVdG3ONxyxZ4Vy855lXc9q2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "中哥大",
+        "display_name": "中哥大",
         "rank": "2"
       },
       {
         "win_rate": 91,
         "uid": "FZql5b9sOENEq373y4CiiHOXYe43",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "台大科技",
+        "display_name": "台大科技",
         "rank": "2"
       },
       {
         "win_rate": 90,
         "uid": "6wrKIEue8MajxljlsSTujhLWNkm1",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "台大科技",
+        "display_name": "台大科技",
         "rank": ""
       },
       {
         "win_rate": 89,
         "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "運測2人",
+        "display_name": "運測2人",
         "rank": "3"
       }
     ],
@@ -65,35 +65,35 @@ module.exports = winRateLists;
         "win_rate": 88,
         "uid": "B30GysZF0rMiIGGAA7FSyraf13D2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "大小人",
+        "display_name": "大小人",
         "rank": ""
       },
       {
         "win_rate": 78,
         "uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "無19",
+        "display_name": "無19",
         "rank": ""
       },
       {
         "win_rate": 78,
         "uid": "FXzqjqFlRygUYu7S20XMqsFNxom1",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "工儘2",
+        "display_name": "工儘2",
         "rank": ""
       },
       {
         "win_rate": 78,
         "uid": "6ls8rUgG2AQkjSmjh8sN0HoiM7v2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "運測2人",
+        "display_name": "運測2人",
         "rank": "2"
       },
       {
         "win_rate": 78,
         "uid": "5kICOSoGJjWSExJx1vL56if0p1G2",
         "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-        "displayname": "珊迪",
+        "display_name": "珊迪",
         "rank": "3"
       }
     ]
