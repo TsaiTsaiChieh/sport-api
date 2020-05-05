@@ -31,9 +31,6 @@ async function repackage(sport, league, eventID) {
     eventData.push(doc.data());
   });
 
-  eventData[0].sport = sport;
-  eventData[0].league = league;
-
   const time = eventData[0].scheduled * 1000;
   const dateNow = Date.now();
 
@@ -198,6 +195,8 @@ async function repackage(sport, league, eventID) {
         }
       }
     }
+    eventData[0].sport = sport;
+    eventData[0].league = league;
     return eventData;
   }
 
@@ -207,7 +206,7 @@ async function repackage(sport, league, eventID) {
     return eventData;
   }
   if (league === 'eSoccer') {
-    league = eventData[0].league.name;
+    league = eventData[0].league.name_ch;
     eventData[0].sport = sport;
     eventData[0].league = league;
     return eventData;
