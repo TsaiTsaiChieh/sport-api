@@ -18,7 +18,7 @@ const totalsResult = {
 };
 
 function settlement() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // 1. query match status = 0 and spread_id || totals_id is not null
       let spreadMetadata = await queryMatchWhichHandicapIsNotNull('spread');
@@ -39,11 +39,11 @@ function settlement() {
 }
 
 function queryMatchWhichHandicapIsNotNull(handicapType) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // index is ref, taking 171ms
-      handicapName = handicapType === 'spread' ? 'spreads' : handicapType;
-      method =
+      const handicapName = handicapType === 'spread' ? 'spreads' : handicapType;
+      const method =
         handicapType === 'spread'
           ? { mode1: 'home', mode2: 'away' }
           : { mode1: 'under', mode2: 'over' };
@@ -88,95 +88,73 @@ function calculateSpreads(spreadMetadata) {
     const awaySubtraction = ele.away_points - Math.abs(ele.handicap);
     // 1. 當盤口為正小數
     if (!Number.isInteger(ele.handicap) && ele.handicap > 0) {
-      if (homeSubtraction > ele.away_points)
-        ele.spread_result = spreadResult.home;
-      else if (homeSubtraction < ele.away_points)
-        ele.spread_result = spreadResult.away;
+      if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
+      else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
       // 2. 當盤口為負小數
     } else if (!Number.isInteger(ele.handicap) && ele.handicap < 0) {
-      if (awaySubtraction > ele.home_points)
-        ele.spread_result = spreadResult.away;
-      else if (awaySubtraction < ele.home_points)
-        ele.spread_result = spreadResult.home;
+      if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
+      else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
       // 3. 當盤口為正整數且賠率皆一樣時
     } else if (
       Number.isInteger(ele.handicap) &&
       ele.handicap >= 0 &&
       ele.home_odd === ele.away_odd
     ) {
-      if (homeSubtraction > ele.away_points)
-        ele.spread_result = spreadResult.home;
-      else if (homeSubtraction < ele.away_points)
-        ele.spread_result = spreadResult.away;
-      else if (homeSubtraction === ele.away_points)
-        ele.spread_result = spreadResult.fair;
+      if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
+      else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
+      else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.fair;
       // 4. 當盤口為負整數且賠率皆一樣時
     } else if (
       Number.isInteger(ele.handicap) &&
       ele.handicap < 0 &&
       ele.home_odd === ele.away_odd
     ) {
-      if (awaySubtraction > ele.home_points)
-        ele.spread_result = spreadResult.away;
-      else if (awaySubtraction < ele.home_points)
-        ele.spread_result = spreadResult.home;
-      else if (awaySubtraction === ele.home_points)
-        ele.spread_result = spreadResult.fair;
+      if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
+      else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
+      else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.fair;
       // 5. 當盤口為正整數且主隊賠率大於客隊時
     } else if (
       Number.isInteger(ele.handicap) &&
       ele.handicap >= 0 &&
       ele.home_odd > ele.away_odd
     ) {
-      if (homeSubtraction > ele.away_points)
-        ele.spread_result = spreadResult.home;
-      else if (homeSubtraction < ele.away_points)
-        ele.spread_result = spreadResult.away;
-      else if (homeSubtraction === ele.away_points)
-        ele.spread_result = spreadResult.fairHome;
+      if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
+      else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
+      else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.fairHome;
       // 6. 當盤口為正整數且客隊賠率大於主隊賠率時
     } else if (
       Number.isInteger(ele.handicap) &&
       ele.handicap >= 0 &&
       ele.home_odd < ele.away_odd
     ) {
-      if (homeSubtraction > ele.away_points)
-        ele.spread_result = spreadResult.home;
-      else if (homeSubtraction < ele.away_points)
-        ele.spread_result = spreadResult.away;
-      else if (homeSubtraction === ele.away_points)
-        ele.spread_result = spreadResult.fairAway;
+      if (homeSubtraction > ele.away_points) ele.spread_result = spreadResult.home;
+      else if (homeSubtraction < ele.away_points) ele.spread_result = spreadResult.away;
+      else if (homeSubtraction === ele.away_points) ele.spread_result = spreadResult.fairAway;
       // 7. 當盤口為負整數且主隊賠率大於客隊賠率時
     } else if (
       Number.isInteger(ele.handicap) &&
       ele.handicap < 0 &&
       ele.home_odd > ele.away_odd
     ) {
-      if (awaySubtraction > ele.home_points)
-        ele.spread_result = spreadResult.away;
-      else if (awaySubtraction < ele.home_points)
-        ele.spread_result = spreadResult.home;
-      else if (awaySubtraction === ele.home_points)
-        ele.spread_result = spreadResult.fairHome;
+      if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
+      else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
+      else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.fairHome;
     } else if (
       // 8. 當盤口為負整數且客隊賠率大於主隊賠率時
       Number.isInteger(ele.handicap) &&
       ele.handicap < 0 &&
       ele.home_odd < ele.away_odd
     ) {
-      if (awaySubtraction > ele.home_points)
-        ele.spread_result = spreadResult.away;
-      else if (awaySubtraction < ele.home_points)
-        ele.spread_result = spreadResult.home;
-      else if (awaySubtraction === ele.home_points)
-        ele.spread_result = spreadResult.fairAway;
+      if (awaySubtraction > ele.home_points) ele.spread_result = spreadResult.away;
+      else if (awaySubtraction < ele.home_points) ele.spread_result = spreadResult.home;
+      else if (awaySubtraction === ele.home_points) ele.spread_result = spreadResult.fairAway;
     }
   }
   return spreadMetadata;
 }
 
 function updateSpreadData(spreadMetadata) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const results = [];
       for (let i = 0; i < spreadMetadata.length; i++) {
@@ -201,7 +179,7 @@ function updateSpreadData(spreadMetadata) {
 }
 
 function updateTotalsData(metadata) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const results = [];
       for (let i = 0; i < metadata.length; i++) {
