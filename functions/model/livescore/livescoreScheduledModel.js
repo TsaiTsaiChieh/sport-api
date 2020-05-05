@@ -65,7 +65,10 @@ async function repackage(sport, league, time) {
       league = eventData[i].league.name;
     }
     // 2 目前當天有幾場比賽規劃中
-    if (scheduled === dateNow && eventData[i].flag.status === 2) {
+    if (
+      (scheduled === dateNow && eventData[i].flag.status === 2) ||
+      eventData[i].flag.status === -1
+    ) {
       scheduledEvent.push({
         sport: sport,
         league: eventData[i].league.name_ch,
