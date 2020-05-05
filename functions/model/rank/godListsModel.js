@@ -9,10 +9,11 @@ function godlists(args) {
     // 取得當期期數
     const period = modules.getTitlesPeriod(new Date()).period;
     const league = args.league;
+    const league_id = modules.leagueCodebook(league).id;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
     const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
-
+    
     try {
       // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
       const godListsQuery = await db.sequelize.query(`
@@ -28,13 +29,6 @@ function godlists(args) {
                titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                titles.matches_rate1, titles.matches_rate2, titles.matches_continue
           from titles
-         inner join     
-               ( 
-                 select league_id 
-                   from match__leagues
-                  where name = :league 
-               ) leagues
-            on titles.league_id = leagues.league_id
          inner join
                (
                  select * 
@@ -50,10 +44,11 @@ function godlists(args) {
                  group by uid
                ) prediction
             on titles.uid = prediction.uid
-         where titles.period = :period
+         where titles.league_id = :league_id
+           and titles.period = :period
       `, {
         replacements: {
-          league: league,
+          league_id: league_id,
           period: period,
           begin: begin,
           end: end
@@ -132,7 +127,7 @@ function repackage_winBets(ele) { // 實際資料輸出格式
   const data = {
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name,
+    display_name: ele.display_name,
     rank: `${ele.rank_id}`,
     sell: ele.sell,
     default_title: ele.default_title,
