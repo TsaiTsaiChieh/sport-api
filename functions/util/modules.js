@@ -192,6 +192,10 @@ function leagueDecoder(leagueID) {
   }
 }
 
+/**
+ * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
+ * @params date = new Date();
+ */
 function getTitlesPeriod(date) {
   // date = new Date()
   const specificDate = '20200302';
@@ -209,40 +213,45 @@ function getTitlesPeriod(date) {
     2030
   ];
   let weeks = 0;
-  let weekPeriod = 0;
   for (let i = 0; i < years.length; i++) {
     const year = years[i];
     const weeksInYear = moment(year).isoWeeksInYear(); // always 53
     weeks += weeksInYear;
   }
-  weeks -= moment().weeks(); // 減去目前已過幾週
 
-  for (let i = 0; i < Math.ceil(weeks / 2); i++) {
+  weeks -= moment(specificDate).weeks(); // 減去從 specificDate 已過幾週
+
+  const periodTenYear = Math.ceil(weeks / 2);
+  for (let i = 0; i < periodTenYear; i++) {
     const begin = moment(specificDate)
       .utcOffset(UTF8)
-      .add(i * 2, 'weeks')
+      .add(i * 2 - 1, 'weeks')
+      .endOf('isoWeek')
       .valueOf();
-
+    const middle = moment(specificDate)
+      .utcOffset(UTF8)
+      .add(i * 2, 'weeks')
+      .endOf('isoWeek')
+      .valueOf();
     const end = moment(specificDate)
       .utcOffset(UTF8)
       .add(i * 2 + 1, 'weeks')
       .endOf('isoWeek')
       .valueOf();
 
-    const week1 = moment(specificDate)
-      .utcOffset(UTF8)
-      .add(i, 'weeks')
-      .valueOf();
-    const week2 = begin;
-    week1 <= date && date < week2 ? (weekPeriod = 1) : (weekPeriod = 2);
     if (begin <= date && date <= end) {
       return {
         period: i, // 期數
-        date: moment(specificDate)
+        date: moment(specificDate) // 該期開始計算的日期
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'), // 該期的開始日期
-        weekPeriod
+          .format('YYYYMMDD'),
+        end: moment(specificDate) // 該期結束計算的日期
+          .utcOffset(UTF8)
+          .add(i * 2, 'weeks')
+          .subtract(1, 'days')
+          .format('YYYYMMDD'),
+        weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
       };
     }
   }
