@@ -45,15 +45,15 @@ function buyModel(args, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-     
-      resolve(buylist);
+
+      resolve(buy);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
     }
   });
 }
-function repackage (data) {
-  
+function repackage(data) {
+
 }
 module.exports = buyModel;

@@ -1281,7 +1281,7 @@ const Bank = sequelize.define(
     },
     bank_account: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [
