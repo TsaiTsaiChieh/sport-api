@@ -1,8 +1,8 @@
 /* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
-const NBA_functions = require('./util/prematchFunctions_NBA');
-const SBL_functions = require('./util/prematchFunctions_SBL');
+// const NBA_functions = require('./util/prematchFunctions_NBA');
+// const SBL_functions = require('./util/prematchFunctions_SBL');
 // const MLB_functions = require('./util/prematchFuntions_MLB');
 const KBO_functions = require('./util/prematchFunctions_KBO');
 // Just for NBA & SBL now
