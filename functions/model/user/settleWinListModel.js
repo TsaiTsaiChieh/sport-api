@@ -24,7 +24,9 @@ function settleWinList(args) {
     const userUid = args.token.uid;
     const begin = modules.convertTimezone(args.date);
     const end = modules.convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
-    const period = modules.getTitlesPeriod(begin * 1000).period;
+    const tp = modules.getTitlesPeriod(begin * 1000);
+    const period = tp.period;
+    const weekOfPeriod = tp.weekPeriod;
     const dayOfYear = modules.moment(begin * 1000).format('DDD'); // 日期是 一年中的第幾天
     const week = modules.moment(begin * 1000).week();
     const momentObject = modules.moment(begin * 1000).toObject();
@@ -116,6 +118,7 @@ function settleWinList(args) {
             date_timestamp: begin,
             day_of_year: dayOfYear,
             period: period,
+            week_of_period: weekOfPeriod,
             week: week,
             month: month,
             season: season
@@ -145,19 +148,21 @@ function settleWinList(args) {
           const allTotalCount = await winBetsRateTotalCount(uid, league_id,
             dayOfYear, week, month, season, period);
 
-          // 檢查 是否有5筆資料
-          if (allTotalCount.length !== 5) return reject(errs.errsMsg('404', '1322')); // 筆數異常
+          // 檢查 是否有6筆資料
+          if (allTotalCount.length !== 6) return reject(errs.errsMsg('404', '1322')); // 筆數異常
 
           // 檢查是否為數字
           const ele = allTotalCount;
           const this_week_win_rate = numberCount(ele[1].correct_sum, ele[1].fault_sum);
           const this_month_win_rate = numberCount(ele[2].correct_sum, ele[2].fault_sum);
           const this_period_win_rate = numberCount(ele[3].correct_sum, ele[3].fault_sum);
-          const this_season_win_rate = numberCount(ele[4].correct_sum, ele[4].fault_sum);
+          const this_week1_of_period_win_rate = numberCount(ele[4].correct_sum, ele[3].fault_sum);
+          const this_season_win_rate = numberCount(ele[5].correct_sum, ele[4].fault_sum);
 
           if (isNotANumber(this_week_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
           if (isNotANumber(this_month_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
           if (isNotANumber(this_period_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
+          if (isNotANumber(this_week1_of_period_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
           if (isNotANumber(this_season_win_rate)) return reject(errs.errsMsg('404', '1323')); // 非數值
 
           // c.
@@ -174,13 +179,16 @@ function settleWinList(args) {
               this_month_win_bets: ele[2].sum,
               this_period_win_rate: this_period_win_rate,
               this_period_win_bets: ele[3].sum,
+              this_week1_of_period_win_rate: this_week1_of_period_win_rate,
+              this_week1_of_period_win_bets: ele[4].sum,
               this_season_win_rate: this_season_win_rate,
-              this_season_win_bets: ele[4].sum
+              this_season_win_bets: ele[5].sum
             }, {
               fields: [
                 'this_week_win_rate', 'this_week_win_bets',
                 'this_month_win_rate', 'this_month_win_bets',
                 'this_period_win_rate', 'this_period_win_bets',
+                'this_week1_of_period_win_rate', 'this_week1_of_period_win_bets',
                 'this_season_win_rate', 'this_season_win_bets'
               ]
             });
@@ -236,9 +244,10 @@ function settleWinList(args) {
 // 輸出資料要確定是否5筆
 // rang： date、week、month、season、period
 // sum(win_bets), sum(correct_counts), sum(fault_counts)
-async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, month = 0, season = 0, period = 0) {
+async function winBetsRateTotalCount(uid, league_id,
+  day_of_year = 0, week = 0, month = 0, season = 0, period = 0, week_of_period = 1) {
   return await db.sequelize.query(`
-    select day_of_year, '' week, '' month, '' season, '' period,
+    select day_of_year, '' week, '' month, '' period, '' week1_of_period, '' season,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -246,7 +255,7 @@ async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, 
        and day_of_year = ${day_of_year}
      group by day_of_year
     union
-    select '' day_of_year, week, '' month, '' season, '' period,
+    select '' day_of_year, week, '' month, '' period, '' week1_of_period, '' season,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -254,7 +263,7 @@ async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, 
        and week = ${week}
      group by week
     union
-    select '' day_of_year, '' week, month, '' season, '' period,
+    select '' day_of_year, '' week, month, '' period, '' week1_of_period, '' season,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -262,7 +271,7 @@ async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, 
        and month = ${month}
      group by month
     union
-    select '' day_of_year, '' week, '' month, '' season, period,
+    select '' day_of_year, '' week, '' month, period, '' week1_of_period, '' season,
           sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid
@@ -270,7 +279,16 @@ async function winBetsRateTotalCount(uid, league_id, day_of_year = 0, week = 0, 
        and period = ${period}
      group by period
      union
-    select '' day_of_year, '' week, '' month, season, '' period,
+    select '' day_of_year, '' week, '' month, '' period, '1' week1_of_period,  '' season,
+          sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
+      from users__win__lists__histories
+     where uid = :uid
+       and league_id = :league_id
+       and period = ${period}
+       and week_of_period = ${week_of_period}
+     group by period, week1_of_period
+     union
+    select '' day_of_year, '' week, '' month, '' period, '' week1_of_period, season,
            sum(win_bets) sum, sum(correct_counts) correct_sum, sum(fault_counts) fault_sum
       from users__win__lists__histories
      where uid = :uid

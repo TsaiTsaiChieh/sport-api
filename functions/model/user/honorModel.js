@@ -8,6 +8,16 @@ function honorModel(uid) {
       // SELECT uwl.league_id, uwl.this_month_win_bets, uwl.this_month_win_rate
       //     FROM users__win__lists uwl, users__win__lists__histories uwlh
       //    WHERE uwlh.uid = '${uid}'
+      const now = new Date();
+      const period = await modules.getTitlesPeriod(now);
+      const next = {
+        next_god_date: period.end,
+        next_period_date: {
+          begin: period.date,
+          end: period.end
+        }
+      };
+
       const wins = await db.sequelize.query(
         `
           SELECT  this_month_win_rate as win_rate, 
@@ -31,30 +41,6 @@ function honorModel(uid) {
       //   }
       // );
 
-      const rtype =
-      {
-        totals:
-        { // 大小分
-          win: 5, // 勝場數
-          lose: 2, // 敗場數
-          bets: 15, // 下注數
-          win_bets: 12, // 勝注數
-          lose_bets: 3, // 敗注數
-          bet_rank: 1000, // 勝注排行
-          rate_rank: 233 // 勝率排行
-        },
-        spread:
-        { // 讓分
-          win: 5,
-          lose: 1,
-          bets: 20,
-          win_bets: 10,
-          lose_bets: 10,
-          bet_rank: 999,
-          rate_rank: 112
-        }
-      };
-
       const rewards = await db.sequelize.query(
         `
           SELECT 
@@ -73,7 +59,7 @@ function honorModel(uid) {
 
       const event = await db.sequelize.query(
         `
-          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, CONCAT(ml.name, '第', hb.period, '期', r.name) as description
+          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, ml.name as name, ml.name_ch as name_ch, hb.period as period, r.name as rank_name
           FROM user__honor__boards hb, match__leagues ml, user__ranks r
          WHERE hb.uid = $uid
            AND hb.league_id = ml.league_id
@@ -85,19 +71,12 @@ function honorModel(uid) {
         }
       );
 
-      const next = [
-        {
-          next_time: '11/9',
-          next_range: '10/27-11/9'
-        }
-      ];
-
       const honorList = {
+        next: next,
         wins: wins,
-        rtype: rtype,
-        reward: rewards,
-        event: event,
-        next: next
+
+        rewards: rewards,
+        event: event
       };
 
       resolve(honorList);

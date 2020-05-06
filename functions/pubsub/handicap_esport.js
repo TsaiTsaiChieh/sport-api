@@ -25,22 +25,22 @@ async function handicap_esport() {
 
     if (querysSpread.length > 0) {
       for (let z = 0; z < querysSpread.length; z++) {
-        getHandicap(leagues[i], querysSpread[z]);
+        await getHandicap(leagues[i], querysSpread[z]);
       }
     }
     if (querysTotals.length > 0) {
       for (let x = 0; x < querysTotals.length; x++) {
-        getTotals(leagues[i], querysTotals[x]);
+        await getTotals(leagues[i], querysTotals[x]);
       }
     }
     if (querysSpreadOpening.length > 0) {
       for (let c = 0; c < querysSpreadOpening.length; c++) {
-        updateHandicap(leagues[i], querysSpreadOpening[c]);
+        await updateHandicap(leagues[i], querysSpreadOpening[c]);
       }
     }
     if (querysTotalsOpening.length > 0) {
       for (let v = 0; v < querysTotalsOpening.length; v++) {
-        updateHandicap(leagues[i], querysTotalsOpening[v]);
+        await updateHandicap(leagues[i], querysTotalsOpening[v]);
       }
     }
   }
@@ -329,6 +329,31 @@ async function query_opening(flag, value, league) {
     }
   });
 }
+async function write2firestoreAboutAllSpread(
+  eventSnapshot,
+  spread,
+  spreadData
+) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          flag: { spread: 1 },
+          spread: spread,
+          newest_spread: spread[spreadData.id]
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap_esports of spreads by DY`
+        )
+      );
+    }
+  });
+}
 async function query_handicap(flag, value, leagues) {
   return new Promise(async function(resolve, reject) {
     const date = modules.moment();
@@ -356,13 +381,50 @@ async function query_handicap(flag, value, leagues) {
     }
   });
 }
-
+async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        spread_id: spreadData.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap_esports of Match by DY`)
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchSpread.upsert({
+        spread_id: spreadData.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(spreadData.handicap),
+        home_odd: Number.parseFloat(spreadData.home_od),
+        away_odd: Number.parseFloat(spreadData.away_od),
+        home_tw: spreadData.home_tw,
+        away_tw: spreadData.away_tw,
+        add_time: Number.parseInt(spreadData.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(
+          `${err} at handicap_esports of MatchSpread by DY`
+        )
+      );
+    }
+  });
+}
 async function getHandicap(league, ele) {
   return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
-      // here
       const data = await axiosForURL(URL);
       if (data.results.Bet365 !== undefined) {
         if (data.results.Bet365) {
@@ -370,7 +432,6 @@ async function getHandicap(league, ele) {
           if (odds['1_2']) {
             let spreadData = odds['1_2'];
             spreadData = spreadCalculator(spreadData);
-
             const spread = {};
             spread[spreadData.id] = {
               handicap: Number.parseFloat(spreadData.handicap),
@@ -385,56 +446,17 @@ async function getHandicap(league, ele) {
               home_tw: spreadData.home_tw,
               away_tw: spreadData.away_tw
             };
-            try {
-              await eventSnapshot.set(
-                {
-                  flag: { spread: 1 },
-                  spread: spread,
-                  newest_spread: spread[spreadData.id]
-                },
-                { merge: true }
-              );
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at handicap_esports of spreads by DY`
-                )
-              );
-            }
-            try {
-              await Match.upsert({
-                bets_id: ele.bets_id,
-                spread_id: spreadData.id
-              });
-            } catch (err) {
-              return reject(
-                new AppErrors.MysqlError(
-                  `${err} at handicap_esports of Match by DY`
-                )
-              );
-            }
-            try {
-              await MatchSpread.upsert({
-                spread_id: spreadData.id,
-                match_id: ele.bets_id,
-                league_id: leagueUniteID,
-                handicap: Number.parseFloat(spreadData.handicap),
-                home_odd: Number.parseFloat(spreadData.home_od),
-                away_odd: Number.parseFloat(spreadData.away_od),
-                home_tw: spreadData.home_tw,
-                away_tw: spreadData.away_tw,
-                add_time: Number.parseInt(spreadData.add_time) * 1000
-              });
-            } catch (err) {
-              return reject(
-                new AppErrors.MysqlError(
-                  `${err} at handicap_esports of MatchSpread by DY`
-                )
-              );
-            }
+            await write2firestoreAboutAllSpread(
+              eventSnapshot,
+              spread,
+              spreadData
+            );
+            await write2MysqlOfMatchAboutAllSpread(ele, spreadData);
+            await write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData);
           }
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
@@ -442,7 +464,71 @@ async function getHandicap(league, ele) {
         )
       );
     }
-    return resolve('ok');
+  });
+}
+async function write2firestoreAboutAllTotals(
+  eventSnapshot,
+  totals,
+  totalsData
+) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          flag: { totals: 1 },
+          totals: totals,
+          newest_totals: totals[totalsData.id]
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap_esports of getTotals by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        totals_id: totalsData.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(
+          `${err} at handicap_esports of getTotals of Match by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchTotals.upsert({
+        totals_id: totalsData.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(totalsData.handicap),
+        over_odd: Number.parseFloat(totalsData.over_od),
+        under_odd: Number.parseFloat(totalsData.under_od),
+        over_tw: totalsData.over_tw,
+        add_time: Number.parseInt(totalsData.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(
+          `${err} at handicap_esports of MatchTotals by DY`
+        )
+      );
+    }
   });
 }
 async function getTotals(league, ele) {
@@ -458,15 +544,7 @@ async function getTotals(league, ele) {
           if (odds['1_3']) {
             let totalsData = odds['1_3'];
             const totals = {};
-            try {
-              totalsData = await totalsCalculator(totalsData);
-            } catch (err) {
-              return reject(
-                new AppErrors.HandicapEsoccerError(
-                  `${err} at handicap_esports of totalsCalculator by DY`
-                )
-              );
-            }
+            totalsData = totalsCalculator(totalsData);
             totals[totalsData.id] = {
               handicap: Number.parseFloat(totalsData.handicap),
               over_odd: Number.parseFloat(totalsData.over_od),
@@ -479,55 +557,17 @@ async function getTotals(league, ele) {
               ),
               over_tw: totalsData.over_tw
             };
-            try {
-              await eventSnapshot.set(
-                {
-                  flag: { totals: 1 },
-                  totals: totals,
-                  newest_totals: totals[totalsData.id]
-                },
-                { merge: true }
-              );
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at handicap_esports of getTotals by DY`
-                )
-              );
-            }
-            try {
-              await Match.upsert({
-                bets_id: ele.bets_id,
-                totals_id: totalsData.id
-              });
-            } catch (err) {
-              return reject(
-                new AppErrors.MysqlError(
-                  `${err} at handicap_esports of getTotals of Match by DY`
-                )
-              );
-            }
-            try {
-              await MatchTotals.upsert({
-                totals_id: totalsData.id,
-                match_id: ele.bets_id,
-                league_id: leagueUniteID,
-                handicap: Number.parseFloat(totalsData.handicap),
-                over_odd: Number.parseFloat(totalsData.over_od),
-                under_odd: Number.parseFloat(totalsData.under_od),
-                over_tw: totalsData.over_tw,
-                add_time: Number.parseInt(totalsData.add_time) * 1000
-              });
-            } catch (err) {
-              return reject(
-                new AppErrors.MysqlError(
-                  `${err} at handicap_esports of MatchTotals by DY`
-                )
-              );
-            }
+            await write2firestoreAboutAllTotals(
+              eventSnapshot,
+              totals,
+              totalsData
+            );
+            await write2MysqlOfMatchAboutAllTotals(ele, totalsData);
+            await write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData);
           }
         }
       }
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
@@ -535,7 +575,6 @@ async function getTotals(league, ele) {
         )
       );
     }
-    return resolve('ok');
   });
 }
 function spreadCalculator(handicapObj) {
@@ -549,24 +588,24 @@ function spreadCalculator(handicapObj) {
     if (firstHandicap % 1 !== 0) {
       // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0) {
-        // 顯示在主隊區
-        handicapObj.home_tw = secondHandicap + '+50';
+        // 顯示在主隊區，代表主讓
+        handicapObj.home_tw = '主讓' + secondHandicap + '分+50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(secondHandicap) + '+50';
+        handicapObj.away_tw = '客讓' + Math.abs(secondHandicap) + '分+50%';
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw = firstHandicap + '-50';
+        handicapObj.home_tw = '主讓' + firstHandicap + '分-50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(firstHandicap) + '-50';
+        handicapObj.away_tw = '客讓' + Math.abs(firstHandicap) + '分-50%';
       }
     }
   } else {
@@ -581,23 +620,25 @@ function spreadCalculator(handicapObj) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = handicapObj.handicap + '平';
+        handicapObj.home_tw = '主讓' + handicapObj.handicap + '分平';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(handicapObj.handicap) + '平';
+        handicapObj.away_tw = '客讓' + Math.abs(handicapObj.handicap) + '分平';
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = Math.floor(Math.abs(handicapObj.handicap)) + '輸';
+        handicapObj.home_tw =
+          '主讓' + Math.floor(Math.abs(handicapObj.handicap)) + '分輸';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
+        handicapObj.away_tw =
+          '客讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '分輸';
       }
     }
   }

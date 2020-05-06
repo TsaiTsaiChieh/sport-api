@@ -90,6 +90,23 @@ router.post(
   verification.token,
   require('../controller/user/purseController')
 );
+
+router.put(
+  '/purse',
+  verification.token,
+  require('../controller/user/purseController')
+);
+
+// router.post(
+//   '/convert',
+//   verification.token,
+//   require('../controller/user/convertController')
+// );
+router.put(
+  '/pay',
+  verification.token,
+  require('../controller/user/payController')
+);
 /* 購牌紀錄 */
 router.post(
   '/buy',
@@ -102,18 +119,31 @@ router.post(
   verification.token,
   require('../controller/user/transferController')
 );
+/* 轉換紀錄(新增或更新) */
+router.put(
+  '/transfer',
+  verification.token,
+  require('../controller/user/transferController')
+);
 /* 榮譽戰績 */
 router.post(
   '/honor',
   verification.token,
   require('../controller/user/honorController')
 );
-/* 消息通知 */
+/* 消息通知(讀取) */
 router.post(
   '/news',
   verification.token,
   require('../controller/user/newsController')
 );
+/* 消息通知(更新或新增) */
+router.put(
+  '/news',
+  verification.token,
+  require('../controller/user/newsController')
+);
+/* 消息通知(刪除) */
 router.delete(
   '/news',
   verification.token,

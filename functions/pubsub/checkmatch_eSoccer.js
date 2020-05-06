@@ -8,7 +8,10 @@ async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_eSoccer';
     try {
-      const data = await modules.firestore.collection(firestoreName).get();
+      const data = await modules.firestore
+        .collection(firestoreName)
+        .where('flag.status', '>', 0)
+        .get();
       const totalData = [];
       data.forEach((doc) => {
         totalData.push(doc.data());
@@ -26,12 +29,20 @@ async function checkmatch_eSoccer() {
                   .ref(`esports/eSoccer/${betsID}`)
                   .once('value');
                 realtimeData = realtimeData.val();
-                const parameter = {
-                  betsID: betsID,
-                  realtimeData: realtimeData
-                };
+
                 try {
-                  await ESoccerpbpInplay(parameter);
+                  if (realtimeData.Summary.status === 'closed') {
+                    const parameter = {
+                      betsID: betsID
+                    };
+                    await ESoccerpbpHistory(parameter);
+                  } else {
+                    const parameter = {
+                      betsID: betsID,
+                      realtimeData: realtimeData
+                    };
+                    await ESoccerpbpInplay(parameter);
+                  }
                 } catch (err) {
                   return reject(
                     new AppErrors.PBPEsoccerError(

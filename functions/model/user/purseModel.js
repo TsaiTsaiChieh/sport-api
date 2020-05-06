@@ -1,21 +1,20 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function purseModel(uid) {
+function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const purse = await db.sequelize.query(
-      `
-      SELECT coin, point, ingot
-        FROM users 
-      WHERE uid = $uid
-      `,
-      {
-        plain: true,
-        bind: { uid: uid },
-        type: db.sequelize.QueryTypes.SELECT
-      });
+        `
+        SELECT coin, point, ingot
+          FROM users 
+        WHERE uid = $uid
+        `,
+        {
+          plain: true,
+          bind: { uid: uid },
+          type: db.sequelize.QueryTypes.SELECT
+        });
 
       const bank = await db.sequelize.query(
         `
