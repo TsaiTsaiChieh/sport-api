@@ -4,7 +4,7 @@ const db = require('../../util/dbUtil');
 const UNSETTLEMENT = -2;
 
 function predictionResult(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const unix = {
         begin: modules.convertTimezone(args.date),
@@ -23,7 +23,7 @@ function predictionResult(args) {
 
 // 尋找已結算的預測單
 function queryUserPredictionWhichIsSettled(args, unix) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // index is range or eq_ref, taking 161ms
       // TODO index in league table is ALL
@@ -69,9 +69,9 @@ function repackage(predictions) {
   try {
     let temp = [];
     const data = {};
-    modules.groupBy(predictions, 'league').forEach(function (groupByData) {
+    modules.groupBy(predictions, 'league').forEach(function(groupByData) {
       let league;
-      groupByData.forEach(function (ele) {
+      groupByData.forEach(function(ele) {
         // 取出 聯盟陣列中的賽事
         temp.push(repackageMatch(ele));
         league = ele.league;
@@ -79,7 +79,7 @@ function repackage(predictions) {
       data[league] = temp;
       temp = [];
     });
-    return response;
+    return data;
   } catch (err) {
     return new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
