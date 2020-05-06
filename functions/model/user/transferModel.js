@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function transferModel(args, uid) {
+function transferModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const begin = args.begin;
@@ -11,9 +11,9 @@ function transferModel(args, uid) {
       `
         SELECT transfer_id, scheduled, type, content 
           FROM user__transfer__logs 
-         WHERE uid = $uid
-           AND updatedAt BETWEEN $begin AND $end
-       `,
+          WHERE uid = $uid
+            AND updatedAt BETWEEN $begin AND $end
+        `,
       {
         bind: { uid: uid, begin: begin, end: end },
         type: db.sequelize.QueryTypes.SELECT

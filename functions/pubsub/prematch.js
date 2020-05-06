@@ -41,7 +41,7 @@ async function prematch() {
       await KBO(now);
       await KBO(tomorrow);
     } catch (err) {
-      return reject(new AppErrors.KBOMLBError(`${err} at prematch by DY`));
+      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }
     return resolve('ok');
   });
@@ -52,7 +52,7 @@ async function KBO(date) {
       await KBO_functions.KBO.upcoming(date);
       return resolve('ok');
     } catch (err) {
-      return reject(new AppErrors.KBOMLBError(`${err} at prematch by DY`));
+      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }
   });
 }

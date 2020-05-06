@@ -159,11 +159,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
       // 勝率
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     continue: {
       // 連贏 N 天
@@ -1264,6 +1264,35 @@ const News = sequelize.define(
   }
 );
 
+const Bank = sequelize.define(
+  'user__bank',
+  {
+    bank_id: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    bank_code: {
+      type: Sequelize.STRING
+    },
+    bank_username: {
+      type: Sequelize.STRING
+    },
+    bank_account: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bank_id', 'uid']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1290,7 +1319,8 @@ const dbUtil = {
   Service_Contact,
   Buy,
   Honor_board,
-  News
+  News,
+  Bank
 };
 
 module.exports = dbUtil;

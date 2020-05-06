@@ -6,8 +6,8 @@ function newsModel(method, args, uid) {
     try {
       if (method === 'POST') {
         /* 取前一個月時間 */
-        const end = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss'); ;
-        const begin = modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss'); ;
+        const end = modules.moment(new Date()).unix();
+        const begin = modules.moment(new Date()).subtract(1, 'months').unix();
 
         /* 系統訊息設定 */
         const page_system = args.page_system || 0;
@@ -24,9 +24,9 @@ function newsModel(method, args, uid) {
           `
           SELECT * 
             FROM user__news
-          WHERE createdAt BETWEEN '${begin}' and '${end}' 
+          WHERE scheduled BETWEEN '${begin}' and '${end}' 
             AND status=0
-          ORDER BY createdAt DESC
+          ORDER BY scheduled DESC
           LIMIT ${start_system}, ${limit_system}
           `,
           {
@@ -39,11 +39,11 @@ function newsModel(method, args, uid) {
           `
           SELECT * 
             FROM user__news un, users u
-          WHERE un.createdAt BETWEEN '${begin}' and '${end}'
+          WHERE un.scheduled BETWEEN '${begin}' and '${end}'
             AND u.uid = un.uid
             AND un.status=1
             AND un.uid = '${uid}'
-          ORDER BY un.createdAt DESC
+          ORDER BY un.scheduled DESC
             LIMIT ${start_user}, ${limit_user}
           `,
           {
@@ -56,6 +56,23 @@ function newsModel(method, args, uid) {
           user: user
         };
         resolve(newsList);
+      } else if (method === 'PUT') {
+        const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+        const now_timestamp = modules.moment(new Date()).unix();
+        const title = args.title;
+        const content = args.content;
+
+        const insert = db.sequelize.query(
+          `
+            INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)
+            VALUES ($uid, $title, $content, 1, $now_timestamp, $now, $now);
+          `,
+          {
+            bind: { uid: uid, title: title, content: content, now: now, now_timestamp: now_timestamp },
+            type: db.sequelize.QueryTypes.INSERT
+          }
+        );
+        resolve(insert);
       } else if (method === 'DELETE') {
         const items = args.items;
         const del_join = items.join(',');
@@ -68,7 +85,6 @@ function newsModel(method, args, uid) {
               AND news_id in (${del_join})
           `,
           {
-            logging: true,
             type: db.sequelize.QueryTypes.DELETE
           }
         );

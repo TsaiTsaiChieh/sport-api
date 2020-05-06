@@ -5,7 +5,6 @@ const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
-const GOD_USER = 2;
 const scheduledStatus = 2;
 
 function prematch(args) {
@@ -66,7 +65,7 @@ async function checkMatches(args) {
         await isMatchValid(args, ele, { needed, failed });
       }
       for (let i = 0; i < needed.length; i++) {
-        if (args.token.customClaims.role === GOD_USER) {
+        if (args.token.customClaims.titles.includes(args.league)) {
           await isGodUpdate(args.token.uid, i, { needed, failed });
           if (needed[i].length === undefined) {
             // 有資料的
