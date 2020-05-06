@@ -22,7 +22,7 @@ async function reportTopic(args) {
         article_id: args.article_id,
         reason: args.reason,
         content: args.content,
-        images: JSON.stringify(args.images),
+        images: JSON.stringify(args.images)
       };
       await dbCreate(insertData);
       resolve({ code: 200 });

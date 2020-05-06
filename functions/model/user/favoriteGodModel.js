@@ -92,25 +92,27 @@ async function favoriteGod(args) {
 
       const add = args.add;
       const remove = args.remove;
-      
-      if(typeof add !== 'undefined' && typeof add !== 'null')
-      add.forEach(async function(item){
-        try{
-          await checkLiked(uid, god_uid, item)
-          like(uid, god_uid, item)
-        }catch(e){
-          console.log(e)
-        }
-      })
 
-      if(typeof remove !== 'undefined' && typeof remove !== 'null')
-      remove.forEach(async function(item){
-        try{
-          unlike(uid, god_uid, item)
-        }catch(e){
-          console.log(e)
-        }
-      })
+      if (typeof add !== 'undefined' && add !== null) {
+        add.forEach(async function(item) {
+          try {
+            await checkLiked(uid, god_uid, item);
+            like(uid, god_uid, item);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      }
+
+      if (typeof remove !== 'undefined' && remove !== null) {
+        remove.forEach(async function(item) {
+          try {
+            unlike(uid, god_uid, item);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      }
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);
