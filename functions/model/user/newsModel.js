@@ -24,9 +24,9 @@ function newsModel(method, args, uid) {
           `
           SELECT * 
             FROM user__news
-          WHERE createdAt BETWEEN '${begin}' and '${end}' 
+          WHERE scheduled BETWEEN '${begin}' and '${end}' 
             AND status=0
-          ORDER BY createdAt DESC
+          ORDER BY scheduled DESC
           LIMIT ${start_system}, ${limit_system}
           `,
           {
@@ -39,11 +39,11 @@ function newsModel(method, args, uid) {
           `
           SELECT * 
             FROM user__news un, users u
-          WHERE un.createdAt BETWEEN '${begin}' and '${end}'
+          WHERE un.scheduled BETWEEN '${begin}' and '${end}'
             AND u.uid = un.uid
             AND un.status=1
             AND un.uid = '${uid}'
-          ORDER BY un.createdAt DESC
+          ORDER BY un.scheduled DESC
             LIMIT ${start_user}, ${limit_user}
           `,
           {
