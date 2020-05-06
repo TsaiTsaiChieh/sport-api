@@ -82,7 +82,7 @@ function settleMatchesModel(args) {
           totalsUnderOdd: data.under_odd
         };
 
-        // null 代表 沒有handicap
+        // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
         if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
 
@@ -153,7 +153,7 @@ function settleMatchesModel(args) {
           totalsUnderOdd: data.under_odd
         };
 
-        // null 代表 沒有handicap
+        // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
         if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
 
