@@ -57,11 +57,11 @@ function newsModel(method, args, uid) {
         };
         resolve(newsList);
       } else if (method==='PUT'){
-         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
-         const now_timestamp = modules.moment(new Date()).unix();
-        
-          const title = args.title;
-          const content = args.content;
+        const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+        const now_timestamp = modules.moment(new Date()).unix();
+        const title = args.title;
+        const content = args.content;
+
         const insert = db.sequelize.query(
           `
             INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)

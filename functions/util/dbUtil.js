@@ -159,11 +159,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
       // 勝率
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     continue: {
       // 連贏 N 天
@@ -1281,7 +1281,7 @@ const Bank = sequelize.define(
     },
     bank_account: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [

@@ -1,11 +1,9 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      
       const purse = await db.sequelize.query(
         `
         SELECT coin, point, ingot
@@ -35,7 +33,7 @@ function purseModel(args, method, uid) {
         bank
       };
       resolve(purseList);
-      
+
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));

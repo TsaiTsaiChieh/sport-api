@@ -6,6 +6,7 @@ function winBetsLists(args) {
   return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
+    const league_id = modules.leagueCodebook(league).id;
     const period = modules.getTitlesPeriod(new Date()).period;
     const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
     const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
@@ -41,13 +42,8 @@ function winBetsLists(args) {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate
-                              from users__win__lists,
-                                   ( 
-                                     select league_id 
-                                       from match__leagues
-                                      where name = :league
-                                   ) leagues
-                              where users__win__lists.league_id = leagues.league_id
+                              from users__win__lists
+                              where users__win__lists.league_id = :league_id
                               order by ${rangeWinBetsCodebook(range)} desc
                               limit 30
                           ) winlist,
@@ -73,7 +69,7 @@ function winBetsLists(args) {
            order by ${rangeWinBetsCodebook(range)} desc
         `, {
           replacements: {
-            league: league,
+            league_id: league_id,
             period: period,
             begin: begin,
             end: end
@@ -103,7 +99,7 @@ function repackage(ele, rangstr) {
     // win_bets: ele.win_bets,
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name
+    display_name: ele.display_name
   };
 
   data.win_bets = ele[rangstr];

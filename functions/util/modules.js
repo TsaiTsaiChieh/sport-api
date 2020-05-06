@@ -158,22 +158,26 @@ function leagueCodebook(league) {
     case 'NBA':
       return {
         id: 2274,
-        match: db.basketball_NBA
+        match: db.basketball_NBA,
+        name_ch: '美國國家籃球協會'
       };
     case 'SBL':
       return {
         id: 8251,
-        match: db.basketball_SBL
+        match: db.basketball_SBL,
+        name_ch: '超級籃球聯賽'
       };
     case 'MLB':
       return {
         id: 3939,
-        match: db.baseball_MLB
+        match: db.baseball_MLB,
+        name_ch: '美國職棒大聯盟'
       };
     case 'eSoccer':
       return {
         id: 22000,
-        match: db.eSoccer
+        match: db.eSoccer,
+        name_ch: '足球電競'
       };
   }
 }
@@ -270,18 +274,24 @@ function userStatusCodebook(role) {
 
 // 將陣列裡面的 object 依照 attrib 來進行分類成 array
 function groupBy(arr, prop) {
-  const map = new Map(Array.from(arr, obj => [obj[prop], []]));
-  arr.forEach(obj => map.get(obj[prop]).push(obj));
+  const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
+  arr.forEach((obj) => map.get(obj[prop]).push(obj));
   return Array.from(map.values());
 }
 
 // sort an array of objects by multiple fields
 // https://stackoverflow.com/a/30446887
-const fieldSorter = (fields) => (a, b) => fields.map(o => {
-  let dir = 1;
-  if (o[0] === '-') { dir = -1; o = o.substring(1); }
-  return a[o] > b[o] ? dir : a[o] < b[o] ? -(dir) : 0;
-}).reduce((p, n) => p || n, 0);
+const fieldSorter = (fields) => (a, b) =>
+  fields
+    .map((o) => {
+      let dir = 1;
+      if (o[0] === '-') {
+        dir = -1;
+        o = o.substring(1);
+      }
+      return a[o] > b[o] ? dir : a[o] < b[o] ? -dir : 0;
+    })
+    .reduce((p, n) => p || n, 0);
 
 /**
  * Simple object check.
@@ -289,7 +299,7 @@ const fieldSorter = (fields) => (a, b) => fields.map(o => {
  * @returns {boolean}
  */
 function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+  return item && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -317,10 +327,16 @@ function isObject(item) {
 // }
 
 const mergeDeep = (target, source) => {
-  const isDeep = prop =>
-    isObject(source[prop]) && Object.prototype.hasOwnProperty.call(target, prop) && isObject(target[prop]);
+  const isDeep = (prop) =>
+    isObject(source[prop]) &&
+    Object.prototype.hasOwnProperty.call(target, prop) &&
+    isObject(target[prop]);
   const replaced = Object.getOwnPropertyNames(source)
-    .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
+    .map((prop) => ({
+      [prop]: isDeep(prop)
+        ? mergeDeep(target[prop], source[prop])
+        : source[prop]
+    }))
     .reduce((a, b) => ({ ...a, ...b }), {});
 
   return {
@@ -351,11 +367,15 @@ function settleSpread(data) {
   // fair 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
   return handicap
-    ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd)
-        ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+    ? homePoints - handicap === awayPoints
+      ? homeOdd !== awayOdd
+        ? homeOdd > awayOdd
+          ? 'fair|home'
+          : 'fair|away'
         : 'fair2'
-      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
+      : homePoints - handicap > awayPoints
+        ? 'home'
+        : 'away'
     : '';
 }
 
@@ -381,25 +401,29 @@ function settleTotals(data) {
   // fair 平盤 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
   return handicap
-    ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd)
-        ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+    ? homePoints + awayPoints === handicap
+      ? overOdd !== underOdd
+        ? overOdd > underOdd
+          ? 'fair|over'
+          : 'fair|under'
         : 'fair2'
-      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
+      : homePoints + awayPoints > handicap
+        ? 'over'
+        : 'under'
     : '';
 }
 
 function perdictionsResultFlag(option, settelResult) {
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
-  if (['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)) {
+  if (
+    ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
+  ) {
     const settleOption = settelResult.split('|')[1];
     return settleOption === option ? 0.5 : -0.5;
   }
 
   // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
-  return settelResult === 'fair2'
-    ? 0 : settelResult === option
-      ? 0.95 : -1;
+  return settelResult === 'fair2' ? 0 : settelResult === option ? 0.95 : -1;
 }
 
 /* 輸入資料格式
@@ -446,26 +470,65 @@ function predictionsWinList(data) {
     reLeagues.forEach(function(data) {
       // 勝率 winRate
       const predictCorrectCounts =
-        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag) ? ++acc : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag) ? ++acc : acc,
+          0
+        );
 
       const predictFaultCounts =
-        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
+          0
+        ) +
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
+          0
+        );
 
       // 避免分母是0 平盤無效
-      const winRate = (predictCorrectCounts + predictFaultCounts) === 0
-        ? 0
-        : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      const winRate =
+        predictCorrectCounts + predictFaultCounts === 0
+          ? 0
+          : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注
       const predictCorrectBets =
-        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const predictFaultBets =
-        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const winBets = predictCorrectBets + predictFaultBets;
 
@@ -473,7 +536,7 @@ function predictionsWinList(data) {
         uid: data[0].uid,
         league_id: data[0].league_id,
         win_rate: Number((winRate * 100).toFixed(0)),
-        win_bets: Number((winBets).toFixed(2)),
+        win_bets: Number(winBets.toFixed(2)),
         matches_count: data.length,
         correct_counts: predictCorrectCounts,
         fault_counts: predictFaultCounts
@@ -493,6 +556,21 @@ function predictionsWinList(data) {
     });
   });
   return result;
+}
+
+// 將電競足球的隊名和球員分開
+function sliceTeamAndPlayer(name) {
+  if (name.includes('(')) {
+    const index = name.indexOf('(');
+    return {
+      team: name.slice(0, index).trim(),
+      player_name: name.slice(index).replace('(', '').replace(')', '').trim()
+    };
+  }
+  return {
+    team: name.trim(),
+    player_name: null
+  };
 }
 
 module.exports = {
@@ -540,5 +618,6 @@ module.exports = {
   settleSpread,
   settleTotals,
   perdictionsResultFlag,
-  predictionsWinList
+  predictionsWinList,
+  sliceTeamAndPlayer
 };

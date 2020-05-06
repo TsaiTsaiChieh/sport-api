@@ -11,10 +11,10 @@ function honorModel(uid) {
       const now = new Date();
       const period = await modules.getTitlesPeriod(now);
       const next = {
-        "next_god_date":period.end,
-        "next_period_date":{
-          "begin": period.date,
-          "end": period.end
+        next_god_date: period.end,
+        next_period_date: {
+          begin: period.date,
+          end: period.end
         }
       };
 
@@ -71,12 +71,10 @@ function honorModel(uid) {
         }
       );
 
-
-
       const honorList = {
         next: next,
         wins: wins,
- 
+
         rewards: rewards,
         event: event
       };

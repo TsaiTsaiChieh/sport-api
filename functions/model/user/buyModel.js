@@ -45,7 +45,6 @@ function buyModel(args, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      // const buylist = repackage(buy)
       resolve(buy);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
@@ -53,7 +52,7 @@ function buyModel(args, uid) {
     }
   });
 }
-function repackage (data) {
-  
+function repackage(data) {
+
 }
 module.exports = buyModel;
