@@ -619,5 +619,6 @@ module.exports = {
   settleTotals,
   perdictionsResultFlag,
   predictionsWinList,
-  sliceTeamAndPlayer
+  sliceTeamAndPlayer,
+  tz
 };
