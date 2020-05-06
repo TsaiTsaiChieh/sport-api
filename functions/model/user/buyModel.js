@@ -10,20 +10,35 @@ function buyModel(args, uid) {
 
       const buy = await db.sequelize.query(
         `
-        SELECT * FROM (
-          SELECT b.buy_id, b.league_id, uwl.this_month_win_rate FROM user__buys b, user__ranks r, user__predictions up, users u, match__leagues ml, users__win__lists uwl
-           WHERE b.god_id= up.uid
-             AND uwl.league_id = ml.league_id
-             AND b.league_id = uwl.league_id
-             AND b.uid = u.uid
-             AND b.god_rank = r.rank_id
-             AND b.uid = $uid
-             AND b.updatedAt
-             BETWEEN $begin
-             AND $end
-        ) groups
-        GROUP BY b.buy_id, b.league_id, uwl.this_month_win_rate
-        
+        SELECT * FROM(
+          SELECT 
+                  b.buy_id,
+                  b.updatedAt AS DATE, 
+                  u.uid, 
+                  u.name AS god_name, 
+                  u.avatar, 
+                  r.price, 
+                  ml.name_ch,
+                  SUM(uwlh.win_bets) AS win_bets
+            FROM  user__buys b, 
+                  users u, 
+                  user__ranks r, 
+                  match__leagues ml, 
+                  users__win__lists__histories uwlh
+            WHERE b.god_id=u.uid 
+              AND b.league_id = ml.league_id
+              AND r.rank_id = b.god_rank 
+              AND uwlh.uid=b.uid
+            GROUP BY
+                  b.buy_id,
+                  b.updatedAt, 
+                  u.uid, 
+                  u.name, 
+                  u.avatar, 
+                  r.price, 
+                  ml.name_ch
+          ) dd
+          LEFT JOIN user_buy_logs ubl ON ubl.buy_id = dd.buy_id
        `,
         {
           bind: { uid: uid, begin: begin, end: end },
@@ -38,5 +53,7 @@ function buyModel(args, uid) {
     }
   });
 }
+function repackage(data) {
 
+}
 module.exports = buyModel;

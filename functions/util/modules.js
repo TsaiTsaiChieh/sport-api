@@ -153,7 +153,6 @@ async function cloneFirestore(name, clonedName) {
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
 }
-// eslint-disable-next-line consistent-return
 function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
@@ -329,9 +328,8 @@ function isObject(item) {
 
 const mergeDeep = (target, source) => {
   const isDeep = (prop) =>
-    // eslint-disable-next-line no-prototype-builtins
     isObject(source[prop]) &&
-    target.hasOwnProperty(prop) &&
+    Object.prototype.hasOwnProperty.call(target, prop) &&
     isObject(target[prop]);
   const replaced = Object.getOwnPropertyNames(source)
     .map((prop) => ({

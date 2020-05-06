@@ -159,11 +159,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
       // 勝率
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     continue: {
       // 連贏 N 天
@@ -718,6 +718,12 @@ const Users_WinLists = sequelize.define(
     last_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    last_week1_of_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
     last_month_win_bets: {
       type: Sequelize.FLOAT
     },
@@ -740,6 +746,12 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.FLOAT
     },
     this_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
     this_month_win_bets: {
@@ -806,6 +818,9 @@ const Users_WinListsHistory = sequelize.define(
     period: {
       type: Sequelize.INTEGER
     },
+    week_of_period: {
+      type: Sequelize.INTEGER
+    },
     week: {
       type: Sequelize.INTEGER
     },
@@ -820,7 +835,7 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
+        fields: ['uid', 'league_id', 'date_timestamp', 'date_of_year', 'period', 'week_of_period', 'week', 'month', 'season'],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
@@ -845,12 +860,16 @@ const User_FavoriteGod = sequelize.define(
     god_uid: {
       type: Sequelize.STRING,
       allowNull: false
+    },
+    type: {
+      type: Sequelize.STRING,
+      allowNull: false
     }
   },
   {
     indexes: [
       {
-        fields: ['uid']
+        fields: ['uid', 'god_uid', 'type']
       }
     ]
   }
@@ -1063,7 +1082,12 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
   },
   content: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: true
+  },
+  images: {
+    // 放圖片url用
+    type: Sequelize.TEXT,
+    allowNull: true
   },
   status: {
     type: Sequelize.INTEGER,
@@ -1105,7 +1129,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'user__home__banner',
+  'home__banner',
   {
     name: {
       type: Sequelize.STRING,
@@ -1240,6 +1264,35 @@ const News = sequelize.define(
   }
 );
 
+const Bank = sequelize.define(
+  'user__bank',
+  {
+    bank_id: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    bank_code: {
+      type: Sequelize.STRING
+    },
+    bank_username: {
+      type: Sequelize.STRING
+    },
+    bank_account: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bank_id', 'uid']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1266,7 +1319,8 @@ const dbUtil = {
   Service_Contact,
   Buy,
   Honor_board,
-  News
+  News,
+  Bank
 };
 
 module.exports = dbUtil;

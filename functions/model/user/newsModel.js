@@ -19,6 +19,9 @@ function newsModel(method, args, uid) {
         const limit_user = args.limit_user || 10;
         const start_user = page_user * limit_user;
 
+        /* 目前時間 */
+        const createdAt = new Date();
+        const updatedAt = new Date();
         /* 系統訊息資料 */
         const system = await db.sequelize.query(
           `
@@ -56,6 +59,20 @@ function newsModel(method, args, uid) {
           user: user
         };
         resolve(newsList);
+      } else if (method === 'PUT') {
+        const title = args.title;
+        const content = args.content;
+        const insert = db.sequelize.query(
+          `
+            INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)
+            VALUES ($uid, $title, $content, 1, UNIX_TIMESTAMP(NOW()), NOW(), NOW());
+          `,
+          {
+            bind: { uid: uid, title: title, content: content },
+            type: db.sequelize.QueryTypes.INSERT
+          }
+        );
+        resolve(insert);
       } else if (method === 'DELETE') {
         const items = args.items;
         const del_join = items.join(',');
@@ -68,7 +85,6 @@ function newsModel(method, args, uid) {
               AND news_id in (${del_join})
           `,
           {
-            logging: true,
             type: db.sequelize.QueryTypes.DELETE
           }
         );

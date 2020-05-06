@@ -85,6 +85,12 @@ router.post(
   verification.token,
   require('../controller/user/purseController')
 );
+
+router.put(
+  '/purse',
+  verification.token,
+  require('../controller/user/purseController')
+);
 /* 購牌紀錄 */
 router.post(
   '/buy',
@@ -103,12 +109,19 @@ router.post(
   verification.token,
   require('../controller/user/honorController')
 );
-/* 消息通知 */
+/* 消息通知(讀取) */
 router.post(
   '/news',
   verification.token,
   require('../controller/user/newsController')
 );
+/* 消息通知(更新或新增) */
+router.put(
+  '/news',
+  verification.token,
+  require('../controller/user/newsController')
+);
+/* 消息通知(刪除) */
 router.delete(
   '/news',
   verification.token,
