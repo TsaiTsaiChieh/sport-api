@@ -114,7 +114,7 @@ router.post(
   verification.token,
   require('../controller/user/transferController')
 );
-/*轉換紀錄(新增或更新)*/
+/* 轉換紀錄(新增或更新) */
 router.put(
   '/transfer',
   verification.token,

@@ -5,7 +5,6 @@ const db = require('../../util/dbUtil');
 function transferModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-     
       const begin = args.begin;
       const end = args.end;
       const transfer = await db.sequelize.query(

@@ -56,7 +56,7 @@ function newsModel(method, args, uid) {
           user: user
         };
         resolve(newsList);
-      } else if (method==='PUT'){
+      } else if (method === 'PUT') {
         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
         const now_timestamp = modules.moment(new Date()).unix();
         const title = args.title;
@@ -68,7 +68,7 @@ function newsModel(method, args, uid) {
             VALUES ($uid, $title, $content, 1, $now_timestamp, $now, $now);
           `,
           {
-            bind: { uid:uid, title:title, content:content, now:now, now_timestamp:now_timestamp},
+            bind: { uid: uid, title: title, content: content, now: now, now_timestamp: now_timestamp },
             type: db.sequelize.QueryTypes.INSERT
           }
         );
