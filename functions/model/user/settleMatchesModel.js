@@ -46,7 +46,7 @@ function settleMatchesModel(args) {
     try {
       // flag_permatch 1 才為有效賽事
       // status 0 比賽結束
-      // home_points、away_points 最終得分 需要有值 (不可null，不可空白)
+      // home_points、away_points 最終得分 需要有值 (不可null，必需 >= 0) 比賽有可能 0:0
       const matchInfo = await db.sequelize.query(`
         select bets_id, home_id, away_id, home_points, away_points,
                spread.handicap spread_handicap, home_odd, away_odd,
@@ -132,8 +132,8 @@ function settleMatchesModel(args) {
          where matches.bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
         replacements: {
           bets_id: bets_id
