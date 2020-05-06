@@ -8,11 +8,14 @@ async function favoriteGod(req, res) {
       god_uid: {
         type: 'string'
       },
-      like: {
-        type: 'boolean'
+      add: {
+        type: 'array'
+      },
+      remove: {
+        type: 'array'
       }
     },
-    required: ['god_uid', 'like']
+    required: ['god_uid']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
