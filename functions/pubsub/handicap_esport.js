@@ -263,7 +263,7 @@ async function updateHandicap(league, ele) {
         "success": 1,
         "results": {}
       } */
-      if (!data.results.odds) {
+      if (data.results.odds) {
         spread_odds = data.results.odds['1_2'];
         totals_odds = data.results.odds['1_3'];
       }
@@ -632,13 +632,13 @@ function spreadCalculator(handicapObj) {
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
         handicapObj.home_tw =
-          '主讓' + Math.floor(Math.abs(handicapObj.handicap)) + '輸';
+          '讓' + Math.floor(Math.abs(handicapObj.handicap)) + '輸';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw =
-          '客讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
+          '讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
       }
     }
   }

@@ -10,22 +10,28 @@ const sportID = 16;
 module.exports.KBO = {};
 module.exports.KBO.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
-    const leagueID = 349;
-    const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
-    const data = await axiosForURL(URL);
-    if (data.result) {
-      for (let j = 0; j < data.results.length; j++) {
-        const ele = data.results[j];
-        await write2firestore(ele);
-        await write2realtime(ele);
-        await write2MysqlOfMatch(ele);
-        await write2MysqlOfMatchTeam(ele);
+    try {
+      const leagueID = 349;
+      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+      const data = await axiosForURL(URL);
+      if (data.results) {
+        for (let j = 0; j < data.results.length; j++) {
+          const ele = data.results[j];
+          await write2firestore(ele);
+          await write2realtime(ele);
+          await write2MysqlOfMatch(ele);
+          await write2MysqlOfMatchTeam(ele);
+        }
+      } else {
+        console.log(leagueID + 'has no upcoming event now');
       }
-    } else {
-      console.log(leagueID + 'has no upcoming event now');
+      console.log('KBO scheduled success');
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.PrematchEsoccerError(`${err} at prematchFunctions by DY`)
+      );
     }
-    console.log('KBO scheduled success');
-    return resolve('ok');
   });
 };
 async function axiosForURL(URL) {

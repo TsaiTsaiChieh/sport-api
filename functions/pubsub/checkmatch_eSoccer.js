@@ -21,6 +21,10 @@ async function checkmatch_eSoccer() {
         const eventStatus = totalData[i].flag.status;
         switch (eventStatus) {
           case 2: {
+            let realtimeData = await modules.database
+              .ref(`esports/eSoccer/${betsID}`)
+              .once('value');
+            realtimeData = realtimeData.val();
             if (gameTime <= nowTime) {
               try {
                 await modules.database
@@ -34,10 +38,6 @@ async function checkmatch_eSoccer() {
                   bets_id: betsID,
                   status: 1
                 });
-                let realtimeData = await modules.database
-                  .ref(`esports/eSoccer/${betsID}`)
-                  .once('value');
-                realtimeData = realtimeData.val();
 
                 const parameter = {
                   betsID: betsID,
@@ -52,16 +52,18 @@ async function checkmatch_eSoccer() {
                 );
               }
             } else {
-              try {
-                await modules.database
-                  .ref(`esports/eSoccer/${betsID}/Summary/status`)
-                  .set('scheduled');
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at checkmatch_ESoccer by DY`
-                  )
-                );
+              if (realtimeData.Summary.status !== 'scheduled') {
+                try {
+                  await modules.database
+                    .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                    .set('scheduled');
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at checkmatch_ESoccer by DY`
+                    )
+                  );
+                }
               }
             }
             break;
@@ -117,12 +119,7 @@ async function checkmatch_eSoccer() {
                 .ref(`esports/eSoccer/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
-              if (
-                realtimeData.Summary.status === 'inprogress' ||
-                realtimeData.Summary.status === 'delayed' ||
-                realtimeData.Summary.status === 'scheduled' ||
-                realtimeData.Summary.status === 'tobefixed'
-              ) {
+              if (realtimeData.Summary.status !== 'closed') {
                 const parameter = {
                   betsID: betsID,
                   realtimeData: realtimeData
