@@ -6,8 +6,8 @@ function newsModel(method, args, uid) {
     try {
       if (method === 'POST') {
         /* 取前一個月時間 */
-        const end = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss'); ;
-        const begin = modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD HH:mm:ss'); ;
+        const end = modules.moment(new Date()).unix();
+        const begin = modules.moment(new Date()).subtract(1, 'months').unix();
 
         /* 系統訊息設定 */
         const page_system = args.page_system || 0;
@@ -19,9 +19,6 @@ function newsModel(method, args, uid) {
         const limit_user = args.limit_user || 10;
         const start_user = page_user * limit_user;
 
-        /*目前時間*/
-        const createdAt = new Date();
-        const updatedAt = new Date();
         /* 系統訊息資料 */
         const system = await db.sequelize.query(
           `
@@ -60,15 +57,18 @@ function newsModel(method, args, uid) {
         };
         resolve(newsList);
       } else if (method==='PUT'){
+         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+         const now_timestamp = modules.moment(new Date()).unix();
+        
           const title = args.title;
           const content = args.content;
         const insert = db.sequelize.query(
           `
             INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)
-            VALUES ($uid, $title, $content, 1, UNIX_TIMESTAMP(NOW()), NOW(), NOW());
+            VALUES ($uid, $title, $content, 1, $now_timestamp, $now, $now);
           `,
           {
-            bind: { uid:uid, title:title, content:content},
+            bind: { uid:uid, title:title, content:content, now:now, now_timestamp:now_timestamp},
             type: db.sequelize.QueryTypes.INSERT
           }
         );
