@@ -59,8 +59,8 @@ function settleMatchesModel(args) {
          where bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
         replacements: {
           bets_id: bets_id
