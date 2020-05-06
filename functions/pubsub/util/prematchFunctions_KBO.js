@@ -1,0 +1,10 @@
+const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
+const AppErrors = require('../../util/AppErrors');
+const firebaseName = 'pagetest_KBO';
+const Match = db.Match;
+const MatchTeam = db.Team;
+const leagueUniteID = '22000';
+const leagueUniteName = 'eSoccer';
+module.exports.KBO = {};
+module.exports.KBO.upcoming = async function(date) {};

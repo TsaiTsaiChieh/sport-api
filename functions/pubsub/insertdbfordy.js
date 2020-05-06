@@ -1,27 +1,16 @@
 const modules = require('../util/modules');
-
+const db = require('../util/dbUtil');
+const MatchLeague = db.League;
 inserttest();
 
 async function inserttest() {
-  let realtimeData = await modules.database
-    .ref('esports/eSoccer/')
-    .once('value');
-  realtimeData = realtimeData.val();
-  const ll = Object.keys(realtimeData).length;
-  for (let i = 367; i < ll; i++) {
-    console.log(i);
-
-    const name = Object.keys(realtimeData)[i];
-    if (realtimeData[name].Summary.status !== 'scheduled') {
-      await modules.database
-        .ref(`esports/eSoccer/${name}/Summary/info/away/Total/points`)
-        .set(realtimeData[name].Summary.info.away.Total.score);
-      await modules.database
-        .ref(`esports/eSoccer/${name}/Summary/info/home/Total/points`)
-        .set(realtimeData[name].Summary.info.home.Total.score);
-    }
-  }
-  console.log(name);
-
-  console.log('ok');
+  const data = {
+    league_id: 349,
+    radar_id: 2541,
+    sport_id: 16,
+    name_ch: '韓國職棒',
+    ori_league: 349,
+    ori_sport_id: 16
+  };
+  await MatchLeague.upsert(data);
 }

@@ -72,12 +72,7 @@ async function checkmatch_eSoccer() {
                 .ref(`esports/eSoccer/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
-              if (
-                realtimeData.Summary.status === 'inprogress' ||
-                realtimeData.Summary.status === 'delayed' ||
-                realtimeData.Summary.status === 'scheduled' ||
-                realtimeData.Summary.status === 'tobefixed'
-              ) {
+              if (realtimeData.Summary.status !== 'closed') {
                 const parameter = {
                   betsID: betsID,
                   realtimeData: realtimeData

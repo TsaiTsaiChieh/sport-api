@@ -122,18 +122,18 @@ async function write2MysqlOfMatchTeam(ele) {
         team_id: ele.home.id,
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
-        name: ele.home.name,
-        alias: ele.home.name,
-        alias_ch: ele.home.name,
+        name: ele.home.name.trim(),
+        alias: ele.home.name.trim(),
+        alias_ch: ele.home.name.trim(),
         image_id: ele.home.image_id
       };
       const dataAwayTeam = {
         team_id: ele.away.id,
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
-        name: ele.away.name,
-        alias: ele.away.name,
-        alias_ch: ele.away.name,
+        name: ele.away.name.trim(),
+        alias: ele.away.name.trim(),
+        alias_ch: ele.away.name.trim(),
         image_id: ele.away.image_id
       };
       await MatchTeam.upsert(dataHomeTeam);
