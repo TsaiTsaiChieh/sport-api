@@ -5,17 +5,16 @@ const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 // 14 秒一次
-const perStep = 14000;
-// 一分鐘4次
-const timesPerLoop = 4;
-
+const perStep = 25000;
+// 一分鐘2次
+const timesPerLoop = 2;
+let timerForStatus2;
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
-  let countForStatus2 = 0;
   const betsID = parameter.betsID;
   const realtimeData = parameter.realtimeData;
-
-  const timerForStatus2 = setInterval(async function() {
+  let countForStatus2 = 0;
+  timerForStatus2 = setInterval(async function () {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -31,7 +30,7 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -43,7 +42,7 @@ async function axiosForURL(URL) {
   });
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     try {
@@ -211,7 +210,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -391,6 +390,20 @@ async function doPBP(parameter) {
                   )
                 );
               }
+              try {
+                await modules.database
+                  .ref(`esports/eSoccer/${betsID}/Summary/league`)
+                  .set({
+                    name: data.results[0].league.name,
+                    id: data.results[0].league.id
+                  });
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at doPBP of league on ${betsID} by DY`
+                  )
+                );
+              }
             }
           }
           if (data.results[0].time_status === '0') {
@@ -479,21 +492,6 @@ async function doPBP(parameter) {
 
           try {
             await modules.database
-              .ref(`esports/eSoccer/${betsID}/Summary/league`)
-              .set({
-                name: data.results[0].league.name,
-                id: data.results[0].league.id
-              });
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP of league on ${betsID} by DY`
-              )
-            );
-          }
-
-          try {
-            await modules.database
               .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
               .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
           } catch (err) {
@@ -542,6 +540,8 @@ async function doPBP(parameter) {
                     }
                   }
                 });
+            } else {
+              return resolve('ok');
             }
           } catch (err) {
             return reject(
