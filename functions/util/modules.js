@@ -198,8 +198,8 @@ function leagueDecoder(leagueID) {
       return 'MLB';
     case '22000' || 22000:
       return 'eSoccer';
-    case '349' || 349: 
-      return 'KBO'
+    case '349' || 349:
+      return 'KBO';
     default:
       return 'Unknown';
   }
