@@ -209,7 +209,7 @@ function leagueDecoder(leagueID) {
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesPeriod(date, format='YYYYMMDD') {
+function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()
   const specificDate = '20200302';
   const years = [

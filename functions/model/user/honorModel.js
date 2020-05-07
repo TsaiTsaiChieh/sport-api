@@ -8,19 +8,17 @@ function honorModel(req) {
       const uid = req.body.uid;
       const type = req.body.type;
       const league_id = req.body.league_id;
-      if(type=='performance'){
-        
+      if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now,'YYYY-MM-DD');
+        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD');
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 
-        
         const next = {
-            "next_god_date":period.end,
-            "next_period_date":{
-            "begin": period.date,
-            "end": period.end
+          next_god_date: period.end,
+          next_period_date: {
+            begin: period.date,
+            end: period.end
           }
         };
         const win_lose = await db.sequelize.query(
@@ -31,10 +29,10 @@ function honorModel(req) {
                AND league_id = $league_id
                AND month = $currentMonth
              `,
-             {
-               bind: { uid: uid, league_id:league_id, currentMonth:currentMonth },
-               type: db.sequelize.QueryTypes.SELECT
-             }
+          {
+            bind: { uid: uid, league_id: league_id, currentMonth: currentMonth },
+            type: db.sequelize.QueryTypes.SELECT
+          }
         );
 
         const wins = await db.sequelize.query(
@@ -77,19 +75,18 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id:league_id, currentMonth:currentMonth, currentSeason:currentSeason },
+            bind: { uid: uid, league_id: league_id, currentMonth: currentMonth, currentSeason: currentSeason },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
-        
+
         const honorList = {
           next: next,
           wins: wins
         };
         resolve(honorList);
-      }else if(type=='record'){
-
-      const rewards = await db.sequelize.query(
+      } else if (type === 'record') {
+        const rewards = await db.sequelize.query(
         `
           SELECT 
               sum(case rank_id when '1' then 1 else 0 END) AS diamond, 
@@ -103,9 +100,9 @@ function honorModel(req) {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
-      );
+        );
 
-      const event = await db.sequelize.query(
+        const event = await db.sequelize.query(
         `
           SELECT hb.honor_id, hb.rank_id, hb.updatedAt, ml.name as name, ml.name_ch as name_ch, hb.period as period, r.name as rank_name
           FROM user__honor__boards hb, match__leagues ml, user__ranks r
@@ -117,18 +114,15 @@ function honorModel(req) {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
-      );
-      const honorList = {
-        rewards: rewards,
-        event: event
-      };
-      resolve(honorList);
-      }else{
+        );
+        const honorList = {
+          rewards: rewards,
+          event: event
+        };
+        resolve(honorList);
+      } else {
         console.log("you don't input have any type.");
       }
-      
-
-      
     } catch (err) {
       console.log('Error in  user/honor by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));

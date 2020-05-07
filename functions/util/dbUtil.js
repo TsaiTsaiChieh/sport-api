@@ -1259,7 +1259,7 @@ const Bank = sequelize.define(
     },
     bank_account: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [
@@ -1271,7 +1271,7 @@ const Bank = sequelize.define(
   }
 );
 
-/*轉換紀錄狀態碼*/
+/* 轉換紀錄狀態碼 */
 const Transfer_Status = sequelize.define(
   'user__transfer__status',
   {
@@ -1280,7 +1280,7 @@ const Transfer_Status = sequelize.define(
     },
     status_content: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [
