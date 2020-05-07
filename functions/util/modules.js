@@ -472,7 +472,7 @@ function predictionsWinList(data) {
       result.push({
         uid: data[0].uid,
         league_id: data[0].league_id,
-        win_rate: Number((winRate * 100).toFixed(0)),
+        win_rate: Number((winRate).toFixed(2)),
         win_bets: Number((winBets).toFixed(2)),
         matches_count: data.length,
         correct_counts: predictCorrectCounts,
