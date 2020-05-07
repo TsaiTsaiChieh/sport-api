@@ -21,10 +21,18 @@ const errorCodeLists = {
   1318: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 users__win_lists_history 異常 筆數不正確，只能一筆才對', ''] },
   1319: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
   1320: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 資料欄位 異常 筆數不正確，只能一筆才對', ''] },
-  1321: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗', ''] },
+  1321: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Title 失敗', ''] },
   1322: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗 異常 筆數不正確，要五筆才對', ''] },
   1323: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['非數字情況，可能原因是自串相加、資料為空字串', ''] },
-  1324: { msg: ['更新 大神稱號 失敗'], backend: ['更新 titles 異常 筆數不正確，只能一筆才對', ''] }
+  1324: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Titles 異常 筆數不正確，只能一筆才對', ''] },
+  1325: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists_history 失敗 ', 'Update users__win_lists_history 產生 ER_LOCK_DEADLOCK'] },
+  1326: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists_history 失敗 ', 'Update users__win_lists_history 不明原因錯誤'] },
+  1327: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 users__win_lists_history 失敗 ', 'Create users__win_lists_history 不明原因錯誤'] },
+  1328: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗 ', 'Update users__win_lists 產生 ER_LOCK_DEADLOCK'] },
+  1329: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists 失敗 ', 'Update users__win_lists 不明原因錯誤'] },
+  1330: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 users__win_lists 失敗 ', 'Create users__win_lists 不明原因錯誤'] },
+  1331: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 users__win_lists Title 失敗 ', ''] },
+  1332: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Title 失敗 ', 'Update Title 產生 ER_LOCK_DEADLOCK'] }
 };
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入

@@ -70,7 +70,8 @@ function settleMatchesModel(args) {
 
       if (matchInfo.length === 0 || matchInfo.length > 1) { return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`); }
 
-      const mapResult = matchInfo.map(async function(data) {
+      // const mapResult = matchInfo.map(async function(data) {
+      for (const data in matchInfo) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -106,9 +107,10 @@ function settleMatchesModel(args) {
         } catch (err) {
           return reject(errs.errsMsg('404', '1309'));
         }
-      });
+      };
+      // });
 
-      await Promise.all(mapResult);
+      // await Promise.all(mapResult);
     } catch (err) {
       console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -141,7 +143,8 @@ function settleMatchesModel(args) {
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const mapResult2 = predictMatchInfo.map(async function(data) {
+      // const mapResult2 = predictMatchInfo.map(async function(data) {
+      for (const data of predictMatchInfo) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -183,9 +186,10 @@ function settleMatchesModel(args) {
         } catch (err) {
           return reject(errs.errsMsg('404', '1313'));
         }
-      });
+      };
+      // });
 
-      await Promise.all(mapResult2);
+      // await Promise.all(mapResult2);
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
