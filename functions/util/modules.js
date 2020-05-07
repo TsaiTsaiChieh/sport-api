@@ -209,7 +209,7 @@ function leagueDecoder(leagueID) {
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesPeriod(date) {
+function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()
   const specificDate = '20200302';
   const years = [
@@ -258,12 +258,12 @@ function getTitlesPeriod(date) {
         date: moment(specificDate) // 該期開始計算的日期
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'),
+          .format(format),
         end: moment(specificDate) // 該期結束計算的日期
           .utcOffset(UTF8)
           .add(i * 2, 'weeks')
           .subtract(1, 'days')
-          .format('YYYYMMDD'),
+          .format(format),
         weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
       };
     }
