@@ -132,7 +132,7 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.tz(ele.scheduled * 1000).format('A h:mm'),
+      scheduled_tw: modules.timeFormat(ele.scheduled),
       status: ele.status,
       league: args.league,
       home: {

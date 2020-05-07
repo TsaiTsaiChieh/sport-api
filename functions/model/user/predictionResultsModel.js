@@ -106,7 +106,7 @@ function repackageMatch(ele) {
     const data = {
       id: ele.bets_id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.tz(ele.scheduled * 1000).format('A hh:mm'),
+      scheduled_tw: modules.timeFormat(ele.scheduled),
       league_id: ele.league_id,
       league: ele.league,
       home: {
