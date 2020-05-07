@@ -122,7 +122,8 @@ function settleGodTitle(args) {
 
       const uidHistory = modules.groupBy(usersWinListsHistories, 'uid');
 
-      uidHistory.map(function(data) {
+      // uidHistory.map(function(data) {
+      for (const data of uidHistory) {
         const uidLeagueHistory = modules.groupBy(data, 'league_id');
 
         uidLeagueHistory.forEach(function(data2) {
@@ -133,7 +134,8 @@ function settleGodTitle(args) {
 
           reformatHistory.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
         });
-      });
+      };
+      // });
 
       // 依 使用者-聯盟 進行 稱號判斷
       // console.log('usersWinListsHistories: ', usersWinListsHistories);
@@ -254,7 +256,8 @@ function settleGodTitle(args) {
 
       const uidPredictionHistory = modules.groupBy(usersPrediction, 'uid');
 
-      uidPredictionHistory.map(function(data) {
+      // uidPredictionHistory.map(function(data) {
+      for (const data of uidPredictionHistory) {
         const uidLeaguePredictionHistory = modules.groupBy(data, 'league_id');
 
         uidLeaguePredictionHistory.forEach(function(data2) {
@@ -264,7 +267,8 @@ function settleGodTitle(args) {
 
           reformatPrediction.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
         });
-      });
+      };
+      // });
 
       s24 = new Date().getTime();
       console.group('\n2.4 2.5');
