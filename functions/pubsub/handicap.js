@@ -1,12 +1,25 @@
 /* eslint-disable no-await-in-loop */
 const modules = require('../util/modules');
+const db = require('../util/dbUtil');
+const AppErrors = require('../util/AppErrors');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const leagues = [
   // modules.db.basketball_NBA,
   // modules.db.basketball_SBL,
-  modules.db.baseball_MLB
+  // modules.db.baseball_MLB
+  modules.db.baseball_KBO
 ];
+const sports = [
+  // 18,
+  // 18,
+  // 16,
+  16
+];
+const Match = db.Match;
+const MatchSpread = db.Spread;
+const MatchTotals = db.Totals;
+const leagueUniteID = '349';
 // 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
 async function handicap() {
   // go through each league
@@ -27,101 +40,315 @@ async function handicap() {
 
     if (querysSpread.length) {
       for (let j = 0; j < querysSpread.length; j++) {
-        getHandicap(leagues[i], querysSpread[j]);
+        await getHandicap(leagues[i], querysSpread[j], sports[i]);
       }
     }
     if (querysTotals.length) {
       for (let j = 0; j < querysTotals.length; j++) {
-        getTotals(leagues[i], querysTotals[j]);
+        await getTotals(leagues[i], querysTotals[j], sports[i]);
       }
     }
     if (querysSpreadOpening.length) {
       for (let j = 0; j < querysSpreadOpening.length; j++) {
-        updateHandicap(leagues[i], querysSpreadOpening[j]);
+        await updateHandicap(leagues[i], querysSpreadOpening[j], sports[i]);
       }
     }
     if (querysTotalsOpening.length) {
       for (let j = 0; j < querysTotalsOpening.length; j++) {
-        updateHandicap(leagues[i], querysTotalsOpening[j]);
+        await updateHandicap(leagues[i], querysTotalsOpening[j], sports[i]);
       }
     }
   }
 }
-async function updateHandicap(league, ele) {
-  try {
-    const eventSnapshot = modules.getDoc(league, ele.bets_id);
-    const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
-    const { data } = await modules.axios(URL);
-    const spread_odds = data.results.odds['18_2'];
-    const totals_odds = data.results.odds['18_3'];
-    for (let i = 0; i < spread_odds.length; i++) {
-      const odd = spread_odds[i];
-      if (odd.home_od && odd.handicap && odd.away_od) {
-        const spread = {};
-        spread[odd.id] = {
-          handicap: Number.parseFloat(odd.handicap),
-          home_odd: Number.parseFloat(odd.home_od),
-          away_odd: Number.parseFloat(odd.away_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(odd.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-        eventSnapshot.set({ handicap: { spread } }, { merge: true });
-      }
+async function axiosForURL(URL) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { data } = await modules.axios(URL);
+      return resolve(data);
+    } catch (err) {
+      return reject(
+        new AppErrors.AxiosError(`${err} at prematchFunctions by DY`)
+      );
     }
-    for (let i = 0; i < totals_odds.length; i++) {
-      const odd = totals_odds[i];
-      if (odd.over_od && odd.handicap && odd.under_od) {
-        const totals = {};
-        totals[odd.id] = {
-          handicap: Number.parseFloat(odd.handicap),
-          under_odd: Number.parseFloat(odd.under_od),
-          over_odd: Number.parseFloat(odd.over_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(odd.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-        eventSnapshot.set({ handicap: { totals } }, { merge: true });
-        console.log(
-          `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${
-            ele.away.alias
-          }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
-            .moment(ele.scheduled._seconds * 1000)
-            .format('llll')} updated handicap successful, URL: ${URL}`
-        );
-      }
+  });
+}
+async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          newest_spread: {
+            handicap: Number.parseFloat(newest_spread.handicap),
+            home_odd: Number.parseFloat(newest_spread.home_od),
+            away_odd: Number.parseFloat(newest_spread.away_od),
+            away_tw: newest_spread.away_tw,
+            home_tw: newest_spread.home_tw,
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(newest_spread.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            )
+          }
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap of newest_spread by DY`
+        )
+      );
     }
-  } catch (error) {
-    console.error(
-      `Error in pubsub/handicap updateHandicap functions by Tsai-Chieh ${Date.now()}`,
-      error
-    );
-  }
+  });
+}
+async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          newest_totals: {
+            handicap: Number.parseFloat(newest_totals.handicap),
+            under_odd: Number.parseFloat(newest_totals.under_od),
+            over_odd: Number.parseFloat(newest_totals.over_od),
+            over_tw: newest_totals.over_tw,
+            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date(Number.parseInt(newest_totals.add_time) * 1000)
+            ),
+            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+              new Date()
+            )
+          }
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap of newest_totals by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        spread_id: newest_spread.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(`${err} at handicap by DY`));
+    }
+  });
+}
+async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        totals_id: newest_totals.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(`${err} at handicap by DY`));
+    }
+  });
+}
+async function write2firestoreAboutSpread(eventSnapshot, odd) {
+  return new Promise(async function(resolve, reject) {
+    const spread = {};
+    spread[odd.id] = {
+      handicap: Number.parseFloat(odd.handicap),
+      home_odd: Number.parseFloat(odd.home_od),
+      away_odd: Number.parseFloat(odd.away_od),
+      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+        new Date(Number.parseInt(odd.add_time) * 1000)
+      ),
+      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+        new Date()
+      ),
+      away_tw: odd.away_tw,
+      home_tw: odd.home_tw
+    };
+    try {
+      await eventSnapshot.set({ spreads: spread }, { merge: true });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap of spreads by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchSpread(odd, ele) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchSpread.upsert({
+        spread_id: odd.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(odd.handicap),
+        home_odd: Number.parseFloat(odd.home_od),
+        away_odd: Number.parseFloat(odd.away_od),
+        home_tw: odd.home_tw,
+        away_tw: odd.away_tw,
+        add_time: Number.parseInt(odd.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap of MatchSpread by DY`)
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchTotals(odd, ele) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchTotals.upsert({
+        totals_id: odd.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(odd.handicap),
+        over_odd: Number.parseFloat(odd.over_od),
+        under_odd: Number.parseFloat(odd.under_od),
+        over_tw: odd.over_tw,
+        add_time: Number.parseInt(odd.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap of MatchTotals by DY`)
+      );
+    }
+  });
+}
+async function write2firestoreAboutTotals(eventSnapshot, odd) {
+  return new Promise(async function(resolve, reject) {
+    const totals = {};
+    totals[odd.id] = {
+      handicap: Number.parseFloat(odd.handicap),
+      under_odd: Number.parseFloat(odd.under_od),
+      over_odd: Number.parseFloat(odd.over_od),
+      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+        new Date(Number.parseInt(odd.add_time) * 1000)
+      ),
+      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+        new Date()
+      ),
+      over_tw: odd.over_tw
+    };
+    try {
+      await eventSnapshot.set({ totals: totals }, { merge: true });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(`${err} at handicap of totals by DY`)
+      );
+    }
+  });
+}
+async function updateHandicap(league, ele, sport) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const eventSnapshot = modules.getDoc(league, ele.bets_id);
+      const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
+      const data = await axiosForURL(URL);
+      let spread_odds = [];
+      let totals_odds = [];
+      /* 因為 res 可能為 {
+        "success": 1,
+        "results": {}
+      } */
+      if (data.results.odds) {
+        spread_odds = data.results.odds[`${sport}_2`];
+        totals_odds = data.results.odds[`${sport}_3`];
+      }
+      let newest_spread;
+      if (spread_odds.length > 0) {
+        newest_spread = spread_odds[spread_odds.length - 1];
+        newest_spread = spreadCalculator(newest_spread);
+        await write2firestoreAboutNewestSpread(eventSnapshot, newest_spread);
+        await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+      }
+      let newest_totals;
+      if (totals_odds.length > 0) {
+        newest_totals = totals_odds[totals_odds.length - 1];
+        newest_totals = totalsCalculator(newest_totals);
+        await write2firestoreAboutNewestTotals(eventSnapshot, newest_totals);
+        await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+      }
+      for (let i = 0; i < spread_odds.length; i++) {
+        let odd = spread_odds[i];
+        odd = spreadCalculator(odd);
+        if (odd.home_od && odd.handicap && odd.away_od) {
+          await write2firestoreAboutSpread(eventSnapshot, odd);
+          await write2MysqlOfMatchSpread(odd, ele);
+        }
+      }
+      for (let i = 0; i < totals_odds.length; i++) {
+        let odd = totals_odds[i];
+        odd = totalsCalculator(odd);
+        if (odd.over_od && odd.handicap && odd.under_od) {
+          await write2firestoreAboutTotals(eventSnapshot, odd);
+          await write2MysqlOfMatchTotals(odd, ele);
+        }
+      }
+      return resolve('ok');
+    } catch (err) {
+      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
+    }
+  });
 }
 async function query_opening(flag, value, league) {
-  const eventsRef = modules.firestore.collection(league);
-  const eles = [];
-  try {
-    const querys = await eventsRef
-      .where(flag, '==', value)
-      .where('scheduled', '>', modules.moment())
-      .get();
-    querys.forEach(function(docs) {
-      eles.push(docs.data());
-    });
-    return await Promise.all(eles);
-  } catch (error) {
-    console.error(
-      `Error in pubsub/handicap/query_opening by TsaiChieh on ${Date.now()}`
-    );
-    return error;
-  }
+  return new Promise(async function(resolve, reject) {
+    const eventsRef = modules.firestore.collection(league);
+    const eles = [];
+    try {
+      const querys = await eventsRef
+        .where(flag, '==', value)
+        .where('scheduled', '>', modules.moment() / 1000)
+        .get();
+      querys.forEach(function(docs) {
+        eles.push(docs.data());
+      });
+      return await Promise.all(eles);
+    } catch (err) {
+      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
+    }
+  });
+}
+async function write2firestoreAboutAllSpread(
+  eventSnapshot,
+  spread,
+  spreadData
+) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          flag: { spread: 1 },
+          spread: spread,
+          newest_spread: spread[spreadData.id]
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap_esports of spreads by DY`
+        )
+      );
+    }
+  });
 }
 async function query_handicap(flag, value, leagues) {
   const date = modules.moment();
@@ -133,8 +360,8 @@ async function query_handicap(flag, value, leagues) {
   try {
     const querys = await eventsRef
       .where(flag, '==', value)
-      .where('scheduled', '>=', beginningDate)
-      .where('scheduled', '<=', endDate)
+      .where('scheduled', '>=', beginningDate / 1000)
+      .where('scheduled', '<=', endDate / 1000)
       .get();
     querys.forEach(async function(docs) {
       eles.push(docs.data());
@@ -148,122 +375,264 @@ async function query_handicap(flag, value, leagues) {
     return error;
   }
 }
-
-async function getHandicap(league, ele) {
-  try {
-    const eventSnapshot = modules.getDoc(league, ele.bets_id);
-    const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
-    const { data } = await modules.axios(URL);
-    console.log(
-      `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${ele.away.alias}):${
-        ele.home.alias_ch
-      }(${ele.home.alias}) at ${modules
-        .moment(ele.scheduled._seconds * 1000)
-        .format('llll')}
-      `
-    );
-    // if no data, the data.results will be { }
-    if (data.results.Bet365) {
-      const odds = data.results.Bet365.odds.start;
-      // if no spread data, the data.results.Bet365.odds.start['18_2'] results will be null
-      if (odds['18_2']) {
-        const spreadData = odds['18_2'];
-        const spread = {};
-        spread[spreadData.id] = {
-          handicap: Number.parseFloat(spreadData.handicap),
-          home_odd: Number.parseFloat(spreadData.home_od),
-          away_odd: Number.parseFloat(spreadData.away_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(spreadData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-
-        eventSnapshot.set(
-          { flag: { spread: 1 }, handicap: { spread } },
-          { merge: true }
-        );
-        console.log(
-          `${league}-event_id: ${ele.bets_id} get spread successful, URL: ${URL}`
-        );
-      }
-
-      if (odds['18_3']) {
-        const totalsData = odds['18_3'];
-        const totals = {};
-        totals[totalsData.id] = {
-          handicap: Number.parseFloat(totalsData.handicap),
-          over_odd: Number.parseFloat(totalsData.over_od),
-          under_odd: Number.parseFloat(totalsData.under_od),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(totalsData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-
-        eventSnapshot.set(
-          { flag: { totals: 1 }, handicap: { totals } },
-          { merge: true }
-        );
-        console.log(
-          `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
-        );
-      }
+async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        spread_id: spreadData.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap of Match by DY`)
+      );
     }
-  } catch (error) {
-    console.log(
-      `Error in pubsub/handicap getHandicap functions by Tsai-Chieh on ${Date.now()}`,
-      error
-    );
-  }
+  });
 }
-async function getTotals(league, ele) {
-  try {
-    const eventSnapshot = modules.getDoc(league, ele.bets_id);
-    const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
-    const { data } = await modules.axios(URL);
-    console.log(
-      `${league}(${ele.bets_id}) - ${ele.away.alias_ch}(${ele.away.alias}):${
-        ele.home.alias_ch
-      }(${ele.home.alias}) at ${modules
-        .moment(ele.scheduled._seconds * 1000)
-        .format('llll')}
-      `
-    );
-    if (data.results.Bet365) {
-      const odds = data.results.Bet365.odds.start;
-
-      if (odds['18_3']) {
-        const totalsData = odds['18_3'];
-        const totals = {};
-        totals[totalsData.id] = {
-          handicap: Number.parseFloat(totalsData.handicap),
-          add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date(Number.parseInt(totalsData.add_time) * 1000)
-          ),
-          insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-            new Date()
-          )
-        };
-        eventSnapshot.set(
-          { flag: { totals: 1 }, handicap: { totals } },
-          { merge: true }
-        );
-        console.log(
-          `${league}-event_id: ${ele.bets_id} get totals successful, URL: ${URL}`
-        );
-      }
+async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchSpread.upsert({
+        spread_id: spreadData.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(spreadData.handicap),
+        home_odd: Number.parseFloat(spreadData.home_od),
+        away_odd: Number.parseFloat(spreadData.away_od),
+        home_tw: spreadData.home_tw,
+        away_tw: spreadData.away_tw,
+        add_time: Number.parseInt(spreadData.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap of MatchSpread by DY`)
+      );
     }
-  } catch (error) {
-    console.log(
-      `Error in pubsub/handicap getTotals functions by Tsai-Chieh on ${Date.now()}`,
-      error
-    );
-  }
+  });
 }
+async function getHandicap(league, ele, sport) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const eventSnapshot = modules.getDoc(league, ele.bets_id);
+      const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
+      const data = await axiosForURL(URL);
 
+      if (data.results.Bet365 !== undefined) {
+        if (data.results.Bet365) {
+          const odds = data.results.Bet365.odds.start;
+          // if no spread data, the data.results.Bet365.odds.start['18_2'] results will be null
+          if (odds[`${sport}_2`]) {
+            let spreadData = odds[`${sport}_2`];
+            spreadData = spreadCalculator(spreadData);
+            const spread = {};
+            spread[spreadData.id] = {
+              handicap: Number.parseFloat(spreadData.handicap),
+              home_odd: Number.parseFloat(spreadData.home_od),
+              away_odd: Number.parseFloat(spreadData.away_od),
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(spreadData.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              ),
+              home_tw: spreadData.home_tw,
+              away_tw: spreadData.away_tw
+            };
+
+            await write2firestoreAboutAllSpread(
+              eventSnapshot,
+              spread,
+              spreadData
+            );
+            await write2MysqlOfMatchAboutAllSpread(ele, spreadData);
+            await write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData);
+          }
+        }
+      }
+      return resolve('ok');
+    } catch (err) {
+      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
+    }
+  });
+}
+async function write2firestoreAboutAllTotals(
+  eventSnapshot,
+  totals,
+  totalsData
+) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await eventSnapshot.set(
+        {
+          flag: { totals: 1 },
+          totals: totals,
+          newest_totals: totals[totalsData.id]
+        },
+        { merge: true }
+      );
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at handicap_esports of getTotals by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await Match.upsert({
+        bets_id: ele.bets_id,
+        totals_id: totalsData.id
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(
+          `${err} at handicap_esports of getTotals of Match by DY`
+        )
+      );
+    }
+  });
+}
+async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await MatchTotals.upsert({
+        totals_id: totalsData.id,
+        match_id: ele.bets_id,
+        league_id: leagueUniteID,
+        handicap: Number.parseFloat(totalsData.handicap),
+        over_odd: Number.parseFloat(totalsData.over_od),
+        under_odd: Number.parseFloat(totalsData.under_od),
+        over_tw: totalsData.over_tw,
+        add_time: Number.parseInt(totalsData.add_time) * 1000
+      });
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(
+          `${err} at handicap_esports of MatchTotals by DY`
+        )
+      );
+    }
+  });
+}
+async function getTotals(league, ele, sport) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const eventSnapshot = modules.getDoc(league, ele.bets_id);
+      const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
+      const data = await axiosForURL(URL);
+
+      if (data.results.Bet365 !== undefined) {
+        if (data.results.Bet365) {
+          const odds = data.results.Bet365.odds.start;
+          if (odds[`${sport}_3`]) {
+            let totalsData = odds[`${sport}_3`];
+            totalsData = totalsCalculator(totalsData);
+            const totals = {};
+            totals[totalsData.id] = {
+              handicap: Number.parseFloat(totalsData.handicap),
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(totalsData.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              ),
+              over_tw: totalsData.over_tw
+            };
+            await write2firestoreAboutAllTotals(
+              eventSnapshot,
+              totals,
+              totalsData
+            );
+            await write2MysqlOfMatchAboutAllTotals(ele, totalsData);
+            await write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData);
+          }
+        }
+      }
+      return resolve('ok');
+    } catch (error) {
+      return reject(
+        new AppErrors.AxiosError(`${error} at handicap of getTotals by DY`)
+      );
+    }
+  });
+}
+function totalsCalculator(handicapObj) {
+  if (
+    handicapObj.over_odd === handicapObj.under_odd ||
+    handicapObj.handicap % 1 !== 0
+  ) {
+    handicapObj.away_tw = `${handicapObj.handicap}`;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.over_odd !== handicapObj.under_odd
+  ) {
+    if (handicapObj.over_odd > handicapObj.under_odd) {
+      handicapObj.away_tw = `${handicapObj.handicap} +50%`;
+    } else if (handicapObj.over_odd < handicapObj.under_odd) {
+      handicapObj.away_tw = `${handicapObj.handicap} -50%`;
+    }
+  }
+  return handicapObj;
+}
+function spreadCalculator(handicapObj) {
+  // 賠率相同
+  if (handicapObj.handicap % 1 !== 0 && handicapObj.handicap < 0) {
+    handicapObj.home_tw = null;
+    handicapObj.away_tw =
+      '讓' + `${Math.abs(Math.ceil(handicapObj.handicap))}輸`;
+  } else if (handicapObj.handicap % 1 !== 0 && handicapObj.handicap >= 0) {
+    handicapObj.home_tw = '讓' + `${Math.floor(handicapObj.handicap)}輸`;
+    handicapObj.away_tw = null;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap >= 0 &&
+    handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.home_tw = '讓' + `${handicapObj.handicap}平`;
+    handicapObj.away_tw = null;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd === handicapObj.away_odd
+  ) {
+    handicapObj.home_tw = null;
+    handicapObj.away_tw = '讓' + `${Math.abs(handicapObj.handicap)}平`;
+  } else if (
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap >= 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    // 盤口為正，代表主讓客，所以主要減
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      handicapObj.home_tw = null;
+      handicapObj.away_tw = '讓' + ` ${handicapObj.handicap} -50%`;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.home_tw = null;
+      handicapObj.away_tw = '讓' + ` ${handicapObj.handicap} +50%`;
+    }
+  } else if (
+    // 盤口為負，代表客讓主，所以客要減
+    handicapObj.handicap % 1 === 0 &&
+    handicapObj.handicap < 0 &&
+    handicapObj.home_odd !== handicapObj.away_odd
+  ) {
+    if (handicapObj.home_odd > handicapObj.away_odd) {
+      handicapObj.home_tw = '讓' + `+${Math.abs(handicapObj.handicap)} +50`;
+      handicapObj.away_tw = null;
+    } else if (handicapObj.home_odd < handicapObj.away_odd) {
+      handicapObj.home_tw = '讓' + `+${Math.abs(handicapObj.handicap)} -50`;
+      handicapObj.away_tw = null;
+    }
+  }
+
+  return handicapObj;
+}
 module.exports = handicap;

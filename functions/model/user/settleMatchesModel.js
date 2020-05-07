@@ -29,7 +29,7 @@ function settleMatchesModel(args) {
       }
 
       // !!!! 記得改成 9
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
+      if (!([1, 2, 9].includes(memberInfo.status))) { // 不是 管理者
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1308'));
       }
@@ -46,7 +46,7 @@ function settleMatchesModel(args) {
     try {
       // flag_permatch 1 才為有效賽事
       // status 0 比賽結束
-      // home_points、away_points 最終得分 需要有值 (不可null，不可空白)
+      // home_points、away_points 最終得分 需要有值 (不可null，必需 >= 0) 比賽有可能 0:0
       const matchInfo = await db.sequelize.query(`
         select bets_id, home_id, away_id, home_points, away_points,
                spread.handicap spread_handicap, home_odd, away_odd,
@@ -59,8 +59,8 @@ function settleMatchesModel(args) {
          where bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
         replacements: {
           bets_id: bets_id
@@ -82,7 +82,7 @@ function settleMatchesModel(args) {
           totalsUnderOdd: data.under_odd
         };
 
-        // null 代表 沒有handicap
+        // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
         if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
 
@@ -132,8 +132,8 @@ function settleMatchesModel(args) {
          where matches.bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
         replacements: {
           bets_id: bets_id
@@ -153,7 +153,7 @@ function settleMatchesModel(args) {
           totalsUnderOdd: data.under_odd
         };
 
-        // null 代表 沒有handicap
+        // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
         if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
 

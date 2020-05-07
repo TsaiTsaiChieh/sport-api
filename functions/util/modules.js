@@ -134,6 +134,7 @@ const db = {
   eBKA: 'eBKA',
   eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
+  baseball_KBO: 'baseball_KBO',
   eSoccer: 'eSoccer',
   prediction: 'prediction'
 };

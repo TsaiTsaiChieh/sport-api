@@ -26,6 +26,11 @@ router.post(
   verification.token,
   require('../controller/user/favoriteGodController')
 );
+router.get(
+  '/getFavoriteGod/:god_uid',
+  verification.token,
+  require('../controller/user/getFavoriteGodController')
+);
 router.post(
   '/reportTopic',
   verification.token,
@@ -91,6 +96,17 @@ router.put(
   verification.token,
   require('../controller/user/purseController')
 );
+
+// router.post(
+//   '/convert',
+//   verification.token,
+//   require('../controller/user/convertController')
+// );
+router.put(
+  '/pay',
+  verification.token,
+  require('../controller/user/payController')
+);
 /* 購牌紀錄 */
 router.post(
   '/buy',
@@ -99,6 +115,12 @@ router.post(
 );
 /* 轉換紀錄 */
 router.post(
+  '/transfer',
+  verification.token,
+  require('../controller/user/transferController')
+);
+/* 轉換紀錄(新增或更新) */
+router.put(
   '/transfer',
   verification.token,
   require('../controller/user/transferController')

@@ -6,7 +6,7 @@ async function likeReply(req, res) {
     type: 'object',
     required: ['reply_id', 'like'],
     properties: {
-      article_id: {
+      reply_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0

@@ -94,8 +94,10 @@ function settleGodTitle(args) {
     // 2.
     try {
       s21 = new Date().getTime();
+      //
       // a. 使用 users__win__lists_histories
       // 注意 !!!  正式有資料後，要把 今日日期區間判斷 打開來
+      //
       const usersWinListsHistories = await db.sequelize.query(`
         select *
           from users__win__lists__histories history, 
@@ -143,7 +145,9 @@ function settleGodTitle(args) {
       reformatHistory.forEach(function(uid_league_data) {
         console.log('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
 
+        //
         // 2.1. 連贏Ｎ天 countinue
+        //
         let countinue = 0;
         uid_league_data.lists.every(function(lists, index) {
           // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
@@ -151,15 +155,19 @@ function settleGodTitle(args) {
           return ((lists.correct_counts - lists.fault_counts) > 0); // 代表過盤
         });
 
+        //
         // 2.2. 勝注連過 Ｎ日 win_bets_continue
+        //
         let win_bets_continue = 0;
         uid_league_data.lists.every(function(lists, index) {
           win_bets_continue = index;
           return (lists.win_bets > 0); // 代表過盤
         });
 
+        //
         // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3
         // acc 累計
+        //
         let predict_rate1 = 0; let predict_rate2 = 0; let predict_rate3 = 0;
         const allRecords = []; // 記錄所有資料
 
@@ -194,6 +202,9 @@ function settleGodTitle(args) {
           predict_rate3 = allRecords[0].correctCountsAcc;
         };
 
+        //
+        // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
+        //
         console.log('countinue: %o  win_bets_continue: %o', countinue, win_bets_continue);
         console.log('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3);
 
@@ -212,7 +223,9 @@ function settleGodTitle(args) {
       console.groupEnd();
 
       s23 = new Date().getTime();
+      //
       // b. 使用 users_predictions
+      //
       const usersPrediction = await db.sequelize.query(`
         select *
           from user__predictions prediction, 
@@ -257,17 +270,21 @@ function settleGodTitle(args) {
       console.group('\n2.4 2.5');
       reformatPrediction.forEach(function(uid_league_data) {
         console.log('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
+        //
         // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2
         // acc 累計
+        //
         let matches_rate1 = 0; let matches_rate2 = 0;
         const allRecords = []; // 記錄所有資料
         let n = 0; // 這裡場次算是過盤
 
         uid_league_data.lists.forEach(function(lists) {
+          // 讓分
           const r = nPassN(n, allRecords, lists.spread_result_flag);
           n = r.n;
           allRecords.push(r.item);
 
+          // 大小
           const r2 = nPassN(n, allRecords, lists.totals_result_flag);
           n = r2.n;
           allRecords.push(r2.item);
@@ -284,27 +301,36 @@ function settleGodTitle(args) {
           matches_rate2 = allRecords[0].correctCountsAcc;
         };
 
+        //
         // 2.5. 連贏Ｎ場 matches_continue
+        //
         let matches_continue = 0;
         const allRecords2 = []; // 記錄所有資料
         let nn = 0; // 這裡場次算是過盤
 
         uid_league_data.lists.forEach(function(lists) {
-          const r = passN(nn, allRecords2, lists.spread_result_flag, lists.match_scheduled);
+          // 讓分
+          const r = passN(nn, lists.spread_result_flag, lists.match_scheduled);
           nn = r.n;
           allRecords2.push(r.item);
 
-          const r2 = passN(nn, allRecords2, lists.totals_result_flag, lists.match_scheduled);
+          // 大小
+          const r2 = passN(nn, lists.totals_result_flag, lists.match_scheduled);
           nn = r2.n;
           allRecords2.push(r2.item);
         });
 
+        // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
+        // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
         allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
         allRecords2.every(function(data, index) {
           matches_continue = index;
-          return data.correctMark !== '-1'; // 代表過盤
+          return data.correctMark !== '0' || data.correctMark !== '-1'; // 代表過盤
         });
 
+        //
+        // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
+        //
         console.log('matches_rate: %o  %o', matches_rate1, matches_rate2);
         console.log('matches_continue: %o', matches_continue);
 
@@ -352,12 +378,13 @@ function settleGodTitle(args) {
 
 function numberRate(num1, num2, f = 2) {
   // console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
-  return Number(
-    Number(num1) / Number(num2)
-  ).toFixed(f);
+  return Number(num2) === 0
+    ? 0
+    : Number(Number(num1) / Number(num2)).toFixed(f);
 }
 
 // 近 Ｎ 場過 Ｎ 場 計算專用的
+// 回傳 場數, (總場累計, 過盤場累計, 總勝率   場數)
 function nPassN(n, allRecords, result_flag) {
   const item = {};
   let preTotalsCountAcc = 0;
@@ -380,22 +407,10 @@ function nPassN(n, allRecords, result_flag) {
   return { n: n, item: item };
 }
 
-// 連贏Ｎ場v計算專用的
-function passN(n, allRecords, result_flag, match_scheduled) {
+// 連贏Ｎ場 計算專用的
+// 回傳 場數, (場數, 開賽時間, 過盤註記)
+function passN(n, result_flag, match_scheduled) {
   const item = {};
-  let preTotalsCountAcc = 0;
-  let preCorrectCountsAcc = 0;
-
-  if (n !== 0) { // 不是第一筆時，取得之前的累計值
-    preTotalsCountAcc = allRecords[n - 1].totalsCountAcc;
-    preCorrectCountsAcc = allRecords[n - 1].correctCountsAcc;
-  }
-
-  item.totalsCountAcc = preTotalsCountAcc + [0.95, 0.5, -1, -0.5].includes(result_flag) ? 1 : 0;
-  item.correctCountsAcc = preCorrectCountsAcc + [0.95, 0.5].includes(result_flag) ? 1 : 0;
-  item.winRateAcc = (item.totalsCountAcc === 0)
-    ? 0
-    : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
 
   n++;
   item.days = n;
@@ -410,12 +425,12 @@ function passN(n, allRecords, result_flag, match_scheduled) {
 }
 
 // https://stackoverflow.com/a/1215401
-const DEBUG = true;
-const old_console_log = console.log;
-console.log = function() {
-  if (DEBUG) {
-    old_console_log.apply(this, arguments);
-  }
-};
+// const DEBUG = true;
+// const old_console_log = console.log;
+// console.log = function() {
+//   if (DEBUG) {
+//     old_console_log.apply(this, arguments);
+//   }
+// };
 
 module.exports = settleGodTitle;
