@@ -589,7 +589,7 @@ const Season = sequelize.define(
     },
     type: {
       type: Sequelize.STRING
-    }, 
+    },
     current: {
       type: Sequelize.INTEGER
     }
