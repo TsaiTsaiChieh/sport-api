@@ -1,21 +1,26 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/user/favoriteGodModel');
-async function favoriteGod(req, res) {
+const model = require('../../model/topics/donateModel');
+async function donate(req, res) {
   const schema = {
     type: 'object',
+    required: ['article_id', 'type', 'cost'],
     properties: {
-      god_uid: {
-        type: 'string'
+      article_id: {
+        type: 'integer',
+        maximum: 9999999,
+        minimum: 0
       },
-      add: {
-        type: 'array'
+      type: {
+        type: 'string',
+        enum: ['coin', 'dividend'] // 搞幣 紅利
       },
-      remove: {
-        type: 'array'
+      cost: {
+        type: 'integer',
+        maximum: 99999,
+        minimum: 0
       }
-    },
-    required: ['god_uid']
+    }
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -35,4 +40,4 @@ async function favoriteGod(req, res) {
     });
 }
 
-module.exports = favoriteGod;
+module.exports = donate;

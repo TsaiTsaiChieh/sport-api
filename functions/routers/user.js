@@ -26,6 +26,11 @@ router.post(
   verification.token,
   require('../controller/user/favoriteGodController')
 );
+router.get(
+  '/getFavoriteGod/:god_uid',
+  verification.token,
+  require('../controller/user/getFavoriteGodController')
+);
 router.post(
   '/reportTopic',
   verification.token,

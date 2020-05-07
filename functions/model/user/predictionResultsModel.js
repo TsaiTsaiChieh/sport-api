@@ -1,7 +1,17 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
-const UNSETTLEMENT = -2;
+const settlement = {
+  win: 1,
+  fair: 0,
+  loss: -1,
+  unsettlement: -2,
+  winOdd: 0.95,
+  winHalfOdd: 0.5,
+  fairOdd: 0,
+  lossHalfOdd: -0.5,
+  lossOdd: -1
+};
 
 function predictionResult(args) {
   return new Promise(async function(resolve, reject) {
@@ -17,7 +27,12 @@ function predictionResult(args) {
       };
       const predictions = await queryUserPredictionWhichIsSettled(args, unix);
       return resolve(repackage(predictions));
-    } catch (err) {}
+    } catch (err) {
+      return reject({
+        code: modules.httpStatus.INTERNAL_SERVER_ERROR,
+        error: `${err} by TsaiChieh`
+      });
+    }
   });
 }
 
@@ -50,7 +65,7 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                     AND matches.away_id = away.team_id 
                     AND prediction.uid = '${args.token.uid}'
                     AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
-                    AND (spread_result_flag != ${UNSETTLEMENT} OR totals_result_flag != ${UNSETTLEMENT})
+                    AND (spread_result_flag != ${settlement.unsettlement} OR totals_result_flag != ${settlement.unsettlement})
                 ) 
              AS prediction
       LEFT JOIN match__spreads AS spread ON prediction.spread_id = spread.spread_id
@@ -60,7 +75,7 @@ function queryUserPredictionWhichIsSettled(args, unix) {
       return resolve(result);
     } catch (err) {
       console.error(err);
-      return reject(new AppErrors.MysqlError(`${err} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -69,10 +84,11 @@ function repackage(predictions) {
   try {
     let temp = [];
     const data = {};
+    // 根據聯盟分賽事
     modules.groupBy(predictions, 'league').forEach(function(groupByData) {
       let league;
+      // 取出聯盟陣列中的賽事
       groupByData.forEach(function(ele) {
-        // 取出 聯盟陣列中的賽事
         temp.push(repackageMatch(ele));
         league = ele.league;
       });
@@ -87,25 +103,25 @@ function repackage(predictions) {
 
 function repackageMatch(ele) {
   try {
-    return {
+    const data = {
       id: ele.bets_id,
       scheduled: ele.match_scheduled,
-      scheduled_tw: modules
-        .moment(ele.match_scheduled * 1000)
-        .format('A hh:mm'),
+      scheduled_tw: modules.tz(ele.match_scheduled * 1000).format('A hh:mm'),
       league_id: ele.league_id,
       league: ele.league,
       home: {
         id: ele.home_id,
         alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
         alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
-        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name
+        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+        points: ele.home_points
       },
       away: {
         id: ele.away_id,
         alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
         alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
-        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name
+        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
+        points: ele.away_points
       },
       spread: {
         id: ele.spread_id ? ele.spread_id : null,
@@ -113,7 +129,7 @@ function repackageMatch(ele) {
         home_tw: ele.home_tw ? ele.home_tw : null,
         away_tw: ele.away_tw ? ele.home_tw : null,
         predict: ele.spread_option ? ele.spread_option : null,
-        bets: ele.spread_bets ? ele.spread_bets : null,
+        ori_bets: ele.spread_bets ? ele.spread_bets : null,
         result: ele.spread_option ? ele.spread_result_flag : null
       },
       totals: {
@@ -121,12 +137,53 @@ function repackageMatch(ele) {
         handicap: ele.totals_handicap ? ele.totals_handicap : null,
         over_tw: ele.over_tw ? ele.over_tw : null,
         predict: ele.totals_option ? ele.totals_option : null,
-        bets: ele.totals_bets ? ele.totals_bets : null,
+        ori_bets: ele.totals_bets ? ele.totals_bets : null,
         result: ele.totals_option ? ele.totals_result_flag : null
       }
     };
+    repackageHandicap(ele, data, 'spread');
+    repackageHandicap(ele, data, 'totals');
+    return data;
   } catch (err) {
-    return new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    console.error(`${err.stack} by TsaiChieh`);
+    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  }
+}
+
+function repackageHandicap(ele, data, handicapType) {
+  try {
+    // 當有下注讓分時
+    if (ele[`${handicapType}_option`]) {
+      const handicap = data[handicapType];
+      const result = ele[`${handicapType}_result_flag`];
+      // 當過盤結果為 0.95 時
+      if (result === settlement.winOdd) {
+        handicap.end = settlement.win;
+        handicap.bets = handicap.ori_bets * settlement.winOdd;
+        // 當過盤結果為 0.5 時
+      } else if (result === settlement.winHalfOdd) {
+        handicap.end = settlement.win;
+        handicap.bets = handicap.ori_bets * settlement.winHalfOdd;
+        // 當過盤結果為 0 時
+      } else if (result === settlement.fairOdd) {
+        handicap.end = settlement.fair;
+        handicap.bets = handicap.ori_bets * settlement.fairOdd;
+        // 當過盤結果為 -0.5 時
+      } else if (result === settlement.lossHalfOdd) {
+        handicap.end = settlement.loss;
+        handicap.bets = handicap.ori_bets * settlement.lossHalfOdd;
+        // 當過盤結果為 -1 時
+      } else if (result === settlement.lossOdd) {
+        handicap.end = settlement.loss;
+        handicap.bets = handicap.ori_bets * settlement.lossOdd;
+      } else {
+        handicap.end = null;
+        handicap.bets = null;
+      }
+    }
+  } catch (err) {
+    console.error(`${err.stack} by TsaiChieh`);
+    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 module.exports = predictionResult;

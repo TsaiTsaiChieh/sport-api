@@ -19,6 +19,7 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
+const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -180,6 +181,12 @@ function leagueCodebook(league) {
         match: db.eSoccer,
         name_ch: '足球電競'
       };
+    case 'KBO':
+      return {
+        id: 349,
+        match: db.baseball_KBO,
+        name_ch: '韓國職棒'
+      };
   }
 }
 
@@ -191,6 +198,8 @@ function leagueDecoder(leagueID) {
       return 'MLB';
     case '22000' || 22000:
       return 'eSoccer';
+    case '349' || 349:
+      return 'KBO';
     default:
       return 'Unknown';
   }
@@ -200,7 +209,7 @@ function leagueDecoder(leagueID) {
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesPeriod(date) {
+function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()
   const specificDate = '20200302';
   const years = [
@@ -249,12 +258,12 @@ function getTitlesPeriod(date) {
         date: moment(specificDate) // 該期開始計算的日期
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'),
+          .format(format),
         end: moment(specificDate) // 該期結束計算的日期
           .utcOffset(UTF8)
           .add(i * 2, 'weeks')
           .subtract(1, 'days')
-          .format('YYYYMMDD'),
+          .format(format),
         weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
       };
     }
@@ -620,5 +629,7 @@ module.exports = {
   settleTotals,
   perdictionsResultFlag,
   predictionsWinList,
-  sliceTeamAndPlayer
+  sliceTeamAndPlayer,
+  tz,
+  acceptLeague
 };
