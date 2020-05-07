@@ -23,7 +23,7 @@ async function deletePredictions(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'eSoccer']
+        enum: modules.acceptLeague
       },
       matches: {
         type: 'array',
@@ -88,7 +88,7 @@ module.exports = deletePredictions;
  * @apiPermission login user with completed data
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
- * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`, `KBO`
  * @apiParam {Array} matches prediction form
  * @apiParam {String} matches.id match id
  * @apiParam {String} [matches.spread] spread id
