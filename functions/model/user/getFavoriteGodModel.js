@@ -43,7 +43,7 @@ async function favoriteGod(args) {
         result.push(item.type);
       });
 
-      resolve({ code: 200, type: result });
+      resolve({ code: 200, result: result });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

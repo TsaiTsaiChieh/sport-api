@@ -13,7 +13,7 @@ async function donate(req, res) {
       },
       type: {
         type: 'string',
-        enum: ['coin', 'ingot']
+        enum: ['coin', 'dividend'] // 搞幣 紅利
       },
       cost: {
         type: 'integer',

@@ -1,6 +1,7 @@
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const getGodModel = require('../../model/user/getFavoriteGodModel');
+
 function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
@@ -113,7 +114,14 @@ async function favoriteGod(args) {
           }
         });
       }
-      resolve({ code: 200 });
+
+      getGodModel(args)
+        .then(function(body) {
+          resolve(body);
+        })
+        .catch(function(err) {
+          resolve({ code: 200, error: err });
+        });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
