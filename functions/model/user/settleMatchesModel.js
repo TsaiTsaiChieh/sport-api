@@ -71,7 +71,7 @@ function settleMatchesModel(args) {
       if (matchInfo.length === 0 || matchInfo.length > 1) { return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`); }
 
       // const mapResult = matchInfo.map(async function(data) {
-      for (const data in matchInfo) {
+      for (const data of matchInfo) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -90,6 +90,7 @@ function settleMatchesModel(args) {
         const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
         if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
 
+        console.log(bets_id, settelSpreadResult, settelTotalsResult);
         // 回寫結果
         try {
           const r = await db.Match.update({
@@ -166,7 +167,7 @@ function settleMatchesModel(args) {
         // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
         const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-        console.log(settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
+        console.log(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
         // 回寫結果
         try {
           const r = await db.Prediction.update({
