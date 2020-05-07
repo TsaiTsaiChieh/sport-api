@@ -66,7 +66,7 @@ async function donate(args) {
       // console.log(article)
       // await checkLiked(uid, args.aid);
 
-      resolve({ code: 200 });
+      resolve({ code: 500 });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
