@@ -558,6 +558,46 @@ const Match = sequelize.define(
   }
 );
 
+const Season = sequelize.define(
+  'match__season',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    radar_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    year: {
+      type: Sequelize.INTEGER
+    },
+    start_date: {
+      type: Sequelize.STRING
+    },
+    end_date: {
+      type: Sequelize.STRING
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    type: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['league_id', 'year', 'type']
+      }
+    ]
+  }
+);
+
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -651,7 +691,7 @@ const Prediction = sequelize.define(
 );
 
 /*
- * 預測單的資訊，unique key 為 bets_id, uid
+ * 大神販售預測單的資訊，unique key 為 uid, day, league_id
  */
 const PredictionDescription = sequelize.define(
   'user__prediction__description',
@@ -1322,7 +1362,8 @@ const dbUtil = {
   Buy,
   Honor_board,
   News,
-  Bank
+  Bank,
+  Season
 };
 
 module.exports = dbUtil;
