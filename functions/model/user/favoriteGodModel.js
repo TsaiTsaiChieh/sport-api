@@ -95,24 +95,24 @@ async function favoriteGod(args) {
       const remove = args.remove;
 
       if (typeof add !== 'undefined' && add !== null) {
-        await add.forEach(async function(item) {
+        for (let i = 0; i < add.length; i++) {
           try {
-            await checkLiked(uid, god_uid, item);
-            await like(uid, god_uid, item);
+            await checkLiked(uid, god_uid, add[i]);
+            await like(uid, god_uid, add[i]);
           } catch (e) {
             // console.log(e);
           }
-        });
+        };
       }
 
       if (typeof remove !== 'undefined' && remove !== null) {
-        await remove.forEach(async function(item) {
+        for (let j = 0; j < remove.length; j++) {
           try {
-            await unlike(uid, god_uid, item);
+            await unlike(uid, god_uid, remove[j]);
           } catch (e) {
             // console.log(e);
           }
-        });
+        };
       }
 
       getGodModel(args)
