@@ -19,6 +19,7 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
+const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -180,6 +181,12 @@ function leagueCodebook(league) {
         match: db.eSoccer,
         name_ch: '足球電競'
       };
+    case 'KBO':
+      return {
+        id: 349,
+        match: db.baseball_KBO,
+        name_ch: '韓國職棒'
+      };
   }
 }
 
@@ -191,6 +198,8 @@ function leagueDecoder(leagueID) {
       return 'MLB';
     case '22000' || 22000:
       return 'eSoccer';
+    case '349' || 349:
+      return 'KBO';
     default:
       return 'Unknown';
   }
@@ -620,5 +629,7 @@ module.exports = {
   settleTotals,
   perdictionsResultFlag,
   predictionsWinList,
-  sliceTeamAndPlayer
+  sliceTeamAndPlayer,
+  tz,
+  acceptLeague
 };

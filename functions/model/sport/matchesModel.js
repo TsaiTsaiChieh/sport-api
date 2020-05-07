@@ -127,23 +127,23 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.moment(ele.scheduled * 1000).format('A h:mm'),
+      scheduled_tw: modules.tz(ele.scheduled * 1000).format('A h:mm'),
       status: ele.status,
       league: args.league,
       home: {
         id: ele.home_id,
         team_name: ele.home_alias,
-        alias: sliceTeamAndPlayer(ele.home_alias).team,
-        alias_ch: sliceTeamAndPlayer(ele.home_alias_ch).team,
-        player_name: sliceTeamAndPlayer(ele.home_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
         image_id: ele.home_image_id
       },
       away: {
         id: ele.away_id,
         team_name: ele.away_alias,
-        alias: sliceTeamAndPlayer(ele.away_alias).team,
-        alias_ch: sliceTeamAndPlayer(ele.away_alias_ch).team,
-        player_name: sliceTeamAndPlayer(ele.away_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
+        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
         image_id: ele.away_image_id
       },
       spread: {
@@ -210,20 +210,6 @@ function isHandicapDisable(ele, temp, predictions) {
       }
     }
   }
-}
-
-function sliceTeamAndPlayer(name) {
-  if (name.includes('(')) {
-    const index = name.indexOf('(');
-    return {
-      team: name.slice(0, index).trim(),
-      player_name: name.slice(index).replace('(', '').replace(')', '').trim()
-    };
-  }
-  return {
-    team: name,
-    player_name: null
-  };
 }
 
 module.exports = getMatches;

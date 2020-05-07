@@ -13,7 +13,7 @@ async function getMatches(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'eSoccer']
+        enum: modules.acceptLeague
       }
     }
   };
@@ -44,8 +44,8 @@ module.exports = getMatches;
  * @apiName match information
  * @apiGroup Sport
  *
- * @apiParam {String} prematch date, ex: ```2020-07-01```
- * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} prematch date, ex: `2020-07-01`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`, `KBO`
  *
  * @apiParamExample {JSON} Request-Query
  * {
