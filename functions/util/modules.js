@@ -350,13 +350,18 @@ function settleSpread(data) {
   // 平盤有兩情況
   // fair 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd)
-        ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
-        : 'fair2'
-      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
-    : '';
+  // return handicap
+  //   ? (homePoints - handicap) === awayPoints
+  //     ? (homeOdd !== awayOdd)
+  //       ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+  //       : 'fair2'
+  //     : (homePoints - handicap) > awayPoints ? 'home' : 'away'
+  //   : '';
+  return (homePoints - handicap) === awayPoints
+    ? (homeOdd !== awayOdd)
+      ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+      : 'fair2'
+    : (homePoints - handicap) > awayPoints ? 'home' : 'away';
 }
 
 /*
@@ -380,13 +385,18 @@ function settleTotals(data) {
   // 平盤有兩情況
   // fair 平盤 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd)
-        ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
-        : 'fair2'
-      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
-    : '';
+  // return handicap
+  //   ? (homePoints + awayPoints) === handicap
+  //     ? (overOdd !== underOdd)
+  //       ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+  //       : 'fair2'
+  //     : (homePoints + awayPoints) > handicap ? 'over' : 'under'
+  //   : '';
+  return (homePoints + awayPoints) === handicap
+    ? (overOdd !== underOdd)
+      ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+      : 'fair2'
+    : (homePoints + awayPoints) > handicap ? 'over' : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
@@ -434,13 +444,12 @@ function predictionsWinList(data) {
   const correct = [0.95, 0.5];
   const fault = [-1, -0.5];
   const result = [];
+  const totalPredictCounts = data.length;
 
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
 
   rePredictMatchInfo.forEach(function(uids) {
-    const totalPredictCounts = data.length;
-
     const reLeagues = groupBy(uids, 'league_id');
 
     reLeagues.forEach(function(data) {
