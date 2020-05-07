@@ -7,7 +7,7 @@ const endStatus = 0;
 
 function getMatches(args) {
   return new Promise(async function(resolve, reject) {
-    try { 
+    try {
       let godPredictions = [];
       const matches = await getMatchesWithDate(args);
       if (isGodBelongToLeague(args)) {
@@ -77,7 +77,7 @@ function getMatchesWithDate(args) {
         }
       );
       return resolve(results);
-    } catch (error) {
+    } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
@@ -93,20 +93,18 @@ function returnGodUserPrediction(args) {
           value: 1,
           unit: 'days'
         }) - 1;
-      // index is range, taking 165ms  
+      // index is range, taking 165ms
       const results = await db.sequelize.query(
         `SELECT bets_id, sell, spread_id, spread_option, totals_id, totals_option
            FROM user__predictions
           WHERE uid = :uid 
             AND match_scheduled BETWEEN ${begin} AND ${end}
             AND league_id = '${modules.leagueCodebook(args.league).id}'`,
-        { 
-          type: db.sequelize.QueryTypes.SELECT, 
+        {
+          type: db.sequelize.QueryTypes.SELECT,
           replacements: { uid: args.token.uid }
         }
-      );    
-      console.log(results);
-      
+      );
       return resolve(results);
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
