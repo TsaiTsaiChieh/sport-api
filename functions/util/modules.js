@@ -19,6 +19,7 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
+const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -146,7 +147,7 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function (doc) {
+  snapshot.docs.map(function(doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
@@ -374,8 +375,8 @@ function settleSpread(data) {
           : 'fair|away'
         : 'fair2'
       : homePoints - handicap > awayPoints
-      ? 'home'
-      : 'away'
+        ? 'home'
+        : 'away'
     : '';
 }
 
@@ -408,8 +409,8 @@ function settleTotals(data) {
           : 'fair|under'
         : 'fair2'
       : homePoints + awayPoints > handicap
-      ? 'over'
-      : 'under'
+        ? 'over'
+        : 'under'
     : '';
 }
 
@@ -462,12 +463,12 @@ function predictionsWinList(data) {
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
 
-  rePredictMatchInfo.forEach(function (uids) {
+  rePredictMatchInfo.forEach(function(uids) {
     const totalPredictCounts = data.length;
 
     const reLeagues = groupBy(uids, 'league_id');
 
-    reLeagues.forEach(function (data) {
+    reLeagues.forEach(function(data) {
       // 勝率 winRate
       const predictCorrectCounts =
         data.reduce(
@@ -620,5 +621,6 @@ module.exports = {
   perdictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
-  tz
+  tz,
+  acceptLeague
 };
