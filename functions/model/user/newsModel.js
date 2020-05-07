@@ -22,7 +22,7 @@ function newsModel(method, args, uid) {
         /* 系統訊息資料 */
         const system = await db.sequelize.query(
           `
-          SELECT * 
+          SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
             FROM user__news
           WHERE scheduled BETWEEN '${begin}' and '${end}' 
             AND status=0
@@ -37,7 +37,7 @@ function newsModel(method, args, uid) {
         /* 使用者訊息資料 */
         const user = await db.sequelize.query(
           `
-          SELECT * 
+          SELECT un.news_id, un.uid, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
             FROM user__news un, users u
           WHERE un.scheduled BETWEEN '${begin}' and '${end}'
             AND u.uid = un.uid
@@ -68,7 +68,7 @@ function newsModel(method, args, uid) {
             VALUES ($uid, $title, $content, 1, $now_timestamp, $now, $now);
           `,
           {
-            bind: { uid: uid, title: title, content: content, now: now, now_timestamp: now_timestamp },
+            bind: { uid: uid, title: title, content: content, now_timestamp: now_timestamp, now: now },
             type: db.sequelize.QueryTypes.INSERT
           }
         );
