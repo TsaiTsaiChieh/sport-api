@@ -20,7 +20,7 @@ async function repackage(sport, league, time) {
   let leagueName;
 
   if (league === 'eSoccer') {
-    leagueName = `${league}`;
+    leagueName = `pagetest_${league}`;
   } else {
     leagueName = `${sport}_${league}`;
   }
