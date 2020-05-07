@@ -263,7 +263,7 @@ async function updateHandicap(league, ele) {
         "success": 1,
         "results": {}
       } */
-      if (!data.results.odds) {
+      if (data.results.odds) {
         spread_odds = data.results.odds['1_2'];
         totals_odds = data.results.odds['1_3'];
       }
@@ -589,23 +589,23 @@ function spreadCalculator(handicapObj) {
       // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0) {
         // 顯示在主隊區，代表主讓
-        handicapObj.home_tw = '主讓' + secondHandicap + '分+50%';
+        handicapObj.home_tw = '讓' + secondHandicap + '+50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '客讓' + Math.abs(secondHandicap) + '分+50%';
+        handicapObj.away_tw = '讓' + Math.abs(secondHandicap) + '+50%';
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw = '主讓' + firstHandicap + '分-50%';
+        handicapObj.home_tw = '讓' + firstHandicap + '-50%';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '客讓' + Math.abs(firstHandicap) + '分-50%';
+        handicapObj.away_tw = '讓' + Math.abs(firstHandicap) + '-50%';
       }
     }
   } else {
@@ -620,25 +620,25 @@ function spreadCalculator(handicapObj) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = '主讓' + handicapObj.handicap + '分平';
+        handicapObj.home_tw = '讓' + handicapObj.handicap + '平';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '客讓' + Math.abs(handicapObj.handicap) + '分平';
+        handicapObj.away_tw = '讓' + Math.abs(handicapObj.handicap) + '平';
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
         handicapObj.home_tw =
-          '主讓' + Math.floor(Math.abs(handicapObj.handicap)) + '分輸';
+          '讓' + Math.floor(Math.abs(handicapObj.handicap)) + '輸';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
         handicapObj.away_tw =
-          '客讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '分輸';
+          '讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
       }
     }
   }
@@ -655,9 +655,9 @@ function totalsCalculator(handicapObj) {
     handicapObj.over_odd !== handicapObj.under_odd
   ) {
     if (handicapObj.over_odd > handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} +50`;
+      handicapObj.over_tw = `${handicapObj.handicap} +50%`;
     } else if (handicapObj.over_odd < handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} -50`;
+      handicapObj.over_tw = `${handicapObj.handicap} -50%`;
     }
   }
   return handicapObj;
