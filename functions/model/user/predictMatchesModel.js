@@ -245,26 +245,28 @@ function isNeeded(needed) {
 async function insertDB(args, needed) {
   return new Promise(async function(resolve, reject) {
     try {
-      const results = [];
       for (let i = 0; i < needed.length; i++) {
         const ele = needed[i];
         if (ele.length === undefined) {
           const data = repackagePrediction(args, ele);
           const { handicapType, handicapId } = handicapProcessor(ele);
-          results.push(db.Prediction.upsert(data));
-          // await db.Prediction.upsert(data);
-          console.log(
-            `User(${
-              args.token.customClaims.titles.includes(args.league)
-                ? 'God'
-                : 'Normal'
-            }-${args.token.uid}) upsert match id: ${
-              ele.id
-            } [${handicapType}_id: ${handicapId}] successful`
-          );
+          // 為解決多筆資料會 deadlock 所做的修正
+          // upsert return return true -> create
+          // upsert return return false -> create update
+          const results = await db.Prediction.upsert(data);
+          if (results || !results) {
+            console.log(
+              `User (${
+                args.token.customClaims.titles.includes(args.league)
+                  ? 'God'
+                  : 'Normal'
+              }-${args.token.uid}) upsert match id: ${
+                ele.id
+              } [${handicapType}_id: ${handicapId}] successful`
+            );
+          }
         }
       }
-      // return resolve(await Promise.all(results));
       return resolve();
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
