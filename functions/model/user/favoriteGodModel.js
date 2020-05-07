@@ -95,10 +95,10 @@ async function favoriteGod(args) {
       const remove = args.remove;
 
       if (typeof add !== 'undefined' && add !== null) {
-        add.forEach(async function(item) {
+        await add.forEach(async function(item) {
           try {
             await checkLiked(uid, god_uid, item);
-            like(uid, god_uid, item);
+            await like(uid, god_uid, item);
           } catch (e) {
             // console.log(e);
           }
@@ -106,9 +106,9 @@ async function favoriteGod(args) {
       }
 
       if (typeof remove !== 'undefined' && remove !== null) {
-        remove.forEach(async function(item) {
+        await remove.forEach(async function(item) {
           try {
-            unlike(uid, god_uid, item);
+            await unlike(uid, god_uid, item);
           } catch (e) {
             // console.log(e);
           }
