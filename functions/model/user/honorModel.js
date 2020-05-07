@@ -11,7 +11,7 @@ function honorModel(req) {
       if(type=='performance'){
         
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now);
+        const period = await modules.getTitlesPeriod(now,'YYYY-MM-DD');
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 
@@ -70,7 +70,7 @@ function honorModel(req) {
                          AND league_id = $league_id
                          AND month = $currentMonth
                       AND season = $currentSeason
-                      ) lose
+                    ) lose
               FROM  users__win__lists uwl, match__leagues ml 
              WHERE  uwl.uid = $uid
                AND  ml.league_id = uwl.league_id
