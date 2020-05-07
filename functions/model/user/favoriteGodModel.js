@@ -100,7 +100,7 @@ async function favoriteGod(args) {
             await checkLiked(uid, god_uid, item);
             like(uid, god_uid, item);
           } catch (e) {
-            console.log(e);
+            // console.log(e);
           }
         });
       }
@@ -110,7 +110,7 @@ async function favoriteGod(args) {
           try {
             unlike(uid, god_uid, item);
           } catch (e) {
-            console.log(e);
+            // console.log(e);
           }
         });
       }
