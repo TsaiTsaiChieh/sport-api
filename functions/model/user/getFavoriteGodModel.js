@@ -29,7 +29,7 @@ async function favoriteGod(args) {
 
       const uid = args.token.uid;
       const god_uid = args.god_uid;
-      let type;
+      let type = [];
       try {
         type = await dbFind(uid, god_uid);
       } catch (err) {
