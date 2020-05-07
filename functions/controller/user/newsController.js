@@ -3,8 +3,7 @@ const newsModel = require('../../model/user/newsModel');
 async function news(req, res) {
   const returnJson = {};
   try {
-    req.args = req.body;
-    res.json(await newsModel(req.method, req.args, req.token.uid));
+    res.json(await newsModel(req.method, req.body, req.token.uid));
   } catch (e) {
     console.log(e);
     return res.status(500);

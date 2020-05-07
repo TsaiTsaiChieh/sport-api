@@ -2,44 +2,92 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function honorModel(uid) {
+function honorModel(req) {
   return new Promise(async function(resolve, reject) {
     try {
-      // SELECT uwl.league_id, uwl.this_month_win_bets, uwl.this_month_win_rate
-      //     FROM users__win__lists uwl, users__win__lists__histories uwlh
-      //    WHERE uwlh.uid = '${uid}'
-      const now = new Date();
-      const period = await modules.getTitlesPeriod(now);
-      const next = {
-        next_god_date: period.end,
-        next_period_date: {
-          begin: period.date,
-          end: period.end
-        }
-      };
+      const uid = req.body.uid;
+      const type = req.body.type;
+      const league_id = req.body.league_id;
+      if(type=='performance'){
+        
+        const now = new Date();
+        const period = await modules.getTitlesPeriod(now,'YYYY-MM-DD');
+        const currentSeason = modules.moment().year();
+        const currentMonth = modules.moment().month();
 
-      const wins = await db.sequelize.query(
-        `
-          SELECT  this_month_win_rate as win_rate, 
-                  this_month_win_bets as win_bets, 
-                  this_week_win_bets as first_week_win_bets, 
-                  this_period_win_bets as two_week_win_bets
-            FROM  users__win__lists WHERE uid = $uid
-        `,
-        {
-          bind: { uid: uid },
-          type: db.sequelize.QueryTypes.SELECT
-        }
-      );
+        
+        const next = {
+            "next_god_date":period.end,
+            "next_period_date":{
+            "begin": period.date,
+            "end": period.end
+          }
+        };
+        const win_lose = await db.sequelize.query(
+          `
+            SELECT SUM(correct_counts) as win, SUM(fault_counts) as lose
+              FROM users__win__lists__histories
+             WHERE uid = $uid
+               AND league_id = $league_id
+               AND month = $currentMonth
+             `,
+             {
+               bind: { uid: uid, league_id:league_id, currentMonth:currentMonth },
+               type: db.sequelize.QueryTypes.SELECT
+             }
+        );
 
-      // const rtype = await db.sequelize.query(
-      //   `
-      //     SELECT * FROM users__win__lists_histories
-      //   `,
-      //   {
-      //     type: db.sequelize.QueryTypes.SELECT
-      //   }
-      // );
+        const wins = await db.sequelize.query(
+          `
+            SELECT  ml.name, 
+                    ml.name_ch,
+                    uwl.this_month_win_rate as win_rate, 
+                    uwl.this_month_win_bets as win_bets, 
+                    uwl.this_week1_of_period_win_bets as first_week_win_bets, 
+                    uwl.this_period_win_bets as two_week_win_bets,
+                    (
+                      SELECT COUNT(*) 
+                        FROM users__win__lists l1 
+                       WHERE l1.this_month_win_rate >= uwl.this_month_win_rate
+                    ) rate_rank,
+                    (
+                      SELECT COUNT(*) 
+                        FROM users__win__lists l1 
+                       WHERE l1.this_month_win_bets >= uwl.this_month_win_bets
+                    ) bets_rank,
+                    (
+                    SELECT SUM(correct_counts) as win
+                      FROM users__win__lists__histories
+                     WHERE uid = $uid
+                       AND league_id = $league_id
+                       AND month = $currentMonth
+                    AND season = $currentSeason
+                    ) win,
+                    (
+                      SELECT SUM(fault_counts) as lose
+                        FROM users__win__lists__histories
+                       WHERE uid = $uid
+                         AND league_id = $league_id
+                         AND month = $currentMonth
+                      AND season = $currentSeason
+                    ) lose
+              FROM  users__win__lists uwl, match__leagues ml 
+             WHERE  uwl.uid = $uid
+               AND  ml.league_id = uwl.league_id
+               AND  uwl.league_id = $league_id
+          `,
+          {
+            bind: { uid: uid, league_id:league_id, currentMonth:currentMonth, currentSeason:currentSeason },
+            type: db.sequelize.QueryTypes.SELECT
+          }
+        );
+        
+        const honorList = {
+          next: next,
+          wins: wins
+        };
+        resolve(honorList);
+      }else if(type=='record'){
 
       const rewards = await db.sequelize.query(
         `
@@ -70,16 +118,17 @@ function honorModel(uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-
       const honorList = {
-        next: next,
-        wins: wins,
-
         rewards: rewards,
         event: event
       };
-
       resolve(honorList);
+      }else{
+        console.log("you don't input have any type.");
+      }
+      
+
+      
     } catch (err) {
       console.log('Error in  user/honor by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
