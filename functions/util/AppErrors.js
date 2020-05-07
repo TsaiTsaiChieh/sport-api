@@ -245,6 +245,17 @@ class PBPMLBError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+class PBPKBOError extends ExtendableError {
+  constructor(
+    message = 'KBO文字直播排程錯誤',
+    status = 1511,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 class RepackageError extends ExtendableError {
   constructor(
     message = '資料重新包裝錯誤',
@@ -277,6 +288,7 @@ module.exports = {
   PBPEsoccerError,
   PBPNBAError,
   PBPMLBError,
-  RepackageError,
-  SettlementAccordingMatch
+  SettlementAccordingMatch,
+  PBPKBOError,
+  RepackageError
 };

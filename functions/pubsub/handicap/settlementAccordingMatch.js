@@ -54,8 +54,8 @@ function queryMatchWhichHandicapIsNotNull(handicapType) {
      INNER JOIN match__${handicapName} AS ${handicapName} on matches.${handicapType}_id = ${handicapName}.${handicapType}_id
           WHERE status = ${endStatus}
             AND matches.${handicapType}_id IS NOT NULL
-            AND (home_points IS NOT NULL AND home_points != '' OR home_points = 0)
-            AND (away_points IS NOT NULL AND away_points != '' OR away_points = 0)
+            AND home_points >= 0
+            AND away_points >= 0
             AND (${handicapType}_result IS NULL OR ${handicapType}_result = '')
             AND flag_prematch = ${validMatch}`,
         {

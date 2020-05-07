@@ -285,6 +285,10 @@ const League = sequelize.define(
   {
     indexes: [
       {
+        unique: true,
+        fields: ['ori_league_id']
+      },
+      {
         fields: ['league_id']
       },
       {
@@ -621,11 +625,9 @@ const Prediction = sequelize.define(
   {
     indexes: [
       {
-        unique: true,
         fields: ['uid', 'bets_id', 'spread_id']
       },
       {
-        unique: true,
         fields: ['uid', 'bets_id', 'totals_id']
       },
       {
