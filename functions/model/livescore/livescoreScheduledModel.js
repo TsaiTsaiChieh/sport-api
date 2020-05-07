@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league, args.time);
 
@@ -17,7 +17,13 @@ async function reResult(sport, league, time) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, time) {
-  const leagueName = `pagetest_${league}`;
+  let leagueName;
+
+  if (league === 'eSoccer') {
+    leagueName = `pagetest_${league}`;
+  } else {
+    leagueName = `${sport}_${league}`;
+  }
   const query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')
@@ -65,10 +71,7 @@ async function repackage(sport, league, time) {
       league = eventData[i].league.name;
     }
     // 2 目前當天有幾場比賽規劃中
-    if (
-      (scheduled === dateNow && eventData[i].flag.status === 2) ||
-      eventData[i].flag.status === -1
-    ) {
+    if (scheduled === dateNow && eventData[i].flag.status === 2) {
       scheduledEvent.push({
         sport: sport,
         league: eventData[i].league.name_ch,
