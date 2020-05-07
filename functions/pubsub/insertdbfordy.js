@@ -1,11 +1,22 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-const MatchLeague = db.League;
-const MatchTeam = db.Team;
+
 inserttest();
 
 async function inserttest() {
-  const unix = Math.floor(Date.now() / 1000);
-  const now = modules.convertTimezoneFormat(unix);
-  console.log(now);
+  let data = await modules.firestore
+    .collection('pagetest_eSoccer')
+    .where('flag.status', '>', 0)
+    .get();
+  data = await modules.firestore
+    .collection('pagetest_eSoccer')
+    .where('flag.status', '<', 0)
+    .get();
+  const totalData = [];
+  data.forEach((doc) => {
+    totalData.push(doc.data());
+  });
+  for (let i = 0; i < totalData.length; i++) {
+    console.log(totalData.bets_id);
+  }
 }

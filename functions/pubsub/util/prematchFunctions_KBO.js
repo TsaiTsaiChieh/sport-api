@@ -1,15 +1,15 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'pagetest_KBO';
+const firebaseName = 'baseball_KBO';
 const Match = db.Match;
 const MatchTeam = db.Team;
 const leagueUniteID = '349';
 const leagueUniteName = 'KBO';
 const sportID = 16;
 module.exports.KBO = {};
-module.exports.KBO.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
+module.exports.KBO.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
     try {
       const leagueID = 349;
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
@@ -20,7 +20,7 @@ module.exports.KBO.upcoming = async function(date) {
           await write2firestore(ele);
           await write2realtime(ele);
           await write2MysqlOfMatch(ele);
-          await write2MysqlOfMatchTeam(ele);
+          // await write2MysqlOfMatchTeam(ele);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -35,7 +35,7 @@ module.exports.KBO.upcoming = async function(date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -47,7 +47,7 @@ async function axiosForURL(URL) {
   });
 }
 async function write2firestore(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.firestore
         .collection(firebaseName)
@@ -64,7 +64,7 @@ async function write2firestore(ele) {
   });
 }
 async function write2realtime(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.database
         .ref(`baseball/KBO/${ele.id}/Summary/status`)
@@ -80,7 +80,7 @@ async function write2realtime(ele) {
   });
 }
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,
@@ -105,7 +105,9 @@ async function write2MysqlOfMatch(ele) {
   });
 }
 async function write2MysqlOfMatchTeam(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    switch (ele.home.name) {
+    }
     try {
       const dataHomeTeam = {
         team_id: ele.home.id,
