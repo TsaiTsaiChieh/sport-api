@@ -5,7 +5,7 @@ async function godSellInformation(req, res) {
   const now = new Date();
   const schema = {
     type: 'object',
-    required: ['league', 'date', 'desc', 'tips'],
+    required: ['league', 'date'],
     properties: {
       league: {
         type: 'string',
@@ -14,22 +14,34 @@ async function godSellInformation(req, res) {
       date: {
         type: 'string',
         format: 'date'
-      },
-      desc: {
-        type: 'string',
-        pattern:
-          '^[ \u4e00-\u9fa5_a-zA-Z0-9\u3105-\u3129\u02CA\u02C7\u02CB\u02D9<>，,。.:：!！;；*＊()（）「」『』@#＃&＆+-=%％]+$', // 允許中英文底線空格特殊符號
-        minLength: 0,
-        maxLength: 100
-      },
-      tips: {
-        type: 'string',
-        pattern:
-          '^[ \u4e00-\u9fa5_a-zA-Z0-9\u3105-\u3129\u02CA\u02C7\u02CB\u02D9<>，,。.:：!！;；*＊()（）「」『』@#＃&＆+-=%％]+$', // 允許中英文底線空格特殊符號
-        minLength: 0,
-        maxLength: 500
       }
-    }
+    },
+    anyOf: [
+      {
+        required: ['tips'],
+        properties: {
+          tips: {
+            type: 'string',
+            pattern:
+              '^[ \u4e00-\u9fa5_a-zA-Z0-9\u3105-\u3129\u02CA\u02C7\u02CB\u02D9<>，,。.:：!！;；*＊()（）「」『』？?@#＃&＆+-=%％]+$|', // 允許中英文底線空格特殊符號和 null
+            minLength: 0,
+            maxLength: 500
+          }
+        }
+      },
+      {
+        required: ['desc'],
+        properties: {
+          desc: {
+            type: 'string',
+            pattern:
+              '^[ \u4e00-\u9fa5_a-zA-Z0-9\u3105-\u3129\u02CA\u02C7\u02CB\u02D9<>，,。.:：!！;；*＊()（）「」『』？?@#＃&＆+-=%％]+$|', // 允許中英文底線空格特殊符號和 null
+            minLength: 0,
+            maxLength: 100
+          }
+        }
+      }
+    ]
   };
   const args = {
     token: req.token,
@@ -79,7 +91,27 @@ module.exports = godSellInformation;
 	"league": "NBA",
 	"date": "2020-07-01",
 	"desc": "我預測得超好",
-	"tips": "買了就送你myprecious"
+	"tips": "買了就送你 my precious"
+}
+ * @apiParamExample {JSON} Request-Query
+{
+	"league": "NBA",
+	"date": "2020-07-01",
+	"desc": "我預測得超好"
+}
+ * @apiParamExample {JSON} Request-Query
+{
+	"league": "NBA",
+	"date": "2020-07-01",
+	"tips": "買了就送你 my precious"
+}
+ * @apiParamExample {JSON} Request-Query
+ // 這樣會都清空
+{
+	"league": "NBA",
+	"date": "2020-07-01",
+	"desc": "", 
+	"tips": ""
 }
  * @apiSuccess {String} response
  *
@@ -95,15 +127,29 @@ module.exports = godSellInformation;
  * HTTP/1.1 400 Bad Request
  * [
     {
-        "keyword": "enum",
-        "dataPath": ".league",
-        "schemaPath": "#/properties/league/enum",
+        "keyword": "required",
+        "dataPath": "",
+        "schemaPath": "#/anyOf/0/required",
         "params": {
-            "allowedValues": [
-                "NBA"
-            ]
+            "missingProperty": "tips"
         },
-        "message": "should be equal to one of the allowed values"
+        "message": "should have required property 'tips'"
+    },
+    {
+        "keyword": "required",
+        "dataPath": "",
+        "schemaPath": "#/anyOf/1/required",
+        "params": {
+            "missingProperty": "desc"
+        },
+        "message": "should have required property 'desc'"
+    },
+    {
+        "keyword": "anyOf",
+        "dataPath": "",
+        "schemaPath": "#/anyOf",
+        "params": {},
+        "message": "should match some schema in anyOf"
     }
 ]
  *
