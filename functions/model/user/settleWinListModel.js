@@ -79,7 +79,7 @@ function settleWinList(args) {
       }
 
       // !!!! 記得改成 9
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
+      if (!([1, 2, 9].includes(memberInfo.status))) { // 不是 管理者
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1308'));
       }
