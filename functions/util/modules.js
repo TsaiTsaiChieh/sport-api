@@ -278,10 +278,10 @@ function groupBy(arr, prop) {
 // groupsby 多 group 參數 且 排序(單一欄位、大->小) 且 限制筆數
 // 輸入參數
 //   prop: [o.uid, o.league_id] // group 欄位
-//   order: 'date_timestamp'
+//   order: ['date_timestamp', ...] // date_timestamp：小到大  -date_timestamp：大到小
 //   limit: 30
 // 回傳
-//   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [{...}, {...}, ...]}
+//   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
 function groupsByOrderLimit(array, prop, order, limit = 0) {
   const groups = {};
   array.forEach(function(o) {
@@ -292,9 +292,7 @@ function groupsByOrderLimit(array, prop, order, limit = 0) {
   });
 
   for (let [key, o] of Object.entries(groups)) {
-    o.sort(function compare(a, b) {
-      return b[order] - a[order]; // 降 大->小
-    });
+    o.sort(fieldSorter(order));
     o = o.slice(0, limit); // 取幾筆
   }
 
@@ -306,6 +304,7 @@ function groupsByOrderLimit(array, prop, order, limit = 0) {
     };
 
     res.lists = groups[group];
+    console.log('res: ', res);
     return res;
   });
 }
