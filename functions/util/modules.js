@@ -275,7 +275,7 @@ function groupBy(arr, prop) {
   return Array.from(map.values());
 }
 
-// groupsby 多參數 且 排序 且 限制筆數
+// groupsby 多 group 參數 且 排序(單一欄位、大->小) 且 限制筆數
 // 輸入參數
 //   prop: [o.uid, o.league_id] // group 欄位
 //   order: 'date_timestamp'
