@@ -575,7 +575,7 @@ const Season = sequelize.define(
     league_name: {
       type: Sequelize.STRING
     },
-    year: {
+    season: {
       type: Sequelize.INTEGER
     },
     start_date: {
