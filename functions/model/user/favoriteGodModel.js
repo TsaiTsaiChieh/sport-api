@@ -1,6 +1,7 @@
 /* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const getGodModel = require('../../model/user/getFavoriteGodModel');
+
 function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
@@ -94,26 +95,33 @@ async function favoriteGod(args) {
       const remove = args.remove;
 
       if (typeof add !== 'undefined' && add !== null) {
-        add.forEach(async function(item) {
+        for (let i = 0; i < add.length; i++) {
           try {
-            await checkLiked(uid, god_uid, item);
-            like(uid, god_uid, item);
+            await checkLiked(uid, god_uid, add[i]);
+            await like(uid, god_uid, add[i]);
           } catch (e) {
-            console.log(e);
+            // console.log(e);
           }
-        });
+        };
       }
 
       if (typeof remove !== 'undefined' && remove !== null) {
-        remove.forEach(async function(item) {
+        for (let j = 0; j < remove.length; j++) {
           try {
-            unlike(uid, god_uid, item);
+            await unlike(uid, god_uid, remove[j]);
           } catch (e) {
-            console.log(e);
+            // console.log(e);
           }
-        });
+        };
       }
-      resolve({ code: 200 });
+
+      getGodModel(args)
+        .then(function(body) {
+          resolve(body);
+        })
+        .catch(function(err) {
+          resolve({ code: 200, error: err });
+        });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

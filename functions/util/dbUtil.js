@@ -558,6 +558,46 @@ const Match = sequelize.define(
   }
 );
 
+const Season = sequelize.define(
+  'match__season',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    radar_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    year: {
+      type: Sequelize.INTEGER
+    },
+    start_date: {
+      type: Sequelize.STRING
+    },
+    end_date: {
+      type: Sequelize.STRING
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    type: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['league_id', 'year', 'type']
+      }
+    ]
+  }
+);
+
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -651,7 +691,7 @@ const Prediction = sequelize.define(
 );
 
 /*
- * 預測單的資訊，unique key 為 bets_id, uid
+ * 大神販售預測單的資訊，unique key 為 uid, day, league_id
  */
 const PredictionDescription = sequelize.define(
   'user__prediction__description',
@@ -845,6 +885,10 @@ const User_FavoriteGod = sequelize.define(
       allowNull: false
     },
     god_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    type: {
       type: Sequelize.STRING,
       allowNull: false
     }
@@ -1259,7 +1303,7 @@ const Bank = sequelize.define(
     },
     bank_account: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [
@@ -1271,7 +1315,7 @@ const Bank = sequelize.define(
   }
 );
 
-/*轉換紀錄狀態碼*/
+/* 轉換紀錄狀態碼 */
 const Transfer_Status = sequelize.define(
   'user__transfer__status',
   {
@@ -1280,7 +1324,7 @@ const Transfer_Status = sequelize.define(
     },
     status_content: {
       type: Sequelize.STRING
-    },
+    }
   },
   {
     indexes: [
@@ -1320,7 +1364,8 @@ const dbUtil = {
   Honor_board,
   News,
   Bank,
-  Transfer_Status
+  Transfer_Status,
+  Season
 };
 
 module.exports = dbUtil;

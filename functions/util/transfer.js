@@ -1,8 +1,8 @@
+
 const moment = require('moment');
 
 /*寫入轉換紀錄*/
 function doTransfer(db, args){
-  
     const from_uid = args.from_uid || 'default';
     const to_uid = args.to_uid || 'default';
     const type_id = args.type_id || 0;
@@ -50,9 +50,11 @@ function doTransfer(db, args){
       bind: { from_uid: from_uid, to_uid: to_uid, type_id:type_id, type: type, money_type: money_type, money_value: money_value, title:title, content:content, scheduled:scheduled, createdAt:date, updatedAt:date },
       type: db.sequelize.QueryTypes.INSERT
     });
+
     return transfer;
   }
 
   module.exports = {
     doTransfer
   }
+
