@@ -22,7 +22,6 @@ function honorModel(req) {
           }
         };
 
-
         const wins = await db.sequelize.query(
           `
             SELECT  ml.name, 
@@ -66,7 +65,7 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id:league_id, current_period:period, currentMonth:currentMonth, currentSeason:currentSeason },
+            bind: { uid: uid, league_id: league_id, current_period: period, currentMonth: currentMonth, currentSeason: currentSeason },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
