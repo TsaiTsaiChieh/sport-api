@@ -275,6 +275,41 @@ function groupBy(arr, prop) {
   return Array.from(map.values());
 }
 
+// groupsby 多參數 且 排序 且 限制筆數
+// 輸入參數
+//   prop: [o.uid, o.league_id] // group 欄位
+//   order: 'date_timestamp'
+//   limit: 30
+// 回傳
+//   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [{...}, {...}, ...]}
+function groupsByOrderLimit(array, prop, order, limit = 0) {
+  const groups = {};
+  array.forEach(function(o) {
+    // 組出 prop 的 json 字串 做為 groups key 值
+    var group = JSON.stringify(prop.map((m) => { return o[m]; }));
+    groups[group] = groups[group] || [];
+    groups[group].push(o);
+  });
+
+  for (let [key, o] of Object.entries(groups)) {
+    o.sort(function compare(a, b) {
+      return b[order] - a[order]; // 降 大->小
+    });
+    o = o.slice(0, limit); // 取幾筆
+  }
+
+  return Object.keys(groups).map(function(group) {
+    const res = {};
+    const t = JSON.parse(group); // 把 json 字串 轉回 object
+    for (const [key, value] of Object.entries(t)) {
+      res[prop[key]] = value;
+    };
+
+    res.lists = groups[group];
+    return res;
+  });
+}
+
 // sort an array of objects by multiple fields
 // https://stackoverflow.com/a/30446887
 const fieldSorter = (fields) => (a, b) => fields.map(o => {
@@ -544,6 +579,7 @@ module.exports = {
   acceptNumberAndLetter,
   httpStatus,
   groupBy,
+  groupsByOrderLimit,
   fieldSorter,
   mergeDeep,
   settleSpread,
