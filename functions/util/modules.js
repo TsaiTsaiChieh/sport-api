@@ -298,10 +298,10 @@ function groupBy(arr, prop) {
 // 輸入參數
 //   prop: [o.uid, o.league_id] // group 欄位
 //   order: ['date_timestamp', ...] // date_timestamp：小到大  -date_timestamp：大到小
-//   limit: 30
+//   limit: 30 // -1 全部
 // 回傳
 //   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
-function groupsByOrderLimit(array, prop, order, limit = 0) {
+function groupsByOrderLimit(array, prop, order, limit = -1) {
   const groups = {};
   array.forEach(function(o) {
     // 組出 prop 的 json 字串 做為 groups key 值
