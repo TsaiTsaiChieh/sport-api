@@ -27,6 +27,7 @@ function honorModel(req) {
             SELECT  ml.name, 
                     ml.name_ch,
                     uwl.this_period_win_rate,
+                    uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
                     uwl.this_month_win_bets,
                     (
