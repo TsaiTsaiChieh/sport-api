@@ -85,10 +85,10 @@ function settleMatchesModel(args) {
 
         // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
+        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '13111')); // 賽事結算讓分 結果不應該為空白
 
         const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
+        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '13112')); // 賽事結算大小 結果不應該為空白
 
         console.log(bets_id, settelSpreadResult, settelTotalsResult);
         // 回寫結果
@@ -102,14 +102,14 @@ function settleMatchesModel(args) {
             }
           });
 
-          if (r[0] !== 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
+          if (r[0] !== 1) return reject(errs.errsMsg('404', '13110')); // 更新筆數異常
 
           result[bets_id] = { status: 1, msg: '賽事結算成功！' };
         } catch (err) {
           console.error(err);
-          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1341'));
-          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1342'));
-          return reject(errs.errsMsg('404', '1309'));
+          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13141'));
+          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13142'));
+          return reject(errs.errsMsg('404', '13109'));
         }
       };
       // });
@@ -162,10 +162,10 @@ function settleMatchesModel(args) {
 
         // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
         const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
+        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '13215')); // 賽事結算讓分 結果不應該為空白
 
         const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1316')); // 賽事結算大小 結果不應該為空白
+        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '13216')); // 賽事結算大小 結果不應該為空白
 
         // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
@@ -184,14 +184,14 @@ function settleMatchesModel(args) {
             }
           });
 
-          if (r[0] !== 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
+          if (r[0] !== 1) return reject(errs.errsMsg('404', '13214')); // 更新筆數異常
 
           result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
         } catch (err) {
           console.error(err);
-          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1343'));
-          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1344'));
-          return reject(errs.errsMsg('404', '1313'));
+          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13243'));
+          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13244'));
+          return reject(errs.errsMsg('404', '13213'));
         }
       };
       // });

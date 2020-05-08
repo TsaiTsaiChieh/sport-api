@@ -160,10 +160,10 @@ function settleWinList(args) {
           } catch (err) {
             console.error(err);
             // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1325'));
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13325'));
             // parent.code: 'ER_DUP_ENTRY'  parent.errno: 1062  parent.sqlState: '23000'
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1326'));
-            return reject(errs.errsMsg('404', '1327'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13326'));
+            return reject(errs.errsMsg('404', '13327'));
           }
 
           if (!created) {
@@ -182,9 +182,9 @@ function settleWinList(args) {
               });
             } catch (err) {
               console.error(err);
-              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1328'));
-              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1329'));
-              return reject(errs.errsMsg('404', '1330'));
+              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13328'));
+              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13329'));
+              return reject(errs.errsMsg('404', '13330'));
             }
           }
 
@@ -195,7 +195,7 @@ function settleWinList(args) {
         // await Promise.all(upsertResult);
       } catch (err) {
         console.error(err);
-        return reject(errs.errsMsg('404', '1317'));
+        return reject(errs.errsMsg('404', '13317'));
       }
 
       s22 = new Date().getTime();
@@ -213,7 +213,7 @@ function settleWinList(args) {
             dayOfYear, week, month, season, period);
 
           // 檢查 是否有6筆資料
-          // if (allTotalCount.length !== 6) return reject(errs.errsMsg('404', '1322')); // 筆數異常
+          // if (allTotalCount.length !== 6) return reject(errs.errsMsg('404', '13422')); // 筆數異常
 
           // 檢查是否為數字
           const ele = allTotalCount;
@@ -259,9 +259,9 @@ function settleWinList(args) {
             });
           } catch (err) {
             console.error(err);
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1331'));
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1332'));
-            return reject(errs.errsMsg('404', '1333'));
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13431'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13432'));
+            return reject(errs.errsMsg('404', '13433'));
           }
 
           if (!created) {
@@ -285,13 +285,13 @@ function settleWinList(args) {
               });
             } catch (err) {
               console.error(err);
-              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1334'));
-              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1335'));
-              return reject(errs.errsMsg('404', '1336'));
+              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13434'));
+              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13435'));
+              return reject(errs.errsMsg('404', '13436'));
             }
           }
 
-          // if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
+          // if (r) return reject(errs.errsMsg('404', '13420')); // 更新筆數異常
 
           result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
 
@@ -311,14 +311,14 @@ function settleWinList(args) {
             });
 
             // 有可能不是大神，無更新筆數
-            // if (r[0] !== 1) return reject(errs.errsMsg('404', '1324')); // 更新筆數異常
+            // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
 
             if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
           } catch (err) {
             console.error(err);
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1337'));
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1338'));
-            return reject(errs.errsMsg('404', '1339'));
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13537'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13538'));
+            return reject(errs.errsMsg('404', '13539'));
           }
         }
         // });
@@ -326,7 +326,7 @@ function settleWinList(args) {
         // await Promise.all(updateResult);
       } catch (err) {
         console.error(err);
-        return reject(errs.errsMsg('404', '1340'));
+        return reject(errs.errsMsg('404', '13440'));
       }
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
