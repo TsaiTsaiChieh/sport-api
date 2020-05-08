@@ -893,6 +893,36 @@ const Users_WinListsHistory = sequelize.define(
   }
 );
 
+const UserFollow = sequelize.define(
+  'user__follow',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    follow_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid']
+      }
+    ]
+  }
+);
+
 /* 這邊給如果用 */
 
 /*
@@ -1386,7 +1416,8 @@ const dbUtil = {
   News,
   Bank,
   Transfer_Status,
-  Season
+  Season,
+  UserFollow
 };
 
 module.exports = dbUtil;
