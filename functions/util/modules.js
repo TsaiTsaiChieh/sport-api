@@ -304,7 +304,6 @@ function groupsByOrderLimit(array, prop, order, limit = 0) {
     };
 
     res.lists = groups[group];
-    console.log('res: ', res);
     return res;
   });
 }
