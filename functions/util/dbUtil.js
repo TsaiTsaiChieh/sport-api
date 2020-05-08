@@ -848,6 +848,9 @@ const Users_WinListsHistory = sequelize.define(
     period: {
       type: Sequelize.INTEGER
     },
+    week_of_period: {
+      type: Sequelize.INTEGER
+    },
     week: {
       type: Sequelize.INTEGER
     },
