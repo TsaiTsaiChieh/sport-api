@@ -567,7 +567,8 @@ const Season = sequelize.define(
       primaryKey: true
     },
     radar_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     league_id: {
       type: Sequelize.STRING
@@ -579,10 +580,12 @@ const Season = sequelize.define(
       type: Sequelize.INTEGER
     },
     start_date: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     end_date: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     status: {
       type: Sequelize.INTEGER
@@ -598,7 +601,10 @@ const Season = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['league_id', 'year', 'type']
+        fields: ['league_id', 'season', 'type']
+      },
+      {
+        fields: ['league_id', 'current']
       }
     ]
   }
@@ -868,7 +874,16 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
+        fields: [
+          'uid',
+          'league_id',
+          'date_timestamp',
+          'date',
+          'period',
+          'week',
+          'month',
+          'season'
+        ],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
