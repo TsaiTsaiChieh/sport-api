@@ -159,11 +159,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.FLOAT
+      type: Sequelize.INTEGER
     },
     win_rate: {
       // 勝率
-      type: Sequelize.FLOAT
+      type: Sequelize.INTEGER
     },
     continue: {
       // 連贏 N 天
@@ -284,6 +284,10 @@ const League = sequelize.define(
   },
   {
     indexes: [
+      {
+        unique: true,
+        fields: ['ori_league_id']
+      },
       {
         fields: ['league_id']
       },
@@ -554,6 +558,46 @@ const Match = sequelize.define(
   }
 );
 
+const Season = sequelize.define(
+  'match__season',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    radar_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    year: {
+      type: Sequelize.INTEGER
+    },
+    start_date: {
+      type: Sequelize.STRING
+    },
+    end_date: {
+      type: Sequelize.STRING
+    },
+    status: {
+      type: Sequelize.INTEGER
+    },
+    type: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['league_id', 'year', 'type']
+      }
+    ]
+  }
+);
+
 /*
  * 預測單的資訊，unique key 為 bets_id, uid
  */
@@ -621,11 +665,9 @@ const Prediction = sequelize.define(
   {
     indexes: [
       {
-        unique: true,
         fields: ['uid', 'bets_id', 'spread_id']
       },
       {
-        unique: true,
         fields: ['uid', 'bets_id', 'totals_id']
       },
       {
@@ -649,7 +691,7 @@ const Prediction = sequelize.define(
 );
 
 /*
- * 預測單的資訊，unique key 為 bets_id, uid
+ * 大神販售預測單的資訊，unique key 為 uid, day, league_id
  */
 const PredictionDescription = sequelize.define(
   'user__prediction__description',
@@ -718,12 +760,6 @@ const Users_WinLists = sequelize.define(
     last_period_win_rate: {
       type: Sequelize.FLOAT
     },
-    last_week1_of_period_win_bets: {
-      type: Sequelize.FLOAT
-    },
-    last_week1_of_period_win_rate: {
-      type: Sequelize.FLOAT
-    },
     last_month_win_bets: {
       type: Sequelize.FLOAT
     },
@@ -746,12 +782,6 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.FLOAT
     },
     this_period_win_rate: {
-      type: Sequelize.FLOAT
-    },
-    this_week1_of_period_win_bets: {
-      type: Sequelize.FLOAT
-    },
-    this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
     this_month_win_bets: {
@@ -818,9 +848,6 @@ const Users_WinListsHistory = sequelize.define(
     period: {
       type: Sequelize.INTEGER
     },
-    week_of_period: {
-      type: Sequelize.INTEGER
-    },
     week: {
       type: Sequelize.INTEGER
     },
@@ -835,7 +862,7 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date_timestamp', 'date_of_year', 'period', 'week_of_period', 'week', 'month', 'season'],
+        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
@@ -869,7 +896,7 @@ const User_FavoriteGod = sequelize.define(
   {
     indexes: [
       {
-        fields: ['uid', 'god_uid', 'type']
+        fields: ['uid']
       }
     ]
   }
@@ -1082,12 +1109,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
   },
   content: {
     type: Sequelize.STRING,
-    allowNull: true
-  },
-  images: {
-    // 放圖片url用
-    type: Sequelize.TEXT,
-    allowNull: true
+    allowNull: false
   },
   status: {
     type: Sequelize.INTEGER,
@@ -1129,7 +1151,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'home__banner',
+  'user__home__banner',
   {
     name: {
       type: Sequelize.STRING,
@@ -1264,6 +1286,56 @@ const News = sequelize.define(
   }
 );
 
+const Bank = sequelize.define(
+  'user__bank',
+  {
+    bank_id: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    bank_code: {
+      type: Sequelize.STRING
+    },
+    bank_username: {
+      type: Sequelize.STRING
+    },
+    bank_account: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['bank_id', 'uid']
+      }
+    ]
+  }
+);
+
+/* 轉換紀錄狀態碼 */
+const Transfer_Status = sequelize.define(
+  'user__transfer__status',
+  {
+    status_code: {
+      type: Sequelize.INTEGER
+    },
+    status_content: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['status_code']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1290,7 +1362,10 @@ const dbUtil = {
   Service_Contact,
   Buy,
   Honor_board,
-  News
+  News,
+  Bank,
+  Transfer_Status,
+  Season
 };
 
 module.exports = dbUtil;

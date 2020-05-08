@@ -153,6 +153,18 @@ class MysqlError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class SettlementAccordingMatch extends ExtendableError {
+  constructor(
+    message = '結算所有完賽的賽事排程錯誤',
+    status = 1501,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 class PrematchEsoccerError extends ExtendableError {
   constructor(
     message = '電競足球賽前排程錯誤',
@@ -233,10 +245,21 @@ class PBPMLBError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-class SettlementAccordingMatch extends ExtendableError {
+class PBPKBOError extends ExtendableError {
   constructor(
-    message = '結算所有完賽的賽事排程錯誤',
-    status = 1501,
+    message = 'KBO文字直播排程錯誤',
+    status = 1511,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class RepackageError extends ExtendableError {
+  constructor(
+    message = '資料重新包裝錯誤',
+    status = 1510,
     isPublic = true,
     code = httpStatus.INTERNAL_SERVER_ERROR
   ) {
@@ -265,5 +288,7 @@ module.exports = {
   PBPEsoccerError,
   PBPNBAError,
   PBPMLBError,
-  SettlementAccordingMatch
+  SettlementAccordingMatch,
+  PBPKBOError,
+  RepackageError
 };

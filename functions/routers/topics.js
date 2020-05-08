@@ -60,5 +60,10 @@ router.post(
   verification.token,
   require('../controller/topics/favoriteArticleController')
 );
+router.post(
+  '/donate',
+  verification.token,
+  require('../controller/topics/donateController')
+);
 
 module.exports = router;

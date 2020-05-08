@@ -5,7 +5,6 @@ const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
-const GOD_USER = 2;
 const scheduledStatus = 2;
 
 function prematch(args) {
@@ -66,7 +65,7 @@ async function checkMatches(args) {
         await isMatchValid(args, ele, { needed, failed });
       }
       for (let i = 0; i < needed.length; i++) {
-        if (args.token.customClaims.role === GOD_USER) {
+        if (args.token.customClaims.titles.includes(args.league)) {
           await isGodUpdate(args.token.uid, i, { needed, failed });
           if (needed[i].length === undefined) {
             // 有資料的
@@ -84,6 +83,7 @@ async function isMatchValid(args, ele, filter) {
   return new Promise(async function(resolve, reject) {
     const { league } = args;
     const { handicapType, handicapId } = handicapProcessor(ele);
+
     try {
       // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
       const results = await db.sequelize.query(
@@ -103,6 +103,7 @@ async function isMatchValid(args, ele, filter) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
+
       if (!results.length) {
         ele.code = 404;
         ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
@@ -124,7 +125,7 @@ async function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -134,6 +135,7 @@ function isGodUpdate(uid, i, filter) {
     const ele = filter.needed[i];
     const { handicapType, handicapId } = handicapProcessor(ele);
     try {
+      // index is const, taking 160ms
       const predictResults = await db.sequelize.query(
         `SELECT *
            FROM user__predictions AS prediction
@@ -155,7 +157,7 @@ function isGodUpdate(uid, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -191,15 +193,19 @@ function isGodSellConsistent(args, i, filter) {
       const end =
         modules.convertTimezone(date, { op: 'add', value: 1, unit: 'days' }) -
         1;
-
+      // index is range, taking 161ms
       const results = await db.sequelize.query(
         `SELECT prediction.sell
            FROM user__predictions AS prediction
           WHERE prediction.uid = :uid 
             AND prediction.match_scheduled BETWEEN ${begin} AND ${end}
+            AND prediction.league_id = :league_id
           LIMIT 1`,
         {
-          replacements: { uid: args.token.uid },
+          replacements: {
+            uid: args.token.uid,
+            league_id: modules.leagueCodebook(args.league).id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -209,7 +215,7 @@ function isGodSellConsistent(args, i, filter) {
         } else return resolve();
       } else return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -238,26 +244,32 @@ function isNeeded(needed) {
 
 async function insertDB(args, needed) {
   return new Promise(async function(resolve, reject) {
-    const results = [];
-    for (let i = 0; i < needed.length; i++) {
-      const ele = needed[i];
-      if (ele.length === undefined) {
-        const data = repackagePrediction(args, ele);
-        const { handicapType, handicapId } = handicapProcessor(ele);
-        results.push(db.Prediction.upsert(data));
-        console.log(
-          `User(${
-            args.token.customClaims.role === NORMAL_USER ? 'Normal' : 'God'
-          }) update or insert match id: ${
-            ele.id
-          } [${handicapType}_id: ${handicapId}] successful`
-        );
-      }
-    }
     try {
-      return resolve(await Promise.all(results));
+      for (let i = 0; i < needed.length; i++) {
+        const ele = needed[i];
+        if (ele.length === undefined) {
+          const data = repackagePrediction(args, ele);
+          const { handicapType, handicapId } = handicapProcessor(ele);
+          // 為解決多筆資料會 deadlock 所做的修正
+          // upsert return return true -> create
+          // upsert return return false -> create update
+          const results = await db.Prediction.upsert(data);
+          if (results || !results) {
+            console.log(
+              `User (${
+                args.token.customClaims.titles.includes(args.league)
+                  ? 'God'
+                  : 'Normal'
+              }-${args.token.uid}) upsert match id: ${
+                ele.id
+              } [${handicapType}_id: ${handicapId}] successful`
+            );
+          }
+        }
+      }
+      return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }

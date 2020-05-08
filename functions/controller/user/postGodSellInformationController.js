@@ -9,7 +9,7 @@ async function godSellInformation(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'eSoccer']
+        enum: modules.acceptLeague
       },
       date: {
         type: 'string',
@@ -69,8 +69,8 @@ module.exports = godSellInformation;
  * @apiName Post sell information
  * @apiGroup User
  *
- * @apiParam {String} prematch date, ex: ```2020-07-01```
- * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} prematch date, ex: `2020-07-01`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`, `KBO`
  * @apiParam {String} desc 說明文
  * @apiParam {String} tips 武功秘笈
  *

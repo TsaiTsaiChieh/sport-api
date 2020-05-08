@@ -1,46 +1,35 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-module.exports.eSoccer = {};
-const firebaseName = 'pagetest_eSoccer';
+const firebaseName = 'pagetest_KBO';
 const Match = db.Match;
 const MatchTeam = db.Team;
-const leagueUniteID = '22000';
-const leagueUniteName = 'eSoccer';
-const sportID = 1;
-const leagueArray = [22614, 22808, 22764, 22537, 22724];
-module.exports.eSoccer.upcoming = async function(date) {
+const leagueUniteID = '349';
+const leagueUniteName = 'KBO';
+const sportID = 16;
+module.exports.KBO = {};
+module.exports.KBO.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
-      for (let i = 0; i < leagueArray.length; i++) {
-        const leagueID = leagueArray[i];
-        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
-        const data = await axiosForURL(URL);
-        if (data.results) {
-          for (let j = 0; j < data.results.length; j++) {
-            const ele = data.results[j];
-            if (ele.home.name.indexOf('Esports') !== -1) {
-              ele.home.name = ele.home.name.replace('Esports', '');
-            }
-            if (ele.away.name.indexOf('Esports') !== -1) {
-              ele.away.name = ele.away.name.replace('Esports', '');
-            }
-            await write2firestore(ele);
-            await write2realtime(ele);
-            await write2MysqlOfMatch(ele);
-            await write2MysqlOfMatchTeam(ele);
-          }
-        } else {
-          console.log(leagueID + 'has no upcoming event now');
+      const leagueID = 349;
+      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+      const data = await axiosForURL(URL);
+      if (data.results) {
+        for (let j = 0; j < data.results.length; j++) {
+          const ele = data.results[j];
+          await write2firestore(ele);
+          await write2realtime(ele);
+          await write2MysqlOfMatch(ele);
+          await write2MysqlOfMatchTeam(ele);
         }
+      } else {
+        console.log(leagueID + 'has no upcoming event now');
       }
-      console.log('esport scheduled success');
+      console.log('KBO scheduled success');
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.PrematchEsoccerError(
-          `${err} at prematchFunctions_ESoccer by DY`
-        )
+        new AppErrors.PrematchEsoccerError(`${err} at prematchFunctions by DY`)
       );
     }
   });
@@ -52,7 +41,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
       );
     }
   });
@@ -68,7 +57,7 @@ async function write2firestore(ele) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_KBO by DY`
         )
       );
     }
@@ -78,13 +67,13 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+        .ref(`baseball/KBO/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_KBO by DY`
         )
       );
     }
@@ -110,7 +99,7 @@ async function write2MysqlOfMatch(ele) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_KBO by DY`)
       );
     }
   });
@@ -141,56 +130,13 @@ async function write2MysqlOfMatchTeam(ele) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_KBO by DY`)
       );
     }
   });
 }
 function repackage_bets(ele) {
-  let leagueCH = '';
-  switch (ele.league.id) {
-    case '22614': {
-      leagueCH = '足球電競之戰－8分鐘';
-      break;
-    }
-    case '22808': {
-      leagueCH = '墨西哥聯賽－12分鐘';
-      break;
-    }
-    case '22764': {
-      leagueCH = 'FUFV聯賽－12分鐘';
-      break;
-    }
-    case '22537': {
-      leagueCH = '職業聯賽－12分鐘';
-      break;
-    }
-    case '22724': {
-      leagueCH = '職業球員盃－12分鐘';
-      break;
-    }
-    default: {
-    }
-  }
-  let homeTeamName = '';
-  let homePlayerName = '';
-  let awayTeamName = '';
-  let awayPlayerName = '';
-
-  if (ele.home.name.indexOf('(') !== -1) {
-    homeTeamName = ele.home.name.split('(')[0].trim();
-    homePlayerName = ele.home.name.split('(')[1].replace(')', '').trim();
-  } else {
-    homeTeamName = ele.home.name;
-    homePlayerName = null;
-  }
-  if (ele.away.name.indexOf('(') !== -1) {
-    awayTeamName = ele.away.name.split('(')[0].trim();
-    awayPlayerName = ele.away.name.split('(')[1].replace(')', '').trim();
-  } else {
-    awayTeamName = ele.away.name;
-    awayPlayerName = null;
-  }
+  const leagueCH = '韓國職棒';
 
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
@@ -209,8 +155,6 @@ function repackage_bets(ele) {
       name: ele.home.name,
       alias: ele.home.name,
       alias_ch: ele.home.name,
-      team_name: homeTeamName,
-      player_name: homePlayerName,
       image_id: ele.home.image_id,
       bets_id: ele.home.id
     },
@@ -218,8 +162,6 @@ function repackage_bets(ele) {
       name: ele.away.name,
       alias: ele.away.name,
       alias_ch: ele.away.name,
-      team_name: awayTeamName,
-      player_name: awayPlayerName,
       image_id: ele.away.image_id,
       bets_id: ele.away.id
     },

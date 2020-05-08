@@ -19,6 +19,7 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
+const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -71,6 +72,11 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
     }
   }
   return moment.tz(unix, zone).format('YYYYMMDD');
+}
+
+function timeFormat(unix, zone = zone_tw) {
+  unix = unix * 1000;
+  return moment.tz(unix, zone).format('A h:mm');
 }
 
 function initFirebase() {
@@ -133,6 +139,7 @@ const db = {
   eBKA: 'eBKA',
   eSB8: 'eSB8',
   baseball_MLB: 'baseball_MLB',
+  baseball_KBO: 'baseball_KBO',
   eSoccer: 'eSoccer',
   prediction: 'prediction'
 };
@@ -158,22 +165,32 @@ function leagueCodebook(league) {
     case 'NBA':
       return {
         id: 2274,
-        match: db.basketball_NBA
+        match: db.basketball_NBA,
+        name_ch: '美國國家籃球協會'
       };
     case 'SBL':
       return {
         id: 8251,
-        match: db.basketball_SBL
+        match: db.basketball_SBL,
+        name_ch: '超級籃球聯賽'
       };
     case 'MLB':
       return {
         id: 3939,
-        match: db.baseball_MLB
+        match: db.baseball_MLB,
+        name_ch: '美國職棒大聯盟'
       };
     case 'eSoccer':
       return {
         id: 22000,
-        match: db.eSoccer
+        match: db.eSoccer,
+        name_ch: '足球電競'
+      };
+    case 'KBO':
+      return {
+        id: 349,
+        match: db.baseball_KBO,
+        name_ch: '韓國職棒'
       };
   }
 }
@@ -186,6 +203,8 @@ function leagueDecoder(leagueID) {
       return 'MLB';
     case '22000' || 22000:
       return 'eSoccer';
+    case '349' || 349:
+      return 'KBO';
     default:
       return 'Unknown';
   }
@@ -195,7 +214,7 @@ function leagueDecoder(leagueID) {
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesPeriod(date) {
+function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()
   const specificDate = '20200302';
   const years = [
@@ -244,12 +263,12 @@ function getTitlesPeriod(date) {
         date: moment(specificDate) // 該期開始計算的日期
           .utcOffset(UTF8)
           .add(i * 2 - 2, 'weeks')
-          .format('YYYYMMDD'),
+          .format(format),
         end: moment(specificDate) // 該期結束計算的日期
           .utcOffset(UTF8)
           .add(i * 2, 'weeks')
           .subtract(1, 'days')
-          .format('YYYYMMDD'),
+          .format(format),
         weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
       };
     }
@@ -270,8 +289,8 @@ function userStatusCodebook(role) {
 
 // 將陣列裡面的 object 依照 attrib 來進行分類成 array
 function groupBy(arr, prop) {
-  const map = new Map(Array.from(arr, obj => [obj[prop], []]));
-  arr.forEach(obj => map.get(obj[prop]).push(obj));
+  const map = new Map(Array.from(arr, (obj) => [obj[prop], []]));
+  arr.forEach((obj) => map.get(obj[prop]).push(obj));
   return Array.from(map.values());
 }
 
@@ -310,11 +329,17 @@ function groupsByOrderLimit(array, prop, order, limit = 0) {
 
 // sort an array of objects by multiple fields
 // https://stackoverflow.com/a/30446887
-const fieldSorter = (fields) => (a, b) => fields.map(o => {
-  let dir = 1;
-  if (o[0] === '-') { dir = -1; o = o.substring(1); }
-  return a[o] > b[o] ? dir : a[o] < b[o] ? -(dir) : 0;
-}).reduce((p, n) => p || n, 0);
+const fieldSorter = (fields) => (a, b) =>
+  fields
+    .map((o) => {
+      let dir = 1;
+      if (o[0] === '-') {
+        dir = -1;
+        o = o.substring(1);
+      }
+      return a[o] > b[o] ? dir : a[o] < b[o] ? -dir : 0;
+    })
+    .reduce((p, n) => p || n, 0);
 
 /**
  * Simple object check.
@@ -322,7 +347,7 @@ const fieldSorter = (fields) => (a, b) => fields.map(o => {
  * @returns {boolean}
  */
 function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+  return item && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -350,10 +375,16 @@ function isObject(item) {
 // }
 
 const mergeDeep = (target, source) => {
-  const isDeep = prop =>
-    isObject(source[prop]) && Object.prototype.hasOwnProperty.call(target, prop) && isObject(target[prop]);
+  const isDeep = (prop) =>
+    isObject(source[prop]) &&
+    Object.prototype.hasOwnProperty.call(target, prop) &&
+    isObject(target[prop]);
   const replaced = Object.getOwnPropertyNames(source)
-    .map(prop => ({ [prop]: isDeep(prop) ? mergeDeep(target[prop], source[prop]) : source[prop] }))
+    .map((prop) => ({
+      [prop]: isDeep(prop)
+        ? mergeDeep(target[prop], source[prop])
+        : source[prop]
+    }))
     .reduce((a, b) => ({ ...a, ...b }), {});
 
   return {
@@ -434,15 +465,15 @@ function settleTotals(data) {
 
 function perdictionsResultFlag(option, settelResult) {
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
-  if (['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)) {
+  if (
+    ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
+  ) {
     const settleOption = settelResult.split('|')[1];
     return settleOption === option ? 0.5 : -0.5;
   }
 
   // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
-  return settelResult === 'fair2'
-    ? 0 : settelResult === option
-      ? 0.95 : -1;
+  return settelResult === 'fair2' ? 0 : settelResult === option ? 0.95 : -1;
 }
 
 /* 輸入資料格式
@@ -488,26 +519,65 @@ function predictionsWinList(data) {
     reLeagues.forEach(function(data) {
       // 勝率 winRate
       const predictCorrectCounts =
-        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag) ? ++acc : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag) ? ++acc : acc,
+          0
+        );
 
       const predictFaultCounts =
-        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
+          0
+        ) +
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
+          0
+        );
 
       // 避免分母是0 平盤無效
-      const winRate = (predictCorrectCounts + predictFaultCounts) === 0
-        ? 0
-        : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      const winRate =
+        predictCorrectCounts + predictFaultCounts === 0
+          ? 0
+          : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注
       const predictCorrectBets =
-        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const predictFaultBets =
-        data.reduce((acc, cur) => fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets : acc, 0) +
-        data.reduce((acc, cur) => fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const winBets = predictCorrectBets + predictFaultBets;
 
@@ -535,6 +605,21 @@ function predictionsWinList(data) {
     });
   });
   return result;
+}
+
+// 將電競足球的隊名和球員分開
+function sliceTeamAndPlayer(name) {
+  if (name.includes('(')) {
+    const index = name.indexOf('(');
+    return {
+      team: name.slice(0, index).trim(),
+      player_name: name.slice(index).replace('(', '').replace(')', '').trim()
+    };
+  }
+  return {
+    team: name.trim(),
+    player_name: null
+  };
 }
 
 module.exports = {
@@ -583,5 +668,8 @@ module.exports = {
   settleSpread,
   settleTotals,
   perdictionsResultFlag,
-  predictionsWinList
+  predictionsWinList,
+  sliceTeamAndPlayer,
+  acceptLeague,
+  timeFormat
 };

@@ -2,60 +2,82 @@ const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function honorModel(uid) {
+function honorModel(req) {
   return new Promise(async function(resolve, reject) {
     try {
-      // SELECT uwl.league_id, uwl.this_month_win_bets, uwl.this_month_win_rate
-      //     FROM users__win__lists uwl, users__win__lists__histories uwlh
-      //    WHERE uwlh.uid = '${uid}'
-      const wins = await db.sequelize.query(
-        `
-          SELECT  this_month_win_rate as win_rate, 
-                  this_month_win_bets as win_bets, 
-                  this_week_win_bets as first_week_win_bets, 
-                  this_period_win_bets as two_week_win_bets
-            FROM  users__win__lists WHERE uid = $uid
-        `,
-        {
-          bind: { uid: uid },
-          type: db.sequelize.QueryTypes.SELECT
-        }
-      );
+      const uid = req.body.uid;
+      const type = req.body.type;
+      const league_id = req.body.league_id;
+      if (type === 'performance') {
+        const now = new Date();
+        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD').period;
+        const currentSeason = modules.moment().year();
+        const currentMonth = modules.moment().month();
 
-      // const rtype = await db.sequelize.query(
-      //   `
-      //     SELECT * FROM users__win__lists_histories
-      //   `,
-      //   {
-      //     type: db.sequelize.QueryTypes.SELECT
-      //   }
-      // );
+        const next = {
+          next_god_date: period.end,
+          next_period_date: {
+            begin: period.date,
+            end: period.end
+          }
+        };
 
-      const rtype =
-      {
-        totals:
-        { // 大小分
-          win: 5, // 勝場數
-          lose: 2, // 敗場數
-          bets: 15, // 下注數
-          win_bets: 12, // 勝注數
-          lose_bets: 3, // 敗注數
-          bet_rank: 1000, // 勝注排行
-          rate_rank: 233 // 勝率排行
-        },
-        spread:
-        { // 讓分
-          win: 5,
-          lose: 1,
-          bets: 20,
-          win_bets: 10,
-          lose_bets: 10,
-          bet_rank: 999,
-          rate_rank: 112
-        }
-      };
+        const wins = await db.sequelize.query(
+          `
+            SELECT  ml.name, 
+                    ml.name_ch,
+                    uwl.this_period_win_rate,
+                    uwl.this_period_win_bets,
+                    uwl.this_month_win_rate,
+                    uwl.this_month_win_bets,
+                    (
+                      SELECT SUM(correct_counts+fault_counts) as lose
+                        FROM users__win__lists__histories
+                       WHERE uid = $uid
+                         AND league_id = $league_id
+                     
+                         AND period = $current_period
+                         AND month = $currentMonth
+                         AND season = $currentSeason
+                    ) first_week_win_handicap,
+                    (
+                      SELECT SUM(correct_counts+fault_counts) as lose
+                        FROM users__win__lists__histories
+                       WHERE uid = $uid
+                         AND league_id = $league_id
+                         AND period = $current_period
+                         AND month = $currentMonth
+                         AND season = $currentSeason
+                    ) this_period_win_handicap,
+                    (
+                      SELECT COUNT(*) 
+                        FROM users__win__lists l1 
+                       WHERE l1.this_month_win_rate >= uwl.this_month_win_rate
+                    ) rate_rank,
+                    (
+                      SELECT COUNT(*) 
+                        FROM users__win__lists l1 
+                       WHERE l1.this_month_win_bets >= uwl.this_month_win_bets
+                    ) bets_rank
+                    
+              FROM  users__win__lists uwl, match__leagues ml 
+             WHERE  uwl.uid = $uid
+               AND  ml.league_id = uwl.league_id
+               AND  uwl.league_id = $league_id
+          `,
+          {
+            bind: { uid: uid, league_id: league_id, current_period: period, currentMonth: currentMonth, currentSeason: currentSeason },
+            type: db.sequelize.QueryTypes.SELECT
+          }
+        );
 
-      const rewards = await db.sequelize.query(
+        const honorList = {
+          next: next,
+          wins: wins
+        };
+        resolve(honorList);
+      } else if (type === 'record') {
+        const rewards = await db.sequelize.query(
         `
           SELECT 
               sum(case rank_id when '1' then 1 else 0 END) AS diamond, 
@@ -69,11 +91,11 @@ function honorModel(uid) {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
-      );
+        );
 
-      const event = await db.sequelize.query(
+        const event = await db.sequelize.query(
         `
-          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, CONCAT(ml.name, '第', hb.period, '期', r.name) as description
+          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, ml.name as name, ml.name_ch as name_ch, hb.period as period, r.name as rank_name
           FROM user__honor__boards hb, match__leagues ml, user__ranks r
          WHERE hb.uid = $uid
            AND hb.league_id = ml.league_id
@@ -83,24 +105,15 @@ function honorModel(uid) {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
-      );
-
-      const next = [
-        {
-          next_time: '11/9',
-          next_range: '10/27-11/9'
-        }
-      ];
-
-      const honorList = {
-        wins: wins,
-        rtype: rtype,
-        reward: rewards,
-        event: event,
-        next: next
-      };
-
-      resolve(honorList);
+        );
+        const honorList = {
+          rewards: rewards,
+          event: event
+        };
+        resolve(honorList);
+      } else {
+        console.log("you don't input have any type.");
+      }
     } catch (err) {
       console.log('Error in  user/honor by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
