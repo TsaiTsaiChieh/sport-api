@@ -52,7 +52,7 @@ function buyModel(args, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      
+
       resolve(buy);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
