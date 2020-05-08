@@ -10,7 +10,7 @@ function honorModel(req) {
       const league_id = req.body.league_id;
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD');
+        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD').period;
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 
@@ -27,6 +27,7 @@ function honorModel(req) {
             SELECT  ml.name, 
                     ml.name_ch,
                     uwl.this_period_win_rate,
+                    uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
                     uwl.this_month_win_bets,
                     (
