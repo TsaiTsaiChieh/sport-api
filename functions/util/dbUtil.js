@@ -159,11 +159,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
       // 勝率
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     continue: {
       // 連贏 N 天
@@ -760,6 +760,12 @@ const Users_WinLists = sequelize.define(
     last_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    last_week1_of_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
     last_month_win_bets: {
       type: Sequelize.FLOAT
     },
@@ -782,6 +788,12 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.FLOAT
     },
     this_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
     this_month_win_bets: {
@@ -865,7 +877,7 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
+        fields: ['uid', 'league_id', 'date_timestamp', 'date_of_year', 'period', 'week_of_period', 'week', 'month', 'season'],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
