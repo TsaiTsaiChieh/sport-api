@@ -10,7 +10,7 @@ function buyModel(args, uid) {
 
       const buy = await db.sequelize.query(
         `
-        SELECT * FROM(
+    
           SELECT 
                   b.buy_id,
                   b.updatedAt AS DATE, 
@@ -19,32 +19,40 @@ function buyModel(args, uid) {
                   u.avatar, 
                   r.price, 
                   ml.name_ch,
-                  SUM(uwlh.win_bets) AS win_bets
+                  b.season,
+                  b.day_of_year,
+                  (
+                    SELECT SUM(uwlh.win_bets)
+                      FROM users__win__lists__histories uwlh
+                     WHERE uwlh.uid = $uid
+                       AND uwlh.league_id = b.league_id
+                       AND uwlh.season = b.season
+                       AND uwlh.day_of_year = b.day_of_year
+                  ) win_bets
             FROM  user__buys b, 
                   users u, 
                   user__ranks r, 
-                  match__leagues ml, 
-                  users__win__lists__histories uwlh
+                  match__leagues ml,
+                  matches m
             WHERE b.god_id=u.uid 
               AND b.league_id = ml.league_id
               AND r.rank_id = b.god_rank 
-              AND uwlh.uid=b.uid
+              
             GROUP BY
                   b.buy_id,
                   b.updatedAt, 
-                  u.uid, 
+                  b.uid, 
                   u.name, 
                   u.avatar, 
                   r.price, 
                   ml.name_ch
-          ) dd
-          LEFT JOIN user_buy_logs ubl ON ubl.buy_id = dd.buy_id
        `,
         {
           bind: { uid: uid, begin: begin, end: end },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
+      
       resolve(buy);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
@@ -52,7 +60,5 @@ function buyModel(args, uid) {
     }
   });
 }
-function repackage(data) {
 
-}
 module.exports = buyModel;

@@ -10,7 +10,7 @@ function honorModel(req) {
       const league_id = req.body.league_id;
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD').period;
+        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD');
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 
@@ -66,7 +66,7 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id, current_period: period, currentMonth: currentMonth, currentSeason: currentSeason },
+            bind: { uid: uid, league_id: league_id, current_period: period.period, currentMonth: currentMonth, currentSeason: currentSeason },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
