@@ -46,7 +46,7 @@ function doTransfer(db, args) {
               )
       `,
     {
-      logging: true,
+      logging: false,
       bind: { from_uid: from_uid, to_uid: to_uid, type_id: type_id, type: type, money_type: money_type, money_value: money_value, title: title, content: content, scheduled: scheduled, createdAt: date, updatedAt: date },
       type: db.sequelize.QueryTypes.INSERT
     });
