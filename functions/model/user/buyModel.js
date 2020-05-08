@@ -5,15 +5,15 @@ const db = require('../../util/dbUtil');
 function buyModel(args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
+      const buyList = [];
       const begin = args.begin;
       const end = args.end;
 
       const buy = await db.sequelize.query(
         `
-    
           SELECT 
                   b.buy_id,
-                  b.updatedAt AS DATE, 
+                  b.scheduled AS date, 
                   u.uid, 
                   u.name AS god_name, 
                   u.avatar, 
@@ -28,16 +28,15 @@ function buyModel(args, uid) {
                        AND uwlh.league_id = b.league_id
                        AND uwlh.season = b.season
                        AND uwlh.day_of_year = b.day_of_year
-                  ) win_bets
+                  ) bets,
+                  b.status
             FROM  user__buys b, 
                   users u, 
                   user__ranks r, 
-                  match__leagues ml,
-                  matches m
+                  match__leagues ml
             WHERE b.god_id=u.uid 
               AND b.league_id = ml.league_id
-              AND r.rank_id = b.god_rank 
-              
+              AND r.rank_id = b.god_rank
             GROUP BY
                   b.buy_id,
                   b.updatedAt, 
@@ -52,13 +51,30 @@ function buyModel(args, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      
-      resolve(buy);
+      buy.forEach(function(ele) { // 這裡有順序性
+        buyList.push(repackage(ele));
+      });
+
+      resolve(buyList);
     } catch (err) {
       console.log('Error in  rank/searchUser by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
     }
   });
 }
+function repackage(ele){
+  const data = {};
+  const god = {};
+  god.god_name = ele.god_name;
+  god.avatar = ele.avatar;
 
+  data.date = ele.date;
+  data.god = god;
+  data.league = ele.name_ch;
+  data.cost = ele.price;
+  data.bets = ele.bets;
+  data.status = ele.status;
+  
+  return data;
+}
 module.exports = buyModel;

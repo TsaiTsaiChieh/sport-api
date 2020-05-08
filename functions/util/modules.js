@@ -58,20 +58,19 @@ function convertTimezone(date, operation, zone = zone_tw) {
 */
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
-  if (operation) {
+  const time = moment.tz(unix, zone)
+  if (operation.op) {
     if (operation.op === 'add') {
-      return moment
-        .tz(unix, zone)
-        .add(operation.value, operation.unit)
-        .format('YYYYMMDD');
+      time = time.add(operation.value, operation.unit)
     } else if (operation.op === 'subtract') {
-      return moment
-        .tz(unix, zone)
-        .subtract(operation.value, operation.unit)
-        .format('YYYYMMDD');
+      time = time.subtract(operation.value, operation.unit)
     }
+  }else if(operation.format){
+    time = time.format(format);
+  }else{
+    time = time.format('YYYYMMDD');
   }
-  return moment.tz(unix, zone).format('YYYYMMDD');
+  return time;
 }
 
 function timeFormat(unix, zone = zone_tw) {
