@@ -5,47 +5,11 @@ const data_league = require('../../json/matches/league.json');
 const data_spread_NBA = require('../../json/spread/NBA.json');
 const data_totals_NBA = require('../../json/totals/NBA.json');
 const data_match = require('../../json/matches/NBA.json');
+const data_season = require('../../json/matches/season.json');
+const databaseUtil = require('../../util/databaseEngine');
 async function createTable(req, res) {
   try {
-    createLeague();
-
-    // const Spread = await db.sequelize.models.match__spread.sync({
-    //   force: true
-    // });
-    // for (let i = 0; i < data_spread_NBA.length; i++) {
-    //   const ele = data_spread_NBA[i];
-
-    //   const data = {
-    //     spread_id: ele.spread_id,
-    //     match_id: ele.match_id,
-    //     handicap: ele.handicap,
-    //     add_time: ele.add_time,
-    //     home_odd: ele.home_odd,
-    //     away_odd: ele.away_odd,
-    //     league_id: ele.league_id
-    //   };
-    //   if (ele.home_tw) data.home_tw = ele.home_tw;
-    //   if (ele.away_tw) data.away_tw = ele.away_tw;
-    //   Spread.create(data);
-    // }
-    // const Totals = await db.sequelize.models.match__total.sync({ force: true });
-    // for (let i = 0; i < data_totals_NBA.length; i++) {
-    //   const ele = data_totals_NBA[i];
-    //   const data = {
-    //     totals_id: ele.totals_id,
-    //     match_id: ele.match_id,
-    //     handicap: ele.handicap,
-    //     add_time: ele.add_time,
-    //     over_odd: ele.over_odd,
-    //     under_odd: ele.under_odd,
-    //     league_id: ele.league_id,
-    //     over_tw: ele.over_tw
-    //   };
-
-    //   Totals.create(data);
-    // }
-    await createTeam();
-    // await createMatch();
+    createSeason();
     res.json('ok');
   } catch (err) {
     console.error(err);
@@ -54,9 +18,7 @@ async function createTable(req, res) {
 }
 
 async function createLeague() {
-  const League = await db.sequelize.models.match__league.sync({
-    force: true
-  });
+  const League = await db.sequelize.models.match__league.sync();
   for (let i = 0; i < data_league.length; i++) {
     const ele = data_league[i];
     League.create({
@@ -72,9 +34,7 @@ async function createLeague() {
   }
 }
 async function createTeam() {
-  const team = await db.sequelize.models.match__team.sync({
-    force: true
-  });
+  const team = await db.sequelize.models.match__team.sync({});
   for (let i = 0; i < data_team_NBA.length; i++) {
     const ele = data_team_NBA[i];
     team.create({
@@ -115,5 +75,59 @@ async function createMatch() {
     if (ele.away_points) data.away_points = ele.away_points;
     Match.create(data);
   }
+}
+async function createSpread() {
+  const Spread = await db.sequelize.models.match__spread.sync({});
+  for (let i = 0; i < data_spread_NBA.length; i++) {
+    const ele = data_spread_NBA[i];
+
+    const data = {
+      spread_id: ele.spread_id,
+      match_id: ele.match_id,
+      handicap: ele.handicap,
+      add_time: ele.add_time,
+      home_odd: ele.home_odd,
+      away_odd: ele.away_odd,
+      league_id: ele.league_id
+    };
+    if (ele.home_tw) data.home_tw = ele.home_tw;
+    if (ele.away_tw) data.away_tw = ele.away_tw;
+    Spread.create(data);
+  }
+}
+async function createTotals() {
+  const Totals = await db.sequelize.models.match__total.sync();
+  for (let i = 0; i < data_totals_NBA.length; i++) {
+    const ele = data_totals_NBA[i];
+    const data = {
+      totals_id: ele.totals_id,
+      match_id: ele.match_id,
+      handicap: ele.handicap,
+      add_time: ele.add_time,
+      over_odd: ele.over_odd,
+      under_odd: ele.under_odd,
+      league_id: ele.league_id,
+      over_tw: ele.over_tw
+    };
+
+    Totals.create(data);
+  }
+}
+async function createSeason() {
+  const Season = await db.Season.sync({ force: true });
+  data_season.map(function(ele) {
+    const data = {
+      radar_id: ele.radar_id,
+      league_id: ele.league_id,
+      league_name: ele.league_name,
+      season: ele.season,
+      start_date: ele.start_date,
+      end_date: ele.end_date,
+      status: ele.status,
+      type: ele.type,
+      current: ele.current
+    };
+    Season.create(data);
+  });
 }
 module.exports = createTable;
