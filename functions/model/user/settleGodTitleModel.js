@@ -120,29 +120,9 @@ function settleGodTitle(args) {
 
       let reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
 
-      reformatHistory = modules.groupsByOrderLimit(usersWinListsHistories, ['uid', 'league_id']
-        , ['-date_timestamp']);
-      // const uidHistory = modules.groupBy(usersWinListsHistories, 'uid');
-
-      // // uidHistory.map(function(data) {
-      // for (const data of uidHistory) {
-      //   const uidLeagueHistory = modules.groupBy(data, 'league_id');
-
-      //   uidLeagueHistory.forEach(function(data2) {
-      //     data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-      //       // console.log('a. %o  b. %o  %o', a.date_timestamp, b.date_timestamp, a.date_timestamp - b.date_timestamp)
-      //       return b.date_timestamp - a.date_timestamp; // 降 大->小
-      //     });
-
-      //     reformatHistory.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
-      //   });
-      // };
-      // // });
+      reformatHistory = modules.groupsByOrderLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
 
       // 依 使用者-聯盟 進行 稱號判斷
-      // console.log('usersWinListsHistories: ', usersWinListsHistories);
-      // console.log('uidHistory: ', uidHistory);
-      // console.log('uidLeagueUidHistory: ', uidLeagueUidHistory);
 
       s22 = new Date().getTime();
       pdLog('\n2.1 2.2 2.3');
@@ -253,23 +233,24 @@ function settleGodTitle(args) {
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
+      let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
+      reformatPrediction = modules.groupsByOrderLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
-      const uidPredictionHistory = modules.groupBy(usersPrediction, 'uid');
+      // const uidPredictionHistory = modules.groupBy(usersPrediction, 'uid');
 
-      // uidPredictionHistory.map(function(data) {
-      for (const data of uidPredictionHistory) {
-        const uidLeaguePredictionHistory = modules.groupBy(data, 'league_id');
+      // // uidPredictionHistory.map(function(data) {
+      // for (const data of uidPredictionHistory) {
+      //   const uidLeaguePredictionHistory = modules.groupBy(data, 'league_id');
 
-        uidLeaguePredictionHistory.forEach(function(data2) {
-          data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-            return b.match_scheduled - a.match_scheduled; // 降 大->小
-          });
+      //   uidLeaguePredictionHistory.forEach(function(data2) {
+      //     data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
+      //       return b.match_scheduled - a.match_scheduled; // 降 大->小
+      //     });
 
-          reformatPrediction.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
-        });
-      };
-      // });
+      //     reformatPrediction.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
+      //   });
+      // };
+      // // });
 
       s24 = new Date().getTime();
       pdLog('\n2.4 2.5');
