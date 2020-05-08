@@ -70,7 +70,8 @@ function settleMatchesModel(args) {
 
       if (matchInfo.length === 0 || matchInfo.length > 1) { return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`); }
 
-      const mapResult = matchInfo.map(async function(data) {
+      // const mapResult = matchInfo.map(async function(data) {
+      for (const data of matchInfo) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -89,6 +90,7 @@ function settleMatchesModel(args) {
         const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
         if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
 
+        console.log(bets_id, settelSpreadResult, settelTotalsResult);
         // 回寫結果
         try {
           const r = await db.Match.update({
@@ -106,9 +108,10 @@ function settleMatchesModel(args) {
         } catch (err) {
           return reject(errs.errsMsg('404', '1309'));
         }
-      });
+      };
+      // });
 
-      await Promise.all(mapResult);
+      // await Promise.all(mapResult);
     } catch (err) {
       console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -141,7 +144,8 @@ function settleMatchesModel(args) {
         type: db.sequelize.QueryTypes.SELECT
       });
 
-      const mapResult2 = predictMatchInfo.map(async function(data) {
+      // const mapResult2 = predictMatchInfo.map(async function(data) {
+      for (const data of predictMatchInfo) {
         const countData = {
           homePoints: data.home_points,
           awayPoints: data.away_points,
@@ -163,7 +167,7 @@ function settleMatchesModel(args) {
         // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
         const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-        console.log(settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
+        console.log(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
         // 回寫結果
         try {
           const r = await db.Prediction.update({
@@ -183,9 +187,10 @@ function settleMatchesModel(args) {
         } catch (err) {
           return reject(errs.errsMsg('404', '1313'));
         }
-      });
+      };
+      // });
 
-      await Promise.all(mapResult2);
+      // await Promise.all(mapResult2);
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));

@@ -21,28 +21,33 @@ function honorModel(req) {
             end: period.end
           }
         };
-        const win_lose = await db.sequelize.query(
-          `
-            SELECT SUM(correct_counts) as win, SUM(fault_counts) as lose
-              FROM users__win__lists__histories
-             WHERE uid = $uid
-               AND league_id = $league_id
-               AND month = $currentMonth
-             `,
-          {
-            bind: { uid: uid, league_id: league_id, currentMonth: currentMonth },
-            type: db.sequelize.QueryTypes.SELECT
-          }
-        );
 
         const wins = await db.sequelize.query(
           `
             SELECT  ml.name, 
                     ml.name_ch,
-                    uwl.this_month_win_rate as win_rate, 
-                    uwl.this_month_win_bets as win_bets, 
-                    uwl.this_week1_of_period_win_bets as first_week_win_bets, 
-                    uwl.this_period_win_bets as two_week_win_bets,
+                    uwl.this_period_win_rate,
+                    uwl.this_month_win_rate,
+                    uwl.this_month_win_bets,
+                    (
+                      SELECT SUM(correct_counts+fault_counts) as lose
+                        FROM users__win__lists__histories
+                       WHERE uid = $uid
+                         AND league_id = $league_id
+                     
+                         AND period = $current_period
+                         AND month = $currentMonth
+                         AND season = $currentSeason
+                    ) first_week_win_handicap,
+                    (
+                      SELECT SUM(correct_counts+fault_counts) as lose
+                        FROM users__win__lists__histories
+                       WHERE uid = $uid
+                         AND league_id = $league_id
+                         AND period = $current_period
+                         AND month = $currentMonth
+                         AND season = $currentSeason
+                    ) this_period_win_handicap,
                     (
                       SELECT COUNT(*) 
                         FROM users__win__lists l1 
@@ -52,30 +57,15 @@ function honorModel(req) {
                       SELECT COUNT(*) 
                         FROM users__win__lists l1 
                        WHERE l1.this_month_win_bets >= uwl.this_month_win_bets
-                    ) bets_rank,
-                    (
-                    SELECT SUM(correct_counts) as win
-                      FROM users__win__lists__histories
-                     WHERE uid = $uid
-                       AND league_id = $league_id
-                       AND month = $currentMonth
-                    AND season = $currentSeason
-                    ) win,
-                    (
-                      SELECT SUM(fault_counts) as lose
-                        FROM users__win__lists__histories
-                       WHERE uid = $uid
-                         AND league_id = $league_id
-                         AND month = $currentMonth
-                      AND season = $currentSeason
-                    ) lose
+                    ) bets_rank
+                    
               FROM  users__win__lists uwl, match__leagues ml 
              WHERE  uwl.uid = $uid
                AND  ml.league_id = uwl.league_id
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id, currentMonth: currentMonth, currentSeason: currentSeason },
+            bind: { uid: uid, league_id: league_id, current_period: period, currentMonth: currentMonth, currentSeason: currentSeason },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

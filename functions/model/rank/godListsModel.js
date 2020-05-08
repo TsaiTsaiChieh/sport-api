@@ -147,7 +147,7 @@ function repackage_winRate(ele) { // 實際資料輸出格式
   const data = {
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name,
+    display_name: ele.display_name,
     rank: `${ele.rank_id}`,
     sell: ele.sell,
     default_title: ele.default_title,
