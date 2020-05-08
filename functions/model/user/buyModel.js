@@ -62,7 +62,7 @@ function buyModel(args, uid) {
     }
   });
 }
-function repackage(ele){
+function repackage(ele) {
   const data = {};
   const god = {};
   god.god_name = ele.god_name;
@@ -74,7 +74,7 @@ function repackage(ele){
   data.cost = ele.price;
   data.bets = ele.bets;
   data.status = ele.status;
-  
+
   return data;
 }
 module.exports = buyModel;
