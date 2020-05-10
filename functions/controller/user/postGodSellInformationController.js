@@ -110,7 +110,7 @@ module.exports = godSellInformation;
 {
 	"league": "NBA",
 	"date": "2020-07-01",
-	"desc": "", 
+	"desc": "",
 	"tips": ""
 }
  * @apiSuccess {String} response
