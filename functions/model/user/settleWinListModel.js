@@ -295,7 +295,7 @@ function settleWinList(args) {
           try {
             r2 = await db.Title.update({
               win_bets: ele.sum_period.win_bets,
-              win_rate: this_period_win_rate
+              win_rate: (this_period_win_rate * 100).toFixed(2)
             }, {
               where: {
                 uid: uid,
