@@ -74,6 +74,11 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   return moment.tz(unix, zone).format('YYYYMMDD');
 }
 
+function timeFormat(unix, zone = zone_tw) {
+  unix = unix * 1000;
+  return moment.tz(unix, zone).format('A h:mm');
+}
+
 function initFirebase() {
   if (firebaseAdmin.apps.length === 0) {
     console.log('initializing firebase database');
@@ -631,6 +636,6 @@ module.exports = {
   perdictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
-  tz,
-  acceptLeague
+  acceptLeague,
+  timeFormat
 };

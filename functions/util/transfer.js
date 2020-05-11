@@ -1,11 +1,18 @@
+
+const moment = require('moment');
+
 /* 寫入轉換紀錄 */
 function doTransfer(db, args) {
-  const from_id = args.from_id || 0;
-  const to_id = args.to_id || 0;
-  const trans_type = args.type;
-  const money_type = args.money_type;
-  const money_value = args.money_value;
-
+  const from_uid = args.from_uid || 'default';
+  const to_uid = args.to_uid || 'default';
+  const type_id = args.type_id || 0;
+  const type = args.type || 'default';
+  const money_type = args.money_type || 0;
+  const money_value = args.money_value || 0;
+  const title = args.title || 'empty title';
+  const content = args.content || 'empty content';
+  const scheduled = moment().unix();
+  const date = moment().format('YYYY-MM-DD');
   const transfer = db.sequelize.query(
     `
       INSERT  INTO 
@@ -13,23 +20,37 @@ function doTransfer(db, args) {
               (
                 from_uid, 
                 to_uid,
-                trans_type, 
+                type_id,
+                type, 
                 money_type, 
-                money_value
+                money_value,
+                title,
+                content,
+                scheduled,
+                createdAt,
+                updatedAt
               )
       VALUES
               (
-                $from_id, 
-                $to_id, 
-                $trans_type, 
+                $from_uid, 
+                $to_uid, 
+                $type_id,
+                $type, 
                 $money_type, 
-                $money_value
+                $money_value,
+                $title,
+                $content,
+                $scheduled,
+                $createdAt,
+                $updatedAt
               )
       `,
     {
-      bind: { from_id: from_id, to_id: to_id, trans_type: trans_type, money_type: money_type, money_value: money_value },
+      logging: false,
+      bind: { from_uid: from_uid, to_uid: to_uid, type_id: type_id, type: type, money_type: money_type, money_value: money_value, title: title, content: content, scheduled: scheduled, createdAt: date, updatedAt: date },
       type: db.sequelize.QueryTypes.INSERT
     });
+
   return transfer;
 }
 

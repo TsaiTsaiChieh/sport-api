@@ -48,12 +48,12 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                 totals.handicap AS totals_handicap, totals.over_tw
            FROM 
                 (
-                  SELECT DISTINCT prediction.bets_id, prediction.match_scheduled, 
+                  SELECT DISTINCT prediction.bets_id, 
                         league.name AS league, league.league_id,
                         home.team_id AS home_id, home.alias AS home_alias, home.alias_ch AS home_alias_ch, 
                         away.team_id AS away_id, away.alias AS away_alias, away.alias_ch AS away_alias_ch, 
-                        prediction.spread_id, prediction.spread_option, prediction.spread_bets, prediction.spread_result_flag, prediction.totals_id, prediction.totals_option,  prediction.totals_bets, prediction.totals_result_flag, 
-                        matches.home_points, matches.away_points
+                        prediction.spread_id, prediction.spread_option, prediction.spread_bets, prediction.spread_result_flag, prediction.totals_id, prediction.totals_option, prediction.totals_bets, prediction.totals_result_flag, 
+                        matches.home_points, matches.away_points, matches.scheduled
                    FROM user__predictions AS prediction,
                         match__leagues AS league,
                         matches, 
@@ -105,8 +105,8 @@ function repackageMatch(ele) {
   try {
     const data = {
       id: ele.bets_id,
-      scheduled: ele.match_scheduled,
-      scheduled_tw: modules.tz(ele.match_scheduled * 1000).format('A hh:mm'),
+      scheduled: ele.scheduled,
+      scheduled_tw: modules.timeFormat(ele.scheduled),
       league_id: ele.league_id,
       league: ele.league,
       home: {
