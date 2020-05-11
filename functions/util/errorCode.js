@@ -47,7 +47,7 @@ const errorCodeLists = {
   13501: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
   13502: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
   13503: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 不明原因錯誤', ''] },
-  13524: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 異常 筆數不正確，只能一筆才對', ''] },
+  13524: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 異常 筆數不正確，只能一筆才對', ''] },
   13537: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
   13538: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
   13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 不明原因錯誤', ''] }
