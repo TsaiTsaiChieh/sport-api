@@ -1151,7 +1151,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'user__home__banner',
+  'home__banner', // 不要再動了 拜託
   {
     name: {
       type: Sequelize.STRING,
