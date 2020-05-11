@@ -107,9 +107,7 @@ function settleMatchesModel(args) {
           result[bets_id] = { status: 1, msg: '賽事結算成功！' };
         } catch (err) {
           console.error(err);
-          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13141'));
-          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13142'));
-          return reject(errs.errsMsg('404', '13109'));
+          return reject(errs.dbErrsMsg('404', '13109', err.parent.code));
         }
       };
       // });
@@ -189,9 +187,7 @@ function settleMatchesModel(args) {
           result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
         } catch (err) {
           console.error(err);
-          if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13243'));
-          if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13244'));
-          return reject(errs.errsMsg('404', '13213'));
+          return reject(errs.dbErrsMsg('404', '13213', err.parent.code));
         }
       };
       // });

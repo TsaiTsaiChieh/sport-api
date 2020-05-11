@@ -358,9 +358,7 @@ function settleGodTitle(args) {
             if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
           } catch (err) {
             console.error(err);
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13501'));
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13502'));
-            return reject(errs.errsMsg('404', '13503'));
+            return reject(errs.dbErrsMsg('404', '13503', err.parent.code));
           }
         };
       };

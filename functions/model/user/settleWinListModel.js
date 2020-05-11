@@ -160,10 +160,10 @@ function settleWinList(args) {
           } catch (err) {
             console.error(err);
             // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13325'));
+            // if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.dbErrsMsg('404', '13325'));
             // parent.code: 'ER_DUP_ENTRY'  parent.errno: 1062  parent.sqlState: '23000'
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13326'));
-            return reject(errs.errsMsg('404', '13327'));
+            // if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.dbErrsMsg('404', '13326'));
+            return reject(errs.dbErrsMsg('404', '13327', err.parent.code));
           }
 
           if (!created) {
@@ -182,9 +182,7 @@ function settleWinList(args) {
               });
             } catch (err) {
               console.error(err);
-              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13328'));
-              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13329'));
-              return reject(errs.errsMsg('404', '13330'));
+              return reject(errs.dbErrsMsg('404', '13330', err.parent.code));
             }
           }
 
@@ -259,9 +257,7 @@ function settleWinList(args) {
             });
           } catch (err) {
             console.error(err);
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13431'));
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13432'));
-            return reject(errs.errsMsg('404', '13433'));
+            return reject(errs.dbErrsMsg('404', '13433', err.parent.code));
           }
 
           if (!created) {
@@ -285,9 +281,7 @@ function settleWinList(args) {
               });
             } catch (err) {
               console.error(err);
-              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13434'));
-              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13435'));
-              return reject(errs.errsMsg('404', '13436'));
+              return reject(errs.dbErrsMsg('404', '13436', err.parent.code));
             }
           }
 
@@ -316,9 +310,7 @@ function settleWinList(args) {
             if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
           } catch (err) {
             console.error(err);
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '13537'));
-            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '13538'));
-            return reject(errs.errsMsg('404', '13539'));
+            return reject(errs.dbErrsMsg('404', '13539', err.parent.code));
           }
         }
         // });

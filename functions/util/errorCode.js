@@ -10,14 +10,14 @@ const errorCodeLists = {
   1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] },
   1308: { msg: ['使用者狀態異常'], backend: ['使用者不是管理者，請確認使用者狀態', ''] },
 
-  13109: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 失敗', ''] },
+  13109: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13110: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   13111: { msg: ['更新 賽事 失敗'], backend: ['更新 賽事結算讓分 結果異常，不應該為空白', ''] },
   13112: { msg: ['更新 賽事 失敗'], backend: ['更新 賽事結算大小 結果異常，不應該為空白', ''] },
   13141: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches 失敗 ER_LOCK_DEADLOCK', ''] },
   13142: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches 失敗 ER_DUP_ENTRY', ''] },
 
-  13213: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions spread_result, totals_result 失敗', ''] },
+  13213: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13214: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   13215: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算讓分 結果異常，不應該為空白', ''] },
   13216: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算大小 結果異常，不應該為空白', ''] },
@@ -28,30 +28,35 @@ const errorCodeLists = {
   13318: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 Update users__win_lists_history 異常 筆數不正確，只能一筆才對', ''] },
   13325: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['新增 Create users__win_lists_history 失敗 ER_LOCK_DEADLOCK', ''] },
   13326: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['新增 Create users__win_lists_history 失敗 ER_DUP_ENTRY ', ''] },
-  13327: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['新增 Create users__win_lists_history 失敗 不明原因錯誤', ''] },
+  13327: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['新增 Create users__win_lists_history 失敗 資料庫原因錯誤', ''] },
   13328: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 Update users__win_lists_history 失敗 ER_LOCK_DEADLOCK', ''] },
   13329: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 Update users__win_lists_history 失敗 ER_DUP_ENTRY', ''] },
-  13330: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 Update users__win_lists_history 失敗 不明原因錯誤', ''] },
+  13330: { msg: ['更新 使用者勝注勝率歷史資料 失敗'], backend: ['更新 Update users__win_lists_history 失敗 資料庫原因錯誤', ''] },
 
   13419: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗', ''] },
   13420: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 資料欄位 異常 筆數不正確，只能一筆才對', ''] },
   13422: { msg: ['檢查 使用者勝注勝率資料 異常'], backend: ['檢查 是否有6筆資料', ''] },
   13434: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 ER_LOCK_DEADLOCK', ''] },
   13435: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 ER_DUP_ENTRY', ''] },
-  13436: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 不明原因錯誤', ''] },
+  13436: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 資料庫原因錯誤', ''] },
   13431: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 Create users__win_lists 失敗 ER_LOCK_DEADLOCK', ''] },
   13432: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 Create users__win_lists 失敗 ER_DUP_ENTRY', ''] },
-  13433: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 Create users__win_lists 失敗 不明原因錯誤', ''] },
-  13440: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists失敗 失敗 ', ''] },
+  13433: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 Create users__win_lists 失敗 資料庫原因錯誤', ''] },
+  13440: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 ', ''] },
 
   13501: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
   13502: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
-  13503: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 不明原因錯誤', ''] },
+  13503: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 資料庫原因錯誤', ''] },
   13524: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 異常 筆數不正確，只能一筆才對', ''] },
   13537: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
   13538: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
-  13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 不明原因錯誤', ''] }
+  13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 資料庫原因錯誤', ''] }
 };
+
+function dbErrsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) {
+  // 準備針對 DB錯誤記錄
+  return errsMsg(serverCode, backendcode, otherMsg, showOrder);
+}
 
 function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // othermsg 當 500 或 特殊情況 可以自行輸入
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
@@ -66,4 +71,4 @@ function errsMsg(serverCode, backendcode, otherMsg = '', showOrder = 0) { // oth
         : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } };
 }
 
-module.exports = { errsMsg };
+module.exports = { dbErrsMsg, errsMsg };
