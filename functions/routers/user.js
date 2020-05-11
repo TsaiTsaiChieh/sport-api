@@ -182,5 +182,9 @@ router.post(
 
 /* 個人會員頁 */
 // 使用者資訊
-router.get('/profile', verification.token_v2, require('../controller/user/profileController'));
+router.get(
+  '/profile',
+  verification.token_v2,
+  require('../controller/user/profileController')
+);
 module.exports = router;
