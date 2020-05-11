@@ -39,27 +39,8 @@ function bankModel(args, method, uid) {
                     bind: { uid: uid, bank_code:bank_code, bank_username:bank_username, bank_account:bank_account },
                     type: db.sequelize.QueryTypes.UPDATE
                 });
-                
-            if(!bank[1]){
-                const bank = await db.sequelize.query(
-                    `
-                    INSERT INTO user__banks (uid, bank_code, bank_username, bank_account)
-                    VALUES ($uid, $bank_code, $bank_username, $bank_account)
-                    `,
-                    {
-                        bind: { uid: uid, bank_code:bank_code, bank_username:bank_username, bank_account:bank_account },
-                        type: db.sequelize.QueryTypes.INSERT
-                    });
-                data = {
-                    'code':'200',
-                    'message':'新增成功'
-                }
-            }else{
-                data = {
-                    'code':'200',
-                    'message':'更新成功'
-                }
-            }
+                console.log(bank);return;
+            
             resolve(data);
                 
             

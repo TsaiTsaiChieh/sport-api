@@ -10,7 +10,7 @@ function purseModel(args, method, uid) {
 
       const purse = await db.sequelize.query(
         `
-        SELECT coin, point, ingot
+        SELECT coin, dividend, ingot
           FROM users 
         WHERE uid = $uid
         `,
@@ -20,7 +20,7 @@ function purseModel(args, method, uid) {
           type: db.sequelize.QueryTypes.SELECT
         });
         
-      const expire_dividend = await db.sequelize.query(
+      const expire = await db.sequelize.query(
         `SELECT SUM(money_value) as dividend
            FROM user__transfer__logs
           WHERE to_uid = $uid
@@ -34,10 +34,10 @@ function purseModel(args, method, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       )
-      const dividend = parseInt(expire_dividend.dividend);
+      const expire_dividend = parseInt(expire.dividend);
       const purseList = {
         purse,
-        dividend
+        expire_dividend
       };
       resolve(purseList);
     } catch (err) {
