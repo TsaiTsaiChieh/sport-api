@@ -90,6 +90,17 @@ router.post(
   verification.token,
   require('../controller/user/purseController')
 );
+/* 銀行 */
+router.post(
+  '/bank',
+  verification.token,
+  require('../controller/user/bankController')
+);
+router.put(
+  '/bank',
+  verification.token,
+  require('../controller/user/bankController')
+);
 
 router.put(
   '/purse',
