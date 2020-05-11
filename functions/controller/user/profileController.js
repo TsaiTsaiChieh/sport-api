@@ -1,4 +1,3 @@
-
 const model = require('../../model/user/profileModel');
 // This controller did not have any ajv validation, just pass valid user uid
 async function profile(req, res) {
