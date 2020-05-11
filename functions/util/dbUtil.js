@@ -746,7 +746,7 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     last_season_win_bets: {
       type: Sequelize.FLOAT
@@ -834,7 +834,7 @@ const Users_WinListsHistory = sequelize.define(
       type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     win_bets: {
       type: Sequelize.FLOAT
