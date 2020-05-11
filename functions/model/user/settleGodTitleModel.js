@@ -130,28 +130,34 @@ function settleGodTitle(args) {
         pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
 
         //
-        // 2.1. 連贏Ｎ天 countinue
+        // 2.1. 連贏Ｎ天 continue
         //
-        let countinue = 0;
+        pdLog('\n  2.1. 連贏Ｎ天 continue');
+        let win_continue = 0;
         uid_league_data.lists.every(function(lists, index) {
           // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
-          countinue = index;
-          return ((lists.correct_counts - lists.fault_counts) > 0); // 代表過盤
+          pdLog('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
+            index, lists.correct_counts, lists.fault_counts, lists.correct_counts - lists.fault_counts);
+          win_continue = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
+          return (lists.correct_counts - lists.fault_counts) > 0; // 代表過盤
         });
 
         //
         // 2.2. 勝注連過 Ｎ日 win_bets_continue
         //
+        pdLog('\n  2.2. 勝注連過 Ｎ日 win_bets_continue');
         let win_bets_continue = 0;
         uid_league_data.lists.every(function(lists, index) {
-          win_bets_continue = index;
-          return (lists.win_bets > 0); // 代表過盤
+          pdLog('  %o lists.win_bets: %o ', index, lists.win_bets);
+          win_bets_continue = (lists.win_bets > 0) ? index + 1 : index;
+          return lists.win_bets > 0; // 代表過盤
         });
 
         //
-        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3
+        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場
         // acc 累計
         //
+        pdLog('\n  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場');
         let predict_rate1 = 0; let predict_rate2 = 0; let predict_rate3 = 0;
         const allRecords = []; // 記錄所有資料
 
@@ -169,10 +175,17 @@ function settleGodTitle(args) {
 
           item.winRateAcc = (item.totalsCountAcc === 0)
             ? 0
-            : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+            : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率
 
           allRecords.push(item);
         });
+
+        if (isProgramDebug) {
+          allRecords.forEach(function(r) {
+            pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+              r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+          });
+        }
 
         allRecords.sort(function compare(a, b) {
           return b.winRateAcc - a.winRateAcc; // 降 大->小
@@ -189,13 +202,13 @@ function settleGodTitle(args) {
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('countinue: %o  win_bets_continue: %o', countinue, win_bets_continue);
+        pdLog('\ncontinue: %o  win_bets_continue: %o', win_continue, win_bets_continue);
         pdLog('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3);
 
         mixAll = modules.mergeDeep(mixAll, {
           [uid_league_data.uid]: {
             [uid_league_data.league_id]: {
-              countinue: countinue,
+              continue: win_continue,
               win_bets_continue: win_bets_continue,
               predict_rate1: predict_rate1,
               predict_rate2: predict_rate2,
@@ -236,30 +249,15 @@ function settleGodTitle(args) {
       let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
       reformatPrediction = modules.groupsByOrderLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
-      // const uidPredictionHistory = modules.groupBy(usersPrediction, 'uid');
-
-      // // uidPredictionHistory.map(function(data) {
-      // for (const data of uidPredictionHistory) {
-      //   const uidLeaguePredictionHistory = modules.groupBy(data, 'league_id');
-
-      //   uidLeaguePredictionHistory.forEach(function(data2) {
-      //     data2.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-      //       return b.match_scheduled - a.match_scheduled; // 降 大->小
-      //     });
-
-      //     reformatPrediction.push({ uid: data2[0].uid, league_id: data2[0].league_id, lists: data2.slice(0, days) });
-      //   });
-      // };
-      // // });
-
       s24 = new Date().getTime();
       pdLog('\n2.4 2.5');
       reformatPrediction.forEach(function(uid_league_data) {
         pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
         //
-        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2
+        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場
         // acc 累計
         //
+        pdLog('\n  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場');
         let matches_rate1 = 0; let matches_rate2 = 0;
         const allRecords = []; // 記錄所有資料
         let n = 0; // 這裡場次算是過盤
@@ -276,6 +274,13 @@ function settleGodTitle(args) {
           allRecords.push(r2.item);
         });
 
+        if (isProgramDebug) {
+          allRecords.forEach(function(r) {
+            pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+              r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+          });
+        }
+
         allRecords.sort(function compare(a, b) {
           return b.winRateAcc - a.winRateAcc; // 降 大->小
         });
@@ -290,6 +295,7 @@ function settleGodTitle(args) {
         //
         // 2.5. 連贏Ｎ場 matches_continue
         //
+        pdLog('\n  2.5. 連贏Ｎ場 matches_continue');
         let matches_continue = 0;
         const allRecords2 = []; // 記錄所有資料
         let nn = 0; // 這裡場次算是過盤
@@ -309,15 +315,22 @@ function settleGodTitle(args) {
         // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
         // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
         allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
+        if (isProgramDebug) {
+          allRecords2.forEach(function(r2) {
+            pdLog('  days: %o match_scheduled: %o correctMark: %o',
+              r2.days, r2.match_scheduled, r2.correctMark);
+          });
+        }
+
         allRecords2.every(function(data, index) {
           matches_continue = index;
-          return data.correctMark !== '0' || data.correctMark !== '-1'; // 代表過盤
+          return data.correctMark !== 0 && data.correctMark !== -1; // 代表過盤
         });
 
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('matches_rate: %o  %o', matches_rate1, matches_rate2);
+        pdLog('\nmatches_rate: %o  %o', matches_rate1, matches_rate2);
         pdLog('matches_continue: %o', matches_continue);
 
         mixAll = modules.mergeDeep(mixAll, {
@@ -335,11 +348,11 @@ function settleGodTitle(args) {
       for (const [uid, value] of Object.entries(mixAll)) {
         pdLog('\nuid: ', uid);
         for (const [league_id, value2] of Object.entries(value)) {
-          pdLog('league_id: ', league_id);
+          pdLog('\nleague_id: ', league_id);
           pdLog('value2: ', value2);
           try {
             const r = await db.Title.update({
-              countinue: value2.countinue,
+              continue: value2.continue,
               win_bets_continue: value2.win_bets_continue,
               predict_rate1: value2.predict_rate1,
               predict_rate2: value2.predict_rate2,
@@ -393,15 +406,17 @@ function nPassN(n, allRecords, result_flag) {
     preCorrectCountsAcc = allRecords[n - 1].correctCountsAcc;
   }
 
-  item.totalsCountAcc = preTotalsCountAcc + [0.95, 0.5, -1, -0.5].includes(result_flag) ? 1 : 0;
-  item.correctCountsAcc = preCorrectCountsAcc + [0.95, 0.5].includes(result_flag) ? 1 : 0;
+  const totalsCount = [0.95, 0.5, -1, -0.5].includes(result_flag) ? 1 : 0;
+  item.totalsCountAcc = preTotalsCountAcc + totalsCount;
+
+  const correctCount = [0.95, 0.5].includes(result_flag) ? 1 : 0;
+  item.correctCountsAcc = preCorrectCountsAcc + correctCount;
   item.winRateAcc = (item.totalsCountAcc === 0)
     ? 0
     : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
 
   n++;
   item.days = n;
-
   return { n: n, item: item };
 }
 
