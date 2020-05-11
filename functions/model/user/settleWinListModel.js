@@ -30,7 +30,10 @@ function settleWinList(args) {
     // 4. 計算 所有使用者 該聯盟 本月的 總勝注榜排名、總勝率榜排名
     //    先用 sql 計算出來後，之後採用 redis 快取，避免 db 大量計算，如果改用定期計算，會員多時，會對 db 有大量寫入問題
 
-    // !!!! 賽季需要討論 跨年賽季怎麼辨？
+    // 跨年賽季
+    // 目前使用 modules.leagueCodebook('NBA').seasonYear 會取得該 賽季年
+    // 如果從資料庫取出為 league_id 時，先使用 leagueDecoder 再傳入 leagueCodebook
+    // 例： modules.leagueCodebook(modules.leagueDecoder('2274'))
 
     // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
@@ -76,7 +79,7 @@ function settleWinList(args) {
       }
 
       // !!!! 記得改成 9
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
+      if (!([1, 2, 9].includes(memberInfo.status))) { // 不是 管理者
         // console.error('Error 1. in user/predictonInfoModell by YuHsien');
         return reject(errs.errsMsg('404', '1308'));
       }
@@ -129,52 +132,59 @@ function settleWinList(args) {
         // const upsertResult = resultWinList.map(async function() {
         for (const data of resultWinList) {
           let r = {};
+          let winListsHistory, created;
 
           try {
-            r = await db.Users_WinListsHistory.create({
-              uid: data.uid,
-              league_id: data.league_id,
-              win_bets: data.win_bets,
-              win_rate: data.win_rate,
-              matches_count: data.matches_count,
-              correct_counts: data.correct_counts,
-              fault_counts: data.fault_counts,
-              date_timestamp: begin,
-              day_of_year: dayOfYear,
-              period: period,
-              week_of_period: weekOfPeriod,
-              week: week,
-              month: month,
-              season: season
+            [winListsHistory, created] = await db.Users_WinListsHistory.findOrCreate({
+              where: {
+                uid: data.uid,
+                league_id: data.league_id
+              },
+              defaults: {
+                uid: data.uid,
+                league_id: data.league_id,
+                win_bets: data.win_bets,
+                win_rate: data.win_rate,
+                matches_count: data.matches_count,
+                correct_counts: data.correct_counts,
+                fault_counts: data.fault_counts,
+                date_timestamp: begin,
+                day_of_year: dayOfYear,
+                period: period,
+                week_of_period: weekOfPeriod,
+                week: week,
+                month: month,
+                season: season
+              }
             });
           } catch (err) {
-            // SequelizeUniqueConstraintError // DuplicateKeyException
+            console.error(err);
+            // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1325'));
             // parent.code: 'ER_DUP_ENTRY'  parent.errno: 1062  parent.sqlState: '23000'
-            if (err.parent.code === 'ER_DUP_ENTRY') {
-              try {
-                r = await db.Users_WinListsHistory.update({
-                  win_bets: data.win_bets,
-                  win_rate: data.win_rate,
-                  matches_count: data.matches_count,
-                  correct_counts: data.correct_counts,
-                  fault_counts: data.fault_counts
-                }, {
-                  where: {
-                    uid: data.uid,
-                    league_id: data.league_id
-                  }
-                });
-              } catch (err) {
-                // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
-                if (err.parent.code === 'ER_LOCK_DEADLOCK') {
-                  return reject(errs.errsMsg('404', '1325'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1326'));
+            return reject(errs.errsMsg('404', '1327'));
+          }
+
+          if (!created) {
+            try {
+              r = await db.Users_WinListsHistory.update({
+                win_bets: data.win_bets,
+                win_rate: data.win_rate,
+                matches_count: data.matches_count,
+                correct_counts: data.correct_counts,
+                fault_counts: data.fault_counts
+              }, {
+                where: {
+                  uid: data.uid,
+                  league_id: data.league_id
                 }
-                console.error(err);
-                return reject(errs.errsMsg('404', '1326'));
-              }
-            } else {
+              });
+            } catch (err) {
               console.error(err);
-              return reject(errs.errsMsg('404', '1327'));
+              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1328'));
+              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1329'));
+              return reject(errs.errsMsg('404', '1330'));
             }
           }
 
@@ -224,9 +234,15 @@ function settleWinList(args) {
           // day_of_year 目前未使用
           // 回寫結果 到 users__win__lists
           let r = {}; let r2 = {};
+          let winLists, created;
+
           try {
-            try {
-              r = await db.Users_WinLists.create({
+            [winLists, created] = await db.Users_WinLists.findOrCreate({
+              where: {
+                uid: data.uid,
+                league_id: data.league_id
+              },
+              defaults: {
                 uid: uid,
                 league_id: league_id,
                 this_week_win_rate: this_week_win_rate,
@@ -239,50 +255,45 @@ function settleWinList(args) {
                 this_week1_of_period_win_bets: ele.sum_week1_of_period.win_bets,
                 this_season_win_rate: this_season_win_rate,
                 this_season_win_bets: ele.sum_season.win_bets
-              });
-            } catch (err) {
-              // SequelizeUniqueConstraintError // DuplicateKeyException
-              // parent.code: 'ER_DUP_ENTRY'  parent.errno: 1062  parent.sqlState: '23000'
-              if (err.parent.code === 'ER_DUP_ENTRY') {
-                try {
-                  r = await db.Users_WinLists.update({
-                    this_week_win_rate: this_week_win_rate,
-                    this_week_win_bets: ele.sum_week.win_bets,
-                    this_month_win_rate: this_month_win_rate,
-                    this_month_win_bets: ele.sum_month.win_bets,
-                    this_period_win_rate: this_period_win_rate,
-                    this_period_win_bets: ele.sum_period.win_bets,
-                    this_week1_of_period_win_rate: this_week1_of_period_win_rate,
-                    this_week1_of_period_win_bets: ele.sum_week1_of_period.win_bets,
-                    this_season_win_rate: this_season_win_rate,
-                    this_season_win_bets: ele.sum_season.win_bets
-                  }, {
-                    where: {
-                      uid: data.uid,
-                      league_id: data.league_id
-                    }
-                  });
-                } catch (err) {
-                  // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
-                  if (err.parent.code === 'ER_LOCK_DEADLOCK') {
-                    return reject(errs.errsMsg('404', '1328'));
-                  }
-                  console.error(err);
-                  return reject(errs.errsMsg('404', '1329'));
-                }
-              } else {
-                console.error(err);
-                return reject(errs.errsMsg('404', '1330'));
               }
-            }
-
-            // if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
-
-            result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
+            });
           } catch (err) {
             console.error(err);
-            return reject(errs.errsMsg('404', '1319'));
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1331'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1332'));
+            return reject(errs.errsMsg('404', '1333'));
           }
+
+          if (!created) {
+            try {
+              r = await db.Users_WinLists.update({
+                this_week_win_rate: this_week_win_rate,
+                this_week_win_bets: ele.sum_week.win_bets,
+                this_month_win_rate: this_month_win_rate,
+                this_month_win_bets: ele.sum_month.win_bets,
+                this_period_win_rate: this_period_win_rate,
+                this_period_win_bets: ele.sum_period.win_bets,
+                this_week1_of_period_win_rate: this_week1_of_period_win_rate,
+                this_week1_of_period_win_bets: ele.sum_week1_of_period.win_bets,
+                this_season_win_rate: this_season_win_rate,
+                this_season_win_bets: ele.sum_season.win_bets
+              }, {
+                where: {
+                  uid: data.uid,
+                  league_id: data.league_id
+                }
+              });
+            } catch (err) {
+              console.error(err);
+              if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1334'));
+              if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1335'));
+              return reject(errs.errsMsg('404', '1336'));
+            }
+          }
+
+          // if (r) return reject(errs.errsMsg('404', '1320')); // 更新筆數異常
+
+          result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
 
           s23 = new Date().getTime();
           // d.
@@ -304,13 +315,10 @@ function settleWinList(args) {
 
             if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
           } catch (err) {
-            // parent.code: 'ER_LOCK_DEADLOCK'  parent.errno: 1213  parent.sqlState: '40001'
-            if (err.parent.code === 'ER_LOCK_DEADLOCK') {
-              console.error(err);
-              return reject(errs.errsMsg('404', '1332'));
-            }
             console.error(err);
-            return reject(errs.errsMsg('404', '1321'));
+            if (err.parent.code === 'ER_LOCK_DEADLOCK') return reject(errs.errsMsg('404', '1337'));
+            if (err.parent.code === 'ER_DUP_ENTRY') return reject(errs.errsMsg('404', '1338'));
+            return reject(errs.errsMsg('404', '1339'));
           }
         }
         // });
@@ -318,7 +326,7 @@ function settleWinList(args) {
         // await Promise.all(updateResult);
       } catch (err) {
         console.error(err);
-        return reject(errs.errsMsg('404', '1331'));
+        return reject(errs.errsMsg('404', '1340'));
       }
     } catch (err) {
       console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
