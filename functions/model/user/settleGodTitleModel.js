@@ -120,7 +120,7 @@ function settleGodTitle(args) {
 
       let reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
 
-      reformatHistory = modules.groupsByOrderLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
+      reformatHistory = modules.groupsByOrdersLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
 
       // 依 使用者-聯盟 進行 稱號判斷
 
@@ -247,7 +247,7 @@ function settleGodTitle(args) {
       });
 
       let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
-      reformatPrediction = modules.groupsByOrderLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
+      reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
       s24 = new Date().getTime();
       pdLog('\n2.4 2.5');

@@ -301,7 +301,7 @@ function groupBy(arr, prop) {
 //   limit: 30 // -1 全部
 // 回傳
 //   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
-function groupsByOrderLimit(array, prop, order, limit = -1) {
+function groupsByOrdersLimit(array, prop, order, limit = -1) {
   const groups = {};
   array.forEach(function(o) {
     // 組出 prop 的 json 字串 做為 groups key 值
@@ -662,7 +662,7 @@ module.exports = {
   acceptNumberAndLetter,
   httpStatus,
   groupBy,
-  groupsByOrderLimit,
+  groupsByOrdersLimit,
   fieldSorter,
   mergeDeep,
   settleSpread,
