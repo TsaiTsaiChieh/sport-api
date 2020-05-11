@@ -27,6 +27,7 @@ function honorModel(req) {
             SELECT  ml.name, 
                     ml.name_ch,
                     uwl.this_period_win_rate,
+                    uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
                     uwl.this_month_win_bets,
                     (
@@ -65,7 +66,7 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id, current_period: period, currentMonth: currentMonth, currentSeason: currentSeason },
+            bind: { uid: uid, league_id: league_id, current_period: period.period, currentMonth: currentMonth, currentSeason: currentSeason },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
