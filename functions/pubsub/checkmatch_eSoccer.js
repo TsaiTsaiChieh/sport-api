@@ -145,7 +145,7 @@ async function checkmatch_eSoccer() {
                 } catch (err) {
                   return reject(
                     new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer by DY`
+                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
                     )
                   );
                 }

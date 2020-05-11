@@ -4,10 +4,10 @@ const firestoreName = 'pagetest_eSoccer';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
-// 14 秒一次
-const perStep = 25000;
-// 一分鐘2次
-const timesPerLoop = 2;
+// 12 秒一次
+const perStep = 12000;
+// 一分鐘4次
+const timesPerLoop = 4;
 let timerForStatus2;
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
@@ -186,6 +186,7 @@ async function ESoccerpbpHistory(parameter) {
         //       { merge: true }
         //     );
         // settlementAccordingMatch(); 采潔的結算
+
         await settleMatchesModel({
           token: {
             uid: '999'
@@ -194,9 +195,7 @@ async function ESoccerpbpHistory(parameter) {
         });
       } catch (err) {
         return reject(
-          new AppErrors.FirebaseCollectError(
-            `${err} at pbpESoccer of rawdata by DY`
-          )
+          new AppErrors.PBPEsoccerError(`${err} at pbpESoccer of yuhsien by DY`)
         );
       }
     } catch (err) {
@@ -256,7 +255,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return resolve('ok');
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -294,63 +292,56 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return resolve('ok');
           }
           if (data.results[0].time_status === '3') {
-            if (realtimeData.Summary.status !== 'closed') {
-              try {
-                await modules.database
-                  .ref(`esports/eSoccer/${betsID}/Summary/status`)
-                  .set('closed');
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseCollectError(
-                    `${err} at doPBP of status on ${betsID} by DY`
-                  )
-                );
-              }
+            try {
+              await modules.database
+                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .set('closed');
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseCollectError(
+                  `${err} at doPBP of status on ${betsID} by DY`
+                )
+              );
             }
           }
 
           if (data.results[0].time_status === '2') {
-            if (realtimeData.Summary.status !== 'tobefixed') {
-              try {
-                await modules.database
-                  .ref(`esports/eSoccer/${betsID}/Summary/status`)
-                  .set('tobefixed');
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP of status on ${betsID} by DY`
-                  )
-                );
-              }
-              try {
-                await Match.upsert({
-                  bets_id: betsID,
-                  status: -1
-                });
-              } catch (err) {
-                return reject(
-                  new AppErrors.MysqlError(
-                    `${err} at doPBP of Match on ${betsID} by DY`
-                  )
-                );
-              }
-              try {
-                await modules.firestore
-                  .collection(firestoreName)
-                  .doc(betsID)
-                  .set({ flag: { status: -1 } }, { merge: true });
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseCollectError(
-                    `${err} at doPBP of status by DY`
-                  )
-                );
-              }
-            } else {
-              return resolve('ok');
+            try {
+              await modules.database
+                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .set('tobefixed');
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP of status on ${betsID} by DY`
+                )
+              );
+            }
+            try {
+              await Match.upsert({
+                bets_id: betsID,
+                status: -1
+              });
+            } catch (err) {
+              return reject(
+                new AppErrors.MysqlError(
+                  `${err} at doPBP of Match on ${betsID} by DY`
+                )
+              );
+            }
+            try {
+              await modules.firestore
+                .collection(firestoreName)
+                .doc(betsID)
+                .set({ flag: { status: -1 } }, { merge: true });
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseCollectError(
+                  `${err} at doPBP of status by DY`
+                )
+              );
             }
           }
           if (data.results[0].time_status === '1') {
@@ -407,44 +398,40 @@ async function doPBP(parameter) {
             }
           }
           if (data.results[0].time_status === '0') {
-            if (realtimeData.Summary.status !== 'tobefixed') {
-              try {
-                await modules.database
-                  .ref(`esports/eSoccer/${betsID}/Summary/status`)
-                  .set('tobefixed');
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP of status on ${betsID} by DY`
-                  )
-                );
-              }
-              try {
-                await Match.upsert({
-                  bets_id: betsID,
-                  status: -1
-                });
-              } catch (err) {
-                return reject(
-                  new AppErrors.MysqlError(
-                    `${err} at doPBP of status on ${betsID} by DY`
-                  )
-                );
-              }
-              try {
-                await modules.firestore
-                  .collection(firestoreName)
-                  .doc(betsID)
-                  .set({ flag: { status: -1 } }, { merge: true });
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseCollectError(
-                    `${err} at doPBP of status on ${betsID} by DY`
-                  )
-                );
-              }
-            } else {
-              return resolve('ok');
+            try {
+              await modules.database
+                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .set('tobefixed');
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP of status on ${betsID} by DY`
+                )
+              );
+            }
+            try {
+              await Match.upsert({
+                bets_id: betsID,
+                status: -1
+              });
+            } catch (err) {
+              return reject(
+                new AppErrors.MysqlError(
+                  `${err} at doPBP of status on ${betsID} by DY`
+                )
+              );
+            }
+            try {
+              await modules.firestore
+                .collection(firestoreName)
+                .doc(betsID)
+                .set({ flag: { status: -1 } }, { merge: true });
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseCollectError(
+                  `${err} at doPBP of status on ${betsID} by DY`
+                )
+              );
             }
           }
           let homeScores = 'no data';
