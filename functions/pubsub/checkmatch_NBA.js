@@ -1,14 +1,18 @@
 const modules = require('../util/modules');
 const NBApbp = require('./pbp_NBA');
 const AppErrors = require('../util/AppErrors');
+const db = require('../util/dbUtil');
 const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
-
+const Match = db.Match;
 async function checkmatch_NBA() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const firestoreName = 'pagetest_NBA';
     try {
-      const data = await modules.firestore.collection(firestoreName).get();
+      const data = await modules.firestore
+        .collection(firestoreName)
+        .where('flag.status', '>', 0)
+        .get();
       const totalData = [];
       data.forEach((doc) => {
         totalData.push(doc.data());
@@ -25,12 +29,23 @@ async function checkmatch_NBA() {
         const eventStatus = totalData[i].flag.status;
         switch (eventStatus) {
           case 2: {
+            let realtimeData = await modules.database
+              .ref(`basketball/NBA/${betsID}`)
+              .once('value');
+            realtimeData = realtimeData.val();
             if (gameTime <= nowTime) {
               try {
-                const realtimeData = await modules.database
-                  .ref(`basketball/NBA/${betsID}`)
-                  .once('value')
-                  .val();
+                await modules.database
+                  .ref(`basketball/NBA/${betsID}/Summary/status`)
+                  .set('inprogress');
+                await modules.firestore
+                  .collection(firestoreName)
+                  .doc(betsID)
+                  .set({ flag: { status: 1 } }, { merge: true });
+                await Match.upsert({
+                  bets_id: betsID,
+                  status: 1
+                });
                 periodsNow = 0;
                 eventsNow = 0;
                 const parameter = {
@@ -40,43 +55,37 @@ async function checkmatch_NBA() {
                   eventsNow: eventsNow,
                   realtimeData: realtimeData
                 };
-                try {
-                  await NBApbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPNBAError(
-                      `${err} at checkmatch_NBA of NBApbpInplay by DY`
-                    )
-                  );
-                }
+                await NBApbpInplay(parameter);
               } catch (err) {
                 return reject(
-                  new AppErrors.FirebaseRealtimeError(
+                  new AppErrors.PBPNBAError(
                     `${err} at checkmatch_NBA of realtimedata by DY`
                   )
                 );
               }
             } else {
-              try {
-                await modules.database
-                  .ref(`basketball/NBA/${betsID}/Summary/status`)
-                  .set('scheduled');
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at checkmatch_NBA of status by DY`
-                  )
-                );
+              if (realtimeData.Summary.status !== 'scheduled') {
+                try {
+                  await modules.database
+                    .ref(`basketball/NBA/${betsID}/Summary/status`)
+                    .set('scheduled');
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at checkmatch_NBA of status by DY`
+                    )
+                  );
+                }
               }
             }
             break;
           }
           case 1: {
             try {
-              const realtimeData = await modules.database
+              let realtimeData = await modules.database
                 .ref(`basketball/NBA/${betsID}`)
-                .once('value')
-                .val();
+                .once('value');
+              realtimeData = realtimeData.val();
               if (realtimeData.Summary.status === 'created') {
                 periodsNow = 0;
                 periodName = 'periods0';
@@ -88,15 +97,7 @@ async function checkmatch_NBA() {
                   eventsNow: eventsNow,
                   realtimeData: realtimeData
                 };
-                try {
-                  await NBApbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPNBAError(
-                      `${err} at checkmatch_NBA of NBApbpInplay by DY`
-                    )
-                  );
-                }
+                await NBApbpInplay(parameter);
               } else if (
                 realtimeData.Summary.status === 'closed' ||
                 realtimeData.Summary.status === 'complete'
@@ -107,17 +108,9 @@ async function checkmatch_NBA() {
                   betsID: betsID,
                   realtimeData: realtimeData
                 };
-                try {
-                  await NBApbpHistory(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPNBAError(
-                      `${err} at checkmatch_NBA of NBApbpHistory by DY`
-                    )
-                  );
-                }
+                await NBApbpHistory(parameter);
               } else if (realtimeData.Summary.status === 'inprogress') {
-                periodsNow = Object.keys(realtimeData.PBP).length - 1; // how much periods
+                periodsNow = Object.keys(realtimeData.PBP).length - 1;
                 periodName = Object.keys(realtimeData.PBP);
                 eventsNow =
                   Object.keys(realtimeData.PBP[periodName[periodsNow]]).length -
@@ -130,15 +123,8 @@ async function checkmatch_NBA() {
                   eventsNow: eventsNow,
                   realtimeData: realtimeData
                 };
-                try {
-                  await NBApbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPNBAError(
-                      `${err} at checkmatch_NBA of NBApbpInplay by DY`
-                    )
-                  );
-                }
+
+                await NBApbpInplay(parameter);
               } else {
                 periodsNow = 0;
                 periodName = 'periods0';
@@ -150,15 +136,8 @@ async function checkmatch_NBA() {
                   eventsNow: eventsNow,
                   realtimeData: realtimeData
                 };
-                try {
-                  await NBApbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPNBAError(
-                      `${err} at checkmatch_NBA of NBApbpInplay by DY`
-                    )
-                  );
-                }
+
+                await NBApbpInplay(parameter);
               }
             } catch (err) {
               return reject(
@@ -176,6 +155,7 @@ async function checkmatch_NBA() {
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at checkmatch_NBA by DY`));
     }
+    return resolve('ok');
   });
 }
 

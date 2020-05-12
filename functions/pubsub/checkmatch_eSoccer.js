@@ -6,7 +6,7 @@ const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
 async function checkmatch_eSoccer() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore
@@ -83,30 +83,14 @@ async function checkmatch_eSoccer() {
                   betsID: betsID,
                   realtimeData: realtimeData
                 };
-                try {
-                  await ESoccerpbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
-                    )
-                  );
-                }
+                await ESoccerpbpInplay(parameter);
               }
 
               if (realtimeData.Summary.status === 'closed') {
                 const parameter = {
                   betsID: betsID
                 };
-                try {
-                  await ESoccerpbpHistory(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
-                    )
-                  );
-                }
+                await ESoccerpbpHistory(parameter);
               }
             } catch (err) {
               return reject(
