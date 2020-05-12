@@ -1,15 +1,15 @@
-const modules = require('./modules');
 const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { customClaims } = await modules.firebaseAdmin.auth().getUser(uid);
-      if (!customClaims.role) return reject(new AppError.UserNotFound());
-      return resolve(customClaims);
-    } catch (error) {
-      return reject(new AppError.UserNotFound());
+      // index is const, taking 165ms
+      const result = await db.User.findOne({ where: { uid }, raw: true });
+      if (!result) return reject(new AppError.UserNotFound('by TsaiChieh'));
+      return resolve(result); // else return user data
+    } catch (err) {
+      return reject(new AppError.UserNotFound(`${err.stack} by TsaiChieh`));
     }
   });
 }
