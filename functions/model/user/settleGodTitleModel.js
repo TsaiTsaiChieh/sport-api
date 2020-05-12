@@ -133,86 +133,35 @@ function settleGodTitle(args) {
         // 2.1. 連贏Ｎ天 continue
         //
         pdLog('\n  2.1. 連贏Ｎ天 continue');
-        let win_continue = 0;
-        uid_league_data.lists.every(function(lists, index) {
-          // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
-          pdLog('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
-            index, lists.correct_counts, lists.fault_counts, lists.correct_counts - lists.fault_counts);
-          win_continue = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
-          return (lists.correct_counts - lists.fault_counts) > 0; // 代表過盤
-        });
+        const winContinueN = continueN(uid_league_data);
 
         //
         // 2.2. 勝注連過 Ｎ日 win_bets_continue
         //
         pdLog('\n  2.2. 勝注連過 Ｎ日 win_bets_continue');
-        let win_bets_continue = 0;
-        uid_league_data.lists.every(function(lists, index) {
-          pdLog('  %o lists.win_bets: %o ', index, lists.win_bets);
-          win_bets_continue = (lists.win_bets > 0) ? index + 1 : index;
-          return lists.win_bets > 0; // 代表過盤
-        });
+        const winBetsContinueN = winBetsContinue(uid_league_data);
 
         //
         // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場
         // acc 累計
         //
         pdLog('\n  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場');
-        let predict_rate1 = 0; let predict_rate2 = 0; let predict_rate3 = 0;
-        const allRecords = []; // 記錄所有資料
-
-        uid_league_data.lists.forEach(function(lists, index) {
-          const item = {};
-          item.days = index + 1;
-
-          if (index === 0) { // 第一筆 直接計算
-            item.totalsCountAcc = (lists.correct_counts + lists.fault_counts);
-            item.correctCountsAcc = lists.correct_counts;
-          } else { // 第二筆之後 要累計
-            item.totalsCountAcc = allRecords[index - 1].totalsCountAcc + (lists.correct_counts + lists.fault_counts);
-            item.correctCountsAcc = allRecords[index - 1].correctCountsAcc + lists.correct_counts;
-          }
-
-          item.winRateAcc = (item.totalsCountAcc === 0)
-            ? 0
-            : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率
-
-          allRecords.push(item);
-        });
-
-        if (isProgramDebug) {
-          allRecords.forEach(function(r) {
-            pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
-              r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
-          });
-        }
-
-        allRecords.sort(function compare(a, b) {
-          return b.winRateAcc - a.winRateAcc; // 降 大->小
-        });
-
-        // 要至少計算五場，選擇機率最高者 >= 5場
-        if (allRecords.length >= 5 && allRecords[0].days >= 5) {
-          // console.log(allRecords[0])
-          predict_rate1 = allRecords[0].days;
-          predict_rate2 = allRecords[0].totalsCountAcc;
-          predict_rate3 = allRecords[0].correctCountsAcc;
-        };
+        const { predictRateN1, predictRateN2, predictRateN3 } = nnPassN(uid_league_data);
 
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('\ncontinue: %o  win_bets_continue: %o', win_continue, win_bets_continue);
-        pdLog('predict_rate: %o  %o  %o', predict_rate1, predict_rate2, predict_rate3);
+        pdLog('\ncontinue: %o  win_bets_continue: %o', winContinueN, winBetsContinueN);
+        pdLog('predict_rate NNN NN: %o  %o  %o', predictRateN1, predictRateN2, predictRateN3);
 
         mixAll = modules.mergeDeep(mixAll, {
           [uid_league_data.uid]: {
             [uid_league_data.league_id]: {
-              continue: win_continue,
-              win_bets_continue: win_bets_continue,
-              predict_rate1: predict_rate1,
-              predict_rate2: predict_rate2,
-              predict_rate3: predict_rate3
+              continue: winContinueN,
+              win_bets_continue: winBetsContinueN,
+              predict_rate1: predictRateN1,
+              predict_rate2: predictRateN2,
+              predict_rate3: predictRateN3
             }
           }
         });
@@ -258,87 +207,26 @@ function settleGodTitle(args) {
         // acc 累計
         //
         pdLog('\n  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場');
-        let matches_rate1 = 0; let matches_rate2 = 0;
-        const allRecords = []; // 記錄所有資料
-        let n = 0; // 這裡場次算是過盤
-
-        uid_league_data.lists.forEach(function(lists) {
-          // 讓分
-          const r = nPassN(n, allRecords, lists.spread_result_flag);
-          n = r.n;
-          allRecords.push(r.item);
-
-          // 大小
-          const r2 = nPassN(n, allRecords, lists.totals_result_flag);
-          n = r2.n;
-          allRecords.push(r2.item);
-        });
-
-        if (isProgramDebug) {
-          allRecords.forEach(function(r) {
-            pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
-              r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
-          });
-        }
-
-        allRecords.sort(function compare(a, b) {
-          return b.winRateAcc - a.winRateAcc; // 降 大->小
-        });
-
-        // 要至少計算五場，選擇機率最高者 >= 5場 才給值
-        if (allRecords.length >= 5 && allRecords[0].days >= 5) {
-          // console.log(allRecords[0])
-          matches_rate1 = allRecords[0].days;
-          matches_rate2 = allRecords[0].correctCountsAcc;
-        };
+        const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
 
         //
         // 2.5. 連贏Ｎ場 matches_continue
         //
         pdLog('\n  2.5. 連贏Ｎ場 matches_continue');
-        let matches_continue = 0;
-        const allRecords2 = []; // 記錄所有資料
-        let nn = 0; // 這裡場次算是過盤
-
-        uid_league_data.lists.forEach(function(lists) {
-          // 讓分
-          const r = passN(nn, lists.spread_result_flag, lists.match_scheduled);
-          nn = r.n;
-          allRecords2.push(r.item);
-
-          // 大小
-          const r2 = passN(nn, lists.totals_result_flag, lists.match_scheduled);
-          nn = r2.n;
-          allRecords2.push(r2.item);
-        });
-
-        // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
-        // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
-        allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
-        if (isProgramDebug) {
-          allRecords2.forEach(function(r2) {
-            pdLog('  days: %o match_scheduled: %o correctMark: %o',
-              r2.days, r2.match_scheduled, r2.correctMark);
-          });
-        }
-
-        allRecords2.every(function(data, index) {
-          matches_continue = index;
-          return data.correctMark !== 0 && data.correctMark !== -1; // 代表過盤
-        });
+        const matchesContinueN = matchesContinue(uid_league_data);
 
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('\nmatches_rate: %o  %o', matches_rate1, matches_rate2);
-        pdLog('matches_continue: %o', matches_continue);
+        pdLog('\nmatches_rate: %o  %o', matchesRateN1, matchesRateN2);
+        pdLog('matches_continue: %o', matchesContinueN);
 
         mixAll = modules.mergeDeep(mixAll, {
           [uid_league_data.uid]: {
             [uid_league_data.league_id]: {
-              matches_rate1: matches_rate1,
-              matches_rate2: matches_rate2,
-              matches_continue: matches_continue
+              matches_rate1: matchesRateN1,
+              matches_rate2: matchesRateN2,
+              matches_continue: matchesContinueN
             }
           }
         });
@@ -394,6 +282,123 @@ function numberRate(num1, num2, f = 2) {
     : Number(Number(num1) / Number(num2)).toFixed(f);
 }
 
+// 連贏Ｎ天
+function continueN(uid_league_data) {
+  let win_continue = 0;
+  uid_league_data.lists.every(function(lists, index) {
+    // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
+    pdLog('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
+      index, lists.correct_counts, lists.fault_counts, lists.correct_counts - lists.fault_counts);
+    win_continue = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
+    return (lists.correct_counts - lists.fault_counts) > 0; // 代表過盤
+  });
+  return win_continue;
+}
+
+// 勝注連過 Ｎ日
+function winBetsContinue(uid_league_data) {
+  let win_bets_continue = 0;
+  uid_league_data.lists.every(function(lists, index) {
+    pdLog('  %o lists.win_bets: %o ', index, lists.win_bets);
+    win_bets_continue = (lists.win_bets > 0) ? index + 1 : index;
+    return lists.win_bets > 0; // 代表過盤
+  });
+  return win_bets_continue;
+}
+
+// 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ
+// acc 累計
+function nnPassN(uid_league_data) {
+  let predict_rate1 = 0; let predict_rate2 = 0; let predict_rate3 = 0;
+  const allRecords = []; // 記錄所有資料
+
+  uid_league_data.lists.forEach(function(lists, index) {
+    const item = {};
+    item.days = index + 1;
+
+    if (index === 0) { // 第一筆 直接計算
+      item.totalsCountAcc = (lists.correct_counts + lists.fault_counts);
+      item.correctCountsAcc = lists.correct_counts;
+    } else { // 第二筆之後 要累計
+      item.totalsCountAcc = allRecords[index - 1].totalsCountAcc + (lists.correct_counts + lists.fault_counts);
+      item.correctCountsAcc = allRecords[index - 1].correctCountsAcc + lists.correct_counts;
+    }
+
+    item.winRateAcc = (item.totalsCountAcc === 0)
+      ? 0
+      : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率
+
+    allRecords.push(item);
+  });
+
+  if (isProgramDebug) {
+    allRecords.forEach(function(r) {
+      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+    });
+  }
+
+  allRecords.sort(function compare(a, b) {
+    return b.winRateAcc - a.winRateAcc; // 降 大->小
+  });
+
+  if (isProgramDebug) {
+    allRecords.forEach(function(r) {
+      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+    });
+  }
+
+  // 要至少計算五場，選擇機率最高者 >= 5場
+  if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+    // console.log(allRecords[0])
+    predict_rate1 = allRecords[0].days;
+    predict_rate2 = allRecords[0].totalsCountAcc;
+    predict_rate3 = allRecords[0].correctCountsAcc;
+  };
+
+  return { predict_rate1, predict_rate2, predict_rate3 };
+}
+
+// 近 Ｎ 場過 Ｎ 場
+function matchesRate(uid_league_data) {
+  let matches_rate1 = 0; let matches_rate2 = 0;
+  const allRecords = []; // 記錄所有資料
+  let n = 0; // 這裡場次算是過盤
+
+  uid_league_data.lists.forEach(function(lists) {
+    // 讓分
+    const r = nPassN(n, allRecords, lists.spread_result_flag);
+    n = r.n;
+    allRecords.push(r.item);
+
+    // 大小
+    const r2 = nPassN(n, allRecords, lists.totals_result_flag);
+    n = r2.n;
+    allRecords.push(r2.item);
+  });
+
+  if (isProgramDebug) {
+    allRecords.forEach(function(r) {
+      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+    });
+  }
+
+  allRecords.sort(function compare(a, b) {
+    return b.winRateAcc - a.winRateAcc; // 降 大->小
+  });
+
+  // 要至少計算五場，選擇機率最高者 >= 5場 才給值
+  if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+    // console.log(allRecords[0])
+    matches_rate1 = allRecords[0].days;
+    matches_rate2 = allRecords[0].correctCountsAcc;
+  };
+
+  return { matches_rate1, matches_rate2 };
+}
+
 // 近 Ｎ 場過 Ｎ 場 計算專用的
 // 回傳 場數, (總場累計, 過盤場累計, 總勝率   場數)
 function nPassN(n, allRecords, result_flag) {
@@ -418,6 +423,42 @@ function nPassN(n, allRecords, result_flag) {
   n++;
   item.days = n;
   return { n: n, item: item };
+}
+
+// 連贏Ｎ場
+function matchesContinue(uid_league_data) {
+  let matches_continue = 0;
+  const allRecords2 = []; // 記錄所有資料
+  let nn = 0; // 這裡場次算是過盤
+
+  uid_league_data.lists.forEach(function(lists) {
+    // 讓分
+    const r = passN(nn, lists.spread_result_flag, lists.match_scheduled);
+    nn = r.n;
+    allRecords2.push(r.item);
+
+    // 大小
+    const r2 = passN(nn, lists.totals_result_flag, lists.match_scheduled);
+    nn = r2.n;
+    allRecords2.push(r2.item);
+  });
+
+  // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
+  // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
+  allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
+  if (isProgramDebug) {
+    allRecords2.forEach(function(r2) {
+      pdLog('  days: %o match_scheduled: %o correctMark: %o',
+        r2.days, r2.match_scheduled, r2.correctMark);
+    });
+  }
+
+  allRecords2.every(function(data, index) {
+    matches_continue = index;
+    return data.correctMark !== 0 && data.correctMark !== -1; // 代表過盤
+  });
+
+  return matches_continue;
 }
 
 // 連贏Ｎ場 計算專用的
