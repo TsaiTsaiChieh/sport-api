@@ -15,7 +15,11 @@ function getUserData(uid) {
   return new Promise(async function(resolve, reject) {
     try {
       // index is const, taking about 165ms
-      const result = await db.User.findOne({ where: { uid }, raw: true, attributes: ['display_name', 'signature', 'fans'] });
+      const result = await db.User.findOne({
+        where: { uid },
+        raw: true,
+        attributes: ['display_name', 'signature', 'fans']
+      });
       return resolve(result);
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
