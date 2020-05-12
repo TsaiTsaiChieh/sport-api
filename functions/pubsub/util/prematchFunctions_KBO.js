@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'pagetest_KBO';
+const firebaseName = 'baseball_KBO';
 const Match = db.Match;
 const MatchTeam = db.Team;
 const leagueUniteID = '349';
@@ -20,7 +20,7 @@ module.exports.KBO.upcoming = async function(date) {
           await write2firestore(ele);
           await write2realtime(ele);
           await write2MysqlOfMatch(ele);
-          await write2MysqlOfMatchTeam(ele);
+          // await write2MysqlOfMatchTeam(ele);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -106,6 +106,8 @@ async function write2MysqlOfMatch(ele) {
 }
 async function write2MysqlOfMatchTeam(ele) {
   return new Promise(async function(resolve, reject) {
+    switch (ele.home.name) {
+    }
     try {
       const dataHomeTeam = {
         team_id: ele.home.id,

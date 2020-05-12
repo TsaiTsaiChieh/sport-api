@@ -10,6 +10,7 @@ async function checkmatch_eSoccer() {
     const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore.collection(firestoreName).get();
+
       const totalData = [];
       data.forEach((doc) => {
         totalData.push(doc.data());
@@ -84,7 +85,7 @@ async function checkmatch_eSoccer() {
                 } catch (err) {
                   return reject(
                     new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer by DY`
+                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
                     )
                   );
                 }
@@ -99,7 +100,7 @@ async function checkmatch_eSoccer() {
                 } catch (err) {
                   return reject(
                     new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer by DY`
+                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
                     )
                   );
                 }
@@ -144,7 +145,7 @@ async function checkmatch_eSoccer() {
                 } catch (err) {
                   return reject(
                     new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer by DY`
+                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
                     )
                   );
                 }
