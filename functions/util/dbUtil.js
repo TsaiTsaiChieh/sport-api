@@ -1163,8 +1163,23 @@ const Service_Contact = sequelize.define('service__contact', {
 });
 
 /*
- * 首頁圖
+ * 首頁 排行榜預設值
  */
+const Home_List = sequelize.define(
+  'home__list',
+  {
+    god_list: {
+      type: Sequelize.STRING
+    },
+    win_rate_list: {
+      type: Sequelize.STRING
+    },
+    win_bets_list: {
+      type: Sequelize.STRING
+    }
+  }
+);
+
 const Home_Banner = sequelize.define(
   'user__home__banner',
   {
@@ -1374,6 +1389,7 @@ const dbUtil = {
   Topic_Article,
   Topic_FavoriteArticle,
   Home_Banner,
+  Home_List,
   Service_Contact,
   Buy,
   Honor_board,
