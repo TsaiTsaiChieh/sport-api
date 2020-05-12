@@ -12,12 +12,9 @@ function godlists(args) {
 
     try {
       // 取得 首頁預設值
-      const defaultValues = await modules.firestore.collection('doSports_settings').doc('home_gods').get()
-        .then(function(data) {
-          return data.data();
-        });
-
-      const league_id = modules.leagueCodebook(defaultValues.league).id;
+      const listLeague = await db.Home_List.findOne({ where: { id: 1 } });
+      const defaultLeague = listLeague.god_list;
+      const league_id = modules.leagueCodebook(defaultLeague).id;
 
       // 依 聯盟 取出是 大神資料 且 有販售
       // 將來有排序條件，可以orderBy，但會和下面的order衝突
@@ -61,7 +58,7 @@ function godlists(args) {
       });
 
       // 鑽 金 銀 銅 隨機選一個
-      arrRandom(defaultValues.league, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
+      arrRandom(defaultLeague, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
 
       await Promise.all(godLists);
     } catch (err) {

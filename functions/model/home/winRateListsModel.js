@@ -5,13 +5,9 @@ const db = require('../../util/dbUtil');
 function winRateLists(args) {
   return new Promise(async function(resolve, reject) {
     // 取得 首頁預設值
-    const league_id = 'league_id';
-    const defaultValues = await db.sequelize.query(
-      `SELECT * FROM match__leagues ORDER BY ${league_id} DESC LIMIT 1`,
-      {
-        type: db.sequelize.QueryTypes.SELECT,
-        plain: true
-      });
+    const listLeague = await db.Home_List.findOne({ where: { id: 1 } });
+    const defaultLeague = listLeague.god_list;
+    const defaultLeagueID = modules.leagueCodebook(defaultLeague).id;
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
     // let winRateLists = {
@@ -20,12 +16,12 @@ function winRateLists(args) {
     // }
 
     const winRateLists = {};
-    winRateLists[defaultValues.name] = [];
+    winRateLists[defaultLeague] = [];
 
     try {
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
-        const league_id = defaultValues.league_id;
+        const league_id = defaultLeagueID;
         const order = 'this_month_win_rate';
         const limit = 10;
         const period = modules.getTitlesPeriod(new Date()).period;
