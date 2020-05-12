@@ -73,16 +73,16 @@ function settleGodTitle(args) {
       return reject(errs.errsMsg('500', '500', err));
     }
 
-    const s2 = new Date().getTime();
+    let s20 = 0;
+    let s2_123 = 0;
     let s21 = 0;
-    let s22 = 0;
-    let s23 = 0;
-    let s24 = 0;
+    let s2_45 = 0;
+    let s3_u = 0;
     let mixAll = {};
 
     // 2.
     try {
-      s21 = new Date().getTime();
+      s20 = new Date().getTime();
       //
       // a. 使用 users__win__lists_histories
       //
@@ -113,7 +113,7 @@ function settleGodTitle(args) {
 
       // 依 使用者-聯盟 進行 稱號判斷
 
-      s22 = new Date().getTime();
+      s2_123 = new Date().getTime();
       pdLog('\n2.1 2.2 2.3');
       reformatHistory.forEach(function(uid_league_data) {
         pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
@@ -156,7 +156,7 @@ function settleGodTitle(args) {
         });
       });
 
-      s23 = new Date().getTime();
+      s21 = new Date().getTime();
       //
       // b. 使用 users_predictions
       //
@@ -187,7 +187,7 @@ function settleGodTitle(args) {
       let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
       reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
-      s24 = new Date().getTime();
+      s2_45 = new Date().getTime();
       pdLog('\n2.4 2.5');
       reformatPrediction.forEach(function(uid_league_data) {
         pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
@@ -221,6 +221,8 @@ function settleGodTitle(args) {
         });
       });
 
+      s3_u = new Date().getTime();
+      pdLog('\nupdate titles');
       // 把 所有計算出來的資料寫入 Title
       for (const [uid, value] of Object.entries(mixAll)) {
         pdLog('\nuid: ', uid);
@@ -258,8 +260,8 @@ function settleGodTitle(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleGodTitleModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms   24# %o ms',
-      s2 - s1, s21 - s2, s22 - s21, s23 - s22, s24 - s23, e - s24);
+    console.log('\n settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
+      s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
     return resolve(result);
   });
 }
@@ -334,7 +336,6 @@ function nnPassN(uid_league_data) {
   // });
   allRecords.sort(modules.fieldSorter(['-winRateAcc', '-days']));
 
-  console.log('============');
   if (isProgramDebug) {
     allRecords.forEach(function(r) {
       pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
