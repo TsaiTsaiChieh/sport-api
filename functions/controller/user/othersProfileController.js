@@ -8,7 +8,7 @@ async function othersProfile(req, res) {
     properties: {
       uid: {
         type: 'string',
-        format: modules.acceptNumberAndLetter
+        pattern: modules.acceptNumberAndLetter
       }
     }
   };
@@ -20,7 +20,7 @@ async function othersProfile(req, res) {
     res.json(await model(req.query));
   } catch (err) {
     console.error('Error in controller/user/otherProfile by TsaiChieh', err);
-    res.status(err.code).json(err.isPublic ? { error: err.err.name, devcode: err.status, message: err.message } : err.code);
+    res.status(err.code).json(err.isPublic ? { error: err.name, devcode: err.status, message: err.message } : err.code);
   }
 }
 
