@@ -559,7 +559,7 @@ async function getTotals(league, ele, sport) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${error} at handicap of getTotals by DY`)
+        new AppErrors.AxiosError(`${err} at handicap of getTotals by DY`)
       );
     }
   });
