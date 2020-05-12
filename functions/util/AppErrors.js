@@ -38,7 +38,7 @@ class UserNotFound extends ExtendableError {
    * @param {boolean} isPublic - whether the message should be visible to user or not
    */
   constructor(
-    message = '使用者狀態異常',
+    message = '無此使用者',
     status = 1305,
     isPublic = true,
     code = httpStatus.NOT_FOUND
