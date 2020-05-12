@@ -1,14 +1,15 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const d = require('debug')('user:settleWinListModel');
 
 // 當要判斷細部計算是否正確，可以打開此 pdLog 模式，顯示更清楚計算細節
-const isProgramDebug = false;
-const pdLog = function() {
-  if (isProgramDebug) {
-    console.log.apply(this, arguments);
-  }
-};
+// const isProgramDebug = false;
+// const pdLog = function() {
+//   if (isProgramDebug) {
+//     console.log.apply(this, arguments);
+//   }
+// };
 
 function settleWinList(args) {
   return new Promise(async function(resolve, reject) {
@@ -111,7 +112,7 @@ function settleWinList(args) {
       });
 
       const resultWinList = modules.predictionsWinList(predictMatchInfo);
-      // console.log('resultWinList: ', resultWinList);
+      // d('resultWinList: ', resultWinList);
 
       s21 = new Date().getTime();
       // b.
@@ -315,7 +316,7 @@ function settleWinList(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
+    d('settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
       s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
     return resolve(result);
   });
@@ -382,18 +383,18 @@ function groupSum(arr, filterField, groupByField) {
   });
   if (filtered_arr.length === 0) return initCounts;
 
-  pdLog('\nFilter: %o %o', name, value);
+  d('Filter: %o %o ', name, value);
   const counts = filtered_arr.reduce((p, c) => {
     if (!Object.prototype.hasOwnProperty.call(p, name)) { // 初始化欄位
       p = initCounts;
-      pdLog(' %o %o', c.uid, c.league_id);
+      d(' %o %o ', c.uid, c.league_id);
     }
 
     if (c[name] === value) { // 進行累計
-      pdLog('\n  %o uid_league_histories id', c.id);
+      d('  %o uid_league_histories id ', c.id);
       groupByField.forEach((key) => {
         p[name][key] += c[key];
-        pdLog('    GroupBy: %o Sum: %o BeSum: %o', key, p[name][key], c[key]);
+        d('    GroupBy: %o Sum: %o BeSum: %o', key, p[name][key], c[key]);
       });
     }
 

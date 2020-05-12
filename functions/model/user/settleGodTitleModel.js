@@ -1,14 +1,15 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const d = require('debug')('user:settleGodTitleModel');
 
-// 當要判斷細部計算是否正確，可以打開此 pdLog 模式，顯示更清楚計算細節
-const isProgramDebug = true;
-const pdLog = function() {
-  if (isProgramDebug) {
-    console.log.apply(this, arguments);
-  }
-};
+// 當要判斷細部計算是否正確，可以打開此 d 模式，顯示更清楚計算細節
+// const isProgramDebug = true;
+// const pdLog = function() {
+//   if (isProgramDebug) {
+//     console.log.apply(this, arguments);
+//   }
+// };
 
 function settleGodTitle(args) {
   return new Promise(async function(resolve, reject) {
@@ -114,34 +115,34 @@ function settleGodTitle(args) {
       // 依 使用者-聯盟 進行 稱號判斷
 
       s2_123 = new Date().getTime();
-      pdLog('\n2.1 2.2 2.3');
+      d('2.1 2.2 2.3\n');
       reformatHistory.forEach(function(uid_league_data) {
-        pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
+        d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
 
         //
         // 2.1. 連贏Ｎ天 continue
         //
-        pdLog('\n  2.1. 連贏Ｎ天 continue');
+        d('  2.1. 連贏Ｎ天 continue\n');
         const winContinueN = continueN(uid_league_data);
 
         //
         // 2.2. 勝注連過 Ｎ日 win_bets_continue
         //
-        pdLog('\n  2.2. 勝注連過 Ｎ日 win_bets_continue');
+        d('  2.2. 勝注連過 Ｎ日 win_bets_continue\n');
         const winBetsContinueN = winBetsContinue(uid_league_data);
 
         //
         // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場
         // acc 累計
         //
-        pdLog('\n  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場');
+        d('  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場\n');
         const { predictRateN1, predictRateN2, predictRateN3 } = nnPassN(uid_league_data);
 
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('\ncontinue: %o  win_bets_continue: %o', winContinueN, winBetsContinueN);
-        pdLog('predict_rate NNN NN: %o  %o  %o', predictRateN1, predictRateN2, predictRateN3);
+        d('continue: %o  win_bets_continue: %o \n', winContinueN, winBetsContinueN);
+        d('predict_rate NNN NN: %o  %o  %o \n', predictRateN1, predictRateN2, predictRateN3);
 
         mixAll = modules.mergeDeep(mixAll, {
           [uid_league_data.uid]: {
@@ -188,27 +189,27 @@ function settleGodTitle(args) {
       reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
       s2_45 = new Date().getTime();
-      pdLog('\n2.4 2.5');
+      d('2.4 2.5\n');
       reformatPrediction.forEach(function(uid_league_data) {
-        pdLog('\nuid: %o   league_id: %o', uid_league_data.uid, uid_league_data.league_id);
+        d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
         //
         // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場
         // acc 累計
         //
-        pdLog('\n  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場');
+        d('  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場 \n');
         const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
 
         //
         // 2.5. 連贏Ｎ場 matches_continue
         //
-        pdLog('\n  2.5. 連贏Ｎ場 matches_continue');
+        d('  2.5. 連贏Ｎ場 matches_continue \n');
         const matchesContinueN = matchesContinue(uid_league_data);
 
         //
         // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
         //
-        pdLog('\nmatches_rate: %o  %o', matchesRateN1, matchesRateN2);
-        pdLog('matches_continue: %o', matchesContinueN);
+        d('matches_rate: %o  %o', matchesRateN1, matchesRateN2);
+        d('matches_continue: %o \n', matchesContinueN);
 
         mixAll = modules.mergeDeep(mixAll, {
           [uid_league_data.uid]: {
@@ -222,13 +223,13 @@ function settleGodTitle(args) {
       });
 
       s3_u = new Date().getTime();
-      pdLog('\nupdate titles');
+      d('update titles \n');
       // 把 所有計算出來的資料寫入 Title
       for (const [uid, value] of Object.entries(mixAll)) {
-        pdLog('\nuid: ', uid);
+        d('uid: %o', uid);
         for (const [league_id, value2] of Object.entries(value)) {
-          pdLog('\nleague_id: ', league_id);
-          pdLog('value2: ', value2);
+          d('league_id: %o', league_id);
+          d('value2: %O \n', value2);
           try {
             const r = await db.Title.update({
               continue: value2.continue,
@@ -260,7 +261,7 @@ function settleGodTitle(args) {
     }
 
     const e = new Date().getTime();
-    console.log('\n settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
+    d('settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
       s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
     return resolve(result);
   });
@@ -278,7 +279,7 @@ function continueN(uid_league_data) {
   let winContinueN = 0;
   uid_league_data.lists.every(function(lists, index) {
     // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
-    pdLog('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
+    d('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
       index, lists.correct_counts, lists.fault_counts, lists.correct_counts - lists.fault_counts);
     winContinueN = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
     return (lists.correct_counts - lists.fault_counts) > 0; // 代表過盤
@@ -290,7 +291,7 @@ function continueN(uid_league_data) {
 function winBetsContinue(uid_league_data) {
   let winBetsContinueN = 0;
   uid_league_data.lists.every(function(lists, index) {
-    pdLog('  %o lists.win_bets: %o ', index, lists.win_bets);
+    d('  %o lists.win_bets: %o ', index, lists.win_bets);
     winBetsContinueN = (lists.win_bets > 0) ? index + 1 : index;
     return lists.win_bets > 0; // 代表過盤
   });
@@ -322,9 +323,9 @@ function nnPassN(uid_league_data) {
     allRecords.push(item);
   });
 
-  if (isProgramDebug) {
+  if (d.enabled) {
     allRecords.forEach(function(r) {
-      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
         r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
     });
   }
@@ -336,9 +337,9 @@ function nnPassN(uid_league_data) {
   // });
   allRecords.sort(modules.fieldSorter(['-winRateAcc', '-days']));
 
-  if (isProgramDebug) {
+  if (d.enabled) {
     allRecords.forEach(function(r) {
-      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
         r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
     });
   }
@@ -372,9 +373,9 @@ function matchesRate(uid_league_data) {
     allRecords.push(r2.item);
   });
 
-  if (isProgramDebug) {
+  if (d.enabled) {
     allRecords.forEach(function(r) {
-      pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
         r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
     });
   }
@@ -439,9 +440,9 @@ function matchesContinue(uid_league_data) {
   // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
   allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
 
-  if (isProgramDebug) {
+  if (d.enabled) {
     allRecords2.forEach(function(r2) {
-      pdLog('  days: %o match_scheduled: %o correctMark: %o',
+      d('  days: %o match_scheduled: %o correctMark: %o',
         r2.days, r2.match_scheduled, r2.correctMark);
     });
   }

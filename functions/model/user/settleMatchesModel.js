@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const d = require('debug')('user:settleMatchesModel');
 
 function settleMatchesModel(args) {
   return new Promise(async function(resolve, reject) {
@@ -27,7 +28,7 @@ function settleMatchesModel(args) {
       if (checkResult.code) return reject(checkResult);
 
       // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
+      d('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
     } catch (err) {
       console.error('Error 1. in user/settleMatchesModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -82,7 +83,7 @@ function settleMatchesModel(args) {
         const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
         if (settelTotalsResult === '') return reject(errs.errsMsg('404', '13112')); // 賽事結算大小 結果不應該為空白
 
-        console.log(bets_id, settelSpreadResult, settelTotalsResult);
+        d(bets_id, settelSpreadResult, settelTotalsResult);
         // 回寫結果
         try {
           const r = await db.Match.update({
@@ -160,7 +161,7 @@ function settleMatchesModel(args) {
         // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
         const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
         const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-        console.log(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
+        d(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
         // 回寫結果
         try {
           const r = await db.Prediction.update({
