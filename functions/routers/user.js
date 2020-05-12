@@ -68,7 +68,7 @@ router.post(
   require('../controller/user/predictInfoController')
 );
 // 我的預測-刪除注單
-router.delete(
+router.post(
   '/predictions',
   verification.token_v2,
   require('../controller/user/deletePredictsController')
