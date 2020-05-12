@@ -23,6 +23,10 @@ async function livescore(req, res) {
       req.query.sport = 'esports';
       break;
     }
+    case 'KBO': {
+      req.query.sport = 'baseball';
+      break;
+    }
     default: {
       req.query.league = 'eSoccer';
       req.query.sport = 'esports';
@@ -33,7 +37,7 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer']
+        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
       },
       sport: {
         type: 'string',

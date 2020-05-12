@@ -23,7 +23,13 @@ async function reResult(sport, league, UID, eventID) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, UID, eventID) {
-  const leagueName = `pagetest_${league}_member`;
+  let leagueName;
+
+  if (league === 'eSoccer') {
+    leagueName = `pagetest_${league}_member`;
+  } else {
+    leagueName = `${sport}_${league}_member`;
+  }
   const output = [];
   const validation = await modules.firestore
     .collection(leagueName)

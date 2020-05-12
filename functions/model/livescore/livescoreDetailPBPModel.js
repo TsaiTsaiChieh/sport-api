@@ -17,7 +17,13 @@ async function reResult(sport, league, eventID) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, eventID) {
-  const leagueName = `pagetest_${league}`;
+  let leagueName;
+
+  if (league === 'eSoccer') {
+    leagueName = `pagetest_${league}`;
+  } else {
+    leagueName = `${sport}_${league}`;
+  }
   const eventData = [];
   const query = await modules.firestore
     .collection(leagueName)

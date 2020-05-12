@@ -1204,24 +1204,22 @@ const Buy = sequelize.define(
   {
     buy_id: {
       type: Sequelize.INTEGER,
-      allowNull: false
+      primaryKey: true
     },
     uid: {
       type: Sequelize.INTEGER,
       allowNull: false
     },
     league_id: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      defaultValue: ''
+      type: Sequelize.STRING,
+      allowNull: false
     },
     god_id: {
-      type: Sequelize.STRING,
-      allowNull: true
+      type: Sequelize.STRING
     },
     god_rank: {
       type: Sequelize.INTEGER,
-      defaultValue: 1
+      allowNull: false
     },
     scheduled: {
       type: Sequelize.INTEGER
@@ -1248,7 +1246,7 @@ const Honor_board = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: true,
       defaultValue: ''
     },
