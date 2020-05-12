@@ -1,7 +1,13 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/getTopicsModel');
+const types = require('./types');
 async function getTopics(req, res) {
+  const type = types.getType();
+  type.push(null);
+  const category = types.getCategory();
+  category.push(null);
+
   const schema = {
     type: 'object',
     properties: {
@@ -10,11 +16,11 @@ async function getTopics(req, res) {
       },
       type: {
         type: ['string', 'null'],
-        enum: [null, 'MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球', '電競足球', 'LOL', 'CS:GO', '王者榮耀']
+        enum: type
       },
       category: {
         type: ['string', 'null'],
-        enum: [null, '賽事分析', '球隊討論', '投注分享', '公告', '其他']
+        enum: category
       },
       count: {
         type: 'integer',
