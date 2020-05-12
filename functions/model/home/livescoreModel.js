@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await reResult(args.sport, args.league);
 
@@ -164,7 +164,13 @@ async function repackage(sport, league) {
       counScheduled = counScheduled + 1;
     }
   }
+  const ll = outputJson.length;
 
+  for (let i = 0; i < ll; i++) {
+    if (outputJson[i] === undefined || outputJson[i] === null) {
+      outputJson.pop();
+    }
+  }
   return outputJson;
 }
 module.exports = livescore;
