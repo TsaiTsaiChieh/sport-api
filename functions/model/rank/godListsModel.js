@@ -59,9 +59,7 @@ function godlists(args) {
       if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
       // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
-      godListsQuery.sort(function compare(a, b) {
-        return a.order > b.order; // 升 小->大
-      });
+      godListsQuery.sort(modules.fieldSorter(['order'])); // 升 小->大
 
       // 鑽 金 銀 銅 分類
       rankGroup(godListsQuery, godLists);
@@ -90,34 +88,27 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   });
 
   // 底下順序將來會有可能別的條件，可以在 sort 內進行判斷
+  // 進行 order 排序，將來後台可能指定順序
   // 鑽石 依勝注 排序
-  diamondArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-    return a.win_bets < b.win_bets; // 降 大->小
-  });
+  diamondArr.sort(modules.fieldSorter(['-win_bets'])); // 降 大->小
   godLists.diamond = diamondArr.map(function(t) {
     return repackage_winBets(t);
   });
 
   // 金 依勝率 排序
-  goldArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-    return a.win_rate < b.win_rate; // 降 大->小
-  });
+  goldArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
   godLists.gold = goldArr.map(function(t) {
     return repackage_winRate(t);
   });
 
   // 銀 依勝率 排序
-  silverArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-    return a.win_rate < b.win_rate; // 降 大->小
-  });
+  silverArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
   godLists.silver = silverArr.map(function(t) {
     return repackage_winRate(t);
   });
 
   // 銅 依勝率 排序
-  copperArr.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-    return a.win_rate < b.win_rate; // 降 大->小
-  });
+  copperArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
   godLists.copper = copperArr.map(function(t) {
     return repackage_winRate(t);
   });

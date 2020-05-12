@@ -327,10 +327,14 @@ function nnPassN(uid_league_data) {
     });
   }
 
-  allRecords.sort(function compare(a, b) {
-    return b.winRateAcc - a.winRateAcc; // 降 大->小
-  });
+  // !! 不知道為何沒有 sort 後沒有 stable，理論上 v8 2019年後已支援 sort stable
+  // 所以 當勝率相同時，以 days 大 -> 小
+  // allRecords.sort(function compare(a, b) {
+  //   return b.winRateAcc - a.winRateAcc === 0 ? b.days - a.days : b.winRateAcc - a.winRateAcc; // 降 大->小
+  // });
+  allRecords.sort(modules.fieldSorter(['-winRateAcc', '-days']));
 
+  console.log('============');
   if (isProgramDebug) {
     allRecords.forEach(function(r) {
       pdLog('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
@@ -374,9 +378,7 @@ function matchesRate(uid_league_data) {
     });
   }
 
-  allRecords.sort(function compare(a, b) {
-    return b.winRateAcc - a.winRateAcc; // 降 大->小
-  });
+  allRecords.sort(modules.fieldSorter(['-winRateAcc']));
 
   // 要至少計算五場，選擇機率最高者 >= 5場 才給值
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
@@ -435,6 +437,7 @@ function matchesContinue(uid_league_data) {
   // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
   // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
   allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
+
   if (isProgramDebug) {
     allRecords2.forEach(function(r2) {
       pdLog('  days: %o match_scheduled: %o correctMark: %o',

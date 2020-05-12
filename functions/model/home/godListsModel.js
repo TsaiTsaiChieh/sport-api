@@ -53,9 +53,7 @@ function godlists(args) {
 
       if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
-      godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-        return a.order > b.order; // 升 小->大
-      });
+      godListsQuery.sort(modules.fieldSorter(['order']));// 進行 order 排序，將來後台可能指定順序
 
       // 鑽 金 銀 銅 隨機選一個
       arrRandom(defaultLeague, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
