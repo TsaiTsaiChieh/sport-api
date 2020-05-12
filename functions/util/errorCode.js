@@ -8,7 +8,7 @@ const errorCodeLists = {
   1305: { msg: ['user status abnormal'], backend: ['使用者不存在', 'user not found.'] },
   1306: { msg: ['user status abnormal'], backend: ['users_titles doc 找不到', 'users_titles doc not found'] },
   1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] },
-  1308: { msg: ['使用者狀態異常'], backend: ['使用者不是管理者，請確認使用者狀態', ''] },
+  1308: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
 
   13109: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13110: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },

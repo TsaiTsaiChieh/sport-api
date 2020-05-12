@@ -65,22 +65,11 @@ function settleGodTitle(args) {
     // 1.
     try {
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
-
-      if (memberInfo === null) {
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1301')); // ${userUid}
-      }
-
       // !!!! 記得改成 9
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1308'));
-      }
-
-      // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
+      const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
+      if (checkResult.code) return reject(checkResult);
     } catch (err) {
-      console.error('Error 1. in user/settleMatchesModel by YuHsien', err);
+      console.error('Error 1. in user/settleGodTitleModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
@@ -284,32 +273,32 @@ function numberRate(num1, num2, f = 2) {
 
 // 連贏Ｎ天
 function continueN(uid_league_data) {
-  let win_continue = 0;
+  let winContinueN = 0;
   uid_league_data.lists.every(function(lists, index) {
     // console.log('uid: %o  league_id: %o  %o', uid_league_data.uid, uid_league_data.league_id, lists);
     pdLog('  %o lists.correct_counts: %o  lists.fault_counts: %o   - : %o',
       index, lists.correct_counts, lists.fault_counts, lists.correct_counts - lists.fault_counts);
-    win_continue = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
+    winContinueN = (lists.correct_counts - lists.fault_counts) > 0 ? index + 1 : index;
     return (lists.correct_counts - lists.fault_counts) > 0; // 代表過盤
   });
-  return win_continue;
+  return winContinueN;
 }
 
 // 勝注連過 Ｎ日
 function winBetsContinue(uid_league_data) {
-  let win_bets_continue = 0;
+  let winBetsContinueN = 0;
   uid_league_data.lists.every(function(lists, index) {
     pdLog('  %o lists.win_bets: %o ', index, lists.win_bets);
-    win_bets_continue = (lists.win_bets > 0) ? index + 1 : index;
+    winBetsContinueN = (lists.win_bets > 0) ? index + 1 : index;
     return lists.win_bets > 0; // 代表過盤
   });
-  return win_bets_continue;
+  return winBetsContinueN;
 }
 
 // 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ
 // acc 累計
 function nnPassN(uid_league_data) {
-  let predict_rate1 = 0; let predict_rate2 = 0; let predict_rate3 = 0;
+  let predictRateN1 = 0; let predictRateN2 = 0; let predictRateN3 = 0;
   const allRecords = []; // 記錄所有資料
 
   uid_league_data.lists.forEach(function(lists, index) {
@@ -352,17 +341,17 @@ function nnPassN(uid_league_data) {
   // 要至少計算五場，選擇機率最高者 >= 5場
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
     // console.log(allRecords[0])
-    predict_rate1 = allRecords[0].days;
-    predict_rate2 = allRecords[0].totalsCountAcc;
-    predict_rate3 = allRecords[0].correctCountsAcc;
+    predictRateN1 = allRecords[0].days;
+    predictRateN2 = allRecords[0].totalsCountAcc;
+    predictRateN3 = allRecords[0].correctCountsAcc;
   };
 
-  return { predict_rate1, predict_rate2, predict_rate3 };
+  return { predictRateN1, predictRateN2, predictRateN3 };
 }
 
 // 近 Ｎ 場過 Ｎ 場
 function matchesRate(uid_league_data) {
-  let matches_rate1 = 0; let matches_rate2 = 0;
+  let matchesRateN1 = 0; let matchesRateN2 = 0;
   const allRecords = []; // 記錄所有資料
   let n = 0; // 這裡場次算是過盤
 
@@ -392,11 +381,11 @@ function matchesRate(uid_league_data) {
   // 要至少計算五場，選擇機率最高者 >= 5場 才給值
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
     // console.log(allRecords[0])
-    matches_rate1 = allRecords[0].days;
-    matches_rate2 = allRecords[0].correctCountsAcc;
+    matchesRateN1 = allRecords[0].days;
+    matchesRateN2 = allRecords[0].correctCountsAcc;
   };
 
-  return { matches_rate1, matches_rate2 };
+  return { matchesRateN1, matchesRateN2 };
 }
 
 // 近 Ｎ 場過 Ｎ 場 計算專用的

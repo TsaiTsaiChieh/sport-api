@@ -72,22 +72,11 @@ function settleWinList(args) {
     // 1.
     try {
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
-
-      if (memberInfo === null) {
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1301')); // ${userUid}
-      }
-
       // !!!! 記得改成 9
-      if (!([1, 2, 9].includes(memberInfo.status))) { // 不是 管理者
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1308'));
-      }
-
-      // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      // console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
+      const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
+      if (checkResult.code) return reject(checkResult);
     } catch (err) {
-      console.error('Error 1. in user/settleMatchesModel by YuHsien', err);
+      console.error('Error 1. in user/settleWinListModel by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
     }
 
