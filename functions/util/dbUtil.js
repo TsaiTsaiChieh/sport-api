@@ -44,7 +44,9 @@ const User = sequelize.define(
       type: Sequelize.INTEGER
     },
     avatar: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: 'https://dosports.web.app/statics/default-avatar.jpg'
     },
     birthday: {
       type: Sequelize.INTEGER
@@ -56,7 +58,9 @@ const User = sequelize.define(
       type: Sequelize.STRING
     },
     dividend: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     email: {
       type: Sequelize.STRING
@@ -68,10 +72,17 @@ const User = sequelize.define(
       type: Sequelize.STRING
     },
     point: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     signature: {
       type: Sequelize.STRING
+    },
+    fan_count: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     default_title: {
       type: Sequelize.STRING
@@ -93,10 +104,14 @@ const User = sequelize.define(
       type: Sequelize.DATE
     },
     coin: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     ingot: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     rank1_count: {
       type: Sequelize.INTEGER
@@ -1151,7 +1166,7 @@ const Service_Contact = sequelize.define('service__contact', {
  * 首頁圖
  */
 const Home_Banner = sequelize.define(
-  'home__banner', // 不要再動了 拜託
+  'home__banner', // 不要再動了 拜託!!
   {
     name: {
       type: Sequelize.STRING,
