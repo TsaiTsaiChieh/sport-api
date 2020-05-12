@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -59,6 +58,7 @@ async function handicap() {
       }
     }
   }
+  console.log('handicap success');
 }
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
