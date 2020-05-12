@@ -6,7 +6,7 @@ const NBApbpInplay = NBApbp.NBApbpInplay;
 const NBApbpHistory = NBApbp.NBApbpHistory;
 const Match = db.Match;
 async function checkmatch_NBA() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_NBA';
     try {
       const data = await modules.firestore
