@@ -1,4 +1,8 @@
-const modules = require('../../util/modules');
+const getTitlesPeriod = require('../../util/modules').getTitlesPeriod;
+const leagueCodebook = require('../../util/modules').leagueCodebook;
+const convertTimezone = require('../../util/modules').convertTimezone;
+const moment = require('../../util/modules').moment;
+const fieldSorter = require('../../util/modules').fieldSorter;
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -7,11 +11,11 @@ function godlists(args) {
     const godLists = {};
 
     // 取得當期期數
-    const period = modules.getTitlesPeriod(new Date()).period;
+    const period = getTitlesPeriod(new Date()).period;
     const league = args.league;
-    const league_id = modules.leagueCodebook(league).id;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    const league_id = leagueCodebook(league).id;
+    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     try {
@@ -59,7 +63,7 @@ function godlists(args) {
       if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
 
       // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
-      godListsQuery.sort(modules.fieldSorter(['order'])); // 升 小->大
+      godListsQuery.sort(fieldSorter(['order'])); // 升 小->大
 
       // 鑽 金 銀 銅 分類
       rankGroup(godListsQuery, godLists);
@@ -90,25 +94,25 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
   // 底下順序將來會有可能別的條件，可以在 sort 內進行判斷
   // 進行 order 排序，將來後台可能指定順序
   // 鑽石 依勝注 排序
-  diamondArr.sort(modules.fieldSorter(['-win_bets'])); // 降 大->小
+  diamondArr.sort(fieldSorter(['-win_bets'])); // 降 大->小
   godLists.diamond = diamondArr.map(function(t) {
     return repackage_winBets(t);
   });
 
   // 金 依勝率 排序
-  goldArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
+  goldArr.sort(fieldSorter(['-win_rate'])); // 降 大->小
   godLists.gold = goldArr.map(function(t) {
     return repackage_winRate(t);
   });
 
   // 銀 依勝率 排序
-  silverArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
+  silverArr.sort(fieldSorter(['-win_rate'])); // 降 大->小
   godLists.silver = silverArr.map(function(t) {
     return repackage_winRate(t);
   });
 
   // 銅 依勝率 排序
-  copperArr.sort(modules.fieldSorter(['-win_rate'])); // 降 大->小
+  copperArr.sort(fieldSorter(['-win_rate'])); // 降 大->小
   godLists.copper = copperArr.map(function(t) {
     return repackage_winRate(t);
   });

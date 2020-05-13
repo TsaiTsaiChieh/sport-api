@@ -1,4 +1,7 @@
-const modules = require('../../util/modules');
+const getTitlesPeriod = require('../../util/modules').getTitlesPeriod;
+const leagueCodebook = require('../../util/modules').leagueCodebook;
+const convertTimezone = require('../../util/modules').convertTimezone;
+const moment = require('../../util/modules').moment;
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -6,10 +9,10 @@ function winRateLists(args) {
   return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
-    const league_id = modules.leagueCodebook(league).id;
-    const period = modules.getTitlesPeriod(new Date()).period;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    const league_id = leagueCodebook(league).id;
+    const period = getTitlesPeriod(new Date()).period;
+    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
