@@ -7,7 +7,7 @@ const firestoreArray = ['pagetest_eSoccer'];
 const sportArray = ['esports'];
 const leagueArray = ['eSoccer'];
 async function checkmatch_abnormal() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     for (let i = 0; i < firestoreArray.length; i++) {
       const firestoreName = firestoreArray[i];
       const sportName = sportArray[i];
@@ -47,7 +47,7 @@ async function checkmatch_abnormal() {
   });
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -59,7 +59,7 @@ async function axiosForURL(URL) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const sportName = parameter.sportName;
@@ -67,7 +67,7 @@ async function doPBP(parameter) {
     const firestoreName = parameter.firestoreName;
     try {
       const data = await axiosForURL(pbpURL);
-      console.log(data);
+
       if (data.results[0]) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {
@@ -233,7 +233,7 @@ async function doPBP(parameter) {
   });
 }
 async function pbpHistory(parameterHistory) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     let data = parameterHistory.data;
     const betsID = parameterHistory.betsID;
     const sportName = parameterHistory.sportName;
