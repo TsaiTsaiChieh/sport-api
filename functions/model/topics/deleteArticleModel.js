@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(aid) {
   return new Promise(async function(resolve, reject) {
