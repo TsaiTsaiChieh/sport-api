@@ -1299,6 +1299,29 @@ const News = sequelize.define(
   }
 );
 
+const News_System = sequelize.define(
+  'user__news__system',
+  {
+    system_id: {
+      type: Sequelize.INTEGER
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    active: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['system_id']
+      }
+    ]
+  }
+);
+
 const Bank = sequelize.define(
   'user__bank',
   {
@@ -1376,6 +1399,7 @@ const dbUtil = {
   Buy,
   Honor_board,
   News,
+  News_System,
   Bank,
   Transfer_Status,
   Season
