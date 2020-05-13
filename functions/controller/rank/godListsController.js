@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/modules').ajv;
 const godListsModel = require('../../model/rank/godListsModel');
 
 async function godlists(req, res) {
@@ -13,9 +13,9 @@ async function godlists(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
 
   try {
