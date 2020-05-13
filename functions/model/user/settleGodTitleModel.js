@@ -1,9 +1,10 @@
 const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const to = require('await-to-js').default;
 const d = require('debug')('user:settleGodTitleModel');
 
-// 當要判斷細部計算是否正確，可以打開此 d 模式，顯示更清楚計算細節
+// 當要判斷細部計算是否正確，可以打開此 Debug 模式，顯示更清楚計算細節
 // const isProgramDebug = true;
 // const pdLog = function() {
 //   if (isProgramDebug) {
@@ -11,84 +12,79 @@ const d = require('debug')('user:settleGodTitleModel');
 //   }
 // };
 
-function settleGodTitle(args) {
-  return new Promise(async function(resolve, reject) {
-    // 1. 管理者才能進行 API 呼叫
-    // 2. 抓取近三十天資料 是 這期大神的使用者才需要計算
-    //   a. 使用 users__win__lists_histories
-    //   b. 使用 users_predictions
-    // 2.1. 連贏Ｎ天
-    // 2.2. 勝注連過 Ｎ日
-    // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ
-    // 2.4. 近 Ｎ 場過 Ｎ 場
-    // 2.5. 連贏Ｎ場
+async function settleGodTitle(args) {
+  // return new Promise(async function(resolve, reject) {
+  // 1. 管理者才能進行 API 呼叫
+  // 2. 抓取近三十天資料 是 這期大神的使用者才需要計算
+  //   a. 使用 users__win__lists_histories
+  //   b. 使用 users_predictions
+  // 2.1. 連贏Ｎ天
+  // 2.2. 勝注連過 Ｎ日
+  // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ
+  // 2.4. 近 Ｎ 場過 Ｎ 場
+  // 2.5. 連贏Ｎ場
 
-    // 產生 30 天測試用資料
-    // start = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    // console.log('start: %o  %o', modules.moment().utcOffset(8).format('YYYY-MM-DD'), start)
+  // 產生 30 天測試用資料
+  // start = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+  // console.log('start: %o  %o', modules.moment().utcOffset(8).format('YYYY-MM-DD'), start)
 
-    // for(i=1; i<=30; i++){
-    //   subtract = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
-    //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
+  // for(i=1; i<=30; i++){
+  //   subtract = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+  //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
 
-    //   const period = modules.getTitlesPeriod(subtract).period;
-    //   const dayOfYear = modules.moment(subtract).format('DDD'); // 日期是 一年中的第幾天
-    //   const week = modules.moment(subtract).week();
-    //   const momentObject = modules.moment(subtract).toObject();
-    //   const month = momentObject.months + 1;
-    //   const season = momentObject.years;
+  //   const period = modules.getTitlesPeriod(subtract).period;
+  //   const dayOfYear = modules.moment(subtract).format('DDD'); // 日期是 一年中的第幾天
+  //   const week = modules.moment(subtract).week();
+  //   const momentObject = modules.moment(subtract).toObject();
+  //   const month = momentObject.months + 1;
+  //   const season = momentObject.years;
 
-    //   console.log('subtract %o: %o  %o period: %o  dayOfYear: %o  week: %o  month: %o  season: %o',
-    //     i, modules.moment(subtract).utcOffset(8).format('YYYY-MM-DD'), subtract/1000,
-    //     period, dayOfYear, week, month, season)
-    // }
-    //= ==============
+  //   console.log('subtract %o: %o  %o period: %o  dayOfYear: %o  week: %o  month: %o  season: %o',
+  //     i, modules.moment(subtract).utcOffset(8).format('YYYY-MM-DD'), subtract/1000,
+  //     period, dayOfYear, week, month, season)
+  // }
+  //= ==============
 
-    const userUid = args.token.uid;
-    const period = args.period;
-    const days = 30;
+  const userUid = args.token.uid;
+  const period = args.period;
+  const days = 30;
 
-    // 近 30 天
-    const end_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const begin_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'subtract', value: days, unit: 'days' }) - 1;
+  // 近 30 天
+  const end_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
+  const begin_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    { op: 'subtract', value: days, unit: 'days' }) - 1;
 
-    const result = {
-      status: {
-        1: {
-          msg: '大神 稱號資料更新成功！',
-          lists: []
-        }
+  const result = {
+    status: {
+      1: {
+        msg: '大神 稱號資料更新成功！',
+        lists: []
       }
-    };
-
-    const s1 = new Date().getTime();
-    // 1.
-    try {
-      const memberInfo = await db.User.findOne({ where: { uid: userUid } });
-      // !!!! 記得改成 9
-      const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
-      if (checkResult.code) return reject(checkResult);
-    } catch (err) {
-      console.error('Error 1. in user/settleGodTitleModel by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
     }
+  };
 
-    let s20 = 0;
-    let s2_123 = 0;
-    let s21 = 0;
-    let s2_45 = 0;
-    let s3_u = 0;
-    let mixAll = {};
+  const s1 = new Date().getTime();
+  // 1.
+  const [err, memberInfo] = await to(db.User.findOne({ where: { uid: userUid } }));
+  if (err) {console.error('Error 1. in user/settleGodTitleModel by YuHsien', err); throw errs.errsMsg('500', '500', err);};
+  // !!!! 記得改成 9
+  const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
+  if (checkResult.code) throw checkResult;
 
-    // 2.
-    try {
-      s20 = new Date().getTime();
-      //
-      // a. 使用 users__win__lists_histories
-      //
-      // 這期大神 抓 30 日 資料
-      const usersWinListsHistories = await db.sequelize.query(`
+  let s20 = 0;
+  let s2_123 = 0;
+  let s21 = 0;
+  let s2_45 = 0;
+  let s3_u = 0;
+  let mixAll = {};
+
+  // 2.
+  s20 = new Date().getTime();
+  //
+  // a. 使用 users__win__lists_histories
+  //
+  // 這期大神 抓 30 日 資料
+  const usersWinListsHistories = await db.sequelize.query(`
         select *
           from users__win__lists__histories history, 
                (
@@ -100,68 +96,68 @@ function settleGodTitle(args) {
            and history.league_id = title_user.league_id
            and history.date_timestamp between :begin and :end
       `, {
-        replacements: {
-          period: period,
-          begin: begin_30days,
-          end: end_30days
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
+    replacements: {
+      period: period,
+      begin: begin_30days,
+      end: end_30days
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
 
-      let reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
+  let reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
 
-      reformatHistory = modules.groupsByOrdersLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
+  reformatHistory = modules.groupsByOrdersLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
 
-      // 依 使用者-聯盟 進行 稱號判斷
+  // 依 使用者-聯盟 進行 稱號判斷
 
-      s2_123 = new Date().getTime();
-      d('2.1 2.2 2.3\n');
-      reformatHistory.forEach(function(uid_league_data) {
-        d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
+  s2_123 = new Date().getTime();
+  d('2.1 2.2 2.3\n');
+  reformatHistory.forEach(function(uid_league_data) {
+    d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
 
-        //
-        // 2.1. 連贏Ｎ天 continue
-        //
-        d('  2.1. 連贏Ｎ天 continue\n');
-        const winContinueN = continueN(uid_league_data);
+    //
+    // 2.1. 連贏Ｎ天 continue
+    //
+    d('  2.1. 連贏Ｎ天 continue\n');
+    const winContinueN = continueN(uid_league_data);
 
-        //
-        // 2.2. 勝注連過 Ｎ日 win_bets_continue
-        //
-        d('  2.2. 勝注連過 Ｎ日 win_bets_continue\n');
-        const winBetsContinueN = winBetsContinue(uid_league_data);
+    //
+    // 2.2. 勝注連過 Ｎ日 win_bets_continue
+    //
+    d('  2.2. 勝注連過 Ｎ日 win_bets_continue\n');
+    const winBetsContinueN = winBetsContinue(uid_league_data);
 
-        //
-        // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場
-        // acc 累計
-        //
-        d('  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場\n');
-        const { predictRateN1, predictRateN2, predictRateN3 } = nnPassN(uid_league_data);
+    //
+    // 2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場
+    // acc 累計
+    //
+    d('  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場\n');
+    const { predictRateN1, predictRateN2, predictRateN3 } = nnPassN(uid_league_data);
 
-        //
-        // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
-        //
-        d('continue: %o  win_bets_continue: %o \n', winContinueN, winBetsContinueN);
-        d('predict_rate NNN NN: %o  %o  %o \n', predictRateN1, predictRateN2, predictRateN3);
+    //
+    // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
+    //
+    d('continue: %o  win_bets_continue: %o \n', winContinueN, winBetsContinueN);
+    d('predict_rate NNN NN: %o  %o  %o \n', predictRateN1, predictRateN2, predictRateN3);
 
-        mixAll = modules.mergeDeep(mixAll, {
-          [uid_league_data.uid]: {
-            [uid_league_data.league_id]: {
-              continue: winContinueN,
-              win_bets_continue: winBetsContinueN,
-              predict_rate1: predictRateN1,
-              predict_rate2: predictRateN2,
-              predict_rate3: predictRateN3
-            }
-          }
-        });
-      });
+    mixAll = modules.mergeDeep(mixAll, {
+      [uid_league_data.uid]: {
+        [uid_league_data.league_id]: {
+          continue: winContinueN,
+          win_bets_continue: winBetsContinueN,
+          predict_rate1: predictRateN1,
+          predict_rate2: predictRateN2,
+          predict_rate3: predictRateN3
+        }
+      }
+    });
+  });
 
-      s21 = new Date().getTime();
-      //
-      // b. 使用 users_predictions
-      //
-      const usersPrediction = await db.sequelize.query(`
+  s21 = new Date().getTime();
+  //
+  // b. 使用 users_predictions
+  //
+  const usersPrediction = await db.sequelize.query(`
         select *
           from user__predictions prediction, 
                (
@@ -177,94 +173,85 @@ function settleGodTitle(args) {
                  or totals_result_flag in (-1, 0.95, 0.5, -0.5)
                )
       `, {
-        replacements: {
-          period: period,
-          begin: begin_30days,
-          end: end_30days
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
-
-      let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
-      reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
-
-      s2_45 = new Date().getTime();
-      d('2.4 2.5\n');
-      reformatPrediction.forEach(function(uid_league_data) {
-        d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
-        //
-        // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場
-        // acc 累計
-        //
-        d('  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場 \n');
-        const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
-
-        //
-        // 2.5. 連贏Ｎ場 matches_continue
-        //
-        d('  2.5. 連贏Ｎ場 matches_continue \n');
-        const matchesContinueN = matchesContinue(uid_league_data);
-
-        //
-        // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
-        //
-        d('matches_rate: %o  %o', matchesRateN1, matchesRateN2);
-        d('matches_continue: %o \n', matchesContinueN);
-
-        mixAll = modules.mergeDeep(mixAll, {
-          [uid_league_data.uid]: {
-            [uid_league_data.league_id]: {
-              matches_rate1: matchesRateN1,
-              matches_rate2: matchesRateN2,
-              matches_continue: matchesContinueN
-            }
-          }
-        });
-      });
-
-      s3_u = new Date().getTime();
-      d('update titles \n');
-      // 把 所有計算出來的資料寫入 Title
-      for (const [uid, value] of Object.entries(mixAll)) {
-        d('uid: %o', uid);
-        for (const [league_id, value2] of Object.entries(value)) {
-          d('league_id: %o', league_id);
-          d('value2: %O \n', value2);
-          try {
-            const r = await db.Title.update({
-              continue: value2.continue,
-              win_bets_continue: value2.win_bets_continue,
-              predict_rate1: value2.predict_rate1,
-              predict_rate2: value2.predict_rate2,
-              predict_rate3: value2.predict_rate3,
-              matches_rate1: value2.matches_rate1,
-              matches_rate2: value2.matches_rate2,
-              matches_continue: value2.matches_continue
-            }, {
-              where: {
-                uid: uid,
-                league_id: league_id,
-                period: period
-              }
-            });
-
-            if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
-          } catch (err) {
-            console.error(err);
-            return reject(errs.dbErrsMsg('404', '13503', err.parent.code));
-          }
-        };
-      };
-    } catch (err) {
-      console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
-
-    const e = new Date().getTime();
-    d('settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
-      s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
-    return resolve(result);
+    replacements: {
+      period: period,
+      begin: begin_30days,
+      end: end_30days
+    },
+    type: db.sequelize.QueryTypes.SELECT
   });
+
+  let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
+  reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
+
+  s2_45 = new Date().getTime();
+  d('2.4 2.5\n');
+  reformatPrediction.forEach(function(uid_league_data) {
+    d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id);
+    //
+    // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場
+    // acc 累計
+    //
+    d('  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場 \n');
+    const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
+
+    //
+    // 2.5. 連贏Ｎ場 matches_continue
+    //
+    d('  2.5. 連贏Ｎ場 matches_continue \n');
+    const matchesContinueN = matchesContinue(uid_league_data);
+
+    //
+    // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
+    //
+    d('matches_rate: %o  %o', matchesRateN1, matchesRateN2);
+    d('matches_continue: %o \n', matchesContinueN);
+
+    mixAll = modules.mergeDeep(mixAll, {
+      [uid_league_data.uid]: {
+        [uid_league_data.league_id]: {
+          matches_rate1: matchesRateN1,
+          matches_rate2: matchesRateN2,
+          matches_continue: matchesContinueN
+        }
+      }
+    });
+  });
+
+  s3_u = new Date().getTime();
+  d('update titles \n');
+  // 把 所有計算出來的資料寫入 Title
+  for (const [uid, value] of Object.entries(mixAll)) {
+    d('uid: %o', uid);
+    for (const [league_id, value2] of Object.entries(value)) {
+      d('league_id: %o', league_id);
+      d('value2: %O \n', value2);
+      const [err, r] = await to(db.Title.update({
+        continue: value2.continue,
+        win_bets_continue: value2.win_bets_continue,
+        predict_rate1: value2.predict_rate1,
+        predict_rate2: value2.predict_rate2,
+        predict_rate3: value2.predict_rate3,
+        matches_rate1: value2.matches_rate1,
+        matches_rate2: value2.matches_rate2,
+        matches_continue: value2.matches_continue
+      }, {
+        where: {
+          uid: uid,
+          league_id: league_id,
+          period: period
+        }
+      }));
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13503', err.parent.code);}
+      if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
+    };
+  };
+
+  const e = new Date().getTime();
+  d('settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
+    s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
+  return result;
+  // });
 }
 
 function numberRate(num1, num2, f = 2) {
@@ -336,13 +323,6 @@ function nnPassN(uid_league_data) {
   //   return b.winRateAcc - a.winRateAcc === 0 ? b.days - a.days : b.winRateAcc - a.winRateAcc; // 降 大->小
   // });
   allRecords.sort(modules.fieldSorter(['-winRateAcc', '-days']));
-
-  if (d.enabled) {
-    allRecords.forEach(function(r) {
-      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
-        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
-    });
-  }
 
   // 要至少計算五場，選擇機率最高者 >= 5場
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
