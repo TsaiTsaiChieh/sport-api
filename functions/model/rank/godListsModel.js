@@ -1,8 +1,6 @@
-const getTitlesPeriod = require('../../util/modules').getTitlesPeriod;
-const leagueCodebook = require('../../util/modules').leagueCodebook;
-const convertTimezone = require('../../util/modules').convertTimezone;
-const moment = require('../../util/modules').moment;
-const fieldSorter = require('../../util/modules').fieldSorter;
+const {
+  getTitlesPeriod, leagueCodebook, convertTimezone, moment, fieldSorter
+} = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 

@@ -1,9 +1,7 @@
-const convertTimezone = require('../../util/modules').convertTimezone;
-const moment = require('../../util/modules').moment;
-const checkUserRight = require('../../util/modules').checkUserRight;
-const groupsByOrdersLimit = require('../../util/modules').groupsByOrdersLimit;
-const mergeDeep = require('../../util/modules').mergeDeep;
-const fieldSorter = require('../../util/modules').fieldSorter;
+const {
+  convertTimezone, moment, checkUserRight, groupsByOrdersLimit, mergeDeep, fieldSorter
+} = require('../../util/modules');
+
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;

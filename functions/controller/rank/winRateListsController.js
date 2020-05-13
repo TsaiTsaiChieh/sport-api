@@ -1,4 +1,4 @@
-const ajv = require('../../util/modules').ajv;
+const { ajv } = require('../../util/modules');
 const winRateListsModel = require('../../model/rank/winRateListsModel');
 
 async function winRateLists(req, res) {

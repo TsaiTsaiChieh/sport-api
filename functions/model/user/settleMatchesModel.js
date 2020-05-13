@@ -1,7 +1,4 @@
-const settleSpread = require('../../util/modules').settleSpread;
-const settleTotals = require('../../util/modules').settleTotals;
-const resultFlag = require('../../util/modules').perdictionsResultFlag;
-const checkUserRight = require('../../util/modules').checkUserRight;
+const { settleSpread, settleTotals, perdictionsResultFlag, checkUserRight } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
@@ -75,7 +72,6 @@ async function settleMatchesModel(args) {
     const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
     if (settelTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
 
-    d(bets_id, settelSpreadResult, settelTotalsResult);
     // 回寫結果
     const [err, r] = await to(db.Match.update({
       spread_result: settelSpreadResult,
@@ -87,7 +83,6 @@ async function settleMatchesModel(args) {
     }));
     if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', err.parent.code);}
     if (r[0] !== 1) throw errs.errsMsg('404', '13110'); // 更新筆數異常
-
     result[bets_id] = { status: 1, msg: '賽事結算成功！' };
   };
   // });
@@ -141,8 +136,8 @@ async function settleMatchesModel(args) {
     if (settelTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : perdictionsResultFlag(data.spread_option, settelSpreadResult);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : perdictionsResultFlag(data.totals_option, settelTotalsResult);
     d(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({

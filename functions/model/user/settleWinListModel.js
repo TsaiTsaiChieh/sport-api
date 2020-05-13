@@ -1,10 +1,9 @@
-const leagueCodebook = require('../../util/modules').leagueCodebook;
-const leagueDecoder = require('../../util/modules').leagueDecoder;
-const convertTimezone = require('../../util/modules').convertTimezone;
-const getTitlesPeriod = require('../../util/modules').getTitlesPeriod;
-const moment = require('../../util/modules').moment;
-const checkUserRight = require('../../util/modules').checkUserRight;
-const predictionsWinList = require('../../util/modules').predictionsWinList;
+const { leagueCodebook, leagueDecoder } = require('../../util/modules');
+const {
+  convertTimezone, getTitlesPeriod, moment, checkUserRight,
+  predictionsWinList
+} = require('../../util/modules');
+
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
