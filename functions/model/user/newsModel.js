@@ -33,7 +33,7 @@ function newsModel(method, args, uid) {
         );
         const news_id = new Array();
         delete_id_query.forEach(async function(ele) {
-          news_id.push(ele.system_id);
+          news_id.push(ele.system_id.toString());
         });
       
 
@@ -41,14 +41,14 @@ function newsModel(method, args, uid) {
           `
           SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
             FROM user__news
-            WHERE news_id NOT IN ($news_id)
+            WHERE news_id NOT IN (${news_id})
              AND scheduled BETWEEN $begin and $end
              AND status=0
           ORDER BY scheduled DESC
           LIMIT $start_system, $limit_system
           `,
           {
-            bind: { begin:begin, end:end, start_system:start_system, limit_system:limit_system, news_id:news_id.join()},
+            bind: { begin:begin, end:end, start_system:start_system, limit_system:limit_system},
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -97,7 +97,6 @@ function newsModel(method, args, uid) {
         const is_system = args.is_system;
         const items = args.items;
         const del_join = items.join(',');
-<<<<<<< HEAD
         const del_res = [];
         if(is_system){
           items.forEach(function(item){
@@ -109,19 +108,6 @@ function newsModel(method, args, uid) {
           });
         }else{
           del_res = db.sequelize.query(
-=======
-
-        if (is_system) {
-          items.forEach(function(item) {
-            const del_res = db.News_System.upsert({
-              system_id: item,
-              uid: uid,
-              active: 0
-            });
-          });
-        } else {
-          const del_res = db.sequelize.query(
->>>>>>> c295e2819793479330b55359498f775f74c496d6
             `
               UPDATE user__news 
                  SET uid='${uid}'
