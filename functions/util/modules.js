@@ -136,11 +136,21 @@ function createError(code, error) {
 const db = {
   basketball_NBA: 'basketball_NBA',
   basketball_SBL: 'basketball_SBL',
-  eBKA: 'eBKA',
-  eSB8: 'eSB8',
+  basketball_WNBA: 'basketball_WNBA',
+  basketball_NBL: 'basketball_NBL',
+  basketball_CBA: 'basketball_CBA',
+  basketball_KBL: 'basketball_KBL',
+  basketball_JBL: 'basketball_JBL',
   baseball_MLB: 'baseball_MLB',
+  baseball_NPB: 'baseball_NPB',
+  baseball_CPBL: 'baseball_CPBL',
   baseball_KBO: 'baseball_KBO',
+  baseball_ABL: 'baseball_ABL',
+  baseball_LMB: 'baseball_LMB',
+  icehockey_NHL: 'icehockey_NHL',
+  Soccer: 'Soccer',
   eSoccer: 'eSoccer',
+  eGame: 'eGame',
   prediction: 'prediction'
 };
 function dateFormat(date) {
@@ -174,11 +184,83 @@ function leagueCodebook(league) {
         match: db.basketball_SBL,
         name_ch: '超級籃球聯賽'
       };
+    case 'WNBA':
+      return {
+        id: 244,
+        match: db.basketball_WNBA,
+        name_ch: '美國國家女子籃球協會'
+      };
+    case 'NBL':
+      return {
+        id: 1714,
+        match: db.basketball_NBL,
+        name_ch: '澳洲職籃'
+      };
+    case 'CBA':
+      return {
+        id: 2319,
+        match: db.basketball_CBA,
+        name_ch: '中國職籃'
+      };
+    case 'KBL':
+      return {
+        id: 2148,
+        match: db.basketball_KBL,
+        name_ch: '韓國職籃'
+      };
+    case 'JBL':
+      return {
+        id: 1298,
+        match: db.basketball_JBL,
+        name_ch: '日本職籃'
+      };
     case 'MLB':
       return {
         id: 3939,
         match: db.baseball_MLB,
         name_ch: '美國職棒大聯盟'
+      };
+    case 'NPB':
+      return {
+        id: 347,
+        match: db.baseball_NPB,
+        name_ch: '日本職棒'
+      };
+    case 'CPBL':
+      return {
+        id: 11235,
+        match: db.baseball_CPBL,
+        name_ch: '中華職棒'
+      };
+    case 'KBO':
+      return {
+        id: 349,
+        match: db.baseball_KBO,
+        name_ch: '韓國職棒'
+      };
+    case 'ABL':
+      return {
+        id: 2759,
+        match: db.baseball_ABL,
+        name_ch: '澳洲職棒'
+      };
+    case 'LMB':
+      return {
+        id: 4412,
+        match: db.baseball_LMB,
+        name_ch: '墨西哥職棒'
+      };
+    case 'NHL':
+      return {
+        id: 1926,
+        match: db.baseball_NHL,
+        name_ch: '國家冰球聯盟'
+      };
+    case 'Soccer':
+      return {
+        id: 8,
+        match: db.Soccer,
+        name_ch: '足球'
       };
     case 'eSoccer':
       return {
@@ -186,11 +268,11 @@ function leagueCodebook(league) {
         match: db.eSoccer,
         name_ch: '足球電競'
       };
-    case 'KBO':
+    case 'eGame':
       return {
-        id: 349,
-        match: db.baseball_KBO,
-        name_ch: '韓國職棒'
+        id: 23000,
+        match: db.eGame,
+        name_ch: '電競遊戲'
       };
   }
 }
@@ -199,12 +281,38 @@ function leagueDecoder(leagueID) {
   switch (leagueID) {
     case '2274' || 2274:
       return 'NBA';
-    case '3939' || 3939:
+    case '8251' || 8251:
+      return 'SBL';
+    case '244' || 244:
+      return 'WNBA';
+    case '1714' || 1714:
+      return 'NBL';
+    case '2319' || 2319:
+      return 'CBA';
+    case '2148' || 2148:
+      return 'KBL';
+    case '1298' || 1298:
+      return 'JBL';
+    case '225' || 225:
       return 'MLB';
-    case '22000' || 22000:
-      return 'eSoccer';
+    case '347' || 347:
+      return 'NPB';
+    case '11235' || 11235:
+      return 'CPBL';
     case '349' || 349:
       return 'KBO';
+    case '2759' || 2759:
+      return 'ABL';
+    case '4412' || 4412:
+      return 'LMB';
+    case '1926' || 1926:
+      return 'NHL';
+    case '8' || 8:
+      return 'Soccer';
+    case '22000' || 22000:
+      return 'eSoccer';
+    case '23000' || 23000:
+      return 'eGame';
     default:
       return 'Unknown';
   }
@@ -388,11 +496,15 @@ function settleSpread(data) {
   //       : 'fair2'
   //     : (homePoints - handicap) > awayPoints ? 'home' : 'away'
   //   : '';
-  return (homePoints - handicap) === awayPoints
-    ? (homeOdd !== awayOdd)
-      ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
+  return homePoints - handicap === awayPoints
+    ? homeOdd !== awayOdd
+      ? homeOdd > awayOdd
+        ? 'fair|home'
+        : 'fair|away'
       : 'fair2'
-    : (homePoints - handicap) > awayPoints ? 'home' : 'away';
+    : homePoints - handicap > awayPoints
+      ? 'home'
+      : 'away';
 }
 
 /*
@@ -423,11 +535,15 @@ function settleTotals(data) {
   //       : 'fair2'
   //     : (homePoints + awayPoints) > handicap ? 'over' : 'under'
   //   : '';
-  return (homePoints + awayPoints) === handicap
-    ? (overOdd !== underOdd)
-      ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
+  return homePoints + awayPoints === handicap
+    ? overOdd !== underOdd
+      ? overOdd > underOdd
+        ? 'fair|over'
+        : 'fair|under'
       : 'fair2'
-    : (homePoints + awayPoints) > handicap ? 'over' : 'under';
+    : homePoints + awayPoints > handicap
+      ? 'over'
+      : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
@@ -551,8 +667,8 @@ function predictionsWinList(data) {
       result.push({
         uid: data[0].uid,
         league_id: data[0].league_id,
-        win_rate: Number((winRate).toFixed(2)),
-        win_bets: Number((winBets).toFixed(2)),
+        win_rate: Number(winRate.toFixed(2)),
+        win_bets: Number(winBets.toFixed(2)),
         matches_count: data.length,
         correct_counts: predictCorrectCounts,
         fault_counts: predictFaultCounts

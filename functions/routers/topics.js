@@ -8,6 +8,11 @@ router.get('/', function(req, res) {
 });
 
 router.get(
+  '/types/',
+  verification.getToken,
+  require('../controller/topics/getTypesController')
+);
+router.get(
   '/article/:aid',
   verification.getToken,
   require('../controller/topics/getArticleController')
