@@ -29,7 +29,7 @@ module.exports.KBO.upcoming = async function(date) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.PrematchEsoccerError(`${err} at prematchFunctions by DY`)
+        new AppErrors.PBPKBOError(`${err} at prematchFunctions by DY`)
       );
     }
   });
@@ -104,39 +104,7 @@ async function write2MysqlOfMatch(ele) {
     }
   });
 }
-async function write2MysqlOfMatchTeam(ele) {
-  return new Promise(async function(resolve, reject) {
-    switch (ele.home.name) {
-    }
-    try {
-      const dataHomeTeam = {
-        team_id: ele.home.id,
-        league_id: leagueUniteID,
-        sport_id: ele.sport_id,
-        name: ele.home.name.trim(),
-        alias: ele.home.name.trim(),
-        alias_ch: ele.home.name.trim(),
-        image_id: ele.home.image_id
-      };
-      const dataAwayTeam = {
-        team_id: ele.away.id,
-        league_id: leagueUniteID,
-        sport_id: ele.sport_id,
-        name: ele.away.name.trim(),
-        alias: ele.away.name.trim(),
-        alias_ch: ele.away.name.trim(),
-        image_id: ele.away.image_id
-      };
-      await MatchTeam.upsert(dataHomeTeam);
-      await MatchTeam.upsert(dataAwayTeam);
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_KBO by DY`)
-      );
-    }
-  });
-}
+
 function repackage_bets(ele) {
   const leagueCH = '韓國職棒';
 

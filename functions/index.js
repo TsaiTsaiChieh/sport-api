@@ -120,6 +120,11 @@ exports.pbp_eSoccer = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_eSoccer'));
+exports.pbp_abnormal = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_abnormal'));
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {

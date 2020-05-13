@@ -8,8 +8,8 @@ const firestoreName = 'pagetest_NBA';
 const nba_api_key = 'bj7tvgz7qpsqjqaxmzsaqdnp';
 // const nba_api_key = '6mmty4jtxz3guuy62a4yr5u5';
 
-// 14 秒一次
-const perStep = 14000;
+// 12 秒一次
+const perStep = 12000;
 // 一分鐘4次
 const timesPerLoop = 4;
 const Match = db.Match;
@@ -85,7 +85,7 @@ async function summmaryZH(gameID) {
         keywordTransAway.push(data.away.players[i].full_name);
       }
 
-      return [keywordTransHome, keywordTransAway];
+      return resolve([keywordTransHome, keywordTransAway]);
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at pbpNBA of summaryZH by DY`)
@@ -112,14 +112,14 @@ async function summmaryEN(gameID) {
         keywordAway.push(data.away.players[i].full_name);
         numberAway.push(data.away.players[i].jersey_number);
       }
-      return [
+      return resolve([
         homeTeamName,
         keywordHome,
         numberHome,
         awayTeamName,
         keywordAway,
         numberAway
-      ];
+      ]);
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at pbpNBA of summaryEN by DY`)
@@ -251,6 +251,7 @@ async function initRealtime(gameID, betsID) {
     let awayTeamName;
     let keywordAway = [];
     let numberAway = [];
+
     try {
       // write to json
       // [主隊球員中文名字, 客隊球員中文名字]
@@ -366,6 +367,7 @@ async function initRealtime(gameID, betsID) {
         new AppErrors.PBPNBAError(`${err} at pbpNBA of initRealtime by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 async function doPBP(parameter) {
@@ -384,7 +386,58 @@ async function doPBP(parameter) {
     try {
       const { data } = await modules.axios(pbpURL);
       const dataPBP = data;
-
+      if (dataPBP.status !== 'inprogress') {
+        try {
+          await modules.database
+            .ref(`basketball/NBA/${betsID}/Summary/status`)
+            .set('closed');
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at pbpNBA of doPBP about status by DY`
+            )
+          );
+        }
+      } else if (dataPBP.status === 'inprogress') {
+        if (realtimeData.Summary.status !== 'inprogress') {
+          try {
+            await modules.firestore
+              .collection(firestoreName)
+              .doc(betsID)
+              .set({ flag: { status: 1 } }, { merge: true });
+          } catch (err) {
+            return reject(
+              new AppErrors.FirebaseCollectError(
+                `${err} at pbpNBA of doPBP about status by DY`
+              )
+            );
+          }
+          try {
+            await modules.database
+              .ref(`basketball/NBA/${betsID}/Summary/status`)
+              .set('inprogress');
+          } catch (err) {
+            return reject(
+              new AppErrors.FirebaseRealtimeError(
+                `${err} at pbpNBA of doPBP about status by DY`
+              )
+            );
+          }
+          try {
+            await Match.upsert({
+              bets_id: betsID,
+              status: 1
+            });
+          } catch (err) {
+            return reject(
+              new AppErrors.MysqlError(
+                `${err} at pbpNBA of doPBP about status by DY`
+              )
+            );
+          }
+        }
+      } else {
+      }
       for (
         let periodsCount = periodsNow;
         periodsCount < dataPBP.periods.length;
@@ -594,64 +647,12 @@ async function doPBP(parameter) {
           }
         }
       }
-
-      if (dataPBP.status !== 'inprogress') {
-        try {
-          await modules.database
-            .ref(`basketball/NBA/${betsID}/Summary/status`)
-            .set('closed');
-        } catch (err) {
-          return reject(
-            new AppErrors.FirebaseRealtimeError(
-              `${err} at pbpNBA of doPBP about status by DY`
-            )
-          );
-        }
-      } else if (dataPBP.status === 'inprogress') {
-        if (realtimeData.Summary.status !== 'inprogress') {
-          try {
-            await modules.firestore
-              .collection(firestoreName)
-              .doc(betsID)
-              .set({ flag: { status: 1 } }, { merge: true });
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseCollectError(
-                `${err} at pbpNBA of doPBP about status by DY`
-              )
-            );
-          }
-          try {
-            await modules.database
-              .ref(`basketball/NBA/${betsID}/Summary/status`)
-              .set('inprogress');
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at pbpNBA of doPBP about status by DY`
-              )
-            );
-          }
-          try {
-            await Match.upsert({
-              bets_id: betsID,
-              status: 1
-            });
-          } catch (err) {
-            return reject(
-              new AppErrors.MysqlError(
-                `${err} at pbpNBA of doPBP about status by DY`
-              )
-            );
-          }
-        }
-      } else {
-      }
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at pbpNBA of doPBP by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 async function doSummary(parameter) {
@@ -661,7 +662,7 @@ async function doSummary(parameter) {
     try {
       const { data } = await modules.axios(summaryURL);
       const dataSummary = data;
-
+      const realtimeData = parameter.realtimeData;
       try {
         await modules.database
           .ref(`basketball/NBA/${betsID}/Summary/info/home/Total`)
@@ -716,32 +717,42 @@ async function doSummary(parameter) {
       }
       for (let i = 0; i < dataSummary.home.players.length; i++) {
         if (dataSummary.home.players[i].starter !== undefined) {
-          try {
-            await modules.database
-              .ref(
-                `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
-              )
-              .set(dataSummary.home.players[i].primary_position);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at pbpNBA of doSummary about home/lineup/starter by DY`
-              )
-            );
+          if (
+            realtimeData.Summary.info.home.lineup[`lineup${i}`].starter ===
+            undefined
+          ) {
+            try {
+              await modules.database
+                .ref(
+                  `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
+                )
+                .set(dataSummary.home.players[i].primary_position);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at pbpNBA of doSummary about home/lineup/starter by DY`
+                )
+              );
+            }
           }
         } else {
-          try {
-            await modules.database
-              .ref(
-                `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
-              )
-              .set('0');
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
-              )
-            );
+          if (
+            realtimeData.Summary.info.home.lineup[`lineup${i}`].starter ===
+            undefined
+          ) {
+            try {
+              await modules.database
+                .ref(
+                  `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
+                )
+                .set('0');
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
+                )
+              );
+            }
           }
         }
         try {
@@ -765,32 +776,42 @@ async function doSummary(parameter) {
       }
       for (let i = 0; i < dataSummary.away.players.length; i++) {
         if (dataSummary.away.players[i].starter !== undefined) {
-          try {
-            await modules.database
-              .ref(
-                `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
-              )
-              .set(dataSummary.away.players[i].primary_position);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
-              )
-            );
+          if (
+            realtimeData.Summary.info.away.lineup[`lineup${i}`].starter ===
+            undefined
+          ) {
+            try {
+              await modules.database
+                .ref(
+                  `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
+                )
+                .set(dataSummary.away.players[i].primary_position);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
+                )
+              );
+            }
           }
         } else {
-          try {
-            await modules.database
-              .ref(
-                `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
-              )
-              .set('0');
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
-              )
-            );
+          if (
+            realtimeData.Summary.info.away.lineup[`lineup${i}`].starter ===
+            undefined
+          ) {
+            try {
+              await modules.database
+                .ref(
+                  `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
+                )
+                .set('0');
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at pbpNBA of doSummary about away/lineup/starter by DY`
+                )
+              );
+            }
           }
         }
         try {
@@ -817,6 +838,7 @@ async function doSummary(parameter) {
         new AppErrors.AxiosError(`${err} at pbpNBA of doSummary by DY`)
       );
     }
+    return resolve('ok');
   });
 }
 module.exports = { NBApbpInplay, NBApbpHistory };

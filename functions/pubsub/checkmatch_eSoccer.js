@@ -9,7 +9,10 @@ async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_eSoccer';
     try {
-      const data = await modules.firestore.collection(firestoreName).get();
+      const data = await modules.firestore
+        .collection(firestoreName)
+        .where('flag.status', '>', 0)
+        .get();
 
       const totalData = [];
       data.forEach((doc) => {
@@ -80,75 +83,14 @@ async function checkmatch_eSoccer() {
                   betsID: betsID,
                   realtimeData: realtimeData
                 };
-                try {
-                  await ESoccerpbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
-                    )
-                  );
-                }
+                await ESoccerpbpInplay(parameter);
               }
 
               if (realtimeData.Summary.status === 'closed') {
                 const parameter = {
                   betsID: betsID
                 };
-                try {
-                  await ESoccerpbpHistory(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
-                    )
-                  );
-                }
-              }
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at checkmatch_ESoccer by DY`
-                )
-              );
-            }
-            break;
-          }
-          case -1: {
-            try {
-              let realtimeData = await modules.database
-                .ref(`esports/eSoccer/${betsID}`)
-                .once('value');
-              realtimeData = realtimeData.val();
-              if (realtimeData.Summary.status !== 'closed') {
-                const parameter = {
-                  betsID: betsID,
-                  realtimeData: realtimeData
-                };
-                try {
-                  await ESoccerpbpInplay(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer by DY`
-                    )
-                  );
-                }
-              }
-
-              if (realtimeData.Summary.status === 'closed') {
-                const parameter = {
-                  betsID: betsID
-                };
-                try {
-                  await ESoccerpbpHistory(parameter);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.PBPEsoccerError(
-                      `${err} at checkmatch_ESoccer on ${betsID} by DY`
-                    )
-                  );
-                }
+                await ESoccerpbpHistory(parameter);
               }
             } catch (err) {
               return reject(
