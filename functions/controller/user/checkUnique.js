@@ -1,5 +1,4 @@
 const userUtils = require('../../util/userUtil');
-const modules = require('../../util/modules');
 
 /**
  * @api {get} /user/checkUnique Check Unique profile

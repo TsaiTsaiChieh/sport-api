@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const favoritePlayerModel = require('../../model/user/favoritePlayerModel');
 async function favoritePlayer(req, res) {
   const returnJson = {};

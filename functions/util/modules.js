@@ -3,7 +3,7 @@ const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const firebase = require('firebase');
 const moment = require('moment');
-const tz = require('moment-timezone');
+require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
@@ -587,7 +587,7 @@ function predictionsWinList(data) {
   const correct = [0.95, 0.5];
   const fault = [-1, -0.5];
   const result = [];
-  const totalPredictCounts = data.length;
+  // const totalPredictCounts = data.length;
 
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');

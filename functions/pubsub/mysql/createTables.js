@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+// const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const data_team_NBA = require('../../json/teams/NBA.json');
 const data_league = require('../../json/matches/league.json');
@@ -6,7 +6,7 @@ const data_spread_NBA = require('../../json/spread/NBA.json');
 const data_totals_NBA = require('../../json/totals/NBA.json');
 const data_match = require('../../json/matches/NBA.json');
 const data_season = require('../../json/matches/season.json');
-const databaseUtil = require('../../util/databaseEngine');
+// const databaseUtil = require('../../util/databaseEngine');
 async function createTable(req, res) {
   try {
     createSeason();
@@ -17,6 +17,7 @@ async function createTable(req, res) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 async function createLeague() {
   const League = await db.sequelize.models.match__league.sync();
   for (let i = 0; i < data_league.length; i++) {
@@ -33,6 +34,7 @@ async function createLeague() {
     });
   }
 }
+// eslint-disable-next-line no-unused-vars
 async function createTeam() {
   const team = await db.sequelize.models.match__team.sync({});
   for (let i = 0; i < data_team_NBA.length; i++) {
@@ -48,6 +50,7 @@ async function createTeam() {
     });
   }
 }
+// eslint-disable-next-line no-unused-vars
 async function createMatch() {
   const Match = await db.sequelize.models.match.sync();
   for (let i = 0; i < data_match.length; i++) {
@@ -76,6 +79,7 @@ async function createMatch() {
     Match.create(data);
   }
 }
+// eslint-disable-next-line no-unused-vars
 async function createSpread() {
   const Spread = await db.sequelize.models.match__spread.sync({});
   for (let i = 0; i < data_spread_NBA.length; i++) {
@@ -95,6 +99,7 @@ async function createSpread() {
     Spread.create(data);
   }
 }
+// eslint-disable-next-line no-unused-vars
 async function createTotals() {
   const Totals = await db.sequelize.models.match__total.sync();
   for (let i = 0; i < data_totals_NBA.length; i++) {

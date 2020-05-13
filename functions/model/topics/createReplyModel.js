@@ -48,7 +48,7 @@ async function createReply(args) {
         allowedSchemes: ['http', 'https']
       });
 
-      const article = await dbCreate(insertData);
+      await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);

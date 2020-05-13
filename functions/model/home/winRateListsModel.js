@@ -23,6 +23,7 @@ function winRateLists(args) {
     winRateLists[defaultValues.name] = [];
 
     try {
+      // eslint-disable-next-line no-unused-vars
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
         const league_id = defaultValues.league_id;

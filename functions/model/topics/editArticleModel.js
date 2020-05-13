@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbFind(aid) {

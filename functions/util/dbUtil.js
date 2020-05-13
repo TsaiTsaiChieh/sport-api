@@ -1164,6 +1164,7 @@ const Topic_FavoriteArticle = sequelize.define(
 /*
  * 檢舉文章
  */
+// eslint-disable-next-line no-unused-vars
 const Service_ReportTopics = sequelize.define('service__reporttopic', {
   uid: {
     type: Sequelize.STRING,

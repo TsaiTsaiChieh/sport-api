@@ -1,9 +1,8 @@
-/* eslint-disable promise/catch-or-return */
 const modules = require('../util/modules');
 const testServiceAccount = require('../auth/sportslottery-test-adminsdk.json');
 const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
 // const officialServiceAccount = require('../auth/sport19y0715-dev.json');
-const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
+// const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
 const jsonFile = require('../json/matches/firestore_NBA.json');
 const collectionName = ['basketball_NBA'];
 
@@ -44,6 +43,7 @@ async function restoreFirestore(req, res) {
 
 module.exports = { backupFirestore, restoreFirestore };
 
+// eslint-disable-next-line no-unused-vars
 function repackageTotals(data) {
   const results = [];
   for (const key in data) {
@@ -93,6 +93,7 @@ function repackageSpread(data) {
   return results;
 }
 
+// eslint-disable-next-line no-unused-vars
 function backup_match(res, collectionName, path) {
   modules.firestoreService.backups(collectionName).then(function(data) {
     modules.fs.writeFile(
