@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -59,6 +58,7 @@ async function handicap() {
       }
     }
   }
+  console.log('handicap success');
 }
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
@@ -569,21 +569,22 @@ function totalsCalculator(handicapObj) {
     handicapObj.over_odd === handicapObj.under_odd ||
     handicapObj.handicap % 1 !== 0
   ) {
-    handicapObj.away_tw = `${handicapObj.handicap}`;
+    handicapObj.over_tw = `${handicapObj.handicap}`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
     handicapObj.over_odd !== handicapObj.under_odd
   ) {
     if (handicapObj.over_odd > handicapObj.under_odd) {
-      handicapObj.away_tw = `${handicapObj.handicap} +50%`;
+      handicapObj.over_tw = `${handicapObj.handicap} +50%`;
     } else if (handicapObj.over_odd < handicapObj.under_odd) {
-      handicapObj.away_tw = `${handicapObj.handicap} -50%`;
+      handicapObj.over_tw = `${handicapObj.handicap} -50%`;
     }
   }
   return handicapObj;
 }
 function spreadCalculator(handicapObj) {
   // 賠率相同
+  handicapObj.handicap = parseFloat(handicapObj.handicap);
   if (handicapObj.handicap % 1 !== 0 && handicapObj.handicap < 0) {
     handicapObj.home_tw = null;
     handicapObj.away_tw =

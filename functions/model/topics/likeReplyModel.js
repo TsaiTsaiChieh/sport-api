@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(reply_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {

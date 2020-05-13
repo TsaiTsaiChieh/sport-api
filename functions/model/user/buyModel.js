@@ -24,11 +24,18 @@ function buyModel(args, uid) {
                   (
                     SELECT SUM(uwlh.win_bets)
                       FROM users__win__lists__histories uwlh
-                     WHERE uwlh.uid = $uid
-                       AND uwlh.league_id = b.league_id
+                     WHERE uwlh.league_id = b.league_id
                        AND uwlh.season = b.season
                        AND uwlh.day_of_year = b.day_of_year
                   ) bets,
+                  (
+                  CASE b.status  
+                    WHEN -1 THEN r.price 
+                    WHEN 0  THEN '-'
+                    WHEN 1  THEN r.sub_price
+                    WHEN 2  THEN r.sub_price 
+                  END  
+                  ) sub_price,
                   b.status
             FROM  user__buys b, 
                   users u, 
@@ -37,6 +44,7 @@ function buyModel(args, uid) {
             WHERE b.god_id=u.uid 
               AND b.league_id = ml.league_id
               AND r.rank_id = b.god_rank
+              AND b.uid=$uid
             GROUP BY
                   b.buy_id,
                   b.updatedAt, 
@@ -57,7 +65,7 @@ function buyModel(args, uid) {
 
       resolve(buyList);
     } catch (err) {
-      console.log('Error in  rank/searchUser by henry:  %o', err);
+      console.log('Error in  user/buy by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
     }
   });
@@ -72,7 +80,8 @@ function repackage(ele) {
   data.god = god;
   data.league = ele.name_ch;
   data.cost = ele.price;
-  data.bets = ele.bets;
+  data.bets = ele.bets.toFixed(2);
+  data.sub_price = ele.sub_price;
   data.status = ele.status;
 
   return data;

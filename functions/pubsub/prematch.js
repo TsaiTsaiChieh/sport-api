@@ -5,7 +5,7 @@ const AppErrors = require('../util/AppErrors');
 // const SBL_functions = require('./util/prematchFunctions_SBL');
 // const MLB_functions = require('./util/prematchFuntions_MLB');
 const KBO_functions = require('./util/prematchFunctions_KBO');
-// Just for NBA & SBL now
+
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
   return new Promise(async function(resolve, reject) {

@@ -179,6 +179,12 @@ router.post(
   verification.token,
   require('../controller/user/favoritePlayerController')
 );
+/* 最愛玩家(刪除) */
+router.delete(
+  '/favorite_player',
+  verification.token,
+  require('../controller/user/favoritePlayerController')
+);
 
 // 結算
 router.post(

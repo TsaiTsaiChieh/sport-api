@@ -115,6 +115,35 @@ async function favoriteGod(args) {
         };
       }
 
+      let fan_count; // 取得粉絲數(回傳uids)
+      try {
+        fan_count = await db.sequelize.models.user__favoritegod.findAll({
+          attributes: [
+            'uid',
+            [db.sequelize.fn('COUNT', db.sequelize.col('god_uid')), 'follow_types']
+          ],
+          where: {
+            god_uid: god_uid
+          },
+          group: 'uid',
+          raw: true
+        });
+      } catch (error) {
+        console.error(error);
+        reject({ code: 500, error: error });
+      }
+
+      // 把粉絲數寫回users
+      await db.sequelize.models.user.update({
+        fan_count: fan_count.length
+      }, {
+        where: {
+          uid: god_uid
+        },
+        raw: true
+      });
+
+      // 取得最愛玩家並回傳
       getGodModel(args)
         .then(function(body) {
           resolve(body);

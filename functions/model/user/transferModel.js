@@ -11,7 +11,7 @@ function transferModel(method, args, uid) {
       `
         SELECT transfer_id, scheduled, type, content 
           FROM user__transfer__logs 
-          WHERE uid = $uid
+          WHERE to_uid = $uid
             AND updatedAt BETWEEN $begin AND $end
         `,
       {
