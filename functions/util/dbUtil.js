@@ -109,6 +109,10 @@ const User = sequelize.define(
     },
     rank4_count: {
       type: Sequelize.INTEGER
+    },
+    fans: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     }
   },
   {
