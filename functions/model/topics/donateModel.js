@@ -35,6 +35,7 @@ function getMoney(uid) {
   });
 }
 function setMoney(uid, donate_uid, type, cost) {
+  console.log(uid, donate_uid, type, cost);
   return new Promise(async function(resolve, reject) {
     const minus = await db.sequelize.models.user.findOne({
       where: { uid: uid },
@@ -45,7 +46,7 @@ function setMoney(uid, donate_uid, type, cost) {
       if (type === 1) { // coin
         await db.sequelize.models.user.update({ coin: minus.coin - cost }, { where: { uid: uid } });
       } else if (type === 0) { // dividend
-        await db.sequelize.models.user.update({ coin: minus.dividend - cost }, { where: { uid: uid } });
+        await db.sequelize.models.user.update({ dividend: minus.dividend - cost }, { where: { uid: uid } });
       }
     } else {
       reject();
@@ -59,12 +60,29 @@ function setMoney(uid, donate_uid, type, cost) {
       if (type === 1) { // coin
         await db.sequelize.models.user.update({ coin: (plus.coin + (cost / 2)) }, { where: { uid: donate_uid } });
       } else if (type === 0) { // dividend
-        await db.sequelize.models.user.update({ coin: (plus.dividend + (cost / 2)) }, { where: { uid: donate_uid } });
+        await db.sequelize.models.user.update({ dividend: (plus.dividend + (cost / 2)) }, { where: { uid: donate_uid } });
       }
     } else {
       reject();
     }
     resolve();
+  });
+}
+function logData(article_id, uid, cost) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const insertData = {
+        article_id: article_id,
+        uid: uid,
+        cost: cost
+      };
+      // await db.sequelize.models.topic__donate.sync({ alter: true }); // 有新增欄位時才用
+      await db.sequelize.models.topic__donate.create(insertData);
+      resolve();
+    } catch (error) {
+      console.error(error);
+      reject('cannot log data');
+    }
   });
 }
 async function donate(args) {
@@ -98,7 +116,7 @@ async function donate(args) {
       let user_money;
       try {
         user_money = await getMoney(uid);
-        console.log(user_money);
+        // console.log(user_money);
       } catch (e) {
         reject({ code: 404, error: 'user not found' });
         return;
@@ -135,6 +153,7 @@ async function donate(args) {
       };
       setMoney(uid, donate_uid, money_type, args.cost);
       transfer.doTransfer(db, trans_args);
+      logData(args.article_id, uid, (args.cost / 2));
 
       // console.log(article)
       // await checkLiked(uid, args.aid);

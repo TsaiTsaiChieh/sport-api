@@ -1107,6 +1107,35 @@ const Topic_FavoriteArticle = sequelize.define(
 );
 
 /*
+ * 打賞記錄
+ */
+const Topic_DonateArticle = sequelize.define(
+  'topic__donate',
+  {
+    article_id: {
+      // 文章id
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    cost: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
  * 檢舉文章
  */
 const Service_ReportTopics = sequelize.define('service__reporttopic', {
