@@ -1,4 +1,10 @@
-const modules = require('../../util/modules');
+const leagueCodebook = require('../../util/modules').leagueCodebook;
+const leagueDecoder = require('../../util/modules').leagueDecoder;
+const convertTimezone = require('../../util/modules').convertTimezone;
+const getTitlesPeriod = require('../../util/modules').getTitlesPeriod;
+const moment = require('../../util/modules').moment;
+const checkUserRight = require('../../util/modules').checkUserRight;
+const predictionsWinList = require('../../util/modules').predictionsWinList;
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
@@ -32,21 +38,21 @@ async function settleWinList(args) {
   //    先用 sql 計算出來後，之後採用 redis 快取，避免 db 大量計算，如果改用定期計算，會員多時，會對 db 有大量寫入問題
 
   // 跨年賽季
-  // 目前使用 modules.leagueCodebook('NBA').seasonYear 會取得該 賽季年
+  // 目前使用 leagueCodebook('NBA').seasonYear 會取得該 賽季年
   // 如果從資料庫取出為 league_id 時，先使用 leagueDecoder 再傳入 leagueCodebook
-  // 例： modules.leagueCodebook(modules.leagueDecoder('2274'))
+  // 例： leagueCodebook(leagueDecoder('2274'))
 
   // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
   const userUid = args.token.uid;
-  const begin = modules.convertTimezone(args.date);
-  const end = modules.convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
-  const tp = modules.getTitlesPeriod(begin * 1000);
+  const begin = convertTimezone(args.date);
+  const end = convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
+  const tp = getTitlesPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;
-  const dayOfYear = modules.moment(begin * 1000).format('DDD'); // 日期是 一年中的第幾天
-  const week = modules.moment(begin * 1000).week();
-  const momentObject = modules.moment(begin * 1000).toObject();
+  const dayOfYear = moment(begin * 1000).format('DDD'); // 日期是 一年中的第幾天
+  const week = moment(begin * 1000).week();
+  const momentObject = moment(begin * 1000).toObject();
   const month = momentObject.months + 1;
 
   // !!!! 這個有可能產生跨年賽季問題
@@ -74,7 +80,7 @@ async function settleWinList(args) {
   const [err, memberInfo] = await to(db.User.findOne({ where: { uid: userUid } }));
   if (err) {console.error('Error 1. in user/settleWinListModel by YuHsien', err); throw errs.errsMsg('500', '500', err);};
   // !!!! 記得改成 9
-  const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
+  const checkResult = await checkUserRight(memberInfo, [1, 2, 9]);
   if (checkResult.code) throw checkResult;
 
   const s2 = new Date().getTime();
@@ -106,7 +112,7 @@ async function settleWinList(args) {
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  const resultWinList = modules.predictionsWinList(predictMatchInfo);
+  const resultWinList = predictionsWinList(predictMatchInfo);
   // d('resultWinList: ', resultWinList);
 
   s21 = new Date().getTime();

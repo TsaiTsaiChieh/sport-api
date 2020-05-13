@@ -1,4 +1,9 @@
-const modules = require('../../util/modules');
+const convertTimezone = require('../../util/modules').convertTimezone;
+const moment = require('../../util/modules').moment;
+const checkUserRight = require('../../util/modules').checkUserRight;
+const groupsByOrdersLimit = require('../../util/modules').groupsByOrdersLimit;
+const mergeDeep = require('../../util/modules').mergeDeep;
+const fieldSorter = require('../../util/modules').fieldSorter;
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
@@ -25,22 +30,22 @@ async function settleGodTitle(args) {
   // 2.5. 連贏Ｎ場
 
   // 產生 30 天測試用資料
-  // start = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-  // console.log('start: %o  %o', modules.moment().utcOffset(8).format('YYYY-MM-DD'), start)
+  // start = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+  // console.log('start: %o  %o', moment().utcOffset(8).format('YYYY-MM-DD'), start)
 
   // for(i=1; i<=30; i++){
-  //   subtract = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+  //   subtract = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
   //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
 
   //   const period = modules.getTitlesPeriod(subtract).period;
-  //   const dayOfYear = modules.moment(subtract).format('DDD'); // 日期是 一年中的第幾天
-  //   const week = modules.moment(subtract).week();
-  //   const momentObject = modules.moment(subtract).toObject();
+  //   const dayOfYear = moment(subtract).format('DDD'); // 日期是 一年中的第幾天
+  //   const week = moment(subtract).week();
+  //   const momentObject = moment(subtract).toObject();
   //   const month = momentObject.months + 1;
   //   const season = momentObject.years;
 
   //   console.log('subtract %o: %o  %o period: %o  dayOfYear: %o  week: %o  month: %o  season: %o',
-  //     i, modules.moment(subtract).utcOffset(8).format('YYYY-MM-DD'), subtract/1000,
+  //     i, moment(subtract).utcOffset(8).format('YYYY-MM-DD'), subtract/1000,
   //     period, dayOfYear, week, month, season)
   // }
   //= ==============
@@ -50,8 +55,8 @@ async function settleGodTitle(args) {
   const days = 30;
 
   // 近 30 天
-  const end_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-  const begin_30days = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+  const end_30days = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+  const begin_30days = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
     { op: 'subtract', value: days, unit: 'days' }) - 1;
 
   const result = {
@@ -68,7 +73,7 @@ async function settleGodTitle(args) {
   const [err, memberInfo] = await to(db.User.findOne({ where: { uid: userUid } }));
   if (err) {console.error('Error 1. in user/settleGodTitleModel by YuHsien', err); throw errs.errsMsg('500', '500', err);};
   // !!!! 記得改成 9
-  const checkResult = await modules.checkUserRight(memberInfo, [1, 2, 9]);
+  const checkResult = await checkUserRight(memberInfo, [1, 2, 9]);
   if (checkResult.code) throw checkResult;
 
   let s20 = 0;
@@ -106,7 +111,7 @@ async function settleGodTitle(args) {
 
   let reformatHistory = []; // 依 uid league_id 為一個組，並 照 date_timestamp 排序過
 
-  reformatHistory = modules.groupsByOrdersLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
+  reformatHistory = groupsByOrdersLimit(usersWinListsHistories, ['uid', 'league_id'], ['-date_timestamp']);
 
   // 依 使用者-聯盟 進行 稱號判斷
 
@@ -140,7 +145,7 @@ async function settleGodTitle(args) {
     d('continue: %o  win_bets_continue: %o \n', winContinueN, winBetsContinueN);
     d('predict_rate NNN NN: %o  %o  %o \n', predictRateN1, predictRateN2, predictRateN3);
 
-    mixAll = modules.mergeDeep(mixAll, {
+    mixAll = mergeDeep(mixAll, {
       [uid_league_data.uid]: {
         [uid_league_data.league_id]: {
           continue: winContinueN,
@@ -182,7 +187,7 @@ async function settleGodTitle(args) {
   });
 
   let reformatPrediction = []; // 依 uid league_id 為一個組，並 照 match_scheduled 排序過
-  reformatPrediction = modules.groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
+  reformatPrediction = groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
   s2_45 = new Date().getTime();
   d('2.4 2.5\n');
@@ -207,7 +212,7 @@ async function settleGodTitle(args) {
     d('matches_rate: %o  %o', matchesRateN1, matchesRateN2);
     d('matches_continue: %o \n', matchesContinueN);
 
-    mixAll = modules.mergeDeep(mixAll, {
+    mixAll = mergeDeep(mixAll, {
       [uid_league_data.uid]: {
         [uid_league_data.league_id]: {
           matches_rate1: matchesRateN1,
@@ -322,7 +327,7 @@ function nnPassN(uid_league_data) {
   // allRecords.sort(function compare(a, b) {
   //   return b.winRateAcc - a.winRateAcc === 0 ? b.days - a.days : b.winRateAcc - a.winRateAcc; // 降 大->小
   // });
-  allRecords.sort(modules.fieldSorter(['-winRateAcc', '-days']));
+  allRecords.sort(fieldSorter(['-winRateAcc', '-days']));
 
   // 要至少計算五場，選擇機率最高者 >= 5場
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
@@ -360,7 +365,7 @@ function matchesRate(uid_league_data) {
     });
   }
 
-  allRecords.sort(modules.fieldSorter(['-winRateAcc']));
+  allRecords.sort(fieldSorter(['-winRateAcc']));
 
   // 要至少計算五場，選擇機率最高者 >= 5場 才給值
   if (allRecords.length >= 5 && allRecords[0].days >= 5) {
@@ -418,7 +423,7 @@ function matchesContinue(uid_league_data) {
 
   // 把 allRecords2  裡面的讓分、大小 照開下面條件排序
   // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
-  allRecords2.sort(modules.fieldSorter(['-match_scheduled', '-correctMark']));
+  allRecords2.sort(fieldSorter(['-match_scheduled', '-correctMark']));
 
   if (d.enabled) {
     allRecords2.forEach(function(r2) {
