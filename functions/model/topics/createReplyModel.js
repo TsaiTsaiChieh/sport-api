@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
