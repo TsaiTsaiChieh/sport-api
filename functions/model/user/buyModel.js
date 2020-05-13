@@ -24,8 +24,7 @@ function buyModel(args, uid) {
                   (
                     SELECT SUM(uwlh.win_bets)
                       FROM users__win__lists__histories uwlh
-                     WHERE uwlh.uid = $uid
-                       AND uwlh.league_id = b.league_id
+                     WHERE uwlh.league_id = b.league_id
                        AND uwlh.season = b.season
                        AND uwlh.day_of_year = b.day_of_year
                   ) bets,

@@ -74,33 +74,30 @@ function newsModel(method, args, uid) {
         );
         resolve(insert);
       } else if (method === 'DELETE') {
+        const is_system = args.is_system;
         const items = args.items;
         const del_join = items.join(',');
 
-        const del_res = db.sequelize.query(
-          `
-            DELETE 
-              FROM user__news 
-            WHERE uid = '${uid}' 
-              AND news_id in (${del_join})
-          `,
-          {
-            type: db.sequelize.QueryTypes.DELETE
-          }
-        );
-
-        if (del_res) {
-          const result = {
-            code: '200',
-            msg: '刪除成功'
-          };
-          resolve(result);
-        } else {
-          const result = {
-            code: '400',
-            msg: '刪除失敗'
-          };
-          resolve(result);
+        if(is_system){
+          items.forEach(function(item){
+            const del_res = db.News_System.upsert({
+              system_id: item,
+              uid:uid,
+              active:0
+            });
+          });
+        }else{
+          const del_res = db.sequelize.query(
+            `
+              UPDATE user__news 
+                 SET uid='${uid}'
+                 AND active=0
+               WHERE news_id in (${del_join})
+            `,
+            {
+              type: db.sequelize.QueryTypes.DELETE
+            }
+          );
         }
       }
     } catch (err) {
