@@ -12,6 +12,7 @@ module.exports.KBO.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
       const leagueID = 349;
+
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
       if (data.results) {
