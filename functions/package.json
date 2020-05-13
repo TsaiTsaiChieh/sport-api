@@ -7,10 +7,9 @@
     "start": "npm run shell",
     "deploy": "firebase deploy",
     "api": "firebase deploy --only functions:api",
-    "henry": "firebase deploy --only functions:redistest2",
     "logs": "firebase functions:log",
     "grunt": "grunt",
-    "test": "jest test/settleWinList.test --testTimeout=30000"
+    "test": "jest test/ --testTimeout=30000"
   },
   "engines": {
     "node": "10",
