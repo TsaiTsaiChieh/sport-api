@@ -41,7 +41,7 @@ async function NBApbpInplay(parameter) {
     keywordAway.push(awayData.lineup[`lineup${i}`].name);
     transSimpleAway.push(awayData.lineup[`lineup${i}`].transSimpleAway);
   }
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     const parameterPBP = {
       periodsNow: periodsNow,
       eventsNow: eventsNow,
@@ -72,7 +72,7 @@ async function NBApbpInplay(parameter) {
   }, perStep);
 }
 async function summmaryZH(gameID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const zhSummaryURL = `http://api.sportradar.us/nba/trial/v7/zh/games/${gameID}/summary.json?api_key=${nba_api_key}`;
     try {
       const keywordTransHome = [];
@@ -94,7 +94,7 @@ async function summmaryZH(gameID) {
   });
 }
 async function summmaryEN(gameID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
     try {
       const keywordHome = [];
@@ -128,7 +128,7 @@ async function summmaryEN(gameID) {
   });
 }
 async function NBApbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const gameID = parameter.gameID;
     const betsID = parameter.betsID;
 
@@ -242,7 +242,7 @@ async function NBApbpHistory(parameter) {
   });
 }
 async function initRealtime(gameID, betsID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     let keywordTransHome = [];
     let keywordTransAway = [];
     let homeTeamName;
@@ -371,7 +371,7 @@ async function initRealtime(gameID, betsID) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     let periodsNow = parameter.periodsNow;
     let eventsNow = parameter.eventsNow;
@@ -656,7 +656,7 @@ async function doPBP(parameter) {
   });
 }
 async function doSummary(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const summaryURL = parameter.summaryURL;
     try {
