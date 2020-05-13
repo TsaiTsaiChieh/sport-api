@@ -27,15 +27,14 @@ function newsModel(method, args, uid) {
            WHERE uid=$uid
           `,
           {
-            bind: { uid:uid },
+            bind: { uid: uid },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
-        const news_id = new Array();
+        const news_id = [];
         delete_id_query.forEach(async function(ele) {
           news_id.push(ele.system_id.toString());
         });
-      
 
         const system = await db.sequelize.query(
           `
@@ -48,7 +47,7 @@ function newsModel(method, args, uid) {
           LIMIT $start_system, $limit_system
           `,
           {
-            bind: { begin:begin, end:end, start_system:start_system, limit_system:limit_system},
+            bind: { begin: begin, end: end, start_system: start_system, limit_system: limit_system },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -66,7 +65,7 @@ function newsModel(method, args, uid) {
             LIMIT $start_user, $limit_user
           `,
           {
-            bind:{ uid:uid, begin:begin, end:end, start_user:start_user, limit_user:limit_user},
+            bind: { uid: uid, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -97,16 +96,16 @@ function newsModel(method, args, uid) {
         const is_system = args.is_system;
         const items = args.items;
         const del_join = items.join(',');
-        const del_res = [];
-        if(is_system){
-          items.forEach(function(item){
+        let del_res = [];
+        if (is_system) {
+          items.forEach(function(item) {
             del_res = db.News_System.upsert({
               system_id: item,
               uid: uid,
-              active:0
+              active: 0
             });
           });
-        }else{
+        } else {
           del_res = db.sequelize.query(
             `
               UPDATE user__news 
@@ -127,7 +126,5 @@ function newsModel(method, args, uid) {
     }
   });
 }
-
-
 
 module.exports = newsModel;
