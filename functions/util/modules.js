@@ -59,14 +59,12 @@ function convertTimezone(date, operation, zone = zone_tw) {
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
   const datetime = moment.tz(unix, zone);
-  if (!operation) return datetime.format('YYYYMMDD');
+  if (!operation || !operation.format) return datetime.format('YYYYMMDD');
   /* 處理時間計算 */
-  if (operation) {
-    if (operation.op === 'add') {
-      datetime.add(operation.value, operation.unit);
-    } else if (operation.op === 'subtract') {
-      datetime.subtract(operation.value, operation.unit);
-    }
+  if (operation.op === 'add') {
+    datetime.add(operation.value, operation.unit);
+  } else if (operation.op === 'subtract') {
+    datetime.subtract(operation.value, operation.unit);
   }
   /* 處理時間格式 */
   if (operation.format) return datetime.format(operation.format);
