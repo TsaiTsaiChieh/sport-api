@@ -86,10 +86,10 @@ async function getTopics(args) {
         reject({ code: 500, error: 'get user info failed' });
       }
       for (let i = 0; i < topics.rows.length; i++) { // 把拿到的userinfo塞回去
-        let replyCount = repliesCount.filter(obj => obj.article_id === topics.rows[i].article_id.toString()); // 處理留言數 把aid=id的那則挑出來
+        let replyCount = repliesCount.filter(obj => obj.article_id === topics.rows[i].article_id); // 處理留言數 把aid=id的那則挑出來
         replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics.rows[i].reply_count = replyCount;
-        let likeCount = likesCount.filter(obj => obj.article_id === topics.rows[i].article_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+        let likeCount = likesCount.filter(obj => obj.article_id === topics.rows[i].article_id); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics.rows[i].like_count = likeCount;
         let userInfo = usersInfo.filter(obj => obj.uid === topics.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
