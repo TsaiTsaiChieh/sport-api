@@ -124,6 +124,10 @@ const User = sequelize.define(
     },
     rank4_count: {
       type: Sequelize.INTEGER
+    },
+    fans: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     }
   },
   {
@@ -272,7 +276,7 @@ const League = sequelize.define(
       primaryKey: true
     },
     league_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(8),
       allowNull: false
     },
     radar_id: {
@@ -333,7 +337,7 @@ const Spread = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING(8)
     },
     handicap: {
       type: Sequelize.FLOAT
@@ -383,7 +387,7 @@ const Totals = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING(8)
     },
     handicap: {
       type: Sequelize.FLOAT
@@ -427,7 +431,7 @@ const Team = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING(8)
     },
     sport_id: {
       type: Sequelize.STRING
@@ -483,7 +487,7 @@ const Match = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING(8)
     },
     sport_id: {
       type: Sequelize.STRING
@@ -582,32 +586,44 @@ const Season = sequelize.define(
       primaryKey: true
     },
     radar_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     league_id: {
+      type: Sequelize.STRING(8)
+    },
+    league_name: {
       type: Sequelize.STRING
     },
-    year: {
+    season: {
       type: Sequelize.INTEGER
     },
     start_date: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     end_date: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     status: {
       type: Sequelize.INTEGER
     },
     type: {
       type: Sequelize.STRING
+    },
+    current: {
+      type: Sequelize.INTEGER
     }
   },
   {
     indexes: [
       {
         unique: true,
-        fields: ['league_id', 'year', 'type']
+        fields: ['league_id', 'season', 'type']
+      },
+      {
+        fields: ['league_id', 'current']
       }
     ]
   }
@@ -629,7 +645,7 @@ const Prediction = sequelize.define(
       allowNull: false
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING(8)
     },
     sell: {
       type: Sequelize.INTEGER
@@ -724,7 +740,7 @@ const PredictionDescription = sequelize.define(
       type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING(8)
     },
     day: {
       type: Sequelize.INTEGER
@@ -877,12 +893,51 @@ const Users_WinListsHistory = sequelize.define(
     indexes: [
       {
         name: 'uldwms',
-        fields: ['uid', 'league_id', 'date_timestamp', 'date', 'period', 'week', 'month', 'season'],
+        fields: [
+          'uid',
+          'league_id',
+          'date_timestamp',
+          'date',
+          'period',
+          'week',
+          'month',
+          'season'
+        ],
         unique: true
       }
       // { fields: ['uid', 'league_id', 'week'] },
       // { fields: ['uid', 'league_id', 'month'] },
       // { fields: ['uid', 'league_id', 'season'] }
+    ]
+  }
+);
+
+const UserFollow = sequelize.define(
+  'user__follow',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    follow_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING(8),
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid']
+      }
     ]
   }
 );
@@ -1402,7 +1457,8 @@ const dbUtil = {
   News_System,
   Bank,
   Transfer_Status,
-  Season
+  Season,
+  UserFollow
 };
 
 module.exports = dbUtil;

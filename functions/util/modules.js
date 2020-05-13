@@ -58,20 +58,16 @@ function convertTimezone(date, operation, zone = zone_tw) {
 */
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
-  if (operation) {
-    if (operation.op === 'add') {
-      return moment
-        .tz(unix, zone)
-        .add(operation.value, operation.unit)
-        .format('YYYYMMDD');
-    } else if (operation.op === 'subtract') {
-      return moment
-        .tz(unix, zone)
-        .subtract(operation.value, operation.unit)
-        .format('YYYYMMDD');
-    }
+  const datetime = moment.tz(unix, zone);
+  if (!operation || !operation.format) return datetime.format('YYYYMMDD');
+  /* 處理時間計算 */
+  if (operation.op === 'add') {
+    datetime.add(operation.value, operation.unit);
+  } else if (operation.op === 'subtract') {
+    datetime.subtract(operation.value, operation.unit);
   }
-  return moment.tz(unix, zone).format('YYYYMMDD');
+  /* 處理時間格式 */
+  if (operation.format) return datetime.format(operation.format);
 }
 
 function timeFormat(unix, zone = zone_tw) {

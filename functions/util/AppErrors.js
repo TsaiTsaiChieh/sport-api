@@ -38,7 +38,7 @@ class UserNotFound extends ExtendableError {
    * @param {boolean} isPublic - whether the message should be visible to user or not
    */
   constructor(
-    message = '使用者狀態異常',
+    message = '無此使用者',
     status = 1305,
     isPublic = true,
     code = httpStatus.NOT_FOUND
@@ -258,7 +258,7 @@ class PBPKBOError extends ExtendableError {
 
 class PBPAbnormalError extends ExtendableError {
   constructor(
-    message = 'Abnormal排程錯誤',
+    message = 'checkmatch_abnormal排程錯誤',
     status = 1512,
     isPublic = true,
     code = httpStatus.INTERNAL_SERVER_ERROR
