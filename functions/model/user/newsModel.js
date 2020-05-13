@@ -97,6 +97,7 @@ function newsModel(method, args, uid) {
         const is_system = args.is_system;
         const items = args.items;
         const del_join = items.join(',');
+<<<<<<< HEAD
         const del_res = [];
         if(is_system){
           items.forEach(function(item){
@@ -108,6 +109,19 @@ function newsModel(method, args, uid) {
           });
         }else{
           del_res = db.sequelize.query(
+=======
+
+        if (is_system) {
+          items.forEach(function(item) {
+            const del_res = db.News_System.upsert({
+              system_id: item,
+              uid: uid,
+              active: 0
+            });
+          });
+        } else {
+          const del_res = db.sequelize.query(
+>>>>>>> c295e2819793479330b55359498f775f74c496d6
             `
               UPDATE user__news 
                  SET uid='${uid}'
