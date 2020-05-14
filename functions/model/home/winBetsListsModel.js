@@ -43,7 +43,7 @@ function winBetsLists(args) {
                               from users__win__lists,
                                    ( 
                                      select league_id 
-                                       from match__leagues
+                                       from view__leagues
                                        where league_id = ${league_id}
                                    ) leagues
                              where users__win__lists.league_id = leagues.league_id

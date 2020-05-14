@@ -47,7 +47,7 @@ function predictInfo(args) {
                         prediction.spread_id, prediction.spread_option, prediction.spread_bets,
                         prediction.totals_id, prediction.totals_option, prediction.totals_bets
                    from user__predictions prediction force index(user__predictions_uid_match_scheduled),
-                        match__leagues league,
+                        view__leagues league,
                         matches,
                         match__teams team_home,
                         match__teams team_away
