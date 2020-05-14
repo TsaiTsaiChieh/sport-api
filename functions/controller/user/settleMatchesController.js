@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { ajv } = require('../../util/modules');
 const settleMatchesModel = require('../../model/user/settleMatchesModel');
 
 async function settleMatches(req, res) {
@@ -14,9 +14,9 @@ async function settleMatches(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
 
   try {

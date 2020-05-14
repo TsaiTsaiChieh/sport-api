@@ -28,7 +28,7 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[0]).toHaveProperty('win_bets', -1.00);
 
     expect(settleResult[1]).toHaveProperty('uid', '2WMRgHyUwvTLyHpLoANk7gWADZn1');
-    expect(settleResult[1]).toHaveProperty('win_rate', 50);
+    expect(settleResult[1]).toHaveProperty('win_rate', 0.5);
     expect(settleResult[1]).toHaveProperty('win_bets', -0.15);
   });
 
@@ -67,7 +67,7 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[0]).toHaveProperty('win_bets', -1.00);
 
     expect(settleResult[1]).toHaveProperty('uid', '2WMRgHyUwvTLyHpLoANk7gWADZn1');
-    expect(settleResult[1]).toHaveProperty('win_rate', 50);
+    expect(settleResult[1]).toHaveProperty('win_rate', 0.5);
     expect(settleResult[1]).toHaveProperty('win_bets', 0.75);
   });
 });

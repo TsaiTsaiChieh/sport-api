@@ -178,11 +178,11 @@ const Title = sequelize.define(
     },
     win_bets: {
       // 勝注
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     win_rate: {
       // 勝率
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     continue: {
       // 連贏 N 天
@@ -777,7 +777,7 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     last_season_win_bets: {
       type: Sequelize.FLOAT
@@ -789,6 +789,12 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.FLOAT
     },
     last_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    last_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    last_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
     last_month_win_bets: {
@@ -813,6 +819,12 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.FLOAT
     },
     this_period_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
     this_month_win_bets: {
@@ -853,7 +865,7 @@ const Users_WinListsHistory = sequelize.define(
       type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     win_bets: {
       type: Sequelize.FLOAT
@@ -877,6 +889,9 @@ const Users_WinListsHistory = sequelize.define(
       type: Sequelize.INTEGER
     },
     period: {
+      type: Sequelize.INTEGER
+    },
+    week_of_period: {
       type: Sequelize.INTEGER
     },
     week: {
@@ -1162,9 +1177,37 @@ const Topic_FavoriteArticle = sequelize.define(
 );
 
 /*
+ * 打賞記錄
+ */
+const Topic_DonateArticle = sequelize.define(
+  'topic__donate',
+  {
+    article_id: {
+      // 文章id
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    cost: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
  * 檢舉文章
  */
-// eslint-disable-next-line no-unused-vars
 const Service_ReportTopics = sequelize.define('service__reporttopic', {
   uid: {
     type: Sequelize.STRING,
@@ -1219,8 +1262,23 @@ const Service_Contact = sequelize.define('service__contact', {
 });
 
 /*
- * 首頁圖
+ * 首頁 排行榜預設值
  */
+const Home_List = sequelize.define(
+  'home__list',
+  {
+    god_list: {
+      type: Sequelize.STRING
+    },
+    win_rate_list: {
+      type: Sequelize.STRING
+    },
+    win_bets_list: {
+      type: Sequelize.STRING
+    }
+  }
+);
+
 const Home_Banner = sequelize.define(
   'home__banner', // 不要再動了 拜託!!
   {
@@ -1451,6 +1509,7 @@ const dbUtil = {
   Topic_Article,
   Topic_FavoriteArticle,
   Home_Banner,
+  Home_List,
   Service_Contact,
   Buy,
   Honor_board,
@@ -1459,7 +1518,9 @@ const dbUtil = {
   Bank,
   Transfer_Status,
   Season,
-  UserFollow
+  UserFollow,
+  Topic_DonateArticle,
+  Service_ReportTopics
 };
 
 module.exports = dbUtil;
