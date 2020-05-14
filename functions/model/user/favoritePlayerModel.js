@@ -4,19 +4,8 @@ function favoritePlayerModel(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let favorite_player = {};
-      let win_list = {};
       const uid = args.token.uid;
       if (args.method === 'POST') {
-        win_list = await db.sequelize.query(
-          `
-          SELECT * FROM users__win__lists
-          
-           `,
-          {
-            bind: { uid: uid },
-            type: db.sequelize.QueryTypes.SELECT
-          }
-        );
         favorite_player = await db.sequelize.query(
         `
         SELECT uf.god_uid as god_uid, 
