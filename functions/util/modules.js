@@ -20,6 +20,7 @@ const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
+const errs = require('./errorCode');
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -399,6 +400,40 @@ function groupBy(arr, prop) {
   return Array.from(map.values());
 }
 
+// groupsby 多 group 參數 且 排序(單一欄位、大->小) 且 限制筆數
+// 輸入參數
+//   prop: [o.uid, o.league_id] // group 欄位
+//   order: ['date_timestamp', ...] // date_timestamp：小到大  -date_timestamp：大到小
+//   limit: 30 // -1 全部
+// 回傳
+//   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
+function groupsByOrdersLimit(array, prop, order, limit = -1) {
+  const groups = {};
+  array.forEach(function(o) {
+    // 組出 prop 的 json 字串 做為 groups key 值
+    var group = JSON.stringify(prop.map((m) => { return o[m]; }));
+    groups[group] = groups[group] || [];
+    groups[group].push(o);
+  });
+
+  // eslint-disable-next-line no-unused-vars
+  for (let [key, o] of Object.entries(groups)) {
+    o.sort(fieldSorter(order));
+    o = o.slice(0, limit); // 取幾筆
+  }
+
+  return Object.keys(groups).map(function(group) {
+    const res = {};
+    const t = JSON.parse(group); // 把 json 字串 轉回 object
+    for (const [key, value] of Object.entries(t)) {
+      res[prop[key]] = value;
+    };
+
+    res.lists = groups[group];
+    return res;
+  });
+}
+
 // sort an array of objects by multiple fields
 // https://stackoverflow.com/a/30446887
 const fieldSorter = (fields) => (a, b) =>
@@ -599,26 +634,12 @@ function predictionsWinList(data) {
     reLeagues.forEach(function(data) {
       // 勝率 winRate
       const predictCorrectCounts =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag) ? ++acc : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag) ? ++acc : acc,
-          0
-        );
+        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
+        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
       const predictFaultCounts =
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
-          0
-        ) +
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
-          0
-        );
+        data.reduce((acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc), 0) +
+        data.reduce((acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc), 0);
 
       // 避免分母是0 平盤無效
       const winRate =
@@ -628,36 +649,24 @@ function predictionsWinList(data) {
 
       // 勝注
       const predictCorrectBets =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+        data.reduce((acc, cur) =>
+          correct.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets : acc
+        , 0) +
+        data.reduce((acc, cur) =>
+          correct.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets : acc
+        , 0);
 
       const predictFaultBets =
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+        data.reduce((acc, cur) =>
+          fault.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets : acc
+        , 0) +
+        data.reduce((acc, cur) =>
+          fault.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets : acc
+        , 0);
 
       const winBets = predictCorrectBets + predictFaultBets;
 
@@ -702,6 +711,14 @@ function sliceTeamAndPlayer(name) {
   };
 }
 
+// 檢查使用者權限  rightArr 傳入權限陣列
+// rightArr = [1, 2] // 一般使用者, 大神
+async function checkUserRight(memberInfo, rightArr = []) {
+  if (memberInfo === null) return errs.errsMsg('404', '1301');
+  if (!(rightArr.includes(memberInfo.status))) return errs.errsMsg('404', '1308');
+  return { };
+}
+
 module.exports = {
   redis,
   express,
@@ -742,6 +759,7 @@ module.exports = {
   acceptNumberAndLetter,
   httpStatus,
   groupBy,
+  groupsByOrdersLimit,
   fieldSorter,
   mergeDeep,
   settleSpread,
@@ -750,5 +768,6 @@ module.exports = {
   predictionsWinList,
   sliceTeamAndPlayer,
   acceptLeague,
-  timeFormat
+  timeFormat,
+  checkUserRight
 };
