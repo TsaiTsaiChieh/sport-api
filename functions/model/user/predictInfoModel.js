@@ -26,9 +26,9 @@ function predictInfo(args) {
 
     // 2.
     try {
-      const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
+      // const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
       // const tomorrow_YYYYMMDD = modules.moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = modules.moment(now_YYYYMMDD).unix(); // * 1000;
+      const now = modules.moment().unix(); // * 1000;
       // const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
 
       // 使用者預測資訊
@@ -38,8 +38,8 @@ function predictInfo(args) {
       // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled) 確保 match_scheduled 有使用 index
       const predictionsInfoDocs = await db.sequelize.query(`
         select prediction.*, 
-               spread.handicap spread_handicap,
-               totals.handicap totals_handicap
+               spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
+               totals.handicap totals_handicap, totals.over_tw
           from (
                  select prediction.bets_id, match_scheduled, league.name league,
                         team_home.alias home_alias, team_home.alias_ch home_alias_ch,
@@ -128,7 +128,9 @@ function repackage(ele) {
       predict: ele.spread_option,
       spread_id: ele.spread_id,
       handicap: ele.spread_handicap,
-      percentage: Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      handicap_home_tw: ele.home_tw ? ele.home_tw : '',
+      handicap_away_tw: ele.away_tw ? ele.away_tw : '',
+      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.spread_bets
     };
   }
@@ -137,8 +139,8 @@ function repackage(ele) {
     data.totals = {
       predict: ele.totals_option,
       totals_id: ele.totals_id,
-      handicap: ele.totals_handicap,
-      percentage: Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      handicap: ele.over_tw, // ele.totals_handicap,
+      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.totals_bets
     };
   }
