@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -9,9 +8,9 @@ function transferModel(method, args, uid) {
       const end = args.end;
       const transfer = await db.sequelize.query(
       `
-        SELECT transfer_id, scheduled, type, content 
+        SELECT transfer_id, scheduled, type, title, content 
           FROM user__transfer__logs 
-          WHERE uid = $uid
+          WHERE to_uid = $uid
             AND updatedAt BETWEEN $begin AND $end
         `,
       {

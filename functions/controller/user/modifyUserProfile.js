@@ -180,7 +180,7 @@ async function modifyUserProfile(req, res) {
   // console.log(data); return;
   data.display_name = data.displayName;
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  const add_users = await db.User.upsert(data)
+  await db.User.upsert(data)
     .then(async(ref) => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;

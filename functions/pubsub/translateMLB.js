@@ -1121,6 +1121,7 @@ async function transFunction(stringTrans) {
   });
   return await stringAfterTrans.text;
 }
+// eslint-disable-next-line no-unused-vars
 async function stepTrans(stringTrans) {
   const eleBig = [
     'A',

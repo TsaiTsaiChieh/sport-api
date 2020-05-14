@@ -1,11 +1,13 @@
-const modules = require('../util/modules');
-const db = require('../util/dbUtil');
-const MatchLeague = db.League;
-const MatchTeam = db.Team;
-inserttest();
-
+const settleMatchesModel = require('../model/user/settleMatchesModel');
+// inserttest();
 async function inserttest() {
-  const unix = Math.floor(Date.now() / 1000);
-  const now = modules.convertTimezoneFormat(unix);
-  console.log(now);
+  try {
+    await settleMatchesModel({
+      token: { uid: '999' },
+      bets_id: '2354719'
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
+module.exports = inserttest;

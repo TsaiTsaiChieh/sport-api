@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const router = modules.express.Router();
-const verification = require('../util/verification');
+// const verification = require('../util/verification');
 
 router.get('/god_lists', require('../controller/home/godListsController'));
 router.get(

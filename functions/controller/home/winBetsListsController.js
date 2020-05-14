@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const winBetsListsModel = require('../../model/home/winBetsListsModel');
 
 async function winBetsLists(req, res) {

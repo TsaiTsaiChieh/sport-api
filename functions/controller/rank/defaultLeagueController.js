@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const defaultLeagueModel = require('../../model/rank/defaultLeagueModel');
 
 async function searchUser(req, res) {

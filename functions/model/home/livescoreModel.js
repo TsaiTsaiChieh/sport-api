@@ -41,7 +41,7 @@ async function repackage(sport, league) {
 
   let scheduled;
   const closedEvent = [];
-  const inprogressEvent = [];
+  // const inprogressEvent = [];
   const scheduledEvent = [];
   const outputJson = [];
 
@@ -61,15 +61,15 @@ async function repackage(sport, league) {
         away_tw: 'no data'
       };
     }
-    let newestTotal;
-    if (eventData[i].newest_totals) {
-      newestTotal = eventData[i].newest_totals;
-    } else {
-      newestTotal = {
-        handicap: 'no data',
-        over_tw: 'no data'
-      };
-    }
+    // let newestTotal;
+    // if (eventData[i].newest_totals) {
+    //   newestTotal = eventData[i].newest_totals;
+    // } else {
+    //   newestTotal = {
+    //     handicap: 'no data',
+    //     over_tw: 'no data'
+    //   };
+    // }
 
     if (scheduled === dateNow && eventData[i].flag.status === 0) {
       closedEvent.push({
@@ -164,7 +164,13 @@ async function repackage(sport, league) {
       counScheduled = counScheduled + 1;
     }
   }
+  const ll = outputJson.length;
 
+  for (let i = 0; i < ll; i++) {
+    if (outputJson[i] === undefined || outputJson[i] === null) {
+      outputJson.pop();
+    }
+  }
   return outputJson;
 }
 module.exports = livescore;

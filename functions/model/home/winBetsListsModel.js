@@ -19,6 +19,7 @@ function winBetsLists(args) {
     winBetsLists[defaultLeague] = [];
 
     try {
+      // eslint-disable-next-line no-unused-vars
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
         const league_id = defaultLeagueID;

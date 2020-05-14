@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
@@ -50,7 +48,7 @@ async function createReply(args) {
         allowedSchemes: ['http', 'https']
       });
 
-      const article = await dbCreate(insertData);
+      await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);

@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(reply_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
@@ -49,7 +47,7 @@ function like(uid, reply_id) {
 function unlike(uid, reply_id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__replylike.destroy({
+      await db.sequelize.models.topic__replylike.destroy({
         where: {
           uid: uid,
           reply_id: reply_id

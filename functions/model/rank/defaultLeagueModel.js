@@ -1,6 +1,4 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
-const db = require('../../util/dbUtil');
 
 function defaultLeague(args) {
   return new Promise(async function(resolve, reject) {

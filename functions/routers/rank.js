@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const verification = require('../util/verification');
+// const verification = require('../util/verification');
 const router = modules.express.Router();
 
 router.get('/search_user/:display_name', require('../controller/rank/searchUserController'));

@@ -20,7 +20,13 @@ async function reResult(sport, league, eventID) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, eventID) {
-  const leagueName = `pagetest_${league}`;
+  let leagueName;
+
+  if (league === 'eSoccer') {
+    leagueName = `pagetest_${league}`;
+  } else {
+    leagueName = `${sport}_${league}`;
+  }
   const eventData = [];
   const query = await modules.firestore
     .collection(leagueName)
@@ -32,7 +38,7 @@ async function repackage(sport, league, eventID) {
   });
 
   const time = eventData[0].scheduled * 1000;
-  const dateNow = Date.now();
+  // const dateNow = Date.now();
 
   // for specific league
   // nba

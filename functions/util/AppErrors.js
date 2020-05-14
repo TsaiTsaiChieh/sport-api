@@ -38,7 +38,7 @@ class UserNotFound extends ExtendableError {
    * @param {boolean} isPublic - whether the message should be visible to user or not
    */
   constructor(
-    message = '使用者狀態異常',
+    message = '無此使用者',
     status = 1305,
     isPublic = true,
     code = httpStatus.NOT_FOUND
@@ -256,6 +256,16 @@ class PBPKBOError extends ExtendableError {
   }
 }
 
+class PBPAbnormalError extends ExtendableError {
+  constructor(
+    message = 'checkmatch_abnormal排程錯誤',
+    status = 1512,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 class RepackageError extends ExtendableError {
   constructor(
     message = '資料重新包裝錯誤',
@@ -290,5 +300,6 @@ module.exports = {
   PBPMLBError,
   SettlementAccordingMatch,
   PBPKBOError,
-  RepackageError
+  RepackageError,
+  PBPAbnormalError
 };

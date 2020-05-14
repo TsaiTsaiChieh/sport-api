@@ -17,7 +17,14 @@ async function reResult(sport, league, time) {
   return await Promise.all(result);
 }
 async function repackage(sport, league, time) {
-  const leagueName = `pagetest_${league}`;
+  let leagueName;
+
+  if (league === 'eSoccer') {
+    leagueName = `pagetest_${league}`;
+  } else {
+    leagueName = `${sport}_${league}`;
+  }
+
   const query = await modules.firestore
     .collection(leagueName)
     .orderBy('scheduled', 'desc')
@@ -42,6 +49,8 @@ async function repackage(sport, league, time) {
       { timeZone: 'Asia/Taipei' }
     );
     scheduled = scheduled.split(' ')[0];
+    console.log(scheduled);
+
     let newestSpread;
     if (eventData[i].newest_spread) {
       newestSpread = eventData[i].newest_spread;
@@ -52,15 +61,15 @@ async function repackage(sport, league, time) {
         away_tw: 'no data'
       };
     }
-    let newestTotal;
-    if (eventData[i].newest_total) {
-      newestTotal = eventData[i].newest_total;
-    } else {
-      newestTotal = {
-        handicap: 'no data',
-        over_tw: 'no data'
-      };
-    }
+    // let newestTotal;
+    // if (eventData[i].newest_total) {
+    //   newestTotal = eventData[i].newest_total;
+    // } else {
+    //   newestTotal = {
+    //     handicap: 'no data',
+    //     over_tw: 'no data'
+    //   };
+    // }
     if (league === 'eSoccer') {
       league = eventData[i].league.name;
     }

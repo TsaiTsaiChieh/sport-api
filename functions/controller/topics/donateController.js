@@ -18,7 +18,7 @@ async function donate(req, res) {
       cost: {
         type: 'integer',
         maximum: 99999,
-        minimum: 0
+        minimum: 1
       }
     }
   };

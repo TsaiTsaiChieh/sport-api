@@ -1,11 +1,11 @@
 const path = require('path');
-const modules = require('../util/modules');
+const fs = require('fs');
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const instance = 'sportslottery-test:us-central1:do-sports';
 const SSL = {
-  key: modules.fs.readFileSync(path.join(__dirname, '../auth/client-key.pem')),
-  cert: modules.fs.readFileSync(path.join(__dirname, '../auth/client-cert.pem')),
-  ca: modules.fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem')),
+  key: fs.readFileSync(path.join(__dirname, '../auth/client-key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '../auth/client-cert.pem')),
+  ca: fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem')),
   // ref: https://stackoverflow.com/questions/52465530/sequelize-connection-timeout-while-using-serverless-aurora-looking-for-a-way-to
   connectTimeout: 60000 // The milliseconds before a timeout occurs during the initial connection to the MySQL server.
 };
@@ -15,7 +15,6 @@ const dialectOptions = isEmulator
   : { socketPath: host, connectTimeout: 60000 };
 const setting = {
   db_name: {
-    TC_test: 'TC_test',
     dev: 'dosport'
   },
   db_user: 'root',

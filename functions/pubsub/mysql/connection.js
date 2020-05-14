@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 
 async function connection(req, res) {

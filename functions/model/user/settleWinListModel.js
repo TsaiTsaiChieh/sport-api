@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
 const {
   convertTimezone, getTitlesPeriod, moment, checkUserRight,
