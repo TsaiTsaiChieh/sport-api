@@ -59,7 +59,7 @@ function convertTimezone(date, operation, zone = zone_tw) {
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
   const datetime = moment.tz(unix, zone);
-  if (!operation || !operation.format) return datetime.format('YYYYMMDD');
+  if (!operation) return datetime.format('YYYYMMDD');
   /* 處理時間計算 */
   if (operation.op === 'add') {
     datetime.add(operation.value, operation.unit);
@@ -68,6 +68,7 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   }
   /* 處理時間格式 */
   if (operation.format) return datetime.format(operation.format);
+  else return datetime.format('YYYYMMDD');
 }
 
 function timeFormat(unix, zone = zone_tw) {
