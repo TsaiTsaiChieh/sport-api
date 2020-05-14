@@ -28,7 +28,7 @@ function predictInfo(args) {
     try {
       // const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
       // const tomorrow_YYYYMMDD = modules.moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = modules.moment().unix(); // * 1000;
+      const now = modules.moment(Date.now()).unix(); // * 1000;
       // const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
 
       // 使用者預測資訊
