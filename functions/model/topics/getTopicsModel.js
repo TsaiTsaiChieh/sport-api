@@ -7,6 +7,7 @@ let countPerPage;
 function dbFind(where, page, sortByLike) {
   return new Promise(async function(resolve, reject) {
     try {
+      // await db.sequelize.models.topic__article.sync({ force: false, alter: true }); // 有新增欄位時才用
       const result = await db.sequelize.models.topic__article.findAndCountAll({
         where: where,
         limit: countPerPage, // 每頁幾個
@@ -39,8 +40,8 @@ async function getTopics(args) {
       } else {
         where.status = 1;
       }
-      if (typeof args.type !== 'undefined' && args.type !== null) {
-        where.type = args.type;
+      if (typeof args.league !== 'undefined' && args.league !== null) {
+        where.league = args.league;
       }
       if (typeof args.category !== 'undefined' && args.category !== null) {
         where.category = args.category;
@@ -96,7 +97,7 @@ async function getTopics(args) {
         userInfo = userInfo[0] ? userInfo[0] : null;
         topics.rows[i].user_info = userInfo;
         if (topics.rows[i].status !== 1) {
-          topics.rows[i].type = '已刪除';
+          topics.rows[i].league = '已刪除';
           topics.rows[i].category = '已刪除';
           // topics.rows[i].title = '(本文已被刪除)';
           topics.rows[i].content = null;

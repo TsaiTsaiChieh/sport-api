@@ -57,6 +57,39 @@ function chkArticleFavorite(uid, article_id) {
     }
   });
 }
+function chkArticleDonated(uid, article_id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__donate.count({
+        where: {
+          uid: uid,
+          article_id: article_id
+        },
+        raw: true
+      });
+      resolve(result !== 0);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+}
+function getDonatedCount(article_id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__donate.count({
+        where: {
+          article_id: article_id
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+}
 async function getArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -82,12 +115,15 @@ async function getArticle(args) {
       article.user_info = userInfo[0];
       article.like_count = likeCount.length > 0 ? likeCount[0].count : 0;
       article.reply_count = replyCount.length > 0 ? replyCount[0].count : 0;
+      article.donate_count = await getDonatedCount(args.aid);
       const uid = (args.token !== null) ? args.token.uid : null;
       article.is_liked = false;
+      article.is_donated = false;
       article.is_favoGod = false;
       article.is_favoArticle = false;
       if (uid) {
         article.is_liked = await func.getIsUserLikeTopic(uid, args.aid);
+        article.is_donated = await chkArticleDonated(uid, args.aid);
         article.is_favoGod = await chkGodFavorite(uid, article.user_info.uid);
         article.is_favoArticle = await chkArticleFavorite(uid, args.aid);
       }

@@ -18,14 +18,14 @@ function dbFind(god_uid) { // 確認大神存在
     }
   });
 }
-function checkLiked(uid, god_uid, type) {
+function checkLiked(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
-    // await db.sequelize.models.user__favoritegod.sync({ alter: true }); //有新增欄位時才用
+    // await db.sequelize.models.user__favoritegod.sync({ alter: true }); // 有新增欄位時才用
     const result = await db.sequelize.models.user__favoritegod.count({
       where: {
         uid: uid,
         god_uid: god_uid,
-        type: type
+        league: league
       },
       raw: true
     });
@@ -36,13 +36,13 @@ function checkLiked(uid, god_uid, type) {
     }
   });
 }
-function like(uid, god_uid, type) {
+function like(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
       await db.sequelize.models.user__favoritegod.create({
         uid: uid,
         god_uid: god_uid,
-        type: type
+        league: league
       });
       resolve('like failed');
     } catch (error) {
@@ -51,14 +51,14 @@ function like(uid, god_uid, type) {
     }
   });
 }
-function unlike(uid, god_uid, type) {
+function unlike(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
       await db.sequelize.models.user__favoritegod.destroy({
         where: {
           uid: uid,
           god_uid: god_uid,
-          type: type
+          league: league
         },
         raw: true
       });
