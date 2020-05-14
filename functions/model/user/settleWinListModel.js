@@ -277,7 +277,7 @@ async function settleWinList(args) {
   }
 
   const e = new Date().getTime();
-  d('settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
+  console.log('settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
   return result;
 }

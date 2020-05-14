@@ -251,7 +251,7 @@ async function settleGodTitle(args) {
   };
 
   const e = new Date().getTime();
-  d('settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
+  console.log('settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms',
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
   return result;
   // });
