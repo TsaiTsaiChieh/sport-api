@@ -9,15 +9,18 @@ async function predictionResult(req, res) {
       date: {
         type: 'string',
         format: 'date',
-        // TODO 未來可能不會給 default 值或會給當日
-        default: '2020-07-01'
+        // default value is today
+        default: modules.convertTimezoneFormat(Math.floor(Date.now() / 1000),
+          { format: 'YYYY-MM-DD' })
       }
     }
   };
+
   const valid = modules.ajv.validate(schema, req.query);
   if (!valid) {
     return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
   }
+
   const args = {
     token: req.token,
     date: req.query.date
