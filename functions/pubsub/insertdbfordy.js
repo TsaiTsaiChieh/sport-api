@@ -1,5 +1,3 @@
-const modules = require('../util/modules');
-const db = require('../util/dbUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 // inserttest();
 async function inserttest() {

@@ -61,15 +61,15 @@ async function repackage(sport, league, time) {
         away_tw: 'no data'
       };
     }
-    let newestTotal;
-    if (eventData[i].newest_total) {
-      newestTotal = eventData[i].newest_total;
-    } else {
-      newestTotal = {
-        handicap: 'no data',
-        over_tw: 'no data'
-      };
-    }
+    // let newestTotal;
+    // if (eventData[i].newest_total) {
+    //   newestTotal = eventData[i].newest_total;
+    // } else {
+    //   newestTotal = {
+    //     handicap: 'no data',
+    //     over_tw: 'no data'
+    //   };
+    // }
     if (league === 'eSoccer') {
       league = eventData[i].league.name;
     }

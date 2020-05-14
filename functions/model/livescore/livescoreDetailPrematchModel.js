@@ -38,7 +38,7 @@ async function repackage(sport, league, eventID) {
   });
 
   const time = eventData[0].scheduled * 1000;
-  const dateNow = Date.now();
+  // const dateNow = Date.now();
 
   // for specific league
   // nba

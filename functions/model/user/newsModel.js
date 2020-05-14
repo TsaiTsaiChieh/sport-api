@@ -20,16 +20,34 @@ function newsModel(method, args, uid) {
         const start_user = page_user * limit_user;
 
         /* 系統訊息資料 */
+        const delete_id_query = await db.sequelize.query(
+          `
+          SELECT system_id
+            FROM user__news__systems
+           WHERE uid=$uid
+          `,
+          {
+            bind: { uid: uid },
+            type: db.sequelize.QueryTypes.SELECT
+          }
+        );
+        const news_id = [];
+        delete_id_query.forEach(async function(ele) {
+          news_id.push(ele.system_id.toString());
+        });
+
         const system = await db.sequelize.query(
           `
           SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
             FROM user__news
-          WHERE scheduled BETWEEN '${begin}' and '${end}' 
-            AND status=0
+            WHERE news_id NOT IN (${news_id})
+             AND scheduled BETWEEN $begin and $end
+             AND status=0
           ORDER BY scheduled DESC
-          LIMIT ${start_system}, ${limit_system}
+          LIMIT $start_system, $limit_system
           `,
           {
+            bind: { begin: begin, end: end, start_system: start_system, limit_system: limit_system },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -39,14 +57,15 @@ function newsModel(method, args, uid) {
           `
           SELECT un.news_id, un.uid, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
             FROM user__news un, users u
-          WHERE un.scheduled BETWEEN '${begin}' and '${end}'
+          WHERE un.scheduled BETWEEN $begin and $end
             AND u.uid = un.uid
             AND un.status=1
-            AND un.uid = '${uid}'
+            AND un.uid = $uid
           ORDER BY un.scheduled DESC
-            LIMIT ${start_user}, ${limit_user}
+            LIMIT $start_user, $limit_user
           `,
           {
+            bind: { uid: uid, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -77,17 +96,17 @@ function newsModel(method, args, uid) {
         const is_system = args.is_system;
         const items = args.items;
         const del_join = items.join(',');
-
+        let del_res = [];
         if (is_system) {
           items.forEach(function(item) {
-            const del_res = db.News_System.upsert({
+            del_res = db.News_System.upsert({
               system_id: item,
               uid: uid,
               active: 0
             });
           });
         } else {
-          const del_res = db.sequelize.query(
+          del_res = db.sequelize.query(
             `
               UPDATE user__news 
                  SET uid='${uid}'
@@ -99,6 +118,7 @@ function newsModel(method, args, uid) {
             }
           );
         }
+        resolve(del_res);
       }
     } catch (err) {
       console.log('error happened...', err);

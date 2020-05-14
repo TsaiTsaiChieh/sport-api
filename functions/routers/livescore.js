@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const verification = require('../util/verification');
+// const verification = require('../util/verification');
 const router = modules.express.Router();
 
 router.get('/livescore/all', require('../controller/livescore/allController'));

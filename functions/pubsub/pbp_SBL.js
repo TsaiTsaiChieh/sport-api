@@ -43,7 +43,7 @@ async function SBLpbpInplay(gameID, betsID, periodsNow, eventsNow) {
 async function SBLpbpHistory(gameID, betsID) {
   const pbpURL = `http://api.sportradar.us/basketball/trial/v2/en/sport_events/sr:match:${gameID}/timeline.json?api_key=${sbl_api_key}`;
   try {
-    const { data } = await axios(pbpURL);
+    await axios(pbpURL);
   } catch (error) {
     console.log(
       'error happened in pubsub/NBApbpHistory function by page',

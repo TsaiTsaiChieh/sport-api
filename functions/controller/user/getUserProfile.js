@@ -1,6 +1,4 @@
 const userUtils = require('../../util/userUtil');
-const modules = require('../../util/modules');
-const firebaseAdmin = modules.firebaseAdmin;
 
 /**
  * @api {post} /user/getUserProfile Get User Profile

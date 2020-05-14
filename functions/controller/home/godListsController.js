@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const godListsModel = require('../../model/home/godListsModel');
 
 async function godlists(req, res) {

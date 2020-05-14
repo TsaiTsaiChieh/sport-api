@@ -3,7 +3,6 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const firebaseName = 'baseball_KBO';
 const Match = db.Match;
-
 const leagueUniteID = '349';
 const leagueUniteName = 'KBO';
 const sportID = 16;

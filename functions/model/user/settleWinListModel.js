@@ -131,7 +131,9 @@ function settleWinList(args) {
       try {
         // const upsertResult = resultWinList.map(async function() {
         for (const data of resultWinList) {
+          // eslint-disable-next-line no-unused-vars
           let r = {};
+          // eslint-disable-next-line no-unused-vars
           let winListsHistory, created;
 
           try {
@@ -233,7 +235,9 @@ function settleWinList(args) {
           // c.
           // day_of_year 目前未使用
           // 回寫結果 到 users__win__lists
+          // eslint-disable-next-line no-unused-vars
           let r = {}; let r2 = {};
+          // eslint-disable-next-line no-unused-vars
           let winLists, created;
 
           try {
