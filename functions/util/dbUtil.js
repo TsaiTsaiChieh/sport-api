@@ -223,7 +223,46 @@ const Title = sequelize.define(
     ]
   }
 );
-
+const Collection = sequelize.define(
+  'user__collection',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    bets_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    league_id: {
+      type: Sequelize.STRING(8),
+      allowNull: false
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    },
+    scheduled_tw: {
+      type: Sequelize.DATE
+    },
+    sport_id: {
+      type: Sequelize.INTEGER
+    }
+    // here
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid']
+      }
+    ]
+  }
+);
 const Rank = sequelize.define(
   'user__rank',
   {
@@ -1499,6 +1538,7 @@ const dbUtil = {
   PredictionDescription,
   User,
   Title,
+  Collection,
   Rank,
   Users_WinLists,
   Users_WinListsHistory,

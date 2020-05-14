@@ -1,13 +1,4 @@
-const settleMatchesModel = require('../model/user/settleMatchesModel');
-// inserttest();
-async function inserttest() {
-  try {
-    await settleMatchesModel({
-      token: { uid: '999' },
-      bets_id: '2354719'
-    });
-  } catch (err) {
-    console.log(err);
-  }
-}
+// const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const modules = require('../util/modules');
+async function inserttest() {}
 module.exports = inserttest;
