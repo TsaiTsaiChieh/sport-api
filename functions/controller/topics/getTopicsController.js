@@ -3,23 +3,22 @@ const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/getTopicsModel');
 const types = require('./types');
 async function getTopics(req, res) {
-  const type = types.getType();
-  type.push(null);
+  const league = types.getLeague();
+  league.push(null);
   const category = types.getCategory();
   category.push(null);
-
   const schema = {
     type: 'object',
     properties: {
       uid: {
         type: ['string', 'null']
       },
-      type: {
+      league: {
         type: ['string', 'null'],
-        enum: type
+        enum: league
       },
       category: {
-        type: ['string', 'null'],
+        type: ['integer', 'null'],
         enum: category
       },
       count: {

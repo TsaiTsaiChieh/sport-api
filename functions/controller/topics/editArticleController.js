@@ -10,24 +10,24 @@ async function editArticle(req, res) {
   //   title: title,
   //   content: content,
   // },
-  const type = types.getType();
+  const league = types.getLeague();
   const category = types.getCategory();
 
   const schema = {
     type: 'object',
-    required: ['category', 'type', 'title', 'content'],
+    required: ['category', 'league', 'title', 'content'],
     properties: {
       article_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0
       },
-      type: {
+      league: {
         type: 'string',
-        enum: type
+        enum: league
       },
       category: {
-        type: 'string',
+        type: 'integer',
         enum: category
       },
       title: {
