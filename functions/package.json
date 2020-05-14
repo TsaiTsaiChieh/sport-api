@@ -18,7 +18,7 @@
   "dependencies": {
     "@k3rn31p4nic/google-translate-api": "github:k3rn31p4nic/google-translate-api",
     "ajv": "6.10.2",
-    "await-to-js": "^2.1.1",
+    "await-to-js": "2.1.1",
     "axios": "0.18.1",
     "body-parser": "1.19.0",
     "chinese-simple-tradition-translator": "0.1.0",
