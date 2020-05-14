@@ -38,7 +38,7 @@ async function repackage(sport, league, UID, eventID, time) {
     .get();
 
   if (validation.exists) {
-    const query = await modules.firestore
+    await modules.firestore
       .collection(leagueName)
       .doc(`${UID}`)
       .set(

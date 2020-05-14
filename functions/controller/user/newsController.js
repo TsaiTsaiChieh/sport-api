@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const newsModel = require('../../model/user/newsModel');
 async function news(req, res) {
   const returnJson = {};

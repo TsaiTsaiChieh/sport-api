@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { ajv } = require('../../util/modules');
 const settleWinListModel = require('../../model/user/settleWinListModel');
 
 async function settleWinList(req, res) {
@@ -13,9 +13,9 @@ async function settleWinList(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
 
   try {

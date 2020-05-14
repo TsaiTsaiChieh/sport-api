@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const Op = require('sequelize').Op;
 

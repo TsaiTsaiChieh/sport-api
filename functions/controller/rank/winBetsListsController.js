@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { ajv } = require('../../util/modules');
 const winBetsListsModel = require('../../model/rank/winBetsListsModel');
 
 async function winBetsLists(req, res) {
@@ -17,9 +17,9 @@ async function winBetsLists(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
 
   try {

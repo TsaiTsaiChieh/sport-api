@@ -17,19 +17,8 @@ function predictInfo(args) {
     // 1.
     try {
       const memberInfo = await db.User.findOne({ where: { uid: userUid } });
-
-      if (memberInfo === null) {
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1301')); // ${userUid}
-      }
-
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 一般使用者、大神  管理者要操作，要另外建一個帳號
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1302'));
-      }
-
-      // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
+      const checkResult = await modules.checkUserRight(memberInfo, [1, 2]);
+      if (checkResult.code) return reject(checkResult);
     } catch (err) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
       return reject(errs.errsMsg('500', '500', err));
@@ -58,7 +47,7 @@ function predictInfo(args) {
                         prediction.spread_id, prediction.spread_option, prediction.spread_bets,
                         prediction.totals_id, prediction.totals_option, prediction.totals_bets
                    from user__predictions prediction force index(user__predictions_uid_match_scheduled),
-                        match__leagues league,
+                        view__leagues league,
                         matches,
                         match__teams team_home,
                         match__teams team_away

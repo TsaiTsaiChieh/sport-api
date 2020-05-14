@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, convertTimezone, moment } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -6,16 +6,17 @@ function winBetsLists(args) {
   return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
-    const league_id = modules.leagueCodebook(league).id;
-    const period = modules.getTitlesPeriod(new Date()).period;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    const league_id = leagueCodebook(league).id;
+    const period = getTitlesPeriod(new Date()).period;
+    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     const winBetsLists = {};
     winBetsLists[league] = [];
 
     try {
+      // eslint-disable-next-line no-unused-vars
       for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
         const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 

@@ -38,7 +38,7 @@ async function repackage(sport, league, UID, eventID) {
 
   if (validation.exists) {
     const FieldValue = require('firebase-admin').firestore.FieldValue;
-    const query = await modules.firestore
+    await modules.firestore
       .collection(leagueName)
       .doc(`${UID}`)
       .update({ [`${eventID}`]: FieldValue.delete() });

@@ -47,38 +47,51 @@ router.get(
 );
 router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 
-// 預測頁
+/* 預測頁 */
+// 玩家送出預測
 router.post(
   '/predictions',
   verification.token_v2,
   require('../controller/user/predictMatchesController')
 );
+// 看預測比例
 router.get(
   '/prediction_rate',
   verification.token_v2,
   require('../controller/user/predictionRateController')
 );
+/* ------------ 個人預測頁 ------------ */
+// 我的預測
 router.post(
   '/predict_info',
   verification.token,
   require('../controller/user/predictInfoController')
 );
+// 我的預測-刪除注單
 router.delete(
   '/predictions',
   verification.token_v2,
   require('../controller/user/deletePredictsController')
 );
+// 預測結果
 router.get(
   '/prediction_results',
   verification.token_v2,
   require('../controller/user/predictionResultsController')
 );
-// 大神售牌資訊
+// 他人主頁
+router.get(
+  '/others_profile',
+  verification.token_v2,
+  require('../controller/user/othersProfileController')
+);
+// 取售牌資訊
 router.get(
   '/sell_information',
   verification.token_v2,
   require('../controller/user/getGodSellInformationController')
 );
+// 大神編輯售牌資訊
 router.post(
   '/sell_information',
   verification.token_v2,
@@ -166,6 +179,12 @@ router.post(
   verification.token,
   require('../controller/user/favoritePlayerController')
 );
+/* 最愛玩家(刪除) */
+router.delete(
+  '/favorite_player',
+  verification.token,
+  require('../controller/user/favoritePlayerController')
+);
 
 // 結算
 router.post(
@@ -191,4 +210,11 @@ router.post(
   require('../controller/user/settleGodListController')
 );
 
+/* ------------ 個人會員頁 ------------ */
+// 使用者資訊
+router.get(
+  '/profile',
+  verification.token_v2,
+  require('../controller/user/profileController')
+);
 module.exports = router;

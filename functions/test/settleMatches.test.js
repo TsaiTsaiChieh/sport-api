@@ -1,8 +1,6 @@
-const modules = require('../util/modules');
+const { settleSpread, settleTotals, perdictionsResultFlag } = require('../util/modules');
 
-const settleSpread = modules.settleSpread;
-const settleTotals = modules.settleTotals;
-const resultFlag = modules.perdictionsResultFlag;
+const resultFlag = perdictionsResultFlag;
 
 // ======================================================
 // ======================================================
