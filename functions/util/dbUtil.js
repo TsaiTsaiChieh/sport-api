@@ -1208,7 +1208,6 @@ const Topic_DonateArticle = sequelize.define(
 /*
  * 檢舉文章
  */
-// eslint-disable-next-line no-unused-vars
 const Service_ReportTopics = sequelize.define('service__reporttopic', {
   uid: {
     type: Sequelize.STRING,
@@ -1519,7 +1518,9 @@ const dbUtil = {
   Bank,
   Transfer_Status,
   Season,
-  UserFollow
+  UserFollow,
+  Topic_DonateArticle,
+  Service_ReportTopics
 };
 
 module.exports = dbUtil;
