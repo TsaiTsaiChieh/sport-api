@@ -54,6 +54,6 @@ exports.lineConfig = {
   channelSecret: 'e4a91d4e33e26967fa6c267292bd06ec',
   callbackURL: this.indexURL + 'auth/lineLoginHandler'
 };
-exports.betsToken = '48867-w7PbQKLbw1gPDF';
+exports.betsToken = '35388-8IqMa0NK19LJVY';
 exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
 exports.zone_tw = 'Asia/Taipei';
