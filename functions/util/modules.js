@@ -290,7 +290,7 @@ function leagueDecoder(leagueID) {
       return 'KBL';
     case '1298' || 1298:
       return 'JBL';
-    case '225' || 225:
+    case '3939' || 3939:
       return 'MLB';
     case '347' || 347:
       return 'NPB';
