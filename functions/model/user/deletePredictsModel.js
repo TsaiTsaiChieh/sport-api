@@ -209,7 +209,7 @@ function deleteDB(uid, league) {
             AND league_id = '${modules.leagueCodebook(league).id}'`
       );
       console.log(result);
-      
+
       return resolve();
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
