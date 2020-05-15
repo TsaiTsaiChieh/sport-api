@@ -26,7 +26,7 @@ function dbFind(article_id) {
 function chkGodFavorite(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.count({
+      const result = await db.sequelize.models.user__favoriteplayer.count({
         where: {
           uid: uid,
           god_uid: god_uid
@@ -36,7 +36,7 @@ function chkGodFavorite(uid, god_uid) {
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(false);
     }
   });
 }
@@ -53,7 +53,7 @@ function chkArticleFavorite(uid, article_id) {
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(false);
     }
   });
 }
@@ -70,7 +70,7 @@ function chkArticleDonated(uid, article_id) {
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(false);
     }
   });
 }
@@ -86,7 +86,7 @@ function getDonatedCount(article_id) {
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(0);
     }
   });
 }
