@@ -217,4 +217,16 @@ router.get(
   verification.token_v2,
   require('../controller/user/profileController')
 );
+// 獲得大神稱號
+router.get(
+  '/god_league_rank',
+  verification.token,
+  require('../controller/user/getGodLeagueRankController')
+);
+// 更新大神稱號已閱
+router.post(
+  '/god_league_rank_receive',
+  verification.token,
+  require('../controller/user/postGodLeagueRankReceiveController')
+);
 module.exports = router;

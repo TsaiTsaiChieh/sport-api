@@ -45,13 +45,14 @@ const errorCodeLists = {
   13433: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['新增 Create users__win_lists 失敗 資料庫原因錯誤', ''] },
   13440: { msg: ['更新 使用者勝注勝率資料 失敗'], backend: ['更新 Update users__win_lists 失敗 ', ''] },
 
-  13501: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
-  13502: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
-  13503: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 資料庫原因錯誤', ''] },
-  13524: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 異常 筆數不正確，只能一筆才對', ''] },
-  13537: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_LOCK_DEADLOCK', ''] },
-  13538: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 ER_DUP_ENTRY', ''] },
-  13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Title 失敗 資料庫原因錯誤', ''] }
+  13501: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_LOCK_DEADLOCK', ''] },
+  13502: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_DUP_ENTRY', ''] },
+  13503: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
+  13524: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 異常 筆數不正確，只能一筆才對', ''] },
+  13537: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_LOCK_DEADLOCK', ''] },
+  13538: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_DUP_ENTRY', ''] },
+  13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
+  13540: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
 };
 
 function dbErrsMsg(serverCode, backendcode, property = { otherMsg: '', showOrder: 0 }) {
