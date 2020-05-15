@@ -1,7 +1,7 @@
 // const settleMatchesModel = require('../model/user/settleMatchesModel');
 // const modules = require('../util/modules');
 // const db = require('../util/dbUtil');
-
+// const Collection = db.Collection;
 async function inserttest() {
   // await Collection.sync({ force: true });
   // await Collection.upsert({

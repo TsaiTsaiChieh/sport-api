@@ -58,6 +58,9 @@ async function livescore(req, res) {
       league: {
         type: 'string',
         enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
+      },
+      time: {
+        type: 'string'
       }
     }
   };
