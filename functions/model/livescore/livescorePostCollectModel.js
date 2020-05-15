@@ -2,7 +2,7 @@
 const db = require('../../util/dbUtil');
 const Collection = db.Collection;
 function postCollect(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await reResult(args.eventID, args.token);
 
@@ -31,7 +31,7 @@ async function repackage(eventID, token) {
       type: db.sequelize.QueryTypes.SELECT
     }
   );
-  let UID = token.uid;
+  const UID = token.uid;
   if (matchQuery.length > 0) {
     await Collection.upsert({
       bets_id: eventID,

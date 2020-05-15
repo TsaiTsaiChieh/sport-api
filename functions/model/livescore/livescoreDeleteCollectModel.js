@@ -1,7 +1,7 @@
 // const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function postCollect(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await reResult(args.eventID, args.token);
 
@@ -18,17 +18,21 @@ async function reResult(eventID, token) {
   return await Promise.all(result);
 }
 async function repackage(eventID, token) {
-  const mysqlUser = await db.sequelize.query(
-    `
+  try {
+    await db.sequelize.query(
+      `
       DELETE 
         FROM user__collections
        WHERE uid = '${token.uid}' and
        bets_id = ${eventID}
      `,
-    {
-      type: db.sequelize.QueryTypes.DELETE
-    }
-  );
-  return 'Delete OK';
+      {
+        type: db.sequelize.QueryTypes.DELETE
+      }
+    );
+    return 'Delete OK';
+  } catch (err) {
+    console.log(err + ' livescoreDelete by DY');
+  }
 }
 module.exports = postCollect;

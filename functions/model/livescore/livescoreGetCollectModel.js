@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 async function livescore(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await reResult(args.league, args.token);
 
@@ -18,7 +18,7 @@ async function reResult(league, token) {
   return await Promise.all(result);
 }
 async function repackage(league, token) {
-  let leagueID = modules.leagueCodebook(league).id;
+  const leagueID = modules.leagueCodebook(league).id;
 
   const mysqlUser = await db.sequelize.query(
     `
