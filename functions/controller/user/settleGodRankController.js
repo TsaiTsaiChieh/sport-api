@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+// const { ajv } = require('../../util/modules');
 const settleGodRankModel = require('../../model/user/settleGodRankModel');
 
 async function settleGodRank(req, res) {

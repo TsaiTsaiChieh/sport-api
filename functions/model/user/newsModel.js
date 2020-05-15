@@ -19,7 +19,6 @@ function newsModel(method, args, uid) {
         const limit_user = args.limit_user || 10;
         const start_user = page_user * limit_user;
 
-
         /* 系統訊息資料 */
         const delete_id_query = await db.sequelize.query(
           `
@@ -32,11 +31,11 @@ function newsModel(method, args, uid) {
             type: db.sequelize.QueryTypes.SELECT
           }
         );
-        let news_id = [];
+        const news_id = [];
         delete_id_query.forEach(function(ele) {
-            news_id.push(ele.system_id.toString());
+          news_id.push(ele.system_id.toString());
         });
-        
+
         const system = await db.sequelize.query(
           `
           SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
@@ -48,8 +47,8 @@ function newsModel(method, args, uid) {
            LIMIT :start_system, :limit_system
           `,
           {
-            logging:true,
-            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id:news_id.join() },
+            logging: true,
+            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join() },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
