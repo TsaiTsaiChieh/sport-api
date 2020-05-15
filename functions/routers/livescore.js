@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 // const verification = require('../util/verification');
 const router = modules.express.Router();
+const verification = require('../util/verification');
 
 router.get('/livescore/all', require('../controller/livescore/allController'));
 router.get(
@@ -25,14 +26,17 @@ router.get(
 );
 router.get(
   '/livescore/getCollect',
+  verification.token_v2,
   require('../controller/livescore/getCollectController')
 );
 router.post(
   '/livescore/postCollect',
+  verification.token_v2,
   require('../controller/livescore/postCollectController')
 );
 router.post(
   '/livescore/deleteCollect',
+  verification.token_v2,
   require('../controller/livescore/deleteCollectController')
 );
 module.exports = router;

@@ -248,11 +248,7 @@ const Collection = sequelize.define(
     },
     scheduled_tw: {
       type: Sequelize.DATE
-    },
-    sport_id: {
-      type: Sequelize.INTEGER
     }
-    // here
   },
   {
     indexes: [
@@ -1303,20 +1299,17 @@ const Service_Contact = sequelize.define('service__contact', {
 /*
  * 首頁 排行榜預設值
  */
-const Home_List = sequelize.define(
-  'home__list',
-  {
-    god_list: {
-      type: Sequelize.STRING
-    },
-    win_rate_list: {
-      type: Sequelize.STRING
-    },
-    win_bets_list: {
-      type: Sequelize.STRING
-    }
+const Home_List = sequelize.define('home__list', {
+  god_list: {
+    type: Sequelize.STRING
+  },
+  win_rate_list: {
+    type: Sequelize.STRING
+  },
+  win_bets_list: {
+    type: Sequelize.STRING
   }
-);
+});
 
 const Home_Banner = sequelize.define(
   'home__banner', // 不要再動了 拜託!!

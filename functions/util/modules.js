@@ -161,7 +161,7 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
+  snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
@@ -291,7 +291,7 @@ function leagueDecoder(leagueID) {
       return 'KBL';
     case '1298' || 1298:
       return 'JBL';
-    case '225' || 225:
+    case '3939' || 3939:
       return 'MLB';
     case '347' || 347:
       return 'NPB';
@@ -409,9 +409,13 @@ function groupBy(arr, prop) {
 //   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
 function groupsByOrdersLimit(array, prop, order, limit = -1) {
   const groups = {};
-  array.forEach(function(o) {
+  array.forEach(function (o) {
     // 組出 prop 的 json 字串 做為 groups key 值
-    var group = JSON.stringify(prop.map((m) => { return o[m]; }));
+    var group = JSON.stringify(
+      prop.map((m) => {
+        return o[m];
+      })
+    );
     groups[group] = groups[group] || [];
     groups[group].push(o);
   });
@@ -422,12 +426,12 @@ function groupsByOrdersLimit(array, prop, order, limit = -1) {
     o = o.slice(0, limit); // 取幾筆
   }
 
-  return Object.keys(groups).map(function(group) {
+  return Object.keys(groups).map(function (group) {
     const res = {};
     const t = JSON.parse(group); // 把 json 字串 轉回 object
     for (const [key, value] of Object.entries(t)) {
       res[prop[key]] = value;
-    };
+    }
 
     res.lists = groups[group];
     return res;
@@ -535,8 +539,8 @@ function settleSpread(data) {
         : 'fair|away'
       : 'fair2'
     : homePoints - handicap > awayPoints
-      ? 'home'
-      : 'away';
+    ? 'home'
+    : 'away';
 }
 
 /*
@@ -574,8 +578,8 @@ function settleTotals(data) {
         : 'fair|under'
       : 'fair2'
     : homePoints + awayPoints > handicap
-      ? 'over'
-      : 'under';
+    ? 'over'
+    : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
@@ -628,18 +632,32 @@ function predictionsWinList(data) {
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
 
-  rePredictMatchInfo.forEach(function(uids) {
+  rePredictMatchInfo.forEach(function (uids) {
     const reLeagues = groupBy(uids, 'league_id');
 
-    reLeagues.forEach(function(data) {
+    reLeagues.forEach(function (data) {
       // 勝率 winRate
       const predictCorrectCounts =
-        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
-        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag) ? ++acc : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag) ? ++acc : acc,
+          0
+        );
 
       const predictFaultCounts =
-        data.reduce((acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc), 0) +
-        data.reduce((acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc), 0);
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
+          0
+        ) +
+        data.reduce(
+          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
+          0
+        );
 
       // 避免分母是0 平盤無效
       const winRate =
@@ -649,24 +667,36 @@ function predictionsWinList(data) {
 
       // 勝注
       const predictCorrectBets =
-        data.reduce((acc, cur) =>
-          correct.includes(cur.spread_result_flag)
-            ? cur.spread_result_flag * cur.spread_bets : acc
-        , 0) +
-        data.reduce((acc, cur) =>
-          correct.includes(cur.totals_result_flag)
-            ? cur.totals_result_flag * cur.totals_bets : acc
-        , 0);
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            correct.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const predictFaultBets =
-        data.reduce((acc, cur) =>
-          fault.includes(cur.spread_result_flag)
-            ? cur.spread_result_flag * cur.spread_bets : acc
-        , 0) +
-        data.reduce((acc, cur) =>
-          fault.includes(cur.totals_result_flag)
-            ? cur.totals_result_flag * cur.totals_bets : acc
-        , 0);
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.spread_result_flag)
+              ? cur.spread_result_flag * cur.spread_bets
+              : acc,
+          0
+        ) +
+        data.reduce(
+          (acc, cur) =>
+            fault.includes(cur.totals_result_flag)
+              ? cur.totals_result_flag * cur.totals_bets
+              : acc,
+          0
+        );
 
       const winBets = predictCorrectBets + predictFaultBets;
 
@@ -715,8 +745,8 @@ function sliceTeamAndPlayer(name) {
 // rightArr = [1, 2] // 一般使用者, 大神
 async function checkUserRight(memberInfo, rightArr = []) {
   if (memberInfo === null) return errs.errsMsg('404', '1301');
-  if (!(rightArr.includes(memberInfo.status))) return errs.errsMsg('404', '1308');
-  return { };
+  if (!rightArr.includes(memberInfo.status)) return errs.errsMsg('404', '1308');
+  return {};
 }
 
 module.exports = {

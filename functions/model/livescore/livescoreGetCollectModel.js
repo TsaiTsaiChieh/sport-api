@@ -1,13 +1,9 @@
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.time
-      );
+      const result = await reResult(args.league, args.token);
 
       resolve(result);
     } catch (err) {
@@ -16,37 +12,25 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league, UID, time) {
-  const result = await repackage(sport, league, UID, time);
+async function reResult(league, token) {
+  const result = await repackage(league, token);
 
   return await Promise.all(result);
 }
-async function repackage(sport, league, UID, time) {
-  let leagueName;
+async function repackage(league, token) {
+  let leagueID = modules.leagueCodebook(league).id;
 
-  if (league === 'eSoccer') {
-    leagueName = `pagetest_${league}_member`;
-  } else {
-    leagueName = `${sport}_${league}_member`;
-  }
-  const eventData = [];
-
-  const query = await modules.firestore
-    .collection(leagueName)
-    .where('profile.uid', '==', UID)
-    .get();
-
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-  const out = [];
-
-  for (let i = 0; i < Object.keys(eventData[0]).length - 1; i++) {
-    if (time === eventData[0][Object.keys(eventData[0])[i]].scheduled) {
-      out.push(eventData[0][Object.keys(eventData[0])[i]]);
+  const mysqlUser = await db.sequelize.query(
+    `
+      SELECT *
+        FROM user__collections
+       WHERE uid = '${token.uid}' and
+       league_id = '${leagueID}'
+     `,
+    {
+      type: db.sequelize.QueryTypes.SELECT
     }
-  }
-
-  return out;
+  );
+  return mysqlUser;
 }
 module.exports = livescore;

@@ -47,7 +47,7 @@ async function handicap_esport() {
   console.log('handicap_esports success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -59,7 +59,7 @@ async function axiosForURL(URL) {
   });
 }
 async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -90,7 +90,7 @@ async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
   });
 }
 async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -120,7 +120,7 @@ async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
   });
 }
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -135,7 +135,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   });
 }
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -150,7 +150,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
   });
 }
 async function write2firestoreAboutSpread(eventSnapshot, odd) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const spread = {};
     spread[odd.id] = {
       handicap: Number.parseFloat(odd.handicap),
@@ -178,7 +178,7 @@ async function write2firestoreAboutSpread(eventSnapshot, odd) {
   });
 }
 async function write2MysqlOfMatchSpread(odd, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
@@ -202,7 +202,7 @@ async function write2MysqlOfMatchSpread(odd, ele) {
   });
 }
 async function write2MysqlOfMatchTotals(odd, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
@@ -225,7 +225,7 @@ async function write2MysqlOfMatchTotals(odd, ele) {
   });
 }
 async function write2firestoreAboutTotals(eventSnapshot, odd) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const totals = {};
     totals[odd.id] = {
       handicap: Number.parseFloat(odd.handicap),
@@ -252,7 +252,7 @@ async function write2firestoreAboutTotals(eventSnapshot, odd) {
   });
 }
 async function updateHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -308,7 +308,7 @@ async function updateHandicap(league, ele) {
   });
 }
 async function query_opening(flag, value, league) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const eventsRef = modules.firestore.collection(league);
     const eles = [];
     try {
@@ -316,7 +316,7 @@ async function query_opening(flag, value, league) {
         .where(flag, '==', value)
         .where('scheduled', '>', modules.moment() / 1000)
         .get();
-      querys.forEach(function(docs) {
+      querys.forEach(function (docs) {
         eles.push(docs.data());
       });
       return resolve(await Promise.all(eles));
@@ -334,7 +334,7 @@ async function write2firestoreAboutAllSpread(
   spread,
   spreadData
 ) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -355,7 +355,7 @@ async function write2firestoreAboutAllSpread(
   });
 }
 async function query_handicap(flag, value, leagues) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const date = modules.moment();
     const eles = [];
     const eventsRef = modules.firestore.collection(leagues);
@@ -368,7 +368,7 @@ async function query_handicap(flag, value, leagues) {
         .where('scheduled', '>=', beginningDate / 1000)
         .where('scheduled', '<=', endDate / 1000)
         .get();
-      querys.forEach(async function(docs) {
+      querys.forEach(async function (docs) {
         eles.push(docs.data());
       });
       return resolve(await Promise.all(eles));
@@ -382,7 +382,7 @@ async function query_handicap(flag, value, leagues) {
   });
 }
 async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -397,7 +397,7 @@ async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
   });
 }
 async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: spreadData.id,
@@ -421,7 +421,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
   });
 }
 async function getHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -471,7 +471,7 @@ async function write2firestoreAboutAllTotals(
   totals,
   totalsData
 ) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -492,7 +492,7 @@ async function write2firestoreAboutAllTotals(
   });
 }
 async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -509,7 +509,7 @@ async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
   });
 }
 async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: totalsData.id,
@@ -532,7 +532,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
   });
 }
 async function getTotals(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -593,27 +593,23 @@ function spreadCalculator(handicapObj) {
       // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0 && secondHandicap >= 0) {
         // 顯示在主隊區，代表主讓
-        handicapObj.home_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
       }
     }
   } else {
@@ -622,44 +618,44 @@ function spreadCalculator(handicapObj) {
 
     if (handicapObj.handicap === 0) {
       // 讓 0 分
-      handicapObj.home_tw = 'pk(0+0)';
+      handicapObj.home_tw = 'pk';
       handicapObj.away_tw = null;
     } else if (handicapObj.handicap % 1 === 0) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = '讓 ' + handicapObj.handicap + ' 分';
+        handicapObj.home_tw = handicapObj.handicap;
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+        handicapObj.away_tw = Math.abs(handicapObj.handicap);
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
         if (handicapObj.handicap === 0.25) {
-          handicapObj.home_tw = '讓 0/0.5 分';
+          handicapObj.home_tw = '0/0.5';
           handicapObj.away_tw = null;
         } else if (handicapObj.handicap === 0.75) {
-          handicapObj.home_tw = '讓 0.5/1 分';
+          handicapObj.home_tw = '0.5/1';
           handicapObj.away_tw = null;
         } else {
-          handicapObj.home_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+          handicapObj.home_tw = Math.abs(handicapObj.handicap);
           handicapObj.away_tw = null;
         }
       } else {
         // 放在客隊區
         if (handicapObj.handicap === -0.25) {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 0/0.5 分';
+          handicapObj.away_tw = '0/0.5';
         } else if (handicapObj.handicap === -0.75) {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 0.5/1 分';
+          handicapObj.away_tw = '0.5/1';
         } else {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+          handicapObj.away_tw = Math.abs(handicapObj.handicap);
         }
       }
     }
@@ -667,7 +663,7 @@ function spreadCalculator(handicapObj) {
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {
-  handicapObj.over_tw = `${handicapObj.handicap} 分`;
+  handicapObj.over_tw = `${handicapObj.handicap}`;
   return handicapObj;
 }
 module.exports = handicap_esport;
