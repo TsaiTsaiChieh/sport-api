@@ -1002,7 +1002,7 @@ const UserFollow = sequelize.define(
  * 最愛大神
  */
 const User_FavoriteGod = sequelize.define(
-  'user__favoritegod',
+  'user__favoriteplayer',
   {
     uid: {
       type: Sequelize.STRING,

@@ -1,7 +1,10 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/user/favoriteGodModel');
+const model = require('../../model/user/setFavoritePlayerModel');
+const types = require('../topics/types');
 async function favoriteGod(req, res) {
+  const league = types.getLeague();
+  league.push(null);
   const schema = {
     type: 'object',
     properties: {
@@ -9,10 +12,20 @@ async function favoriteGod(req, res) {
         type: 'string'
       },
       add: {
-        type: 'array'
+        type: 'array',
+        uniqueItems: true,
+        items: {
+          type: 'string',
+          enum: league
+        }
       },
       remove: {
-        type: 'array'
+        type: 'array',
+        uniqueItems: true,
+        items: {
+          type: 'string',
+          enum: league
+        }
       }
     },
     required: ['god_uid']

@@ -22,9 +22,9 @@ router.post(
   require('../controller/user/accuseUser')
 );
 router.post(
-  '/favoriteGod',
+  '/setFavoritePlayer',
   verification.token,
-  require('../controller/user/favoriteGodController')
+  require('../controller/user/setFavoritePlayerController')
 );
 router.get(
   '/getFavoriteGod/:god_uid',
