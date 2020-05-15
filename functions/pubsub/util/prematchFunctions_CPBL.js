@@ -1,17 +1,16 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'baseball_KBO';
+const firebaseName = 'baseball_CPBL';
 const Match = db.Match;
-const leagueUniteID = '349';
-const leagueUniteName = 'KBO';
+const leagueUniteID = '11235';
+const leagueUniteName = 'CPBL';
 const sportID = 16;
-module.exports.KBO = {};
-module.exports.KBO.upcoming = async function(date) {
+module.exports.CPBL = {};
+module.exports.CPBL.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
-      const leagueID = 349;
-
+      const leagueID = 11235;
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
       if (data.results) {
@@ -25,7 +24,7 @@ module.exports.KBO.upcoming = async function(date) {
       } else {
         console.log(leagueID + 'has no upcoming event now');
       }
-      console.log('KBO scheduled success');
+      console.log('CPBL scheduled success');
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -46,6 +45,7 @@ async function axiosForURL(URL) {
     }
   });
 }
+
 async function write2firestore(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -67,7 +67,7 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`baseball/KBO/${ele.id}/Summary/status`)
+        .ref(`baseball/CPBL/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
@@ -106,7 +106,7 @@ async function write2MysqlOfMatch(ele) {
 }
 
 function repackage_bets(ele) {
-  const leagueCH = '韓國職棒';
+  const leagueCH = '中華職棒';
 
   return {
     update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),

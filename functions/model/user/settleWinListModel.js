@@ -4,6 +4,7 @@ const {
   convertTimezone, getTitlesPeriod, moment, checkUserRight,
   predictionsWinList
 } = require('../../util/modules');
+const { getSeason } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -38,7 +39,7 @@ async function settleWinList(args) {
   //    先用 sql 計算出來後，之後採用 redis 快取，避免 db 大量計算，如果改用定期計算，會員多時，會對 db 有大量寫入問題
 
   // 跨年賽季
-  // 目前使用 leagueCodebook('NBA').seasonYear 會取得該 賽季年
+  // 目前使用 getSeason('2274') 會取得該 賽季年
   // 如果從資料庫取出為 league_id 時，先使用 leagueDecoder 再傳入 leagueCodebook
   // 例： leagueCodebook(leagueDecoder('2274'))
 
@@ -50,13 +51,13 @@ async function settleWinList(args) {
   const tp = getTitlesPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;
-  const dayOfYear = moment(begin * 1000).format('DDD'); // 日期是 一年中的第幾天
+  const dayOfYear = toNumber(moment(begin * 1000).format('DDD')); // 日期是 一年中的第幾天
   const week = moment(begin * 1000).week();
   const momentObject = moment(begin * 1000).toObject();
   const month = momentObject.months + 1;
 
   // !!!! 這個有可能產生跨年賽季問題
-  const season = momentObject.years;
+  // const season = momentObject.years; // 改成底下取得 league_id 時，從 getSeason(league_id) 取得
 
   const result = {
     status: {
@@ -123,6 +124,7 @@ async function settleWinList(args) {
   for (const data of resultWinList) {
     let r = {};
     let err, winListsHistory, created, tt;
+    const season = await getSeason(data.league_id);
 
     try {
       [err, [winListsHistory, created]] = await to(db.Users_WinListsHistory.findOrCreate({
@@ -178,6 +180,7 @@ async function settleWinList(args) {
   for (const data of resultWinList) {
     const uid = data.uid;
     const league_id = data.league_id;
+    const season = await getSeason(data.league_id);
 
     const allTotalCount = await winBetsRateTotalCount(uid, league_id,
       dayOfYear, week, month, season, period);
@@ -277,7 +280,7 @@ async function settleWinList(args) {
   }
 
   const e = new Date().getTime();
-  console.log('settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms',
+  console.log(`${colors.bg.Blue}${colors.fg.Crimson}settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
   return result;
 }
@@ -305,13 +308,18 @@ async function winBetsRateTotalCount(uid, league_id,
     type: db.sequelize.QueryTypes.SELECT
   });
 
+  d('\n');
+  d(`${colors.fg.Green} %o %o %o ${colors.Reset}`, uid, league_id, season);
+  d(`${colors.fg.Magenta} day_of_year: %o  week: %o  period: %o  week_of_period: %o  month: %o${colors.Reset}`,
+    day_of_year, week, period, week_of_period, month);
+
   return {
-    sum_day_of_year: groupSum(uid_league_histories, { day_of_year: day_of_year }, needSumFileld).day_of_year,
-    sum_week: groupSum(uid_league_histories, { week: week }, needSumFileld).week,
-    sum_month: groupSum(uid_league_histories, { month: month }, needSumFileld).month,
-    sum_period: groupSum(uid_league_histories, { period: period }, needSumFileld).period,
-    sum_week1_of_period: groupSum(uid_league_histories, { week_of_period: week_of_period, period: period }, needSumFileld).week_of_period,
-    sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld).season
+    sum_day_of_year: groupSum(uid_league_histories, { day_of_year: day_of_year }, needSumFileld),
+    sum_week: groupSum(uid_league_histories, { week: week }, needSumFileld),
+    sum_month: groupSum(uid_league_histories, { month: month }, needSumFileld),
+    sum_period: groupSum(uid_league_histories, { period: period }, needSumFileld),
+    sum_week1_of_period: groupSum(uid_league_histories, { week_of_period: week_of_period, period: period }, needSumFileld),
+    sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld)
   };
 }
 
@@ -324,7 +332,7 @@ async function winBetsRateTotalCount(uid, league_id,
 //   { period: { win_bets: -1.5, correct_counts: 0, fault_counts: 1 } }
 //   { week_of_period: { win_bets: -1.5, correct_counts: 0, fault_counts: 1 } }
 function groupSum(arr, filterField, groupByField) {
-  // 先進行過瀘
+  // 先進行過瀘 // 例： {week1_of_period: 1, period: 115} 符合這個值的才往下處理
   const filtered_arr = arr.filter(function(item) {
     for (var key in filterField) {
       if (item[key] === undefined || item[key] !== filterField[key]) {return false;}
@@ -333,35 +341,36 @@ function groupSum(arr, filterField, groupByField) {
   });
 
   // 回傳欄位 只取第一個過瀘值，故要唯一值
-  const name = Object.keys(filterField)[0]; // filterField key
-  const value = Object.values(filterField)[0]; // filterField value
+  const sumName = Object.keys(filterField)[0]; // filterField key // 例：week_of_period
+  const sumValue = Object.values(filterField)[0]; // filterField value // 例：1
 
   // 準備初始化格式 避免過瀘後沒有資料筆數產生 空{} 問題
-  const initCounts = { [name]: {} };
-  groupByField.forEach((key) => {
-    initCounts[name][key] = 0;
+  const initCounts = { [sumName]: {} }; // 例： { week_of_period: {} }
+  groupByField.forEach((key) => { // 例：{ week_of_period: { win_bets: 0, correct_counts: 0, fault_counts: 0 } }
+    initCounts[sumName][key] = 0;
   });
-  if (filtered_arr.length === 0) return initCounts;
+  if (filtered_arr.length === 0) return initCounts[sumName]; // 過瀘後沒有筆數的話，直接回傳 初始結構
 
-  d('Filter: %o %o ', name, value);
+  // 開始處理
+  d('\n');
+  d(`${colors.fg.Magenta}Filter: %o %o ${colors.Reset}`, sumName, sumValue);
   const counts = filtered_arr.reduce((p, c) => {
-    if (!Object.prototype.hasOwnProperty.call(p, name)) { // 初始化欄位
+    if (!Object.prototype.hasOwnProperty.call(p, sumName)) { // 初始化欄位
       p = initCounts;
-      d(' %o %o ', c.uid, c.league_id);
+      // d(`${colors.fg.Green} %o %o ${colors.Reset}`, c.uid, c.league_id);
     }
 
-    if (c[name] === value) { // 進行累計
-      d('  %o uid_league_histories id ', c.id);
+    if (c[sumName] === sumValue) { // 進行累計
+      d(`${colors.fg.Yellow}  %o uid_league_histories id ${colors.Reset}`, c.id);
       groupByField.forEach((key) => {
-        p[name][key] += c[key];
-        d('    GroupBy: %o Sum: %o BeSum: %o', key, p[name][key], c[key]);
+        p[sumName][key] += c[key];
+        d('    GroupBy: %o Sum: %o BeSum: %o', key, p[sumName][key], c[key]);
       });
     }
 
     return p;
   }, {});
-
-  return counts;
+  return counts[sumName];
   // const countsExtended = Object.keys(counts).map(k => {
   //   return {name: k, count: counts[k]}; });
 }
@@ -375,7 +384,41 @@ function numberCount(num1, num2, f = 2) {
     ).toFixed(f);
 }
 
+// https://1loc.dev/
+const toNumber = str => +str;
 const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
 function isNotANumber(inputData) {return !isNumber(inputData);}
+
+const colors = {
+  Reset: '\x1b[0m',
+  Bright: '\x1b[1m',
+  Dim: '\x1b[2m',
+  Underscore: '\x1b[4m',
+  Blink: '\x1b[5m',
+  Reverse: '\x1b[7m',
+  Hidden: '\x1b[8m',
+  fg: {
+    Black: '\x1b[30m',
+    Red: '\x1b[31m',
+    Green: '\x1b[32m',
+    Yellow: '\x1b[33m',
+    Blue: '\x1b[34m',
+    Magenta: '\x1b[35m',
+    Cyan: '\x1b[36m',
+    White: '\x1b[37m',
+    Crimson: '\x1b[38m' // القرمزي
+  },
+  bg: {
+    Black: '\x1b[40m',
+    Red: '\x1b[41m',
+    Green: '\x1b[42m',
+    Yellow: '\x1b[43m',
+    Blue: '\x1b[44m',
+    Magenta: '\x1b[45m',
+    Cyan: '\x1b[46m',
+    White: '\x1b[47m',
+    Crimson: '\x1b[48m'
+  }
+};
 
 module.exports = settleWinList;

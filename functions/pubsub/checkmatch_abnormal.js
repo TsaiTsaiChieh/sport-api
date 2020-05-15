@@ -21,8 +21,10 @@ async function checkmatch_abnormal() {
         data.forEach((doc) => {
           totalData.push(doc.data());
         });
+
         for (let i = 0; i < totalData.length; i++) {
           const betsID = totalData[i].bets_id;
+
           const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
           const parameterPBP = {
             betsID: betsID,
@@ -65,6 +67,7 @@ async function doPBP(parameter) {
     const firestoreName = parameter.firestoreName;
     try {
       const data = await axiosForURL(pbpURL);
+
       if (data.results[0]) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {

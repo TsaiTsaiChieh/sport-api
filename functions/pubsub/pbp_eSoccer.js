@@ -4,17 +4,17 @@ const firestoreName = 'pagetest_eSoccer';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
-// 12 秒一次
-const perStep = 12000;
-// 一分鐘4次
-const timesPerLoop = 4;
-let timerForStatus2;
+
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
+  // 12 秒一次
+  const perStep = 12000;
+  // 一分鐘4次
+  const timesPerLoop = 4;
   const betsID = parameter.betsID;
   const realtimeData = parameter.realtimeData;
   let countForStatus2 = 0;
-  timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function() {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -195,7 +195,9 @@ async function ESoccerpbpHistory(parameter) {
         });
       } catch (err) {
         return reject(
-          new AppErrors.PBPEsoccerError(`${err} at pbpESoccer of yuhsien by DY`)
+          new AppErrors.PBPEsoccerError(
+            `${err} at pbpESoccer of yuhsien on ${betsID} by DY`
+          )
         );
       }
     } catch (err) {

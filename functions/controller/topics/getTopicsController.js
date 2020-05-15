@@ -3,23 +3,22 @@ const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/getTopicsModel');
 const types = require('./types');
 async function getTopics(req, res) {
-  const type = types.getType();
-  type.push(null);
+  const league = types.getLeague();
+  league.push(null);
   const category = types.getCategory();
   category.push(null);
-
   const schema = {
     type: 'object',
     properties: {
       uid: {
         type: ['string', 'null']
       },
-      type: {
+      league: {
         type: ['string', 'null'],
-        enum: type
+        enum: league
       },
       category: {
-        type: ['string', 'null'],
+        type: ['integer', 'null'],
         enum: category
       },
       count: {
@@ -43,7 +42,11 @@ async function getTopics(req, res) {
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    const ajv_errs = [];
+    for (let i = 0; i < modules.ajv.errors.length; i++) {
+      ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
+    }
+    res.status(400).json({ code: 400, error: 'schema not acceptable', message: ajv_errs });
     return;
   }
   req.body.token = req.token;

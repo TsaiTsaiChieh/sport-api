@@ -86,9 +86,7 @@ function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      console.log(err);
-
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -116,9 +114,9 @@ function isHandicapExist(args, i, filter) {
       const result = await db.sequelize.query(
         `SELECT * 
            FROM user__predictions
-          WHERE uid = "${args.token.uid}"
+          WHERE uid = '${args.token.uid}'
             AND bets_id = :id
-            AND ${handicapType}_id = "${handicapId}"
+            AND ${handicapType}_id = '${handicapId}'
             AND sell = ${NORMAL_USER_SELL}
             AND league_id = ${modules.leagueCodebook(args.league).id}`,
         {
@@ -136,7 +134,7 @@ function isHandicapExist(args, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -174,9 +172,9 @@ function updateFromDB(args, filter) {
           const result = await db.sequelize.query(
             `UPDATE user__predictions
               SET ${handicapType}_id = NULL, ${handicapType}_bets = NULL, ${handicapType}_option = NULL
-            WHERE ${handicapType}_id = "${handicapId}"
+            WHERE ${handicapType}_id = '${handicapId}'
               AND bets_id = :id
-              AND uid = "${args.token.uid}"`,
+              AND uid = '${args.token.uid}'`,
             {
               type: db.sequelize.QueryTypes.UPDATE,
               replacements: { id: ele.id }
@@ -194,8 +192,7 @@ function updateFromDB(args, filter) {
       }
       return resolve(filter);
     } catch (err) {
-      console.log(err);
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -205,12 +202,12 @@ function deleteDB() {
     try {
       await db.sequelize.query(
         `DELETE 
-          FROM user__predictions 
-         WHERE CONCAT(spread_id, totals_id) IS NULL`
+           FROM user__predictions 
+    WHERE CONCAT(spread_id, totals_id) IS NULL`
       );
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }

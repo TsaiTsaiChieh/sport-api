@@ -579,33 +579,41 @@ async function getTotals(league, ele) {
 }
 function spreadCalculator(handicapObj) {
   handicapObj.handicap = handicapObj.handicap.toString();
-
+  // 盤口要改0513
   if (handicapObj.handicap.indexOf(',') !== -1) {
     // 同時有兩個盤口值
-    const firstHandicap = parseFloat(handicapObj.handicap.split(',')[0]);
-    const secondHandicap = parseFloat(handicapObj.handicap.split(',')[1]);
+    const firstHandicap = Math.abs(
+      parseFloat(handicapObj.handicap.split(',')[0])
+    );
+    const secondHandicap = Math.abs(
+      parseFloat(handicapObj.handicap.split(',')[1])
+    );
 
     if (firstHandicap % 1 !== 0) {
       // 第一盤口為小數，則顯示為+
-      if (firstHandicap >= 0) {
+      if (firstHandicap >= 0 && secondHandicap >= 0) {
         // 顯示在主隊區，代表主讓
-        handicapObj.home_tw = '讓' + secondHandicap + '+50%';
+        handicapObj.home_tw =
+          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '讓' + Math.abs(secondHandicap) + '+50%';
+        handicapObj.away_tw =
+          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw = '讓' + firstHandicap + '-50%';
+        handicapObj.home_tw =
+          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '讓' + Math.abs(firstHandicap) + '-50%';
+        handicapObj.away_tw =
+          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
       }
     }
   } else {
@@ -620,46 +628,46 @@ function spreadCalculator(handicapObj) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = '讓' + handicapObj.handicap + '平';
+        handicapObj.home_tw = '讓 ' + handicapObj.handicap + ' 分';
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '讓' + Math.abs(handicapObj.handicap) + '平';
+        handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw =
-          '讓' + Math.floor(Math.abs(handicapObj.handicap)) + '輸';
-        handicapObj.away_tw = null;
+        if (handicapObj.handicap === 0.25) {
+          handicapObj.home_tw = '讓 0/0.5 分';
+          handicapObj.away_tw = null;
+        } else if (handicapObj.handicap === 0.75) {
+          handicapObj.home_tw = '讓 0.5/1 分';
+          handicapObj.away_tw = null;
+        } else {
+          handicapObj.home_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+          handicapObj.away_tw = null;
+        }
       } else {
         // 放在客隊區
-        handicapObj.home_tw = null;
-        handicapObj.away_tw =
-          '讓' + Math.ceil(Math.abs(handicapObj.handicap)) + '輸';
+        if (handicapObj.handicap === -0.25) {
+          handicapObj.home_tw = null;
+          handicapObj.away_tw = '讓 0/0.5 分';
+        } else if (handicapObj.handicap === -0.75) {
+          handicapObj.home_tw = null;
+          handicapObj.away_tw = '讓 0.5/1 分';
+        } else {
+          handicapObj.home_tw = null;
+          handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+        }
       }
     }
   }
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {
-  if (
-    handicapObj.over_odd === handicapObj.under_odd ||
-    handicapObj.handicap % 1 !== 0
-  ) {
-    handicapObj.over_tw = `${handicapObj.handicap}`;
-  } else if (
-    handicapObj.handicap % 1 === 0 &&
-    handicapObj.over_odd !== handicapObj.under_odd
-  ) {
-    if (handicapObj.over_odd > handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} +50%`;
-    } else if (handicapObj.over_odd < handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} -50%`;
-    }
-  }
+  handicapObj.over_tw = `${handicapObj.handicap} 分`;
   return handicapObj;
 }
 module.exports = handicap_esport;
