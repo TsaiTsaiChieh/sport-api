@@ -10,19 +10,19 @@ async function createTopic(req, res) {
   //   title: title,
   //   content: content,
   // },
-  const type = types.getType();
+  const league = types.getLeague();
   const category = types.getCategory();
 
   const schema = {
     type: 'object',
-    required: ['category', 'type', 'title', 'content'],
+    required: ['category', 'league', 'title', 'content'],
     properties: {
-      type: {
+      league: {
         type: 'string',
-        enum: type
+        enum: league
       },
       category: {
-        type: 'string',
+        type: 'integer',
         enum: category
       },
       title: {
@@ -38,7 +38,11 @@ async function createTopic(req, res) {
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    const ajv_errs = [];
+    for (let i = 0; i < modules.ajv.errors.length; i++) {
+      ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
+    }
+    res.status(400).json({ code: 400, error: 'schema not acceptable', message: ajv_errs });
     return;
   }
   req.body.token = req.token;

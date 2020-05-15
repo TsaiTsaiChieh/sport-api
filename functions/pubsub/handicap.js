@@ -7,18 +7,26 @@ const leagues = [
   // modules.db.basketball_NBA,
   // modules.db.basketball_SBL,
   // modules.db.baseball_MLB
-  modules.db.baseball_KBO
+  modules.db.baseball_KBO,
+  modules.db.baseball_CPBL
 ];
 const sports = [
   // 18,
   // 18,
   // 16,
+  16,
   16
+];
+const leagueUniteIDArray = [
+  // 2274
+  // 8251
+  // 225
+  349,
+  11235
 ];
 const Match = db.Match;
 const MatchSpread = db.Spread;
 const MatchTotals = db.Totals;
-const leagueUniteID = '349';
 // 記得要加兩組索引 (flag.spread, scheduled), (flag.totals, scheduled)
 async function handicap() {
   // go through each league
@@ -39,22 +47,42 @@ async function handicap() {
 
     if (querysSpread.length) {
       for (let j = 0; j < querysSpread.length; j++) {
-        await getHandicap(leagues[i], querysSpread[j], sports[i]);
+        await getHandicap(
+          leagues[i],
+          querysSpread[j],
+          sports[i],
+          leagueUniteIDArray[i]
+        );
       }
     }
     if (querysTotals.length) {
-      for (let j = 0; j < querysTotals.length; j++) {
-        await getTotals(leagues[i], querysTotals[j], sports[i]);
+      for (let k = 0; k < querysTotals.length; k++) {
+        await getTotals(
+          leagues[i],
+          querysTotals[k],
+          sports[i],
+          leagueUniteIDArray[i]
+        );
       }
     }
     if (querysSpreadOpening.length) {
-      for (let j = 0; j < querysSpreadOpening.length; j++) {
-        await updateHandicap(leagues[i], querysSpreadOpening[j], sports[i]);
+      for (let l = 0; l < querysSpreadOpening.length; l++) {
+        await updateHandicap(
+          leagues[i],
+          querysSpreadOpening[l],
+          sports[i],
+          leagueUniteIDArray[i]
+        );
       }
     }
     if (querysTotalsOpening.length) {
-      for (let j = 0; j < querysTotalsOpening.length; j++) {
-        await updateHandicap(leagues[i], querysTotalsOpening[j], sports[i]);
+      for (let m = 0; m < querysTotalsOpening.length; m++) {
+        await updateHandicap(
+          leagues[i],
+          querysTotalsOpening[m],
+          sports[i],
+          leagueUniteIDArray[i]
+        );
       }
     }
   }
@@ -187,7 +215,7 @@ async function write2firestoreAboutSpread(eventSnapshot, odd) {
     }
   });
 }
-async function write2MysqlOfMatchSpread(odd, ele) {
+async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
@@ -209,7 +237,7 @@ async function write2MysqlOfMatchSpread(odd, ele) {
     }
   });
 }
-async function write2MysqlOfMatchTotals(odd, ele) {
+async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
@@ -255,7 +283,7 @@ async function write2firestoreAboutTotals(eventSnapshot, odd) {
     }
   });
 }
-async function updateHandicap(league, ele, sport) {
+async function updateHandicap(league, ele, sport, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -290,7 +318,7 @@ async function updateHandicap(league, ele, sport) {
         odd = spreadCalculator(odd);
         if (odd.home_od && odd.handicap && odd.away_od) {
           await write2firestoreAboutSpread(eventSnapshot, odd);
-          await write2MysqlOfMatchSpread(odd, ele);
+          await write2MysqlOfMatchSpread(odd, ele, leagueUniteID);
         }
       }
       for (let i = 0; i < totals_odds.length; i++) {
@@ -298,7 +326,7 @@ async function updateHandicap(league, ele, sport) {
         odd = totalsCalculator(odd);
         if (odd.over_od && odd.handicap && odd.under_od) {
           await write2firestoreAboutTotals(eventSnapshot, odd);
-          await write2MysqlOfMatchTotals(odd, ele);
+          await write2MysqlOfMatchTotals(odd, ele, leagueUniteID);
         }
       }
       return resolve('ok');
@@ -319,7 +347,7 @@ async function query_opening(flag, value, league) {
       querys.forEach(function(docs) {
         eles.push(docs.data());
       });
-      return await Promise.all(eles);
+      return resolve(Promise.all(eles));
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
     }
@@ -366,6 +394,7 @@ async function query_handicap(flag, value, leagues) {
     querys.forEach(async function(docs) {
       eles.push(docs.data());
     });
+
     return await Promise.all(eles);
   } catch (error) {
     console.error(
@@ -390,7 +419,11 @@ async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
     }
   });
 }
-async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
+async function write2MysqlOfMatchSpreadAboutAllSpread(
+  ele,
+  spreadData,
+  leagueUniteID
+) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
@@ -412,7 +445,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
     }
   });
 }
-async function getHandicap(league, ele, sport) {
+async function getHandicap(league, ele, sport, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -447,7 +480,11 @@ async function getHandicap(league, ele, sport) {
               spreadData
             );
             await write2MysqlOfMatchAboutAllSpread(ele, spreadData);
-            await write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData);
+            await write2MysqlOfMatchSpreadAboutAllSpread(
+              ele,
+              spreadData,
+              leagueUniteID
+            );
           }
         }
       }
@@ -499,7 +536,11 @@ async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
     }
   });
 }
-async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
+async function write2MysqlOfMatchTotalsAboutAllTotals(
+  ele,
+  totalsData,
+  leagueUniteID
+) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
@@ -522,7 +563,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
     }
   });
 }
-async function getTotals(league, ele, sport) {
+async function getTotals(league, ele, sport, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -552,7 +593,11 @@ async function getTotals(league, ele, sport) {
               totalsData
             );
             await write2MysqlOfMatchAboutAllTotals(ele, totalsData);
-            await write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData);
+            await write2MysqlOfMatchTotalsAboutAllTotals(
+              ele,
+              totalsData,
+              leagueUniteID
+            );
           }
         }
       }

@@ -117,7 +117,6 @@ async function getTopics(args) {
       for (let i = 0; i < topics.length; i++) { // 把拿到的userinfo塞回去
         let replyCount = repliesCount.filter(obj => obj.article_id === topics[i].article_id); // 處理留言數 把aid=id的那則挑出來
         replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        console.log(repliesCount);
         topics[i].reply_count = replyCount;
         let likeCount = likesCount.filter(obj => obj.article_id === topics[i].article_id); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0

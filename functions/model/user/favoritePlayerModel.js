@@ -8,10 +8,23 @@ function favoritePlayerModel(args) {
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
-        SELECT uf.god_uid as uid, u.avatar, u.display_name, uf.type, ROUND(uwl.this_month_win_bets, 2) as this_month_win_bets, ROUND(uwl.this_month_win_rate, 2) as this_month_win_rate
-          FROM user__favoritegods uf, users__win__lists uwl, users u
-         WHERE uf.god_uid = uwl.uid
-           AND u.uid = uf.uid
+        SELECT uf.god_uid as god_uid, 
+               u.avatar, 
+               u.display_name, 
+               uf.league,
+               (
+                 SELECT ROUND(uwl.this_month_win_bets, 2)
+                   FROM users__win__lists uwl
+                  WHERE uf.god_uid = uwl.uid
+               ) as this_month_win_bets,
+               (
+                 SELECT ROUND(uwl.this_month_win_rate, 2) 
+                   FROM users__win__lists uwl
+                  WHERE uf.god_uid = uwl.uid
+               ) as this_month_win_rate 
+          FROM user__favoritegods uf, 
+               users u
+         WHERE u.uid = uf.uid
            AND uf.uid=$uid
          `,
         {
