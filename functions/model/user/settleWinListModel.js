@@ -4,6 +4,7 @@ const {
   convertTimezone, getTitlesPeriod, moment, checkUserRight,
   predictionsWinList
 } = require('../../util/modules');
+const { getSeason } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -38,7 +39,7 @@ async function settleWinList(args) {
   //    先用 sql 計算出來後，之後採用 redis 快取，避免 db 大量計算，如果改用定期計算，會員多時，會對 db 有大量寫入問題
 
   // 跨年賽季
-  // 目前使用 leagueCodebook('NBA').seasonYear 會取得該 賽季年
+  // 目前使用 getSeason('2274') 會取得該 賽季年
   // 如果從資料庫取出為 league_id 時，先使用 leagueDecoder 再傳入 leagueCodebook
   // 例： leagueCodebook(leagueDecoder('2274'))
 
@@ -56,7 +57,7 @@ async function settleWinList(args) {
   const month = momentObject.months + 1;
 
   // !!!! 這個有可能產生跨年賽季問題
-  const season = momentObject.years;
+  // const season = momentObject.years; // 改成底下取得 league_id 時，從 getSeason(league_id) 取得
 
   const result = {
     status: {
@@ -123,6 +124,7 @@ async function settleWinList(args) {
   for (const data of resultWinList) {
     let r = {};
     let err, winListsHistory, created, tt;
+    const season = await getSeason(data.league_id);
 
     try {
       [err, [winListsHistory, created]] = await to(db.Users_WinListsHistory.findOrCreate({
@@ -178,6 +180,7 @@ async function settleWinList(args) {
   for (const data of resultWinList) {
     const uid = data.uid;
     const league_id = data.league_id;
+    const season = await getSeason(data.league_id);
 
     const allTotalCount = await winBetsRateTotalCount(uid, league_id,
       dayOfYear, week, month, season, period);

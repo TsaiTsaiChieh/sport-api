@@ -1008,7 +1008,7 @@ const User_FavoriteGod = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: {
+    league: {
       type: Sequelize.STRING,
       allowNull: false
     }
@@ -1037,14 +1037,14 @@ const Topic_Article = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: {
+    league: {
       // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false
     },
     category: {
       // 文章分類
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     title: {
@@ -1078,7 +1078,7 @@ const Topic_Article = sequelize.define(
   {
     indexes: [
       {
-        fields: ['article_id', 'uid', 'type', 'category']
+        fields: ['article_id', 'uid', 'league', 'category']
       }
     ]
   }

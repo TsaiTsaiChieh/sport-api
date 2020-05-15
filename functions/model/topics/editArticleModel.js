@@ -63,7 +63,7 @@ async function createTopic(args) {
       }
       // console.log(orig_article);
       const insertData = {
-        type: args.type,
+        league: args.league,
         category: args.category,
         title: args.title
       };

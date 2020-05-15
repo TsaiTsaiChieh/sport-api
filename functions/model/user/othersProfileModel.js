@@ -26,7 +26,7 @@ function getUserFollowsData(userUid, othersUid) {
         {
           where: { uid: userUid, god_uid: othersUid },
           raw: true,
-          attributes: ['type']
+          attributes: ['league']
         });
       return resolve(results);
     } catch (err) {
