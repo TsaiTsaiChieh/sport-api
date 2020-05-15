@@ -217,7 +217,19 @@ router.get(
   verification.token_v2,
   require('../controller/user/profileController')
 );
-// 獲得大神稱號
+// 顯示 所有聯盟 + 稱號（稱號 (鑽金銀銅 Rank) + 預設成就(近幾過幾)
+router.get(
+  '/god_league_rank_default_title',
+  verification.token,
+  require('../controller/user/getGodLeagueRankDefaultTitleController')
+);
+// 變更 顯示稱號（稱號 (鑽金銀銅 Rank) + 成就(近幾過幾)）
+router.post(
+  '/god_league_rank_set_default_rank',
+  verification.token,
+  require('../controller/user/postGodLeagueRankSetDefaultRankController')
+);
+// 查詢大神稱號
 router.get(
   '/god_league_rank',
   verification.token,
