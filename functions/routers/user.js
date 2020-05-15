@@ -205,9 +205,9 @@ router.post(
 
 /* 大神結算 */
 router.post(
-  '/settle_god_list',
+  '/settle_god_rank',
   verification.token,
-  require('../controller/user/settleGodListController')
+  require('../controller/user/settleGodRankController')
 );
 
 /* ------------ 個人會員頁 ------------ */
