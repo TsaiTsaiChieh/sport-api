@@ -693,28 +693,36 @@ const Prediction = sequelize.define(
       type: Sequelize.INTEGER
     },
     spread_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     spread_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     totals_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     uid: {
       type: Sequelize.STRING,
