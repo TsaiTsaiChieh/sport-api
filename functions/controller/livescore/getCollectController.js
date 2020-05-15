@@ -2,62 +2,76 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreGetCollectModel');
 
 async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    case 'KBO': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    default: {
-      req.query.league = 'eSoccer';
-      req.query.sport = 'esports';
-    }
-  }
+  // switch (req.query.league) {
+  //   case 'NBA': {
+  //     req.query.sport = 'basketball';
+  //     break;
+  //   }
+  //   case 'MLB': {
+  //     req.query.sport = 'baseball';
+  //     break;
+  //   }
+  //   case 'NHL': {
+  //     req.query.sport = 'icehockey';
+  //     break;
+  //   }
+  //   case 'Soccer': {
+  //     req.query.sport = 'soccer';
+  //     break;
+  //   }
+  //   case 'eSoccer': {
+  //     req.query.sport = 'esports';
+  //     break;
+  //   }
+  //   case 'KBO': {
+  //     req.query.sport = 'baseball';
+  //     break;
+  //   }
+  //   default: {
+  //     req.query.league = 'eSoccer';
+  //     req.query.sport = 'esports';
+  //   }
+  // }
 
+  // const schema = {
+  //   required: ['league', 'sport', 'UID', 'time'],
+  //   properties: {
+  //     league: {
+  //       type: 'string',
+  //       enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
+  //     },
+  //     sport: {
+  //       type: 'string',
+  //       enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
+  //     },
+  //     UID: {
+  //       type: 'string'
+  //     },
+  //     time: {
+  //       type: 'string'
+  //     }
+  //   }
+  // };
   const schema = {
-    required: ['league', 'sport', 'UID', 'time'],
+    required: ['league'],
     properties: {
       league: {
         type: 'string',
         enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
-      },
-      sport: {
-        type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
-      },
-      UID: {
-        type: 'string'
       },
       time: {
         type: 'string'
       }
     }
   };
-
   const valid = modules.ajv.validate(schema, req.query);
   if (!valid) {
     res.status(400).json(modules.ajv.errors);
     return;
   }
+
+  req.query.token = req.token;
+
   try {
     res.json(await model(req.query));
   } catch (err) {
