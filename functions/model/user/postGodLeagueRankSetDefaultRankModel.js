@@ -11,16 +11,19 @@ async function postGodLeagueRankSetDefaultRank(args) {
 
   const result = { success: [] };
 
-  const [err, r] = await to(db.Title.update({
+  // 是大神才可以更新
+  const [err, r] = await to(db.User.update({
     default_god_league_rank: league_id
   }, {
     where: {
-      uid: userUid
+      uid: userUid,
+      status: 3
     }
   }));
 
-  if (err) {console.error(err); throw errs.dbErrsMsg('404', '13540', err.parent.code);}
-  if (r[0] === 1) result.success.push(league);
+  if (err) {console.error(err); throw errs.dbErrsMsg('404', '13001', err.parent.code);}
+  if (r[0] === 0) {throw errs.dbErrsMsg('404', '13002');}
+  if (r[0] === 1) result.success.push(userUid);
 
   return result;
 }
