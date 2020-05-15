@@ -28,7 +28,6 @@ async function getGodLeagueRank(args) {
   }
 
   godLeagueTitles.forEach(function(data) {
-    console.log(data.league_id, leagueDecoder(data.league_id));
     result.titleAnimate[leagueDecoder(data.league_id)] = data.rank_id;
   });
 
