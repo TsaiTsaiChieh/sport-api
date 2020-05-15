@@ -13,7 +13,7 @@ function deletePredictions(args) {
       await isNormalUser(args);
       const filter = await checkMatches(args);
       await updateFromDB(args, filter);
-      await deleteDB();
+      await deleteDB(args.token.uid, args.league);
       return resolve(returnData(filter));
     } catch (err) {
       return reject(err);
@@ -197,14 +197,19 @@ function updateFromDB(args, filter) {
   });
 }
 // 偵測一般玩家讓分和大小分的下注單是否都為空，若是的話需刪除
-function deleteDB() {
+function deleteDB(uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
-      await db.sequelize.query(
+      const result = await db.sequelize.query(
         `DELETE 
-           FROM user__predictions 
-    WHERE CONCAT(spread_id, totals_id) IS NULL`
+           FROM user__predictions
+          WHERE uid = '${uid}'
+            AND spread_id IS NULL
+            AND totals_id IS NULL
+            AND league_id = '${modules.leagueCodebook(league).id}'`
       );
+      console.log(result);
+      
       return resolve();
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
