@@ -432,38 +432,38 @@ async function getHandicap(league, ele) {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
       const data = await axiosForURL(URL);
-      if (data.results) {
-        if (data.results.Bet365 !== undefined) {
-          if (data.results.Bet365) {
-            const odds = data.results.Bet365.odds.start;
-            if (odds['1_2']) {
-              let spreadData = odds['1_2'];
-              spreadData = spreadCalculator(spreadData);
-              const spread = {};
-              spread[spreadData.id] = {
-                handicap: Number.parseFloat(spreadData.handicap),
-                home_odd: Number.parseFloat(spreadData.home_od),
-                away_odd: Number.parseFloat(spreadData.away_od),
-                add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-                  new Date(Number.parseInt(spreadData.add_time) * 1000)
-                ),
-                insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-                  new Date()
-                ),
-                home_tw: spreadData.home_tw,
-                away_tw: spreadData.away_tw
-              };
-              await write2firestoreAboutAllSpread(
-                eventSnapshot,
-                spread,
-                spreadData
-              );
-              await write2MysqlOfMatchAboutAllSpread(ele, spreadData);
-              await write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData);
-            }
+      if (!data.results) return;
+      if (data.results.Bet365 !== undefined) {
+        if (data.results.Bet365) {
+          const odds = data.results.Bet365.odds.start;
+          if (odds['1_2']) {
+            let spreadData = odds['1_2'];
+            spreadData = spreadCalculator(spreadData);
+            const spread = {};
+            spread[spreadData.id] = {
+              handicap: Number.parseFloat(spreadData.handicap),
+              home_odd: Number.parseFloat(spreadData.home_od),
+              away_odd: Number.parseFloat(spreadData.away_od),
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(spreadData.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              ),
+              home_tw: spreadData.home_tw,
+              away_tw: spreadData.away_tw
+            };
+            await write2firestoreAboutAllSpread(
+              eventSnapshot,
+              spread,
+              spreadData
+            );
+            await write2MysqlOfMatchAboutAllSpread(ele, spreadData);
+            await write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData);
           }
         }
       }
+
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -545,37 +545,37 @@ async function getTotals(league, ele) {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
       const data = await axiosForURL(URL);
-      if (data.results) {
-        if (data.results.Bet365 !== undefined) {
-          if (data.results.Bet365) {
-            const odds = data.results.Bet365.odds.start;
-            if (odds['1_3']) {
-              let totalsData = odds['1_3'];
-              const totals = {};
-              totalsData = totalsCalculator(totalsData);
-              totals[totalsData.id] = {
-                handicap: Number.parseFloat(totalsData.handicap),
-                over_odd: Number.parseFloat(totalsData.over_od),
-                under_odd: Number.parseFloat(totalsData.under_od),
-                add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-                  new Date(Number.parseInt(totalsData.add_time) * 1000)
-                ),
-                insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-                  new Date()
-                ),
-                over_tw: totalsData.over_tw
-              };
-              await write2firestoreAboutAllTotals(
-                eventSnapshot,
-                totals,
-                totalsData
-              );
-              await write2MysqlOfMatchAboutAllTotals(ele, totalsData);
-              await write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData);
-            }
+      if (!data.results) return;
+      if (data.results.Bet365 !== undefined) {
+        if (data.results.Bet365) {
+          const odds = data.results.Bet365.odds.start;
+          if (odds['1_3']) {
+            let totalsData = odds['1_3'];
+            const totals = {};
+            totalsData = totalsCalculator(totalsData);
+            totals[totalsData.id] = {
+              handicap: Number.parseFloat(totalsData.handicap),
+              over_odd: Number.parseFloat(totalsData.over_od),
+              under_odd: Number.parseFloat(totalsData.under_od),
+              add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date(Number.parseInt(totalsData.add_time) * 1000)
+              ),
+              insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+                new Date()
+              ),
+              over_tw: totalsData.over_tw
+            };
+            await write2firestoreAboutAllTotals(
+              eventSnapshot,
+              totals,
+              totalsData
+            );
+            await write2MysqlOfMatchAboutAllTotals(ele, totalsData);
+            await write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData);
           }
         }
       }
+
       return resolve('ok');
     } catch (err) {
       return reject(
