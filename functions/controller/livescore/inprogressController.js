@@ -1,67 +1,45 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreInprogressModel');
 
-async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    case 'KBO': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    default: {
-      req.query.league = 'eSoccer';
-      req.query.sport = 'esports';
-    }
-  }
+async function livescoreInProgress(req, res) { // 不要全部都叫 livescore，全域搜尋還要過濾
   const schema = {
-    required: ['league', 'sport', 'time'],
+    // required: ['league', 'sport', 'time'], // 為什麼你要檢查自己給的參數...
+    required: ['league', 'date'], // 前端傳的是「日期」，不是「時間」
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
+        enum: modules.acceptLeague
       },
       sport: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
+        // 這個我之前覺得很長，所以用 integer, ref controller/admin/deleteTitleController
+        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'eSoccer']
       },
-      time: {
-        type: 'string'
+      date: {
+        type: 'string',
+        format: 'date' // 加這行檢查更好
       }
     }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) {
-    res.status(400).json(modules.ajv.errors);
-    return;
-  }
+  // if (!valid) return res.status(400).json(modules.ajv.errors);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
 
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    // res.status(err.code).json(err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      ); // 這個你再多觀察
   }
 }
-module.exports = livescore;
+module.exports = livescoreInProgress;
 /**
  * @api {GET} /livescore/livescore/inprogress Get Livescore of inprogress event
  * @apiVersion 1.0.0
