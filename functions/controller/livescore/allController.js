@@ -1,67 +1,37 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreAllModel');
 
-async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'KBO': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    default: {
-      req.query.league = 'eSoccer';
-      req.query.sport = 'esports';
-    }
-  }
-
+async function livescoreAll(req, res) {
   const schema = {
-    required: ['league', 'sport', 'time'],
+    required: ['league', 'date'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
+        enum: modules.acceptLeague
       },
-      sport: {
+      date: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
-      },
-      time: {
-        type: 'string'
+        format: 'date'
       }
     }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) {
-    res.status(400).json(modules.ajv.errors);
-    return;
-  }
+  if (!valid) {return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);}
+
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      ); // 再觀察
   }
 }
-module.exports = livescore;
+module.exports = livescoreAll;
 /**
  * @api {GET} /livescore/livescore/all Get Livescore of all event
  * @apiVersion 1.0.0

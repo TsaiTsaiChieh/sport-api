@@ -1,30 +1,24 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreInprogressModel');
 
-async function livescoreInProgress(req, res) { // 不要全部都叫 livescore，全域搜尋還要過濾
+async function livescoreInProgress(req, res) {
   const schema = {
-    // required: ['league', 'sport', 'time'], // 為什麼你要檢查自己給的參數...
-    required: ['league', 'date'], // 前端傳的是「日期」，不是「時間」
+    required: ['league', 'date'],
     properties: {
       league: {
         type: 'string',
         enum: modules.acceptLeague
       },
-      sport: {
-        type: 'string',
-        // 這個我之前覺得很長，所以用 integer, ref controller/admin/deleteTitleController
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'eSoccer']
-      },
       date: {
         type: 'string',
-        format: 'date' // 加這行檢查更好
+        format: 'date'
       }
     }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
-  // if (!valid) return res.status(400).json(modules.ajv.errors);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+
+  if (!valid) {return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);}
 
   try {
     res.json(await model(req.query));
@@ -36,7 +30,7 @@ async function livescoreInProgress(req, res) { // 不要全部都叫 livescore�
         err.isPublic
           ? { error: err.name, devcode: err.status, message: err.message }
           : err.code
-      ); // 這個你再多觀察
+      ); // 再觀察
   }
 }
 module.exports = livescoreInProgress;

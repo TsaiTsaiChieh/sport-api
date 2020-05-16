@@ -2,12 +2,12 @@ const modules = require('../util/modules');
 const ESoccerpbp = require('./pbp_eSoccer');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
+const firestoreName = 'esport_eSoccer';
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
 async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
-    const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore
         .collection(firestoreName)
