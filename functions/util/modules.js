@@ -21,6 +21,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
+const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0 };
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -799,5 +800,6 @@ module.exports = {
   sliceTeamAndPlayer,
   acceptLeague,
   timeFormat,
-  checkUserRight
+  checkUserRight,
+  MATCH_STATUS
 };
