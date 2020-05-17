@@ -4,7 +4,7 @@ const AppErrors = require('../../util/AppErrors');
 async function livescoreClosed(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const closedMathes = queryClosedMatches(args);
+      const closedMathes = await queryClosedMatches(args);
       const result = await repackage(args, closedMathes);
       resolve(result);
     } catch (err) {
@@ -33,10 +33,10 @@ function queryClosedMatches(args) {
 
       const matches = [];
 
-      queries.map(function(doc) {
+      queries.docs.map(function(doc) {
         matches.push(doc.data());
       });
-      return resolve(matches);
+      return resolve(await Promise.all(matches));
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
@@ -50,17 +50,15 @@ async function repackage(args, matches) {
       const ele = matches[i];
       const temp = {
         id: ele.bets_id,
-        flag: {
-          status: ele.flag.status
-        },
+        status: ele.flag.status,
         sport: modules.league2Sport(args.league),
         league: ele.league.name_ch,
         ori_league: args.league,
-        scheduled: ele.scheduled._seconds * 1000,
+        scheduled: ele.scheduled * 1000,
         newest_spread: {
-          handicap: ele.newest_spread ? ele.newest_spread.handicap : 'no data',
-          home_tw: ele.newest_spread ? ele.newest_spread.home_tw : 'no data',
-          away_tw: ele.newest_spread ? ele.newest_spread.away_tw : 'no data'
+          handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
+          home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,
+          away_tw: ele.newest_spread ? ele.newest_spread.away_tw : null
         },
         // group: args.league === 'eSoccer' ? ele.league.name : null, // 電競足球的子分類叫 league 我覺得不是很合理欸，所以改成 group
         home: {

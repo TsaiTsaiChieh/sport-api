@@ -18,12 +18,17 @@ async function livescoreInProgress(req, res) {
 
   const valid = modules.ajv.validate(schema, req.query);
 
-  if (!valid) {return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);}
+  if (!valid) {
+    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  }
 
   try {
     res.json(await model(req.query));
   } catch (err) {
-    // res.status(err.code).json(err);
+    console.error(
+      'Error in controller/livescore/livescoreInProgress by DY',
+      err
+    );
     res
       .status(err.code)
       .json(
