@@ -21,7 +21,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
-const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0 };
+const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -162,7 +162,7 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
+  snapshot.docs.map(function (doc) {
     clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
@@ -442,7 +442,7 @@ function groupBy(arr, prop) {
 //   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
 function groupsByOrdersLimit(array, prop, order, limit = -1) {
   const groups = {};
-  array.forEach(function(o) {
+  array.forEach(function (o) {
     // 組出 prop 的 json 字串 做為 groups key 值
     var group = JSON.stringify(
       prop.map((m) => {
@@ -459,7 +459,7 @@ function groupsByOrdersLimit(array, prop, order, limit = -1) {
     o = o.slice(0, limit); // 取幾筆
   }
 
-  return Object.keys(groups).map(function(group) {
+  return Object.keys(groups).map(function (group) {
     const res = {};
     const t = JSON.parse(group); // 把 json 字串 轉回 object
     for (const [key, value] of Object.entries(t)) {
@@ -572,8 +572,8 @@ function settleSpread(data) {
         : 'fair|away'
       : 'fair2'
     : homePoints - handicap > awayPoints
-      ? 'home'
-      : 'away';
+    ? 'home'
+    : 'away';
 }
 
 /*
@@ -611,8 +611,8 @@ function settleTotals(data) {
         : 'fair|under'
       : 'fair2'
     : homePoints + awayPoints > handicap
-      ? 'over'
-      : 'under';
+    ? 'over'
+    : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
@@ -665,10 +665,10 @@ function predictionsWinList(data) {
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
 
-  rePredictMatchInfo.forEach(function(uids) {
+  rePredictMatchInfo.forEach(function (uids) {
     const reLeagues = groupBy(uids, 'league_id');
 
-    reLeagues.forEach(function(data) {
+    reLeagues.forEach(function (data) {
       // 勝率 winRate
       const predictCorrectCounts =
         data.reduce(
