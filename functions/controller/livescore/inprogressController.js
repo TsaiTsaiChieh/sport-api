@@ -30,6 +30,7 @@ async function livescoreInProgress(req, res) { // 不要全部都叫 livescore�
     res.json(await model(req.query));
   } catch (err) {
     // res.status(err.code).json(err);
+    console.error('Error in controller/livescore/livescoreInProgress by DY', err);
     res
       .status(err.code)
       .json(

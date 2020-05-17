@@ -41,7 +41,7 @@ function queryInplayMatches(args) {
       queries.map(function(doc) { // forEach 好像會改變原來的資料，也比 map 慢；還有要嘛就通通用傳統 function 要嘛就都 arrow function 不要很不一致
         matches.push(doc.data());
       });
-      return resolve(matches);
+      return resolve(await Promise.all(matches));
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
@@ -95,11 +95,12 @@ async function repackage(args, matches) {
       // scheduled = scheduled.split(' ')[0]; // 為啥要這麼長
       const temp = {
         id: ele.bets_id,
+        status: ele.flag.status, // 好啦我的確可能會放狀態，雖然可能他們用不到
         league: args.league,
         league_ch: ele.league.name_ch,
         scheduled: ele.scheduled._seconds * 1000, // 偷偷告訴你我都叫前端自己乘以 1000
         newest_spread: {
-          handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
+          handicap: ele.newest_spread ? ele.newest_spread.handicap : null, // null 比 no data 好，因為用 ! 就可以反運算
           home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,
           away_tw: ele.newest_spread ? ele.newest_spread.away_tw : null
         },
