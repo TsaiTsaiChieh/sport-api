@@ -202,7 +202,7 @@ function deletePredictionsWhichAreNull(uid, league) {
             AND league_id = :league_id`,
         {
           type: db.sequelize.QueryTypes.DELETE,
-          replacements: { uid, league_id: modules.leagueCodebook(league).id },
+          replacements: { uid, league_id: modules.leagueCodebook(league).id,
           raw: true
         }
       );

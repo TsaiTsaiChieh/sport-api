@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 function dbFind(uid, god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.findAll({
+      const result = await db.sequelize.models.user__favoriteplayer.findAll({
         where: {
           uid: uid,
           god_uid: god_uid
