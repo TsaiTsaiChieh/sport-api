@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 function postCollect(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(args.eventID, args.token);
+      const result = await repackage(args);
 
       resolve(result);
     } catch (err) {
@@ -12,19 +12,15 @@ function postCollect(args) {
     }
   });
 }
-async function reResult(eventID, token) {
-  const result = await repackage(eventID, token);
 
-  return await Promise.all(result);
-}
-async function repackage(eventID, token) {
+async function repackage(args) {
   try {
     await db.sequelize.query(
       `
       DELETE 
         FROM user__collections
-       WHERE uid = '${token.uid}' and
-       bets_id = ${eventID}
+       WHERE uid = '${args.token.uid}' and
+       bets_id = ${args.eventID}
      `,
       {
         type: db.sequelize.QueryTypes.DELETE

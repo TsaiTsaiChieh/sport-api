@@ -3,7 +3,7 @@ const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = ['pagetest_eSoccer'];
+const leagues = ['esport_eSoccer'];
 const Match = db.Match;
 const MatchSpread = db.Spread;
 const MatchTotals = db.Totals;
@@ -644,11 +644,14 @@ function spreadCalculator(handicapObj) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        if (handicapObj.handicap === 0.25) {
-          handicapObj.home_tw = '0/0.5';
+        const str = handicapObj.handicap.toString();
+        const str1 = str.split('.')[0];
+        const str2 = str.split('.')[1];
+        if (str2 === '25') {
+          handicapObj.home_tw = `${str1}/${str1}.5`;
           handicapObj.away_tw = null;
-        } else if (handicapObj.handicap === 0.75) {
-          handicapObj.home_tw = '0.5/1';
+        } else if (str2 === '75') {
+          handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
           handicapObj.away_tw = null;
         } else {
           handicapObj.home_tw = Math.abs(handicapObj.handicap);
@@ -656,12 +659,15 @@ function spreadCalculator(handicapObj) {
         }
       } else {
         // 放在客隊區
-        if (handicapObj.handicap === -0.25) {
+        const str = handicapObj.handicap.toString();
+        const str1 = str.split('.')[0];
+        const str2 = str.split('.')[1];
+        if (str2 === '25') {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '0/0.5';
-        } else if (handicapObj.handicap === -0.75) {
+          handicapObj.away_tw = `${str1}/${str1}.5`;
+        } else if (str2 === '75') {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '0.5/1';
+          handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
         } else {
           handicapObj.home_tw = null;
           handicapObj.away_tw = Math.abs(handicapObj.handicap);
@@ -672,7 +678,16 @@ function spreadCalculator(handicapObj) {
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {
-  handicapObj.over_tw = `${handicapObj.handicap}`;
+  const str = handicapObj.handicap.toString();
+  const str1 = str.split('.')[0];
+  const str2 = str.split('.')[1];
+  if (str2 === '25') {
+    handicapObj.over_tw = `${str1}/${str1}.5`;
+  } else if (str2 === '75') {
+    handicapObj.over_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+  } else {
+    handicapObj.over_tw = Math.abs(handicapObj.handicap);
+  }
   return handicapObj;
 }
 module.exports = handicap_esport;

@@ -21,7 +21,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
-const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0 };
+const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -148,7 +148,7 @@ const db = {
   baseball_LMB: 'baseball_LMB',
   icehockey_NHL: 'icehockey_NHL',
   Soccer: 'Soccer',
-  eSoccer: 'eSoccer',
+  eSoccer: 'esport_eSoccer',
   eGame: 'eGame',
   prediction: 'prediction'
 };
@@ -168,6 +168,38 @@ async function cloneFirestore(name, clonedName) {
 }
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
+}
+function league2Sport(league) {
+  switch (league) {
+    case 'NBA':
+      return {
+        sport: 'basketball'
+      };
+    case 'MLB':
+      return {
+        sport: 'baseball'
+      };
+    case 'NHL':
+      return {
+        sport: 'icehockey'
+      };
+    case 'Soccer':
+      return {
+        sport: 'soccer'
+      };
+    case 'KBO':
+      return {
+        sport: 'baseball'
+      };
+    case 'eSoccer':
+      return {
+        sport: 'esports'
+      };
+    default:
+      return {
+        sport: 'esports'
+      };
+  }
 }
 function leagueCodebook(league) {
   switch (league) {
@@ -776,6 +808,7 @@ module.exports = {
   sportRadarKeys,
   firebaseTimestamp,
   firestoreService,
+  league2Sport,
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,

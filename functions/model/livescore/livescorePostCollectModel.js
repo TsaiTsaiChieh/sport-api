@@ -4,7 +4,7 @@ const Collection = db.Collection;
 function postCollect(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(args.eventID, args.token);
+      const result = await repackage(args);
 
       resolve(result);
     } catch (err) {
@@ -13,28 +13,24 @@ function postCollect(args) {
     }
   });
 }
-async function reResult(eventID, token) {
-  const result = await repackage(eventID, token);
 
-  return await Promise.all(result);
-}
-async function repackage(eventID, token) {
+async function repackage(args) {
   // index is const, taking about 160ms
   const matchQuery = await db.sequelize.query(
     `
       SELECT *
         FROM matches
-       WHERE bets_id = ${eventID} 
+       WHERE bets_id = ${args.eventID} 
        
      `,
     {
       type: db.sequelize.QueryTypes.SELECT
     }
   );
-  const UID = token.uid;
+  const UID = args.token.uid;
   if (matchQuery.length > 0) {
     await Collection.upsert({
-      bets_id: eventID,
+      bets_id: args.eventID,
       uid: UID,
       league_id: matchQuery[0].league_id,
       scheduled: matchQuery[0].scheduled,
