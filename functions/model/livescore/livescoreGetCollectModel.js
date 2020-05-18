@@ -28,24 +28,25 @@ function queryAllCollection(args) {
         }) - 1;
 
       const queries = await db.sequelize.query(
-        `
-            SELECT collections.bets_id, collections.scheduled,
-                   matches.home_id, matches.away_id, matches.spread_id,
-                   teams.name, 
-                   spreads.spread_id
-              FROM user__collections collections
-            INNER JOIN matches
-              on collections.bets_id = matches.bets_id
-            LEFT JOIN match__teams teams
-              on matches.home_id = teams.team_id 
-            LEFT JOIN match__spreads spreads
-              on matches.spread_id = spreads.spread_id
-             WHERE collections.uid = '${args.token.uid}' and
-                   collections.league_id = '${
-                     modules.leagueCodebook(args.league).id
-                   }'  and
-                   collections.scheduled >= '${begin}'   and
-                   collections.scheduled <= '${end}'
+        `SELECT collections.bets_id, collections.scheduled,
+                matches.home_id, matches.away_id, matches.spread_id,
+                home.name,
+                away.name, 
+                spreads.spread_id
+           FROM user__collections collections
+                match__teams home
+                match__teams away
+     INNER JOIN matches ON collections.bets_id = matches.bets_id
+     LEFT JOIN match__spreads spreads ON matches.spread_id = spreads.spread_id
+          WHERE collections.uid = '${args.token.uid}' 
+            AND collections.league_id = '${
+              modules.leagueCodebook(args.league).id
+            }'  
+            AND collections.scheduled >= '${begin}'   
+            AND collections.scheduled <= '${end}'    
+            AND matches.home_id = home
+
+
            `,
         {
           type: db.sequelize.QueryTypes.SELECT
