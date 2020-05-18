@@ -10,12 +10,15 @@ async function getGodLeagueRankAllTitle(args) {
 
   // 使用者 本期 所有 聯盟大神 稱號 和 成就
   const godLeagueTitles = await db.sequelize.query(`
-        select titles.*, users.default_god_league_rank
-          from titles, users
-         where titles.uid = users.uid
-           and titles.uid = :uid
-           and titles.period = :period
-      `, {
+      select titles.league_id, titles.rank_id, titles.default_title,
+             titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
+             titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue,
+             users.default_god_league_rank
+        from titles, users
+       where titles.uid = users.uid
+         and titles.uid = :uid
+         and titles.period = :period
+    `, {
     replacements: {
       uid: userUid,
       period: period
@@ -56,22 +59,5 @@ function getTitles(titles) {
     6: titles.matches_continue
   };
 }
-
-// function getTitlesText(titles, num = 1) {
-//   switch (num) {
-//     case 1:
-//       return `連贏 ${titles.continue} 天`;
-//     case 2:
-//       return `近 ${titles.predict_rate1} 日 ${titles.predict_rate2} 過 ${titles.predict_rate3}`;
-//     case 3:
-//       return `近 ${titles.predict_rate1} 日過 ${titles.predict_rate3}`;
-//     case 4:
-//       return `勝注連過 ${titles.win_bets_continue} 日`;
-//     case 5:
-//       return `近 ${titles.matches_rate1} 場過 ${titles.matches_rate2} 場`;
-//     case 6:
-//       return `連贏 ${titles.matches_continue} 場`;
-//   }
-// }
 
 module.exports = getGodLeagueRankAllTitle;

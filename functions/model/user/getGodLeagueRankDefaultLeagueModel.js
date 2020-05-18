@@ -10,12 +10,15 @@ async function getGodLeagueRankDefaultLeague(args) {
 
   // 使用者 本期 未閱
   const godLeagueTitles = await db.sequelize.query(`
-        select titles.*, users.default_god_league_rank
-          from titles, users
-         where titles.uid = users.uid
-           and titles.uid = :uid
-           and titles.period = :period
-      `, {
+      select titles.league_id, titles.rank_id, titles.default_title,
+             titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
+             titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue,
+             users.default_god_league_rank
+        from titles, users
+        where titles.uid = users.uid
+          and titles.uid = :uid
+          and titles.period = :period
+    `, {
     replacements: {
       uid: userUid,
       period: period
