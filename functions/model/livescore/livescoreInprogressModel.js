@@ -56,7 +56,7 @@ async function repackage(args, matches) {
         ori_league: args.league,
         scheduled: ele.scheduled * 1000,
         newest_spread: {
-          handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
+          handicap: ele.newest_spread ? ele.newest_spread.handicap : null, // null 比 no data 好，因為用 ! 就可以反運算
           home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,
           away_tw: ele.newest_spread ? ele.newest_spread.away_tw : null
         },
