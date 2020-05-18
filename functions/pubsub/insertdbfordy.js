@@ -2,14 +2,12 @@
 // const modules = require('../util/modules');
 // const db = require('../util/dbUtil');
 // const Collection = db.Collection;
+
 async function inserttest() {
-  // await Collection.sync({ force: true });
-  // await Collection.upsert({
-  //   bets_id: '123',
-  //   uid: '123',
-  //   league_id: '123',
-  //   scheduled: '123',
-  //   scheduled_tw: 1589511051297
-  // });
+  const handicapObj = 2.75;
+  const str = handicapObj.toString();
+  const str1 = str.split('.')[0];
+  const str2 = str.split('.')[1];
+  console.log(parseFloat(str1) + 1, str2);
 }
 module.exports = inserttest;
