@@ -1,13 +1,14 @@
-const { ajv } = require('../../util/modules');
+// const modules = require('../../util/modules');
 const settleGodRankModel = require('../../model/user/settleGodRankModel');
 
 async function settleGodRank(req, res) {
+  const returnJson = {};
   try {
-    req.body.token = req.token;
     res.json(await settleGodRankModel(req));
-  } catch (err) {
-    res.status(err.code).json(err.err);
+  } catch (e) {
+    console.log(e);
+    return res.status(500);
   }
+  res.status(200).json(returnJson);
 }
-
 module.exports = settleGodRank;
