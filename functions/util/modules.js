@@ -696,6 +696,8 @@ function predictionsWinList(data) {
 }
 
 // 一般 NBA MLB
+// home_alias = 'CHA'
+//
 // home: {
 //     team_name: 'CHA',
 //     alaias: 'CHA',
@@ -703,6 +705,8 @@ function predictionsWinList(data) {
 //     player_name: null
 // }
 // 電競足球
+// home_alias = 'Atletico Madrid (Boulevard_Prospect)'
+//
 // home: {
 //   team_name: 'Atletico Madrid (Boulevard_Prospect)',
 //   alaias: 'Atletico Madrid',
