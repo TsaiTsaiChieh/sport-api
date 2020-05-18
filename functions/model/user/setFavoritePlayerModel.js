@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
-const getGodModel = require('./getFavoriteGodModel');
+const getGodModel = require('./getFavoritePlayerModel');
 
 function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {

@@ -27,9 +27,9 @@ router.post(
   require('../controller/user/setFavoritePlayerController')
 );
 router.get(
-  '/getFavoriteGod/:god_uid',
+  '/getFavoritePlayer/:god_uid',
   verification.token,
-  require('../controller/user/getFavoriteGodController')
+  require('../controller/user/getFavoritePlayerController')
 );
 router.post(
   '/reportTopic',
