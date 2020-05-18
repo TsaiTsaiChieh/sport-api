@@ -34,6 +34,7 @@ function queryHomeMatches(args) {
         .where('flag.status', '==', modules.MATCH_STATUS.INPLAY)
         .where('scheduled', '>=', begin)
         .where('scheduled', '<=', end)
+        .limit(4)
         .get();
 
       const matches = [];
@@ -41,7 +42,30 @@ function queryHomeMatches(args) {
       queries.docs.map(function (doc) {
         matches.push(doc.data());
       });
-
+      if (matches.length < 4) {
+        const queries = await modules.firestore
+          .collection(modules.leagueCodebook(args.league).match)
+          .where('flag.status', '==', modules.MATCH_STATUS.SCHEDULED)
+          .where('scheduled', '>=', begin)
+          .where('scheduled', '<=', end)
+          .limit(4 - matches.length)
+          .get();
+        queries.docs.map(function (doc) {
+          matches.push(doc.data());
+        });
+      }
+      if (matches.length < 4) {
+        const queries = await modules.firestore
+          .collection(modules.leagueCodebook(args.league).match)
+          .where('flag.status', '==', modules.MATCH_STATUS.END)
+          .where('scheduled', '>=', begin)
+          .where('scheduled', '<=', end)
+          .limit(4 - matches.length)
+          .get();
+        queries.docs.map(function (doc) {
+          matches.push(doc.data());
+        });
+      }
       return resolve(await Promise.all(matches));
     } catch (err) {
       return reject(`${err.stack} by DY`);
@@ -59,6 +83,7 @@ async function repackage(args, matches) {
       ori_league: ele.league.name,
       sport: modules.league2Sport(args.league).sport,
       status: ele.flag.status,
+      scheduled: ele.scheduled * 1000,
       newest_spread: {
         handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
         home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,

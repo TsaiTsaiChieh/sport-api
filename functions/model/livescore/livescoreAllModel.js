@@ -17,6 +17,7 @@ function queryAllMatches(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
+
       const end =
         modules.convertTimezone(args.date, {
           op: 'add',
