@@ -26,220 +26,53 @@ module.exports = getGodLeagueRankAllTitle;
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
 {
-  "NBA": [
-    {
-      "bets_id": "2115973",
-      "scheduled": 1585627804000,
-      "league": "NBA",
-      "home": "CHA",
-      "home_ch": "黃蜂",
-      "spread": {
-        "predict": "under",
-        "handicap": 210.5,
-        "percentage": 8,
-        "bets": 1
-      },
-      "totals": {}
+  "default_league_rank": "NBA",
+  "lists": {
+    "NBA": {
+      "rank": 2,
+      "default_title": 1,
+      "titles": {
+        "1": 5,
+        "2": [
+          7,
+          28,
+          21
+        ],
+        "3": [
+          7,
+          21
+        ],
+        "4": 3,
+        "5": [
+          10,
+          8
+        ],
+        "6": 10
+      }
     },
-    {
-      "bets_id": "2115973",
-      "scheduled": 1585628027000,
-      "league": "NBA",
-      "home": "CHA",
-      "home_ch": "黃蜂",
-      "spread": {
-        "predict": "under",
-        "handicap": 210.5,
-        "percentage": 16,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117403",
-      "scheduled": 1585628027000,
-      "league": "NBA",
-      "home": "MIN",
-      "home_ch": "灰狼",
-      "spread": {
-        "predict": "away",
-        "handicap": 12.5,
-        "percentage": 17,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2114519",
-      "scheduled": 1585714204000,
-      "league": "NBA",
-      "home": "PHI",
-      "home_ch": "76人",
-      "spread": {
-        "predict": "under",
-        "handicap": 214.5,
-        "percentage": 10,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2114519",
-      "scheduled": 1585714427000,
-      "league": "NBA",
-      "home": "PHI",
-      "home_ch": "76人",
-      "spread": {
-        "predict": "under",
-        "handicap": 214.5,
-        "percentage": 11,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117404",
-      "scheduled": 1585714427000,
-      "league": "NBA",
-      "home": "GSW",
-      "home_ch": "勇士",
-      "spread": {
-        "predict": "under",
-        "handicap": 226.5,
-        "percentage": 20,
-        "bets": 2
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117404",
-      "scheduled": 1585800604000,
-      "league": "NBA",
-      "home": "GSW",
-      "home_ch": "勇士",
-      "spread": {
-        "predict": "under",
-        "handicap": 226.5,
-        "percentage": 42,
-        "bets": 2
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117404",
-      "scheduled": 1585800827000,
-      "league": "NBA",
-      "home": "GSW",
-      "home_ch": "勇士",
-      "spread": {
-        "predict": "under",
-        "handicap": 226.5,
-        "percentage": 32,
-        "bets": 2
-      },
-      "totals": {}
+    "MLB": {
+      "rank": 2,
+      "default_title": 1,
+      "titles": {
+        "1": 0,
+        "2": [
+          14,
+          28,
+          14
+        ],
+        "3": [
+          14,
+          14
+        ],
+        "4": 0,
+        "5": [
+          0,
+          0
+        ],
+        "6": 1
+      }
     }
-  ],
-  "MLB": [
-    {
-      "bets_id": "2115973",
-      "scheduled": 1585628127000,
-      "league": "MLB",
-      "home": "CHA",
-      "home_ch": "黃蜂",
-      "spread": {
-        "predict": "under",
-        "handicap": 210.5,
-        "percentage": 32,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2115973",
-      "scheduled": 1585714383000,
-      "league": "MLB",
-      "home": "CHA",
-      "home_ch": "黃蜂",
-      "spread": {
-        "predict": "under",
-        "handicap": 210.5,
-        "percentage": 32,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117403",
-      "scheduled": 1585714383000,
-      "league": "MLB",
-      "home": "MIN",
-      "home_ch": "灰狼",
-      "spread": {
-        "predict": "away",
-        "handicap": 12.5,
-        "percentage": 28,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2114519",
-      "scheduled": 1585714527000,
-      "league": "MLB",
-      "home": "PHI",
-      "home_ch": "76人",
-      "spread": {
-        "predict": "under",
-        "handicap": 214.5,
-        "percentage": 8,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2115973",
-      "scheduled": 1585714527000,
-      "league": "MLB",
-      "home": "CHA",
-      "home_ch": "黃蜂",
-      "spread": {
-        "predict": "under",
-        "handicap": 210.5,
-        "percentage": 12,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117403",
-      "scheduled": 1585714527000,
-      "league": "MLB",
-      "home": "MIN",
-      "home_ch": "灰狼",
-      "spread": {
-        "predict": "away",
-        "handicap": 12.5,
-        "percentage": 26,
-        "bets": 1
-      },
-      "totals": {}
-    },
-    {
-      "bets_id": "2117404",
-      "scheduled": 1585800927000,
-      "league": "MLB",
-      "home": "GSW",
-      "home_ch": "勇士",
-      "spread": {
-        "predict": "under",
-        "handicap": 226.5,
-        "percentage": 11,
-        "bets": 2
-      },
-      "totals": {}
-    }
-  ]
+  }
 }
  *
  * @apiError 404

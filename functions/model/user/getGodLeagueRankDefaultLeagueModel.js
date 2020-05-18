@@ -6,7 +6,7 @@ async function getGodLeagueRankDefaultLeague(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
   const period = getTitlesPeriod(Date.now()).period;
-  const result = {};
+  let result = {};
 
   // 使用者 本期 未閱
   const godLeagueTitles = await db.sequelize.query(`
@@ -27,10 +27,13 @@ async function getGodLeagueRankDefaultLeague(args) {
     return {}; // 無稱號
   }
 
-  result.default_league_rank = ''; // 初始化 為了固定 json 位置
+  result = { // 初始化 為了固定 json 位置
+    default_league_rank: '',
+    lists: {}
+  };
 
   godLeagueTitles.forEach(function(data) {
-    result[leagueDecoder(data.league_id)] = {
+    result.lists[leagueDecoder(data.league_id)] = {
       rank: data.rank_id,
       title: getTitles(data, data.default_title)
     };

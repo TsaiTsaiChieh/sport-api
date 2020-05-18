@@ -12,7 +12,7 @@ const errorCodeLists = {
   1323: { msg: ['非數字'], backend: ['非數字', ''] },
 
   13001: { msg: ['更新 使用者 失敗'], backend: ['更新 Update Users default_god_league_rank 失敗 資料庫原因錯誤', ''] },
-  13002: { msg: ['更新 使用者 失敗'], backend: ['更新 Update Users default_god_league_rank 失敗 非大神不能更新 資料庫原因錯誤', ''] },
+  13002: { msg: ['更新 使用者 失敗'], backend: ['更新 Update Users default_god_league_rank 失敗 非大神不能更新', ''] },
 
   13109: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13110: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
@@ -55,7 +55,9 @@ const errorCodeLists = {
   13537: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_LOCK_DEADLOCK', ''] },
   13538: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 ER_DUP_ENTRY', ''] },
   13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
-  13540: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
+  13540: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
+  13541: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
+  13542: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 無對應 league 無法更新 default_title', ''] }
 };
 
 function dbErrsMsg(serverCode, backendcode, property = { otherMsg: '', showOrder: 0 }) {

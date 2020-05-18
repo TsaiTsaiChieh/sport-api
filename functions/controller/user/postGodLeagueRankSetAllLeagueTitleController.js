@@ -2,34 +2,26 @@ const { ajv } = require('../../util/modules');
 const postGodLeagueRankSetAllLeagueTitleModel = require('../../model/user/postGodLeagueRankSetAllLeagueTitleModel');
 
 async function postGodLeagueRankSetAllLeagueTitle(req, res) {
-  // const schema = {
-  //   type: 'object',
-  //   required: ['lists'],
-  //   properties: {
-  //     lists: {
-  //       type: 'array',
-  //       items: {
-  //         type: 'object',
-  //         required: ['league', 'rank'],
-  //         properties: {
-  //           league: {
-  //             enum: ['NBA', 'MLB', 'eSoccer', 'KBO'] // 目前測試資料和 modules.acceptLeague 不一致
-  //           },
-  //           rank: {
-  //             enum: [1, 2, 3, 4]
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
-
   const schema = {
-    required: ['league'],
+    type: 'object',
+    required: ['titles'],
     properties: {
-      league: {
-        type: 'string',
-        enum: ['NBA', 'MLB', 'eSoccer', 'KBO']
+      titles: {
+        type: 'array',
+        items: {
+          type: 'object',
+          required: ['league', 'default_title'],
+          properties: {
+            league: {
+              type: 'string',
+              enum: ['NBA', 'MLB', 'eSoccer', 'KBO']
+            },
+            default_title: {
+              type: 'integer',
+              enum: [1, 2, 3, 4, 5, 6]
+            }
+          }
+        }
       }
     }
   };

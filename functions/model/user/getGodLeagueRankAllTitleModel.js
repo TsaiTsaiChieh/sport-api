@@ -6,9 +6,9 @@ async function getGodLeagueRankAllTitle(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
   const period = getTitlesPeriod(Date.now()).period;
-  const result = {};
+  let result = {};
 
-  // 使用者 本期 未閱
+  // 使用者 本期 所有 聯盟大神 稱號 和 成就
   const godLeagueTitles = await db.sequelize.query(`
         select titles.*, users.default_god_league_rank
           from titles, users
@@ -27,12 +27,16 @@ async function getGodLeagueRankAllTitle(args) {
     return {}; // 無稱號
   }
 
-  result.default_league_rank = ''; // 初始化 為了固定 json 位置
+  result = { // 初始化 為了固定 json 位置
+    default_league_rank: '',
+    lists: {}
+  };
 
   godLeagueTitles.forEach(function(data) {
-    result[leagueDecoder(data.league_id)] = {
+    result.lists[leagueDecoder(data.league_id)] = {
       rank: data.rank_id,
-      title: getTitles(data, data.default_title)
+      default_title: data.default_title,
+      titles: getTitles(data, data.default_title)
     };
     result.default_league_rank = data.default_god_league_rank
       ? leagueDecoder(data.default_god_league_rank)
@@ -42,21 +46,15 @@ async function getGodLeagueRankAllTitle(args) {
   return result;
 }
 
-function getTitles(titles, num = 1) {
-  switch (num) {
-    case 1:
-      return { 1: titles.continue };
-    case 2:
-      return { 2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3] };
-    case 3:
-      return { 3: [titles.predict_rate1, titles.predict_rate3] };
-    case 4:
-      return { 4: titles.win_bets_continue };
-    case 5:
-      return { 5: [titles.matches_rate1, titles.matches_rate2] };
-    case 6:
-      return { 6: titles.matches_continue };
-  }
+function getTitles(titles) {
+  return {
+    1: titles.continue,
+    2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3],
+    3: [titles.predict_rate1, titles.predict_rate3],
+    4: titles.win_bets_continue,
+    5: [titles.matches_rate1, titles.matches_rate2],
+    6: titles.matches_continue
+  };
 }
 
 // function getTitlesText(titles, num = 1) {
