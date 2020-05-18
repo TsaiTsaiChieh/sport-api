@@ -3,7 +3,7 @@ const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = ['pagetest_eSoccer'];
+const leagues = ['esport_eSoccer'];
 const Match = db.Match;
 const MatchSpread = db.Spread;
 const MatchTotals = db.Totals;
@@ -53,7 +53,9 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.AxiosError(
+          `${err.stack} at prematchFunctions_ESoccer by DY`
+        )
       );
     }
   });
@@ -83,7 +85,7 @@ async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of newest_spread by DY`
+          `${err.stack} at handicap_esports of newest_spread by DY`
         )
       );
     }
@@ -113,7 +115,7 @@ async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of newest_totals by DY`
+          `${err.stack} at handicap_esports of newest_totals by DY`
         )
       );
     }
@@ -129,7 +131,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at handicap_esports by DY`)
+        new AppErrors.MysqlError(`${err.stack} at handicap_esports by DY`)
       );
     }
   });
@@ -144,7 +146,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at handicap_esports by DY`)
+        new AppErrors.MysqlError(`${err.stack} at handicap_esports by DY`)
       );
     }
   });
@@ -171,7 +173,7 @@ async function write2firestoreAboutSpread(eventSnapshot, odd) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of spreads by DY`
+          `${err.stack} at handicap_esports of spreads by DY`
         )
       );
     }
@@ -195,7 +197,7 @@ async function write2MysqlOfMatchSpread(odd, ele) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err} at handicap_esports of MatchSpread by DY`
+          `${err.stack} at handicap_esports of MatchSpread by DY`
         )
       );
     }
@@ -218,7 +220,7 @@ async function write2MysqlOfMatchTotals(odd, ele) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err} at handicap_esports of MatchTotals by DY`
+          `${err.stack} at handicap_esports of MatchTotals by DY`
         )
       );
     }
@@ -245,7 +247,7 @@ async function write2firestoreAboutTotals(eventSnapshot, odd) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of totals by DY`
+          `${err.stack} at handicap_esports of totals by DY`
         )
       );
     }
@@ -302,7 +304,9 @@ async function updateHandicap(league, ele) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.HandicapEsoccerError(`${err} at handicap_esports by DY`)
+        new AppErrors.HandicapEsoccerError(
+          `${err.stack} at handicap_esports by DY`
+        )
       );
     }
   });
@@ -323,7 +327,7 @@ async function query_opening(flag, value, league) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of query_opening by DY`
+          `${err.stack} at handicap_esports of query_opening by DY`
         )
       );
     }
@@ -348,7 +352,7 @@ async function write2firestoreAboutAllSpread(
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of spreads by DY`
+          `${err.stack} at handicap_esports of spreads by DY`
         )
       );
     }
@@ -375,7 +379,7 @@ async function query_handicap(flag, value, leagues) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of query_handicap by DY`
+          `${err.stack} at handicap_esports of query_handicap by DY`
         )
       );
     }
@@ -391,7 +395,9 @@ async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at handicap_esports of Match by DY`)
+        new AppErrors.MysqlError(
+          `${err.stack} at handicap_esports of Match by DY`
+        )
       );
     }
   });
@@ -414,7 +420,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err} at handicap_esports of MatchSpread by DY`
+          `${err.stack} at handicap_esports of MatchSpread by DY`
         )
       );
     }
@@ -426,6 +432,7 @@ async function getHandicap(league, ele) {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
       const data = await axiosForURL(URL);
+      if (!data.results) return;
       if (data.results.Bet365 !== undefined) {
         if (data.results.Bet365) {
           const odds = data.results.Bet365.odds.start;
@@ -456,11 +463,12 @@ async function getHandicap(league, ele) {
           }
         }
       }
+
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
-          `${err} at handicap_esports of getHandicap by DY`
+          `${err.stack} at handicap_esports of getHandicap by DY`
         )
       );
     }
@@ -485,7 +493,7 @@ async function write2firestoreAboutAllTotals(
     } catch (err) {
       return reject(
         new AppErrors.FirebaseCollectError(
-          `${err} at handicap_esports of getTotals by DY`
+          `${err.stack} at handicap_esports of getTotals by DY`
         )
       );
     }
@@ -502,7 +510,7 @@ async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err} at handicap_esports of getTotals of Match by DY`
+          `${err.stack} at handicap_esports of getTotals of Match by DY`
         )
       );
     }
@@ -525,7 +533,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err} at handicap_esports of MatchTotals by DY`
+          `${err.stack} at handicap_esports of MatchTotals by DY`
         )
       );
     }
@@ -537,7 +545,7 @@ async function getTotals(league, ele) {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
       const data = await axiosForURL(URL);
-
+      if (!data.results) return;
       if (data.results.Bet365 !== undefined) {
         if (data.results.Bet365) {
           const odds = data.results.Bet365.odds.start;
@@ -567,11 +575,12 @@ async function getTotals(league, ele) {
           }
         }
       }
+
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
-          `${err} at handicap_esports of getTotals by DY`
+          `${err.stack} at handicap_esports of getTotals by DY`
         )
       );
     }
@@ -593,27 +602,23 @@ function spreadCalculator(handicapObj) {
       // 第一盤口為小數，則顯示為+
       if (firstHandicap >= 0 && secondHandicap >= 0) {
         // 顯示在主隊區，代表主讓
-        handicapObj.home_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
       }
     } else {
       // 第一盤口為整數，則顯示為-
       if (firstHandicap >= 0) {
         // 顯示在主隊區
-        handicapObj.home_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
         handicapObj.away_tw = null;
       } else {
         // 顯示在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw =
-          '讓 ' + firstHandicap + '/' + secondHandicap + ' 分';
+        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
       }
     }
   } else {
@@ -622,44 +627,50 @@ function spreadCalculator(handicapObj) {
 
     if (handicapObj.handicap === 0) {
       // 讓 0 分
-      handicapObj.home_tw = 'pk(0+0)';
+      handicapObj.home_tw = 'pk';
       handicapObj.away_tw = null;
     } else if (handicapObj.handicap % 1 === 0) {
       // 整數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        handicapObj.home_tw = '讓 ' + handicapObj.handicap + ' 分';
+        handicapObj.home_tw = handicapObj.handicap;
         handicapObj.away_tw = null;
       } else {
         // 放在客隊區
         handicapObj.home_tw = null;
-        handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+        handicapObj.away_tw = Math.abs(handicapObj.handicap);
       }
     } else if (handicapObj.handicap % 1 !== 0) {
       // 小數
       if (handicapObj.handicap >= 0) {
         // 放在主隊區
-        if (handicapObj.handicap === 0.25) {
-          handicapObj.home_tw = '讓 0/0.5 分';
+        const str = handicapObj.handicap.toString();
+        const str1 = str.split('.')[0];
+        const str2 = str.split('.')[1];
+        if (str2 === '25') {
+          handicapObj.home_tw = `${str1}/${str1}.5`;
           handicapObj.away_tw = null;
-        } else if (handicapObj.handicap === 0.75) {
-          handicapObj.home_tw = '讓 0.5/1 分';
+        } else if (str2 === '75') {
+          handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
           handicapObj.away_tw = null;
         } else {
-          handicapObj.home_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+          handicapObj.home_tw = Math.abs(handicapObj.handicap);
           handicapObj.away_tw = null;
         }
       } else {
         // 放在客隊區
-        if (handicapObj.handicap === -0.25) {
+        const str = handicapObj.handicap.toString();
+        const str1 = str.split('.')[0];
+        const str2 = str.split('.')[1];
+        if (str2 === '25') {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 0/0.5 分';
-        } else if (handicapObj.handicap === -0.75) {
+          handicapObj.away_tw = `${str1}/${str1}.5`;
+        } else if (str2 === '75') {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 0.5/1 分';
+          handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
         } else {
           handicapObj.home_tw = null;
-          handicapObj.away_tw = '讓 ' + Math.abs(handicapObj.handicap) + ' 分';
+          handicapObj.away_tw = Math.abs(handicapObj.handicap);
         }
       }
     }
@@ -667,7 +678,16 @@ function spreadCalculator(handicapObj) {
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {
-  handicapObj.over_tw = `${handicapObj.handicap} 分`;
+  const str = handicapObj.handicap.toString();
+  const str1 = str.split('.')[0];
+  const str2 = str.split('.')[1];
+  if (str2 === '25') {
+    handicapObj.over_tw = `${str1}/${str1}.5`;
+  } else if (str2 === '75') {
+    handicapObj.over_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+  } else {
+    handicapObj.over_tw = Math.abs(handicapObj.handicap);
+  }
   return handicapObj;
 }
 module.exports = handicap_esport;

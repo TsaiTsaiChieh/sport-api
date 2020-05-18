@@ -1,15 +1,10 @@
-const modules = require('../../util/modules');
-
+// const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
+const Collection = db.Collection;
 function postCollect(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.eventID,
-        args.time
-      );
+      const result = await repackage(args);
 
       resolve(result);
     } catch (err) {
@@ -18,45 +13,30 @@ function postCollect(args) {
     }
   });
 }
-async function reResult(sport, league, UID, eventID, time) {
-  const result = await repackage(sport, league, UID, eventID, time);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, UID, eventID, time) {
-  let leagueName;
-
-  if (league === 'eSoccer') {
-    leagueName = `pagetest_${league}_member`;
-  } else {
-    leagueName = `${sport}_${league}_member`;
+async function repackage(args) {
+  // index is const, taking about 160ms
+  const matchQuery = await db.sequelize.query(
+    `
+      SELECT *
+        FROM matches
+       WHERE bets_id = ${args.eventID} 
+       
+     `,
+    {
+      type: db.sequelize.QueryTypes.SELECT
+    }
+  );
+  const UID = args.token.uid;
+  if (matchQuery.length > 0) {
+    await Collection.upsert({
+      bets_id: args.eventID,
+      uid: UID,
+      league_id: matchQuery[0].league_id,
+      scheduled: matchQuery[0].scheduled,
+      scheduled_tw: matchQuery[0].scheduled * 1000
+    });
   }
-  const output = [];
-  const validation = await modules.firestore
-    .collection(leagueName)
-    .doc(`${UID}`)
-    .get();
-
-  if (validation.exists) {
-    await modules.firestore
-      .collection(leagueName)
-      .doc(`${UID}`)
-      .set(
-        {
-          [`${eventID}`]: {
-            eventID: eventID,
-            sport: sport,
-            league: league,
-            scheduled: time
-          }
-        },
-        { merge: true }
-      );
-    output.push(
-      UID + ' / ' + sport + ' / ' + league + ' / ' + eventID + ' has collected'
-    );
-  }
-
-  return output;
+  return 'Post OK';
 }
 module.exports = postCollect;

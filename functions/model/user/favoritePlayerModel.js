@@ -5,7 +5,7 @@ function favoritePlayerModel(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let favorite_player = {};
-      let favorite_player_list = [];
+      const favorite_player_list = [];
       const uid = args.token.uid;
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
@@ -35,11 +35,10 @@ function favoritePlayerModel(args) {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         });
-        
+
         favorite_player.forEach(function(ele) {
-            favorite_player_list.push(repackage(ele));
+          favorite_player_list.push(repackage(ele));
         });
-        
       } else if (args.method === 'DELETE') {
         const god_uid = args.body.god_uid;
         favorite_player = await db.sequelize.query(
@@ -52,7 +51,6 @@ function favoritePlayerModel(args) {
             bind: { uid: uid, god_uid: god_uid },
             type: db.sequelize.QueryTypes.DELETE
           });
-          
       }
       resolve(favorite_player_list);
     } catch (err) {
@@ -62,7 +60,7 @@ function favoritePlayerModel(args) {
   });
 }
 
-function repackage(ele){
+function repackage(ele) {
   const data = {
     god_uid: ele.god_uid,
     avatar: ele.avatar,

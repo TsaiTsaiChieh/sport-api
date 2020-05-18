@@ -122,7 +122,7 @@ exports.pbp_eSoccer = functions
   .onRun(require('./pubsub/checkmatch_eSoccer'));
 exports.pbp_abnormal = functions
   .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
+  .pubsub.schedule('*/10 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_abnormal'));
 

@@ -12,30 +12,30 @@ topic__article
 function getLeague(not_ajv = false) {
   const leagues = {
     棒球: {
-      MLB: 'MLB',
-      CPBL: '中華職棒',
-      KBO: '韓國職棒',
-      NPB: '日本職棒',
-      ABL: '澳洲職棒',
-      LMB: '墨西哥職棒'
+      MLB: ['MLB', 'MLB'],
+      CPBL: ['中華職棒', '中職'],
+      KBO: ['韓國職棒', '韓棒'],
+      NPB: ['日本職棒', '日棒'],
+      ABL: ['澳洲職棒', '澳棒'],
+      LMB: ['墨西哥職棒', '墨棒']
     },
     籃球: {
-      NBA: 'NBA',
-      SBL: 'SBL',
-      WNBA: 'WNBA',
-      NBL: '澳洲職籃',
-      KBL: '韓國職籃',
-      CBA: '中國職籃',
-      JBL: '日本職籃'
+      NBA: ['NBA', 'NBA'],
+      SBL: ['SBL', 'SBL'],
+      WNBA: ['WNBA', 'WNBA'],
+      NBL: ['澳洲職籃', '澳籃'],
+      KBL: ['韓國職籃', '韓籃'],
+      CBA: ['中國職籃', '中籃'],
+      JBL: ['日本職籃', '日籃']
     },
     冰球: {
-      NHL: 'NHL冰球'
+      NHL: ['NHL冰球', 'NHL']
     },
     其他: {
-      Soccer: '足球'
+      Soccer: ['足球', '']
     },
     運動電競: {
-      eSoccer: '電競足球'
+      eSoccer: ['電競足球', '']
     }
     // 遊戲電競: { //eGame
     //   '': 'LOL',

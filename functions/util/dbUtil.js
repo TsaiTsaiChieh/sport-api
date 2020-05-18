@@ -223,46 +223,31 @@ const Title = sequelize.define(
     ]
   }
 );
-const Collection = sequelize.define(
-  'user__collection',
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    uid: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    bets_id: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    league_id: {
-      type: Sequelize.STRING(8),
-      allowNull: false
-    },
-    scheduled: {
-      type: Sequelize.INTEGER
-    },
-    scheduled_tw: {
-      type: Sequelize.DATE
-    },
-    sport_id: {
-      type: Sequelize.INTEGER
-    }
-    // here
+const Collection = sequelize.define('user__collection', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
   },
-  {
-    indexes: [
-      {
-        unique: true,
-        fields: ['uid']
-      }
-    ]
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  bets_id: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  league_id: {
+    type: Sequelize.STRING(8),
+    allowNull: false
+  },
+  scheduled: {
+    type: Sequelize.INTEGER
+  },
+  scheduled_tw: {
+    type: Sequelize.DATE
   }
-);
+});
 const Rank = sequelize.define(
   'user__rank',
   {
@@ -693,28 +678,36 @@ const Prediction = sequelize.define(
       type: Sequelize.INTEGER
     },
     spread_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     spread_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     totals_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     uid: {
       type: Sequelize.STRING,
@@ -1002,7 +995,7 @@ const UserFollow = sequelize.define(
  * 最愛大神
  */
 const User_FavoriteGod = sequelize.define(
-  'user__favoritegod',
+  'user__favoriteplayer',
   {
     uid: {
       type: Sequelize.STRING,
@@ -1303,20 +1296,17 @@ const Service_Contact = sequelize.define('service__contact', {
 /*
  * 首頁 排行榜預設值
  */
-const Home_List = sequelize.define(
-  'home__list',
-  {
-    god_list: {
-      type: Sequelize.STRING
-    },
-    win_rate_list: {
-      type: Sequelize.STRING
-    },
-    win_bets_list: {
-      type: Sequelize.STRING
-    }
+const Home_List = sequelize.define('home__list', {
+  god_list: {
+    type: Sequelize.STRING
+  },
+  win_rate_list: {
+    type: Sequelize.STRING
+  },
+  win_bets_list: {
+    type: Sequelize.STRING
   }
-);
+});
 
 const Home_Banner = sequelize.define(
   'home__banner', // 不要再動了 拜託!!

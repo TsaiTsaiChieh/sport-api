@@ -1,11 +1,29 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
-const firestoreArray = ['pagetest_eSoccer'];
+const firestoreArray = ['esport_eSoccer'];
 const sportArray = ['esports'];
 const leagueArray = ['eSoccer'];
+function queryMatches(firestoreName) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const data = await modules.firestore
+        .collection(firestoreName)
+        .where('flag.status', '==', modules.MATCH_STATUS.ABNORMAL)
+        .get();
+      const totalData = [];
+
+      data.docs.map(function(doc) {
+        totalData.push(doc.data());
+      });
+      return resolve(await Promise.all(totalData));
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
+    }
+  });
+}
 async function checkmatch_abnormal() {
   return new Promise(async function(resolve, reject) {
     for (let i = 0; i < firestoreArray.length; i++) {
@@ -13,18 +31,9 @@ async function checkmatch_abnormal() {
       const sportName = sportArray[i];
       const leagueName = leagueArray[i];
       try {
-        const data = await modules.firestore
-          .collection(firestoreName)
-          .where('flag.status', '==', -1)
-          .get();
-        const totalData = [];
-        data.forEach((doc) => {
-          totalData.push(doc.data());
-        });
-
+        const totalData = await queryMatches(firestoreName);
         for (let i = 0; i < totalData.length; i++) {
           const betsID = totalData[i].bets_id;
-
           const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
           const parameterPBP = {
             betsID: betsID,
@@ -106,6 +115,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            return;
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -143,6 +153,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            return;
           }
           if (data.results[0].time_status === '3') {
             try {
@@ -161,10 +172,12 @@ async function doPBP(parameter) {
                 )
               );
             }
+            return;
           }
-          //
+
           if (data.results[0].time_status === '2') {
             console.log(`${betsID} status is still -1`);
+            return;
           }
           if (data.results[0].time_status === '1') {
             try {
@@ -216,9 +229,11 @@ async function doPBP(parameter) {
                 )
               );
             }
+            return;
           }
           if (data.results[0].time_status === '0') {
             console.log(`${betsID} status is still -1`);
+            return;
           }
         }
       }
@@ -299,7 +314,6 @@ async function pbpHistory(parameterHistory) {
 
     try {
       await modules.firestore
-        // here
         .collection(firestoreName)
         .doc(betsID)
         .set({ flag: { status: 0 } }, { merge: true });
@@ -381,13 +395,12 @@ async function pbpHistory(parameterHistory) {
       //       { merge: true }
       //     );
       // settlementAccordingMatch(); 采潔的結算
-
-      await settleMatchesModel({
-        token: {
-          uid: '999'
-        },
-        bets_id: betsID
-      });
+      // await settleMatchesModel({
+      //   token: {
+      //     uid: '999'
+      //   },
+      //   bets_id: betsID
+      // });
     } catch (err) {
       return reject(
         new AppErrors.PBPAbnormalError(`${err} at pbpHistory of yuhsien by DY`)

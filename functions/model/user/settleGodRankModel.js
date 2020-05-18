@@ -10,7 +10,6 @@ const db = require('../../util/dbUtil');
 
 const d = require('debug')('user:settleWinListModel');
 
-
 async function settleGodRank(args) {
   return new Promise(async function(resolve, reject) {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
@@ -69,10 +68,12 @@ async function settleGodRank(args) {
       type: db.sequelize.QueryTypes.SELECT 
     } 
   );
+<<<<<<< HEAD
   resolve(result);
   });
   
+=======
+>>>>>>> 7a6055ae8caee6181d0faf92d4cc4cc76477a3ea
 }
-
 
 module.exports = settleGodRank;

@@ -2,12 +2,12 @@ const modules = require('../util/modules');
 const ESoccerpbp = require('./pbp_eSoccer');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
+const firestoreName = 'esport_eSoccer';
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
 async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
-    const firestoreName = 'pagetest_eSoccer';
     try {
       const data = await modules.firestore
         .collection(firestoreName)
@@ -25,12 +25,12 @@ async function checkmatch_eSoccer() {
         const eventStatus = totalData[i].flag.status;
         switch (eventStatus) {
           case 2: {
-            let realtimeData = await modules.database
-              .ref(`esports/eSoccer/${betsID}`)
-              .once('value');
-            realtimeData = realtimeData.val();
             if (gameTime <= nowTime) {
               try {
+                await Match.upsert({
+                  bets_id: betsID,
+                  status: 1
+                });
                 await modules.database
                   .ref(`esports/eSoccer/${betsID}/Summary/status`)
                   .set('inprogress');
@@ -38,14 +38,9 @@ async function checkmatch_eSoccer() {
                   .collection(firestoreName)
                   .doc(betsID)
                   .set({ flag: { status: 1 } }, { merge: true });
-                await Match.upsert({
-                  bets_id: betsID,
-                  status: 1
-                });
 
                 const parameter = {
-                  betsID: betsID,
-                  realtimeData: realtimeData
+                  betsID: betsID
                 };
                 await ESoccerpbpInplay(parameter);
               } catch (err) {
@@ -54,20 +49,6 @@ async function checkmatch_eSoccer() {
                     `${err} at checkmatch_ESoccer by DY`
                   )
                 );
-              }
-            } else {
-              if (realtimeData.Summary.status !== 'scheduled') {
-                try {
-                  await modules.database
-                    .ref(`esports/eSoccer/${betsID}/Summary/status`)
-                    .set('scheduled');
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at checkmatch_ESoccer by DY`
-                    )
-                  );
-                }
               }
             }
             break;
