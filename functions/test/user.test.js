@@ -46,4 +46,26 @@ describe('/user Endpoints', () => {
     expect(res.statusCode).toEqual(200);
     expect(typeof res.body).toEqual(typeof []);
   });
+
+  it('/user/god_league_rank', async () => {
+    const res = await request(url)
+      .get('/user/god_league_rank')
+      .set('Authorization', 'bearer ' + token); ;
+
+    expect(res.statusCode).toEqual(200);
+    expect(typeof res.body).toEqual(typeof []);
+  });
+
+  it('/user/god_league_rank_receive', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_receive')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "leagues": ["NBA", "MLB"]
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('success', ["NBA", "MLB"]);
+  });
+
 });

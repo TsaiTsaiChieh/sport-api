@@ -10,12 +10,12 @@ async function getGodLeagueRank(args) {
 
   // 使用者 本期 未閱
   const godLeagueTitles = await db.sequelize.query(`
-        select league_id, rank_id
-          from titles
-         where uid = :uid
-           and period = :period
-           and received = 0
-      `, {
+      select league_id, rank_id
+        from titles
+       where uid = :uid
+         and period = :period
+         and received = 0
+    `, {
     replacements: {
       uid: userUid,
       period: period
