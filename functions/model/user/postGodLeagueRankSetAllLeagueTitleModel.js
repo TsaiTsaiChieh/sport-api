@@ -1,9 +1,9 @@
-const { getTitlesPeriod, leagueCodebook } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
-async function postGodLeagueRankSetDefaultRank(args) {
+async function postGodLeagueRankSetAllLeagueTitle(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
   // const period = getTitlesPeriod(Date.now()).period;
@@ -17,7 +17,7 @@ async function postGodLeagueRankSetDefaultRank(args) {
   }, {
     where: {
       uid: userUid,
-      status: 3
+      status: 2
     }
   }));
 
@@ -28,4 +28,4 @@ async function postGodLeagueRankSetDefaultRank(args) {
   return result;
 }
 
-module.exports = postGodLeagueRankSetDefaultRank;
+module.exports = postGodLeagueRankSetAllLeagueTitle;

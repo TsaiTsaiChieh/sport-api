@@ -1,21 +1,59 @@
-const getGodLeagueRankDefaultTitleModel = require('../../model/user/getGodLeagueRankDefaultTitleModel');
+const { ajv } = require('../../util/modules');
+const postGodLeagueRankSetAllLeagueTitleModel = require('../../model/user/postGodLeagueRankSetAllLeagueTitleModel');
 
-async function getGodLeagueRankDefaultTitle(req, res) {
+async function postGodLeagueRankSetAllLeagueTitle(req, res) {
+  // const schema = {
+  //   type: 'object',
+  //   required: ['lists'],
+  //   properties: {
+  //     lists: {
+  //       type: 'array',
+  //       items: {
+  //         type: 'object',
+  //         required: ['league', 'rank'],
+  //         properties: {
+  //           league: {
+  //             enum: ['NBA', 'MLB', 'eSoccer', 'KBO'] // 目前測試資料和 modules.acceptLeague 不一致
+  //           },
+  //           rank: {
+  //             enum: [1, 2, 3, 4]
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // };
+
+  const schema = {
+    required: ['league'],
+    properties: {
+      league: {
+        type: 'string',
+        enum: ['NBA', 'MLB', 'eSoccer', 'KBO']
+      }
+    }
+  };
+
+  const valid = ajv.validate(schema, req.body);
+  if (!valid) {
+    return res.status(400).json(ajv.errors);
+  }
+
   try {
     req.body.token = req.token; // 從 cookie 取得 __session 中 token
 
-    res.json(await getGodLeagueRankDefaultTitleModel(req.body));
+    res.json(await postGodLeagueRankSetAllLeagueTitleModel(req.body));
   } catch (err) {
     console.error(err);
     res.status(err.code).json(err.err);
   }
 }
 
-module.exports = getGodLeagueRankDefaultTitle;
+module.exports = postGodLeagueRankSetAllLeagueTitle;
 /**
- * @api {get} /god_league_titles Get God League Rank Default Title
+ * @api {post} /god_league_titles Post God League Rank Receive
  * @apiVersion 1.0.0
- * @apiName god_league_rank default title
+ * @apiName god_league_rank
  * @apiGroup User
  * @apiPermission None
  *
@@ -244,7 +282,39 @@ module.exports = getGodLeagueRankDefaultTitle;
  *
  * @apiError 404
  *
+ * @apiErrorExample {JSON} Error-1301
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": "1301",
+    "msg": "使用者狀態異常"
+ * }
  *
+ * @apiError 404
+ *
+ * @apiErrorExample {JSON} Error-1302
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": "1302",
+    "msg": "使用者狀態異常"
+ * }
+ *
+ * @apiError 404
+ *
+ * @apiErrorExample {JSON} Error-1303
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": "1303",
+    "msg": "使用者沒有預測單"
+ * }
+ *
+ * @apiError 404
+ *
+ * @apiErrorExample {JSON} Error-1304
+ * HTTP/1.1 404 Not Found
+ * {
+    "code": "1304",
+    "msg": "使用者一天只能擁有一份預測清單"
+ * }
  *
  * @apiError 500 Internal Server Error
  *

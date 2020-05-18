@@ -2,7 +2,7 @@ const { getTitlesPeriod, leagueDecoder } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-async function getGodLeagueRankDefaultTitle(args) {
+async function getGodLeagueRankDefaultLeague(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
   const period = getTitlesPeriod(Date.now()).period;
@@ -76,4 +76,4 @@ function getTitles(titles, num = 1) {
 //   }
 // }
 
-module.exports = getGodLeagueRankDefaultTitle;
+module.exports = getGodLeagueRankDefaultLeague;
