@@ -33,20 +33,20 @@ function queryAllCollection(args) {
                 home.name,
                 away.name, 
                 spreads.spread_id
-           FROM user__collections collections
-                match__teams home
-                match__teams away
-     INNER JOIN matches ON collections.bets_id = matches.bets_id
+           FROM user__collections AS collections,
+                matches AS game
+                match__teams AS home,
+                match__teams AS away
      LEFT JOIN match__spreads spreads ON matches.spread_id = spreads.spread_id
-          WHERE collections.uid = '${args.token.uid}' 
+          WHERE collections.uid = '${args.token.uid}'
+            AND collections.bets_id = game.bets_id 
             AND collections.league_id = '${
               modules.leagueCodebook(args.league).id
             }'  
             AND collections.scheduled >= '${begin}'   
             AND collections.scheduled <= '${end}'    
-            AND matches.home_id = home
-
-
+            AND matches.home_id = home.team_id
+            AND matches.away_id = away.team_id
            `,
         {
           type: db.sequelize.QueryTypes.SELECT
