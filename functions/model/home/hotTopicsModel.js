@@ -27,7 +27,7 @@ function dbFind(page) {
       }
       const topics = resultFirst;
 
-      if (page !== null) {
+      if (page !== null || typeof page === 'undefined') {
         countPerPage = 10;
       } else {
         page = 0;
