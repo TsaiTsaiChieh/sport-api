@@ -84,6 +84,10 @@ async function repackage(args, matches) {
     };
 
     data.push(temp);
+  }
+  if (matches.length === 0) {
+    return [];
+  } else {
     return data;
   }
 }
