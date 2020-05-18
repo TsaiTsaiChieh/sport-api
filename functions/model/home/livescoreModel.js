@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescoreHome(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeMatches = await queryHomeMatches(args);
 
@@ -14,7 +14,7 @@ async function livescoreHome(args) {
   });
 }
 function queryHomeMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')
@@ -39,7 +39,7 @@ function queryHomeMatches(args) {
 
       const matches = [];
 
-      queries.docs.map(function (doc) {
+      queries.docs.map(function(doc) {
         matches.push(doc.data());
       });
       if (matches.length < 4) {
@@ -50,7 +50,7 @@ function queryHomeMatches(args) {
           .where('scheduled', '<=', end)
           .limit(4 - matches.length)
           .get();
-        queries.docs.map(function (doc) {
+        queries.docs.map(function(doc) {
           matches.push(doc.data());
         });
       }
@@ -62,7 +62,7 @@ function queryHomeMatches(args) {
           .where('scheduled', '<=', end)
           .limit(4 - matches.length)
           .get();
-        queries.docs.map(function (doc) {
+        queries.docs.map(function(doc) {
           matches.push(doc.data());
         });
       }

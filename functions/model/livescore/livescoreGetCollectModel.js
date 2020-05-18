@@ -4,7 +4,7 @@ async function livescore(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const allCollections = await queryAllCollection(args);
-      const result = await repackage(args, allCollections);
+      // const result = await repackage(args, allCollections);
 
       resolve(allCollections);
     } catch (err) {
@@ -78,5 +78,5 @@ function queryAllCollection(args) {
   });
 }
 
-async function repackage(args, allCollections) {}
+// async function repackage(args, allCollections) {}
 module.exports = livescore;

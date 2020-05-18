@@ -3,7 +3,7 @@ const db = require('../util/dbUtil');
 const firestoreName = 'esport_eSoccer';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
-// const settleMatchesModel = require('../model/user/settleMatchesModel');
+const settleMatchesModel = require('../model/user/settleMatchesModel');
 
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {

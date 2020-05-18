@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 
 async function livescoreInProgress(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const inplayMathes = await queryInplayMatches(args);
       const result = await repackage(args, inplayMathes);
@@ -14,7 +14,7 @@ async function livescoreInProgress(args) {
 }
 
 function queryInplayMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
@@ -33,7 +33,7 @@ function queryInplayMatches(args) {
 
       const matches = [];
 
-      queries.docs.map(function (doc) {
+      queries.docs.map(function(doc) {
         matches.push(doc.data());
       });
       return resolve(await Promise.all(matches));

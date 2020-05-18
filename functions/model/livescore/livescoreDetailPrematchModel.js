@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 
 async function livescore(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const match = await queryMatch(args);
       const result = await repackage(args, match);
@@ -13,14 +13,14 @@ async function livescore(args) {
   });
 }
 function queryMatch(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const query = await modules.firestore
         .collection(modules.leagueCodebook(args.league).match)
         .where('bets_id', '==', args.eventID)
         .get();
       const match = [];
-      query.docs.map(function (doc) {
+      query.docs.map(function(doc) {
         match.push(doc.data());
       });
       return resolve(await Promise.all(match));
@@ -40,7 +40,7 @@ async function repackage(args, match) {
         .limit(1)
         .get();
       let forLineupHome = [];
-      queryHomeForHome.docs.map(function (doc) {
+      queryHomeForHome.docs.map(function(doc) {
         forLineupHome.push(doc.data());
       });
       const queryAwayForHome = await modules.firestore
@@ -51,7 +51,7 @@ async function repackage(args, match) {
         .limit(1)
         .get();
       let forLineupAway = [];
-      queryAwayForHome.docs.map(function (doc) {
+      queryAwayForHome.docs.map(function(doc) {
         forLineupAway.push(doc.data());
       });
 
@@ -118,7 +118,7 @@ async function repackage(args, match) {
             .orderBy('scheduled', 'desc')
             .limit(1)
             .get();
-          queryHomeForAway.docs.map(function (doc) {
+          queryHomeForAway.docs.map(function(doc) {
             forLineupHome.push(doc.data());
           });
           const queryAwayForAway = await modules.firestore
@@ -128,7 +128,7 @@ async function repackage(args, match) {
             .orderBy('scheduled', 'desc')
             .limit(1)
             .get();
-          queryAwayForAway.docs.map(function (doc) {
+          queryAwayForAway.docs.map(function(doc) {
             forLineupAway.push(doc.data());
           });
 
