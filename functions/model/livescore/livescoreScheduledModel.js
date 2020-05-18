@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 
 async function livescoreScheduled(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const scheduledMathes = await queryScheduledMatches(args);
       const result = await repackage(args, scheduledMathes);
@@ -13,7 +13,7 @@ async function livescoreScheduled(args) {
   });
 }
 function queryScheduledMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
@@ -32,7 +32,7 @@ function queryScheduledMatches(args) {
 
       const matches = [];
 
-      queries.docs.map(function(doc) {
+      queries.docs.map(function (doc) {
         matches.push(doc.data());
       });
       return resolve(await Promise.all(matches));
@@ -50,7 +50,7 @@ async function repackage(args, matches) {
       const temp = {
         id: ele.bets_id,
         status: ele.flag.status,
-        sport: modules.league2Sport(args.league),
+        sport: modules.league2Sport(args.league).sport,
         league: ele.league.name_ch,
         ori_league: args.league,
         scheduled: ele.scheduled * 1000,

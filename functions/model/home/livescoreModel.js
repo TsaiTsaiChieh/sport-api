@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescoreHome(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const homeMatches = await queryHomeMatches(args);
 
@@ -14,7 +14,7 @@ async function livescoreHome(args) {
   });
 }
 function queryHomeMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')
@@ -38,7 +38,7 @@ function queryHomeMatches(args) {
 
       const matches = [];
 
-      queries.docs.map(function(doc) {
+      queries.docs.map(function (doc) {
         matches.push(doc.data());
       });
 
@@ -57,7 +57,7 @@ async function repackage(args, matches) {
       id: ele.bets_id,
       league: ele.league.name_ch,
       ori_league: ele.league.name,
-      sport: modules.league2Sport(args.league),
+      sport: modules.league2Sport(args.league).sport,
       status: ele.flag.status,
       newest_spread: {
         handicap: ele.newest_spread ? ele.newest_spread.handicap : null,

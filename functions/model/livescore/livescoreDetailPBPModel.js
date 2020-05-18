@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const match = await queryMatch(args);
       const result = await repackage(args, match);
@@ -13,14 +13,14 @@ async function livescore(args) {
 }
 
 function queryMatch(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const query = await modules.firestore
         .collection(modules.leagueCodebook(args.league).match)
         .where('bets_id', '==', args.eventID)
         .get();
       const match = [];
-      query.docs.map(function(doc) {
+      query.docs.map(function (doc) {
         match.push(doc.data());
       });
       return resolve(await Promise.all(match));
@@ -36,7 +36,7 @@ async function repackage(args, match) {
   const temp = {
     id: ele.bets_id,
     status: ele.flag.status,
-    sport: modules.league2Sport(args.league),
+    sport: modules.league2Sport(args.league).sport,
     league: ele.league.name_ch,
     ori_league: args.league,
     scheduled: ele.scheduled * 1000,

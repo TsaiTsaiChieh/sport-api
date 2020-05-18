@@ -1,11 +1,9 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 async function livescore(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const allCollections = await queryAllCollection(args);
-      console.log(allCollections);
-
       const result = await repackage(args, allCollections);
 
       resolve(result);
@@ -17,7 +15,7 @@ async function livescore(args) {
 }
 
 function queryAllCollection(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
@@ -26,32 +24,32 @@ function queryAllCollection(args) {
           value: 1,
           unit: 'days'
         }) - 1;
+      // console.log(begin);
+      // console.log(end);
 
       const queries = await db.sequelize.query(
-        `SELECT collections.bets_id, collections.scheduled,
-                matches.home_id, matches.away_id, matches.spread_id,
-                home.name,
-                away.name, 
-                spreads.spread_id
+        `SELECT collections.bets_id AS id, collections.scheduled,
+                home.alias_ch AS home_alias_ch, away.alias_ch AS away_alias_ch, 
+                spread.home_tw AS spread_home_tw , spread.away_tw AS spread_away_tw
            FROM user__collections AS collections,
-                matches AS game
+                matches AS game,
                 match__teams AS home,
-                match__teams AS away
-     LEFT JOIN match__spreads spreads ON matches.spread_id = spreads.spread_id
+                match__teams AS away,
+                match__spreads AS spread
           WHERE collections.uid = '${args.token.uid}'
             AND collections.bets_id = game.bets_id 
             AND collections.league_id = '${
               modules.leagueCodebook(args.league).id
             }'  
-            AND collections.scheduled >= '${begin}'   
-            AND collections.scheduled <= '${end}'    
-            AND matches.home_id = home.team_id
-            AND matches.away_id = away.team_id
+            AND collections.scheduled BETWEEN ${begin} AND ${end}  
+            AND game.home_id = home.team_id
+            AND game.away_id = away.team_id
            `,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
+      console.log(queries.length);
 
       return resolve(await Promise.all(queries));
     } catch (err) {
