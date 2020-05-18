@@ -217,17 +217,29 @@ router.get(
   verification.token_v2,
   require('../controller/user/profileController')
 );
-// 顯示 所有聯盟 + 稱號（稱號 (鑽金銀銅 Rank) + 預設成就(近幾過幾)
+// 顯示 預設聯盟 + 所有聯盟預設稱號 ( 稱號 (鑽金銀銅 Rank) + 預設成就(近幾過幾) )
 router.get(
-  '/god_league_rank_default_title',
+  '/god_league_rank_default_league',
   verification.token,
-  require('../controller/user/getGodLeagueRankDefaultTitleController')
+  require('../controller/user/getGodLeagueRankDefaultLeagueController')
 );
-// 變更 顯示稱號（稱號 (鑽金銀銅 Rank) + 成就(近幾過幾)）
+// 變更 預設顯示聯盟（稱號 (鑽金銀銅 Rank) + 成就(近幾過幾)）
 router.post(
-  '/god_league_rank_set_default_rank',
+  '/god_league_rank_set_default_league',
   verification.token,
-  require('../controller/user/postGodLeagueRankSetDefaultRankController')
+  require('../controller/user/postGodLeagueRankSetDefaultLeagueController')
+);
+// 顯示 預設、所有聯盟稱號 + 所有聯盟成就 ( 稱號 (鑽金銀銅 Rank) + 所有成就(近幾過幾) )
+router.get(
+  '/god_league_rank_all_title',
+  verification.token,
+  require('../controller/user/getGodLeagueRankAllTitleController')
+);
+// 變更 所有聯盟顯示稱號 + 預設所有顯示成就(近幾過幾)）
+router.post(
+  '/god_league_rank_set_all_league_title',
+  verification.token,
+  require('../controller/user/postGodLeagueRankSetAllLeagueTitleController')
 );
 // 查詢大神稱號
 router.get(

@@ -10,7 +10,7 @@ async function getGodLeagueRank(args) {
 
   // 使用者 本期 未閱
   const godLeagueTitles = await db.sequelize.query(`
-        select *
+        select league_id, rank_id
           from titles
          where uid = :uid
            and period = :period
