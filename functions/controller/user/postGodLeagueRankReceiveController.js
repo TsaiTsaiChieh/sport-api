@@ -45,7 +45,7 @@ module.exports = postGodLeagueRankReceive;
  *
  * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} league shwo league
- * @apiSuccess {JSON} result Available User Predict Info
+ * @apiSuccess {JSON} result success update object
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK

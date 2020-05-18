@@ -25,7 +25,6 @@ async function postGodLeagueRankSetAllLeagueTitle(args) {
     if (r[0] === 0) {throw errs.dbErrsMsg('404', '13542');}
     if (r[0] === 1) result.success.push({ league: title.league, default_title: title.default_title });
   }
-  // 是大神才可以更新
 
   return result;
 }
