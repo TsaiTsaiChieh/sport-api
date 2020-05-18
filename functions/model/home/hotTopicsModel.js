@@ -26,12 +26,15 @@ function dbFind(page) {
         });
       }
       const topics = resultFirst;
+      console.log(page);
 
-      if (page !== null || typeof page === 'undefined') {
+      if (page !== null) {
         countPerPage = 10;
       } else {
+        countPerPage = 3;
         page = 0;
       }
+      console.log(countPerPage);
 
       const resultData = await db.sequelize.models.topic__article.findAndCountAll({
         where: {
