@@ -1,13 +1,13 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const firestoreArray = ['esport_eSoccer'];
 const sportArray = ['esports'];
 const leagueArray = ['eSoccer'];
 function queryMatches(firestoreName) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const data = await modules.firestore
         .collection(firestoreName)
@@ -15,7 +15,7 @@ function queryMatches(firestoreName) {
         .get();
       const totalData = [];
 
-      data.docs.map(function (doc) {
+      data.docs.map(function(doc) {
         totalData.push(doc.data());
       });
       return resolve(await Promise.all(totalData));
@@ -25,7 +25,7 @@ function queryMatches(firestoreName) {
   });
 }
 async function checkmatch_abnormal() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     for (let i = 0; i < firestoreArray.length; i++) {
       const firestoreName = firestoreArray[i];
       const sportName = sportArray[i];
@@ -56,7 +56,7 @@ async function checkmatch_abnormal() {
   });
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -68,7 +68,7 @@ async function axiosForURL(URL) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const sportName = parameter.sportName;
@@ -248,7 +248,7 @@ async function doPBP(parameter) {
   });
 }
 async function pbpHistory(parameterHistory) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     let data = parameterHistory.data;
     const betsID = parameterHistory.betsID;
     const sportName = parameterHistory.sportName;

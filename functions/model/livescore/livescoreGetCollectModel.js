@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 async function livescore(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const allCollections = await queryAllCollection(args);
       console.log(allCollections);
@@ -17,7 +17,7 @@ async function livescore(args) {
 }
 
 function queryAllCollection(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end =
