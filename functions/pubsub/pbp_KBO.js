@@ -1,12 +1,11 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-const firestoreName = 'esport_eSoccer';
+const firestoreName = 'baseball_KBO';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
-
 const Match = db.Match;
-async function ESoccerpbpInplay(parameter) {
+async function KBOpbpInplay(parameter) {
   // 12 秒一次
   const perStep = 12000;
   // 一分鐘4次
@@ -29,7 +28,7 @@ async function ESoccerpbpInplay(parameter) {
     await doPBP(parameterPBP);
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 >= timesPerLoop) {
-      console.log(`${betsID} : checkmatch_ESoccer success`);
+      console.log(`${betsID} : pbp_KBO success`);
       clearInterval(timerForStatus2);
     }
   }, perStep);
@@ -40,13 +39,11 @@ async function axiosForURL(URL) {
       const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
-      return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
-      );
+      return reject(new AppErrors.AxiosError(`${err} at KBOpbp by DY`));
     }
   });
 }
-async function ESoccerpbpHistory(parameter) {
+async function KBOpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
@@ -57,7 +54,7 @@ async function ESoccerpbpHistory(parameter) {
       let awayScores = null;
       if (!data.results[0].ss) {
         realtimeData = await modules.database
-          .ref(`esports/eSoccer/${betsID}`)
+          .ref(`baseball/KBO/${betsID}`)
           .once('value');
         realtimeData = realtimeData.val();
         data = realtimeData;
@@ -72,40 +69,6 @@ async function ESoccerpbpHistory(parameter) {
       } else {
         homeScores = data.results[0].ss.split('-')[0];
         awayScores = data.results[0].ss.split('-')[1];
-      }
-      if (!data.results[0].timer) {
-        data.results[0].timer = { tm: 'xx', ts: 'xx' };
-      }
-
-      if (!data.results[0].stats) {
-        data.results[0].stats = {};
-      }
-      if (!data.results[0].stats.attacks) {
-        data.results[0].stats.attacks = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.ball_safe) {
-        data.results[0].stats.ball_safe = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.corners) {
-        data.results[0].stats.corners = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.dangerous_attacks) {
-        data.results[0].stats.dangerous_attacks = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.goals) {
-        data.results[0].stats.goals = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.off_target) {
-        data.results[0].stats.off_target = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.on_target) {
-        data.results[0].stats.on_target = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.yellowcards) {
-        data.results[0].stats.yellowcards = ['no data', 'no data'];
-      }
-      if (!data.results[0].stats.redcards) {
-        data.results[0].stats.redcards = ['no data', 'no data'];
       }
 
       try {
@@ -131,18 +94,18 @@ async function ESoccerpbpHistory(parameter) {
       } catch (err) {
         return reject(
           new AppErrors.MysqlError(
-            `${err} at pbpESoccer of Match on ${betsID} by DY`
+            `${err} at pbpKBO of Match on ${betsID} by DY`
           )
         );
       }
       try {
         await modules.database
-          .ref(`esports/eSoccer/${betsID}/Summary/status`)
+          .ref(`baseball/KBO/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
-            `${err} at pbpESoccer of status on ${betsID} by DY`
+            `${err} at pbpKBO of status on ${betsID} by DY`
           )
         );
       }
@@ -200,14 +163,14 @@ async function ESoccerpbpHistory(parameter) {
       } catch (err) {
         return reject(
           new AppErrors.PBPEsoccerError(
-            `${err} at pbpESoccer of yuhsien on ${betsID} by DY`
+            `${err} at pbpKBO of yuhsien on ${betsID} by DY`
           )
         );
       }
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(
-          `${err} at pbpESoccer of PBPHistory on ${betsID} by DY`
+          `${err} at pbpKBO of PBPHistory on ${betsID} by DY`
         )
       );
     }
@@ -227,7 +190,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status === '5') {
             try {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('cancelled');
             } catch (err) {
               return reject(
@@ -264,7 +227,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status === '4') {
             try {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('postponed');
             } catch (err) {
               return reject(
@@ -302,7 +265,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status === '3') {
             try {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('closed');
             } catch (err) {
               return reject(
@@ -316,7 +279,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status === '2') {
             try {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
               return reject(
@@ -355,7 +318,7 @@ async function doPBP(parameter) {
               if (realtimeData.Summary.status !== 'inprogress') {
                 try {
                   await modules.database
-                    .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                    .ref(`baseball/KBO/${betsID}/Summary/status`)
                     .set('inprogress');
                 } catch (err) {
                   return reject(
@@ -390,7 +353,7 @@ async function doPBP(parameter) {
                 }
                 try {
                   await modules.database
-                    .ref(`esports/eSoccer/${betsID}/Summary/league`)
+                    .ref(`baseball/KBO/${betsID}/Summary/league`)
                     .set({
                       name: data.results[0].league.name,
                       id: data.results[0].league.id
@@ -408,7 +371,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status === '0') {
             try {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
               return reject(
@@ -445,91 +408,28 @@ async function doPBP(parameter) {
           let homeScores = 'no data';
           let awayScores = 'no data';
 
-          if (!data.results[0].timer) {
-            data.results[0].timer = { tm: 'xx', ts: 'xx' };
-          }
           if (!data.results[0].ss) {
             data.results[0].ss = 'no data';
           } else {
             homeScores = data.results[0].ss.split('-')[0];
             awayScores = data.results[0].ss.split('-')[1];
           }
-          if (!data.results[0].stats) {
-            data.results[0].stats = {};
-          }
-          if (!data.results[0].stats.attacks) {
-            data.results[0].stats.attacks = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.ball_safe) {
-            data.results[0].stats.ball_safe = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.corners) {
-            data.results[0].stats.corners = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.dangerous_attacks) {
-            data.results[0].stats.dangerous_attacks = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.goals) {
-            data.results[0].stats.goals = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.off_target) {
-            data.results[0].stats.off_target = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.on_target) {
-            data.results[0].stats.on_target = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.yellowcards) {
-            data.results[0].stats.yellowcards = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.redcards) {
-            data.results[0].stats.redcards = ['no data', 'no data'];
-          }
-
-          try {
-            await modules.database
-              .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
-              .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP of now_clock on ${betsID} by DY`
-              )
-            );
-          }
 
           try {
             if (data.results[0].ss !== 'no data') {
               await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/info`)
+                .ref(`baseball/KBO/${betsID}/Summary/info`)
                 .set({
                   home: {
                     name: data.results[0].home.name,
                     Total: {
-                      points: homeScores,
-                      attacks: data.results[0].stats.attacks[0],
-                      ball_safe: data.results[0].stats.ball_safe[0],
-                      corners: data.results[0].stats.corners[0],
-                      dangerous_attacks:
-                        data.results[0].stats.dangerous_attacks[0],
-                      off_target: data.results[0].stats.off_target[0],
-                      on_target: data.results[0].stats.on_target[0],
-                      yellowcards: data.results[0].stats.yellowcards[0],
-                      redcards: data.results[0].stats.redcards[0]
+                      points: homeScores
                     }
                   },
                   away: {
                     name: data.results[0].away.name,
                     Total: {
-                      points: awayScores,
-                      attacks: data.results[0].stats.attacks[1],
-                      ball_safe: data.results[0].stats.ball_safe[1],
-                      corners: data.results[0].stats.corners[1],
-                      dangerous_attacks:
-                        data.results[0].stats.dangerous_attacks[1],
-                      off_target: data.results[0].stats.off_target[1],
-                      on_target: data.results[0].stats.on_target[1],
-                      yellowcards: data.results[0].stats.yellowcards[1],
-                      redcards: data.results[0].stats.redcards[1]
+                      points: awayScores
                     }
                   }
                 });
@@ -537,7 +437,7 @@ async function doPBP(parameter) {
           } catch (err) {
             return reject(
               new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP of info on ${betsID} by DY`
+                `${err} at pbpKBO of info on ${betsID} by DY`
               )
             );
           }
@@ -545,12 +445,12 @@ async function doPBP(parameter) {
       }
     } catch (err) {
       return reject(
-        new AppErrors.PBPEsoccerError(
-          `${err} at pbpESoccer of doPBP on ${betsID} by DY`
+        new AppErrors.PBPKBOError(
+          `${err} at pbpKBO of doPBP on ${betsID} by DY`
         )
       );
     }
     return resolve('ok');
   });
 }
-module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };
+module.exports = { KBOpbpInplay, KBOpbpHistory };

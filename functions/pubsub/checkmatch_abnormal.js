@@ -32,6 +32,8 @@ async function checkmatch_abnormal() {
       const leagueName = leagueArray[i];
       try {
         const totalData = await queryMatches(firestoreName);
+        console.log(totalData.length);
+
         for (let i = 0; i < totalData.length; i++) {
           const betsID = totalData[i].bets_id;
           const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
@@ -115,7 +117,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -153,7 +154,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           if (data.results[0].time_status === '3') {
             try {
@@ -172,12 +172,10 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
 
           if (data.results[0].time_status === '2') {
             console.log(`${betsID} status is still -1`);
-            return;
           }
           if (data.results[0].time_status === '1') {
             try {
@@ -229,11 +227,9 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           if (data.results[0].time_status === '0') {
             console.log(`${betsID} status is still -1`);
-            return;
           }
         }
       }

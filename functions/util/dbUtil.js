@@ -486,6 +486,9 @@ const Team = sequelize.define(
     alias_ch: {
       type: Sequelize.STRING
     },
+    group: {
+      type: Sequelize.STRING
+    },
     injury: {
       type: Sequelize.TEXT
     },
