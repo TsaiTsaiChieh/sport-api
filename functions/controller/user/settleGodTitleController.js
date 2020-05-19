@@ -24,6 +24,7 @@ async function settleGodTitle(req, res) {
 
     res.json(await settleGodTitleModel(req.body));
   } catch (err) {
+    console.error(err);
     res.status(err.code).json(err.err);
   }
 }

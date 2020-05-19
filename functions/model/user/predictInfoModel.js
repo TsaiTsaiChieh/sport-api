@@ -115,10 +115,18 @@ function repackage(ele) {
     bets_id: ele.bets_id,
     scheduled: ele.match_scheduled, // 開賽時間
     league: ele.league,
-    home: ele.home_alias,
-    home_ch: ele.home_alias_ch,
-    away: ele.away_alias,
-    away_ch: ele.away_alias_ch,
+    home: {
+      team_name: ele.home_alias,
+      alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+      alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+      player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name
+    },
+    away: {
+      team_name: ele.away_alias,
+      alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+      alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
+      player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name
+    },
     spread: {},
     totals: {}
   };

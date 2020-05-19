@@ -406,7 +406,7 @@ const colors = {
     Magenta: '\x1b[35m',
     Cyan: '\x1b[36m',
     White: '\x1b[37m',
-    Crimson: '\x1b[38m' // القرمزي
+    Crimson: '\x1b[38m'
   },
   bg: {
     Black: '\x1b[40m',
