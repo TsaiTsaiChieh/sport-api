@@ -890,6 +890,42 @@ const Users_WinListsHistory = sequelize.define(
     fault_counts: {
       type: Sequelize.INTEGER
     },
+    spread_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    totals_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    spread_fault_counts: {
+      type: Sequelize.INTEGER
+    },
+    totals_fault_counts: {
+      type: Sequelize.INTEGER
+    },
+    spread_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    totals_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    spread_correct_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_correct_bets: {
+      type: Sequelize.FLOAT
+    },
+    spread_fault_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_fault_bets: {
+      type: Sequelize.FLOAT
+    },
+    spread_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_win_bets: {
+      type: Sequelize.FLOAT
+    },
     date_timestamp: {
       type: Sequelize.INTEGER
     },
