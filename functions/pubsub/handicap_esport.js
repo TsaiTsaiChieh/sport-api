@@ -659,6 +659,7 @@ function spreadCalculator(handicapObj) {
         }
       } else {
         // 放在客隊區
+        handicapObj.handicap = Math.abs(handicapObj.handicap);
         const str = handicapObj.handicap.toString();
         const str1 = str.split('.')[0];
         const str2 = str.split('.')[1];
