@@ -22,14 +22,14 @@ router.post(
   require('../controller/user/accuseUser')
 );
 router.post(
-  '/favoriteGod',
+  '/setFavoritePlayer',
   verification.token,
-  require('../controller/user/favoriteGodController')
+  require('../controller/user/setFavoritePlayerController')
 );
 router.get(
-  '/getFavoriteGod/:god_uid',
+  '/getFavoritePlayer/:god_uid',
   verification.token,
-  require('../controller/user/getFavoriteGodController')
+  require('../controller/user/getFavoritePlayerController')
 );
 router.post(
   '/reportTopic',
@@ -205,9 +205,9 @@ router.post(
 
 /* 大神結算 */
 router.post(
-  '/settle_god_list',
+  '/settle_god_rank',
   verification.token,
-  require('../controller/user/settleGodListController')
+  require('../controller/user/settleGodRankController')
 );
 
 /* ------------ 個人會員頁 ------------ */

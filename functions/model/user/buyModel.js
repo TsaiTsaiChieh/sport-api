@@ -30,9 +30,10 @@ function buyModel(args, uid) {
                   (
                   CASE b.status  
                     WHEN -1 THEN r.price 
-                    WHEN 0  THEN '-'
+                    WHEN 0  THEN null
                     WHEN 1  THEN r.sub_price
                     WHEN 2  THEN r.sub_price 
+                    ELSE null
                   END  
                   ) sub_price,
                   b.status

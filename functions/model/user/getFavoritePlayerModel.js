@@ -3,12 +3,12 @@ const db = require('../../util/dbUtil');
 function dbFind(uid, god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.findAll({
+      const result = await db.sequelize.models.user__favoriteplayer.findAll({
         where: {
           uid: uid,
           god_uid: god_uid
         },
-        attributes: ['uid', 'god_uid', 'type'],
+        attributes: ['uid', 'god_uid', 'league'],
         raw: true
       });
       resolve(result);
@@ -29,9 +29,9 @@ async function favoriteGod(args) {
 
       const uid = args.token.uid;
       const god_uid = args.god_uid;
-      let type = [];
+      let league = [];
       try {
-        type = await dbFind(uid, god_uid);
+        league = await dbFind(uid, god_uid);
       } catch (err) {
         console.error(err);
         reject({ code: 500, error: err });
@@ -39,8 +39,8 @@ async function favoriteGod(args) {
       }
 
       const result = [];
-      type.forEach(item => {
-        result.push(item.type);
+      league.forEach(item => {
+        result.push(item.league);
       });
 
       resolve({ code: 200, result: result });

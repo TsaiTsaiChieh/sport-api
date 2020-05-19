@@ -1,37 +1,58 @@
 const db = require('../../util/dbUtil');
+const modules = require('../../util/modules');
 
 function favoritePlayerModel(args) {
   return new Promise(async function(resolve, reject) {
     try {
       let favorite_player = {};
+      const favorite_player_list = [];
       const uid = args.token.uid;
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
-        SELECT uf.god_uid as uid, u.avatar, u.display_name, uf.type, ROUND(uwl.this_month_win_bets, 2) as this_month_win_bets, ROUND(uwl.this_month_win_rate, 2) as this_month_win_rate
-          FROM user__favoritegods uf, users__win__lists uwl, users u
-         WHERE uf.god_uid = uwl.uid
-           AND u.uid = uf.uid
-           AND uf.uid=$uid
+        SELECT fav.*, 
+          ROUND(uwl.this_month_win_bets, 2) as this_month_win_bets,
+          ROUND(uwl.this_month_win_rate, 2) as this_month_win_rate
+        FROM 
+        (
+          SELECT uf.god_uid as god_uid, 
+                        u.avatar, 
+                        u.display_name, 
+                        vl.name,
+                        vl.league_id
+            FROM user__favoriteplayers uf,
+                view__leagues vl,
+                users u
+          WHERE uf.uid = $uid
+            AND uf.league = vl.name
+            AND u.uid = uf.god_uid
+          ) fav
+        LEFT JOIN users__win__lists uwl
+        ON uwl.uid = fav.god_uid
+        AND uwl.league_id = fav.league_id
          `,
         {
           bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         });
+
+        favorite_player.forEach(function(ele) {
+          favorite_player_list.push(repackage(ele));
+        });
       } else if (args.method === 'DELETE') {
         const god_uid = args.body.god_uid;
         favorite_player = await db.sequelize.query(
           `
-          DELETE FROM user__favoritegods
+          DELETE FROM user__favoriteplayers
            WHERE god_uid=$god_uid
              AND uid=$uid
            `,
           {
             bind: { uid: uid, god_uid: god_uid },
-            type: db.sequelize.QueryTypes.SELECT
+            type: db.sequelize.QueryTypes.DELETE
           });
       }
-      resolve(favorite_player);
+      resolve(favorite_player_list);
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });
@@ -39,4 +60,19 @@ function favoritePlayerModel(args) {
   });
 }
 
+function repackage(ele) {
+  const data = {
+    god_uid: ele.god_uid,
+    avatar: ele.avatar,
+    display_name: ele.display_name,
+    league_name: ele.name,
+    league_id: modules.leagueCodebook(ele.name).id
+  };
+
+  /* 欄位無資料防呆 */
+  data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
+  data.win_rate = ele.this_month_win_bets == null ? null : ele.this_month_win_rate.toString();
+
+  return data;
+}
 module.exports = favoritePlayerModel;

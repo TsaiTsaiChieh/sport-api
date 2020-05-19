@@ -1,18 +1,17 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
-let countPerPage;
+const Op = require('sequelize').Op;
+const countPerPage = 20;
 
-function dbFind(where, page, sortByLike) {
+function dbFind(uid, page) {
   return new Promise(async function(resolve, reject) {
     try {
-      // await db.sequelize.models.topic__article.sync({ force: false, alter: true }); // 有新增欄位時才用
-      const result = await db.sequelize.models.topic__article.findAndCountAll({
-        where: where,
+      const result = await db.sequelize.models.topic__favoritearticle.findAndCountAll({
+        where: {
+          uid: uid
+        },
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
-        order: sortByLike ? [['like_count', 'DESC']] : [['article_id', 'DESC']],
         distinct: true,
         raw: true
       });
@@ -24,33 +23,40 @@ function dbFind(where, page, sortByLike) {
     }
   });
 }
-
-async function getTopics(args) {
+async function getTopics(articles) { // 傳入array aid
   return new Promise(async function(resolve, reject) {
     try {
-      // const replyCount = await func.getTopicReplyCount(args.aid)
-      // console.log(replyCount)
+      const result = await db.sequelize.models.topic__article.findAll({
+        where: {
+          article_id: {
+            [Op.or]: articles
+          }
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+async function getArticle(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const uid = args.token.uid;
+      const page = parseInt(args.page);
 
-      const where = {};
-      let page = 0;
-      countPerPage = args.count;
-
-      if (typeof args.uid !== 'undefined' && args.uid !== null) {
-        where.uid = args.uid;
-      } else {
-        where.status = 1;
-      }
-      if (typeof args.league !== 'undefined' && args.league !== null) {
-        where.league = args.league;
-      }
-      if (typeof args.category !== 'undefined' && args.category !== null) {
-        where.category = args.category;
-      }
-      if (typeof args.page !== 'undefined' && args.page !== null) {
-        page = args.page;
+      const usertopic = await dbFind(uid, page);
+      const topicsToGet = [];
+      for (let i = 0; i < usertopic.rows.length; i++) {
+        topicsToGet.push(usertopic.rows[i].article_id);
       }
 
-      const topics = await dbFind(where, page, args.sortByLike);
+      const topics1 = await getTopics(topicsToGet);
+      const topics = {
+        rows: topics1
+      };
 
       /* 讀取一些別的資料 */
       const usersToGet = [];
@@ -111,5 +117,4 @@ async function getTopics(args) {
     }
   });
 }
-
-module.exports = getTopics;
+module.exports = getArticle;

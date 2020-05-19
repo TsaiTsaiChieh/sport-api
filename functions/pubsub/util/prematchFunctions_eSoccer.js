@@ -1,13 +1,13 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'pagetest_eSoccer';
-const Match = db.Match;
-const MatchTeam = db.Team;
+const firebaseName = 'esport_eSoccer';
 const leagueUniteID = '22000';
 const leagueUniteName = 'eSoccer';
 const sportID = 1;
 const leagueArray = [22614, 22808, 22764, 22537, 22724];
+const Match = db.Match;
+const MatchTeam = db.Team;
 module.exports.eSoccer = {};
 module.exports.eSoccer.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {

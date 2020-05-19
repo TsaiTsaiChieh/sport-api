@@ -1,13 +1,12 @@
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.time
-      );
+      const allCollections = await queryAllCollection(args);
+      console.log(allCollections);
+
+      const result = await repackage(args, allCollections);
 
       resolve(result);
     } catch (err) {
@@ -16,37 +15,50 @@ async function livescore(args) {
     }
   });
 }
-async function reResult(sport, league, UID, time) {
-  const result = await repackage(sport, league, UID, time);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, UID, time) {
-  let leagueName;
+function queryAllCollection(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const begin = modules.convertTimezone(args.date);
+      const end =
+        modules.convertTimezone(args.date, {
+          op: 'add',
+          value: 1,
+          unit: 'days'
+        }) - 1;
 
-  if (league === 'eSoccer') {
-    leagueName = `pagetest_${league}_member`;
-  } else {
-    leagueName = `${sport}_${league}_member`;
-  }
-  const eventData = [];
+      const queries = await db.sequelize.query(
+        `SELECT collections.bets_id, collections.scheduled,
+                matches.home_id, matches.away_id, matches.spread_id,
+                home.name,
+                away.name, 
+                spreads.spread_id
+           FROM user__collections AS collections,
+                matches AS game
+                match__teams AS home,
+                match__teams AS away
+     LEFT JOIN match__spreads spreads ON matches.spread_id = spreads.spread_id
+          WHERE collections.uid = '${args.token.uid}'
+            AND collections.bets_id = game.bets_id 
+            AND collections.league_id = '${
+              modules.leagueCodebook(args.league).id
+            }'  
+            AND collections.scheduled >= '${begin}'   
+            AND collections.scheduled <= '${end}'    
+            AND matches.home_id = home.team_id
+            AND matches.away_id = away.team_id
+           `,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
 
-  const query = await modules.firestore
-    .collection(leagueName)
-    .where('profile.uid', '==', UID)
-    .get();
-
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-  const out = [];
-
-  for (let i = 0; i < Object.keys(eventData[0]).length - 1; i++) {
-    if (time === eventData[0][Object.keys(eventData[0])[i]].scheduled) {
-      out.push(eventData[0][Object.keys(eventData[0])[i]]);
+      return resolve(await Promise.all(queries));
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
     }
-  }
-
-  return out;
+  });
 }
+
+async function repackage(args, allCollections) {}
 module.exports = livescore;
