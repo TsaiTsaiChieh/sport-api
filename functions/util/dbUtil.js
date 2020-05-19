@@ -87,6 +87,10 @@ const User = sequelize.define(
     default_title: {
       type: Sequelize.STRING
     },
+    // 大神 預設 顯示聯盟 有稱號的 (NBA 金  或 MLB 銀)
+    default_god_league_rank: {
+      type: Sequelize.STRING
+    },
     // 改獨立成一個 titles table
     // titles: {
     //   type: Sequelize.STRING
@@ -211,6 +215,10 @@ const Title = sequelize.define(
     },
     matches_continue: {
       // 連贏Ｎ場
+      type: Sequelize.INTEGER
+    },
+    received: {
+      // 已閱
       type: Sequelize.INTEGER
     }
   },

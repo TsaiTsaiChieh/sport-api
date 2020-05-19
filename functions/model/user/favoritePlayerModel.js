@@ -10,26 +10,26 @@ function favoritePlayerModel(args) {
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
-        SELECT uf.god_uid as god_uid, 
-               u.avatar, 
-               u.display_name, 
-               vl.name,
-               (
-                 SELECT ROUND(uwl.this_month_win_bets, 2)
-                   FROM users__win__lists uwl
-                  WHERE uf.god_uid = uwl.uid
-               ) as this_month_win_bets,
-               (
-                 SELECT ROUND(uwl.this_month_win_rate, 2) 
-                   FROM users__win__lists uwl
-                  WHERE uf.god_uid = uwl.uid
-               ) as this_month_win_rate 
-          FROM user__favoriteplayers uf, 
-               users u,
-               view__leagues vl
-         WHERE u.uid = uf.uid
-           AND uf.uid=$uid
-           AND uf.league=vl.name
+        SELECT fav.*, 
+          ROUND(uwl.this_month_win_bets, 2) as this_month_win_bets,
+          ROUND(uwl.this_month_win_rate, 2) as this_month_win_rate
+        FROM 
+        (
+          SELECT uf.god_uid as god_uid, 
+                        u.avatar, 
+                        u.display_name, 
+                        vl.name,
+                        vl.league_id
+            FROM user__favoriteplayers uf,
+                view__leagues vl,
+                users u
+          WHERE uf.uid = $uid
+            AND uf.league = vl.name
+            AND u.uid = uf.god_uid
+          ) fav
+        LEFT JOIN users__win__lists uwl
+        ON uwl.uid = fav.god_uid
+        AND uwl.league_id = fav.league_id
          `,
         {
           bind: { uid: uid },
@@ -71,7 +71,7 @@ function repackage(ele) {
 
   /* 欄位無資料防呆 */
   data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
-  data.rank = ele.rank_id == null ? null : ele.rank_id.toString();
+  data.win_rate = ele.this_month_win_bets == null ? null : ele.this_month_win_rate.toString();
 
   return data;
 }

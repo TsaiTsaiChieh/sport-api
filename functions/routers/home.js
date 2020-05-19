@@ -14,5 +14,5 @@ router.get(
 router.get('/hotTopics/:page*?', require('../controller/home/hotTopicsController'));
 router.get('/bannerImage', require('../controller/home/bannerImageController'));
 router.get('/livescore', require('../controller/home/livescoreController'));
-
+router.get('/carousel', require('../controller/home/carouselController'));
 module.exports = router;

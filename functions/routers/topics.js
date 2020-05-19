@@ -65,6 +65,11 @@ router.post(
   verification.token,
   require('../controller/topics/favoriteArticleController')
 );
+router.get(
+  '/getFavoriteArticle/:page',
+  verification.token,
+  require('../controller/topics/getFavoriteArticleController')
+);
 router.post(
   '/donate',
   verification.token,

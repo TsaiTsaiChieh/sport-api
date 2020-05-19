@@ -759,6 +759,30 @@ function predictionsWinList(data) {
   return result;
 }
 
+// 一般 NBA MLB
+// home_alias = 'CHA'
+//
+// home: {
+//     team_name: 'CHA',
+//     alaias: 'CHA',
+//     alias_ch: '黃蜂',
+//     player_name: null
+// }
+// 電競足球
+// home_alias = 'Atletico Madrid (Boulevard_Prospect)'
+//
+// home: {
+//   team_name: 'Atletico Madrid (Boulevard_Prospect)',
+//   alaias: 'Atletico Madrid',
+//   alias_ch: 'Atletico Madrid',
+//   player_name: 'Boulevard_Prospect'
+// }
+//
+// team_name: ele.home_alias,
+// alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+// alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+// player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+//
 // 將電競足球的隊名和球員分開
 function sliceTeamAndPlayer(name) {
   if (name.includes('(')) {

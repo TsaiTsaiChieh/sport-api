@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const AppErrors = require('../../util/AppErrors');
+// const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function predictions(args) {
