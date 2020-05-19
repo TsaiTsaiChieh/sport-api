@@ -73,17 +73,17 @@ async function getReplies(args) {
       }
       // console.log(replytoInfo)
       for (let i = 0; i < replies.rows.length; i++) { // 把拿到的userinfo塞回去
-        let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
+        let likeCount = likesCount.filter(obj => obj.reply_id === replies.rows[i].reply_id); // 處理按讚數 把aid=id的那則挑出來
         likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         replies.rows[i].like_count = likeCount;
-        let myLike = myLikes.filter(obj => obj.reply_id === replies.rows[i].reply_id.toString()); // 處理按讚數 把aid=id的那則挑出來
-        myLike = !!myLike[0]; // 解析格式 沒有資料的留言數為0
+        let myLike = myLikes.filter(obj => obj.reply_id === replies.rows[i].reply_id); // 處理我是否按讚 把aid=id的那則挑出來
+        myLike = !!myLike[0];
         replies.rows[i].is_liked = myLike;
         let userInfo = usersInfo.filter(obj => obj.uid === replies.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
-        userInfo = userInfo[0] ? userInfo[0] : null; // 解析格式 沒有資料的留言數為0
+        userInfo = userInfo[0] ? userInfo[0] : null;
         replies.rows[i].user_info = userInfo;
         let replyInfo = replytoInfo.filter(obj => obj.reply_id === replies.rows[i].replyto_id); // 處理userinfo 把uid=id的那則挑出來
-        replyInfo = replyInfo[0] ? replyInfo[0] : null; // 解析格式 沒有資料的留言數為0
+        replyInfo = replyInfo[0] ? replyInfo[0] : null;
         replies.rows[i].replyto_info = replyInfo;
         if (replyInfo !== null) {
           replies.rows[i].replyto_info.images = JSON.parse(replyInfo.images);
