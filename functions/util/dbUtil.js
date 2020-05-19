@@ -825,11 +825,23 @@ const Users_WinLists = sequelize.define(
     last_season_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_season_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_season_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     last_period_win_bets: {
       type: Sequelize.FLOAT
     },
     last_period_win_rate: {
       type: Sequelize.FLOAT
+    },
+    last_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_period_fault_counts: {
+      type: Sequelize.INTEGER
     },
     last_week1_of_period_win_bets: {
       type: Sequelize.FLOAT
@@ -837,11 +849,23 @@ const Users_WinLists = sequelize.define(
     last_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week1_of_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_week1_of_period_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     last_month_win_bets: {
       type: Sequelize.FLOAT
     },
     last_month_win_rate: {
       type: Sequelize.FLOAT
+    },
+    last_month_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_month_fault_counts: {
+      type: Sequelize.INTEGER
     },
     last_week_win_bets: {
       type: Sequelize.FLOAT
@@ -849,11 +873,23 @@ const Users_WinLists = sequelize.define(
     last_week_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_week_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_season_win_bets: {
       type: Sequelize.FLOAT
     },
     this_season_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_season_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_season_fault_counts: {
+      type: Sequelize.INTEGER
     },
     this_period_win_bets: {
       type: Sequelize.FLOAT
@@ -861,11 +897,23 @@ const Users_WinLists = sequelize.define(
     this_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    this_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_period_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_week1_of_period_win_bets: {
       type: Sequelize.FLOAT
     },
     this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_week1_of_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_week1_of_period_fault_counts: {
+      type: Sequelize.INTEGER
     },
     this_month_win_bets: {
       type: Sequelize.FLOAT
@@ -873,11 +921,23 @@ const Users_WinLists = sequelize.define(
     this_month_win_rate: {
       type: Sequelize.FLOAT
     },
+    this_month_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_month_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_week_win_bets: {
       type: Sequelize.FLOAT
     },
     this_week_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_week_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_week_fault_counts: {
+      type: Sequelize.INTEGER
     }
   },
   {

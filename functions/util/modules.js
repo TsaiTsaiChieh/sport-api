@@ -668,6 +668,8 @@ function predictionsWinList(data) {
       const totalsWinBets = predictTotalsCorrectBets + predictTotalsFaultBets;
       const winBets = predictCorrectBets + predictFaultBets;
 
+      // 注數計算
+
       result.push({
         uid: data[0].uid,
         league_id: data[0].league_id,
