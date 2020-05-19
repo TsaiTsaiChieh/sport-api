@@ -21,7 +21,6 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
-const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -61,7 +60,7 @@ function convertTimezone(date, operation, zone = zone_tw) {
 function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   unix = unix * 1000;
   const datetime = moment.tz(unix, zone);
-  if (!operation) return datetime.format('YYYYMMDD');
+  if (!operation || !operation.format) return datetime.format('YYYYMMDD');
   /* 處理時間計算 */
   if (operation.op === 'add') {
     datetime.add(operation.value, operation.unit);
@@ -70,7 +69,6 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   }
   /* 處理時間格式 */
   if (operation.format) return datetime.format(operation.format);
-  else return datetime.format('YYYYMMDD');
 }
 
 function timeFormat(unix, zone = zone_tw) {
@@ -148,7 +146,7 @@ const db = {
   baseball_LMB: 'baseball_LMB',
   icehockey_NHL: 'icehockey_NHL',
   Soccer: 'Soccer',
-  eSoccer: 'esport_eSoccer',
+  eSoccer: 'eSoccer',
   eGame: 'eGame',
   prediction: 'prediction'
 };
@@ -168,38 +166,6 @@ async function cloneFirestore(name, clonedName) {
 }
 function firebaseTimestamp(milliseconds) {
   return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
-}
-function league2Sport(league) {
-  switch (league) {
-    case 'NBA':
-      return {
-        sport: 'basketball'
-      };
-    case 'MLB':
-      return {
-        sport: 'baseball'
-      };
-    case 'NHL':
-      return {
-        sport: 'icehockey'
-      };
-    case 'Soccer':
-      return {
-        sport: 'soccer'
-      };
-    case 'KBO':
-      return {
-        sport: 'baseball'
-      };
-    case 'eSoccer':
-      return {
-        sport: 'esports'
-      };
-    default:
-      return {
-        sport: 'esports'
-      };
-  }
 }
 function leagueCodebook(league) {
   switch (league) {
@@ -444,11 +410,7 @@ function groupsByOrdersLimit(array, prop, order, limit = -1) {
   const groups = {};
   array.forEach(function(o) {
     // 組出 prop 的 json 字串 做為 groups key 值
-    var group = JSON.stringify(
-      prop.map((m) => {
-        return o[m];
-      })
-    );
+    var group = JSON.stringify(prop.map((m) => { return o[m]; }));
     groups[group] = groups[group] || [];
     groups[group].push(o);
   });
@@ -464,7 +426,7 @@ function groupsByOrdersLimit(array, prop, order, limit = -1) {
     const t = JSON.parse(group); // 把 json 字串 轉回 object
     for (const [key, value] of Object.entries(t)) {
       res[prop[key]] = value;
-    }
+    };
 
     res.lists = groups[group];
     return res;
@@ -671,26 +633,12 @@ function predictionsWinList(data) {
     reLeagues.forEach(function(data) {
       // 勝率 winRate
       const predictCorrectCounts =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag) ? ++acc : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag) ? ++acc : acc,
-          0
-        );
+        data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0) +
+        data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
 
       const predictFaultCounts =
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
-          0
-        ) +
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
-          0
-        );
+        data.reduce((acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc), 0) +
+        data.reduce((acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc), 0);
 
       // 避免分母是0 平盤無效
       const winRate =
@@ -700,36 +648,24 @@ function predictionsWinList(data) {
 
       // 勝注
       const predictCorrectBets =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+        data.reduce((acc, cur) =>
+          correct.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets : acc
+        , 0) +
+        data.reduce((acc, cur) =>
+          correct.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets : acc
+        , 0);
 
       const predictFaultBets =
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+        data.reduce((acc, cur) =>
+          fault.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets : acc
+        , 0) +
+        data.reduce((acc, cur) =>
+          fault.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets : acc
+        , 0);
 
       const winBets = predictCorrectBets + predictFaultBets;
 
@@ -802,8 +738,8 @@ function sliceTeamAndPlayer(name) {
 // rightArr = [1, 2] // 一般使用者, 大神
 async function checkUserRight(memberInfo, rightArr = []) {
   if (memberInfo === null) return errs.errsMsg('404', '1301');
-  if (!rightArr.includes(memberInfo.status)) return errs.errsMsg('404', '1308');
-  return {};
+  if (!(rightArr.includes(memberInfo.status))) return errs.errsMsg('404', '1308');
+  return { };
 }
 
 module.exports = {
@@ -832,7 +768,6 @@ module.exports = {
   sportRadarKeys,
   firebaseTimestamp,
   firestoreService,
-  league2Sport,
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,
@@ -857,6 +792,5 @@ module.exports = {
   sliceTeamAndPlayer,
   acceptLeague,
   timeFormat,
-  checkUserRight,
-  MATCH_STATUS
+  checkUserRight
 };
