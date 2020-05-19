@@ -1,38 +1,12 @@
-/* eslint-disable promise/catch-or-return */
-/* eslint-disable promise/always-return */
-const db = require('../../util/dbUtil');
-const Op = require('sequelize').Op;
-/* 施工中
-    [不可用]簡易資料測試 http://localhost:5000/test/bannerImage.html
-    改mysql 原有後台等等全部失效需重寫
-*/
-function dbFind() {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const result = await db.sequelize.models.home__banner.findAll({
-        order: ['sort'],
-        where: {
-          status: 1,
-          sort: {
-            [Op.ne]: null
-          }
-        }
-      });
-      resolve(result);
-    } catch (error) {
-      console.error(error);
-      reject('get home banners failed');
-    }
-  });
-}
+const model = require('../../model/home/bannerImageModel');
 async function bannerImage(req, res) {
-  try {
-    const banners = await dbFind();
-    res.json({ code: 200, banners: banners });
-  } catch (err) {
-    console.log('Error in home/bannerImage by IFYU:  %o', err);
-    return res.status(500).json({ code: 500, error: err });
-  }
+  model(req)
+    .then(function(body) {
+      res.json(body);
+    })
+    .catch(function(err) {
+      res.status(err.code).json(err);
+    });
 }
 module.exports = bannerImage;
 /**

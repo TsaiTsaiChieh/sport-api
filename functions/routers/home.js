@@ -13,6 +13,7 @@ router.get(
 );
 router.get('/hotTopics/:page*?', require('../controller/home/hotTopicsController'));
 router.get('/bannerImage', require('../controller/home/bannerImageController'));
+router.get('/bannerContent/:id', require('../controller/home/bannerContentController'));
 router.get('/livescore', require('../controller/home/livescoreController'));
 
 module.exports = router;
