@@ -276,6 +276,17 @@ class RepackageError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class firestoreQueryError extends ExtendableError {
+  constructor(
+    message = 'Firestore查詢失敗',
+    status = 1513,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -301,5 +312,6 @@ module.exports = {
   SettlementAccordingMatch,
   PBPKBOError,
   RepackageError,
-  PBPAbnormalError
+  PBPAbnormalError,
+  firestoreQueryError
 };

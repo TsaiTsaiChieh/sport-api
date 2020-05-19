@@ -1,14 +1,9 @@
-const modules = require('../../util/modules');
-
+// const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 function postCollect(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.eventID
-      );
+      const result = await repackage(args);
 
       resolve(result);
     } catch (err) {
@@ -17,36 +12,23 @@ function postCollect(args) {
     }
   });
 }
-async function reResult(sport, league, UID, eventID) {
-  const result = await repackage(sport, league, UID, eventID);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, UID, eventID) {
-  let leagueName;
-
-  if (league === 'eSoccer') {
-    leagueName = `pagetest_${league}_member`;
-  } else {
-    leagueName = `${sport}_${league}_member`;
-  }
-  const output = [];
-  const validation = await modules.firestore
-    .collection(leagueName)
-    .doc(`${UID}`)
-    .get();
-
-  if (validation.exists) {
-    const FieldValue = require('firebase-admin').firestore.FieldValue;
-    await modules.firestore
-      .collection(leagueName)
-      .doc(`${UID}`)
-      .update({ [`${eventID}`]: FieldValue.delete() });
-    output.push(
-      UID + ' / ' + sport + ' / ' + league + ' / ' + eventID + ' has deleted'
+async function repackage(args) {
+  try {
+    await db.sequelize.query(
+      `
+      DELETE 
+        FROM user__collections
+       WHERE uid = '${args.token.uid}' and
+       bets_id = ${args.eventID}
+     `,
+      {
+        type: db.sequelize.QueryTypes.DELETE
+      }
     );
+    return 'Delete OK';
+  } catch (err) {
+    console.log(err + ' livescoreDelete by DY');
   }
-
-  return output;
 }
 module.exports = postCollect;

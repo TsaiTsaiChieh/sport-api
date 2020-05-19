@@ -2,47 +2,12 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreDetailPrematchModel');
 
 async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    case 'KBO': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    default: {
-      req.query.league = 'eSoccer';
-      req.query.sport = 'esports';
-    }
-  }
-
   const schema = {
-    required: ['league', 'sport', 'eventID'],
+    required: ['league', 'eventID'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer', 'KBO']
-      },
-      sport: {
-        type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
+        enum: modules.acceptLeague
       },
       eventID: {
         type: 'string'

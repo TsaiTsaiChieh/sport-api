@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
-const getGodModel = require('../../model/user/getFavoriteGodModel');
+const getGodModel = require('./getFavoritePlayerModel');
 
 function dbFind(god_uid) { // 確認大神存在
   return new Promise(async function(resolve, reject) {
@@ -18,14 +18,14 @@ function dbFind(god_uid) { // 確認大神存在
     }
   });
 }
-function checkLiked(uid, god_uid, type) {
+function checkLiked(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
-    // await db.sequelize.models.user__favoritegod.sync({ alter: true }); //有新增欄位時才用
-    const result = await db.sequelize.models.user__favoritegod.count({
+    // await db.sequelize.models.user__favoriteplayer.sync({ alter: true }); // 有新增欄位時才用
+    const result = await db.sequelize.models.user__favoriteplayer.count({
       where: {
         uid: uid,
         god_uid: god_uid,
-        type: type
+        league: league
       },
       raw: true
     });
@@ -36,13 +36,13 @@ function checkLiked(uid, god_uid, type) {
     }
   });
 }
-function like(uid, god_uid, type) {
+function like(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
-      await db.sequelize.models.user__favoritegod.create({
+      await db.sequelize.models.user__favoriteplayer.create({
         uid: uid,
         god_uid: god_uid,
-        type: type
+        league: league
       });
       resolve('like failed');
     } catch (error) {
@@ -51,14 +51,14 @@ function like(uid, god_uid, type) {
     }
   });
 }
-function unlike(uid, god_uid, type) {
+function unlike(uid, god_uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
-      await db.sequelize.models.user__favoritegod.destroy({
+      await db.sequelize.models.user__favoriteplayer.destroy({
         where: {
           uid: uid,
           god_uid: god_uid,
-          type: type
+          league: league
         },
         raw: true
       });
@@ -117,7 +117,7 @@ async function favoriteGod(args) {
 
       let fan_count; // 取得粉絲數(回傳uids)
       try {
-        fan_count = await db.sequelize.models.user__favoritegod.findAll({
+        fan_count = await db.sequelize.models.user__favoriteplayer.findAll({
           attributes: [
             'uid',
             [db.sequelize.fn('COUNT', db.sequelize.col('god_uid')), 'follow_types']

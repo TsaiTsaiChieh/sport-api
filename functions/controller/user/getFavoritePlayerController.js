@@ -1,4 +1,4 @@
-const model = require('../../model/user/getFavoriteGodModel');
+const model = require('../../model/user/getFavoritePlayerModel');
 async function favoriteGod(req, res) {
   req.body.token = req.token;
   req.body.god_uid = req.params.god_uid;

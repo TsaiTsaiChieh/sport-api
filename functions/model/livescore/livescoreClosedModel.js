@@ -1,115 +1,91 @@
 const modules = require('../../util/modules');
-async function livescore(args) {
+const AppErrors = require('../../util/AppErrors');
+
+async function livescoreClosed(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(args.sport, args.league, args.time);
-
+      const closedMathes = await queryClosedMatches(args);
+      const result = await repackage(args, closedMathes);
       resolve(result);
     } catch (err) {
-      console.error('Error in sport/livescoreModel by DY', err);
-      reject({ code: 500, error: err });
+      reject(err);
     }
   });
 }
-async function reResult(sport, league, time) {
-  const result = await repackage(sport, league, time);
 
-  return await Promise.all(result);
+function queryClosedMatches(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const begin = modules.convertTimezone(args.date);
+      const end =
+        modules.convertTimezone(args.date, {
+          op: 'add',
+          value: 1,
+          unit: 'days'
+        }) - 1;
+
+      const queries = await modules.firestore
+        .collection(modules.leagueCodebook(args.league).match)
+        .where('flag.status', '==', modules.MATCH_STATUS.END)
+        .where('scheduled', '>=', begin)
+        .where('scheduled', '<=', end)
+        .get();
+
+      const matches = [];
+
+      queries.docs.map(function(doc) {
+        matches.push(doc.data());
+      });
+      return resolve(await Promise.all(matches));
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
+    }
+  });
 }
-async function repackage(sport, league, time) {
-  let leagueName;
 
-  if (league === 'eSoccer') {
-    leagueName = `pagetest_${league}`;
-  } else {
-    leagueName = `${sport}_${league}`;
-  }
-
-  const query = await modules.firestore
-    .collection(leagueName)
-    .orderBy('scheduled', 'desc')
-    .get();
-
-  const eventData = [];
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-
-  let dateNow = new Date(time).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
-  });
-  dateNow = dateNow.split(' ')[0];
-
-  let scheduled;
-  const closedEvent = [];
-
-  for (let i = 0; i < eventData.length; i++) {
-    scheduled = new Date(eventData[i].scheduled * 1000).toLocaleString(
-      'zh-TW',
-      { timeZone: 'Asia/Taipei' }
-    );
-    scheduled = scheduled.split(' ')[0];
-    console.log(scheduled);
-
-    let newestSpread;
-    if (eventData[i].newest_spread) {
-      newestSpread = eventData[i].newest_spread;
-    } else {
-      newestSpread = {
-        handicap: 'no data',
-        home_tw: 'no data',
-        away_tw: 'no data'
-      };
-    }
-    // let newestTotal;
-    // if (eventData[i].newest_total) {
-    //   newestTotal = eventData[i].newest_total;
-    // } else {
-    //   newestTotal = {
-    //     handicap: 'no data',
-    //     over_tw: 'no data'
-    //   };
-    // }
-    if (league === 'eSoccer') {
-      league = eventData[i].league.name;
-    }
-    if (scheduled === dateNow && eventData[i].flag.status === 0) {
-      closedEvent.push({
-        sport: sport,
-        league: eventData[i].league.name_ch,
-        ori_league: eventData[i].league.name,
-        scheduled: eventData[i].scheduled * 1000,
+async function repackage(args, matches) {
+  try {
+    const data = [];
+    for (let i = 0; i < matches.length; i++) {
+      const ele = matches[i];
+      const temp = {
+        id: ele.bets_id,
+        status: ele.flag.status,
+        sport: modules.league2Sport(args.league),
+        league: ele.league.name_ch,
+        ori_league: args.league,
+        scheduled: ele.scheduled * 1000,
+        newest_spread: {
+          handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
+          home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,
+          away_tw: ele.newest_spread ? ele.newest_spread.away_tw : null
+        },
+        // group: args.league === 'eSoccer' ? ele.league.name : null, // 電競足球的子分類叫 league 我覺得不是很合理欸，所以改成 group
         home: {
-          team_name: eventData[i].home.team_name,
-          player_name: eventData[i].home.player_name,
-          name: eventData[i].home.name,
-          name_ch: eventData[i].home.name_ch,
-          alias: eventData[i].home.alias,
-          alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id
+          team_name: ele.home.team_name,
+          player_name: ele.home.player_name,
+          name: ele.home.name,
+          name_ch: ele.home.name_ch,
+          alias: ele.home.alias,
+          alias_ch: ele.home.alias_ch,
+          image_id: ele.home.image_id
         },
         away: {
-          team_name: eventData[i].away.team_name,
-          player_name: eventData[i].away.player_name,
-          name: eventData[i].away.name,
-          name_ch: eventData[i].away.name_ch,
-          alias: eventData[i].away.alias,
-          alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id
-        },
-        newest_spread: {
-          handicap: newestSpread.handicap,
-          home_tw: newestSpread.home_tw,
-          away_tw: newestSpread.away_tw
-        },
-        flag: {
-          status: eventData[i].flag.status
-        },
-        bets_id: eventData[i].bets_id
-      });
+          team_name: ele.away.team_name,
+          player_name: ele.away.player_name,
+          name: ele.away.name,
+          name_ch: ele.away.name_ch,
+          alias: ele.away.alias,
+          alias_ch: ele.away.alias_ch,
+          image_id: ele.away.image_id
+        }
+      };
+      data.push(temp);
     }
+    return data;
+  } catch (err) {
+    console.error(`${err.stack} by DY`);
+    throw AppErrors.RepackageError(`${err.stack} by DY`);
   }
-
-  return closedEvent;
 }
-module.exports = livescore;
+module.exports = livescoreClosed;

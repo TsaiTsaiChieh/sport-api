@@ -1,20 +1,34 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
-const model = require('../../model/topics/likeReplyModel');
-async function likeReply(req, res) {
+const model = require('../../model/user/setFavoritePlayerModel');
+const types = require('../topics/types');
+async function favoriteGod(req, res) {
+  const league = types.getLeague();
+  league.push(null);
   const schema = {
     type: 'object',
-    required: ['reply_id', 'like'],
     properties: {
-      reply_id: {
-        type: 'integer',
-        maximum: 9999999,
-        minimum: 0
+      god_uid: {
+        type: 'string'
       },
-      like: {
-        type: 'boolean'
+      add: {
+        type: 'array',
+        uniqueItems: true,
+        items: {
+          type: 'string',
+          enum: league
+        }
+      },
+      remove: {
+        type: 'array',
+        uniqueItems: true,
+        items: {
+          type: 'string',
+          enum: league
+        }
       }
-    }
+    },
+    required: ['god_uid']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -38,4 +52,4 @@ async function likeReply(req, res) {
     });
 }
 
-module.exports = likeReply;
+module.exports = favoriteGod;

@@ -32,7 +32,7 @@ function newsModel(method, args, uid) {
           }
         );
         const news_id = [];
-        delete_id_query.forEach(async function(ele) {
+        delete_id_query.forEach(function(ele) {
           news_id.push(ele.system_id.toString());
         });
 
@@ -40,14 +40,15 @@ function newsModel(method, args, uid) {
           `
           SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
             FROM user__news
-            WHERE news_id NOT IN (${news_id})
-             AND scheduled BETWEEN $begin and $end
+           WHERE news_id NOT IN (:news_id)
+             AND scheduled BETWEEN :begin and :end
              AND status=0
-          ORDER BY scheduled DESC
-          LIMIT $start_system, $limit_system
+           ORDER BY scheduled DESC
+           LIMIT :start_system, :limit_system
           `,
           {
-            bind: { begin: begin, end: end, start_system: start_system, limit_system: limit_system },
+            logging: true,
+            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join() },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

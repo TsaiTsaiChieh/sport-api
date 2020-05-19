@@ -231,7 +231,31 @@ const Title = sequelize.define(
     ]
   }
 );
-
+const Collection = sequelize.define('user__collection', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  bets_id: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  league_id: {
+    type: Sequelize.STRING(8),
+    allowNull: false
+  },
+  scheduled: {
+    type: Sequelize.INTEGER
+  },
+  scheduled_tw: {
+    type: Sequelize.DATE
+  }
+});
 const Rank = sequelize.define(
   'user__rank',
   {
@@ -662,28 +686,36 @@ const Prediction = sequelize.define(
       type: Sequelize.INTEGER
     },
     spread_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     spread_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     spread_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_id: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_option: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     totals_bets: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: null
     },
     totals_result: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: null
     },
     uid: {
       type: Sequelize.STRING,
@@ -1007,7 +1039,7 @@ const UserFollow = sequelize.define(
  * 最愛大神
  */
 const User_FavoriteGod = sequelize.define(
-  'user__favoritegod',
+  'user__favoriteplayer',
   {
     uid: {
       type: Sequelize.STRING,
@@ -1017,7 +1049,7 @@ const User_FavoriteGod = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: {
+    league: {
       type: Sequelize.STRING,
       allowNull: false
     }
@@ -1046,14 +1078,14 @@ const Topic_Article = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    type: {
+    league: {
       // 球種/看板?
       type: Sequelize.STRING,
       allowNull: false
     },
     category: {
       // 文章分類
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     title: {
@@ -1087,7 +1119,7 @@ const Topic_Article = sequelize.define(
   {
     indexes: [
       {
-        fields: ['article_id', 'uid', 'type', 'category']
+        fields: ['article_id', 'uid', 'league', 'category']
       }
     ]
   }
@@ -1221,9 +1253,37 @@ const Topic_FavoriteArticle = sequelize.define(
 );
 
 /*
+ * 打賞記錄
+ */
+const Topic_DonateArticle = sequelize.define(
+  'topic__donate',
+  {
+    article_id: {
+      // 文章id
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    cost: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['article_id', 'uid']
+      }
+    ]
+  }
+);
+
+/*
  * 檢舉文章
  */
-// eslint-disable-next-line no-unused-vars
 const Service_ReportTopics = sequelize.define('service__reporttopic', {
   uid: {
     type: Sequelize.STRING,
@@ -1280,20 +1340,17 @@ const Service_Contact = sequelize.define('service__contact', {
 /*
  * 首頁 排行榜預設值
  */
-const Home_List = sequelize.define(
-  'home__list',
-  {
-    god_list: {
-      type: Sequelize.STRING
-    },
-    win_rate_list: {
-      type: Sequelize.STRING
-    },
-    win_bets_list: {
-      type: Sequelize.STRING
-    }
+const Home_List = sequelize.define('home__list', {
+  god_list: {
+    type: Sequelize.STRING
+  },
+  win_rate_list: {
+    type: Sequelize.STRING
+  },
+  win_bets_list: {
+    type: Sequelize.STRING
   }
-);
+});
 
 const Home_Banner = sequelize.define(
   'home__banner', // 不要再動了 拜託!!
@@ -1515,6 +1572,7 @@ const dbUtil = {
   PredictionDescription,
   User,
   Title,
+  Collection,
   Rank,
   Users_WinLists,
   Users_WinListsHistory,
@@ -1534,7 +1592,9 @@ const dbUtil = {
   Bank,
   Transfer_Status,
   Season,
-  UserFollow
+  UserFollow,
+  Topic_DonateArticle,
+  Service_ReportTopics
 };
 
 module.exports = dbUtil;
