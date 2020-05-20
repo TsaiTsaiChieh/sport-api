@@ -1294,11 +1294,11 @@ const Service_Contact = sequelize.define('service__contact', {
     allowNull: false
   },
   content: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   images: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: true
   }
 });
@@ -1325,22 +1325,25 @@ const Home_Banner = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    url: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    link: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: ''
-    },
     sort: {
       type: Sequelize.INTEGER,
       allowNull: true
     },
+    imgurl: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
     status: {
       type: Sequelize.INTEGER,
       defaultValue: 1 // 1為正常 -1可能為刪除 尚未實作
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
     }
   },
   {
