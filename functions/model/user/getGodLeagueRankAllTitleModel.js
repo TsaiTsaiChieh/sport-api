@@ -26,12 +26,10 @@ async function getGodLeagueRankAllTitle(args) {
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  if (godLeagueTitles.length === 0) {
-    return {}; // 無稱號
-  }
+  if (godLeagueTitles.length === 0) return {}; // 無稱號
 
-  result = { // 初始化 為了固定 json 位置
-    default_league_rank: '',
+  result = { // 初始化
+    default_league_rank: '', // 為了固定 json 位置
     lists: {}
   };
 
@@ -39,11 +37,11 @@ async function getGodLeagueRankAllTitle(args) {
     result.lists[leagueDecoder(data.league_id)] = {
       rank: data.rank_id,
       default_title: data.default_title,
-      titles: getTitles(data, data.default_title)
+      titles: getTitles(data)
     };
     result.default_league_rank = data.default_god_league_rank
       ? leagueDecoder(data.default_god_league_rank)
-      : leagueDecoder(data.league_id); // 避免 users 裡面 沒有 default_god_league_rank
+      : leagueDecoder(data.league_id); // 給預設值 避免 users 裡面 沒有 default_god_league_rank
   });
 
   return result;
