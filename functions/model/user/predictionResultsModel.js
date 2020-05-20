@@ -74,7 +74,8 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                 ) 
              AS prediction
       LEFT JOIN match__spreads AS spread ON prediction.spread_id = spread.spread_id
-      LEFT JOIN match__totals AS totals ON prediction.totals_id = totals.totals_id`,
+      LEFT JOIN match__totals AS totals ON prediction.totals_id = totals.totals_id
+       ORDER BY prediction.scheduled`,
         { type: db.sequelize.QueryTypes.SELECT }
       );
       return resolve(result);
