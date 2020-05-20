@@ -85,6 +85,12 @@ router.get(
   verification.token_v2,
   require('../controller/user/othersProfileController')
 );
+// 購買預測
+router.post(
+  '/purchase_predictions',
+  verification.token_v2,
+  require('../controller/user/purchasePredictionsController')
+);
 // 取售牌資訊
 router.get(
   '/sell_information',
