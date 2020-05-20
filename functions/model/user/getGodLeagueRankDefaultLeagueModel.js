@@ -15,9 +15,9 @@ async function getGodLeagueRankDefaultLeague(args) {
              titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue,
              users.default_god_league_rank
         from titles, users
-        where titles.uid = users.uid
-          and titles.uid = :uid
-          and titles.period = :period
+       where titles.uid = users.uid
+         and titles.uid = :uid
+         and titles.period = :period
     `, {
     replacements: {
       uid: userUid,
