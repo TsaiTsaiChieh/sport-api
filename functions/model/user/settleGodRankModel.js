@@ -10,6 +10,7 @@ const db = require('../../util/dbUtil');
 
 const d = require('debug')('user:settleWinListModel');
 
+
 async function settleGodRank(args) {
   return new Promise(async function(resolve, reject) {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
@@ -35,20 +36,84 @@ async function settleGodRank(args) {
   const period = getTitlesPeriod(now).period;
 
   /*common calculate & diamond calculate*/
-  const result = await db.sequelize.query(
+  const diamond = await db.sequelize.query(
     `
-      SELECT
+      SELECT  league_id, substring_index(group_concat(DISTINCT uid ORDER BY rank.this_period_win_bets DESC, rank.this_period_win_handicap DESC  SEPARATOR ','), ',', 10) as uids
+      FROM
+      (
+          SELECT
+            uid,
+            league_id,
+            this_period_win_bets,
+            this_period_win_rate,
+            (
+                SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+                    AND season = $currentSeason
+                    AND MONTH  = $currentMonth
+              ) first_week_win_handicap,
+              (
+                SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+                    AND season = $currentSeason
+                    AND MONTH  = $currentMonth
+              ) this_period_win_handicap,
+              (
+                  SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+              ) this_league_win_handicap 
+              FROM users__win__lists uwl
+              GROUP BY uid, league_id
+              ORDER BY uwl.league_id ASC
+      ) rank
+      WHERE rank.first_week_win_handicap >=10
+        AND rank.this_period_win_handicap >=30
+        AND rank.this_period_win_bets >=5
+      GROUP BY league_id
+    `,
+    { 
+      bind: { period:period, uid:uid, league_id:league_id, currentSeason:currentSeason, currentMonth:currentMonth },
+      type: db.sequelize.QueryTypes.SELECT 
+    }
+
+  );
+
+  const diamond_list = [];
+
+  diamond.forEach(function(items) { // 這裡有順序性
+    diamond_list.push(repackage(items));
+  });
+
+  resolve(diamond_list);
+  /*gold silver copper calculate*/
+  const gsc = await db.sequelize.query(
+    `
+    SELECT  uid, 
+      league_id, 
+      this_period_win_bets, 
+      this_period_win_rate, 
+      first_week_win_handicap, 
+      this_period_win_handicap, 
+      this_league_win_handicap, 
+      league_id,  
+      substring_index(group_concat(uid SEPARATOR ','), ',', 10) as uids
+    FROM
+    (
+    SELECT
       uid,
       league_id,
       this_period_win_bets,
-       (
+      this_period_win_rate,
+      (
           SELECT SUM(correct_counts+fault_counts)
             FROM users__win__lists__histories uwlh
             WHERE uid = $uid
               AND uwl.league_id = uwlh.league_id
               AND season = $currentSeason
-              AND month  = $currentMonth
-              
+              AND MONTH  = $currentMonth
         ) first_week_win_handicap,
         (
           SELECT SUM(correct_counts+fault_counts)
@@ -56,24 +121,43 @@ async function settleGodRank(args) {
             WHERE uid = $uid
               AND uwl.league_id = uwlh.league_id
               AND season = $currentSeason
-              AND month  = $currentMonth
-              
-        ) this_period_win_handicap
+              AND MONTH  = $currentMonth
+        ) this_period_win_handicap,
+        (
+            SELECT SUM(correct_counts+fault_counts)
+            FROM users__win__lists__histories uwlh
+            WHERE uid = $uid
+              AND uwl.league_id = uwlh.league_id
+        ) this_league_win_handicap 
         FROM users__win__lists uwl
-    
-        
+        GROUP BY uid, league_id
+        ORDER BY uwl.league_id, uwl.this_period_win_bets, this_period_win_handicap DESC
+    ) rank
+    WHERE rank.first_week_win_handicap >=10
+    AND rank.this_period_win_handicap >=30
+    AND rank.this_period_win_bets >=0.6
+    AND rank.league_id = $league_id
+    GROUP BY league_id
     `,
     { 
       bind: { period:period, uid:uid, league_id:league_id, currentSeason:currentSeason, currentMonth:currentMonth },
       type: db.sequelize.QueryTypes.SELECT 
     } 
+    
+    
   );
-<<<<<<< HEAD
-  resolve(result);
+
+  // resolve(result);
   });
   
-=======
->>>>>>> 7a6055ae8caee6181d0faf92d4cc4cc76477a3ea
+}
+function repackage(ele){
+  const data = {
+    'league_id':ele.league_id,
+    'uids':ele.uids
+  };
+
+  return data;
 }
 
 module.exports = settleGodRank;
