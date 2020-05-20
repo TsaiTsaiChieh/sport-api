@@ -24,8 +24,7 @@ function honorModel(req) {
 
         const wins = await db.sequelize.query(
           `
-            SELECT  ml.name, 
-                    ml.name_ch,
+            SELECT  vl.name, 
                     uwl.this_period_win_rate,
                     uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
@@ -60,9 +59,9 @@ function honorModel(req) {
                        WHERE l1.this_month_win_bets >= uwl.this_month_win_bets
                     ) bets_rank
                     
-              FROM  users__win__lists uwl, match__leagues ml 
+              FROM  users__win__lists uwl, view__leagues vl 
              WHERE  uwl.uid = $uid
-               AND  ml.league_id = uwl.league_id
+               AND  vl.league_id = uwl.league_id
                AND  uwl.league_id = $league_id
           `,
           {

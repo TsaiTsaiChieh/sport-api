@@ -16,8 +16,13 @@ const settlement = {
 function predictionResult(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      // begin 改為也會呈顯昨天的預測內容，所以需要扣一天
       const unix = {
-        begin: modules.convertTimezone(args.date),
+        begin: modules.convertTimezone(args.date, {
+          op: 'subtract',
+          value: 1,
+          unit: 'days'
+        }),
         end:
           modules.convertTimezone(args.date, {
             op: 'add',
@@ -69,7 +74,8 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                 ) 
              AS prediction
       LEFT JOIN match__spreads AS spread ON prediction.spread_id = spread.spread_id
-      LEFT JOIN match__totals AS totals ON prediction.totals_id = totals.totals_id`,
+      LEFT JOIN match__totals AS totals ON prediction.totals_id = totals.totals_id
+       ORDER BY prediction.scheduled`,
         { type: db.sequelize.QueryTypes.SELECT }
       );
       return resolve(result);
@@ -106,7 +112,7 @@ function repackageMatch(ele) {
     const data = {
       id: ele.bets_id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.timeFormat(ele.scheduled),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
       league_id: ele.league_id,
       league: ele.league,
       home: {
