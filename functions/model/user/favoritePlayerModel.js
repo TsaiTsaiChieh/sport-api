@@ -7,7 +7,7 @@ function favoritePlayerModel(args) {
       let favorite_player = {};
       const favorite_player_list = [];
       const uid = args.token.uid;
-      
+
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
@@ -45,7 +45,7 @@ function favoritePlayerModel(args) {
         const items = args.body.items;
         const league = args.body.league_name;
         const uids = items.join("','");
-      
+
         favorite_player = await db.sequelize.query(
           `
           DELETE FROM user__favoriteplayers
@@ -54,14 +54,13 @@ function favoritePlayerModel(args) {
              AND league=$league
            `,
           {
-            logging:true,
-            bind: { uid: uid, league:league},
+            logging: true,
+            bind: { uid: uid, league: league },
             type: db.sequelize.QueryTypes.DELETE
           });
-         
-          resolve({'code':'200','msg':'success'});
+
+        resolve({ code: '200', msg: 'success' });
       }
-      
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });

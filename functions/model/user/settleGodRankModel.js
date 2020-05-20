@@ -10,7 +10,6 @@ const db = require('../../util/dbUtil');
 
 const d = require('debug')('user:settleWinListModel');
 
-
 async function settleGodRank(args) {
   return new Promise(async function(resolve, reject) {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
@@ -35,8 +34,8 @@ async function settleGodRank(args) {
     const currentMonth = moment().month();
     const period = getTitlesPeriod(now).period;
 
-  /*common calculate & diamond calculate*/
-  const diamond = await db.sequelize.query(
+    /* common calculate & diamond calculate */
+    const diamond = await db.sequelize.query(
     `
       SELECT  league_id, substring_index(group_concat(DISTINCT uid ORDER BY rank.this_period_win_bets DESC, rank.this_period_win_handicap DESC  SEPARATOR ','), ',', 10) as uids
       FROM
@@ -74,31 +73,30 @@ async function settleGodRank(args) {
         AND rank.this_period_win_bets >=5
       GROUP BY league_id
     `,
-    { 
-      bind: { period:period, uid:uid, league_id:league_id, currentSeason:currentSeason, currentMonth:currentMonth },
-      type: db.sequelize.QueryTypes.SELECT 
+    {
+      bind: { period: period, uid: uid, league_id: league_id, currentSeason: currentSeason, currentMonth: currentMonth },
+      type: db.sequelize.QueryTypes.SELECT
     }
 
-  );
+    );
 
-  const diamond_list = [];
+    const diamond_list = [];
 
-  diamond.forEach(function(items) { // 這裡有順序性
-    diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
+    diamond.forEach(function(items) { // 這裡有順序性
+      diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
     // updateGod(items);
+    });
+
+    resolve(diamond_list);
   });
-  
-  resolve(diamond_list);
-  });
-  
 }
-function repackage(period, uid, currentSeason, currentMonth, ele){
+function repackage(period, uid, currentSeason, currentMonth, ele) {
   const data = {
-    'type':'diamond',
-    'league_id':ele.league_id,
-    'uids':ele.uids
+    type: 'diamond',
+    league_id: ele.league_id,
+    uids: ele.uids
   };
- return data;
+  return data;
   // return generateGSC(period, uid, currentSeason, currentMonth, data);
 }
 // function repackageGSC(period, uid, currentSeason, currentMonth, ele){
@@ -107,7 +105,7 @@ function repackage(period, uid, currentSeason, currentMonth, ele){
 //     'league_id':ele.league_id,
 //     'uids':ele.uids
 //   };
-  
+
 //   return generateGSC(period, uid, currentSeason, currentMonth, data);
 // }
 // function generateGSC(period, uid, currentSeason, currentMonth, ele){
@@ -115,14 +113,14 @@ function repackage(period, uid, currentSeason, currentMonth, ele){
 //   const gsc_list = [];
 //   const gsc = db.sequelize.query(
 //     `
-//     SELECT  uid, 
-//       league_id, 
-//       this_period_win_bets, 
-//       this_period_win_rate, 
-//       first_week_win_handicap, 
-//       this_period_win_handicap, 
-//       this_league_win_handicap, 
-//       league_id,  
+//     SELECT  uid,
+//       league_id,
+//       this_period_win_bets,
+//       this_period_win_rate,
+//       first_week_win_handicap,
+//       this_period_win_handicap,
+//       this_league_win_handicap,
+//       league_id,
 //       substring_index(group_concat(uid SEPARATOR ','), ',', 10) as uids
 //     FROM
 //     (
@@ -152,7 +150,7 @@ function repackage(period, uid, currentSeason, currentMonth, ele){
 //             FROM users__win__lists__histories uwlh
 //             WHERE uid = $uid
 //               AND uwl.league_id = uwlh.league_id
-//         ) this_league_win_handicap 
+//         ) this_league_win_handicap
 //         FROM users__win__lists uwl
 //         GROUP BY uid, league_id
 //         ORDER BY uwl.league_id, uwl.this_period_win_bets, this_period_win_handicap DESC
@@ -161,34 +159,34 @@ function repackage(period, uid, currentSeason, currentMonth, ele){
 //     AND rank.this_period_win_handicap >=30
 //     AND rank.this_period_win_bets >=0.6
 //     AND rank.league_id = $league_id
-   
+
 //     GROUP BY league_id
 //     `,
-//     { 
+//     {
 
 //       bind: { period:period, uid:uid, currentSeason:currentSeason, currentMonth:currentMonth, league_id:ele.league_id, uids:ele.uids},
-//       type: db.sequelize.QueryTypes.SELECT 
+//       type: db.sequelize.QueryTypes.SELECT
 //     });
 
 //     gsc.forEach(function(items) { // 這裡有順序性
 //       gsc_list.push(repackageGSC(period, uid, currentSeason, currentMonth, items));
 //     });
-  
+
 // }
 // function updateGod(ele){
 
 //   const update = db.sequelize.query(
 //     `
-//       UPDATE users 
+//       UPDATE users
 //          SET status=2,
 //              default_god_league_rank=$league_id,
 //              rank1_count=rank1_count+1
 //        WHERE uid in ($uids)
 //     `,
-//     { 
+//     {
 
 //       bind: { league_id:ele.league_id, uids:ele.uids},
-//       type: db.sequelize.QueryTypes.SELECT 
+//       type: db.sequelize.QueryTypes.SELECT
 //     });
 //     return update;
 // }
