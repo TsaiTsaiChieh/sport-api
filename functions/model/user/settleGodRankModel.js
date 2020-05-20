@@ -35,41 +35,159 @@ async function settleGodRank(args) {
     const period = getTitlesPeriod(now).period;
 
     /* common calculate & diamond calculate */
-    const result = await db.sequelize.query(
+    const diamond = await db.sequelize.query(
     `
-      SELECT
-      uid,
-      league_id,
-      this_period_win_bets,
-       (
-          SELECT SUM(correct_counts+fault_counts)
-            FROM users__win__lists__histories uwlh
-            WHERE uid = $uid
-              AND uwl.league_id = uwlh.league_id
-              AND season = $currentSeason
-              AND month  = $currentMonth
-              
-        ) first_week_win_handicap,
-        (
-          SELECT SUM(correct_counts+fault_counts)
-            FROM users__win__lists__histories uwlh
-            WHERE uid = $uid
-              AND uwl.league_id = uwlh.league_id
-              AND season = $currentSeason
-              AND month  = $currentMonth
-              
-        ) this_period_win_handicap
-        FROM users__win__lists uwl
-    
-        
+      SELECT  league_id, substring_index(group_concat(DISTINCT uid ORDER BY rank.this_period_win_bets DESC, rank.this_period_win_handicap DESC  SEPARATOR ','), ',', 10) as uids
+      FROM
+      (
+          SELECT
+            uid,
+            league_id,
+            this_period_win_bets,
+            this_period_win_rate,
+            (
+                SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+                    AND season = $currentSeason
+                    AND MONTH  = $currentMonth
+              ) first_week_win_handicap,
+              (
+                SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+                    AND season = $currentSeason
+                    AND MONTH  = $currentMonth
+              ) this_period_win_handicap,
+              (
+                  SELECT SUM(correct_counts+fault_counts)
+                  FROM users__win__lists__histories uwlh
+                  WHERE uwl.league_id = uwlh.league_id
+              ) this_league_win_handicap 
+              FROM users__win__lists uwl
+              GROUP BY uid, league_id
+              ORDER BY uwl.league_id ASC
+      ) rank
+      WHERE rank.first_week_win_handicap >=10
+        AND rank.this_period_win_handicap >=30
+        AND rank.this_period_win_bets >=5
+      GROUP BY league_id
     `,
     {
       bind: { period: period, uid: uid, league_id: league_id, currentSeason: currentSeason, currentMonth: currentMonth },
       type: db.sequelize.QueryTypes.SELECT
     }
+
     );
-    resolve(result);
+
+    const diamond_list = [];
+
+    diamond.forEach(function(items) { // 這裡有順序性
+      diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
+    // updateGod(items);
+    });
+
+    resolve(diamond_list);
   });
 }
+function repackage(period, uid, currentSeason, currentMonth, ele) {
+  const data = {
+    type: 'diamond',
+    league_id: ele.league_id,
+    uids: ele.uids
+  };
+  return data;
+  // return generateGSC(period, uid, currentSeason, currentMonth, data);
+}
+// function repackageGSC(period, uid, currentSeason, currentMonth, ele){
+//   const data = {
+//     'type':'GSC',
+//     'league_id':ele.league_id,
+//     'uids':ele.uids
+//   };
 
+//   return generateGSC(period, uid, currentSeason, currentMonth, data);
+// }
+// function generateGSC(period, uid, currentSeason, currentMonth, ele){
+//   /*gold silver copper calculate*/
+//   const gsc_list = [];
+//   const gsc = db.sequelize.query(
+//     `
+//     SELECT  uid,
+//       league_id,
+//       this_period_win_bets,
+//       this_period_win_rate,
+//       first_week_win_handicap,
+//       this_period_win_handicap,
+//       this_league_win_handicap,
+//       league_id,
+//       substring_index(group_concat(uid SEPARATOR ','), ',', 10) as uids
+//     FROM
+//     (
+//     SELECT
+//       uid,
+//       league_id,
+//       this_period_win_bets,
+//       this_period_win_rate,
+//       (
+//           SELECT SUM(correct_counts+fault_counts)
+//             FROM users__win__lists__histories uwlh
+//             WHERE uid = $uid
+//               AND uwl.league_id = uwlh.league_id
+//               AND season = $currentSeason
+//               AND MONTH  = $currentMonth
+//         ) first_week_win_handicap,
+//         (
+//           SELECT SUM(correct_counts+fault_counts)
+//             FROM users__win__lists__histories uwlh
+//             WHERE uid = $uid
+//               AND uwl.league_id = uwlh.league_id
+//               AND season = $currentSeason
+//               AND MONTH  = $currentMonth
+//         ) this_period_win_handicap,
+//         (
+//             SELECT SUM(correct_counts+fault_counts)
+//             FROM users__win__lists__histories uwlh
+//             WHERE uid = $uid
+//               AND uwl.league_id = uwlh.league_id
+//         ) this_league_win_handicap
+//         FROM users__win__lists uwl
+//         GROUP BY uid, league_id
+//         ORDER BY uwl.league_id, uwl.this_period_win_bets, this_period_win_handicap DESC
+//     ) rank
+//     WHERE rank.first_week_win_handicap >=10
+//     AND rank.this_period_win_handicap >=30
+//     AND rank.this_period_win_bets >=0.6
+//     AND rank.league_id = $league_id
+
+//     GROUP BY league_id
+//     `,
+//     {
+
+//       bind: { period:period, uid:uid, currentSeason:currentSeason, currentMonth:currentMonth, league_id:ele.league_id, uids:ele.uids},
+//       type: db.sequelize.QueryTypes.SELECT
+//     });
+
+//     gsc.forEach(function(items) { // 這裡有順序性
+//       gsc_list.push(repackageGSC(period, uid, currentSeason, currentMonth, items));
+//     });
+
+// }
+// function updateGod(ele){
+
+//   const update = db.sequelize.query(
+//     `
+//       UPDATE users
+//          SET status=2,
+//              default_god_league_rank=$league_id,
+//              rank1_count=rank1_count+1
+//        WHERE uid in ($uids)
+//     `,
+//     {
+
+//       bind: { league_id:ele.league_id, uids:ele.uids},
+//       type: db.sequelize.QueryTypes.SELECT
+//     });
+//     return update;
+// }
 module.exports = settleGodRank;
