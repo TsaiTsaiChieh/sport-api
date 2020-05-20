@@ -419,7 +419,7 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
  * @description 回傳 下一期數、開始/結束日期和 目前日期 位於 該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesNexteriod(sdate, format = 'YYYYMMDD') {
+function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
   return {
@@ -838,7 +838,7 @@ module.exports = {
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,
-  getTitlesNexteriod,
+  getTitlesNextPeriod,
   userStatusCodebook,
   translate,
   simple2Tradition,

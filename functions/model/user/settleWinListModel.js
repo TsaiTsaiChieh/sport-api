@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
 const {
-  convertTimezone, getTitlesNexteriod, moment, checkUserRight,
+  convertTimezone, getTitlesNextPeriod, moment, checkUserRight,
   predictionsWinList
 } = require('../../util/modules');
 const { getSeason } = require('../../util/databaseEngine');
@@ -48,7 +48,7 @@ async function settleWinList(args) {
   const userUid = args.token.uid;
   const begin = convertTimezone(args.date);
   const end = convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
-  const tp = getTitlesNexteriod(begin * 1000);
+  const tp = getTitlesNextPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;
   const dayOfYear = toNumber(moment(begin * 1000).format('DDD')); // 日期是 一年中的第幾天
