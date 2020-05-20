@@ -424,8 +424,8 @@ function getTitlesNexteriod(sdate, format = 'YYYYMMDD') {
   if (t === 0) return 0;
   return {
     period: t.period + 1,
-    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks'),
-    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks'),
+    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format),
+    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format),
     weekPeriod: t.weekPeriod
   };
 }
