@@ -52,7 +52,7 @@ function getMatchesWithDate(args) {
                    AND game.home_id = home.team_id 
                    AND game.away_id = away.team_id
                    AND (game.status = ${SCHEDULED} OR game.status = ${INPLAY} OR game.status = ${END})
-               ) AS game
+              ) AS game
      LEFT JOIN match__spreads AS spread ON (game.bets_id = spread.match_id AND game.spread_id = spread.spread_id)
      LEFT JOIN match__totals AS totals ON (game.bets_id = totals.match_id AND game.totals_id = totals.totals_id)
       ORDER BY game.scheduled`,
@@ -116,7 +116,7 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.timeFormat(ele.scheduled),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
       status: ele.status,
       league: args.league,
       home: {
