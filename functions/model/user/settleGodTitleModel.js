@@ -35,7 +35,7 @@ async function settleGodTitle(args) {
   //   subtract = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
   //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
 
-  //   const period = modules.getTitlesPeriod(subtract).period;
+  //   const period = modules.getTitlesNexteriod(subtract).period;
   //   const dayOfYear = moment(subtract).format('DDD'); // 日期是 一年中的第幾天
   //   const week = moment(subtract).week();
   //   const momentObject = moment(subtract).toObject();
