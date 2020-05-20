@@ -82,7 +82,6 @@ function repackage(ele) {
   data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
   data.win_rate = ele.this_month_win_bets == null ? null : ele.this_month_win_rate.toString();
 
-
   return data;
 }
 module.exports = favoritePlayerModel;

@@ -50,6 +50,10 @@ async function checkmatch_eSoccer() {
                   )
                 );
               }
+            } else {
+              await modules.database
+                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                .set('scheduled');
             }
             break;
           }

@@ -30,7 +30,7 @@ beforeAll(async () => {
 
 // 開始測試
 describe('/user Endpoints', () => {
-  it('/user/predict_info 不正確登入session __badsession', async () => {
+  it('post /user/predict_info 不正確登入session __badsession', async () => {
     const res = await request(url)
       .post('/user/predict_info')
       .set('Authorization', 'bearer ' + __badtoken);
@@ -38,7 +38,7 @@ describe('/user Endpoints', () => {
     expect(res.statusCode).toEqual(401);
   });
 
-  it('/user/predict_info', async () => {
+  it('post /user/predict_info', async () => {
     const res = await request(url)
       .post('/user/predict_info')
       .set('Authorization', 'bearer ' + token); ;
@@ -46,4 +46,119 @@ describe('/user Endpoints', () => {
     expect(res.statusCode).toEqual(200);
     expect(typeof res.body).toEqual(typeof []);
   });
+
+  // god_league_rank 預設聯盟
+  // 顯示 預設聯盟 + 所有聯盟預設稱號 ( 稱號 (鑽金銀銅 Rank) + 預設成就(近幾過幾) )
+  it('get /user/god_league_rank_default_league', async () => {
+    const res = await request(url)
+      .get('/user/god_league_rank_default_league')
+      .set('Authorization', 'bearer ' + token); ;
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('default_league_rank');
+    expect(res.body).toHaveProperty('lists');
+  });
+
+  // 變更 預設顯示聯盟稱號（稱號 (鑽金銀銅 Rank) + 成就(近幾過幾)）
+  it('post /user/god_league_rank_set_default_league 錯誤 league', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_set_default_league')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "league": "NBA1"
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body[0]).toHaveProperty('keyword');
+  });
+
+  it('post /user/god_league_rank_set_default_league', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_set_default_league')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "league": "NBA"
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  // god_league_rank 所有聯盟稱號 + 預設所有顯示成就
+  // 顯示 所有聯盟 稱號 搭配之 所有成就
+  it('get /user/god_league_rank_all_title', async () => {
+    const res = await request(url)
+      .get('/user/god_league_rank_all_title')
+      .set('Authorization', 'bearer ' + token); ;
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('default_league_rank');
+    expect(res.body).toHaveProperty('lists');
+  });
+
+  // 變更 稱號 搭配之 成就
+  it('post /user/god_league_rank_set_all_league_title 錯誤 league', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_set_all_league_title')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "titles": [
+          {"league": "NBA1", "default_title": 2},
+          {"league": "MLB", "default_title": 4}
+        ]
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body[0]).toHaveProperty('keyword');
+  });
+
+  it('post /user/god_league_rank_set_all_league_title', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_set_all_league_title')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "titles": [
+          {"league": "NBA", "default_title": 2},
+          {"league": "MLB", "default_title": 4}
+        ]
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('success');
+  });
+
+  // 查詢大神稱號
+  it('get /user/god_league_rank', async () => {
+    const res = await request(url)
+      .get('/user/god_league_rank')
+      .set('Authorization', 'bearer ' + token); ;
+
+    expect(res.statusCode).toEqual(200);
+    expect(typeof res.body).toEqual(typeof []);
+  });
+
+  it('post /user/god_league_rank_receive 錯誤 league', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_receive')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "leagues": ["NBA1", "MLB"]
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body[0]).toHaveProperty('keyword');
+  });
+
+  it('post /user/god_league_rank_receive', async () => {
+    const res = await request(url)
+      .post('/user/god_league_rank_receive')
+      .set('Authorization', 'bearer ' + token)
+      .send({
+        "leagues": ["NBA", "MLB"]
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('success', ["NBA", "MLB"]);
+  });
+
 });

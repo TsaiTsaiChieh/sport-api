@@ -140,6 +140,18 @@ async function settleWinList(args) {
           matches_count: data.matches_count,
           correct_counts: data.correct_counts,
           fault_counts: data.fault_counts,
+          spread_correct_counts: data.spread_correct_counts,
+          totals_correct_counts: data.totals_correct_counts,
+          spread_fault_counts: data.spread_fault_counts,
+          totals_fault_counts: data.totals_fault_counts,
+          spread_win_rate: data.spread_win_rate,
+          totals_win_rate: data.totals_win_rate,
+          spread_correct_bets: data.spread_correct_bets,
+          totals_correct_bets: data.totals_correct_bets,
+          spread_fault_bets: data.spread_fault_bets,
+          totals_fault_bets: data.totals_fault_bets,
+          spread_win_bets: data.spread_win_bets,
+          totals_win_bets: data.totals_win_bets,
           date_timestamp: begin,
           day_of_year: dayOfYear,
           period: period,
@@ -158,7 +170,19 @@ async function settleWinList(args) {
         win_rate: data.win_rate,
         matches_count: data.matches_count,
         correct_counts: data.correct_counts,
-        fault_counts: data.fault_counts
+        fault_counts: data.fault_counts,
+        spread_correct_counts: data.spread_correct_counts,
+        totals_correct_counts: data.totals_correct_counts,
+        spread_fault_counts: data.spread_fault_counts,
+        totals_fault_counts: data.totals_fault_counts,
+        spread_win_rate: data.spread_win_rate,
+        totals_win_rate: data.totals_win_rate,
+        spread_correct_bets: data.spread_correct_bets,
+        totals_correct_bets: data.totals_correct_bets,
+        spread_fault_bets: data.spread_fault_bets,
+        totals_fault_bets: data.totals_fault_bets,
+        spread_win_bets: data.spread_win_bets,
+        totals_win_bets: data.totals_win_bets
       }, {
         where: {
           uid: data.uid,
@@ -220,14 +244,24 @@ async function settleWinList(args) {
           league_id: league_id,
           this_week_win_rate: this_week_win_rate,
           this_week_win_bets: ele.sum_week.win_bets,
+          this_week_correct_counts: ele.sum_week.correct_counts,
+          this_week_fault_counts: ele.sum_week.fault_counts,
           this_month_win_rate: this_month_win_rate,
           this_month_win_bets: ele.sum_month.win_bets,
+          this_month_correct_counts: ele.sum_month.correct_counts,
+          this_month_fault_counts: ele.sum_month.fault_counts,
           this_period_win_rate: this_period_win_rate,
           this_period_win_bets: ele.sum_period.win_bets,
+          this_period_correct_counts: ele.sum_period.correct_counts,
+          this_period_fault_counts: ele.sum_period.fault_counts,
           this_week1_of_period_win_rate: this_week1_of_period_win_rate,
           this_week1_of_period_win_bets: ele.sum_week1_of_period.win_bets,
+          this_week1_of_period_correct_counts: ele.sum_week1_of_period.correct_counts,
+          this_week1_of_period_fault_counts: ele.sum_week1_of_period.fault_counts,
           this_season_win_rate: this_season_win_rate,
-          this_season_win_bets: ele.sum_season.win_bets
+          this_season_win_bets: ele.sum_season.win_bets,
+          this_season_correct_counts: ele.sum_season.correct_counts,
+          this_season_fault_counts: ele.sum_season.fault_counts
         }
       }));
     } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13433', err.parent.code);}
@@ -237,14 +271,24 @@ async function settleWinList(args) {
       [err, r] = await to(db.Users_WinLists.update({
         this_week_win_rate: this_week_win_rate,
         this_week_win_bets: ele.sum_week.win_bets,
+        this_week_correct_counts: ele.sum_week.correct_counts,
+        this_week_fault_counts: ele.sum_week.fault_counts,
         this_month_win_rate: this_month_win_rate,
         this_month_win_bets: ele.sum_month.win_bets,
+        this_month_correct_counts: ele.sum_month.correct_counts,
+        this_month_fault_counts: ele.sum_month.fault_counts,
         this_period_win_rate: this_period_win_rate,
         this_period_win_bets: ele.sum_period.win_bets,
+        this_period_correct_counts: ele.sum_period.correct_counts,
+        this_period_fault_counts: ele.sum_period.fault_counts,
         this_week1_of_period_win_rate: this_week1_of_period_win_rate,
         this_week1_of_period_win_bets: ele.sum_week1_of_period.win_bets,
+        this_week1_of_period_correct_counts: ele.sum_week1_of_period.correct_counts,
+        this_week1_of_period_fault_counts: ele.sum_week1_of_period.fault_counts,
         this_season_win_rate: this_season_win_rate,
-        this_season_win_bets: ele.sum_season.win_bets
+        this_season_win_bets: ele.sum_season.win_bets,
+        this_season_correct_counts: ele.sum_season.correct_counts,
+        this_season_fault_counts: ele.sum_season.fault_counts
       }, {
         where: {
           uid: data.uid,
@@ -406,7 +450,7 @@ const colors = {
     Magenta: '\x1b[35m',
     Cyan: '\x1b[36m',
     White: '\x1b[37m',
-    Crimson: '\x1b[38m' // القرمزي
+    Crimson: '\x1b[38m'
   },
   bg: {
     Black: '\x1b[40m',

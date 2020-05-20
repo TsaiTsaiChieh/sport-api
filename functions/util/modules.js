@@ -670,68 +670,43 @@ function predictionsWinList(data) {
 
     reLeagues.forEach(function(data) {
       // 勝率 winRate
-      const predictCorrectCounts =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag) ? ++acc : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag) ? ++acc : acc,
-          0
-        );
+      const predictSpreadCorrectCounts = data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0);
+      const predictTotalsCorrectCounts = data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
+      const predictCorrectCounts = predictSpreadCorrectCounts + predictTotalsCorrectCounts;
 
-      const predictFaultCounts =
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
-          0
-        ) +
-        data.reduce(
-          (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
-          0
-        );
+      const predictSpreadFaultCounts = data.reduce((acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc), 0);
+      const predictTotalsFaultCounts = data.reduce((acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc), 0);
+      const predictFaultCounts = predictSpreadFaultCounts + predictTotalsFaultCounts;
 
       // 避免分母是0 平盤無效
-      const winRate =
-        predictCorrectCounts + predictFaultCounts === 0
-          ? 0
-          : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      const spreadWinRate = predictSpreadCorrectCounts + predictSpreadFaultCounts === 0
+        ? 0
+        : predictSpreadCorrectCounts / (predictSpreadCorrectCounts + predictSpreadFaultCounts);
+      const totalsWinRate = predictTotalsCorrectCounts + predictTotalsFaultCounts === 0
+        ? 0
+        : predictTotalsCorrectCounts / (predictTotalsCorrectCounts + predictTotalsFaultCounts);
+      const winRate = predictCorrectCounts + predictFaultCounts === 0
+        ? 0
+        : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注
-      const predictCorrectBets =
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            correct.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+      const predictSpreadCorrectBets = data.reduce((acc, cur) =>
+        correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets + acc : acc, 0);
+      const predictTotalsCorrectBets = data.reduce((acc, cur) =>
+        correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets + acc : acc, 0);
+      const predictCorrectBets = predictSpreadCorrectBets + predictTotalsCorrectBets;
 
-      const predictFaultBets =
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.spread_result_flag)
-              ? cur.spread_result_flag * cur.spread_bets
-              : acc,
-          0
-        ) +
-        data.reduce(
-          (acc, cur) =>
-            fault.includes(cur.totals_result_flag)
-              ? cur.totals_result_flag * cur.totals_bets
-              : acc,
-          0
-        );
+      const predictSpreadFaultBets = data.reduce((acc, cur) =>
+        fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets + acc : acc, 0);
+      const predictTotalsFaultBets = data.reduce((acc, cur) =>
+        fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets + acc : acc, 0);
+      const predictFaultBets = predictSpreadFaultBets + predictTotalsFaultBets;
 
+      const spreadWinBets = predictSpreadCorrectBets + predictSpreadFaultBets;
+      const totalsWinBets = predictTotalsCorrectBets + predictTotalsFaultBets;
       const winBets = predictCorrectBets + predictFaultBets;
+
+      // 注數計算
 
       result.push({
         uid: data[0].uid,
@@ -740,7 +715,19 @@ function predictionsWinList(data) {
         win_bets: Number(winBets.toFixed(2)),
         matches_count: data.length,
         correct_counts: predictCorrectCounts,
-        fault_counts: predictFaultCounts
+        fault_counts: predictFaultCounts,
+        spread_correct_counts: predictSpreadCorrectCounts,
+        totals_correct_counts: predictTotalsCorrectCounts,
+        spread_fault_counts: predictSpreadFaultCounts,
+        totals_fault_counts: predictTotalsFaultCounts,
+        spread_win_rate: spreadWinRate,
+        totals_win_rate: totalsWinRate,
+        spread_correct_bets: predictSpreadCorrectBets,
+        totals_correct_bets: predictTotalsCorrectBets,
+        spread_fault_bets: predictSpreadFaultBets,
+        totals_fault_bets: predictTotalsFaultBets,
+        spread_win_bets: spreadWinBets,
+        totals_win_bets: totalsWinBets
       });
 
       // console.log('\n');
@@ -759,6 +746,30 @@ function predictionsWinList(data) {
   return result;
 }
 
+// 一般 NBA MLB
+// home_alias = 'CHA'
+//
+// home: {
+//     team_name: 'CHA',
+//     alaias: 'CHA',
+//     alias_ch: '黃蜂',
+//     player_name: null
+// }
+// 電競足球
+// home_alias = 'Atletico Madrid (Boulevard_Prospect)'
+//
+// home: {
+//   team_name: 'Atletico Madrid (Boulevard_Prospect)',
+//   alaias: 'Atletico Madrid',
+//   alias_ch: 'Atletico Madrid',
+//   player_name: 'Boulevard_Prospect'
+// }
+//
+// team_name: ele.home_alias,
+// alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+// alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+// player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+//
 // 將電競足球的隊名和球員分開
 function sliceTeamAndPlayer(name) {
   if (name.includes('(')) {

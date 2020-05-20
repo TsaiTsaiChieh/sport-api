@@ -3,7 +3,7 @@ const db = require('../util/dbUtil');
 const firestoreName = 'esport_eSoccer';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
-// const settleMatchesModel = require('../model/user/settleMatchesModel');
+const settleMatchesModel = require('../model/user/settleMatchesModel');
 
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
@@ -53,8 +53,8 @@ async function ESoccerpbpHistory(parameter) {
     try {
       let data = await axiosForURL(pbpURL);
       let realtimeData;
-      let homeScores = 'no data';
-      let awayScores = 'no data';
+      let homeScores = null;
+      let awayScores = null;
       if (!data.results[0].ss) {
         realtimeData = await modules.database
           .ref(`esports/eSoccer/${betsID}`)
@@ -191,12 +191,12 @@ async function ESoccerpbpHistory(parameter) {
         //       { merge: true }
         //     );
         // settlementAccordingMatch(); 采潔的結算
-        // await settleMatchesModel({
-        //   token: {
-        //     uid: '999'
-        //   },
-        //   bets_id: betsID
-        // });
+        await settleMatchesModel({
+          token: {
+            uid: '999'
+          },
+          bets_id: betsID
+        });
       } catch (err) {
         return reject(
           new AppErrors.PBPEsoccerError(

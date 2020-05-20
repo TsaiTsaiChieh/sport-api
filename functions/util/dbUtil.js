@@ -87,6 +87,10 @@ const User = sequelize.define(
     default_title: {
       type: Sequelize.STRING
     },
+    // 大神 預設 顯示聯盟 有稱號的 (NBA 金  或 MLB 銀)
+    default_god_league_rank: {
+      type: Sequelize.STRING
+    },
     // 改獨立成一個 titles table
     // titles: {
     //   type: Sequelize.STRING
@@ -211,6 +215,10 @@ const Title = sequelize.define(
     },
     matches_continue: {
       // 連贏Ｎ場
+      type: Sequelize.INTEGER
+    },
+    received: {
+      // 已閱
       type: Sequelize.INTEGER
     }
   },
@@ -364,7 +372,8 @@ const Spread = sequelize.define(
       type: Sequelize.STRING(8)
     },
     handicap: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: null
     },
     home_odd: {
       type: Sequelize.FLOAT
@@ -414,7 +423,8 @@ const Totals = sequelize.define(
       type: Sequelize.STRING(8)
     },
     handicap: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: null
     },
     over_odd: {
       type: Sequelize.FLOAT
@@ -817,11 +827,23 @@ const Users_WinLists = sequelize.define(
     last_season_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_season_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_season_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     last_period_win_bets: {
       type: Sequelize.FLOAT
     },
     last_period_win_rate: {
       type: Sequelize.FLOAT
+    },
+    last_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_period_fault_counts: {
+      type: Sequelize.INTEGER
     },
     last_week1_of_period_win_bets: {
       type: Sequelize.FLOAT
@@ -829,11 +851,23 @@ const Users_WinLists = sequelize.define(
     last_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week1_of_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_week1_of_period_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     last_month_win_bets: {
       type: Sequelize.FLOAT
     },
     last_month_win_rate: {
       type: Sequelize.FLOAT
+    },
+    last_month_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_month_fault_counts: {
+      type: Sequelize.INTEGER
     },
     last_week_win_bets: {
       type: Sequelize.FLOAT
@@ -841,11 +875,23 @@ const Users_WinLists = sequelize.define(
     last_week_win_rate: {
       type: Sequelize.FLOAT
     },
+    last_week_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    last_week_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_season_win_bets: {
       type: Sequelize.FLOAT
     },
     this_season_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_season_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_season_fault_counts: {
+      type: Sequelize.INTEGER
     },
     this_period_win_bets: {
       type: Sequelize.FLOAT
@@ -853,11 +899,23 @@ const Users_WinLists = sequelize.define(
     this_period_win_rate: {
       type: Sequelize.FLOAT
     },
+    this_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_period_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_week1_of_period_win_bets: {
       type: Sequelize.FLOAT
     },
     this_week1_of_period_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_week1_of_period_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_week1_of_period_fault_counts: {
+      type: Sequelize.INTEGER
     },
     this_month_win_bets: {
       type: Sequelize.FLOAT
@@ -865,11 +923,23 @@ const Users_WinLists = sequelize.define(
     this_month_win_rate: {
       type: Sequelize.FLOAT
     },
+    this_month_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_month_fault_counts: {
+      type: Sequelize.INTEGER
+    },
     this_week_win_bets: {
       type: Sequelize.FLOAT
     },
     this_week_win_rate: {
       type: Sequelize.FLOAT
+    },
+    this_week_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    this_week_fault_counts: {
+      type: Sequelize.INTEGER
     }
   },
   {
@@ -913,6 +983,42 @@ const Users_WinListsHistory = sequelize.define(
     },
     fault_counts: {
       type: Sequelize.INTEGER
+    },
+    spread_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    totals_correct_counts: {
+      type: Sequelize.INTEGER
+    },
+    spread_fault_counts: {
+      type: Sequelize.INTEGER
+    },
+    totals_fault_counts: {
+      type: Sequelize.INTEGER
+    },
+    spread_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    totals_win_rate: {
+      type: Sequelize.FLOAT
+    },
+    spread_correct_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_correct_bets: {
+      type: Sequelize.FLOAT
+    },
+    spread_fault_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_fault_bets: {
+      type: Sequelize.FLOAT
+    },
+    spread_win_bets: {
+      type: Sequelize.FLOAT
+    },
+    totals_win_bets: {
+      type: Sequelize.FLOAT
     },
     date_timestamp: {
       type: Sequelize.INTEGER
@@ -1284,11 +1390,11 @@ const Service_Contact = sequelize.define('service__contact', {
     allowNull: false
   },
   content: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   images: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: true
   }
 });
@@ -1315,22 +1421,25 @@ const Home_Banner = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    url: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    link: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: ''
-    },
     sort: {
       type: Sequelize.INTEGER,
       allowNull: true
     },
+    imgurl: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
     status: {
       type: Sequelize.INTEGER,
       defaultValue: 1 // 1為正常 -1可能為刪除 尚未實作
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    content: {
+      type: Sequelize.TEXT,
+      allowNull: false
     }
   },
   {

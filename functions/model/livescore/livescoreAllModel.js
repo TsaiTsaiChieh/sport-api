@@ -17,6 +17,7 @@ function queryAllMatches(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
+
       const end =
         modules.convertTimezone(args.date, {
           op: 'add',
@@ -50,7 +51,7 @@ async function repackage(args, matches) {
       const temp = {
         id: ele.bets_id,
         status: ele.flag.status,
-        sport: modules.league2Sport(args.league),
+        sport: modules.league2Sport(args.league).sport,
         league: ele.league.name_ch,
         ori_league: args.league,
         scheduled: ele.scheduled * 1000,
