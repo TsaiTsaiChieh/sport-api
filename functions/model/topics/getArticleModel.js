@@ -12,7 +12,7 @@ function dbFind(article_id) {
       });
       if (result) {
         const view_count = result.view_count + 1;
-        result.update({ view_count: view_count });
+        result.update({ view_count: view_count }, { silent: true }); // silent:true 不然會動到updateAt
         resolve(result);
       } else {
         resolve(false);
