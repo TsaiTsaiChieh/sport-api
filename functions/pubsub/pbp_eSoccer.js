@@ -198,6 +198,12 @@ async function ESoccerpbpHistory(parameter) {
           bets_id: betsID
         });
       } catch (err) {
+        console.log(
+          'Error in pubsub/pbp_eSoccer on YuHsien by DY:  %o : %o',
+          err,
+          betsID
+        );
+
         return reject(
           new AppErrors.PBPEsoccerError(
             `${err} at pbpESoccer of yuhsien on ${betsID} by DY`

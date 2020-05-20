@@ -7,5 +7,5 @@ router.get(
   '/teamhandicap',
   require('../controller/history/teamhandicapController')
 );
-
+router.get('/teamevent', require('../controller/history/teameventController'));
 module.exports = router;

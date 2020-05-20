@@ -337,7 +337,7 @@ async function pbpHistory(parameterHistory) {
     }
     try {
       await modules.database
-        .ref(`${sportName}/${leagueName}${betsID}/Summary/status`)
+        .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {
       return reject(

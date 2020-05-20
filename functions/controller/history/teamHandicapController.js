@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const model = require('../../model/history/teamModel');
+const model = require('../../model/history/teamHandicapModel');
 
 async function historyTeamHandicap(req, res) {
   const schema = {
