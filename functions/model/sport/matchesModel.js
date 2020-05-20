@@ -140,7 +140,7 @@ function repackageMatches(results, args, godPredictions) {
         handicap: ele.spread_handicap,
         home_tw: ele.spread_home_tw,
         away_tw: ele.spread_away_tw,
-        disable: !!((!ele.spread_id || !ele.spread_handicap))
+        disable: !!((ele.spread_id === null || ele.spread_handicap === null))
       },
       totals: {
         id: ele.totals_id,
@@ -153,10 +153,8 @@ function repackageMatches(results, args, godPredictions) {
       data.sell = godPredictions[0].sell;
       isHandicapDisable(ele, temp, godPredictions);
     }
-    if (!ele.spread_id) temp.spread.disable = true;
-    if (!ele.totals_id) temp.totals.disable = true;
-    if (ele.home_points || ele.home_points === 0) {temp.home.points = ele.home_points;}
-    if (ele.away_points || ele.away_points === 0) {temp.away.points = ele.away_points;}
+    if (ele.home_points || ele.home_points === 0) temp.home.points = ele.home_points;
+    if (ele.away_points || ele.away_points === 0) temp.away.points = ele.away_points;
     // 中分洞要亮原本顯示的盤口，否則亮過盤結果
     if (ele.spread_result) {
       if (ele.spread_result === 'fair2') {
