@@ -1,4 +1,4 @@
-// const modules = require('../../util/modules');
+const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -19,24 +19,32 @@ function queryTeamHandicap(args) {
     try {
       // take 168ms in mysql
       // take 2619ms in firebase serve
+      // TODO season.start_date 可能要手動輸入
+
       const queries = await db.sequelize.query(
         `(
           SELECT bets_id, home_id, away_id, spread_result, totals_result, spread.handicap AS spread, total.handicap AS total
-           FROM   matches game,
-                  match__seasons season,
-                  match__spreads spread,
-                  match__totals  total
-           WHERE  (game.home_id = ${args.teamid} OR game.away_id = ${args.teamid})
-           AND    game.spread_result IS NOT NULL
-           AND    game.league_id = season.league_id
-           AND    game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
-           AND    game.spread_id = spread.spread_id
-           AND    game.totals_id = total.totals_id
+            FROM matches game,
+                 match__seasons season,
+                 match__spreads spread,
+                 match__totals  total
+           WHERE (game.home_id = ${args.team_id} OR game.away_id = ${
+          args.team_id
+        })
+             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
+             AND game.spread_id = 'spread.spread_id'
+             AND game.totals_id = 'total.totals_id'
          )`,
         {
-          type: db.sequelize.QueryTypes.SELECT
+          type: db.sequelize.QueryTypes.SELECT,
+          replacements: {
+            team_id: args.team_id,
+            league: args.league
+          }
         }
       );
+
       return resolve(queries);
     } catch (err) {
       return reject(`${err.stack} by DY`);
@@ -51,7 +59,7 @@ async function repackage(args, teamHandicap) {
     const denominator = [0, 0, 0, 0, 0, 0, 0, 0, 0]; // 分母
     for (let i = 0; i < teamHandicap.length; i++) {
       const ele = teamHandicap[i];
-      if (args.teamid === ele.home_id) {
+      if (args.team_id === ele.home_id) {
         denominator[8] = denominator[8] + 1;
         // 計算該隊在主隊的過盤
         if (ele.spread >= 0) {
@@ -77,7 +85,7 @@ async function repackage(args, teamHandicap) {
         if (ele.totals_result === 'over' || ele.totals_result === 'fair|over') {
           fraction[8] = fraction[8] + 1;
         }
-      } else if (args.teamid === ele.away_id) {
+      } else if (args.team_id === ele.away_id) {
         denominator[7] = denominator[7] + 1;
         // 計算該隊在客隊的過盤
         if (ele.spread < 0) {

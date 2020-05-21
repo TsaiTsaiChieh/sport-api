@@ -3,10 +3,22 @@ const model = require('../../model/history/teamEventModel');
 
 async function historyTeamEvent(req, res) {
   const schema = {
-    required: ['teamid'],
+    required: ['league', 'team_id', 'date1', 'date2'],
     properties: {
       league: {
+        type: 'string',
+        enum: modules.acceptLeague
+      },
+      team_id: {
         type: 'string'
+      },
+      date1: {
+        type: 'string',
+        format: 'date'
+      },
+      date2: {
+        type: 'string',
+        format: 'date'
       }
     }
   };

@@ -128,10 +128,6 @@ const User = sequelize.define(
     },
     rank4_count: {
       type: Sequelize.INTEGER
-    },
-    fans: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
     }
   },
   {
@@ -609,7 +605,16 @@ const Match = sequelize.define(
       },
       {
         fields: ['status', 'totals_id']
+      },
+      {
+        fields: ['home_id']
+      },
+      {
+        fields: ['away_id']
       }
+      // {
+      //   fields: ['home_id', 'away_id', 'league_id']
+      // }
     ]
   }
 );

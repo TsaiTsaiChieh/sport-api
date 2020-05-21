@@ -5,7 +5,7 @@ const router = modules.express.Router();
 router.get('/teams', require('../controller/history/teamController'));
 router.get(
   '/teamhandicap',
-  require('../controller/history/teamhandicapController')
+  require('../controller/history/teamHandicapController')
 );
-router.get('/teamevent', require('../controller/history/teameventController'));
+router.get('/teamevent', require('../controller/history/teamEventController'));
 module.exports = router;

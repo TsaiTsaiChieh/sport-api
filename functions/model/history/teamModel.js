@@ -18,10 +18,10 @@ function queryAllTeams(args) {
         // take 169 ms
         `(
            SELECT name, name_ch, groups, team_id
-           FROM   match__teams teams
-           WHERE  teams.league_id = '${
-             modules.leagueCodebook(args.league).id
-           }'   
+             FROM match__teams teams
+            WHERE teams.league_id = '${
+              modules.leagueCodebook(args.league).id
+            }'   
          )`,
         {
           type: db.sequelize.QueryTypes.SELECT

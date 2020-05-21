@@ -3,9 +3,13 @@ const model = require('../../model/history/teamHandicapModel');
 
 async function historyTeamHandicap(req, res) {
   const schema = {
-    required: ['teamid'],
+    required: ['league', 'team_id'],
     properties: {
       league: {
+        type: 'string',
+        enum: modules.acceptLeague
+      },
+      team_id: {
         type: 'string'
       }
     }
