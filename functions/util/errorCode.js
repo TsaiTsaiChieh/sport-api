@@ -57,7 +57,8 @@ const errorCodeLists = {
   13539: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
   13540: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   13541: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 資料庫原因錯誤', ''] },
-  13542: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 無對應 league 無法更新 default_title', ''] }
+  13542: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 無對應 league 無法更新 default_title', ''] },
+  13543: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
 };
 
 function dbErrsMsg(serverCode, backendcode, property = { otherMsg: '', showOrder: 0 }) {
