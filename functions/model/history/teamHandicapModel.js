@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamHandicap = await queryTeamHandicap(args);
       const result = await repackage(args, teamHandicap);
@@ -15,11 +15,12 @@ async function teamHandicap(args) {
 }
 
 function queryTeamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       // take 168ms in mysql
       // take 2619ms in firebase serve
       // TODO season.start_date 可能要手動輸入
+      console.log(args);
 
       const queries = await db.sequelize.query(
         `(
@@ -28,13 +29,13 @@ function queryTeamHandicap(args) {
                  match__seasons season,
                  match__spreads spread,
                  match__totals  total
-           WHERE (game.home_id = ${args.team_id} OR game.away_id = ${
+           WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
           args.team_id
-        })
+        }')
              AND season.league_id = '${modules.leagueCodebook(args.league).id}'
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
-             AND game.spread_id = 'spread.spread_id'
-             AND game.totals_id = 'total.totals_id'
+             AND game.spread_id = spread.spread_id
+             AND game.totals_id = total.totals_id
          )`,
         {
           type: db.sequelize.QueryTypes.SELECT,
@@ -44,6 +45,7 @@ function queryTeamHandicap(args) {
           }
         }
       );
+      console.log(queries);
 
       return resolve(queries);
     } catch (err) {
