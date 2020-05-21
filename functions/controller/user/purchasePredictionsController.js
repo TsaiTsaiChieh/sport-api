@@ -26,9 +26,15 @@ async function purchasePredictions(req, res) {
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
-
+  const args = {
+    token: req.token,
+    god_uid: req.body.god_uid,
+    god_title: req.body.god_title,
+    matches_date: req.body.matches_date,
+    discount: req.body.discount
+  };
   try {
-    res.json(await model(req.body));
+    res.json(await model(args));
   } catch (err) {
     console.error('Error in controller/user/purchasePredictions by TsaiChieh', err);
     res.status(err.code)
