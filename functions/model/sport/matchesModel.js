@@ -33,7 +33,7 @@ function getMatchesWithDate(args) {
       // index is range, eq_ref, taking 170 ms
       const results = await db.sequelize.query(
         `SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, 
-                game.home_points, game.away_points, game.spread_result, 
+                game.home_points, game.away_points, game.spread_result, game.totals_result, 
                 game.home_name, game.home_alias_ch, game.home_alias, game.home_image_id, 
                 game.away_name, game.away_alias_ch, game.away_alias, game.away_image_id, 
                 spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw,
@@ -166,8 +166,8 @@ function repackageMatches(results, args, godPredictions) {
       else temp.spread.result = ele.spread_result;
     }
     if (ele.totals_result) {
-      if (ele.spread_result === 'fair2' || ele.spread_result === 'fair|over') temp.totals.result = 'over';
-      else if (ele.spread_result === 'fair|under') temp.totals.result = 'under';
+      if (ele.totals_result === 'fair2' || ele.totals_result === 'fair|over') temp.totals.result = 'over';
+      else if (ele.totals_result === 'fair|under') temp.totals.result = 'under';
       else temp.totals.result = ele.totals_result;
     }
     if (ele.status === SCHEDULED) {
