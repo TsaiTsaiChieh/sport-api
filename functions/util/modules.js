@@ -553,6 +553,8 @@ const mergeDeep = (target, source) => {
   };
 };
 
+// 取小數位
+// point = Math.abs(num) - parseInt(Math.abs(num));
 /*
 {
   homePoints:
@@ -592,6 +594,25 @@ function settleSpread(data) {
       : 'away';
 }
 
+function settleSpreadSoccer(data) {
+  const sp = [0.25, 0.75];
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.spreadHandicap;
+  const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
+
+  return homePoints - handicap === awayPoints
+    ? 'fair2'
+    : sp.includes(point)
+      ? homePoints - handicap > awayPoints
+        ? 'fair|home'
+        : 'fair|away'
+      : homePoints - handicap > awayPoints
+        ? 'home'
+        : 'away';
+}
+
 /*
 {
   homePoints:
@@ -629,6 +650,25 @@ function settleTotals(data) {
     : homePoints + awayPoints > handicap
       ? 'over'
       : 'under';
+}
+
+function settleTotalsSoccer(data) {
+  const sp = [0.25, 0.75];
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = data.totalsHandicap;
+  const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
+
+  return homePoints + awayPoints === handicap
+    ? 'fair2'
+    : sp.includes(point)
+      ? homePoints + awayPoints > handicap
+        ? 'fair|over'
+        : 'fair|under'
+      : homePoints + awayPoints > handicap
+        ? 'over'
+        : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
@@ -855,7 +895,9 @@ module.exports = {
   fieldSorter,
   mergeDeep,
   settleSpread,
+  settleSpreadSoccer,
   settleTotals,
+  settleTotalsSoccer,
   perdictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
