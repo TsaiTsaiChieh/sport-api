@@ -20,7 +20,6 @@ function queryTeamHandicap(args) {
       // take 168ms in mysql
       // take 2619ms in firebase serve
       // TODO season.start_date 可能要手動輸入
-      console.log(args);
 
       const queries = await db.sequelize.query(
         `(
@@ -45,7 +44,6 @@ function queryTeamHandicap(args) {
           }
         }
       );
-      console.log(queries);
 
       return resolve(queries);
     } catch (err) {
