@@ -27,12 +27,12 @@ async function settleGodRank(args) {
     // 3. 如有相同機率者會先以 兩週注數量 為排名判斷
     // 4. 再有相同者, 以該聯盟 下注總注數 為排名判斷
     // 5. 再有相同者, 該聯盟注數正負相加之總和排名
-  const uid = args.token.uid;
-  const league_id = args.body.league_id;
-  const now = new Date();
-  const currentSeason = moment().year();
-  const currentMonth = moment().month();
-  const period = getTitlesPeriod(now).period;
+    const uid = args.token.uid;
+    const league_id = args.body.league_id;
+    const now = new Date();
+    const currentSeason = moment().year();
+    const currentMonth = moment().month();
+    const period = getTitlesPeriod(now).period;
 
     /* common calculate & diamond calculate */
     const diamond = await db.sequelize.query(
@@ -82,11 +82,14 @@ async function settleGodRank(args) {
 
     const diamond_list = [];
 
-  diamond.forEach(function(items) { // 這裡有順序性
-    diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
-    updateGod('rank1', items);
-  });
+    diamond.forEach(function(items) { // 這裡有順序性
+      diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
+      updateGod('rank1', items);
+    });
 
+    resolve(diamond_list);
+  });
+}
 function repackage(period, uid, currentSeason, currentMonth, ele) {
   const data = {
     type: 'diamond',
@@ -97,8 +100,8 @@ function repackage(period, uid, currentSeason, currentMonth, ele) {
   return data;
 }
 
-async function generateGSC(period, uid, currentSeason, currentMonth, ele){
-  /*gold silver copper calculate*/
+async function generateGSC(period, uid, currentSeason, currentMonth, ele) {
+  /* gold silver copper calculate */
   const gsc_list = [];
   const gsc = await db.sequelize.query(
     `
@@ -151,9 +154,9 @@ async function generateGSC(period, uid, currentSeason, currentMonth, ele){
     AND rank.league_id = $league_id
     GROUP BY league_id
     `,
-    { 
-      bind: { period:period, uid:uid, league_id:ele.league_id, currentSeason:currentSeason, currentMonth:currentMonth },
-      type: db.sequelize.QueryTypes.SELECT 
+    {
+      bind: { period: period, uid: uid, league_id: ele.league_id, currentSeason: currentSeason, currentMonth: currentMonth },
+      type: db.sequelize.QueryTypes.SELECT
     }
 
   );
@@ -163,44 +166,43 @@ async function generateGSC(period, uid, currentSeason, currentMonth, ele){
   });
 }
 
-function repackageGSC(ele){
-console.log(ele);
-const uids_array = ele.uids.split(',');
+function repackageGSC(ele) {
+  console.log(ele);
+  const uids_array = ele.uids.split(',');
 
-const gold = {
-    'type':'gold',
-    'league_id':ele.league_id,
-    'uids':uids_array.slice(0, 5)
+  const gold = {
+    type: 'gold',
+    league_id: ele.league_id,
+    uids: uids_array.slice(0, 5)
   };
   // console.log(gold);
-  updateGodGSC('rank2',gold);
+  updateGodGSC('rank2', gold);
 
   const silver = {
-    'type':'silver',
-    'league_id':ele.league_id,
-    'uids':uids_array.slice(5, 10)
+    type: 'silver',
+    league_id: ele.league_id,
+    uids: uids_array.slice(5, 10)
   };
   // console.log(silver);
-  updateGodGSC('rank3',silver);
+  updateGodGSC('rank3', silver);
 
   const copper = {
-    'type':'copper',
-    'league_id':ele.league_id,
-    'uids':uids_array.slice(10, 15)
+    type: 'copper',
+    league_id: ele.league_id,
+    uids: uids_array.slice(10, 15)
   };
   // console.log(copper);
-  updateGodGSC('rank4',copper);
+  updateGodGSC('rank4', copper);
 
   const data = {
-    'gold':gold,
-    'silver':silver,
-    'copper':copper
+    gold: gold,
+    silver: silver,
+    copper: copper
   };
 
   return data;
 }
-function updateGod(god_type, ele){
-
+function updateGod(god_type, ele) {
   const uids = ele.uids;
 
   const update = db.sequelize.query(
@@ -213,16 +215,15 @@ function updateGod(god_type, ele){
              uid in ('${uids}')
          AND status NOT IN (1, 9)
     `,
-    { 
-      logging:true,
-      replacements: { league_id:ele.league_id, uids:uids},
-      type: db.sequelize.QueryTypes.SELECT 
+    {
+      logging: true,
+      replacements: { league_id: ele.league_id, uids: uids },
+      type: db.sequelize.QueryTypes.SELECT
     });
-    return update;
+  return update;
 }
 
-function updateGodGSC(god_type, ele){
-
+function updateGodGSC(god_type, ele) {
   const uids = ele.uids;
 
   const update = db.sequelize.query(
@@ -235,11 +236,11 @@ function updateGodGSC(god_type, ele){
              uid in ('${uids}')
          AND status NOT IN (1, 9)
     `,
-    { 
-      logging:true,
-      replacements: { league_id:ele.league_id, uids:uids},
-      type: db.sequelize.QueryTypes.SELECT 
+    {
+      logging: true,
+      replacements: { league_id: ele.league_id, uids: uids },
+      type: db.sequelize.QueryTypes.SELECT
     });
-    return update;
+  return update;
 }
 module.exports = settleGodRank;
