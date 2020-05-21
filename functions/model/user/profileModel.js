@@ -18,7 +18,7 @@ function getUserData(uid) {
       const result = await db.User.findOne({
         where: { uid },
         raw: true,
-        attributes: ['display_name', 'signature', 'fans']
+        attributes: ['display_name', 'signature', 'fan_count']
       });
       return resolve(result);
     } catch (err) {
