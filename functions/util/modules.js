@@ -680,7 +680,7 @@ function perdictionsResultFlag(option, settelResult) {
     return settleOption === option ? 0.5 : -0.5;
   }
 
-  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
+  // -2 未結算，-1 輸，0 不算，0.95 贏，0.5 平 (一半一半)
   return settelResult === 'fair2' ? 0 : settelResult === option ? 0.95 : -1;
 }
 
