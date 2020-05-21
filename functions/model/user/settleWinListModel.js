@@ -98,7 +98,7 @@ async function settleWinList(args) {
                spread_result_flag, totals_result_flag
           from user__predictions prediction, matches
          where prediction.bets_id = matches.bets_id
-           -- and prediction.match_scheduled between :begin and :end
+           and prediction.match_scheduled between :begin and :end
            and matches.flag_prematch = 1
            and matches.status = 0
            and (
