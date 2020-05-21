@@ -10,7 +10,6 @@ const db = require('../../util/dbUtil');
 
 const d = require('debug')('user:settleWinListModel');
 
-
 async function settleGodRank(args) {
   return new Promise(async function(resolve, reject) {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
@@ -35,8 +34,8 @@ async function settleGodRank(args) {
   const currentMonth = moment().month();
   const period = getTitlesPeriod(now).period;
 
-  /*common calculate & diamond calculate*/
-  const diamond = await db.sequelize.query(
+    /* common calculate & diamond calculate */
+    const diamond = await db.sequelize.query(
     `
       SELECT  league_id, substring_index(group_concat(DISTINCT rank.uid ORDER BY rank.this_period_win_bets DESC, rank.this_period_win_handicap DESC  SEPARATOR "\',\'"), ',', 10) as uids
       FROM
@@ -74,29 +73,25 @@ async function settleGodRank(args) {
         AND rank.this_period_win_bets >=5
       GROUP BY league_id
     `,
-    { 
-      bind: { period:period, uid:uid, league_id:league_id, currentSeason:currentSeason, currentMonth:currentMonth },
-      type: db.sequelize.QueryTypes.SELECT 
+    {
+      bind: { period: period, uid: uid, league_id: league_id, currentSeason: currentSeason, currentMonth: currentMonth },
+      type: db.sequelize.QueryTypes.SELECT
     }
 
-  );
+    );
 
-  const diamond_list = [];
+    const diamond_list = [];
 
   diamond.forEach(function(items) { // 這裡有順序性
     diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
     updateGod('rank1', items);
   });
-  
-  resolve(diamond_list);
-  });
-  
-}
-function repackage(period, uid, currentSeason, currentMonth, ele){
+
+function repackage(period, uid, currentSeason, currentMonth, ele) {
   const data = {
-    'type':'diamond',
-    'league_id':ele.league_id,
-    'uids':ele.uids
+    type: 'diamond',
+    league_id: ele.league_id,
+    uids: ele.uids
   };
   generateGSC(period, uid, currentSeason, currentMonth, data);
   return data;
@@ -166,9 +161,6 @@ async function generateGSC(period, uid, currentSeason, currentMonth, ele){
   gsc.forEach(function(items) {
     gsc_list.push(repackageGSC(items));
   });
-
-  
-
 }
 
 function repackageGSC(ele){
