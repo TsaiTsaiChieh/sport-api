@@ -130,7 +130,14 @@ async function settleWinList(args) {
       [err, [winListsHistory, created]] = await to(db.Users_WinListsHistory.findOrCreate({
         where: {
           uid: data.uid,
-          league_id: data.league_id
+          league_id: data.league_id,
+          date_timestamp: begin,
+          day_of_year: dayOfYear,
+          period: period,
+          week_of_period: weekOfPeriod,
+          week: week,
+          month: month,
+          season: season
         },
         defaults: {
           uid: data.uid,
@@ -186,7 +193,14 @@ async function settleWinList(args) {
       }, {
         where: {
           uid: data.uid,
-          league_id: data.league_id
+          league_id: data.league_id,
+          date_timestamp: begin,
+          day_of_year: dayOfYear,
+          period: period,
+          week_of_period: weekOfPeriod,
+          week: week,
+          month: month,
+          season: season
         }
       }));
       if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', err.parent.code);}
