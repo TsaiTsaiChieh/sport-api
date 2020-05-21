@@ -48,6 +48,10 @@ async function getArticle(args) {
       const page = parseInt(args.page);
 
       const usertopic = await dbFind(uid, page);
+      if (usertopic.count === 0) {
+        resolve({ code: 200, page: 1, count: 0, topics: [] });
+        return;
+      }
       const topicsToGet = [];
       for (let i = 0; i < usertopic.rows.length; i++) {
         topicsToGet.push(usertopic.rows[i].article_id);
@@ -86,8 +90,6 @@ async function getArticle(args) {
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
         usersInfo = await func.getUserInfo(usersToGetUnique);
-        // console.log(usersToGetUnique);
-        // console.log(usersInfo);
       } catch (error) {
         console.error(error);
         reject({ code: 500, error: 'get user info failed' });
@@ -110,7 +112,7 @@ async function getArticle(args) {
         }
       }
       /* 處理完了ヽ(●´∀`●)ﾉ */
-      resolve({ code: 200, page: page + 1, count: topics.count, topics: topics.rows });
+      resolve({ code: 200, page: page + 1, count: usertopic.count, topics: topics.rows });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

@@ -4,7 +4,7 @@ const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 let countPerPage;
 
-function dbFind(where, page, sortByLike) {
+function dbFind(where, page, order) {
   return new Promise(async function(resolve, reject) {
     try {
       // await db.sequelize.models.topic__article.sync({ force: false, alter: true }); // 有新增欄位時才用
@@ -12,7 +12,7 @@ function dbFind(where, page, sortByLike) {
         where: where,
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
-        order: sortByLike ? [['like_count', 'DESC']] : [['article_id', 'DESC']],
+        order: order,
         distinct: true,
         raw: true
       });
@@ -50,7 +50,16 @@ async function getTopics(args) {
         page = args.page;
       }
 
-      const topics = await dbFind(where, page, args.sortByLike);
+      let order = [];
+      if (args.sortBy === 'view') {
+        order = [['view_count', 'DESC']];
+      } else if (args.sortBy === 'view') {
+        order = [['like_count', 'DESC']];
+      } else {
+        order = [['article_id', 'DESC']];
+      }
+
+      const topics = await dbFind(where, page, order);
 
       /* 讀取一些別的資料 */
       const usersToGet = [];
