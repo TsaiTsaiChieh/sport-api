@@ -6,31 +6,27 @@ function favoritePlayerModel(args) {
     try {
       let favorite_player = {};
       const favorite_player_list = [];
+<<<<<<< HEAD
+      // const uid = args.token.uid;
+      const uid = ''
+      
+=======
       const uid = args.token.uid;
 
+>>>>>>> 1f6a9ba3ff3224530b711d780a3a8d7382ea4df0
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
-        SELECT fav.*, 
-          ROUND(uwl.this_month_win_bets, 2) as this_month_win_bets,
-          ROUND(uwl.this_month_win_rate, 2) as this_month_win_rate
-        FROM 
-        (
-          SELECT uf.god_uid as god_uid, 
+        SELECT uf.god_uid as god_uid, 
                         u.avatar, 
                         u.display_name, 
                         vl.name,
                         vl.league_id
-            FROM user__favoriteplayers uf,
-                view__leagues vl,
-                users u
+        FROM user__favoriteplayers uf
+        INNER JOIN users u ON uf.god_uid = u.uid
+        INNER JOIN view__leagues vl ON vl.name = uf.league
+        LEFT JOIN users__win__lists uwl ON uwl.uid = uf.god_uid AND uwl.league_id = vl.league_id
           WHERE uf.uid = $uid
-            AND uf.league = vl.name
-            AND u.uid = uf.god_uid
-          ) fav
-        LEFT JOIN users__win__lists uwl
-        ON uwl.uid = fav.god_uid
-        AND uwl.league_id = fav.league_id
          `,
         {
           bind: { uid: uid },
