@@ -10,28 +10,14 @@ async function bannerImage(req, res) {
 }
 module.exports = bannerImage;
 /**
- * @api {get} /bannerImage Get Home Banner Image
- * @apiVersion 1.0.0
- * @apiName bannerImage
- * @apiGroup home
- * @apiPermission None
- *
- * @apiSuccess {JSON} result home top banner image
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- {
-  "banners": [
-    {
-      "name": "1585028776800.jpg",
-      "url": "https://firebasestorage.googleapis.com/v0/b/sportslottery-test.appspot.com/o/home_banner%2F1585028776800.jpg?alt=media&token=036371ba-1f79-405b-a134-936b92da7385",
-      "link": "https://doinfo.cc/"
-    },
-  ]
- }
- *
- * @apiError 500 Internal Server Error
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Internal Server Error
+ * @api {GET} /home/bannerImage/
+ * @apiName bannerContent
+ * @apiDescription 取得首頁活動廣告圖
+ * @apiGroup Home
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
  */
