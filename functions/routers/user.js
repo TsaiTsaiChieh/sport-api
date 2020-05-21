@@ -64,7 +64,7 @@ router.get(
 // 我的預測
 router.post(
   '/predict_info',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/predictInfoController')
 );
 // 我的預測-刪除注單
@@ -189,17 +189,17 @@ router.delete(
 // 結算
 router.post(
   '/settle_matches',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/settleMatchesController')
 );
 router.post(
   '/settle_win_list',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/settleWinListController')
 );
 router.post(
   '/settle_god_title',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/settleGodTitleController')
 );
 
@@ -220,43 +220,43 @@ router.get(
 // 顯示 預設聯盟 + 所有聯盟預設稱號 ( 稱號 (鑽金銀銅 Rank) + 預設成就(近幾過幾) )
 router.get(
   '/god_league_rank_default_league',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/getGodLeagueRankDefaultLeagueController')
 );
 // 變更 預設顯示聯盟（稱號 (鑽金銀銅 Rank) + 成就(近幾過幾)）
 router.post(
   '/god_league_rank_set_default_league',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/postGodLeagueRankSetDefaultLeagueController')
 );
 // 顯示 預設、所有聯盟稱號 + 所有聯盟成就 ( 稱號 (鑽金銀銅 Rank) + 所有成就(近幾過幾) )
 router.get(
   '/god_league_rank_all_title',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/getGodLeagueRankAllTitleController')
 );
 // 變更 所有聯盟顯示稱號 + 預設所有顯示成就(近幾過幾)）
 router.post(
   '/god_league_rank_set_all_league_title',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/postGodLeagueRankSetAllLeagueTitleController')
 );
 // 查詢大神稱號
 router.get(
   '/god_league_rank',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/getGodLeagueRankController')
 );
 // 更新大神稱號已閱
 router.post(
   '/god_league_rank_receive',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/postGodLeagueRankReceiveController')
 );
 // 更新大神稱號 回復未閱狀態
 router.post(
   '/god_league_rank_receive_back',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/postGodLeagueRankReceiveBackController')
 );
 module.exports = router;
