@@ -337,12 +337,22 @@ function nnPassN(uid_league_data) {
   allRecords.sort(fieldSorter(['-winRateAcc', '-days']));
 
   // 要至少計算五場，選擇機率最高者 >= 5場
-  if (allRecords.length >= 5 && allRecords[0].days >= 5) {
-    // console.log(allRecords[0])
-    predictRateN1 = allRecords[0].days;
-    predictRateN2 = allRecords[0].totalsCountAcc;
-    predictRateN3 = allRecords[0].correctCountsAcc;
-  };
+  // if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+  //   // console.log(allRecords[0])
+  //   predictRateN1 = allRecords[0].days;
+  //   predictRateN2 = allRecords[0].totalsCountAcc;
+  //   predictRateN3 = allRecords[0].correctCountsAcc;
+  // };
+  allRecords.every(function(ele) {
+    if (allRecords.length >= 5 && ele.days >= 5) {
+      // console.log(allRecords[0])
+      predictRateN1 = ele.days;
+      predictRateN2 = ele.totalsCountAcc;
+      predictRateN3 = ele.correctCountsAcc;
+      return false;
+    };
+    return true;
+  });
 
   return { predictRateN1, predictRateN2, predictRateN3 };
 }
