@@ -48,6 +48,10 @@ async function getArticle(args) {
       const page = parseInt(args.page);
 
       const usertopic = await dbFind(uid, page);
+      if (usertopic.count === 0) {
+        resolve({ code: 200, page: 1, count: 0, topics: [] });
+        return;
+      }
       const topicsToGet = [];
       for (let i = 0; i < usertopic.rows.length; i++) {
         topicsToGet.push(usertopic.rows[i].article_id);
