@@ -1,14 +1,13 @@
 /* eslint-disable no-unused-vars */
-const { leagueCodebook, leagueDecoder } = require('../../util/modules');
+// const { leagueCodebook, leagueDecoder } = require('../../util/modules');
 const {
-  convertTimezone, getTitlesPeriod, moment, checkUserRight,
-  predictionsWinList
+  getTitlesPeriod, moment
 } = require('../../util/modules');
 
-const errs = require('../../util/errorCode');
+
 const db = require('../../util/dbUtil');
 
-const d = require('debug')('user:settleWinListModel');
+
 
 async function settleGodRank(args) {
   return new Promise(async function(resolve, reject) {
@@ -33,7 +32,10 @@ async function settleGodRank(args) {
   const currentSeason = moment().year();
   const currentMonth = moment().month();
   const period = getTitlesPeriod(now).period;
+  const period_date = getTitlesPeriod(now).date;
 
+    /*reset all gods to players*/
+    resetGod2Player();
     /* common calculate & diamond calculate */
     const diamond = await db.sequelize.query(
     `
@@ -81,12 +83,13 @@ async function settleGodRank(args) {
     );
 
     const diamond_list = [];
-
-  diamond.forEach(function(items) { // 這裡有順序性
-    diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
-    updateGod('rank1', items);
-  });
-
+    diamond.forEach(function(items) { // 這裡有順序性
+      diamond_list.push(repackage(period, uid, currentSeason, currentMonth, items));
+      updateGod('rank1', items);
+      insertTitle('1', items, period, period_date);
+    });
+});
+}
 function repackage(period, uid, currentSeason, currentMonth, ele) {
   const data = {
     type: 'diamond',
@@ -96,6 +99,7 @@ function repackage(period, uid, currentSeason, currentMonth, ele) {
   generateGSC(period, uid, currentSeason, currentMonth, data);
   return data;
 }
+
 
 async function generateGSC(period, uid, currentSeason, currentMonth, ele){
   /*gold silver copper calculate*/
@@ -157,39 +161,39 @@ async function generateGSC(period, uid, currentSeason, currentMonth, ele){
     }
 
   );
-  // console.log('-------------------------',gsc);return;
   gsc.forEach(function(items) {
-    gsc_list.push(repackageGSC(items));
+    gsc_list.push(repackageGSC(items, period));
   });
 }
 
-function repackageGSC(ele){
-console.log(ele);
-const uids_array = ele.uids.split(',');
+function repackageGSC(ele, period){
 
-const gold = {
+const uids_array = ele.uids.split(',');
+  /*金牌大神寫入*/
+  const gold = {
     'type':'gold',
     'league_id':ele.league_id,
     'uids':uids_array.slice(0, 5)
   };
-  // console.log(gold);
-  updateGodGSC('rank2',gold);
 
+  updateGod('rank2',gold);
+  insertTitle(2, gold, period, period_date);
+  /*銀牌大神寫入*/
   const silver = {
     'type':'silver',
     'league_id':ele.league_id,
     'uids':uids_array.slice(5, 10)
   };
-  // console.log(silver);
-  updateGodGSC('rank3',silver);
-
+  updateGod('rank3',silver);
+  insertTitle(3, silver, period, period_date);
+  /*銅牌大神寫入*/
   const copper = {
     'type':'copper',
     'league_id':ele.league_id,
     'uids':uids_array.slice(10, 15)
   };
-  // console.log(copper);
-  updateGodGSC('rank4',copper);
+  updateGod('rank4',copper);
+  insertTitle(3, copper, period, period_date);
 
   const data = {
     'gold':gold,
@@ -198,6 +202,30 @@ const gold = {
   };
 
   return data;
+}
+
+function insertTitle(rank_id, ele, period, period_date){
+  
+  const uids_array = ele.uids.split(',');
+  const updatedAt =  moment().format('YYYY-MM-DD HH:mm:ss')
+  uids_array.forEach(function(uid){
+    db.sequelize.query(
+      `
+        INSERT INTO titles ( uid, period, period_date, league_id, rank_id, createdAt, updatedAt)
+        VALUES
+        (:uid, :period, :period_date, :league_id, :rank_id, :updatedAt, :updatedAt);
+      `,
+      {
+        logging:true,
+        replacements: { uid:uid, period: period, period_date:period_date, league_id:ele.league_id, rank_id:rank_id, updatedAt:updatedAt },
+        type: db.sequelize.QueryTypes.SELECT
+      }
+    );
+  });
+}
+
+function insertWins(){
+  
 }
 function updateGod(god_type, ele){
 
@@ -221,25 +249,13 @@ function updateGod(god_type, ele){
     return update;
 }
 
-function updateGodGSC(god_type, ele){
-
-  const uids = ele.uids;
-
-  const update = db.sequelize.query(
+function resetGod2Player(){
+  db.sequelize.query(
     `
-      UPDATE users 
-         SET status=2,
-             default_god_league_rank=:league_id,
-             ${god_type}_count=rank1_count+1
-       WHERE 
-             uid in ('${uids}')
-         AND status NOT IN (1, 9)
+      UPDATE users SET status=1, default_god_league_rank=NULL
     `,
     { 
-      logging:true,
-      replacements: { league_id:ele.league_id, uids:uids},
       type: db.sequelize.QueryTypes.SELECT 
     });
-    return update;
 }
 module.exports = settleGodRank;

@@ -42,7 +42,7 @@ function newsModel(method, args, uid) {
             FROM user__news
            WHERE news_id NOT IN (:news_id)
              AND scheduled BETWEEN :begin and :end
-             AND status=0
+             AND status=1
            ORDER BY scheduled DESC
            LIMIT :start_system, :limit_system
           `,
@@ -60,7 +60,7 @@ function newsModel(method, args, uid) {
             FROM user__news un, users u
           WHERE un.scheduled BETWEEN $begin and $end
             AND u.uid = un.uid
-            AND un.status=1
+            AND un.status=0
             AND un.uid = $uid
           ORDER BY un.scheduled DESC
             LIMIT $start_user, $limit_user
@@ -85,7 +85,7 @@ function newsModel(method, args, uid) {
         const insert = db.sequelize.query(
           `
             INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)
-            VALUES ($uid, $title, $content, 1, $now_timestamp, $now, $now);
+            VALUES ($uid, $title, $content, 0, $now_timestamp, $now, $now);
           `,
           {
             bind: { uid: uid, title: title, content: content, now_timestamp: now_timestamp, now: now },
@@ -106,13 +106,27 @@ function newsModel(method, args, uid) {
               active: 0
             });
           });
-        } else {
           del_res = db.sequelize.query(
             `
               UPDATE user__news 
-                 SET uid='${uid}'
-                 AND active=0
-               WHERE news_id in (${del_join})
+                 SET active=0
+               WHERE uid='${uid}'
+                 AND news_id in (${del_join})
+                 AND status=1
+            `,
+            {
+              type: db.sequelize.QueryTypes.DELETE
+            }
+          );
+        } else {
+        
+          del_res = db.sequelize.query(
+            `
+              UPDATE user__news 
+                 SET active=0
+               WHERE uid='${uid}'
+                 AND news_id in (${del_join})
+                 AND status=0
             `,
             {
               type: db.sequelize.QueryTypes.DELETE

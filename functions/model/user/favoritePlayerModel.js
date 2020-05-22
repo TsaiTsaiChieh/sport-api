@@ -6,14 +6,9 @@ function favoritePlayerModel(args) {
     try {
       let favorite_player = {};
       const favorite_player_list = [];
-<<<<<<< HEAD
-      // const uid = args.token.uid;
-      const uid = ''
-      
-=======
+
       const uid = args.token.uid;
 
->>>>>>> 1f6a9ba3ff3224530b711d780a3a8d7382ea4df0
       if (args.method === 'POST') {
         favorite_player = await db.sequelize.query(
         `
