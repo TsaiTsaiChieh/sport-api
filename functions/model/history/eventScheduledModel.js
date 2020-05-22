@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
+
 async function eventScheduled(args) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -39,6 +40,7 @@ function queryTwoDaysEvent(args) {
              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
              AND game.home_id = home.team_id
              AND game.away_id = away.team_id
+             ORDER BY scheduled
          )`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -57,13 +59,59 @@ async function repackage(events) {
     const data = [];
     for (let i = 0; i < events.length; i++) {
       const ele = events[i];
+      let dayOfWeek;
+
+      switch (
+        modules.convertTimezoneFormat(ele.scheduled, {
+          format: 'dddd'
+        })
+      ) {
+        case 'Monday': {
+          dayOfWeek = '一';
+          break;
+        }
+        case 'Tuesday': {
+          dayOfWeek = '二';
+          break;
+        }
+        case 'Wednesday': {
+          dayOfWeek = '三';
+          break;
+        }
+        case 'Thursday': {
+          dayOfWeek = '四';
+          break;
+        }
+        case 'Friday': {
+          dayOfWeek = '五';
+          break;
+        }
+        case 'Saturday': {
+          dayOfWeek = '六';
+          break;
+        }
+        case 'Sunday': {
+          dayOfWeek = '日';
+          break;
+        }
+        default: {
+          dayOfWeek = '一';
+          break;
+        }
+      }
+
       const temp = {
         id: ele.id,
         scheduled: ele.scheduled,
-        date: modules.timeFormat(ele.scheduled_tw).split(' ')[0],
-        time: modules.timeFormat(ele.scheduled_tw).split(' ')[1],
-        home_name: ele.home_name,
-        away_name: ele.away_name,
+        date: modules.convertTimezoneFormat(ele.scheduled, {
+          format: 'MM/DD'
+        }),
+        time: modules.convertTimezoneFormat(ele.scheduled, {
+          format: 'h:mmA'
+        }),
+        day: dayOfWeek,
+        home_name: ele.home_name.split('(')[0].trim(),
+        away_name: ele.away_name.split('(')[0].trim(),
         home_name_ch: ele.home_name_ch,
         away_name_ch: ele.away_name_ch
       };
