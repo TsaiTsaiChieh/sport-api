@@ -3,7 +3,7 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
-async function postGodLeagueRankReceive(args) {
+async function postGodLeagueRankReceiveBack(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
   const period = getTitlesPeriod(Date.now()).period;
@@ -29,4 +29,4 @@ async function postGodLeagueRankReceive(args) {
   return result;
 }
 
-module.exports = postGodLeagueRankReceive;
+module.exports = postGodLeagueRankReceiveBack;

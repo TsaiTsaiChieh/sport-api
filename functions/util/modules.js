@@ -352,6 +352,7 @@ function leagueDecoder(leagueID) {
 /**
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
+ * ！非常重要！ 目前前端會使用這個模組，一但有修改程式碼，務必和前端同步
  */
 function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()
@@ -413,6 +414,21 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
     }
   }
   return 0;
+}
+
+/**
+ * @description 回傳 下一期數、開始/結束日期和 目前日期 位於 該期是第幾個星期
+ * @params date = new Date();
+ */
+function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
+  const t = getTitlesPeriod(sdate, format);
+  if (t === 0) return 0;
+  return {
+    period: t.period + 1,
+    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format),
+    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format),
+    weekPeriod: t.weekPeriod
+  };
 }
 
 function userStatusCodebook(role) {
@@ -823,6 +839,7 @@ module.exports = {
   leagueCodebook,
   addDataInCollectionWithId,
   getTitlesPeriod,
+  getTitlesNextPeriod,
   userStatusCodebook,
   translate,
   simple2Tradition,

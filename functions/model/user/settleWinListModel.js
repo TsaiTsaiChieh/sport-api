@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
 const {
-  convertTimezone, getTitlesPeriod, moment, checkUserRight,
+  convertTimezone, getTitlesNextPeriod, moment, checkUserRight,
   predictionsWinList
 } = require('../../util/modules');
 const { getSeason } = require('../../util/databaseEngine');
@@ -48,7 +48,7 @@ async function settleWinList(args) {
   const userUid = args.token.uid;
   const begin = convertTimezone(args.date);
   const end = convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
-  const tp = getTitlesPeriod(begin * 1000);
+  const tp = getTitlesNextPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;
   const dayOfYear = toNumber(moment(begin * 1000).format('DDD')); // 日期是 一年中的第幾天
@@ -98,7 +98,7 @@ async function settleWinList(args) {
                spread_result_flag, totals_result_flag
           from user__predictions prediction, matches
          where prediction.bets_id = matches.bets_id
-           -- and prediction.match_scheduled between :begin and :end
+           and prediction.match_scheduled between :begin and :end
            and matches.flag_prematch = 1
            and matches.status = 0
            and (
@@ -130,7 +130,14 @@ async function settleWinList(args) {
       [err, [winListsHistory, created]] = await to(db.Users_WinListsHistory.findOrCreate({
         where: {
           uid: data.uid,
-          league_id: data.league_id
+          league_id: data.league_id,
+          date_timestamp: begin,
+          day_of_year: dayOfYear,
+          period: period,
+          week_of_period: weekOfPeriod,
+          week: week,
+          month: month,
+          season: season
         },
         defaults: {
           uid: data.uid,
@@ -186,7 +193,14 @@ async function settleWinList(args) {
       }, {
         where: {
           uid: data.uid,
-          league_id: data.league_id
+          league_id: data.league_id,
+          date_timestamp: begin,
+          day_of_year: dayOfYear,
+          period: period,
+          week_of_period: weekOfPeriod,
+          week: week,
+          month: month,
+          season: season
         }
       }));
       if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', err.parent.code);}

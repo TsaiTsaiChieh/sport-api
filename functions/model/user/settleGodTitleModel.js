@@ -35,7 +35,7 @@ async function settleGodTitle(args) {
   //   subtract = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
   //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
 
-  //   const period = modules.getTitlesPeriod(subtract).period;
+  //   const period = modules.getTitlesNexteriod(subtract).period;
   //   const dayOfYear = moment(subtract).format('DDD'); // 日期是 一年中的第幾天
   //   const week = moment(subtract).week();
   //   const momentObject = moment(subtract).toObject();
@@ -337,12 +337,22 @@ function nnPassN(uid_league_data) {
   allRecords.sort(fieldSorter(['-winRateAcc', '-days']));
 
   // 要至少計算五場，選擇機率最高者 >= 5場
-  if (allRecords.length >= 5 && allRecords[0].days >= 5) {
-    // console.log(allRecords[0])
-    predictRateN1 = allRecords[0].days;
-    predictRateN2 = allRecords[0].totalsCountAcc;
-    predictRateN3 = allRecords[0].correctCountsAcc;
-  };
+  // if (allRecords.length >= 5 && allRecords[0].days >= 5) {
+  //   // console.log(allRecords[0])
+  //   predictRateN1 = allRecords[0].days;
+  //   predictRateN2 = allRecords[0].totalsCountAcc;
+  //   predictRateN3 = allRecords[0].correctCountsAcc;
+  // };
+  allRecords.every(function(ele) {
+    if (allRecords.length >= 5 && ele.days >= 5) {
+      // console.log(allRecords[0])
+      predictRateN1 = ele.days;
+      predictRateN2 = ele.totalsCountAcc;
+      predictRateN3 = ele.correctCountsAcc;
+      return false;
+    };
+    return true;
+  });
 
   return { predictRateN1, predictRateN2, predictRateN3 };
 }

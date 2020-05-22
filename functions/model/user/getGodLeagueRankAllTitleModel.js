@@ -33,8 +33,8 @@ async function getGodLeagueRankAllTitle(args) {
     lists: {}
   };
 
+  const check_league_lists = [];
   godLeagueTitles.forEach(function(data) {
-    const check_league_lists = [];
     check_league_lists.push(data.league_id);
 
     result.lists[leagueDecoder(data.league_id)] = {
@@ -45,7 +45,7 @@ async function getGodLeagueRankAllTitle(args) {
 
     result.default_league_rank = data.default_god_league_rank && check_league_lists.includes(data.default_god_league_rank)
       ? leagueDecoder(data.default_god_league_rank)
-      : leagueDecoder(data.league_id); // 給預設值 避免 users 裡面 沒有 default_god_league_rank
+      : leagueDecoder(check_league_lists[0]); // 給預設值 避免 users 裡面 沒有 default_god_league_rank
   });
 
   return result;

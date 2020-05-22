@@ -37,9 +37,9 @@ async function postGodLeagueRankReceive(req, res) {
 
 module.exports = postGodLeagueRankReceive;
 /**
- * @api {post} /god_league_titles Get God League Rank Receive
+ * @api {post} /god_league_rank_receive Post God League Rank Receive
  * @apiVersion 1.0.0
- * @apiName god_league_rank
+ * @apiName god_league_rank_receive
  * @apiGroup User
  * @apiPermission None
  *

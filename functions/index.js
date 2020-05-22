@@ -82,6 +82,7 @@ app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
 app.use('/topics', require('./routers/topics'));
 app.use('/livescore', require('./routers/livescore'));
+app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
@@ -96,7 +97,7 @@ exports.handicap = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
 exports.handicap_esport = functions.pubsub
-  .schedule('0 */1 * * *')
+  .schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
@@ -120,6 +121,11 @@ exports.pbp_eSoccer = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_eSoccer'));
+exports.pbp_KBO = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_KBO'));
 exports.pbp_abnormal = functions
   .runWith(runtimeOpts)
   .pubsub.schedule('*/10 * * * *')
