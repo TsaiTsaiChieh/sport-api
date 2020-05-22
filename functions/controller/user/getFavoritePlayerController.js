@@ -13,11 +13,12 @@ async function favoriteGod(req, res) {
 }
 module.exports = favoriteGod;
 /**
- * @api {GET} /topics/getFavoriteArticle/:page
- * @apiName getFavoriteArticle
- * @apiDescription 取得我最愛的玩家的聯盟
+ * @api {GET} /topics/getFavoritePlayer/:page getFavoritePlayer
+ * @apiName getFavoritePlayer
+ * @apiDescription 取得最愛玩家的追蹤聯盟
  * @apiGroup User
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "result": [

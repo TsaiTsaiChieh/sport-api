@@ -40,21 +40,21 @@ async function likeReply(req, res) {
 
 module.exports = likeReply;
 /**
- * @api {GET} /topics/likeReply/
+ * @api {GET} /topics/likeReply/ likeReply
  * @apiName likeReply
  * @apiGroup Topics
  * @apiDescription 按讚留言
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
- * @apiParam {Integer} reply_id   留言ID
- * @apiParam {Boolean} like         true按讚, false收回讚
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} reply_id     留言ID
+ * @apiParam {Boolean} like         `true`按讚, `false`收回讚
  * @apiParamExample {JSON} Request-Example
  * {
  *   "reply_id": 124,
  *   "like": true
  * }
- *
- * @apiSuccess {String} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }

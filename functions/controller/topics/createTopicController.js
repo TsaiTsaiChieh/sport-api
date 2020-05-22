@@ -52,12 +52,12 @@ async function createTopic(req, res) {
 
 module.exports = createTopic;
 /**
- * @api {POST} /topics/createTopic/
+ * @api {POST} /topics/createTopic/ createTopic
  * @apiName createTopic
  * @apiGroup Topics
  * @apiDescription 新增討論區文章
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {String} league        league_id (參考/topics/types/)
  * @apiParam {Integer} category     category_id (參考/topics/types/)
  * @apiParam {String} title         標題
@@ -68,8 +68,8 @@ module.exports = createTopic;
  *   "title": "title",
  *   "content": "測試123"
  * }
- *
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "article_id": 192
