@@ -1,13 +1,13 @@
 const modules = require('../../util/modules');
-const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
+const AppErrors = require('../../util/AppErrors');
 
-async function teamEvent(args) {
+async function fiveFight(args) {
   return new Promise(async function (resolve, reject) {
     try {
-      const teamEvent = await queryTeamEvent(args);
-      const predictions = await queryRate(teamEvent);
-      const result = await repackage(args, predictions, teamEvent);
+      const events = await queryFiveFightEvent(args);
+      const predictions = await queryRate(events);
+      const result = await repackage(args, events, predictions);
       resolve(result);
     } catch (err) {
       reject(err);
@@ -15,14 +15,13 @@ async function teamEvent(args) {
   });
 }
 
-async function queryRate(teamEvent) {
+async function queryRate(events) {
   return new Promise(async function (resolve, reject) {
     const matchArray = [];
-
-    for (let i = 0; i < teamEvent.length; i++) {
-      matchArray.push(teamEvent[i].id);
+    for (let i = 0; i < events.length; i++) {
+      matchArray.push(events[i].id);
     }
-    if (teamEvent.length > 0) {
+    if (events.length > 0) {
       try {
         const queriesForRate = await db.sequelize.query(
           `SELECT bets_id, spread_option, totals_option
@@ -41,71 +40,69 @@ async function queryRate(teamEvent) {
   });
 }
 
-function queryTeamEvent(args) {
+function queryFiveFightEvent(args) {
   return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
-        `(
-           SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
-                  home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                  spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, total.over_tw AS totals_over_tw
-             FROM matches AS game,
-                  match__spreads AS spread,
-                  match__totals AS total,
-                  match__teams AS home,
-                  match__teams AS away
-            WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
-          args.team_id
-        }')
-              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-              AND game.home_id = home.team_id
-              AND game.away_id = away.team_id 
-              AND game.spread_id = spread.spread_id
-              AND game.totals_id = total.totals_id
-              AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')
-          )
-          UNION (
-           SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
-                  home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                  NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS totals_over_tw
-             FROM matches AS game,
-                  match__teams AS home,
-                  match__teams AS away
-            WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
-          args.team_id
-        }' )
-              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-              AND game.home_id = home.team_id
-              AND game.away_id = away.team_id 
-              AND (game.spread_id IS NULL OR game.totals_id IS NULL)
-              AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')     
-          )
-         `,
+        // take 169 ms
+        `
+          SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, total.over_tw AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+                   match__spreads AS spread,
+                   match__totals AS total,
+                   match__teams AS home,
+                   match__teams AS away
+             WHERE game.bets_id = '${args.event_id}'
+               AND five.bets_id != '${args.event_id}'
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.home_id = home.team_id
+               AND five.away_id = away.team_id 
+               AND five.spread_id = spread.spread_id
+               AND five.totals_id = total.totals_id
+          UNION(
+            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+                   match__teams AS home,
+                   match__teams AS away
+             WHERE game.bets_id = '${args.bets_id}'
+               AND five.bets_id != '${args.bets_id}'
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.home_id = home.team_id
+               AND five.away_id = away.team_id 
+               AND (five.spread_id IS NULL OR five.totals_id IS NULL)  
+          ORDER BY five.scheduled        
+          )   
+          LIMIT 5             
+          `,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
 
-      return resolve(queries);
+      return resolve(await queries);
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
   });
 }
 
-async function repackage(args, predictions, teamEvent) {
-  for (let i = 0; i < teamEvent.length; i++) {
-    teamEvent[i].spread = {
+async function repackage(args, events, predictions) {
+  for (let i = 0; i < events.length; i++) {
+    events[i].spread = {
       home: 0,
       away: 0,
       home_rate: '0%',
       away_rate: '0%'
     };
-    teamEvent[i].totals = {
+    events[i].totals = {
       under: 0,
       over: 0,
       under_rate: '0%',
@@ -117,11 +114,10 @@ async function repackage(args, predictions, teamEvent) {
   for (const key in predictionGroupedMatchId) {
     statsRate.push(calculatePredictionRate(predictionGroupedMatchId[key]));
   }
-  const eachMatchRate = filloutStatsRate(teamEvent, statsRate);
-
+  const eachMatchRate = filloutStatsRate(events, statsRate);
   try {
     const data = [];
-    for (let i = 0; i < eachMatchRate.length; i++) {
+    for (let i = 0; i < events.length; i++) {
       const ele = eachMatchRate[i];
 
       let temp;
@@ -192,6 +188,7 @@ async function repackage(args, predictions, teamEvent) {
       }
       data.push(temp);
     }
+
     return data;
   } catch (err) {
     console.error(`${err.stack} by DY`);
@@ -228,6 +225,7 @@ function calculatePredictionRate(prediction) {
 
   return result;
 }
+
 function filloutStatsRate(matches, statsRate) {
   for (let i = 0; i < matches.length; i++) {
     for (let j = 0; j < statsRate.length; j++) {
@@ -239,4 +237,4 @@ function filloutStatsRate(matches, statsRate) {
   }
   return matches;
 }
-module.exports = teamEvent;
+module.exports = fiveFight;

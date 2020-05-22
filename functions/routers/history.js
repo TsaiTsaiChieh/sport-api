@@ -15,4 +15,6 @@ router.get(
   '/eventscheduled',
   require('../controller/history/eventScheduledController')
 );
+
+router.get('/fivefight', require('../controller/history/fiveFightController'));
 module.exports = router;
