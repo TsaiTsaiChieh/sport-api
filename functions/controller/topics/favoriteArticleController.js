@@ -40,12 +40,12 @@ async function likeArticle(req, res) {
 
 module.exports = likeArticle;
 /**
- * @api {GET} /topics/favoriteArticle/
+ * @api {GET} /topics/favoriteArticle/ favoriteArticle
  * @apiName favoriteArticle
  * @apiGroup Topics
  * @apiDescription 增刪收藏文章
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} article_id   文章ID
  * @apiParam {Boolean} like         true新增收藏, false刪除收藏
  * @apiParamExample {JSON} Request-Example
@@ -54,7 +54,8 @@ module.exports = likeArticle;
  *   "like": false
  * }
  *
- * @apiSuccess {String} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }

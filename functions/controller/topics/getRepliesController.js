@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const repliesModel = require('../../model/topics/getRepliesModel');
-async function getTopics(req, res) {
+async function getReplies(req, res) {
   const aid = Number(req.params.aid);
   const page = Number(req.params.page);
   if (isNaN(aid) || !Number.isInteger(aid) || aid < 0 || aid > 9999999) {
@@ -20,15 +20,16 @@ async function getTopics(req, res) {
       res.status(err.code).json(err);
     });
 }
-module.exports = getTopics;
+module.exports = getReplies;
 /**
- * @api {GET} /topics/replies/:article_id/:page
+ * @api {GET} /topics/replies/:article_id/:page getReplies
  * @apiName getReplies
  * @apiDescription 取得文章底下留言
  * @apiGroup Topics
  * @apiParam {String} article_id    文章ID
  * @apiParam {Number} page          頁數
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "page": 1,

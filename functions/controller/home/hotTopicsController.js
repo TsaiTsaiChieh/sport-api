@@ -17,10 +17,9 @@ async function getTopics(req, res) {
 }
 module.exports = getTopics;
 /**
- * @api {GET} /home/hotTopics
+ * @api {GET} /home/hotTopics hotTopics
  * @apiName hotTopics
  * @apiDescription 取得首頁熱門文章
  * @apiGroup Home
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
  * @apiParam {Number} page          頁數
  */

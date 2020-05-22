@@ -19,12 +19,13 @@ async function getArticle(req, res) {
 }
 module.exports = getArticle;
 /**
- * @api {GET} /topics/article/:article_id
+ * @api {GET} /topics/article/:article_id getArticle
  * @apiName getArticle
  * @apiGroup Topics
- * @apiDescription 增刪收藏文章
+ * @apiDescription 取得文章內容
  * @apiParam {Integer} article_id   文章ID
- * @apiSuccess {String} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "article": {

@@ -10,7 +10,7 @@ async function bannerImage(req, res) {
 }
 module.exports = bannerImage;
 /**
- * @api {GET} /home/bannerImage/
+ * @api {GET} /home/bannerImage/ bannerImage
  * @apiName bannerContent
  * @apiDescription 取得首頁活動廣告圖
  * @apiGroup Home

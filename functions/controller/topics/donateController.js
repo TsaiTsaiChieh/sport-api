@@ -46,14 +46,14 @@ async function donate(req, res) {
 
 module.exports = donate;
 /**
- * @api {GET} /topics/donate/
+ * @api {GET} /topics/donate/ donate
  * @apiName donate
  * @apiGroup Topics
  * @apiDescription 打賞文章
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} article_id   文章ID
- * @apiParam {String} type          用什麼打賞 [coin搞幣, dividend紅利]
+ * @apiParam {String} type          用什麼打賞 [`coin`搞幣, `dividend`紅利]
  * @apiParam {Integer} cost         打賞多少錢 (稅前, 使用者輸入實際扣除的金額)
  * @apiParamExample {JSON} Request-Example
  * {
@@ -61,7 +61,8 @@ module.exports = donate;
  * 	"type": "coin",
  * 	"cost": 500
  * }
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }
