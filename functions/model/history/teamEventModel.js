@@ -7,16 +7,7 @@ async function teamEvent(args) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
-      const predictionGroupedMatchId = modules.groupBy(predictions, 'bets_id');
-      const statsRate = [];
-      for (const key in predictionGroupedMatchId) {
-        statsRate.push(
-          calculatePredictionRate(predictionGroupedMatchId[key])
-            ? calculatePredictionRate(predictionGroupedMatchId[key])
-            : 0
-        );
-      }
-      const result = await repackage(args, teamEvent, statsRate);
+      const result = await repackage(args, predictions, teamEvent);
       resolve(result);
     } catch (err) {
       reject(err);
@@ -100,11 +91,32 @@ function queryTeamEvent(args) {
   });
 }
 
-async function repackage(args, teamEvent, statsRate) {
+async function repackage(args, predictions, teamEvent) {
+  for (let i = 0; i < teamEvent.length; i++) {
+    (teamEvent[i].spread = {
+      home: 0,
+      away: 0,
+      home_rate: '0%',
+      away_rate: '0%'
+    }),
+      (teamEvent[i].totals = {
+        under: 0,
+        over: 0,
+        under_rate: '0%',
+        over_rate: '0%'
+      });
+  }
+  const predictionGroupedMatchId = modules.groupBy(predictions, 'bets_id');
+  const statsRate = [];
+  for (const key in predictionGroupedMatchId) {
+    statsRate.push(calculatePredictionRate(predictionGroupedMatchId[key]));
+  }
+  const eachMatchRate = filloutStatsRate(teamEvent, statsRate);
+
   try {
     const data = [];
-    for (let i = 0; i < teamEvent.length; i++) {
-      const ele = teamEvent[i];
+    for (let i = 0; i < eachMatchRate.length; i++) {
+      const ele = eachMatchRate[i];
 
       let temp;
       if (ele.spread_result === 'fair|away') {
@@ -141,9 +153,11 @@ async function repackage(args, teamEvent, statsRate) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
-          over_tw: ele.totals_over_tw
-          // home_rate: statsRate[i].home_rate,
-          // away_rate: statsRate[i].away_rate
+          over_tw: ele.totals_over_tw,
+          home_rate: ele.spread.home_rate,
+          away_rate: ele.spread.away_rate,
+          over_rate: ele.totals.over_rate,
+          under_rate: ele.totals.under_rate
         };
       } else {
         temp = {
@@ -163,7 +177,13 @@ async function repackage(args, teamEvent, statsRate) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
-          over_tw: ele.totals_over_tw
+          over_tw: ele.totals_over_tw,
+          home_rate: ele.home_tate,
+          away_rate: ele.away_tate,
+          home_rate: ele.spread.home_rate,
+          away_rate: ele.spread.away_rate,
+          over_rate: ele.totals.over_rate,
+          under_rate: ele.totals.under_rate
         };
       }
       data.push(temp);
@@ -204,5 +224,15 @@ function calculatePredictionRate(prediction) {
 
   return result;
 }
-
+function filloutStatsRate(matches, statsRate) {
+  for (let i = 0; i < matches.length; i++) {
+    for (let j = 0; j < statsRate.length; j++) {
+      if (matches[i].id === statsRate[j].id) {
+        matches[i].spread = statsRate[j].spread;
+        matches[i].totals = statsRate[j].totals;
+      }
+    }
+  }
+  return matches;
+}
 module.exports = teamEvent;
