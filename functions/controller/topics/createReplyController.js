@@ -57,28 +57,39 @@ module.exports = createTopic;
  * @api {GET} /topics/createReply/
  * @apiName createReply
  * @apiGroup Topics
- * @apiVersion 1.0.0
- * @apiDescription 回覆文章 by ifyu
- *
+ * @apiDescription 回覆文章
+ * @apiParam {Integer} article_id 文章ID
+ * @apiParam {Integer, null} replyto_id  被引言的留言ID
+ * @apiParam {String, null} content  內容
  * @apiParamExample {JSON} Request-Example
  * {
-    "article_id": 116,
-    "replyto_id": null,
-    "content": "aaaaa"
-   }
- *
- * @apiSuccess {String} response
+ *   "article_id": 116,
+ *   "replyto_id": null,
+ *   "content": "aaaaa"
+ * }
+ * @apiSuccess {JSON} response
  * {
-    "code": 200
-   }
- * @apiErrorExample 400-Response
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
  * HTTP/1.1 400 Bad Request
- * schema not acceptable
- *
- * @apiErrorExample {JSON} 500-Response
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (404-Response) Article Not Found
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "topic not found"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
  * HTTP/1.1 500 Internal Server Error
  * {
-    "code": 500,
-    "error": {}
-   }
+ *   "code": 500,
+ *   "error": {}
+ * }
  */
