@@ -54,12 +54,6 @@ router.post(
   verification.token_v2,
   require('../controller/user/predictMatchesController')
 );
-// 看預測比例
-router.get(
-  '/prediction_rate',
-  verification.token_v2,
-  require('../controller/user/predictionRateController')
-);
 /* ------------ 個人預測頁 ------------ */
 // 我的預測
 router.post(
