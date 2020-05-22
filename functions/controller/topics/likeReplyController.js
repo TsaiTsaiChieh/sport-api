@@ -39,3 +39,44 @@ async function likeReply(req, res) {
 }
 
 module.exports = likeReply;
+/**
+ * @api {GET} /topics/likeReply/
+ * @apiName likeReply
+ * @apiGroup Topics
+ * @apiDescription 按讚留言
+ * @apiPermission login user with completed data
+ * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} reply_id   留言ID
+ * @apiParam {Boolean} like         true按讚, false收回讚
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "reply_id": 124,
+ *   "like": true
+ * }
+ *
+ * @apiSuccess {String} response
+ * {
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": "this article has been liked"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
+ */

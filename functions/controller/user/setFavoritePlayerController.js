@@ -51,5 +51,50 @@ async function favoriteGod(req, res) {
       res.status(err.code).json(err);
     });
 }
-
 module.exports = favoriteGod;
+/**
+ * @api {GET} /topics/likeArticle/
+ * @apiName likeArticle
+ * @apiGroup User
+ * @apiDescription 增刪喜歡的使用者
+ * @apiPermission login user with completed data
+ * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} god_uid      最愛玩家的ID
+ * @apiParam {Array} add            要新增什麼聯盟,裡面放league_id,沒有要新增不要帶值
+ * @apiParam {Array} remove         要刪除什麼聯盟,裡面放league_id,沒有要刪除不要帶值
+ * @apiParamExample {JSON} Request-Example
+ * {
+ * 	"god_uid": "SkvKosXZIwY23JDDDO7lntPqQ3C2",
+ * 	"add": ["CPBL", "NBA"],
+ * 	"remove": []
+ * }
+ * @apiSuccess {String} response
+ * {
+ *   "code": 200,
+ *     "result": [
+ *       "NBA",
+ *       "CPBL"
+ *  ]
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (404-Response)
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "god not found"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
+ */

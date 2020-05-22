@@ -16,3 +16,22 @@ async function bannerContent(req, res) {
     });
 }
 module.exports = bannerContent;
+/**
+ * @api {GET} /home/bannerContent/:id
+ * @apiName bannerContent
+ * @apiDescription 取得首頁活動廣告內容
+ * @apiGroup Home
+ * @apiParam {Number} page          頁數 (必填, 從0開始)
+ * @apiErrorExample {JSON} (404-Response) ID Not Found or Exipred
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "id not found or expired"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
+ */

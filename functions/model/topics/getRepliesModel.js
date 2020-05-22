@@ -58,7 +58,6 @@ async function getReplies(args) {
       if (uid) {
         try {
           myLikes = await func.getIsUserLikeReply(uid, infosToGet); // 拿到的東西格式 [ { reply_id: '1', count: 2 }, { reply_id: '2', count: 1 } ]
-          console.log(myLikes);
         } catch (error) {
           console.error(error);
           reject({ code: 500, error: 'get my likes failed' });

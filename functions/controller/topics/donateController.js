@@ -45,3 +45,63 @@ async function donate(req, res) {
 }
 
 module.exports = donate;
+/**
+ * @api {GET} /topics/donate/
+ * @apiName donate
+ * @apiGroup Topics
+ * @apiDescription 打賞文章
+ * @apiPermission login user with completed data
+ * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id   文章ID
+ * @apiParam {String} type          用什麼打賞 [coin搞幣, dividend紅利]
+ * @apiParam {Integer} cost         打賞多少錢 (稅前, 使用者輸入實際扣除的金額)
+ * @apiParamExample {JSON} Request-Example
+ * {
+ * 	"article_id": 178,
+ * 	"type": "coin",
+ * 	"cost": 500
+ * }
+ * @apiSuccess {JSON} response
+ * {
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (400-Response) Can't Donate Self
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "cannot donate self"
+ * }
+ * @apiErrorExample {JSON} (403-Response) Coin Not Enough
+ * HTTP/1.1 403 Forbidden
+ * {
+ *   "code": 403,
+ *   "error": "coin not enough"
+ * }
+ * @apiErrorExample {JSON} (403-Response) Dividend Not Enough
+ * HTTP/1.1 403 Forbidden
+ * {
+ *   "code": 403,
+ *   "error": "dividend not enough"
+ * }
+ * @apiErrorExample {JSON} (404-Response) Article or User Not Found
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "article not found"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
+ */
