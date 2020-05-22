@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -15,7 +15,7 @@ async function teamEvent(args) {
   });
 }
 async function queryRate(teamEvent) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const matchArray = [];
     for (let i = 0; i < teamEvent.length; i++) {
       matchArray.push(teamEvent[i].id);
@@ -36,7 +36,7 @@ async function queryRate(teamEvent) {
   });
 }
 function queryTeamEvent(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -93,18 +93,18 @@ function queryTeamEvent(args) {
 
 async function repackage(args, predictions, teamEvent) {
   for (let i = 0; i < teamEvent.length; i++) {
-    (teamEvent[i].spread = {
+    teamEvent[i].spread = {
       home: 0,
       away: 0,
       home_rate: '0%',
       away_rate: '0%'
-    }),
-      (teamEvent[i].totals = {
-        under: 0,
-        over: 0,
-        under_rate: '0%',
-        over_rate: '0%'
-      });
+    };
+    teamEvent[i].totals = {
+      under: 0,
+      over: 0,
+      under_rate: '0%',
+      over_rate: '0%'
+    };
   }
   const predictionGroupedMatchId = modules.groupBy(predictions, 'bets_id');
   const statsRate = [];
@@ -178,8 +178,6 @@ async function repackage(args, predictions, teamEvent) {
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
           over_tw: ele.totals_over_tw,
-          home_rate: ele.home_tate,
-          away_rate: ele.away_tate,
           home_rate: ele.spread.home_rate,
           away_rate: ele.spread.away_rate,
           over_rate: ele.totals.over_rate,
