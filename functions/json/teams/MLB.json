@@ -6,7 +6,8 @@
     "alias_ch": "巨人",
     "alias": "SF",
     "name_ch": "舊金山巨人",
-    "image_id": "3634"
+    "image_id": "3634",
+    "group": "NL"
   },
   {
     "image_id": "3640",
@@ -15,7 +16,8 @@
     "name": "Arizona Diamondbacks",
     "alias_ch": "響尾蛇",
     "alias": "ARI",
-    "name_ch": "亞利桑納響尾蛇"
+    "name_ch": "亞利桑納響尾蛇",
+    "group": "NL"
   },
   {
     "radar_id": "f246a5e5-afdb-479c-9aaa-c68beeda7af6",
@@ -24,7 +26,8 @@
     "alias_ch": "大都會",
     "alias": "NYM",
     "name_ch": "紐約大都會",
-    "image_id": "3629"
+    "image_id": "3629",
+    "group": "NL"
   },
   {
     "radar_id": "27a59d3b-ff7c-48ea-b016-4798f560f5e1",
@@ -33,7 +36,8 @@
     "alias_ch": "運動家",
     "alias": "OAK",
     "name_ch": "奧克蘭運動家",
-    "image_id": "3645"
+    "image_id": "3645",
+    "group": "AL"
   },
   {
     "radar_id": "80715d0d-0d2a-450f-a970-1b9a3b18c7e7",
@@ -42,7 +46,8 @@
     "alias_ch": "印地安人",
     "alias": "CLE",
     "name_ch": "克里夫蘭印地安人",
-    "image_id": "3650"
+    "image_id": "3650",
+    "group": "AL"
   },
   {
     "radar_id": "dcfd5266-00ce-442c-bc09-264cd20cf455",
@@ -51,7 +56,8 @@
     "alias_ch": "釀酒人",
     "alias": "MIL",
     "name_ch": "密爾瓦基釀酒人",
-    "image_id": "3630"
+    "image_id": "3630",
+    "group": "NL"
   },
   {
     "radar_id": "44671792-dc02-4fdd-a5ad-f5f17edaa9d7",
@@ -60,7 +66,8 @@
     "alias_ch": "紅雀",
     "alias": "STL",
     "name_ch": "聖路易紅雀",
-    "image_id": "3632"
+    "image_id": "3632",
+    "group": "NL"
   },
   {
     "radar_id": "eb21dadd-8f10-4095-8bf3-dfb3b779f107",
@@ -69,7 +76,8 @@
     "alias_ch": "太空人",
     "alias": "HOU",
     "name_ch": "休士頓太空人",
-    "image_id": "3655"
+    "image_id": "3655",
+    "group": "AL"
   },
   {
     "radar_id": "d52d5339-cbdd-43f3-9dfa-a42fd588b9a3",
@@ -78,7 +86,8 @@
     "alias_ch": "教士",
     "alias": "SD",
     "name_ch": "聖地牙哥教士",
-    "image_id": "3636"
+    "image_id": "3636",
+    "group": "NL"
   },
   {
     "radar_id": "55714da8-fcaf-4574-8443-59bfb511a524",
@@ -87,7 +96,8 @@
     "alias_ch": "小熊",
     "alias": "CHC",
     "name_ch": "芝加哥小熊",
-    "image_id": "3627"
+    "image_id": "3627",
+    "group": "NL"
   },
   {
     "radar_id": "29dd9a87-5bcc-4774-80c3-7f50d985068b",
@@ -96,7 +106,8 @@
     "alias_ch": "落磯",
     "alias": "COL",
     "name_ch": "科羅拉多落磯",
-    "image_id": "3628"
+    "image_id": "3628",
+    "group": "NL"
   },
   {
     "radar_id": "d99f919b-1534-4516-8e8a-9cd106c6d8cd",
@@ -105,7 +116,8 @@
     "alias_ch": "遊騎兵",
     "alias": "TEX",
     "name_ch": "德州遊騎兵",
-    "image_id": "3647"
+    "image_id": "3647",
+    "group": "AL"
   },
   {
     "image_id": "3652",
@@ -114,7 +126,8 @@
     "name": "Baltimore Orioles",
     "alias_ch": "金鶯",
     "alias": "BAL",
-    "name_ch": "巴爾的摩金鶯"
+    "name_ch": "巴爾的摩金鶯",
+    "group": "AL"
   },
   {
     "image_id": "3641",
@@ -123,7 +136,8 @@
     "name": "Seattle Mariners",
     "alias_ch": "水手",
     "alias": "SEA",
-    "name_ch": "西雅圖水手"
+    "name_ch": "西雅圖水手",
+    "group": "AL"
   },
   {
     "radar_id": "bdc11650-6f74-49c4-875e-778aeb7632d9",
@@ -132,7 +146,8 @@
     "alias_ch": "光芒",
     "alias": "TB",
     "name_ch": "坦帕灣光芒",
-    "image_id": "3653"
+    "image_id": "3653",
+    "group": "AL"
   },
   {
     "radar_id": "93941372-eb4c-4c40-aced-fe3267174393",
@@ -141,7 +156,8 @@
     "alias_ch": "紅襪",
     "alias": "BOS",
     "name_ch": "波士頓紅襪",
-    "image_id": "3646"
+    "image_id": "3646",
+    "group": "AL"
   },
   {
     "radar_id": "575c19b7-4052-41c2-9f0a-1c5813d02f99",
@@ -150,7 +166,8 @@
     "alias_ch": "老虎",
     "alias": "DET",
     "name_ch": "底特律老虎",
-    "image_id": "3648"
+    "image_id": "3648",
+    "group": "AL"
   },
   {
     "radar_id": "aa34e0ed-f342-4ec6-b774-c79b47b60e2d",
@@ -159,7 +176,8 @@
     "alias_ch": "雙城",
     "alias": "MIN",
     "name_ch": "明尼蘇達雙城",
-    "image_id": "3649"
+    "image_id": "3649",
+    "group": "AL"
   },
   {
     "radar_id": "481dfe7e-5dab-46ab-a49f-9dcc2b6e2cfd",
@@ -168,7 +186,8 @@
     "alias_ch": "海盜",
     "alias": "PIT",
     "name_ch": "匹茲堡海盜",
-    "image_id": "3637"
+    "image_id": "3637",
+    "group": "NL"
   },
   {
     "radar_id": "ef64da7f-cfaf-4300-87b0-9313386b977c",
@@ -177,7 +196,8 @@
     "alias_ch": "道奇",
     "alias": "LAD",
     "name_ch": "洛杉磯道奇",
-    "image_id": "3638"
+    "image_id": "3638",
+    "group": "NL"
   },
   {
     "radar_id": "833a51a9-0d84-410f-bd77-da08c3e5e26e",
@@ -186,7 +206,8 @@
     "alias_ch": "皇家",
     "alias": "KC",
     "name_ch": "堪薩斯皇家",
-    "image_id": "3651"
+    "image_id": "3651",
+    "group": "AL"
   },
   {
     "radar_id": "03556285-bdbb-4576-a06d-42f71f46ddc5",
@@ -195,7 +216,8 @@
     "alias_ch": "馬林魚",
     "alias": "MIA",
     "name_ch": "邁阿密馬林魚",
-    "image_id": "3639"
+    "image_id": "3639",
+    "group": "NL"
   },
   {
     "name": "Philadelphia Phillies",
@@ -204,7 +226,8 @@
     "name_ch": "費城費城人",
     "image_id": "3635",
     "radar_id": "2142e1ba-3b40-445c-b8bb-f1f8b1054220",
-    "bets_id": "1112"
+    "bets_id": "1112",
+    "group": "NL"
   },
   {
     "radar_id": "1d678440-b4b1-4954-9b39-70afb3ebbcfa",
@@ -213,14 +236,16 @@
     "alias_ch": "藍鳥",
     "alias": "TOR",
     "name_ch": "多倫多藍鳥",
-    "image_id": "3642"
+    "image_id": "3642",
+    "group": "AL"
   },
   {
     "name_ch": "芝加哥白襪",
     "alias": "CWS",
     "alias_ch": "白襪",
     "image_id": "3644",
-    "bets_id": "1203"
+    "bets_id": "1203",
+    "group": "AL"
   },
   {
     "image_id": "5929",
@@ -229,7 +254,8 @@
     "name": "Los Angeles Angels",
     "alias_ch": "天使",
     "alias": "LAA",
-    "name_ch": "洛杉磯天使"
+    "name_ch": "洛杉磯天使",
+    "group": "AL"
   },
   {
     "name": "Atlanta Braves",
@@ -238,7 +264,8 @@
     "name_ch": "亞特蘭大勇士",
     "image_id": "3656",
     "radar_id": "12079497-e414-450a-8bf2-29f91de646bf",
-    "bets_id": "1352"
+    "bets_id": "1352",
+    "group": "NL"
   },
   {
     "image_id": "3654",
@@ -247,6 +274,27 @@
     "name": "New York Yankees",
     "alias_ch": "洋基",
     "alias": "NYY",
-    "name_ch": "紐約洋基"
+    "name_ch": "紐約洋基",
+    "group": "AL"
+  },
+  {
+    "image_id": "5930",
+    "radar_id": "d89bed32-3aee-4407-99e3-4103641b999a",
+    "bets_id": "1147",
+    "name": "Washington Nationals",
+    "alias_ch": "國民",
+    "alias": "WSH",
+    "name_ch": "華盛頓國民",
+    "group": "NL"
+  },
+  {
+    "image_id": "3633",
+    "radar_id": "c874a065-c115-4e7d-b0f0-235584fb0e6f",
+    "bets_id": "1364",
+    "name": "Cincinnati Reds",
+    "alias_ch": "紅人",
+    "alias": "CIN",
+    "name_ch": "辛辛那提紅人",
+    "group": "NL"
   }
 ]

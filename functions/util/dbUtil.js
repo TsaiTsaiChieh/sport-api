@@ -484,6 +484,9 @@ const Team = sequelize.define(
     alias_ch: {
       type: Sequelize.STRING
     },
+    group: {
+      type: Sequelize.STRING
+    },
     injury: {
       type: Sequelize.TEXT
     },
@@ -602,7 +605,16 @@ const Match = sequelize.define(
       },
       {
         fields: ['status', 'totals_id']
+      },
+      {
+        fields: ['home_id']
+      },
+      {
+        fields: ['away_id']
       }
+      // {
+      //   fields: ['home_id', 'away_id', 'league_id']
+      // }
     ]
   }
 );
@@ -1356,7 +1368,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
     allowNull: false
   },
   content: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   status: {

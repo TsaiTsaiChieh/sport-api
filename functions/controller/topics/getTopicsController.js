@@ -27,9 +27,10 @@ async function getTopics(req, res) {
         minimum: 0,
         default: 10
       },
-      sortByLike: {
-        type: 'boolean',
-        default: false
+      sortBy: {
+        type: ['string', 'null'],
+        enum: [null, 'like', 'view'],
+        default: null
       },
       page: {
         type: 'integer',

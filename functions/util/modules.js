@@ -347,6 +347,7 @@ function leagueDecoder(leagueID) {
 /**
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
+ * ！非常重要！ 目前前端會使用這個模組，一但有修改程式碼，務必和前端同步
  */
 function getTitlesPeriod(date, format = 'YYYYMMDD') {
   // date = new Date()

@@ -259,4 +259,10 @@ router.post(
   verification.token,
   require('../controller/user/postGodLeagueRankReceiveController')
 );
+// 更新大神稱號 回復未閱狀態
+router.post(
+  '/god_league_rank_receive_back',
+  verification.token,
+  require('../controller/user/postGodLeagueRankReceiveBackController')
+);
 module.exports = router;
