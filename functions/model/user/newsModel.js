@@ -38,13 +38,15 @@ function newsModel(method, args, uid) {
 
         const system = await db.sequelize.query(
           `
-          SELECT news_id, title, content, status, scheduled, createdAt, updatedAt 
-            FROM user__news
-           WHERE news_id NOT IN (:news_id)
-             AND scheduled BETWEEN :begin and :end
-             AND status=1
-           ORDER BY scheduled DESC
-           LIMIT :start_system, :limit_system
+          SELECT un.news_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt, uns.active
+            FROM user__news un
+            LEFT JOIN user__news__systems uns ON uns.system_id=un.news_id
+           WHERE un.scheduled BETWEEN :begin and :end
+             AND un.status=1
+             AND un.active=1
+             AND uns.system_id not in (:news_id)
+           ORDER BY un.scheduled DESC
+       LIMIT :start_system, :limit_system
           `,
           {
             logging: true,
@@ -61,6 +63,7 @@ function newsModel(method, args, uid) {
           WHERE un.scheduled BETWEEN $begin and $end
             AND u.uid = un.uid
             AND un.status=0
+            AND un.active=1
             AND un.uid = $uid
           ORDER BY un.scheduled DESC
             LIMIT $start_user, $limit_user
@@ -84,8 +87,8 @@ function newsModel(method, args, uid) {
 
         const insert = db.sequelize.query(
           `
-            INSERT INTO user__news (uid, title, content, status, scheduled, createdAt, updatedAt)
-            VALUES ($uid, $title, $content, 0, $now_timestamp, $now, $now);
+            INSERT INTO user__news (uid, title, content, status, active, scheduled, createdAt, updatedAt)
+            VALUES ($uid, $title, $content, 0, 1, $now_timestamp, $now, $now);
           `,
           {
             bind: { uid: uid, title: title, content: content, now_timestamp: now_timestamp, now: now },
