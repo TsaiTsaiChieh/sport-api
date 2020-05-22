@@ -1,13 +1,14 @@
-// const settleMatchesModel = require('../model/user/settleMatchesModel');
-const modules = require('../util/modules');
+const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const modules = require('../util/modules');
 // const db = require('../util/dbUtil');
 // const MATCHL = db.League;
 async function inserttest(req, res) {
-  console.log(
-    modules.convertTimezoneFormat('1590163199', {
-      format: 'YYYY-MM-DD'
-    })
-  );
+  await settleMatchesModel({
+    token: {
+      uid: '999'
+    },
+    bets_id: 2373519
+  });
 
   res.json('ok');
 }

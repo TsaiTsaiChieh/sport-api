@@ -22,4 +22,9 @@ router.get(
   '/getseasondate',
   require('../controller/history/getSeasonDateController')
 );
+
+router.get(
+  '/seasonrecord',
+  require('../controller/history/seasonRecordController')
+);
 module.exports = router;
