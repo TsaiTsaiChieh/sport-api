@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 // 幾勝幾敗 win-lose
 async function teamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamHandicap = await queryTeamHandicap(args);
       const result = await repackage(args, teamHandicap);
@@ -15,7 +15,7 @@ async function teamHandicap(args) {
 }
 
 function queryTeamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       // take 168ms in mysql
       // take 2619ms in firebase serve
@@ -32,7 +32,7 @@ function queryTeamHandicap(args) {
           args.team_id
         }')
              AND season.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
+             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND game.spread_id = spread.spread_id
              AND game.totals_id = total.totals_id
          )`,

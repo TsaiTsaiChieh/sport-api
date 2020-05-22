@@ -17,4 +17,9 @@ router.get(
 );
 
 router.get('/fivefight', require('../controller/history/fiveFightController'));
+
+router.get(
+  '/getseasondate',
+  require('../controller/history/getSeasonDateController')
+);
 module.exports = router;
