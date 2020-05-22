@@ -54,20 +54,23 @@ async function createTopic(req, res) {
 
 module.exports = createTopic;
 /**
- * @api {GET} /topics/createReply/
+ * @api {GET} /topics/createReply/ createReply
  * @apiName createReply
  * @apiGroup Topics
  * @apiDescription 回覆文章
+ * @apiPermission login user with completed data
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} article_id 文章ID
- * @apiParam {Integer, null} replyto_id  被引言的留言ID
- * @apiParam {String, null} content  內容
+ * @apiParam {Integer} [replyto_id]  被引言的留言ID
+ * @apiParam {String} [content]  內容
  * @apiParamExample {JSON} Request-Example
  * {
  *   "article_id": 116,
  *   "replyto_id": null,
  *   "content": "aaaaa"
  * }
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }

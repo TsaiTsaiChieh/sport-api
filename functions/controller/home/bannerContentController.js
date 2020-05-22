@@ -17,11 +17,11 @@ async function bannerContent(req, res) {
 }
 module.exports = bannerContent;
 /**
- * @api {GET} /home/bannerContent/:id
+ * @api {GET} /home/bannerContent/:id bannerContent
  * @apiName bannerContent
  * @apiDescription 取得首頁活動廣告內容
  * @apiGroup Home
- * @apiParam {Number} page          頁數 (必填, 從0開始)
+ * @apiParam {Number} page          頁數 (必填, 從`0`開始)
  * @apiErrorExample {JSON} (404-Response) ID Not Found or Exipred
  * HTTP/1.1 404 Not Found
  * {

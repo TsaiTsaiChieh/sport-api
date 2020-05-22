@@ -17,14 +17,18 @@ async function getMatches(req, res) {
       }
     }
   };
-  req.args = req.query;
-  const valid = modules.ajv.validate(schema, req.args);
-  if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
-  }
-  req.args.token = req.token;
+
+  const valid = modules.ajv.validate(schema, req.query);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+
+  const args = {
+    token: req.token,
+    league: req.query.league,
+    date: req.query.date
+  };
+
   try {
-    res.json(await model(req.query));
+    res.json(await model(args));
   } catch (err) {
     console.error('Error in sport/matches API by TsaiChieh', err);
     res
@@ -36,6 +40,7 @@ async function getMatches(req, res) {
       );
   }
 }
+
 module.exports = getMatches;
 /**
  * @api {GET} /sport/matches?league=NBA&date=2020-07-01 Get matches

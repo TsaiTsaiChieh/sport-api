@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const model = require('../../model/user/predictionRateModel');
+const model = require('../../model/sport/predictionRateModel');
 
 async function predictionRate(req, res) {
   const schema = {

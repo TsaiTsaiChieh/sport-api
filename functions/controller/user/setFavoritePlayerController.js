@@ -53,22 +53,23 @@ async function favoriteGod(req, res) {
 }
 module.exports = favoriteGod;
 /**
- * @api {GET} /topics/likeArticle/
- * @apiName likeArticle
+ * @api {POST} /topics/setFavoritePlayer/ setFavoritePlayer
+ * @apiName setFavoritePlayer
  * @apiGroup User
  * @apiDescription 增刪喜歡的使用者
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} god_uid      最愛玩家的ID
- * @apiParam {Array} add            要新增什麼聯盟,裡面放league_id,沒有要新增不要帶值
- * @apiParam {Array} remove         要刪除什麼聯盟,裡面放league_id,沒有要刪除不要帶值
+ * @apiParam {Array} [add]          要新增什麼聯盟,裡面放`league_id`,沒有要新增不要帶值
+ * @apiParam {Array} [remove]       要刪除什麼聯盟,裡面放`league_id`,沒有要刪除不要帶值
  * @apiParamExample {JSON} Request-Example
  * {
  * 	"god_uid": "SkvKosXZIwY23JDDDO7lntPqQ3C2",
  * 	"add": ["CPBL", "NBA"],
  * 	"remove": []
  * }
- * @apiSuccess {String} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *     "result": [
