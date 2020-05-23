@@ -37,7 +37,7 @@ function queryHomeEvents(args) {
              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
              AND season.league_id = '${modules.leagueCodebook(args.league).id}'
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
+             AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
         ORDER BY historygame.scheduled      
         )`,
         {
@@ -68,7 +68,7 @@ function queryAwayEvents(args) {
            AND game.league_id = '${modules.leagueCodebook(args.league).id}'
            AND season.league_id = '${modules.leagueCodebook(args.league).id}'
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
-           AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
+           AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
       ORDER BY historygame.scheduled        
         )`,
         {
@@ -100,7 +100,7 @@ function queryTwoTeamsEvents(args) {
              AND season.league_id = '${modules.leagueCodebook(args.league).id}'
              AND (game.home_id = historygame.home_id OR game.away_id = historygame.home_id) 
              AND (game.home_id = historygame.away_id OR game.away_id = historygame.away_id)
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
+             AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
         ORDER BY historygame.scheduled            
         )`,
         {
@@ -256,7 +256,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       awayAtHomeLoss: awayAtHomeLoss,
       awayAtAwayGet: awayAtAwayGet,
       awayAtAwayLoss: awayAtAwayLoss,
-      vsHomeTotalWin: vsHomeAtHomeWin + vsHomeAtAwayWin,
+      vsHomeTotalWin: vsHomeAtHomeWin + vsHomeAtAwayWin, //
       vsHomeTotalLose: vsHomeAtHomeLose + vsHomeAtAwayLose,
       vsHomeTotalDraw: vsHomeAtHomeDraw + vsHomeAtAwayDraw,
       vsHomeAtHomeWin: vsHomeAtHomeWin,

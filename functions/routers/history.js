@@ -27,4 +27,9 @@ router.get(
   '/seasonrecord',
   require('../controller/history/seasonRecordController')
 );
+
+router.get(
+  '/seasonhandicap',
+  require('../controller/history/seasonHandicapController')
+);
 module.exports = router;
