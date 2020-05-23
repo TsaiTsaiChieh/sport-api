@@ -68,6 +68,23 @@ class MatchNotFound extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class GodUserNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此大神',
+    status = 1310,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
@@ -302,6 +319,7 @@ module.exports = {
   UserNotFound,
   UserCouldNotSell,
   MatchNotFound,
+  GodUserNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserNotBelongToGod,
