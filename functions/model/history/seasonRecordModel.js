@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonRecord(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonRecord(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -53,7 +53,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -84,7 +84,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -149,7 +149,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
 
     for (let i = 0; i < homeEvents.length; i++) {
       const ele = homeEvents[i];
-      //計算主隊本季賽績
+      // 計算主隊本季賽績
       if (ele.aim_home_id === ele.history_home_id) {
         homeAtHomeGet = homeAtHomeGet + ele.history_home_points;
         homeAtHomeLoss = homeAtHomeLoss + ele.history_away_points;
@@ -175,7 +175,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     }
     for (let i = 0; i < awayEvents.length; i++) {
       const ele = awayEvents[i];
-      //計算主隊本季賽績
+      // 計算主隊本季賽績
       if (ele.aim_away_id === ele.history_home_id) {
         awayAtHomeGet = awayAtHomeGet + ele.history_home_points;
         awayAtHomeLoss = awayAtHomeLoss + ele.history_away_points;
@@ -201,7 +201,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     }
     for (let i = 0; i < twoTeamsEvents.length; i++) {
       const ele = twoTeamsEvents[i];
-      //計算主隊本季賽績
+      // 計算主隊本季賽績
       if (ele.aim_home_id === ele.history_home_id) {
         vsHomeAtHomeGet = vsHomeAtHomeGet + ele.history_home_points;
         vsHomeAtHomeLoss = vsHomeAtHomeLoss + ele.history_away_points;

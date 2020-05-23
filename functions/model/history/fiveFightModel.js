@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function fiveFight(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const events = await queryFiveFightEvent(args);
       const predictions = await queryRate(events);
@@ -16,7 +16,7 @@ async function fiveFight(args) {
 }
 
 async function queryRate(events) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const matchArray = [];
     for (let i = 0; i < events.length; i++) {
       matchArray.push(events[i].id);
@@ -41,7 +41,7 @@ async function queryRate(events) {
 }
 
 function queryFiveFightEvent(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms

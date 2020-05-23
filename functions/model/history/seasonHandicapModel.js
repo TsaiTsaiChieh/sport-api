@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonHandicap(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonHandicap(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -60,7 +60,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -98,7 +98,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -168,39 +168,39 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       const ele = homeEvents[i];
       if (ele.aim_home_id === ele.history_home_id) {
         if (ele.spread_handicap > 0) {
-          //主隊讓分
+          // 主隊讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //主讓分且贏
+            // 主讓分且贏
             homeAtGivePass = homeAtGivePass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             homeAtGiveFail = homeAtGiveFail + 1;
           } else {
-            //主讓分結果為平
+            // 主讓分結果為平
             homeAtGiveFair = homeAtGiveFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //主隊被讓分
+          // 主隊被讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //主受讓分且贏
+            // 主受讓分且贏
             homeAtBeGivenPass = homeAtBeGivenPass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主受讓分且輸
+            // 主受讓分且輸
             homeAtBeGivenFail = homeAtBeGivenFail + 1;
           } else {
-            //主受讓分結果為平
+            // 主受讓分結果為平
             homeAtBeGivenFair = homeAtBeGivenFair + 1;
           }
         } else {
@@ -208,7 +208,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       }
       if (ele.aim_home_id === ele.history_away_id) {
         if (ele.spread_handicap > 0) {
-          //主受讓
+          // 主受讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -218,14 +218,14 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             homeAtBeGivenPass = homeAtBeGivenPass + 1;
           } else {
-            //主讓分結果為平
-            homeAtBeGiveFair = homeAtBeGiveFair + 1;
+            // 主讓分結果為平
+            homeAtBeGivenFair = homeAtBeGivenFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //主讓
+          // 主讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -242,7 +242,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
         }
       }
-      //主隊大小分
+      // 主隊大小分
       if (
         ele.history_totals_result === 'over' ||
         ele.history_totals_result === 'fair|over'
@@ -261,39 +261,39 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       const ele = awayEvents[i];
       if (ele.aim_away_id === ele.history_home_id) {
         if (ele.spread_handicap > 0) {
-          //客隊讓分
+          // 客隊讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //客讓分且贏
+            // 客讓分且贏
             awayAtGivePass = awayAtGivePass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //客讓分且輸
+            // 客讓分且輸
             awayAtGiveFail = awayAtGiveFail + 1;
           } else {
-            //客讓分結果為平
+            // 客讓分結果為平
             awayAtGiveFair = awayAtGiveFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //客隊被讓分
+          // 客隊被讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //客隊被讓分且贏
+            // 客隊被讓分且贏
             awayAtBeGivenPass = awayAtBeGivenPass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //客隊被讓分且輸
+            // 客隊被讓分且輸
             awayAtBeGivenFail = awayAtBeGivenFail + 1;
           } else {
-            //客隊被讓分結果為平
+            // 客隊被讓分結果為平
             awayAtBeGivenFair = awayAtBeGivenFair + 1;
           }
         } else {
@@ -301,7 +301,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       }
       if (ele.aim_away_id === ele.history_away_id) {
         if (ele.spread_handicap > 0) {
-          //客受讓
+          // 客受讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -311,14 +311,14 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             awayAtBeGivenPass = awayAtBeGivenPass + 1;
           } else {
-            //主讓分結果為平
-            awayAtBeGiveFair = awayAtBeGiveFair + 1;
+            // 主讓分結果為平
+            awayAtBeGivenFair = awayAtBeGivenFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //客讓
+          // 客讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -354,39 +354,39 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
 
       if (ele.aim_home_id === ele.history_home_id) {
         if (ele.spread_handicap > 0) {
-          //主隊讓分
+          // 主隊讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //主讓分且贏
+            // 主讓分且贏
             vsHomeAtGivePass = vsHomeAtGivePass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             vsHomeAtGiveFail = vsHomeAtGiveFail + 1;
           } else {
-            //主讓分結果為平
+            // 主讓分結果為平
             vsHomeAtGiveFair = vsHomeAtGiveFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //主隊被讓分
+          // 主隊被讓分
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
           ) {
-            //主受讓分且贏
+            // 主受讓分且贏
             vsHomeAtBeGivenPass = vsHomeAtBeGivenPass + 1;
           } else if (
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主受讓分且輸
+            // 主受讓分且輸
             vsHomeAtBeGivenFail = vsHomeAtBeGivenFail + 1;
           } else {
-            //主受讓分結果為平
+            // 主受讓分結果為平
             vsHomeAtBeGivenFair = vsHomeAtBeGivenFair + 1;
           }
         } else {
@@ -394,7 +394,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       }
       if (ele.aim_home_id === ele.history_away_id) {
         if (ele.spread_handicap > 0) {
-          //主受讓
+          // 主受讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -404,14 +404,14 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             vsHomeAtBeGivenPass = vsHomeAtBeGivenPass + 1;
           } else {
-            //主讓分結果為平
-            vsHomeAtBeGiveFair = vsHomeAtBeGiveFair + 1;
+            // 主讓分結果為平
+            vsHomeAtBeGivenFair = vsHomeAtBeGivenFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //主讓
+          // 主讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -432,7 +432,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       //
       if (ele.aim_home_id === ele.history_away_id) {
         if (ele.spread_handicap > 0) {
-          //主受讓
+          // 主受讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -442,14 +442,14 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
             ele.history_spread_result === 'away' ||
             ele.history_spread_result === 'fair|away'
           ) {
-            //主讓分且輸
+            // 主讓分且輸
             homeAtBeGivenPass = homeAtBeGivenPass + 1;
           } else {
-            //主讓分結果為平
-            homeAtBeGiveFair = homeAtBeGiveFair + 1;
+            // 主讓分結果為平
+            homeAtBeGivenFair = homeAtBeGivenFair + 1;
           }
         } else if (ele.spread_handicap < 0) {
-          //主讓
+          // 主讓
           if (
             ele.history_spread_result === 'home' ||
             ele.history_spread_result === 'fair|home'
@@ -466,7 +466,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
         }
       }
-      //主隊大小分
+      // 主隊大小分
       if (
         ele.history_totals_result === 'over' ||
         ele.history_totals_result === 'fair|over'
