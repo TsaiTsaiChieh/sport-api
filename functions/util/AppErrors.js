@@ -287,6 +287,17 @@ class firestoreQueryError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class PurchasePredictionsModelError extends ExtendableError {
+  constructor(
+    message = '購買預測 API 錯誤',
+    status = 1514,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -313,5 +324,6 @@ module.exports = {
   PBPKBOError,
   RepackageError,
   PBPAbnormalError,
-  firestoreQueryError
+  firestoreQueryError,
+  PurchasePredictionsModelError
 };
