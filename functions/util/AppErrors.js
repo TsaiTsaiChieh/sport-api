@@ -159,6 +159,17 @@ class OnlyAcceptNormalUser extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class GodUserDidNotSell extends ExtendableError {
+  constructor(
+    message = '大神該日無販售賽事',
+    status = 1209,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -315,6 +326,7 @@ class PurchasePredictionsModelError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -326,6 +338,7 @@ module.exports = {
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
   OnlyAcceptNormalUser,
+  GodUserDidNotSell,
   UserPredictFailed,
   DeletePredictionsFailed,
   MysqlError,
