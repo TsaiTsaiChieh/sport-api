@@ -116,21 +116,21 @@ function repackageGSC(period, period_date, uid, currentSeason, currentMonth, ele
     const from = (i-2)*range;/*計算開始uid*/
     const to = (i-1)*range;/*計算結尾uid*/
     const rank = 'rank'+i;
-    const gold = {
+    const god = {
       'type':related[i],
       'league_id':ele.league_id,
       'uids':uids_array.slice(from, to)
     };
 
-    updateGod(i, rank, gold);//更新大神狀態
-    insertTitle(i, gold, period, period_date);//寫入大神歷史戰績(金、銀、銅)
+    updateGod(i, rank, god);//更新大神狀態
+    insertTitle(i, god, period, period_date);//寫入大神歷史戰績(金、銀、銅)
   }
-  const data = {
-    'gold':gold,
-    'silver':silver,
-    'copper':copper
-  };
-  return data;
+  // const data = {
+  //   'gold':god[1],
+  //   'silver':god[2],
+  //   'copper':god[3]
+  // };
+  return god;
 }
 /*產生金銀銅大神*/
 async function generateGSC(period, period_date, uid, currentSeason, currentMonth, ele){
@@ -222,22 +222,25 @@ function updateWins(ele){
   const last_period_win_bets = ele.this_period_win_bets;
   const last_period_win_rate = ele.this_period_win_rate;
   const league_id = ele.league_id;
-  db.sequelize.query(
-    `
-    UPDATE users__win__lists 
-       SET 
-           last_period_win_bets = 3,
-           last_period_win_rate = 4,
-           this_period_win_bets = NULL,
-           this_period_win_rate = NULL
-     WHERE uid = 'testtesttest'
-    `,
-    {
-      logging:true,
-      replacements: { last_period_win_bets:last_period_win_bets, last_period_win_rate:last_period_win_rate, league_id:league_id},
-      type: db.sequelize.QueryTypes.UPDATE
-    }
-  )
+  const uids_array = ele.uids.toString().split(',');
+  uids_array.forEach(function(uid){
+    db.sequelize.query(
+      `
+      UPDATE users__win__lists 
+         SET 
+             last_period_win_bets = $last_period_win_bets,
+             last_period_win_rate = $last_period_win_rate,
+             this_period_win_bets = NULL,
+             this_period_win_rate = NULL
+       WHERE uid = 'testtesttest'
+      `,
+      {
+        logging:true,
+        bind: { last_period_win_bets:last_period_win_bets, last_period_win_rate:last_period_win_rate, league_id:league_id, uid:uid},
+        type: db.sequelize.QueryTypes.UPDATE
+      }
+    )
+  });
 }
 /*大神更新*/
 async function updateGod(i, god_type, ele){
@@ -262,7 +265,7 @@ async function updateGod(i, god_type, ele){
         });
     }
   });
-  return update;
+  return 1;
 }
 
 /*重置大神為一般使用者*/
