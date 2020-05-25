@@ -64,42 +64,47 @@ async function editArticle(req, res) {
 
 module.exports = editArticle;
 /**
- * @api {post} /topics/createTopic createTopic
- * @apiName createTopic
- * @apiVersion 1.1.0
- * @apiDescription 新增討論區文章
+ * @api {GET} /topics/editArticle/ editArticle
+ * @apiName editArticle
  * @apiGroup Topics
- * @apiPermission login user with completed data
- *
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
- * @apiParam {String} type          現在只支援 [NBA,MLB]
- * @apiParam {String} category      現在只支援 [賽事分析,球隊討論,投注分享]
- * @apiParam {String} title         標題
- * @apiParam {String} content       內容 支援部分html格式
- *
+ * @apiDescription 編輯文章
+ * @apiPermission login user with completed data, article author is current user
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id   文章ID
  * @apiParamExample {JSON} Request-Example
- * {
- *    "article_id": 123,
- *    "type": "MLB",
- *	  "category": "賽事分析",
- *	  "title": "標題",
- *	  "content": "內容"
- * }
+ *    與createTopic相同
  *
- * @apiSuccess {Number} type          status code
- * @apiSuccess {Object} article_id    儲存後得到的文章id
+ * @apiSuccess {JSON} result Response
  * @apiSuccessExample {JSON} Success-Response
- *  HTTP/1.1 200 OK
  * {
- *    "code": 200
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (403-Response) Not Current User's Article
+ * HTTP/1.1 403 Forbidden
+ * {
+ *   "code": 403,
+ *   "error": "not your article"
+ * }
+ * @apiErrorExample {JSON} (404-Response) Article Not Found
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "article not found"
  * }
  *
- * @apiError 400 Bad Request
- * @apiError 401 Unauthorized
- * @apiError 403 Forbidden
- * @apiError 404 Not Found
- * @apiError 500 Internal Server Error
- *
- * @apiErrorExample {JSON} 400-Response
- * HTTP/1.1 400 Bad Request
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
  */

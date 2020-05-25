@@ -54,12 +54,6 @@ router.post(
   verification.token_v2,
   require('../controller/user/predictMatchesController')
 );
-// 看預測比例
-router.get(
-  '/prediction_rate',
-  verification.token_v2,
-  require('../controller/user/predictionRateController')
-);
 /* ------------ 個人預測頁 ------------ */
 // 我的預測
 router.post(
@@ -84,6 +78,12 @@ router.get(
   '/others_profile',
   verification.token_v2,
   require('../controller/user/othersProfileController')
+);
+// 購買預測
+router.post(
+  '/purchase_predictions',
+  verification.token_v2,
+  require('../controller/user/purchasePredictionsController')
 );
 // 取售牌資訊
 router.get(
@@ -252,5 +252,11 @@ router.post(
   '/god_league_rank_receive',
   verification.token,
   require('../controller/user/postGodLeagueRankReceiveController')
+);
+// 更新大神稱號 回復未閱狀態
+router.post(
+  '/god_league_rank_receive_back',
+  verification.token,
+  require('../controller/user/postGodLeagueRankReceiveBackController')
 );
 module.exports = router;

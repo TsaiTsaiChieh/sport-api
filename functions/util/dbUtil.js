@@ -1368,7 +1368,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
     allowNull: false
   },
   content: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   status: {

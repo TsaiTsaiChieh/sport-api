@@ -6,7 +6,6 @@ function favoritePlayerModel(args) {
     try {
       let favorite_player = {};
       const favorite_player_list = [];
-
       const uid = args.token.uid;
 
       if (args.method === 'POST') {

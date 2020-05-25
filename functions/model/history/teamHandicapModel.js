@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
-
+// 幾勝幾敗 win-lose
 async function teamHandicap(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -122,8 +122,8 @@ async function repackage(args, teamHandicap) {
     for (let i = 0; i < 9; i++) {
       const temp = {
         fraction: fraction[i],
-        denominator: denominator[i],
-        precent: isNaN(Number((fraction[i] / denominator[i]) * 100).toFixed(2))
+        denominator: denominator[i] - fraction[i],
+        percent: isNaN(Number((fraction[i] / denominator[i]) * 100).toFixed(2))
           ? '0'
           : Number((fraction[i] / denominator[i]) * 100).toFixed(2)
       };
