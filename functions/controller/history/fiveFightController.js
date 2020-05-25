@@ -1,13 +1,15 @@
 const modules = require('../../util/modules');
-const model = require('../../model/history/eventScheduledModel');
-
-async function eventScheduled(req, res) {
+const model = require('../../model/history/fiveFightModel');
+async function historyTeam(req, res) {
   const schema = {
-    required: ['league'],
+    required: ['league', 'event_id'],
     properties: {
       league: {
         type: 'string',
         enum: modules.acceptLeague
+      },
+      event_id: {
+        type: 'string'
       }
     }
   };
@@ -19,7 +21,7 @@ async function eventScheduled(req, res) {
   try {
     res.json(await model(req.query));
   } catch (err) {
-    console.error('Error in controller/history/eventScheduled by DY', err);
+    console.error('Error in controller/history/fightFight by DY', err);
     res
       .status(err.code)
       .json(
@@ -30,4 +32,4 @@ async function eventScheduled(req, res) {
   }
 }
 
-module.exports = eventScheduled;
+module.exports = historyTeam;

@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
-const model = require('../../model/history/eventScheduledModel');
+const model = require('../../model/history/getSeasonDateModel');
 
-async function eventScheduled(req, res) {
+async function getSeasonDate(req, res) {
   const schema = {
     required: ['league'],
     properties: {
@@ -19,7 +19,7 @@ async function eventScheduled(req, res) {
   try {
     res.json(await model(req.query));
   } catch (err) {
-    console.error('Error in controller/history/eventScheduled by DY', err);
+    console.error('Error in controller/history/getSeasonDate by DY', err);
     res
       .status(err.code)
       .json(
@@ -30,4 +30,4 @@ async function eventScheduled(req, res) {
   }
 }
 
-module.exports = eventScheduled;
+module.exports = getSeasonDate;

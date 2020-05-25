@@ -15,4 +15,21 @@ router.get(
   '/eventscheduled',
   require('../controller/history/eventScheduledController')
 );
+
+router.get('/fivefight', require('../controller/history/fiveFightController'));
+
+router.get(
+  '/getseasondate',
+  require('../controller/history/getSeasonDateController')
+);
+
+router.get(
+  '/seasonrecord',
+  require('../controller/history/seasonRecordController')
+);
+
+router.get(
+  '/seasonhandicap',
+  require('../controller/history/seasonHandicapController')
+);
 module.exports = router;

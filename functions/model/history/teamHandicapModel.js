@@ -32,7 +32,7 @@ function queryTeamHandicap(args) {
           args.team_id
         }')
              AND season.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
+             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND game.spread_id = spread.spread_id
              AND game.totals_id = total.totals_id
          )`,
