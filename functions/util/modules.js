@@ -594,23 +594,45 @@ function settleSpread(data) {
       : 'away';
 }
 
+// point 用來取得 handicap 的 小數位數值
+// 整數、0.5 為一般處理
+// 0.25 需要另外判斷
+// 0.75 需要另外判斷
 function settleSpreadSoccer(data) {
-  const sp = [0.25, 0.75];
+  const sp_25 = [0.25];
+  // const sp_5 = [0.5];
+  const sp_75 = [0.75];
   const homePoints = data.homePoints;
   const awayPoints = data.awayPoints;
 
-  const handicap = data.spreadHandicap;
+  const handicap = Math.abs(data.spreadHandicap);
   const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
 
-  return homePoints - handicap === awayPoints
-    ? 'fair2'
-    : sp.includes(point)
-      ? homePoints - handicap > awayPoints
-        ? 'fair|home'
-        : 'fair|away'
-      : homePoints - handicap > awayPoints
+  // 整數 和局
+  if (homePoints - awayPoints - handicap === 0) return 'fair2';
+
+  if (sp_25.includes(point)) {
+    return homePoints - awayPoints - handicap === -0.25
+      ? 'fair|away'
+    // : 'fair|home'
+      : homePoints - awayPoints - handicap > -0.25
         ? 'home'
         : 'away';
+  }
+
+  if (sp_75.includes(point)) {
+    return homePoints - awayPoints - handicap === 0.25
+      ? 'fair|home'
+    // : 'fair|away'
+      : homePoints - awayPoints - handicap > 0.25
+        ? 'home'
+        : 'away';
+  }
+
+  // 整數 和 0.5
+  return homePoints - awayPoints - handicap > 0
+    ? 'home'
+    : 'away';
 }
 
 /*
