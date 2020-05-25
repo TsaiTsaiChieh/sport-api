@@ -110,7 +110,7 @@ async function ESoccerpbpHistory(parameter) {
 
       try {
         await modules.firestore
-          .collection('esport_eSoccer')
+          .collection(firestoreName)
           .doc(betsID)
           .set({ flag: { status: 0 } }, { merge: true });
       } catch (err) {
@@ -198,6 +198,12 @@ async function ESoccerpbpHistory(parameter) {
           bets_id: betsID
         });
       } catch (err) {
+        console.log(
+          'Error in pubsub/pbp_eSoccer on YuHsien by DY:  %o : %o',
+          err,
+          betsID
+        );
+
         return reject(
           new AppErrors.PBPEsoccerError(
             `${err} at pbpESoccer of yuhsien on ${betsID} by DY`
@@ -260,7 +266,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -298,7 +303,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
 
           if (data.results[0].time_status === '3') {
@@ -313,7 +317,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
 
           if (data.results[0].time_status === '2') {
@@ -352,7 +355,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           if (data.results[0].time_status === '1') {
             if (realtimeData !== null) {
@@ -445,7 +447,6 @@ async function doPBP(parameter) {
                 )
               );
             }
-            return;
           }
           let homeScores = 'no data';
           let awayScores = 'no data';
@@ -516,7 +517,6 @@ async function doPBP(parameter) {
                       corners: data.results[0].stats.corners[0],
                       dangerous_attacks:
                         data.results[0].stats.dangerous_attacks[0],
-                      goals: data.results[0].stats.goals[0],
                       off_target: data.results[0].stats.off_target[0],
                       on_target: data.results[0].stats.on_target[0],
                       yellowcards: data.results[0].stats.yellowcards[0],
@@ -532,7 +532,6 @@ async function doPBP(parameter) {
                       corners: data.results[0].stats.corners[1],
                       dangerous_attacks:
                         data.results[0].stats.dangerous_attacks[1],
-                      goals: data.results[0].stats.goals[1],
                       off_target: data.results[0].stats.off_target[1],
                       on_target: data.results[0].stats.on_target[1],
                       yellowcards: data.results[0].stats.yellowcards[1],

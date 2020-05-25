@@ -6,3 +6,9 @@ async function getTypes(req, res) {
   res.json({ code: 200, leagues: league, categories: category });
 }
 module.exports = getTypes;
+/**
+ * @api {GET} /topics/types/ getTypes
+ * @apiName getTypes
+ * @apiDescription 取得聯盟及文章分對照表
+ * @apiGroup Topics
+ */

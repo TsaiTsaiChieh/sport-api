@@ -40,30 +40,44 @@ async function likeArticle(req, res) {
 
 module.exports = likeArticle;
 /**
- * @api {GET} /topics/favoriteArticle/
+ * @api {GET} /topics/favoriteArticle/ favoriteArticle
  * @apiName favoriteArticle
  * @apiGroup Topics
- * @apiVersion 1.0.0
- * @apiDescription 收藏文章 by ifyu
- *
+ * @apiDescription 增刪收藏文章
+ * @apiPermission login user with completed data
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id   文章ID
+ * @apiParam {Boolean} like         true新增收藏, false刪除收藏
  * @apiParamExample {JSON} Request-Example
  * {
-    "article_id": 124,
-    "like": false
-   }
+ *   "article_id": 124,
+ *   "like": false
+ * }
  *
- * @apiSuccess {String} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
-    "code": 200
-   }
- * @apiErrorExample 400-Response
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
  * HTTP/1.1 400 Bad Request
- * schema not acceptable
- *
- * @apiErrorExample {JSON} 500-Response
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (500-Response)
  * HTTP/1.1 500 Internal Server Error
  * {
-    "code": 500,
-    "error": "this article has been favorite"
-   }
+ *   "code": 500,
+ *   "error": "this article has been favorite"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
  */

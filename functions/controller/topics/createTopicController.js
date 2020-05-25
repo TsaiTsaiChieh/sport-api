@@ -3,13 +3,6 @@ const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/createTopicModel');
 const types = require('./types');
 async function createTopic(req, res) {
-/// 聯盟、看板、標題、文章（html格式）
-  // content:{
-  //   category: category, [賽事分析,球隊討論,投注分享]
-  //   type: type, [MLB,NBA]
-  //   title: title,
-  //   content: content,
-  // },
   const league = types.getLeague();
   const category = types.getCategory();
 
@@ -59,42 +52,42 @@ async function createTopic(req, res) {
 
 module.exports = createTopic;
 /**
- * @api {post} /topics/createTopic createTopic
+ * @api {POST} /topics/createTopic/ createTopic
  * @apiName createTopic
- * @apiVersion 1.1.0
- * @apiDescription 新增討論區文章
  * @apiGroup Topics
+ * @apiDescription 新增討論區文章
  * @apiPermission login user with completed data
- *
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
- * @apiParam {String} type          現在只支援 [NBA,MLB]
- * @apiParam {String} category      現在只支援 [賽事分析,球隊討論,投注分享]
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} league        league_id (參考/topics/types/)
+ * @apiParam {Integer} category     category_id (參考/topics/types/)
  * @apiParam {String} title         標題
  * @apiParam {String} content       內容 支援部分html格式
- *
- * @apiParamExample {JSON} Request-Example
  * {
- *    "type": "MLB",
- *	  "category": "賽事分析",
- *	  "title": "標題",
- *	  "content": "內容"
+ * 	 "league": "MLB",
+ * 	 "category": 2,
+ *   "title": "title",
+ *   "content": "測試123"
  * }
- *
- * @apiSuccess {Number} type          status code
- * @apiSuccess {Object} article_id    儲存後得到的文章id
+ * @apiSuccess {JSON} result Response
  * @apiSuccessExample {JSON} Success-Response
- *  HTTP/1.1 200 OK
  * {
- *    "code": 200,
- *    "article_id": 119
+ *   "code": 200,
+ *   "article_id": 192
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
  * }
  *
- * @apiError 400 Bad Request
- * @apiError 401 Unauthorized
- * @apiError 403 Forbidden
- * @apiError 404 Not Found
- * @apiError 500 Internal Server Error
- *
- * @apiErrorExample {JSON} 400-Response
- * HTTP/1.1 400 Bad Request
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
  */

@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
-function dbFind(uid, god_uid) { // 確認大神存在
+function dbFind(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.user__favoriteplayer.findAll({
@@ -12,6 +12,22 @@ function dbFind(uid, god_uid) { // 確認大神存在
         raw: true
       });
       resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject('check god failed');
+    }
+  });
+}
+function chkUserExist(uid) { // 確認使用者存在
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.count({
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result !== 0);
     } catch (error) {
       console.error(error);
       reject('check god exists failed');
@@ -29,6 +45,17 @@ async function favoriteGod(args) {
 
       const uid = args.token.uid;
       const god_uid = args.god_uid;
+
+      try {
+        if (!await chkUserExist(god_uid)) {
+          reject({ code: 404, error: 'user is not exist' });
+        }
+      } catch (err) {
+        console.error(err);
+        reject({ code: 500, error: err });
+        return;
+      }
+
       let league = [];
       try {
         league = await dbFind(uid, god_uid);

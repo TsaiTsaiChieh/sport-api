@@ -42,7 +42,7 @@ function repackageReturnData(userData, followLeague) {
       avatar: userData.avatar,
       display_name: userData.display_name,
       signature: userData.signature,
-      fans: userData.fans,
+      fans: userData.fan_count,
       is_like: followLeague.length !== 0,
       league: followLeague
     };
