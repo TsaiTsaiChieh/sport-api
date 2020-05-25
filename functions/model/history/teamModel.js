@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 async function teams(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teams = await queryAllTeams(args);
       const result = await repackage(teams);
@@ -14,7 +14,7 @@ async function teams(args) {
 }
 
 function queryAllTeams(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -42,6 +42,9 @@ async function repackage(teams) {
     const data = [];
     for (let i = 0; i < teams.length; i++) {
       const ele = teams[i];
+      if (!ele.name_ch) {
+        ele.name_ch = ele.name.split('(')[0].trim();
+      }
       const temp = {
         name: ele.name.split('(')[0].trim(),
         name_ch: ele.name_ch,

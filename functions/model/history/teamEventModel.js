@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -16,7 +16,7 @@ async function teamEvent(args) {
 }
 
 async function queryRate(teamEvent) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
 
     for (let i = 0; i < teamEvent.length; i++) {
@@ -42,7 +42,7 @@ async function queryRate(teamEvent) {
 }
 
 function queryTeamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -58,6 +58,7 @@ function queryTeamEvent(args) {
           args.team_id
         }')
               AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+              AND game.status = ${modules.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND game.spread_id = spread.spread_id
@@ -77,13 +78,16 @@ function queryTeamEvent(args) {
           args.team_id
         }' )
               AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+              AND game.status = ${modules.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND (game.spread_id IS NULL OR game.totals_id IS NULL)
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')     
+              }') AND UNIX_TIMESTAMP('${args.date2}')
+                  
           )
+          ORDER BY scheduled 
          `,
         {
           type: db.sequelize.QueryTypes.SELECT

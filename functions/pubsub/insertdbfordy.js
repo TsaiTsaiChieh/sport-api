@@ -7,7 +7,7 @@ async function inserttest(req, res) {
     token: {
       uid: '999'
     },
-    bets_id: 2373519
+    bets_id: 2348596
   });
 
   res.json('ok');
