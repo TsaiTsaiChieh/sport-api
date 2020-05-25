@@ -2,6 +2,20 @@ const modules = require('../util/modules');
 const verification = require('../util/verification');
 const router = modules.express.Router();
 
+router.get(
+  '/test',
+  verification.token,
+  verification.admin,
+  function(req, res) {
+    res.json({});
+  }
+);
+router.get(
+  '/getAdminProfile',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/getAdminProfileController')
+);
 router.post(
   '/muted',
   verification.token,
