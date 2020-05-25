@@ -805,6 +805,21 @@ async function checkUserRight(memberInfo, rightArr = []) {
   return {};
 }
 
+function godUserPriceTable(rank) {
+  rank = Number.parseInt(rank);
+  switch (rank) {
+    case 1:
+      return 179;
+    case 2:
+      return 169;
+    case 3:
+      return 159;
+    case 4:
+      return 149;
+    default:
+      return 149;
+  }
+}
 module.exports = {
   redis,
   express,
@@ -858,5 +873,6 @@ module.exports = {
   acceptLeague,
   checkUserRight,
   MATCH_STATUS,
-  to
+  to,
+  godUserPriceTable
 };
