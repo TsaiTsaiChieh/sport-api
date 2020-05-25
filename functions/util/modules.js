@@ -602,32 +602,29 @@ function settleSpreadSoccer(data) {
 
   const handicap = Math.abs(data.spreadHandicap);
   const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
+  const result = homePoints - awayPoints - handicap;
 
   // 整數 和局
-  if (homePoints - awayPoints - handicap === 0) return 'fair2';
+  if (result === 0) return 'fair2';
 
   if (sp_25.includes(point)) {
-    return homePoints - awayPoints - handicap === -0.25
+    return result === -0.25
       ? 'fair|away'
-    // : 'fair|home'
-      : homePoints - awayPoints - handicap > -0.25
+      : result > -0.25
         ? 'home'
         : 'away';
   }
 
   if (sp_75.includes(point)) {
-    return homePoints - awayPoints - handicap === 0.25
+    return result === 0.25
       ? 'fair|home'
-    // : 'fair|away'
-      : homePoints - awayPoints - handicap > 0.25
+      : result > 0.25
         ? 'home'
         : 'away';
   }
 
   // 整數 和 0.5
-  return homePoints - awayPoints - handicap > 0
-    ? 'home'
-    : 'away';
+  return result > 0 ? 'home' : 'away';
 }
 
 /*
