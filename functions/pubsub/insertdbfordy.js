@@ -3,13 +3,13 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 // const db = require('../util/dbUtil');
 // const MATCHL = db.League;
 async function inserttest(req, res) {
-  await settleMatchesModel({
+  const aa = await settleMatchesModel({
     token: {
       uid: '999'
     },
-    bets_id: 2384540
+    bets_id: '2394170'
   });
 
-  res.json('ok');
+  res.json(aa);
 }
 module.exports = inserttest;

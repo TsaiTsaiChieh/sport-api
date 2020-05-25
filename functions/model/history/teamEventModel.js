@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -16,7 +16,7 @@ async function teamEvent(args) {
 }
 
 async function queryRate(teamEvent) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
 
     for (let i = 0; i < teamEvent.length; i++) {
@@ -42,7 +42,11 @@ async function queryRate(teamEvent) {
 }
 
 function queryTeamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  let move = 0;
+  if (args.date1 === args.date2) {
+    move = 86400;
+  }
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -65,7 +69,7 @@ function queryTeamEvent(args) {
               AND game.totals_id = total.totals_id
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+86400
+              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
           )
           UNION (
            SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
@@ -84,7 +88,7 @@ function queryTeamEvent(args) {
               AND (game.spread_id IS NULL OR game.totals_id IS NULL)
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+86400
+              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
                   
           )
           ORDER BY scheduled 
