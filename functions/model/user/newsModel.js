@@ -122,7 +122,6 @@ function newsModel(method, args, uid) {
             }
           );
         } else {
-        
           del_res = db.sequelize.query(
             `
               UPDATE user__news 
