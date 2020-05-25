@@ -232,7 +232,8 @@ function updateWins(ele){
              last_period_win_rate = $last_period_win_rate,
              this_period_win_bets = NULL,
              this_period_win_rate = NULL
-       WHERE uid = 'testtesttest'
+       WHERE uid = $uid
+         AND league_id = $league_id
       `,
       {
         logging:true,
