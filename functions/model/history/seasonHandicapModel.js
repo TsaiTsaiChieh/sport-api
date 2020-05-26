@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonHandicap(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -60,7 +60,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -98,7 +98,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -481,43 +481,129 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         vsHomeAtOverFair = vsHomeAtOverFair + 1;
       }
     }
-    const data = {
-      homeAtGivePass: homeAtGivePass,
-      homeAtGiveFail: homeAtGiveFail,
-      homeAtGiveFair: homeAtGiveFair,
-      homeAtBeGivenPass: homeAtBeGivenPass,
-      homeAtBeGivenFail: homeAtBeGivenFail,
-      homeAtBeGivenFair: homeAtBeGivenFair,
-      awayAtGivePass: awayAtGivePass,
-      awayAtGiveFail: awayAtGiveFail,
-      awayAtGiveFair: awayAtGiveFair,
-      awayAtBeGivenPass: awayAtBeGivenPass,
-      awayAtBeGivenFail: awayAtBeGivenFail,
-      awayAtBeGivenFair: awayAtBeGivenFair,
-      homeAtOverPass: homeAtOverPass,
-      homeAtOverFail: homeAtOverFail,
-      homeAtOverFair: homeAtOverFair,
-      awayAtOverPass: awayAtOverPass,
-      awayAtOverFail: awayAtOverFail,
-      awayAtOverFair: awayAtOverFair,
-      vsHomeAtGivePass: vsHomeAtGivePass,
-      vsHomeAtGiveFail: vsHomeAtGiveFail,
-      vsHomeAtGiveFair: vsHomeAtGiveFair,
-      vsHomeAtBeGivenPass: vsHomeAtBeGivenPass,
-      vsHomeAtBeGivenFail: vsHomeAtBeGivenFail,
-      vsHomeAtBeGivenFair: vsHomeAtBeGivenFair,
-      vsHomeAtOverPass: vsHomeAtOverPass,
-      vsHomeAtOverFail: vsHomeAtOverFail,
-      vsHomeAtOverFair: vsHomeAtOverFair,
-      vsAwayAtGivePass: vsHomeAtBeGivenFail,
-      vsAwayAtGiveFail: vsHomeAtBeGivenPass,
-      vsAwayAtGiveFair: vsHomeAtBeGivenFair,
-      vsAwayAtBeGivenPass: vsHomeAtGiveFail,
-      vsAwayAtBeGivenFail: vsHomeAtGivePass,
-      vsAwayAtBeGivenFair: vsHomeAtGiveFair,
-      vsAwayAtOverPass: vsHomeAtOverPass,
-      vsAwayAtOverFail: vsHomeAtOverFail,
-      vsAwayAtOverFair: vsHomeAtOverFair
+    let data = [];
+    let dataSeason = [];
+    let dataVS = [];
+    let give = {
+      home: {
+        Win: homeAtGivePass,
+        Lose: homeAtGiveFail,
+        Draw: homeAtGiveFair
+      },
+      away: {
+        Win: awayAtGivePass,
+        Lose: awayAtGiveFail,
+        Draw: awayAtGiveFair
+      }
+    };
+    let beGiven = {
+      home: {
+        Win: homeAtBeGivenPass,
+        Lose: homeAtBeGivenFail,
+        Draw: homeAtBeGivenFair
+      },
+      away: {
+        Win: awayAtBeGivenPass,
+        Lose: awayAtBeGivenFail,
+        Draw: awayAtBeGivenFair
+      }
+    };
+    let over = {
+      home: {
+        Win: homeAtOverPass,
+        Lose: homeAtOverFail,
+        Draw: homeAtOverFair
+      },
+      away: {
+        Win: awayAtOverPass,
+        Lose: awayAtOverFail,
+        Draw: awayAtOverFair
+      }
+    };
+    let vsGive = {
+      home: {
+        Win: vsHomeAtGivePass,
+        Lose: vsHomeAtGiveFail,
+        Draw: vsHomeAtGiveFair
+      },
+      away: {
+        Win: vsHomeAtBeGivenFail,
+        Lose: vsHomeAtBeGivenPass,
+        Draw: vsHomeAtBeGivenFair
+      }
+    };
+    let vsBeGiven = {
+      home: {
+        Win: vsHomeAtBeGivenPass,
+        Lose: vsHomeAtBeGivenFail,
+        Draw: vsHomeAtBeGivenFair
+      },
+      away: {
+        Win: vsHomeAtGiveFail,
+        Lose: vsHomeAtGivePass,
+        Draw: vsHomeAtGiveFair
+      }
+    };
+    let vsOver = {
+      home: {
+        Win: vsHomeAtOverPass,
+        Lose: vsHomeAtOverFail,
+        Draw: vsHomeAtOverFair
+      },
+      away: {
+        Win: vsHomeAtOverPass,
+        Lose: vsHomeAtOverFail,
+        Draw: vsHomeAtOverFair
+      }
+    };
+    // const data = {
+    //   homeAtGivePass: homeAtGivePass,
+    //   homeAtGiveFail: homeAtGiveFail,
+    //   homeAtGiveFair: homeAtGiveFair,
+    //   homeAtBeGivenPass: homeAtBeGivenPass,
+    //   homeAtBeGivenFail: homeAtBeGivenFail,
+    //   homeAtBeGivenFair: homeAtBeGivenFair,
+    //   awayAtGivePass: awayAtGivePass,
+    //   awayAtGiveFail: awayAtGiveFail,
+    //   awayAtGiveFair: awayAtGiveFair,
+    //   awayAtBeGivenPass: awayAtBeGivenPass,
+    //   awayAtBeGivenFail: awayAtBeGivenFail,
+    //   awayAtBeGivenFair: awayAtBeGivenFair,
+    //   homeAtOverPass: homeAtOverPass,
+    //   homeAtOverFail: homeAtOverFail,
+    //   homeAtOverFair: homeAtOverFair,
+    //   awayAtOverPass: awayAtOverPass,
+    //   awayAtOverFail: awayAtOverFail,
+    //   awayAtOverFair: awayAtOverFair,
+    //   vsHomeAtGivePass: vsHomeAtGivePass,
+    //   vsHomeAtGiveFail: vsHomeAtGiveFail,
+    //   vsHomeAtGiveFair: vsHomeAtGiveFair,
+    //   vsHomeAtBeGivenPass: vsHomeAtBeGivenPass,
+    //   vsHomeAtBeGivenFail: vsHomeAtBeGivenFail,
+    //   vsHomeAtBeGivenFair: vsHomeAtBeGivenFair,
+    //   vsHomeAtOverPass: vsHomeAtOverPass,
+    //   vsHomeAtOverFail: vsHomeAtOverFail,
+    //   vsHomeAtOverFair: vsHomeAtOverFair,
+    //   vsAwayAtGivePass: vsHomeAtBeGivenFail,
+    //   vsAwayAtGiveFail: vsHomeAtBeGivenPass,
+    //   vsAwayAtGiveFair: vsHomeAtBeGivenFair,
+    //   vsAwayAtBeGivenPass: vsHomeAtGiveFail,
+    //   vsAwayAtBeGivenFail: vsHomeAtGivePass,
+    //   vsAwayAtBeGivenFair: vsHomeAtGiveFair,
+    //   vsAwayAtOverPass: vsHomeAtOverPass,
+    //   vsAwayAtOverFail: vsHomeAtOverFail,
+    //   vsAwayAtOverFair: vsHomeAtOverFair
+    // };
+    dataSeason.push(give);
+    dataSeason.push(beGiven);
+    dataSeason.push(over);
+    dataVS.push(vsGive);
+    dataVS.push(vsBeGiven);
+    dataVS.push(vsOver);
+
+    data = {
+      Season: dataSeason,
+      VS: dataVS
     };
     return data;
   } catch (err) {

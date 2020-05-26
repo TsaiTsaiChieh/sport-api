@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonRecord(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonRecord(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -53,7 +53,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -84,7 +84,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -225,67 +225,220 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         }
       }
     }
-    const data = {
-      homeTotalWin: homeAtHomeWin + homeAtAwayWin,
-      homeTotalLose: homeAtHomeLose + homeAtAwayLose,
-      homeTotalDraw: homeAtHomeDraw + homeAtAwayDraw,
-      homeAtHomeWin: homeAtHomeWin,
-      homeAtHomeLose: homeAtHomeLose,
-      homeAtHomeDraw: homeAtHomeDraw,
-      homeAtAwayWin: homeAtAwayWin,
-      homeAtAwayLose: homeAtAwayLose,
-      homeAtAwayDraw: homeAtAwayDraw,
-      homeTotalGet: homeAtHomeGet + homeAtAwayGet,
-      homeTotalLoss: homeAtHomeLoss + homeAtAwayLoss,
-      homeAtHomeGet: homeAtHomeGet,
-      homeAtHomeLoss: homeAtHomeLoss,
-      homeAtAwayGet: homeAtAwayGet,
-      homeAtAwayLoss: homeAtAwayLoss,
-      awayTotalWin: awayAtHomeWin + awayAtAwayWin,
-      awayTotalLose: awayAtHomeLose + awayAtAwayLose,
-      awayTotalDraw: awayAtHomeDraw + awayAtAwayDraw,
-      awayAtHomeWin: awayAtHomeWin,
-      awayAtHomeLose: awayAtHomeLose,
-      awayAtHomeDraw: awayAtHomeDraw,
-      awayAtAwayWin: awayAtAwayWin,
-      awayAtAwayLose: awayAtAwayLose,
-      awayAtAwayDraw: awayAtAwayDraw,
-      awayTotalGet: awayAtHomeGet + awayAtAwayGet,
-      awayTotalLoss: awayAtHomeLoss + awayAtAwayLoss,
-      awayAtHomeGet: awayAtHomeGet,
-      awayAtHomeLoss: awayAtHomeLoss,
-      awayAtAwayGet: awayAtAwayGet,
-      awayAtAwayLoss: awayAtAwayLoss,
-      vsHomeTotalWin: vsHomeAtHomeWin + vsHomeAtAwayWin, //
-      vsHomeTotalLose: vsHomeAtHomeLose + vsHomeAtAwayLose,
-      vsHomeTotalDraw: vsHomeAtHomeDraw + vsHomeAtAwayDraw,
-      vsHomeAtHomeWin: vsHomeAtHomeWin,
-      vsHomeAtHomeLose: vsHomeAtHomeLose,
-      vsHomeAtHomeDraw: vsHomeAtHomeDraw,
-      vsHomeAtAwayWin: vsHomeAtAwayWin,
-      vsHomeAtAwayLose: vsHomeAtAwayLose,
-      vsHomeAtAwayDraw: vsHomeAtAwayDraw,
-      vsHomeTotalGet: vsHomeAtHomeGet + vsHomeAtAwayGet,
-      vsHomeTotalLoss: vsHomeAtHomeLoss + vsHomeAtAwayLoss,
-      vsHomeAtHomeGet: vsHomeAtHomeGet,
-      vsHomeAtHomeLoss: vsHomeAtHomeLoss,
-      vsHomeAtAwayGet: vsHomeAtAwayGet,
-      vsHomeAtAwayLoss: vsHomeAtAwayLoss, //
-      vsAwayTotalWin: vsHomeAtAwayLose + vsHomeAtHomeLose,
-      vsAwayTotalLose: vsHomeAtAwayWin + vsHomeAtHomeWin,
-      vsAwayTotalDraw: vsHomeAtAwayDraw + vsHomeAtHomeDraw,
-      vsAwayAtHomeWin: vsHomeAtAwayLose,
-      vsAwayAtHomeLose: vsHomeAtAwayWin,
-      vsAwayAtHomeDraw: vsHomeAtAwayDraw,
-      vsAwayAtAwayWin: vsHomeAtHomeLose,
-      vsAwayAtAwayLose: vsHomeAtHomeWin,
-      vsAwayAtAwayDraw: vsHomeAtHomeDraw,
-      vsAwayTotalGet: vsHomeAtAwayLoss + vsHomeAtHomeLoss,
-      vsAwayTotalLoss: vsHomeAtAwayGet + vsHomeAtHomeGet,
-      vsAwayAtHomeGet: vsHomeAtAwayLoss,
-      vsAwayAtHomeLoss: vsHomeAtAwayGet,
-      vsAwayAtAwayGet: vsHomeAtHomeLoss,
-      vsAwayAtAwayLoss: vsHomeAtHomeGet
+    let data = [];
+    let dataSeason = [];
+    let dataVS = [];
+    let total = {
+      home: {
+        Win: homeAtHomeWin + homeAtAwayWin,
+        Lose: homeAtHomeLose + homeAtAwayLose,
+        Draw: homeAtHomeDraw + homeAtAwayDraw
+      },
+      away: {
+        Win: awayAtHomeWin + awayAtAwayWin,
+        Lose: awayAtHomeLose + awayAtAwayLose,
+        Draw: awayAtHomeDraw + awayAtAwayDraw
+      }
+    };
+    let atHome = {
+      home: {
+        Win: homeAtHomeWin,
+        Lose: homeAtHomeLose,
+        Draw: homeAtHomeDraw
+      },
+      away: {
+        Lose: awayAtHomeLose,
+        Draw: awayAtHomeDraw,
+        Win: awayAtAwayWin
+      }
+    };
+    let atAway = {
+      home: {
+        Win: homeAtAwayWin,
+        Lose: homeAtAwayLose,
+        Draw: homeAtAwayDraw
+      },
+      away: {
+        Win: awayAtAwayWin,
+        Lose: awayAtAwayLose,
+        Draw: awayAtAwayDraw
+      }
+    };
+    let totalScore = {
+      home: {
+        Get: homeAtHomeGet + homeAtAwayGet,
+        Loss: homeAtHomeLoss + homeAtAwayLoss
+      },
+      away: {
+        Get: awayAtHomeGet + awayAtAwayGet,
+        Loss: awayAtHomeLoss + awayAtAwayLoss
+      }
+    };
+    let atHomeScore = {
+      home: {
+        Get: homeAtHomeGet,
+        Loss: homeAtHomeLoss
+      },
+      away: {
+        Get: awayAtHomeGet,
+        Loss: awayAtHomeLoss
+      }
+    };
+    let atAwayScore = {
+      home: {
+        Get: homeAtAwayGet,
+        Loss: homeAtAwayLoss
+      },
+      away: {
+        Get: awayAtAwayGet,
+        Loss: awayAtAwayLoss
+      }
+    };
+    let vsTotal = {
+      home: {
+        Win: vsHomeAtHomeWin + vsHomeAtAwayWin,
+        Lose: vsHomeAtHomeLose + vsHomeAtAwayLose,
+        Draw: vsHomeAtHomeDraw + vsHomeAtAwayDraw
+      },
+      away: {
+        Win: vsHomeAtAwayLose + vsHomeAtHomeLose,
+        Lose: vsHomeAtAwayWin + vsHomeAtHomeWin,
+        Draw: vsHomeAtAwayDraw + vsHomeAtHomeDraw
+      }
+    };
+    let vsAtHome = {
+      home: {
+        Win: vsHomeAtHomeWin,
+        Lose: vsHomeAtHomeLose,
+        Draw: vsHomeAtHomeDraw
+      },
+      away: {
+        Win: vsHomeAtAwayLose,
+        Lose: vsHomeAtAwayWin,
+        Draw: vsHomeAtAwayDraw
+      }
+    };
+    let vsAtAway = {
+      home: {
+        Win: vsHomeAtAwayWin,
+        Lose: vsHomeAtAwayLose,
+        Draw: vsHomeAtAwayDraw
+      },
+      away: {
+        Win: vsHomeAtHomeLose,
+        Lose: vsHomeAtHomeWin,
+        Draw: vsHomeAtHomeDraw
+      }
+    };
+    let vsTotalScore = {
+      home: {
+        Get: vsHomeAtHomeGet + vsHomeAtAwayGet,
+        Loss: vsHomeAtHomeLoss + vsHomeAtAwayLoss
+      },
+      away: {
+        Get: vsHomeAtAwayLoss + vsHomeAtHomeLoss,
+        Loss: vsHomeAtAwayGet + vsHomeAtHomeGet
+      }
+    };
+    let vsAtHomeScore = {
+      home: {
+        Get: vsHomeAtHomeGet,
+        Loss: vsHomeAtHomeLoss
+      },
+      away: {
+        Get: vsHomeAtAwayLoss,
+        Loss: vsHomeAtAwayGet
+      }
+    };
+    let vsAtAwayScore = {
+      home: {
+        Get: vsHomeAtAwayGet,
+        Loss: vsHomeAtAwayLoss
+      },
+      away: {
+        Get: vsHomeAtHomeLoss,
+        Loss: vsHomeAtHomeGet
+      }
+    };
+    // let temp = {
+    //   homeTotalWin: homeAtHomeWin + homeAtAwayWin,
+    //   homeTotalLose: homeAtHomeLose + homeAtAwayLose,
+    //   homeTotalDraw: homeAtHomeDraw + homeAtAwayDraw,
+    //   homeAtHomeWin: homeAtHomeWin,
+    //   homeAtHomeLose: homeAtHomeLose,
+    //   homeAtHomeDraw: homeAtHomeDraw,
+    //   homeAtAwayWin: homeAtAwayWin,
+    //   homeAtAwayLose: homeAtAwayLose,
+    //   homeAtAwayDraw: homeAtAwayDraw,
+    //   homeTotalGet: homeAtHomeGet + homeAtAwayGet,
+    //   homeTotalLoss: homeAtHomeLoss + homeAtAwayLoss,
+    //   homeAtHomeGet: homeAtHomeGet,
+    //   homeAtHomeLoss: homeAtHomeLoss,
+    //   homeAtAwayGet: homeAtAwayGet,
+    //   homeAtAwayLoss: homeAtAwayLoss,
+    //   awayTotalWin: awayAtHomeWin + awayAtAwayWin,
+    //   awayTotalLose: awayAtHomeLose + awayAtAwayLose,
+    //   awayTotalDraw: awayAtHomeDraw + awayAtAwayDraw,
+    //   awayAtHomeWin: awayAtHomeWin,
+    //   awayAtHomeLose: awayAtHomeLose,
+    //   awayAtHomeDraw: awayAtHomeDraw,
+    //   awayAtAwayWin: awayAtAwayWin,
+    //   awayAtAwayLose: awayAtAwayLose,
+    //   awayAtAwayDraw: awayAtAwayDraw,
+    //   awayTotalGet: awayAtHomeGet + awayAtAwayGet,
+    //   awayTotalLoss: awayAtHomeLoss + awayAtAwayLoss,
+    //   awayAtHomeGet: awayAtHomeGet,
+    //   awayAtHomeLoss: awayAtHomeLoss,
+    //   awayAtAwayGet: awayAtAwayGet,
+    //   awayAtAwayLoss: awayAtAwayLoss,
+    //   vsHomeTotalWin: vsHomeAtHomeWin + vsHomeAtAwayWin, //
+    //   vsHomeTotalLose: vsHomeAtHomeLose + vsHomeAtAwayLose,
+    //   vsHomeTotalDraw: vsHomeAtHomeDraw + vsHomeAtAwayDraw,
+    //   vsHomeAtHomeWin: vsHomeAtHomeWin,
+    //   vsHomeAtHomeLose: vsHomeAtHomeLose,
+    //   vsHomeAtHomeDraw: vsHomeAtHomeDraw,
+    //   vsHomeAtAwayWin: vsHomeAtAwayWin,
+    //   vsHomeAtAwayLose: vsHomeAtAwayLose,
+    //   vsHomeAtAwayDraw: vsHomeAtAwayDraw,
+    //   vsHomeTotalGet: vsHomeAtHomeGet + vsHomeAtAwayGet,
+    //   vsHomeTotalLoss: vsHomeAtHomeLoss + vsHomeAtAwayLoss,
+    //   vsHomeAtHomeGet: vsHomeAtHomeGet,
+    //   vsHomeAtHomeLoss: vsHomeAtHomeLoss,
+    //   vsHomeAtAwayGet: vsHomeAtAwayGet,
+    //   vsHomeAtAwayLoss: vsHomeAtAwayLoss, //
+    //   vsAwayTotalWin: vsHomeAtAwayLose + vsHomeAtHomeLose,
+    //   vsAwayTotalLose: vsHomeAtAwayWin + vsHomeAtHomeWin,
+    //   vsAwayTotalDraw: vsHomeAtAwayDraw + vsHomeAtHomeDraw,
+    //   vsAwayAtHomeWin: vsHomeAtAwayLose,
+    //   vsAwayAtHomeLose: vsHomeAtAwayWin,
+    //   vsAwayAtHomeDraw: vsHomeAtAwayDraw,
+    //   vsAwayAtAwayWin: vsHomeAtHomeLose,
+    //   vsAwayAtAwayLose: vsHomeAtHomeWin,
+    //   vsAwayAtAwayDraw: vsHomeAtHomeDraw,
+    //   vsAwayTotalGet: vsHomeAtAwayLoss + vsHomeAtHomeLoss,
+    //   vsAwayTotalLoss: vsHomeAtAwayGet + vsHomeAtHomeGet,
+    //   vsAwayAtHomeGet: vsHomeAtAwayLoss,
+    //   vsAwayAtHomeLoss: vsHomeAtAwayGet,
+    //   vsAwayAtAwayGet: vsHomeAtHomeLoss,
+    //   vsAwayAtAwayLoss: vsHomeAtHomeGet
+    // };
+    dataSeason.push(total);
+    dataSeason.push(atHome);
+    dataSeason.push(atAway);
+    dataSeason.push(totalScore);
+    dataSeason.push(atHomeScore);
+    dataSeason.push(atAwayScore);
+    dataVS.push(vsTotal);
+    dataVS.push(vsAtHome);
+    dataVS.push(vsAtAway);
+    dataVS.push(vsTotalScore);
+    dataVS.push(vsAtHomeScore);
+    dataVS.push(vsAtAwayScore);
+    // data.push(dataSeason);
+    // data.push(dataVS);
+    data = {
+      Season: dataSeason,
+      VS: dataVS
     };
     return data;
   } catch (err) {
