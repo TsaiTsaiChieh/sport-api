@@ -2,9 +2,37 @@
   "database": {
     "rules": "database.rules.json"
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": [
     {
-      "site": "api-dosports",
+      "site": "api-getsports",
+      "public": "public",
+      "ignore": [
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "function": "api"
+        }
+      ]
+    },
+    {
+      "site": "getsports-gsi",
       "public": "public",
       "ignore": [
         "firebase.json",
@@ -25,7 +53,37 @@
       "rewrites": [
         {
           "source": "**",
-          "function": "api"
+          "function": "ssr"
+        }
+      ]
+    },
+    {
+      "site": "admin-getsports",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "function": "admin"
         }
       ]
     }

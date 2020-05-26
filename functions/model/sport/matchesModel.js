@@ -33,7 +33,7 @@ function getMatchesWithDate(args) {
       // index is range, eq_ref, taking 170 ms
       const results = await db.sequelize.query(
         `SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, 
-                game.home_points, game.away_points, game.spread_result, 
+                game.home_points, game.away_points, game.spread_result, game.totals_result, 
                 game.home_name, game.home_alias_ch, game.home_alias, game.home_image_id, 
                 game.away_name, game.away_alias_ch, game.away_alias, game.away_image_id, 
                 spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw,
@@ -52,7 +52,7 @@ function getMatchesWithDate(args) {
                    AND game.home_id = home.team_id 
                    AND game.away_id = away.team_id
                    AND (game.status = ${SCHEDULED} OR game.status = ${INPLAY} OR game.status = ${END})
-               ) AS game
+              ) AS game
      LEFT JOIN match__spreads AS spread ON (game.bets_id = spread.match_id AND game.spread_id = spread.spread_id)
      LEFT JOIN match__totals AS totals ON (game.bets_id = totals.match_id AND game.totals_id = totals.totals_id)
       ORDER BY game.scheduled`,
@@ -116,7 +116,7 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.timeFormat(ele.scheduled),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
       status: ele.status,
       league: args.league,
       home: {
@@ -166,8 +166,8 @@ function repackageMatches(results, args, godPredictions) {
       else temp.spread.result = ele.spread_result;
     }
     if (ele.totals_result) {
-      if (ele.spread_result === 'fair2' || ele.spread_result === 'fair|over') temp.totals.result = 'over';
-      else if (ele.spread_result === 'fair|under') temp.totals.result = 'under';
+      if (ele.totals_result === 'fair2' || ele.totals_result === 'fair|over') temp.totals.result = 'over';
+      else if (ele.totals_result === 'fair|under') temp.totals.result = 'under';
       else temp.totals.result = ele.totals_result;
     }
     if (ele.status === SCHEDULED) {
