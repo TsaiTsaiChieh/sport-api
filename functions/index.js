@@ -44,6 +44,7 @@ const whitelist = [
   'http://127.0.0.1:5000',
   'http://localhost:8080',
   'http://localhost:8081',
+  'http://localhost:9528',
   'https://dosports.web.app',
   'https://api-dosports.web.app',
   'https://getsports.cc',
