@@ -2,15 +2,15 @@ const modules = require('../../util/modules');
 const model = require('../../model/history/teamEventModel');
 
 async function historyTeamEvent(req, res) {
-  req.query.date2 = modules.convertTimezoneFormat(
-    modules.moment(req.query.date2).unix(),
-    {
-      format: 'YYYY-MM-DD',
-      op: 'add',
-      value: 1,
-      unit: 'days'
-    }
-  );
+  // req.query.date2 = modules.convertTimezoneFormat(
+  //   modules.moment(req.query.date2).unix(),
+  //   {
+  //     format: 'YYYY-MM-DD',
+  //     op: 'add',
+  //     value: 1,
+  //     unit: 'days'
+  //   }
+  // );
 
   const schema = {
     required: ['league', 'team_id', 'date1', 'date2'],

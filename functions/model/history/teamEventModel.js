@@ -42,10 +42,8 @@ async function queryRate(teamEvent) {
 }
 
 function queryTeamEvent(args) {
-  let move = 0;
-  if (args.date1 === args.date2) {
-    move = 86400;
-  }
+  let move = 86400; //一天的秒數
+
   return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
