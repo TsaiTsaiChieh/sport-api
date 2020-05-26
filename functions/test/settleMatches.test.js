@@ -863,7 +863,466 @@ describe('測試 足球/電子足球', () => {
       expect(resultFlag('away', settleResult)).toBe(0.95);
     });
   });
+  
 
+  // ======================================================
+  // ======================================================
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 0 整數盤口', () => {
+    it('大小 球頭 0 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 0,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair2');
+
+      expect(resultFlag('over', settleResult)).toBe(0);
+      expect(resultFlag('under', settleResult)).toBe(0);
+    });
+
+    it('大小 球頭 0 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 0,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 0 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: 0,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
+
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 小數 .25 盤口 ( =>< -.25 )', () => {
+    // .25
+    it('大小 球頭 .25 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .25,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|under');
+
+      expect(resultFlag('over', settleResult)).toBe(-0.5);
+      expect(resultFlag('under', settleResult)).toBe(0.5);
+    });
+
+    it('大小 球頭 .25 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .25,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 .25 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: .25,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 .25 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: .25,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    // - .25
+    it('大小 球頭 -0.25 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: -0.25,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|under');
+
+      expect(resultFlag('over', settleResult)).toBe(-0.5);
+      expect(resultFlag('under', settleResult)).toBe(0.5);
+    });
+
+    it('大小 球頭 -0.25 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: -0.25,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 -0.25 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: -0.25,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 -0.25 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: -0.25,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
+
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 小數 .5 盤口', () => {
+    it('大小 球頭 .5 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .5,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('under');
+
+      expect(resultFlag('over', settleResult)).toBe(-1);
+      expect(resultFlag('under', settleResult)).toBe(0.95);
+    });
+
+    it('大小 球頭 .5 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .5,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 .5 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: .5,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    it('大小 球頭 .5 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: .5,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
+
+
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 小數 .75 盤口  ( =>< -.75 )', () => {
+    // .75
+    it('大小 球頭 .75 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .75,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('under');
+
+      expect(resultFlag('over', settleResult)).toBe(-1);
+      expect(resultFlag('under', settleResult)).toBe(0.95);
+    });
+
+    it('大小 球頭 .75 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: .75,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.5);
+      expect(resultFlag('under', settleResult)).toBe(-0.5);
+    });
+
+    it('大小 球頭 .75 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: .75,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.5);
+      expect(resultFlag('under', settleResult)).toBe(-0.5);
+    });
+
+    it('大小 球頭 .75 主隊 1分  客隊 1分  ', () => {
+      const data = {
+        totalsHandicap: .75,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+
+    // - .75
+    it('大小 球頭 -0.75 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: -0.75,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('under');
+
+      expect(resultFlag('over', settleResult)).toBe(-1);
+      expect(resultFlag('under', settleResult)).toBe(0.95);
+    });
+
+    it('大小 球頭 -0.75 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: -0.75,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.5);
+      expect(resultFlag('under', settleResult)).toBe(-0.5);
+    });
+
+    it('大小 球頭 -0.75 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: -0.75,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.5);
+      expect(resultFlag('under', settleResult)).toBe(-0.5);
+    });
+
+    it('大小 球頭 -0.75 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: -0.75,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
+
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 1 整數盤口', () => {
+    it('大小 球頭 1 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 1,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('under');
+
+      expect(resultFlag('over', settleResult)).toBe(-1);
+      expect(resultFlag('under', settleResult)).toBe(0.95);
+    });
+
+    it('大小 球頭 1 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 1,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair2');
+
+      expect(resultFlag('over', settleResult)).toBe(0);
+      expect(resultFlag('under', settleResult)).toBe(0);
+    });
+
+    it('大小 球頭 1 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: 1,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair2');
+
+      expect(resultFlag('over', settleResult)).toBe(0);
+      expect(resultFlag('under', settleResult)).toBe(0);
+    });
+
+    it('大小 球頭 1 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: 1,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
+
+  // ======================================================
+  describe('測試 大小 球頭(handicap) 為 1.25 整數盤口 ( =>< -.25 )', () => {
+    it('大小 球頭 1.25 主隊 0分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 1.25,
+        homePoints: 0,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('under');
+
+      expect(resultFlag('over', settleResult)).toBe(-1);
+      expect(resultFlag('under', settleResult)).toBe(0.95);
+    });
+
+    it('大小 球頭 1.25 主隊 1分  客隊 0分 ', () => {
+      const data = {
+        totalsHandicap: 1.25,
+        homePoints: 1,
+        awayPoints: 0
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|under');
+
+      expect(resultFlag('over', settleResult)).toBe(-0.5);
+      expect(resultFlag('under', settleResult)).toBe(0.5);
+    });
+
+    it('大小 球頭 1.25 主隊 0分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: 1.25,
+        homePoints: 0,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('fair|under');
+
+      expect(resultFlag('over', settleResult)).toBe(-0.5);
+      expect(resultFlag('under', settleResult)).toBe(0.5);
+    });
+
+    it('大小 球頭 1.25 主隊 1分  客隊 1分 ', () => {
+      const data = {
+        totalsHandicap: 1.25,
+        homePoints: 1,
+        awayPoints: 1
+      };
+
+      const settleResult = settleTotalsSoccer(data);
+      expect(settleResult).toBe('over');
+
+      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(-1);
+    });
+  });
   
 
 });
