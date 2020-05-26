@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const Op = require('sequelize').Op;
 
@@ -67,7 +65,7 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -92,7 +90,7 @@ module.exports.getTopicLikeCount = async function(articles) { // 傳入array aid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -116,7 +114,7 @@ module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -136,7 +134,7 @@ module.exports.getReplyContent = async function(replies) { // 傳入array rid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -153,7 +151,7 @@ module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得�
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      reject(false);
     }
   });
 };
@@ -179,7 +177,7 @@ module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自�
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };

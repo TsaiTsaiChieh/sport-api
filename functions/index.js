@@ -45,7 +45,9 @@ const whitelist = [
   'http://localhost:8080',
   'http://localhost:8081',
   'https://dosports.web.app',
-  'https://api-dosports.web.app'
+  'https://api-dosports.web.app',
+  'https://getsports.cc',
+  'https://getsport.cc'
 ];
 const localOrigin = 'http://172.16.21';
 
@@ -64,7 +66,7 @@ const corsOptions = {
 
 const runtimeOpts = {
   timeoutSeconds: 300,
-  memory: '1GB'
+  memory: '2GB'
 };
 
 app.use(cors(corsOptions));
@@ -82,13 +84,14 @@ app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
 app.use('/topics', require('./routers/topics'));
 app.use('/livescore', require('./routers/livescore'));
+app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.prematch_esport = functions.pubsub
-  .schedule('0 3 * * *')
+  .schedule('0 */3 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub
@@ -96,7 +99,7 @@ exports.handicap = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
 exports.handicap_esport = functions.pubsub
-  .schedule('0 */1 * * *')
+  .schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
@@ -115,10 +118,21 @@ exports.lineups_MLB = functions.pubsub
 //   .schedule('* * * * *')
 //   .timeZone('Asia/Taipei')
 //   .onRun(require('./pubsub/checkmatch_NBA'));
-exports.pbp_eSoccer = functions.runWith(runtimeOpts).pubsub
-  .schedule('* * * * *')
+exports.pbp_eSoccer = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_ESoccer'));
+  .onRun(require('./pubsub/checkmatch_eSoccer'));
+exports.pbp_KBO = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_KBO'));
+exports.pbp_abnormal = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('*/10 * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_abnormal'));
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {

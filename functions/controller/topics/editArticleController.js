@@ -1,6 +1,7 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/editArticleModel');
+const types = require('./types');
 async function editArticle(req, res) {
 /// 聯盟、看板、標題、文章（html格式）
   // content:{
@@ -9,23 +10,25 @@ async function editArticle(req, res) {
   //   title: title,
   //   content: content,
   // },
+  const league = types.getLeague();
+  const category = types.getCategory();
 
   const schema = {
     type: 'object',
-    required: ['category', 'type', 'title', 'content'],
+    required: ['category', 'league', 'title', 'content'],
     properties: {
       article_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0
       },
-      type: {
+      league: {
         type: 'string',
-        enum: ['MLB', '中華職棒', '韓國職棒', '日本職棒', '澳洲職棒', '墨西哥職棒', 'NBA', 'SBL', 'WNBA', '澳洲職籃', '韓國職籃', '中國職籃', '日本職籃', 'NHL冰球', '足球']
+        enum: league
       },
       category: {
-        type: 'string',
-        enum: ['賽事分析', '球隊討論', '投注分享', '公告', '其他']
+        type: 'integer',
+        enum: category
       },
       title: {
         type: 'string',
@@ -40,7 +43,11 @@ async function editArticle(req, res) {
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    const ajv_errs = [];
+    for (let i = 0; i < modules.ajv.errors.length; i++) {
+      ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
+    }
+    res.status(400).json({ code: 400, error: 'schema not acceptable', message: ajv_errs });
     return;
   }
   req.body.token = req.token;
@@ -57,42 +64,47 @@ async function editArticle(req, res) {
 
 module.exports = editArticle;
 /**
- * @api {post} /topics/createTopic createTopic
- * @apiName createTopic
- * @apiVersion 1.1.0
- * @apiDescription 新增討論區文章
+ * @api {GET} /topics/editArticle/ editArticle
+ * @apiName editArticle
  * @apiGroup Topics
- * @apiPermission login user with completed data
- *
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
- * @apiParam {String} type          現在只支援 [NBA,MLB]
- * @apiParam {String} category      現在只支援 [賽事分析,球隊討論,投注分享]
- * @apiParam {String} title         標題
- * @apiParam {String} content       內容 支援部分html格式
- *
+ * @apiDescription 編輯文章
+ * @apiPermission login user with completed data, article author is current user
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id   文章ID
  * @apiParamExample {JSON} Request-Example
- * {
- *    "article_id": 123,
- *    "type": "MLB",
- *	  "category": "賽事分析",
- *	  "title": "標題",
- *	  "content": "內容"
- * }
+ *    與createTopic相同
  *
- * @apiSuccess {Number} type          status code
- * @apiSuccess {Object} article_id    儲存後得到的文章id
+ * @apiSuccess {JSON} result Response
  * @apiSuccessExample {JSON} Success-Response
- *  HTTP/1.1 200 OK
  * {
- *    "code": 200
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (403-Response) Not Current User's Article
+ * HTTP/1.1 403 Forbidden
+ * {
+ *   "code": 403,
+ *   "error": "not your article"
+ * }
+ * @apiErrorExample {JSON} (404-Response) Article Not Found
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "article not found"
  * }
  *
- * @apiError 400 Bad Request
- * @apiError 401 Unauthorized
- * @apiError 403 Forbidden
- * @apiError 404 Not Found
- * @apiError 500 Internal Server Error
- *
- * @apiErrorExample {JSON} 400-Response
- * HTTP/1.1 400 Bad Request
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
  */

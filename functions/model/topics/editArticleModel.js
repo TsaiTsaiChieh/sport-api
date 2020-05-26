@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbFind(aid) {
@@ -65,22 +63,22 @@ async function createTopic(args) {
       }
       // console.log(orig_article);
       const insertData = {
-        type: args.type,
+        league: args.league,
         category: args.category,
         title: args.title
       };
 
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
+        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
         allowedAttributes: {
           div: ['style'],
           span: ['style'],
           strike: ['style'],
           b: ['style'],
           a: ['href'],
-          img: ['src'],
-          font: ['size', 'color']
+          img: ['src', 'alt'],
+          font: ['size', 'color'] // h1~h6
         },
         allowedSchemes: ['http', 'https'],
         allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],

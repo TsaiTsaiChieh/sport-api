@@ -6,6 +6,7 @@ async function predictInfo(req, res) {
 
     res.json(await predictInfoModel(req.body));
   } catch (err) {
+    console.error(err);
     res.status(err.code).json(err.err);
   }
 }

@@ -1,60 +1,35 @@
 const modules = require('../../util/modules');
 const model = require('../../model/home/livescoreModel');
-async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    default: {
-      req.query.league = 'NBA';
-      req.query.sport = 'basketball';
-    }
-  }
-
+async function livescoreHome(req, res) {
   const schema = {
-    required: ['league', 'sport'],
+    required: ['league'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer']
-      },
-      sport: {
-        type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
+        enum: modules.acceptLeague
       }
     }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
-    return;
+    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
   }
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    console.error('Error in controller/home/livescoreHome by DY', err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      ); // 再觀察
   }
 }
 
-module.exports = livescore;
+module.exports = livescoreHome;
 /**
  * @api {GET} /home/livescore?league=MLB Get Livescore
  * @apiVersion 1.0.0

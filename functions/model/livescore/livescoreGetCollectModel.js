@@ -1,46 +1,82 @@
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.time
-      );
+      const allCollections = await queryAllCollection(args);
+      // const result = await repackage(args, allCollections);
 
-      resolve(result);
+      resolve(allCollections);
     } catch (err) {
       console.error('Error in livescore/livescoreCollectModel by DY', err);
       reject({ code: 500, error: err });
     }
   });
 }
-async function reResult(sport, league, UID, time) {
-  const result = await repackage(sport, league, UID, time);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, UID, time) {
-  const leagueName = `pagetest_${league}_member`;
-  const eventData = [];
+function queryAllCollection(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const begin = modules.convertTimezone(args.date);
+      const end =
+        modules.convertTimezone(args.date, {
+          op: 'add',
+          value: 1,
+          unit: 'days'
+        }) - 1;
 
-  const query = await modules.firestore
-    .collection(leagueName)
-    .where('profile.uid', '==', UID)
-    .get();
+      const queries = await db.sequelize.query(
+        `(
+            SELECT collections.bets_id AS id, collections.scheduled,
+                  home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id,
+                  spread.home_tw AS spread_home_tw , spread.away_tw AS spread_away_tw
+            FROM user__collections AS collections,
+                 matches AS game,
+                 match__teams AS home,
+                 match__teams AS away,
+                 match__spreads AS spread
+            WHERE collections.uid = '${args.token.uid}'
+              AND collections.bets_id = game.bets_id 
+              AND collections.league_id = '${
+                modules.leagueCodebook(args.league).id
+              }'  
+              AND collections.scheduled BETWEEN ${begin} AND ${end}  
+              AND game.home_id = home.team_id
+              AND game.away_id = away.team_id
+              AND game.spread_id = spread.spread_id
+          )
+         UNION 
+         (
+            SELECT collections.bets_id AS id, collections.scheduled,
+            home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
+                   NULL AS spread_home_tw, NULL AS spread_away_tw 
+              FROM user__collections AS collections,
+                   matches AS game,
+                   match__teams AS home,
+                   match__teams AS away,
+                   match__spreads AS spread
+             WHERE collections.uid = '${args.token.uid}'
+             AND collections.bets_id = game.bets_id 
+             AND collections.league_id = '${
+               modules.leagueCodebook(args.league).id
+             }'  
+             AND collections.scheduled BETWEEN ${begin} AND ${end}  
+             AND game.home_id = home.team_id
+             AND game.away_id = away.team_id
+             AND game.spread_id IS NULL
+         )
+           `,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
 
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-  const out = [];
-
-  for (let i = 0; i < Object.keys(eventData[0]).length - 1; i++) {
-    if (time === eventData[0][Object.keys(eventData[0])[i]].scheduled) {
-      out.push(eventData[0][Object.keys(eventData[0])[i]]);
+      return resolve(await Promise.all(queries));
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
     }
-  }
-
-  return out;
+  });
 }
+
+// async function repackage(args, allCollections) {}
 module.exports = livescore;

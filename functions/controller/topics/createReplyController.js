@@ -33,7 +33,11 @@ async function createTopic(req, res) {
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    const ajv_errs = [];
+    for (let i = 0; i < modules.ajv.errors.length; i++) {
+      ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
+    }
+    res.status(400).json({ code: 400, error: 'schema not acceptable', message: ajv_errs });
     return;
   }
   req.body.token = req.token;
@@ -50,31 +54,45 @@ async function createTopic(req, res) {
 
 module.exports = createTopic;
 /**
- * @api {GET} /topics/createReply/
+ * @api {GET} /topics/createReply/ createReply
  * @apiName createReply
  * @apiGroup Topics
- * @apiVersion 1.0.0
- * @apiDescription 回覆文章 by ifyu
- *
+ * @apiDescription 回覆文章
+ * @apiPermission login user with completed data
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id 文章ID
+ * @apiParam {Integer} [replyto_id]  被引言的留言ID
+ * @apiParam {String} [content]  內容
  * @apiParamExample {JSON} Request-Example
  * {
-    "article_id": 116,
-    "replyto_id": null,
-    "content": "aaaaa"
-   }
- *
- * @apiSuccess {String} response
+ *   "article_id": 116,
+ *   "replyto_id": null,
+ *   "content": "aaaaa"
+ * }
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
-    "code": 200
-   }
- * @apiErrorExample 400-Response
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
  * HTTP/1.1 400 Bad Request
- * schema not acceptable
- *
- * @apiErrorExample {JSON} 500-Response
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (404-Response) Article Not Found
+ * HTTP/1.1 404 Not Found
+ * {
+ *   "code": 404,
+ *   "error": "topic not found"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
  * HTTP/1.1 500 Internal Server Error
  * {
-    "code": 500,
-    "error": {}
-   }
+ *   "code": 500,
+ *   "error": {}
+ * }
  */

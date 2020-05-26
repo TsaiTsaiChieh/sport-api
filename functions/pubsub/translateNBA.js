@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const axios = require('axios');
+// const axios = require('axios');
 
 async function translateNBA(
   stringOrigin,
@@ -216,6 +216,7 @@ async function transFunction(stringTrans) {
   });
   return await stringAfterTrans.text;
 }
+// eslint-disable-next-line no-unused-vars
 async function stepTrans(stringTrans) {
   const eleBig = [
     'A',

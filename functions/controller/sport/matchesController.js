@@ -13,18 +13,22 @@ async function getMatches(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'eSoccer']
+        enum: modules.acceptLeague
       }
     }
   };
-  req.args = req.query;
-  const valid = modules.ajv.validate(schema, req.args);
-  if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
-  }
-  req.args.token = req.token;
+
+  const valid = modules.ajv.validate(schema, req.query);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+
+  const args = {
+    token: req.token,
+    league: req.query.league,
+    date: req.query.date
+  };
+
   try {
-    res.json(await model(req.query));
+    res.json(await model(args));
   } catch (err) {
     console.error('Error in sport/matches API by TsaiChieh', err);
     res
@@ -36,6 +40,7 @@ async function getMatches(req, res) {
       );
   }
 }
+
 module.exports = getMatches;
 /**
  * @api {GET} /sport/matches?league=NBA&date=2020-07-01 Get matches
@@ -44,8 +49,8 @@ module.exports = getMatches;
  * @apiName match information
  * @apiGroup Sport
  *
- * @apiParam {String} prematch date, ex: ```2020-07-01```
- * @apiParam {String} league league name, the value enum are: ```NBA```
+ * @apiParam {String} prematch date, ex: `2020-07-01`
+ * @apiParam {String} league league name, the value enum are: `NBA`, `eSoccer`, `KBO`
  *
  * @apiParamExample {JSON} Request-Query
  * {

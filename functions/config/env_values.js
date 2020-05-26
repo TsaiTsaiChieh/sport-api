@@ -1,5 +1,5 @@
-exports.indexURL = 'https://chat-api.doinfo.cc/';
-// exports.productURL = 'https://chat.doinfo.cc/';
+exports.indexURL = 'https://getsports.cc/';
+// exports.productURL = 'https://getsports.cc/';
 exports.productURL = 'https://dosports.web.app/';
 exports.release = false;
 // 正式版 sport19y0715-dev
@@ -7,13 +7,14 @@ exports.release = false;
 // exports.projectId = 'sport19y0715';
 // exports.cert = require('../auth/sport19y0715-dev.json');
 // exports.firebaseConfig = {
-//   apiKey: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
-//   authDomain: 'sport19y0715.firebaseapp.com',
-//   databaseURL: 'https://sport19y0715.firebaseio.com',
-//   projectId: 'sport19y0715',
-//   storageBucket: 'sport19y0715.appspot.com',
-//   messagingSenderId: '179049951227',
-//   appId: '1:179049951227:web:15b2ae874d653216'
+//   apiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo',
+//   authDomain: 'getsports-gsi.firebaseapp.com',
+//   databaseURL: 'https://getsports-gsi.firebaseio.com',
+//   projectId: 'getsports-gsi',
+//   storageBucket: 'getsports-gsi.appspot.com',
+//   messagingSenderId: '605990362975',
+//   appId: '1:605990362975:web:6ce4a3172117dfc36ea0ea',
+//   measurementId: 'G-KJ81TH7PPS'
 // };
 // exports.cookieOptions = {
 //   maxAge: 60 * 60 * 24 * 7 * 1000,
@@ -54,6 +55,6 @@ exports.lineConfig = {
   channelSecret: 'e4a91d4e33e26967fa6c267292bd06ec',
   callbackURL: this.indexURL + 'auth/lineLoginHandler'
 };
-exports.betsToken = require('../auth/betsToken.json').token;
+exports.betsToken = '35388-8IqMa0NK19LJVY';
 exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
 exports.zone_tw = 'Asia/Taipei';

@@ -1,12 +1,9 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
       // console.log('create new article to db');
-      // await db.sequelize.models.topic__article.sync({ force: false , alter : true }); //有新增欄位時才用
       const result = await db.sequelize.models.topic__article.create(insertData);
       // console.log('create article success');
       resolve(result.get('article_id'));
@@ -26,7 +23,7 @@ async function createTopic(args) {
 
       const insertData = {
         uid: args.token.uid,
-        type: args.type,
+        league: args.league,
         category: args.category,
         title: args.title
       };

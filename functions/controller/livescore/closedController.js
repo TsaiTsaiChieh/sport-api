@@ -1,63 +1,41 @@
 const modules = require('../../util/modules');
 const model = require('../../model/livescore/livescoreClosedModel');
 
-async function livescore(req, res) {
-  switch (req.query.league) {
-    case 'NBA': {
-      req.query.sport = 'basketball';
-      break;
-    }
-    case 'MLB': {
-      req.query.sport = 'baseball';
-      break;
-    }
-    case 'NHL': {
-      req.query.sport = 'icehockey';
-      break;
-    }
-    case 'Soccer': {
-      req.query.sport = 'soccer';
-      break;
-    }
-    case 'eSoccer': {
-      req.query.sport = 'esports';
-      break;
-    }
-    default: {
-      req.query.league = 'NBA';
-      req.query.sport = 'basketball';
-    }
-  }
-
+async function livescoreClosed(req, res) {
   const schema = {
-    required: ['league', 'sport', 'time'],
+    required: ['league', 'date'],
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'NHL', 'Soccer', 'eSoccer']
+        enum: modules.acceptLeague
       },
-      sport: {
+      date: {
         type: 'string',
-        enum: ['basketball', 'baseball', 'icehockey', 'soccer', 'esports']
-      },
-      time: {
-        type: 'string'
+        format: 'date'
       }
     }
   };
 
   const valid = modules.ajv.validate(schema, req.query);
+
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
-    return;
+    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
   }
+
   try {
     res.json(await model(req.query));
   } catch (err) {
-    res.status(err.code).json(err);
+    console.error('Error in controller/livescore/livescoreClosed by DY', err);
+    res
+      .status(err.code)
+      .json(
+        err.isPublic
+          ? { error: err.name, devcode: err.status, message: err.message }
+          : err.code
+      ); // 再觀察
   }
 }
-module.exports = livescore;
+module.exports = livescoreClosed;
 /**
  * @api {GET} /livescore/livescore/closed Get Livescore of close event
  * @apiVersion 1.0.0

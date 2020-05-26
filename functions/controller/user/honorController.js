@@ -3,7 +3,7 @@ const honorModel = require('../../model/user/honorModel');
 
 async function honor(req, res) {
   try {
-    res.json(await honorModel(req.token.uid));
+    res.json(await honorModel(req));
   } catch (err) {
     res.status(err.code).json(err.err);
   }

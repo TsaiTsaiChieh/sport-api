@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const godListsModel = require('../../model/home/godListsModel');
 
 async function godlists(req, res) {
@@ -48,7 +47,7 @@ module.exports = godlists;
       },
       "uid": "7SuXZ3POPqTTCIBdd6uKWZ9fGiB2",
       "avatar": "https://chat.doinfo.cc/statics/default-profile-avatar.jpg",
-      "displayname": "大台中哥"
+      "display_name": "大台中哥"
     },
     {
       "league_win_lists": {

@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, convertTimezone, moment } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -6,9 +6,10 @@ function winRateLists(args) {
   return new Promise(async function(resolve, reject) {
     const range = args.range;
     const league = args.league;
-    const period = modules.getTitlesPeriod(new Date()).period;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
+    const league_id = leagueCodebook(league).id;
+    const period = getTitlesPeriod(new Date()).period;
+    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
       { op: 'add', value: 1, unit: 'days' }) - 1;
 
     // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
@@ -20,6 +21,7 @@ function winRateLists(args) {
     winRateLists[league] = []; // 像上面的範例
 
     try {
+      // eslint-disable-next-line no-unused-vars
       for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
         const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
@@ -45,13 +47,8 @@ function winRateLists(args) {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate
-                              from users__win__lists,
-                                   ( 
-                                     select league_id 
-                                       from match__leagues
-                                       where name = :league
-                                   ) leagues
-                             where users__win__lists.league_id = leagues.league_id
+                              from users__win__lists
+                             where users__win__lists.league_id = :league_id
                              order by ${rangeWinRateCodebook(range)} desc
                              limit 30
                           ) winlist,
@@ -77,7 +74,7 @@ function winRateLists(args) {
            order by ${rangeWinRateCodebook(range)} desc
         `, {
           replacements: {
-            league: league,
+            league_id: league_id,
             period: period,
             begin: begin,
             end: end
@@ -107,7 +104,7 @@ function repackage(ele, rangstr) {
     // win_rate: ele.win_rate,
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name
+    display_name: ele.display_name
   };
 
   data.win_rate = ele[rangstr];

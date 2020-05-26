@@ -1,17 +1,29 @@
-const modules = require('../util/modules');
-
+// const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-const a = 'Man Utd (DangerDim77) Esports'.split('(');
-console.log(a[0]);
-console.log(a[1].replace(')', ''));
+const to = require('await-to-js').default;
 
-async function inserttest() {}
+async function inserttest(req, res) {
+  try {
+    const [err, r] = await to(
+      db.Match.update(
+        {
+          spread_result: null,
+          totals_result: null
+        },
+        {
+          where: {
+            bets_id: '2398520'
+          }
+        }
+      )
+    );
+    console.log(err);
+    console.log(r[0]);
 
-// let ref = modules.database.ref(`basketball/NBA/2118058`);
-// await ref.set(realtimeData);
-// ref = modules.database.ref(`basketball/NBA/2120646`);
-// await ref.set(realtimeData);
-// ref = modules.database.ref(`basketball/NBA/2120647`);
-// await ref.set(realtimeData);
-// ref = modules.database.ref(`basketball/NBA/2121183`);
-// await ref.set(realtimeData);
+    res.json('ok');
+  } catch (err) {
+    console.log(err);
+  }
+}
+module.exports = inserttest;

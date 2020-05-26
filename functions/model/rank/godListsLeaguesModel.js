@@ -12,7 +12,7 @@ function godlistsLeagues(args) {
       // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
       const LeagueListsQuery = await db.sequelize.query(`
         select distinct leagues.name
-          from titles, match__leagues leagues
+          from titles, view__leagues leagues
          where titles.league_id = leagues.league_id
            and titles.period = :period
       `, {
