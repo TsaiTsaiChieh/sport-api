@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const model = require('../../model/topics/getFavoriteArticleModel');
-async function getTopics(req, res) {
+async function getFavoriteArticle(req, res) {
   let page = 0;
   if (typeof req.params.page !== 'undefined' && req.params.page !== null) {
     page = req.params.page;
@@ -17,14 +17,17 @@ async function getTopics(req, res) {
       res.status(err.code).json(err);
     });
 }
-module.exports = getTopics;
+module.exports = getFavoriteArticle;
 /**
- * @api {GET} /topics/getFavoriteArticle/:page
+ * @api {GET} /topics/getFavoriteArticle/:page getFavoriteArticle
  * @apiName getFavoriteArticle
  * @apiDescription 取得我收藏的文章
+ * @apiPermission login user with completed data
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiGroup Topics
- * @apiParam {Number} page          頁數 (必填, 從0開始)
- * @apiSuccess {JSON} response
+ * @apiParam {Number} page          頁數 (必填, 從`0`開始)
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "page": 1,

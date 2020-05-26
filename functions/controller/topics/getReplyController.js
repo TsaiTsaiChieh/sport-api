@@ -1,7 +1,7 @@
 /* eslint-disable promise/always-return */
 // const modules = require('../../util/modules');
 const repliesModel = require('../../model/topics/getReplyModel');
-async function getTopics(req, res) {
+async function getReply(req, res) {
   const rid = Number(req.params.rid);
   if (isNaN(rid) || !Number.isInteger(rid) || rid < 0 || rid > 9999999) {
     res.status(403).send('param error');
@@ -15,14 +15,15 @@ async function getTopics(req, res) {
       res.status(err.code).json(err);
     });
 }
-module.exports = getTopics;
+module.exports = getReply;
 /**
- * @api {GET} /topics/reply/:article_id
- * @apiName getReplies
+ * @api {GET} /topics/reply/:article_id getReply
+ * @apiName getReply
  * @apiDescription 取得單一則留言
  * @apiGroup Topics
  * @apiParam {String} reply_id      留言ID
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "reply": {

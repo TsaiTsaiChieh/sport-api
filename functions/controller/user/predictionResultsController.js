@@ -56,7 +56,7 @@ module.exports = predictionResult;
   "date": "2020-07-01"
 }
  * @apiSuccess {Number} bets 注數乘以賠率
- * @apiSuccess {end} 有無過盤，1 過盤，0 平盤，-1 未過盤
+ * @apiSuccess {Number} end 有無過盤，1 過盤，0 平盤，-1 未過盤
  *
  * @apiSuccessExample {JSON} Success-Response
  *  HTTP/1.1 200 OK

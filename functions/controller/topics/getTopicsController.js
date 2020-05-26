@@ -63,23 +63,24 @@ async function getTopics(req, res) {
 }
 module.exports = getTopics;
 /**
- * @api {POST} /topics/createTopic/
+ * @api {POST} /topics/getTopics/ getTopics
  * @apiName getTopics
  * @apiDescription 取得討論區文章
  * @apiGroup Topics
- * @apiParam {String} uid           以uid搜尋 (給「我的文章」用, 沒用到就不要帶)
- * @apiParam {String} league        league_id (參考/topics/types/) (沒用到就不要帶)
- * @apiParam {Integer} category     category_id (參考/topics/types/) (沒用到就不要帶)
- * @apiParam {Integer} count        一頁幾筆資料 (沒特殊需求就不要帶, 0~50,預設10)
- * @apiParam {Integer} sortBy       排序方式 [like按讚數, view觀看數] (沒用到就不要帶, 預設以最新文章排序)
- * @apiParam {Number} page          頁數 (必填, 從0開始)
+ * @apiParam {String} [uid]         以uid搜尋 (給「我的文章」用, 沒用到就不要帶)
+ * @apiParam {String} [league]      league_id (參考/topics/types/) (沒用到就不要帶)
+ * @apiParam {Integer} [category]   category_id (參考/topics/types/) (沒用到就不要帶)
+ * @apiParam {Integer} [sortBy]     排序方式 [`like`按讚數, `view`觀看數] (沒用到就不要帶, 預設以最新文章排序)
+ * @apiParam {Integer} [count]      一頁幾筆資料 (沒特殊需求就不要帶, 0~50,預設`10`)
+ * @apiParam {Number} page          頁數 (必填, 從`0`開始)
  * @apiParamExample {JSON} Request-Example
  * {
  *   "league": "CPBL",
  *   "category": 2,
  *   "page": 0
  * }
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200,
  *   "page": 1,

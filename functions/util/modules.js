@@ -135,7 +135,7 @@ const db = {
   basketball_NBL: 'basketball_NBL',
   basketball_CBA: 'basketball_CBA',
   basketball_KBL: 'basketball_KBL',
-  basketball_JBL: 'basketball_JBL',
+  basketball_BJL: 'basketball_BJL',
   baseball_MLB: 'baseball_MLB',
   baseball_NPB: 'baseball_NPB',
   baseball_CPBL: 'baseball_CPBL',
@@ -235,10 +235,10 @@ function leagueCodebook(league) {
         match: db.basketball_KBL,
         name_ch: '韓國職籃'
       };
-    case 'JBL':
+    case 'BJL':
       return {
         id: 1298,
-        match: db.basketball_JBL,
+        match: db.basketball_BJL,
         name_ch: '日本職籃'
       };
     case 'MLB':
@@ -319,7 +319,7 @@ function leagueDecoder(leagueID) {
     case '2148' || 2148:
       return 'KBL';
     case '1298' || 1298:
-      return 'JBL';
+      return 'BJL';
     case '3939' || 3939:
       return 'MLB';
     case '347' || 347:
@@ -682,36 +682,76 @@ function predictionsWinList(data) {
 
     reLeagues.forEach(function(data) {
       // 勝率 winRate
-      const predictSpreadCorrectCounts = data.reduce((acc, cur) => correct.includes(cur.spread_result_flag) ? ++acc : acc, 0);
-      const predictTotalsCorrectCounts = data.reduce((acc, cur) => correct.includes(cur.totals_result_flag) ? ++acc : acc, 0);
-      const predictCorrectCounts = predictSpreadCorrectCounts + predictTotalsCorrectCounts;
+      const predictSpreadCorrectCounts = data.reduce(
+        (acc, cur) => (correct.includes(cur.spread_result_flag) ? ++acc : acc),
+        0
+      );
+      const predictTotalsCorrectCounts = data.reduce(
+        (acc, cur) => (correct.includes(cur.totals_result_flag) ? ++acc : acc),
+        0
+      );
+      const predictCorrectCounts =
+        predictSpreadCorrectCounts + predictTotalsCorrectCounts;
 
-      const predictSpreadFaultCounts = data.reduce((acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc), 0);
-      const predictTotalsFaultCounts = data.reduce((acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc), 0);
-      const predictFaultCounts = predictSpreadFaultCounts + predictTotalsFaultCounts;
+      const predictSpreadFaultCounts = data.reduce(
+        (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
+        0
+      );
+      const predictTotalsFaultCounts = data.reduce(
+        (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
+        0
+      );
+      const predictFaultCounts =
+        predictSpreadFaultCounts + predictTotalsFaultCounts;
 
       // 避免分母是0 平盤無效
-      const spreadWinRate = predictSpreadCorrectCounts + predictSpreadFaultCounts === 0
-        ? 0
-        : predictSpreadCorrectCounts / (predictSpreadCorrectCounts + predictSpreadFaultCounts);
-      const totalsWinRate = predictTotalsCorrectCounts + predictTotalsFaultCounts === 0
-        ? 0
-        : predictTotalsCorrectCounts / (predictTotalsCorrectCounts + predictTotalsFaultCounts);
-      const winRate = predictCorrectCounts + predictFaultCounts === 0
-        ? 0
-        : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+      const spreadWinRate =
+        predictSpreadCorrectCounts + predictSpreadFaultCounts === 0
+          ? 0
+          : predictSpreadCorrectCounts /
+            (predictSpreadCorrectCounts + predictSpreadFaultCounts);
+      const totalsWinRate =
+        predictTotalsCorrectCounts + predictTotalsFaultCounts === 0
+          ? 0
+          : predictTotalsCorrectCounts /
+            (predictTotalsCorrectCounts + predictTotalsFaultCounts);
+      const winRate =
+        predictCorrectCounts + predictFaultCounts === 0
+          ? 0
+          : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
 
       // 勝注
-      const predictSpreadCorrectBets = data.reduce((acc, cur) =>
-        correct.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets + acc : acc, 0);
-      const predictTotalsCorrectBets = data.reduce((acc, cur) =>
-        correct.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets + acc : acc, 0);
-      const predictCorrectBets = predictSpreadCorrectBets + predictTotalsCorrectBets;
+      const predictSpreadCorrectBets = data.reduce(
+        (acc, cur) =>
+          correct.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets + acc
+            : acc,
+        0
+      );
+      const predictTotalsCorrectBets = data.reduce(
+        (acc, cur) =>
+          correct.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets + acc
+            : acc,
+        0
+      );
+      const predictCorrectBets =
+        predictSpreadCorrectBets + predictTotalsCorrectBets;
 
-      const predictSpreadFaultBets = data.reduce((acc, cur) =>
-        fault.includes(cur.spread_result_flag) ? cur.spread_result_flag * cur.spread_bets + acc : acc, 0);
-      const predictTotalsFaultBets = data.reduce((acc, cur) =>
-        fault.includes(cur.totals_result_flag) ? cur.totals_result_flag * cur.totals_bets + acc : acc, 0);
+      const predictSpreadFaultBets = data.reduce(
+        (acc, cur) =>
+          fault.includes(cur.spread_result_flag)
+            ? cur.spread_result_flag * cur.spread_bets + acc
+            : acc,
+        0
+      );
+      const predictTotalsFaultBets = data.reduce(
+        (acc, cur) =>
+          fault.includes(cur.totals_result_flag)
+            ? cur.totals_result_flag * cur.totals_bets + acc
+            : acc,
+        0
+      );
       const predictFaultBets = predictSpreadFaultBets + predictTotalsFaultBets;
 
       const spreadWinBets = predictSpreadCorrectBets + predictSpreadFaultBets;

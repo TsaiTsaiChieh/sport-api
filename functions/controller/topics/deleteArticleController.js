@@ -37,19 +37,19 @@ async function deleteArticle(req, res) {
 }
 module.exports = deleteArticle;
 /**
- * @api {GET} /topics/createReply/
+ * @api {POST} /topics/deleteReply/ deleteReply
  * @apiName deleteArticle
  * @apiGroup Topics
  * @apiDescription 刪除文章
  * @apiPermission login user with completed data
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} article_id   文章ID
  * @apiParamExample {JSON} Request-Example
  * {
  *   "article_id": 116
  * }
- *
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }

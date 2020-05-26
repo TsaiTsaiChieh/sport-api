@@ -64,17 +64,18 @@ async function editArticle(req, res) {
 
 module.exports = editArticle;
 /**
- * @api {GET} /topics/editArticle/
+ * @api {GET} /topics/editArticle/ editArticle
  * @apiName editArticle
  * @apiGroup Topics
  * @apiDescription 編輯文章
  * @apiPermission login user with completed data, article author is current user
- * @apiParam (Request header)       Bearer token generate from firebase Admin SDK
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} article_id   文章ID
  * @apiParamExample {JSON} Request-Example
  *    與createTopic相同
  *
- * @apiSuccess {JSON} response
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
  * {
  *   "code": 200
  * }
