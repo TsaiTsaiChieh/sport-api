@@ -40,6 +40,7 @@ async function settleWinList(args) {
 
   // 跨年賽季
   // 目前使用 getSeason('2274') 會取得該 賽季年
+  // 底下程式撰寫會因為 聯盟不同 產生的賽季年也不同
   // 如果從資料庫取出為 league_id 時，先使用 leagueDecoder 再傳入 leagueCodebook
   // 例： leagueCodebook(leagueDecoder('2274'))
 
