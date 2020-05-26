@@ -42,6 +42,8 @@ async function queryRate(teamEvent) {
 }
 
 function queryTeamEvent(args) {
+  const move = 86400; // 一天的秒數
+
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
@@ -65,7 +67,7 @@ function queryTeamEvent(args) {
               AND game.totals_id = total.totals_id
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+86400
+              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
           )
           UNION (
            SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
@@ -84,7 +86,7 @@ function queryTeamEvent(args) {
               AND (game.spread_id IS NULL OR game.totals_id IS NULL)
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+86400
+              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
                   
           )
           ORDER BY scheduled 

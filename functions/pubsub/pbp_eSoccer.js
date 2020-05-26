@@ -203,7 +203,6 @@ async function ESoccerpbpHistory(parameter) {
           err,
           betsID
         );
-
         return reject(
           new AppErrors.PBPEsoccerError(
             `${err} at pbpESoccer of yuhsien on ${betsID} by DY`
