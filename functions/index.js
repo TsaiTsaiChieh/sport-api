@@ -45,7 +45,9 @@ const whitelist = [
   'http://localhost:8080',
   'http://localhost:8081',
   'https://dosports.web.app',
-  'https://api-dosports.web.app'
+  'https://api-dosports.web.app',
+  'https://getsports.cc',
+  'https://getsport.cc'
 ];
 const localOrigin = 'http://172.16.21';
 
@@ -64,7 +66,7 @@ const corsOptions = {
 
 const runtimeOpts = {
   timeoutSeconds: 300,
-  memory: '1GB'
+  memory: '2GB'
 };
 
 app.use(cors(corsOptions));

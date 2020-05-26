@@ -42,6 +42,9 @@ async function repackage(teams) {
     const data = [];
     for (let i = 0; i < teams.length; i++) {
       const ele = teams[i];
+      if (!ele.name_ch) {
+        ele.name_ch = ele.name.split('(')[0].trim();
+      }
       const temp = {
         name: ele.name.split('(')[0].trim(),
         name_ch: ele.name_ch,

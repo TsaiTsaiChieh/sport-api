@@ -45,7 +45,7 @@ function queryFiveFightEvent(args) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
-        `
+        `(
           SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
                    home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
                    spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, total.over_tw AS totals_over_tw
@@ -57,12 +57,14 @@ function queryFiveFightEvent(args) {
                    match__teams AS away
              WHERE game.bets_id = '${args.event_id}'
                AND five.bets_id != '${args.event_id}'
+               AND five.status = ${modules.MATCH_STATUS.END}
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = '${modules.leagueCodebook(args.league).id}'
                AND five.home_id = home.team_id
                AND five.away_id = away.team_id 
                AND five.spread_id = spread.spread_id
                AND five.totals_id = total.totals_id
+           )
           UNION(
             SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
                    home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
@@ -72,14 +74,15 @@ function queryFiveFightEvent(args) {
                    match__teams AS home,
                    match__teams AS away
              WHERE game.bets_id = '${args.bets_id}'
+               AND five.status = ${modules.MATCH_STATUS.END}
                AND five.bets_id != '${args.bets_id}'
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = '${modules.leagueCodebook(args.league).id}'
                AND five.home_id = home.team_id
                AND five.away_id = away.team_id 
-               AND (five.spread_id IS NULL OR five.totals_id IS NULL)  
-          ORDER BY five.scheduled        
-          )   
+               AND (five.spread_id IS NULL OR five.totals_id IS NULL)       
+          ) 
+          ORDER BY scheduled   
           LIMIT 5             
           `,
         {
