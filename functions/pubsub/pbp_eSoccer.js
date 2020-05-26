@@ -19,7 +19,7 @@ async function ESoccerpbpInplay(parameter) {
     realtimeData = null;
   }
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -35,7 +35,7 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -47,7 +47,7 @@ async function axiosForURL(URL) {
   });
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     try {
@@ -220,7 +220,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
