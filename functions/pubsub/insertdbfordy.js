@@ -1,4 +1,4 @@
-// const settleMatchesModel = require('../model/user/settleMatchesModel');
+const settleMatchesModel = require('../model/user/settleMatchesModel');
 // const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const to = require('await-to-js').default;
@@ -13,7 +13,7 @@ async function inserttest(req, res) {
         },
         {
           where: {
-            bets_id: '2398520'
+            bets_id: '2400555'
           }
         }
       )
