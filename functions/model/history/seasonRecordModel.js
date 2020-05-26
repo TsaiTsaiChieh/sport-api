@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonRecord(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonRecord(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -53,7 +53,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -84,7 +84,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -226,9 +226,9 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       }
     }
     let data = [];
-    let dataSeason = [];
-    let dataVS = [];
-    let total = {
+    const dataSeason = [];
+    const dataVS = [];
+    const total = {
       home: {
         Win: homeAtHomeWin + homeAtAwayWin,
         Lose: homeAtHomeLose + homeAtAwayLose,
@@ -240,7 +240,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: awayAtHomeDraw + awayAtAwayDraw
       }
     };
-    let atHome = {
+    const atHome = {
       home: {
         Win: homeAtHomeWin,
         Lose: homeAtHomeLose,
@@ -252,7 +252,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Win: awayAtAwayWin
       }
     };
-    let atAway = {
+    const atAway = {
       home: {
         Win: homeAtAwayWin,
         Lose: homeAtAwayLose,
@@ -264,7 +264,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: awayAtAwayDraw
       }
     };
-    let totalScore = {
+    const totalScore = {
       home: {
         Get: homeAtHomeGet + homeAtAwayGet,
         Loss: homeAtHomeLoss + homeAtAwayLoss
@@ -274,7 +274,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: awayAtHomeLoss + awayAtAwayLoss
       }
     };
-    let atHomeScore = {
+    const atHomeScore = {
       home: {
         Get: homeAtHomeGet,
         Loss: homeAtHomeLoss
@@ -284,7 +284,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: awayAtHomeLoss
       }
     };
-    let atAwayScore = {
+    const atAwayScore = {
       home: {
         Get: homeAtAwayGet,
         Loss: homeAtAwayLoss
@@ -294,7 +294,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: awayAtAwayLoss
       }
     };
-    let vsTotal = {
+    const vsTotal = {
       home: {
         Win: vsHomeAtHomeWin + vsHomeAtAwayWin,
         Lose: vsHomeAtHomeLose + vsHomeAtAwayLose,
@@ -306,7 +306,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: vsHomeAtAwayDraw + vsHomeAtHomeDraw
       }
     };
-    let vsAtHome = {
+    const vsAtHome = {
       home: {
         Win: vsHomeAtHomeWin,
         Lose: vsHomeAtHomeLose,
@@ -318,7 +318,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: vsHomeAtAwayDraw
       }
     };
-    let vsAtAway = {
+    const vsAtAway = {
       home: {
         Win: vsHomeAtAwayWin,
         Lose: vsHomeAtAwayLose,
@@ -330,7 +330,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: vsHomeAtHomeDraw
       }
     };
-    let vsTotalScore = {
+    const vsTotalScore = {
       home: {
         Get: vsHomeAtHomeGet + vsHomeAtAwayGet,
         Loss: vsHomeAtHomeLoss + vsHomeAtAwayLoss
@@ -340,7 +340,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: vsHomeAtAwayGet + vsHomeAtHomeGet
       }
     };
-    let vsAtHomeScore = {
+    const vsAtHomeScore = {
       home: {
         Get: vsHomeAtHomeGet,
         Loss: vsHomeAtHomeLoss
@@ -350,7 +350,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: vsHomeAtAwayGet
       }
     };
-    let vsAtAwayScore = {
+    const vsAtAwayScore = {
       home: {
         Get: vsHomeAtAwayGet,
         Loss: vsHomeAtAwayLoss

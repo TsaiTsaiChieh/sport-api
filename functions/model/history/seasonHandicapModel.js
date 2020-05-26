@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonHandicap(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonHandicap(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -60,7 +60,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -98,7 +98,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -482,9 +482,9 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       }
     }
     let data = [];
-    let dataSeason = [];
-    let dataVS = [];
-    let give = {
+    const dataSeason = [];
+    const dataVS = [];
+    const give = {
       home: {
         Win: homeAtGivePass,
         Lose: homeAtGiveFail,
@@ -496,7 +496,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: awayAtGiveFair
       }
     };
-    let beGiven = {
+    const beGiven = {
       home: {
         Win: homeAtBeGivenPass,
         Lose: homeAtBeGivenFail,
@@ -508,7 +508,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: awayAtBeGivenFair
       }
     };
-    let over = {
+    const over = {
       home: {
         Win: homeAtOverPass,
         Lose: homeAtOverFail,
@@ -520,7 +520,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: awayAtOverFair
       }
     };
-    let vsGive = {
+    const vsGive = {
       home: {
         Win: vsHomeAtGivePass,
         Lose: vsHomeAtGiveFail,
@@ -532,7 +532,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: vsHomeAtBeGivenFair
       }
     };
-    let vsBeGiven = {
+    const vsBeGiven = {
       home: {
         Win: vsHomeAtBeGivenPass,
         Lose: vsHomeAtBeGivenFail,
@@ -544,7 +544,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Draw: vsHomeAtGiveFair
       }
     };
-    let vsOver = {
+    const vsOver = {
       home: {
         Win: vsHomeAtOverPass,
         Lose: vsHomeAtOverFail,
