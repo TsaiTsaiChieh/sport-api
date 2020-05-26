@@ -601,7 +601,7 @@ function settleSpreadSoccer(data) {
   const awayPoints = data.awayPoints;
 
   const handicap = Math.abs(data.spreadHandicap);
-  const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
+  const point = handicap - parseInt(handicap);
   const result = homePoints - awayPoints - handicap;
 
   // 整數 和局
@@ -666,23 +666,44 @@ function settleTotals(data) {
       : 'under';
 }
 
+// point 用來取得 handicap 的 小數位數值
+// 整數、0.5 為一般處理
+// 0.25 需要另外判斷
+// 0.75 需要另外判斷
 function settleTotalsSoccer(data) {
-  const sp = [0.25, 0.75];
+  const sp_25 = [0.25];
+  // const sp_5 = [0.5];
+  const sp_75 = [0.75];
   const homePoints = data.homePoints;
   const awayPoints = data.awayPoints;
 
-  const handicap = data.totalsHandicap;
-  const point = Math.abs(handicap) - parseInt(Math.abs(handicap));
+  const handicap = Math.abs(data.totalsHandicap);
+  const point = handicap - parseInt(handicap);
+  const result = homePoints + awayPoints - handicap;
 
-  return homePoints + awayPoints === handicap
-    ? 'fair2'
-    : sp.includes(point)
-      ? homePoints + awayPoints > handicap
-        ? 'fair|over'
-        : 'fair|under'
-      : homePoints + awayPoints > handicap
+  // 整數 和局
+  if (result === 0) return 'fair2';
+
+  if (sp_25.includes(point)) {
+    return result === -0.25
+      ? 'fair|under'
+      : result > -0.25
         ? 'over'
         : 'under';
+  }
+
+  if (sp_75.includes(point)) {
+    return result === 0.25
+      ? 'fair|over'
+      : result > 0.25
+        ? 'over'
+        : 'under';
+  }
+
+  // 整數 和 0.5
+  return result > 0
+    ? 'over'
+    : 'under';
 }
 
 function perdictionsResultFlag(option, settelResult) {
