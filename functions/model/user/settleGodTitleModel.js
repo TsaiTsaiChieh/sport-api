@@ -1,6 +1,7 @@
 const {
-  convertTimezone, moment, checkUserRight, groupsByOrdersLimit, mergeDeep, fieldSorter
+  convertTimezone, moment, groupsByOrdersLimit, mergeDeep, fieldSorter
 } = require('../../util/modules');
+const { checkUserRight } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -68,10 +69,8 @@ async function settleGodTitle(args) {
 
   const s1 = new Date().getTime();
   // 1.
-  const [err, memberInfo] = await to(db.User.findOne({ where: { uid: userUid } }));
-  if (err) {console.error('Error 1. in user/settleGodTitleModel by YuHsien', err); throw errs.errsMsg('500', '500', err);};
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(memberInfo, [1, 2, 9]);
+  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130820');
   if (checkResult.code) throw checkResult;
 
   let s20 = 0;

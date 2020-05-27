@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
-const {
-  convertTimezone, getTitlesNextPeriod, moment, checkUserRight,
-  predictionsWinList
-} = require('../../util/modules');
+const { convertTimezone, getTitlesNextPeriod, moment, predictionsWinList } = require('../../util/modules');
+const { checkUserRight } = require('../../util/databaseEngine');
 const { getSeason } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
@@ -79,10 +77,8 @@ async function settleWinList(args) {
 
   const s1 = new Date().getTime();
   // 1.
-  const [err, memberInfo] = await to(db.User.findOne({ where: { uid: userUid } }));
-  if (err) {console.error('Error 1. in user/settleWinListModel by YuHsien', err); throw errs.errsMsg('500', '500', err);};
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(memberInfo, [1, 2, 9]);
+  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130815');
   if (checkResult.code) throw checkResult;
 
   const s2 = new Date().getTime();
