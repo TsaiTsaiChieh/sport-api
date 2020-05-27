@@ -337,6 +337,17 @@ class PurchasePredictionsModelError extends ExtendableError {
   }
 }
 
+class UpdateUserCoinAndDividend extends ExtendableError {
+  constructor(
+    message = '更新使用者搞幣或紅利失敗 (users table)',
+    status = 1515,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -367,5 +378,6 @@ module.exports = {
   RepackageError,
   PBPAbnormalError,
   firestoreQueryError,
-  PurchasePredictionsModelError
+  PurchasePredictionsModelError,
+  UpdateUserCoinAndDividend
 };
