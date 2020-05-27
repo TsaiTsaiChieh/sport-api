@@ -4,26 +4,11 @@ const db = require('../util/dbUtil');
 const to = require('await-to-js').default;
 
 async function inserttest(req, res) {
-  try {
-    const [err, r] = await to(
-      db.Match.update(
-        {
-          spread_result: null,
-          totals_result: null
-        },
-        {
-          where: {
-            bets_id: '2400555'
-          }
-        }
-      )
-    );
-    console.log(err);
-    console.log(r[0]);
-
-    res.json('ok');
-  } catch (err) {
-    console.log(err);
-  }
+  await settleMatchesModel({
+    token: {
+      uid: '999'
+    },
+    bets_id: '2307346'
+  });
 }
 module.exports = inserttest;

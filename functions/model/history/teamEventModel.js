@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -16,7 +16,7 @@ async function teamEvent(args) {
 }
 
 async function queryRate(teamEvent) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
 
     for (let i = 0; i < teamEvent.length; i++) {
@@ -44,7 +44,7 @@ async function queryRate(teamEvent) {
 function queryTeamEvent(args) {
   const move = 86400; // 一天的秒數
 
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -143,6 +143,24 @@ async function repackage(args, predictions, teamEvent) {
       if (ele.totals_result === 'fair|under') {
         ele.totals_result = 'under';
       }
+      let result_tw;
+      if (ele.spread_home_tw && ele.spread_home_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `讓${ele.spread_home_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `受讓${ele.spread_home_tw}`;
+        } else {
+        }
+      } else if (ele.spread_away_tw && ele.spread_away_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `受讓${ele.spread_away_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `讓${ele.spread_away_tw}`;
+        } else {
+        }
+      } else {
+        result_tw = 'pk';
+      }
       if (args.league === 'eSoccer') {
         temp = {
           scheduled: ele.scheduled,
@@ -165,6 +183,7 @@ async function repackage(args, predictions, teamEvent) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
           over_tw: ele.totals_over_tw,
           home_rate: ele.spread.home_rate,
           away_rate: ele.spread.away_rate,
@@ -189,6 +208,7 @@ async function repackage(args, predictions, teamEvent) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
           over_tw: ele.totals_over_tw,
           home_rate: ele.spread.home_rate,
           away_rate: ele.spread.away_rate,
