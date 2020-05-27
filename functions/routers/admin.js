@@ -3,9 +3,7 @@ const verification = require('../util/verification');
 const router = modules.express.Router();
 
 router.get(
-  '/test',
-  verification.token,
-  verification.admin,
+  '/',
   function(req, res) {
     res.json({});
   }
