@@ -13,8 +13,8 @@ function doTransfer(db, args) {
   const ingot = args.ingot || 0;
   const coin = args.coin || 0;
   const dividend = args.dividend || 0;
-  const title = args.title || NULL;
-  const content = args.content || NULL;
+  const title = args.title || 'empty_title';
+  const content = args.content || 'empty_content';
   const scheduled = moment().unix();
   const date = moment().format('YYYY-MM-DD');
   const transfer = db.sequelize.query(

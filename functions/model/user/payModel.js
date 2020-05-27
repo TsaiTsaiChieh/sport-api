@@ -1,5 +1,5 @@
 const db = require('../../util/dbUtil');
-
+const transfer = require('../../util/transfer');
 function payModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -23,6 +23,13 @@ function payModel(method, args, uid) {
                   type: db.sequelize.QueryTypes.UPDATE
                 }
           );
+          const trans_args = {
+            to_uid: uid,
+            type: 'buy_coin',
+            dividend: dividend, // 0:紅利 1:搞幣 2:搞錠
+            coin:coin
+          };
+          transfer.doTransfer(db, trans_args);
         } else if (type === 'ingot2coin') {
           /* 提領比例計算 */
           let ratio = 0;
@@ -53,18 +60,26 @@ function payModel(method, args, uid) {
             resolve(err);
           } else {
             trans = await db.sequelize.query(
-                        `
-                            UPDATE users 
-                            SET coin = (coin + (1-$ratio)*$ingot), 
-                                ingot = (ingot - $ingot) 
-                            WHERE uid = $uid  
-                        `,
-                        {
-                          bind: { coin: coin, ingot: ingot, uid: uid, ratio: ratio },
-                          type: db.sequelize.QueryTypes.UPDATE
-                        }
+              `
+                  UPDATE users 
+                  SET coin = (coin + (1-$ratio)*$ingot), 
+                      ingot = (ingot - $ingot) 
+                  WHERE uid = $uid  
+              `,
+              {
+                bind: { coin: coin, ingot: ingot, uid: uid, ratio: ratio },
+                type: db.sequelize.QueryTypes.UPDATE
+              }
             );
           }
+
+          const trans_args = {
+            to_uid: uid,
+            type: 'ingot2coin',
+            ingot: ingot, // 0:紅利 1:搞幣 2:搞錠
+            coin:coin
+          };
+          transfer.doTransfer(db, trans_args);
         } else {
           console.log('您尚未選擇任何一項類別!');
         }
