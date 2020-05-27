@@ -89,7 +89,7 @@ async function handicap() {
   console.log('handicap success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -101,7 +101,7 @@ async function axiosForURL(URL) {
   });
 }
 async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -132,7 +132,7 @@ async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
   });
 }
 async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -162,7 +162,7 @@ async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
   });
 }
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -175,7 +175,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   });
 }
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -188,7 +188,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
   });
 }
 async function write2firestoreAboutSpread(eventSnapshot, odd) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const spread = {};
     spread[odd.id] = {
       handicap: Number.parseFloat(odd.handicap),
@@ -216,7 +216,7 @@ async function write2firestoreAboutSpread(eventSnapshot, odd) {
   });
 }
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
@@ -238,7 +238,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   });
 }
 async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
@@ -259,7 +259,7 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
   });
 }
 async function write2firestoreAboutTotals(eventSnapshot, odd) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const totals = {};
     totals[odd.id] = {
       handicap: Number.parseFloat(odd.handicap),
@@ -284,7 +284,7 @@ async function write2firestoreAboutTotals(eventSnapshot, odd) {
   });
 }
 async function updateHandicap(league, ele, sport, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -336,7 +336,7 @@ async function updateHandicap(league, ele, sport, leagueUniteID) {
   });
 }
 async function query_opening(flag, value, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const eventsRef = modules.firestore.collection(league);
     const eles = [];
     try {
@@ -344,7 +344,7 @@ async function query_opening(flag, value, league) {
         .where(flag, '==', value)
         .where('scheduled', '>', modules.moment() / 1000)
         .get();
-      querys.forEach(function (docs) {
+      querys.forEach(function(docs) {
         eles.push(docs.data());
       });
       return resolve(Promise.all(eles));
@@ -358,7 +358,7 @@ async function write2firestoreAboutAllSpread(
   spread,
   spreadData
 ) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -391,7 +391,7 @@ async function query_handicap(flag, value, leagues) {
       .where('scheduled', '>=', beginningDate / 1000)
       .where('scheduled', '<=', endDate / 1000)
       .get();
-    querys.forEach(async function (docs) {
+    querys.forEach(async function(docs) {
       eles.push(docs.data());
     });
 
@@ -405,7 +405,7 @@ async function query_handicap(flag, value, leagues) {
   }
 }
 async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -424,7 +424,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(
   spreadData,
   leagueUniteID
 ) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: spreadData.id,
@@ -446,7 +446,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(
   });
 }
 async function getHandicap(league, ele, sport, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -499,7 +499,7 @@ async function write2firestoreAboutAllTotals(
   totals,
   totalsData
 ) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -520,7 +520,7 @@ async function write2firestoreAboutAllTotals(
   });
 }
 async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -541,7 +541,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(
   totalsData,
   leagueUniteID
 ) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: totalsData.id,
@@ -564,7 +564,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(
   });
 }
 async function getTotals(league, ele, sport, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
