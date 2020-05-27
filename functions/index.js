@@ -165,7 +165,7 @@ exports.pbp_abnormal = functions
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json({ test: 'awake' });
+  res.status(200).json({ test: 'awake0527v01' });
 });
 
 exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
