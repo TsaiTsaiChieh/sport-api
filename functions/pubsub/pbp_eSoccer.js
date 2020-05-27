@@ -40,9 +40,7 @@ async function axiosForURL(URL) {
       const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
-      return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
-      );
+      return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));
     }
   });
 }

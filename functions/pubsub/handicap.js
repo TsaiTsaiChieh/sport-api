@@ -620,9 +620,9 @@ function totalsCalculator(handicapObj) {
     handicapObj.over_odd !== handicapObj.under_odd
   ) {
     if (handicapObj.over_odd > handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} +50%`;
+      handicapObj.over_tw = `${handicapObj.handicap}贏`;
     } else if (handicapObj.over_odd < handicapObj.under_odd) {
-      handicapObj.over_tw = `${handicapObj.handicap} -50%`;
+      handicapObj.over_tw = `${handicapObj.handicap}輸`;
     }
   }
   return handicapObj;
@@ -632,17 +632,16 @@ function spreadCalculator(handicapObj) {
   handicapObj.handicap = parseFloat(handicapObj.handicap);
   if (handicapObj.handicap % 1 !== 0 && handicapObj.handicap < 0) {
     handicapObj.home_tw = null;
-    handicapObj.away_tw =
-      '讓' + `${Math.abs(Math.ceil(handicapObj.handicap))}輸`;
+    handicapObj.away_tw = `${Math.abs(Math.ceil(handicapObj.handicap))}輸`;
   } else if (handicapObj.handicap % 1 !== 0 && handicapObj.handicap >= 0) {
-    handicapObj.home_tw = '讓' + `${Math.floor(handicapObj.handicap)}輸`;
+    handicapObj.home_tw = `${Math.floor(handicapObj.handicap)}輸`;
     handicapObj.away_tw = null;
   } else if (
     handicapObj.handicap % 1 === 0 &&
     handicapObj.handicap >= 0 &&
     handicapObj.home_odd === handicapObj.away_odd
   ) {
-    handicapObj.home_tw = '讓' + `${handicapObj.handicap}平`;
+    handicapObj.home_tw = `${handicapObj.handicap}平`;
     handicapObj.away_tw = null;
   } else if (
     handicapObj.handicap % 1 === 0 &&
@@ -650,7 +649,7 @@ function spreadCalculator(handicapObj) {
     handicapObj.home_odd === handicapObj.away_odd
   ) {
     handicapObj.home_tw = null;
-    handicapObj.away_tw = '讓' + `${Math.abs(handicapObj.handicap)}平`;
+    handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
   } else if (
     handicapObj.handicap % 1 === 0 &&
     handicapObj.handicap >= 0 &&
@@ -659,10 +658,10 @@ function spreadCalculator(handicapObj) {
     // 盤口為正，代表主讓客，所以主要減
     if (handicapObj.home_odd > handicapObj.away_odd) {
       handicapObj.home_tw = null;
-      handicapObj.away_tw = '讓' + ` ${handicapObj.handicap} -50%`;
+      handicapObj.away_tw = ` ${handicapObj.handicap}輸`;
     } else if (handicapObj.home_odd < handicapObj.away_odd) {
       handicapObj.home_tw = null;
-      handicapObj.away_tw = '讓' + ` ${handicapObj.handicap} +50%`;
+      handicapObj.away_tw = ` ${handicapObj.handicap}贏`;
     }
   } else if (
     // 盤口為負，代表客讓主，所以客要減
@@ -671,10 +670,10 @@ function spreadCalculator(handicapObj) {
     handicapObj.home_odd !== handicapObj.away_odd
   ) {
     if (handicapObj.home_odd > handicapObj.away_odd) {
-      handicapObj.home_tw = '讓' + `+${Math.abs(handicapObj.handicap)} +50`;
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)}贏`;
       handicapObj.away_tw = null;
     } else if (handicapObj.home_odd < handicapObj.away_odd) {
-      handicapObj.home_tw = '讓' + `+${Math.abs(handicapObj.handicap)} -50`;
+      handicapObj.home_tw = `+${Math.abs(handicapObj.handicap)}輸`;
       handicapObj.away_tw = null;
     }
   }

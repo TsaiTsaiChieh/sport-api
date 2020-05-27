@@ -589,92 +589,92 @@ async function getTotals(league, ele) {
 function spreadCalculator(handicapObj) {
   if (handicapObj.handicap) {
     handicapObj.handicap = handicapObj.handicap.toString();
-  }
 
-  // 盤口要改0513
-  if (handicapObj.handicap.indexOf(',') !== -1) {
-    // 同時有兩個盤口值
-    const firstHandicap = Math.abs(
-      parseFloat(handicapObj.handicap.split(',')[0])
-    );
-    const secondHandicap = Math.abs(
-      parseFloat(handicapObj.handicap.split(',')[1])
-    );
+    // 盤口要改0513
+    if (handicapObj.handicap.indexOf(',') !== -1) {
+      // 同時有兩個盤口值
+      const firstHandicap = Math.abs(
+        parseFloat(handicapObj.handicap.split(',')[0])
+      );
+      const secondHandicap = Math.abs(
+        parseFloat(handicapObj.handicap.split(',')[1])
+      );
 
-    if (firstHandicap % 1 !== 0) {
-      // 第一盤口為小數，則顯示為+
-      if (firstHandicap >= 0 && secondHandicap >= 0) {
-        // 顯示在主隊區，代表主讓
-        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
-        handicapObj.away_tw = null;
-      } else {
-        // 顯示在客隊區
-        handicapObj.home_tw = null;
-        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
-      }
-    } else {
-      // 第一盤口為整數，則顯示為-
-      if (firstHandicap >= 0) {
-        // 顯示在主隊區
-        handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
-        handicapObj.away_tw = null;
-      } else {
-        // 顯示在客隊區
-        handicapObj.home_tw = null;
-        handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
-      }
-    }
-  } else {
-    // 只有一個盤口值
-    handicapObj.handicap = parseFloat(handicapObj.handicap);
-
-    if (handicapObj.handicap === 0) {
-      // 讓 0 分
-      handicapObj.home_tw = 'pk';
-      handicapObj.away_tw = null;
-    } else if (handicapObj.handicap % 1 === 0) {
-      // 整數
-      if (handicapObj.handicap >= 0) {
-        // 放在主隊區
-        handicapObj.home_tw = handicapObj.handicap;
-        handicapObj.away_tw = null;
-      } else {
-        // 放在客隊區
-        handicapObj.home_tw = null;
-        handicapObj.away_tw = Math.abs(handicapObj.handicap);
-      }
-    } else if (handicapObj.handicap % 1 !== 0) {
-      // 小數
-      if (handicapObj.handicap >= 0) {
-        // 放在主隊區
-        const str = handicapObj.handicap.toString();
-        const str1 = str.split('.')[0];
-        const str2 = str.split('.')[1];
-        if (str2 === '25') {
-          handicapObj.home_tw = `${str1}/${str1}.5`;
-          handicapObj.away_tw = null;
-        } else if (str2 === '75') {
-          handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+      if (firstHandicap % 1 !== 0) {
+        // 第一盤口為小數，則顯示為+
+        if (firstHandicap >= 0 && secondHandicap >= 0) {
+          // 顯示在主隊區，代表主讓
+          handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
           handicapObj.away_tw = null;
         } else {
-          handicapObj.home_tw = Math.abs(handicapObj.handicap);
-          handicapObj.away_tw = null;
+          // 顯示在客隊區
+          handicapObj.home_tw = null;
+          handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
         }
       } else {
-        // 放在客隊區
-        handicapObj.handicap = Math.abs(handicapObj.handicap);
-        const str = handicapObj.handicap.toString();
-        const str1 = str.split('.')[0];
-        const str2 = str.split('.')[1];
-        if (str2 === '25') {
-          handicapObj.home_tw = null;
-          handicapObj.away_tw = `${str1}/${str1}.5`;
-        } else if (str2 === '75') {
-          handicapObj.home_tw = null;
-          handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+        // 第一盤口為整數，則顯示為-
+        if (firstHandicap >= 0) {
+          // 顯示在主隊區
+          handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
+          handicapObj.away_tw = null;
         } else {
+          // 顯示在客隊區
+          handicapObj.home_tw = null;
+          handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
+        }
+      }
+    } else {
+      // 只有一個盤口值
+      handicapObj.handicap = parseFloat(handicapObj.handicap);
+
+      if (handicapObj.handicap === 0) {
+        // 讓 0 分
+        handicapObj.home_tw = 'pk';
+        handicapObj.away_tw = null;
+      } else if (handicapObj.handicap % 1 === 0) {
+        // 整數
+        if (handicapObj.handicap >= 0) {
+          // 放在主隊區
+          handicapObj.home_tw = handicapObj.handicap;
+          handicapObj.away_tw = null;
+        } else {
+          // 放在客隊區
           handicapObj.home_tw = null;
           handicapObj.away_tw = Math.abs(handicapObj.handicap);
+        }
+      } else if (handicapObj.handicap % 1 !== 0) {
+        // 小數
+        if (handicapObj.handicap >= 0) {
+          // 放在主隊區
+          const str = handicapObj.handicap.toString();
+          const str1 = str.split('.')[0];
+          const str2 = str.split('.')[1];
+          if (str2 === '25') {
+            handicapObj.home_tw = `${str1}/${str1}.5`;
+            handicapObj.away_tw = null;
+          } else if (str2 === '75') {
+            handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+            handicapObj.away_tw = null;
+          } else {
+            handicapObj.home_tw = Math.abs(handicapObj.handicap);
+            handicapObj.away_tw = null;
+          }
+        } else {
+          // 放在客隊區
+          handicapObj.handicap = Math.abs(handicapObj.handicap);
+          const str = handicapObj.handicap.toString();
+          const str1 = str.split('.')[0];
+          const str2 = str.split('.')[1];
+          if (str2 === '25') {
+            handicapObj.home_tw = null;
+            handicapObj.away_tw = `${str1}/${str1}.5`;
+          } else if (str2 === '75') {
+            handicapObj.home_tw = null;
+            handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+          } else {
+            handicapObj.home_tw = null;
+            handicapObj.away_tw = Math.abs(handicapObj.handicap);
+          }
         }
       }
     }
