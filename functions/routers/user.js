@@ -152,7 +152,6 @@ router.put(
 /* 榮譽戰績 */
 router.post(
   '/honor',
-  verification.token,
   require('../controller/user/honorController')
 );
 /* 消息通知(讀取) */
