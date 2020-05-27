@@ -58,10 +58,9 @@
       ]
     },
     {
-      "site": "admin-getsports",
+      "site": "admin-api-dosports",
       "public": "public",
       "ignore": [
-        "firebase.json",
         "**/.*",
         "**/node_modules/**"
       ],
