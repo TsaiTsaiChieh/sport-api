@@ -13,16 +13,16 @@ async function purchasePredictions(args) {
   // 3. 取出使用者紅利和搞幣 getUserDividendAndCoin
   // 4. 檢查購買者想要用紅利折抵嗎 & 紅利+搞幣是否足夠，並回傳餘額 checkUserDepositIsEnough
   // Destructuring assignment
-  let err, rank, predictions, deposit, overage;
+  let err, rank, deposit, overage;
   [err, rank] = await modules.to(checkGodUserRank(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err, predictions] = await modules.to(checkGodPredictions(args));
+  [err] = await modules.to(checkGodPredictions(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err, deposit] = await modules.to(getUserDividendAndCoin(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err, overage] = await modules.to(checkUserDepositIsEnough(args, rank, deposit));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  return predictions;
+  return overage;
 }
 
 async function checkGodUserRank(args) {
