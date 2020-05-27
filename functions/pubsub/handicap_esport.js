@@ -587,7 +587,10 @@ async function getTotals(league, ele) {
   });
 }
 function spreadCalculator(handicapObj) {
-  handicapObj.handicap = handicapObj.handicap.toString();
+  if (handicapObj.handicap) {
+    handicapObj.handicap = handicapObj.handicap.toString();
+  }
+
   // 盤口要改0513
   if (handicapObj.handicap.indexOf(',') !== -1) {
     // 同時有兩個盤口值

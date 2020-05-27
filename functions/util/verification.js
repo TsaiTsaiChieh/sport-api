@@ -5,9 +5,13 @@ const NORMAL_USER = 1;
 const GOD_USER = 2;
 async function admin(req, res, next) {
   try {
-    const userSnapshot = await modules.getSnapshot('users', req.token.uid);
-    const user = userSnapshot.data();
-    if (user.status >= 9) {
+    const result = await db.sequelize.models.user.findOne({
+      where: {
+        uid: req.token.uid
+      },
+      raw: true
+    });
+    if (result.status >= 9) {
       req.admin = true;
       req.adminUid = req.token.uid;
       return next();
@@ -15,7 +19,7 @@ async function admin(req, res, next) {
       return res.status(401).json({ code: 401, error: 'Unauthorized admin' });
     }
   } catch (err) {
-    res.status(401).json({ code: 401, error: 'Unauthorized admin' });
+    res.status(500).json({ code: 500, error: 'check admin error' });
   }
 }
 
