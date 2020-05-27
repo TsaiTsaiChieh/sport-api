@@ -72,6 +72,7 @@ const whitelist = [
   'http://localhost:9528',
   'https://dosports.web.app',
   'https://api-dosports.web.app',
+  'https://admin-dosports.web.app',
   'https://getsports.cc',
   'https://getsport.cc'
 ];
