@@ -917,14 +917,6 @@ function sliceTeamAndPlayer(name) {
   };
 }
 
-// 檢查使用者權限  rightArr 傳入權限陣列
-// rightArr = [1, 2] // 一般使用者, 大神
-async function checkUserRight(memberInfo, rightArr = []) {
-  if (memberInfo === null) return errs.errsMsg('404', '1301');
-  if (!rightArr.includes(memberInfo.status)) return errs.errsMsg('404', '1308');
-  return {};
-}
-
 function godUserPriceTable(rank) {
   rank = Number.parseInt(rank);
   switch (rank) {
@@ -993,7 +985,6 @@ module.exports = {
   predictionsWinList,
   sliceTeamAndPlayer,
   acceptLeague,
-  checkUserRight,
   MATCH_STATUS,
   to,
   godUserPriceTable

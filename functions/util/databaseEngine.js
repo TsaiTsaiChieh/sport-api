@@ -1,5 +1,7 @@
 const db = require('./dbUtil');
 const AppError = require('./AppErrors');
+const errs = require('./errorCode');
+const to = require('await-to-js').default;
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -30,7 +32,19 @@ function getSeason(league_id) {
     }
   });
 }
+
+// 檢查使用者權限  rightArr 傳入權限陣列
+// rightArr = [1, 2] // 一般使用者, 大神
+async function checkUserRight(uid, rightArr = [], source = null) {
+  const [err, memberInfo] = await to(db.User.findOne({ where: { uid: uid } }));
+  if (err) {console.error('Error 1. in util/databaseEngine/checkUserRight by YuHsien', err); throw errs.dbErrsMsg('500', '500', err);};
+  if (memberInfo === null) return errs.errsMsg('404', '1301');
+  if (!rightArr.includes(memberInfo.status)) return source ? errs.errsMsg('404', source) : errs.errsMsg('404', '1308');
+  return {};
+}
+
 module.exports = {
   findUser,
-  getSeason
+  getSeason,
+  checkUserRight
 };
