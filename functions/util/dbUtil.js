@@ -1506,9 +1506,6 @@ const Buy = sequelize.define(
     matches_date_tw: {
       type: Sequelize.DATE,
       allowNull: false
-    },
-    scheduled: {
-      type: Sequelize.INTEGER
     }
   },
   {
