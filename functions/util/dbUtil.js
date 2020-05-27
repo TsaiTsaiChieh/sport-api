@@ -1468,7 +1468,7 @@ const Buy = sequelize.define(
       primaryKey: true
     },
     uid: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: false
     },
     league_id: {
@@ -1480,7 +1480,7 @@ const Buy = sequelize.define(
       allowNull: false
     },
     god_rank: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER(4),
       allowNull: false
     },
     god_period: {
@@ -1496,7 +1496,7 @@ const Buy = sequelize.define(
       allowNull: false
     },
     buy_status: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER(4),
       allowNull: false
     },
     matches_date: {
