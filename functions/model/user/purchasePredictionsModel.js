@@ -12,8 +12,10 @@ async function purchasePredictions(args) {
   // 2. 檢查該大神該天有無預測該聯盟賽事且確實是販售狀態，有則取出 checkGodPredictions
   // 3. 取出使用者紅利和搞幣 getUserDividendAndCoin
   // 4. 檢查購買者想要用紅利折抵嗎 & 紅利+搞幣是否足夠，並回傳餘額 checkUserDepositIsEnough
+  // 5. 將餘額寫回 user table updateOverageToUserTable
+  // 6. 將購牌資訊寫進 user__buys table (若購牌資訊未成功寫入，步驟五要 rollback) insertPurchaseToUserBuyTable
   // Destructuring assignment
-  let err, rank, deposit, overage;
+  let err, rank, deposit, overage, a;
   [err, rank] = await modules.to(checkGodUserRank(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err] = await modules.to(checkGodPredictions(args));
@@ -22,7 +24,12 @@ async function purchasePredictions(args) {
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err, overage] = await modules.to(checkUserDepositIsEnough(args, rank, deposit));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  return overage;
+  [err] = await modules.to(updateOverageToUserTable(args, overage));
+  if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
+  // [err, a] = await modules.to(insertPurchaseToUserBuyTable(args));
+  [err, a] = await modules.to(repackagePurchaseData(args));
+  if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
+  return a;
 }
 
 async function checkGodUserRank(args) {
@@ -115,4 +122,39 @@ async function checkUserDepositIsEnough(args, rank, deposit) {
   return { coin, dividend };
 }
 
+async function updateOverageToUserTable(args, overage) {
+  const [err, result] = await modules.to(db.User.update(
+    { coin: overage.coin, dividend: overage.dividend },
+    { where: { uid: args.token.uid } }));
+
+  if (err) throw new AppErrors.MysqlError(`${err.stack} by TsaiChieh`);
+  // result 0 means is failed, result 1 means update is success
+  if (!result[0]) throw new AppErrors.UpdateUserCoinAndDividend('by TsaiChieh');
+}
+
+// async function insertPurchaseToUserBuyTable(args) {
+// const [err, result] = await modules.to(db.Buy.create());
+// const [err, result] = repackagePurchaseData(args);
+// }
+
+async function repackagePurchaseData(args) {
+  // try {
+  const data = {
+    uid: args.token.uid,
+    tt: modules.validateProperty(args, 'args.t'),
+    abc: modules.validateProperty(args, 'args.tddd'),
+    gg: modules.validateProperty(args.token, 'args.token.uid')
+  };
+  //   return data;
+  // } catch (err) {
+  //   throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  // }
+
+  // // console.log(args.b);
+
+  const [err, result] = await modules.to(Promise.resolve(data));
+  if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  console.log('---', result);
+  return result;
+}
 module.exports = purchasePredictions;
