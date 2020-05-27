@@ -22,6 +22,7 @@ const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
+const to = require('await-to-js').default;
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -924,6 +925,21 @@ async function checkUserRight(memberInfo, rightArr = []) {
   return {};
 }
 
+function godUserPriceTable(rank) {
+  rank = Number.parseInt(rank);
+  switch (rank) {
+    case 1:
+      return 179;
+    case 2:
+      return 169;
+    case 3:
+      return 159;
+    case 4:
+      return 149;
+    default:
+      return 149;
+  }
+}
 module.exports = {
   redis,
   express,
@@ -978,5 +994,7 @@ module.exports = {
   sliceTeamAndPlayer,
   acceptLeague,
   checkUserRight,
-  MATCH_STATUS
+  MATCH_STATUS,
+  to,
+  godUserPriceTable
 };
