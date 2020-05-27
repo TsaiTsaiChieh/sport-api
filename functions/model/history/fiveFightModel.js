@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function fiveFight(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const events = await queryFiveFightEvent(args);
       const predictions = await queryRate(events);
@@ -16,7 +16,7 @@ async function fiveFight(args) {
 }
 
 async function queryRate(events) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
     for (let i = 0; i < events.length; i++) {
       matchArray.push(events[i].id);
@@ -41,7 +41,7 @@ async function queryRate(events) {
 }
 
 function queryFiveFightEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -151,8 +151,10 @@ async function repackage(args, events, predictions) {
           result_tw = `讓${ele.spread_away_tw}`;
         } else {
         }
-      } else {
+      } else if (ele.spread_home_tw === 'pk' || ele.spread_away_tw === 'pk') {
         result_tw = 'pk';
+      } else {
+        result_tw = null;
       }
       if (args.league === 'eSoccer') {
         temp = {

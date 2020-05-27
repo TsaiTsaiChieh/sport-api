@@ -1,13 +1,11 @@
-const settleMatchesModel = require('../model/user/settleMatchesModel');
+// const settleMatchesModel = require('../model/user/settleMatchesModel');
 // const modules = require('../util/modules');
 // const db = require('../util/dbUtil');
-
+// const Sp = db.Spread;
 async function inserttest(req, res) {
-  await settleMatchesModel({
-    token: {
-      uid: '999'
-    },
-    bets_id: '2307346'
-  });
+  try {
+  } catch (err) {
+    console.log(err);
+  }
 }
 module.exports = inserttest;
