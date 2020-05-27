@@ -68,6 +68,23 @@ class MatchNotFound extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class GodUserNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此大神',
+    status = 1310,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
@@ -136,6 +153,27 @@ class OnlyAcceptNormalUser extends ExtendableError {
   constructor(
     message = '此功能只允許一般玩家操作',
     status = 1208,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class GodUserDidNotSell extends ExtendableError {
+  constructor(
+    message = '大神該日無販售賽事',
+    status = 1209,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+class CoinOrDividendNotEnough extends ExtendableError {
+  constructor(
+    message = '搞幣或紅利不足',
+    status = 1210,
     isPublic = true,
     code = httpStatus.FORBIDDEN
   ) {
@@ -287,16 +325,31 @@ class firestoreQueryError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class PurchasePredictionsModelError extends ExtendableError {
+  constructor(
+    message = '購買預測 API 錯誤',
+    status = 1514,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
   MatchNotFound,
+  GodUserNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
   OnlyAcceptNormalUser,
+  GodUserDidNotSell,
+  CoinOrDividendNotEnough,
   UserPredictFailed,
   DeletePredictionsFailed,
   MysqlError,
@@ -313,5 +366,6 @@ module.exports = {
   PBPKBOError,
   RepackageError,
   PBPAbnormalError,
-  firestoreQueryError
+  firestoreQueryError,
+  PurchasePredictionsModelError
 };
