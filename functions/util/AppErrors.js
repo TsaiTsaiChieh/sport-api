@@ -348,6 +348,17 @@ class UpdateUserCoinAndDividend extends ExtendableError {
   }
 }
 
+class PropertyMissingError extends ExtendableError {
+  constructor(
+    message = '資料欄位缺漏 (undefined)',
+    status = 1516,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -379,5 +390,6 @@ module.exports = {
   PBPAbnormalError,
   firestoreQueryError,
   PurchasePredictionsModelError,
-  UpdateUserCoinAndDividend
+  UpdateUserCoinAndDividend,
+  PropertyMissingError
 };
