@@ -23,7 +23,7 @@ const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 const to = require('await-to-js').default;
-
+const AppErrors = require('./AppErrors');
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
   date: 2020-07-01 or 20200701
@@ -860,6 +860,12 @@ function godUserPriceTable(rank) {
       return 149;
   }
 }
+
+function validateProperty(data, propertyName) {
+  const property = data[propertyName];
+  if (property === undefined) throw new AppErrors.PropertyMissingError(`${propertyName} 資料欄位缺漏 (undefined)`);
+  return property;
+}
 module.exports = {
   redis,
   express,
@@ -914,5 +920,6 @@ module.exports = {
   checkUserRight,
   MATCH_STATUS,
   to,
-  godUserPriceTable
+  godUserPriceTable,
+  validateProperty
 };
