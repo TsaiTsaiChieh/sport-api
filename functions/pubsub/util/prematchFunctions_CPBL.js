@@ -7,8 +7,8 @@ const leagueUniteID = '11235';
 // const leagueUniteName = 'CPBL';
 const sportID = 16;
 module.exports.CPBL = {};
-module.exports.CPBL.upcoming = async function (date) {
-  return new Promise(async function (resolve, reject) {
+module.exports.CPBL.upcoming = async function(date) {
+  return new Promise(async function(resolve, reject) {
     try {
       const leagueID = 11235;
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
@@ -34,7 +34,7 @@ module.exports.CPBL.upcoming = async function (date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -64,7 +64,7 @@ async function axiosForURL(URL) {
 //  });
 // }
 async function write2realtime(ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`baseball/CPBL/${ele.id}/Summary/status`)
@@ -80,7 +80,7 @@ async function write2realtime(ele) {
   });
 }
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,

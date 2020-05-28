@@ -7,7 +7,7 @@ const KBOpbpInplay = KBOpbp.KBOpbpInplay;
 const KBOpbpHistory = KBOpbp.KBOpbpHistory;
 const Match = db.Match;
 async function checkmatch_KBO() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
       // const data = await modules.firestore
@@ -101,7 +101,7 @@ async function checkmatch_KBO() {
 }
 
 async function queryForEvents() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const queries = await db.sequelize.query(
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status

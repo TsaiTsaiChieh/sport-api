@@ -8,7 +8,7 @@ const KBO_functions = require('./util/prematchFunctions_KBO');
 const CPBL_functions = require('./util/prematchFunctions_CPBL');
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',

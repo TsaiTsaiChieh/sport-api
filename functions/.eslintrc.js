@@ -20,7 +20,7 @@ module.exports = {
     'no-async-promise-executor': 0,
     'prefer-promise-reject-errors': 0,
     'block-spacing': 0,
-    'space-before-function-paren': 0,
+    'space-before-function-paren': ['error', 'never'],
     semi: ['error', 'always'],
     'no-useless-escape': 0
   }

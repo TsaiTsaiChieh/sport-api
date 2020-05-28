@@ -9,8 +9,8 @@ const leagueArray = [22614, 22808, 22764, 22537, 22724];
 const Match = db.Match;
 const MatchTeam = db.Team;
 module.exports.eSoccer = {};
-module.exports.eSoccer.upcoming = async function (date) {
-  return new Promise(async function (resolve, reject) {
+module.exports.eSoccer.upcoming = async function(date) {
+  return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
@@ -46,7 +46,7 @@ module.exports.eSoccer.upcoming = async function (date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -75,7 +75,7 @@ async function axiosForURL(URL) {
 //  });
 // }
 async function write2realtime(ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`esports/eSoccer/${ele.id}/Summary/status`)
@@ -91,7 +91,7 @@ async function write2realtime(ele) {
   });
 }
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,
@@ -116,7 +116,7 @@ async function write2MysqlOfMatch(ele) {
   });
 }
 async function write2MysqlOfMatchTeam(ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const dataHomeTeam = {
         team_id: ele.home.id,

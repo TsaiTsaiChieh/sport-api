@@ -52,7 +52,7 @@ async function handicap_esport() {
   console.log('handicap_esports success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -66,7 +66,7 @@ async function axiosForURL(URL) {
   });
 }
 async function query_event(league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
@@ -90,7 +90,7 @@ async function query_event(league) {
   });
 }
 async function upsertHandicap(querysForEvent, sport, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < querysForEvent; i++) {
         const ele = querysForEvent[i];
@@ -205,7 +205,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 //  });
 // }
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -220,7 +220,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   });
 }
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -263,7 +263,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 //  });
 // }
 async function write2MysqlOfMatchSpread(odd, ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
@@ -287,7 +287,7 @@ async function write2MysqlOfMatchSpread(odd, ele) {
   });
 }
 async function write2MysqlOfMatchTotals(odd, ele) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,

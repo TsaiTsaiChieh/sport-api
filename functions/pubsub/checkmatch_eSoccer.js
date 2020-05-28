@@ -7,7 +7,7 @@ const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
 async function checkmatch_eSoccer() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
       // const data = await modules.firestore
@@ -100,7 +100,7 @@ async function checkmatch_eSoccer() {
   });
 }
 async function queryForEvents() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const queries = await db.sequelize.query(
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status

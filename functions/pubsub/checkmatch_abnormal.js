@@ -7,7 +7,7 @@ const Match = db.Match;
 // const sportArray = ['esports', 'baseball'];
 // const leagueArray = ['eSoccer', 'KBO'];
 function queryMatches() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -33,7 +33,7 @@ function queryMatches() {
   });
 }
 async function checkmatch_abnormal() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     // const firestoreName = firestoreArray[i];
     // const sportName = sportArray[i];
     // const leagueName = leagueArray[i];
@@ -63,7 +63,7 @@ async function checkmatch_abnormal() {
   });
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -75,7 +75,7 @@ async function axiosForURL(URL) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const leagueName = modules.leagueDecoder(parameter.leagueID);
@@ -250,7 +250,7 @@ async function doPBP(parameter) {
   });
 }
 async function pbpHistory(parameterHistory) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     let data = parameterHistory.data;
     const betsID = parameterHistory.betsID;
     const sportName = parameterHistory.sportName;
