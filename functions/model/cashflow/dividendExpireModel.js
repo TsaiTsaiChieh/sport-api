@@ -50,7 +50,7 @@
                 }
             );
            
-  const uids = expire_uids['group_transfer_id'];
+            const uids = expire_uids['group_transfer_id'];
             const expire = db.sequelize.query(
                 `
                     UPDATE user__transfer__logs

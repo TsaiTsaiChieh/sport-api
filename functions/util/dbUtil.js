@@ -1632,6 +1632,46 @@ const Transfer_Status = sequelize.define(
   }
 );
 
+/*紅利14天過期紀錄表*/
+const ExpireDividend = sequelize.define(
+  'cashflow_expire_dividend',
+  {
+      expire_id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+      },
+      uid:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      expire_points:{
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      expire_date:{
+        type: Sequelize.DATE(3),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
+      },
+      createdAt: {
+        type: Sequelize.DATE(3),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
+      },
+      updatedAt: {
+          type: Sequelize.DATE(3),
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
+      },
+  },
+  {
+      indexes: [
+          {
+              fields: ['expire_id', 'uid']
+          }
+      ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1667,7 +1707,8 @@ const dbUtil = {
   Season,
   UserFollow,
   Topic_DonateArticle,
-  Service_ReportTopics
+  Service_ReportTopics,
+  ExpireDividend
 };
 
 module.exports = dbUtil;
