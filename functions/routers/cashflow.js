@@ -8,12 +8,12 @@ router.post(
 );
 /* 計算14天後到期紅利 */
 router.put(
-    '/dividend_expire',
-    require('../controller/cashflow/dividendExpireController')
-  );
+  '/dividend_expire',
+  require('../controller/cashflow/dividendExpireController')
+);
 /* 扣除到期紅利 */
 router.delete(
-    '/dividend_expire',
-    require('../controller/cashflow/dividendExpireController')
-  );
+  '/dividend_expire',
+  require('../controller/cashflow/dividendExpireController')
+);
 module.exports = router;

@@ -67,7 +67,6 @@ const errorCodeLists = {
   13542: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 無對應 league 無法更新 default_title', ''] },
   13543: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
 
-
   20001: { msg: ['更新 交易 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20002: { msg: ['更新 搞錠轉換搞幣 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
