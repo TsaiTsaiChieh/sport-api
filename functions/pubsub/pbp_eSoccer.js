@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-const firestoreName = 'esport_eSoccer';
+// const firestoreName = 'esport_eSoccer';
 const AppErrors = require('../util/AppErrors');
 // const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
@@ -19,7 +19,7 @@ async function ESoccerpbpInplay(parameter) {
     realtimeData = null;
   }
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -35,7 +35,7 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -45,7 +45,7 @@ async function axiosForURL(URL) {
   });
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
     try {
@@ -106,18 +106,18 @@ async function ESoccerpbpHistory(parameter) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
 
-      try {
-        await modules.firestore
-          .collection(firestoreName)
-          .doc(betsID)
-          .set({ flag: { status: 0 } }, { merge: true });
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseCollectError(
-            `${err} at pbpESoccer of status by DY`
-          )
-        );
-      }
+      // try {
+      //  await modules.firestore
+      //    .collection(firestoreName)
+      //    .doc(betsID)
+      //    .set({ flag: { status: 0 } }, { merge: true });
+      // } catch (err) {
+      //  return reject(
+      //    new AppErrors.FirebaseCollectError(
+      //      `${err} at pbpESoccer of status by DY`
+      //    )
+      //  );
+      // }
 
       try {
         await Match.upsert({
@@ -218,7 +218,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -251,18 +251,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -3 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -3 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status by DY`
+            //    )
+            //  );
+            // }
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -288,18 +288,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -2 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -2 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status by DY`
+            //    )
+            //  );
+            // }
           }
 
           if (data.results[0].time_status === '3') {
@@ -340,18 +340,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -1 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -1 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status by DY`
+            //    )
+            //  );
+            // }
           }
           if (data.results[0].time_status === '1') {
             if (realtimeData !== null) {
@@ -379,18 +379,18 @@ async function doPBP(parameter) {
                     )
                   );
                 }
-                try {
-                  await modules.firestore
-                    .collection(firestoreName)
-                    .doc(betsID)
-                    .set({ flag: { status: 1 } }, { merge: true });
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseCollectError(
-                      `${err} at doPBP of status on ${betsID} by DY`
-                    )
-                  );
-                }
+                // try {
+                //  await modules.firestore
+                //    .collection(firestoreName)
+                //    .doc(betsID)
+                //    .set({ flag: { status: 1 } }, { merge: true });
+                // } catch (err) {
+                //  return reject(
+                //    new AppErrors.FirebaseCollectError(
+                //      `${err} at doPBP of status on ${betsID} by DY`
+                //    )
+                //  );
+                // }
                 try {
                   await modules.database
                     .ref(`esports/eSoccer/${betsID}/Summary/league`)
@@ -432,18 +432,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -1 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status on ${betsID} by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -1 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status on ${betsID} by DY`
+            //    )
+            //  );
+            // }
           }
           let homeScores = 'no data';
           let awayScores = 'no data';

@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
+const db = require('../../util/dbUtil');
 
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
@@ -15,15 +16,49 @@ async function livescore(args) {
 function queryMatch(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const query = await modules.firestore
-        .collection(modules.leagueCodebook(args.league).match)
-        .where('bets_id', '==', args.eventID)
-        .get();
-      const match = [];
-      query.docs.map(function(doc) {
-        match.push(doc.data());
-      });
-      return resolve(await Promise.all(match));
+      const queries = await db.sequelize.query(
+        // take 169 ms
+        `(
+             SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS spread_handicap, total.over_tw AS total_over_tw, total.handicap AS total_handicap,
+                    league.name_ch AS league_name_ch
+               FROM matches AS game,
+                    match__teams AS home,
+                    match__teams AS away,
+                    match__spreads AS spread,
+                    match__totals AS total,
+                    match__leagues AS league
+              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+                AND game.bets_id = '${args.eventID}'
+                AND game.home_id = home.team_id
+                AND game.away_id = away.team_id
+                AND game.spread_id = spread.spread_id
+                AND game.totals_id = total.totals_id
+                AND game.ori_league_id = league.ori_league_id      
+           )
+           UNION(
+             SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_handicap, NULL AS total_over_tw, NULL AS total_handicap,
+                    league.name_ch AS league_name_ch
+               FROM matches AS game,
+                    match__teams AS home,
+                    match__teams AS away,
+                    match__leagues AS league
+              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+                AND game.bets_id = '${args.eventID}'
+                AND game.home_id = home.team_id
+                AND game.away_id = away.team_id
+                AND (game.spread_id IS NULL OR game.totals_id IS NULL)
+                AND game.ori_league_id = league.ori_league_id
+           )
+           `,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
+      return resolve(await queries);
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
@@ -32,166 +67,7 @@ function queryMatch(args) {
 async function repackage(args, match) {
   try {
     if (args.league === 'NBA') {
-      const queryHomeForHome = await modules.firestore
-        .collection(modules.leagueCodebook(args.league).match)
-        .where('home.alias', '==', match.home.alias)
-        .where('scheduled', '<', match.scheduled)
-        .orderBy('scheduled', 'desc')
-        .limit(1)
-        .get();
-      let forLineupHome = [];
-      queryHomeForHome.docs.map(function(doc) {
-        forLineupHome.push(doc.data());
-      });
-      const queryAwayForHome = await modules.firestore
-        .collection(modules.leagueCodebook(args.league).match)
-        .where('away.alias', '==', match.home.alias)
-        .where('scheduled', '<', match.scheduled)
-        .orderBy('scheduled', 'desc')
-        .limit(1)
-        .get();
-      let forLineupAway = [];
-      queryAwayForHome.docs.map(function(doc) {
-        forLineupAway.push(doc.data());
-      });
-
-      if (!forLineupHome.length === 0 && forLineupAway.length === 0) {
-        match.history.lineup = {
-          starter: {
-            home: {
-              lineup0: forLineupHome[0].lineups.home.starters['0'],
-              lineup1: forLineupHome[0].lineups.home.starters['1'],
-              lineup2: forLineupHome[0].lineups.home.starters['2'],
-              lineup3: forLineupHome[0].lineups.home.starters['3'],
-              lineup4: forLineupHome[0].lineups.home.starters['4']
-            }
-          }
-        };
-      }
-      if (forLineupHome.length === 0 && !forLineupAway.length === 0) {
-        match.history.lineup = {
-          starter: {
-            home: {
-              lineup0: forLineupAway[0].lineups.away.starters['0'],
-              lineup1: forLineupAway[0].lineups.away.starters['1'],
-              lineup2: forLineupAway[0].lineups.away.starters['2'],
-              lineup3: forLineupAway[0].lineups.away.starters['3'],
-              lineup4: forLineupAway[0].lineups.away.starters['4']
-            }
-          }
-        };
-        if (!forLineupHome.length === 0 && !forLineupAway.length === 0) {
-          if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
-            match.history.lineup = {
-              starter: {
-                home: {
-                  lineup0: forLineupHome[0].lineups.home.starters['0'],
-                  lineup1: forLineupHome[0].lineups.home.starters['1'],
-                  lineup2: forLineupHome[0].lineups.home.starters['2'],
-                  lineup3: forLineupHome[0].lineups.home.starters['3'],
-                  lineup4: forLineupHome[0].lineups.home.starters['4']
-                }
-              }
-            };
-          } else {
-            match.history.lineup = {
-              starter: {
-                home: {
-                  lineup0: forLineupAway[0].lineups.away.starters['0'],
-                  lineup1: forLineupAway[0].lineups.away.starters['1'],
-                  lineup2: forLineupAway[0].lineups.away.starters['2'],
-                  lineup3: forLineupAway[0].lineups.away.starters['3'],
-                  lineup4: forLineupAway[0].lineups.away.starters['4']
-                }
-              }
-            };
-          }
-          if (forLineupHome.length === 0 && forLineupAway.length === 0) {
-            match.history.lineup.starters = { home: 'no history data' };
-          }
-          forLineupHome = [];
-          forLineupAway = [];
-          const queryHomeForAway = await modules.firestore
-            .collection(modules.leagueCodebook(args.league).match)
-            .where('home.alias', '==', match.away.alias)
-            .where('scheduled', '<', match.scheduled)
-            .orderBy('scheduled', 'desc')
-            .limit(1)
-            .get();
-          queryHomeForAway.docs.map(function(doc) {
-            forLineupHome.push(doc.data());
-          });
-          const queryAwayForAway = await modules.firestore
-            .collection(modules.leagueCodebook(args.league).match)
-            .where('away.alias', '==', match.away.alias)
-            .where('scheduled', '<', match.scheduled)
-            .orderBy('scheduled', 'desc')
-            .limit(1)
-            .get();
-          queryAwayForAway.docs.map(function(doc) {
-            forLineupAway.push(doc.data());
-          });
-
-          if (!forLineupHome.length === 0 && forLineupAway.length === 0) {
-            match.history.lineup = {
-              starter: {
-                away: {
-                  lineup0: forLineupHome[0].lineups.home.starters['0'],
-                  lineup1: forLineupHome[0].lineups.home.starters['1'],
-                  lineup2: forLineupHome[0].lineups.home.starters['2'],
-                  lineup3: forLineupHome[0].lineups.home.starters['3'],
-                  lineup4: forLineupHome[0].lineups.home.starters['4']
-                }
-              }
-            };
-          }
-          if (forLineupHome.length === 0 && !forLineupAway.length === 0) {
-            match.history.lineup = {
-              starter: {
-                away: {
-                  lineup0: forLineupAway[0].lineups.away.starters['0'],
-                  lineup1: forLineupAway[0].lineups.away.starters['1'],
-                  lineup2: forLineupAway[0].lineups.away.starters['2'],
-                  lineup3: forLineupAway[0].lineups.away.starters['3'],
-                  lineup4: forLineupAway[0].lineups.away.starters['4']
-                }
-              }
-            };
-          }
-          if (!forLineupHome.length === 0 && !forLineupAway.length === 0) {
-            if (forLineupHome[0].scheduled > forLineupAway[0].scheduled) {
-              match.history.lineup = {
-                starter: {
-                  away: {
-                    lineup0: forLineupHome[0].lineups.home.starters['0'],
-                    lineup1: forLineupHome[0].lineups.home.starters['1'],
-                    lineup2: forLineupHome[0].lineups.home.starters['2'],
-                    lineup3: forLineupHome[0].lineups.home.starters['3'],
-                    lineup4: forLineupHome[0].lineups.home.starters['4']
-                  }
-                }
-              };
-            } else {
-              match.history.lineup.starters = {
-                starter: {
-                  away: {
-                    lineup0: forLineupAway[0].lineups.away.starters['0'],
-                    lineup1: forLineupAway[0].lineups.away.starters['1'],
-                    lineup2: forLineupAway[0].lineups.away.starters['2'],
-                    lineup3: forLineupAway[0].lineups.away.starters['3'],
-                    lineup4: forLineupAway[0].lineups.away.starters['4']
-                  }
-                }
-              };
-            }
-          }
-          if (forLineupHome.length === 0 && forLineupAway.length === 0) {
-            match.history.lineup.starters = { away: 'no history data' };
-          }
-        }
-      }
       match.sport = modules.league2Sport(args.league);
-
       return match;
     }
 
@@ -202,36 +78,49 @@ async function repackage(args, match) {
     }
     if (args.league === 'eSoccer') {
       const ele = match[0];
-
       const temp = {
-        id: ele.bets_id,
-        status: ele.flag.status,
+        id: ele.id,
+        status: ele.status,
         sport: modules.league2Sport(args.league).sport,
-        league: ele.league.name_ch,
+        league: ele.league_name_ch,
         ori_league: args.league,
         scheduled: ele.scheduled * 1000,
         newest_spread: {
-          handicap: ele.newest_spread ? ele.newest_spread.handicap : null,
-          home_tw: ele.newest_spread ? ele.newest_spread.home_tw : null,
-          away_tw: ele.newest_spread ? ele.newest_spread.away_tw : null
+          handicap: ele.spread_handicap ? ele.spread_handicap : null,
+          home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+          away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+        },
+        newest_totals: {
+          handicap: ele.total_handicap ? ele.total_handicap : null,
+          over_tw: ele.total_over_tw ? ele.total_over_tw : null
         },
         home: {
-          team_name: ele.home.team_name,
-          player_name: ele.home.player_name,
-          name: ele.home.name,
-          name_ch: ele.home.name_ch,
-          alias: ele.home.alias,
-          alias_ch: ele.home.alias_ch,
-          image_id: ele.home.image_id
+          team_name:
+            ele.home_name.indexOf('(') > 0
+              ? ele.home_name.split('(')[0].trim()
+              : ele.home_name,
+          player_name:
+            ele.home_name.indexOf('(') > 0
+              ? ele.home_name.split('(')[1].replace(')', '').trim()
+              : null,
+          name: ele.home_name,
+          alias: ele.home_alias,
+          alias_ch: ele.home_alias_ch,
+          image_id: ele.home_image_id
         },
         away: {
-          team_name: ele.away.team_name,
-          player_name: ele.away.player_name,
-          name: ele.away.name,
-          name_ch: ele.away.name_ch,
-          alias: ele.away.alias,
-          alias_ch: ele.away.alias_ch,
-          image_id: ele.away.image_id
+          team_name:
+            ele.away_name.indexOf('(') > 0
+              ? ele.away_name.split('(')[0].trim()
+              : ele.away_name,
+          player_name:
+            ele.away_name.indexOf('(') > 0
+              ? ele.away_name.split('(')[1].replace(')', '').trim()
+              : null,
+          name: ele.away_name,
+          alias: ele.away_alias,
+          alias_ch: ele.away_alias_ch,
+          image_id: ele.away_image_id
         }
       };
 

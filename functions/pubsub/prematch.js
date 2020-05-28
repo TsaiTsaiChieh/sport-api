@@ -8,7 +8,7 @@ const KBO_functions = require('./util/prematchFunctions_KBO');
 const CPBL_functions = require('./util/prematchFunctions_CPBL');
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
@@ -38,34 +38,15 @@ async function prematch() {
     //   console.error(error);
     // }
     try {
-      await KBO(now);
-      await KBO(tomorrow);
-      await CPBL(now);
-      await CPBL(tomorrow);
+      await KBO_functions.KBO.upcoming(now);
+      await KBO_functions.KBO.upcoming(tomorrow);
+      await CPBL_functions.CPBL.upcoming(now);
+      await CPBL_functions.CPBL.upcoming(tomorrow);
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }
     return resolve('ok');
   });
 }
-async function KBO(date) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await KBO_functions.KBO.upcoming(date);
-      return resolve('ok');
-    } catch (err) {
-      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
-    }
-  });
-}
-async function CPBL(date) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await CPBL_functions.CPBL.upcoming(date);
-      return resolve('ok');
-    } catch (err) {
-      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
-    }
-  });
-}
+
 module.exports = prematch;
