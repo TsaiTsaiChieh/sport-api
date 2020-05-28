@@ -359,6 +359,17 @@ class PropertyMissingError extends ExtendableError {
   }
 }
 
+class UnknownLeague extends ExtendableError {
+  constructor(
+    message = '未知的聯盟',
+    status = 1517,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -391,5 +402,6 @@ module.exports = {
   firestoreQueryError,
   PurchasePredictionsModelError,
   UpdateUserCoinAndDividend,
-  PropertyMissingError
+  PropertyMissingError,
+  UnknownLeague
 };
