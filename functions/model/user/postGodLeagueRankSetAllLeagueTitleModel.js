@@ -11,7 +11,7 @@ async function postGodLeagueRankSetAllLeagueTitle(args) {
 
   const result = { success: [] };
 
-  const checkResult = await checkUserRight(userUid, [1], '130830');
+  const checkResult = await checkUserRight(userUid, [2], '130830');
   if (checkResult.code) throw checkResult;
 
   for (const title of args.titles) {
