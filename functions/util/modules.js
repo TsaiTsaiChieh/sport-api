@@ -192,9 +192,7 @@ function league2Sport(league) {
         sport: 'esports'
       };
     default:
-      return {
-        sport: 'esports'
-      };
+      throw new AppErrors.UnknownLeague();
   }
 }
 function leagueCodebook(league) {
@@ -301,6 +299,8 @@ function leagueCodebook(league) {
         match: db.eGame,
         name_ch: '電競遊戲'
       };
+    default:
+      throw new AppErrors.UnknownLeague();
   }
 }
 
@@ -341,7 +341,7 @@ function leagueDecoder(leagueID) {
     case '23000' || 23000:
       return 'eGame';
     default:
-      return 'Unknown';
+      throw new AppErrors.UnknownLeague();
   }
 }
 
