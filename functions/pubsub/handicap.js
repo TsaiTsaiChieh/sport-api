@@ -1,15 +1,15 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
-const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
+// const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = [
-  // modules.db.basketball_NBA,
-  // modules.db.basketball_SBL,
-  // modules.db.baseball_MLB
-  modules.db.baseball_KBO,
-  modules.db.baseball_CPBL
-];
+// const leagues = [
+//  // modules.db.basketball_NBA,
+//  // modules.db.basketball_SBL,
+//  // modules.db.baseball_MLB
+//  modules.db.baseball_KBO,
+//  modules.db.baseball_CPBL
+// ];
 const sports = [
   // 18,
   // 18,
@@ -183,7 +183,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
   });
 }
 
-//async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
+// async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      await eventSnapshot.set(
@@ -213,8 +213,8 @@ async function upsertHandicap(querysForEvent, sport, league) {
 //      );
 //    }
 //  });
-//}
-//async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
+// }
+// async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      await eventSnapshot.set(
@@ -243,7 +243,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 //      );
 //    }
 //  });
-//}
+// }
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -270,7 +270,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
     }
   });
 }
-//async function write2firestoreAboutSpread(eventSnapshot, odd) {
+// async function write2firestoreAboutSpread(eventSnapshot, odd) {
 //  return new Promise(async function (resolve, reject) {
 //    const spread = {};
 //    spread[odd.id] = {
@@ -297,7 +297,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 //      );
 //    }
 //  });
-//}
+// }
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -341,7 +341,7 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
     }
   });
 }
-//async function write2firestoreAboutTotals(eventSnapshot, odd) {
+// async function write2firestoreAboutTotals(eventSnapshot, odd) {
 //  return new Promise(async function (resolve, reject) {
 //    const totals = {};
 //    totals[odd.id] = {
@@ -365,8 +365,8 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 //      );
 //    }
 //  });
-//}
-//async function updateHandicap(league, ele, sport, leagueUniteID) {
+// }
+// async function updateHandicap(league, ele, sport, leagueUniteID) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -417,8 +417,8 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 //      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
 //    }
 //  });
-//}
-//async function query_opening(flag, value, league) {
+// }
+// async function query_opening(flag, value, league) {
 //  return new Promise(async function (resolve, reject) {
 //    const eventsRef = modules.firestore.collection(league);
 //    const eles = [];
@@ -435,12 +435,12 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 //      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
 //    }
 //  });
-//}
-//async function write2firestoreAboutAllSpread(
+// }
+// async function write2firestoreAboutAllSpread(
 //  eventSnapshot,
 //  spread,
 //  spreadData
-//) {
+// ) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      await eventSnapshot.set(
@@ -460,8 +460,8 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 //      );
 //    }
 //  });
-//}
-//async function query_handicap(flag, value, leagues) {
+// }
+// async function query_handicap(flag, value, leagues) {
 //  const date = modules.moment();
 //  const eles = [];
 //  const eventsRef = modules.firestore.collection(leagues);
@@ -486,49 +486,49 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 //    );
 //    return error;
 //  }
-//}
-async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await Match.upsert({
-        bets_id: ele.bets_id,
-        spread_id: spreadData.id
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(`${err} at handicap of Match by DY`)
-      );
-    }
-  });
-}
-async function write2MysqlOfMatchSpreadAboutAllSpread(
-  ele,
-  spreadData,
-  leagueUniteID
-) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await MatchSpread.upsert({
-        spread_id: spreadData.id,
-        match_id: ele.bets_id,
-        league_id: leagueUniteID,
-        handicap: Number.parseFloat(spreadData.handicap),
-        home_odd: Number.parseFloat(spreadData.home_od),
-        away_odd: Number.parseFloat(spreadData.away_od),
-        home_tw: spreadData.home_tw,
-        away_tw: spreadData.away_tw,
-        add_time: Number.parseInt(spreadData.add_time) * 1000
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(`${err} at handicap of MatchSpread by DY`)
-      );
-    }
-  });
-}
-//async function getHandicap(league, ele, sport, leagueUniteID) {
+// }
+// async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await Match.upsert({
+//        bets_id: ele.bets_id,
+//        spread_id: spreadData.id
+//      });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.MysqlError(`${err} at handicap of Match by DY`)
+//      );
+//    }
+//  });
+// }
+// async function write2MysqlOfMatchSpreadAboutAllSpread(
+//  ele,
+//  spreadData,
+//  leagueUniteID
+// ) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await MatchSpread.upsert({
+//        spread_id: spreadData.id,
+//        match_id: ele.bets_id,
+//        league_id: leagueUniteID,
+//        handicap: Number.parseFloat(spreadData.handicap),
+//        home_odd: Number.parseFloat(spreadData.home_od),
+//        away_odd: Number.parseFloat(spreadData.away_od),
+//        home_tw: spreadData.home_tw,
+//        away_tw: spreadData.away_tw,
+//        add_time: Number.parseInt(spreadData.add_time) * 1000
+//      });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.MysqlError(`${err} at handicap of MatchSpread by DY`)
+//      );
+//    }
+//  });
+// }
+// async function getHandicap(league, ele, sport, leagueUniteID) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -576,12 +576,12 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(
 //      return reject(new AppErrors.PBPKBOError(`${err} at handicap by DY`));
 //    }
 //  });
-//}
-//async function write2firestoreAboutAllTotals(
+// }
+// async function write2firestoreAboutAllTotals(
 //  eventSnapshot,
 //  totals,
 //  totalsData
-//) {
+// ) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      await eventSnapshot.set(
@@ -601,52 +601,52 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(
 //      );
 //    }
 //  });
-//}
-async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await Match.upsert({
-        bets_id: ele.bets_id,
-        totals_id: totalsData.id
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(
-          `${err} at handicap_esports of getTotals of Match by DY`
-        )
-      );
-    }
-  });
-}
-async function write2MysqlOfMatchTotalsAboutAllTotals(
-  ele,
-  totalsData,
-  leagueUniteID
-) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await MatchTotals.upsert({
-        totals_id: totalsData.id,
-        match_id: ele.bets_id,
-        league_id: leagueUniteID,
-        handicap: Number.parseFloat(totalsData.handicap),
-        over_odd: Number.parseFloat(totalsData.over_od),
-        under_odd: Number.parseFloat(totalsData.under_od),
-        over_tw: totalsData.over_tw,
-        add_time: Number.parseInt(totalsData.add_time) * 1000
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(
-          `${err} at handicap_esports of MatchTotals by DY`
-        )
-      );
-    }
-  });
-}
-//async function getTotals(league, ele, sport, leagueUniteID) {
+// }
+// async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await Match.upsert({
+//        bets_id: ele.bets_id,
+//        totals_id: totalsData.id
+//      });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.MysqlError(
+//          `${err} at handicap_esports of getTotals of Match by DY`
+//        )
+//      );
+//    }
+//  });
+// }
+// async function write2MysqlOfMatchTotalsAboutAllTotals(
+//  ele,
+//  totalsData,
+//  leagueUniteID
+// ) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await MatchTotals.upsert({
+//        totals_id: totalsData.id,
+//        match_id: ele.bets_id,
+//        league_id: leagueUniteID,
+//        handicap: Number.parseFloat(totalsData.handicap),
+//        over_odd: Number.parseFloat(totalsData.over_od),
+//        under_odd: Number.parseFloat(totalsData.under_od),
+//        over_tw: totalsData.over_tw,
+//        add_time: Number.parseInt(totalsData.add_time) * 1000
+//      });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.MysqlError(
+//          `${err} at handicap_esports of MatchTotals by DY`
+//        )
+//      );
+//    }
+//  });
+// }
+// async function getTotals(league, ele, sport, leagueUniteID) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
 //      const eventSnapshot = modules.getDoc(league, ele.bets_id);
@@ -691,7 +691,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(
 //      );
 //    }
 //  });
-//}
+// }
 function totalsCalculator(handicapObj) {
   if (
     handicapObj.over_odd === handicapObj.under_odd ||
