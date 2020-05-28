@@ -1,7 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
-const instance = 'sportslottery-test:us-central1:do-sports';
+// const instance = 'sportslottery-test:us-central1:do-sports';
+// 正式站DB
+const instance = 'getsports-gsi:us-central1:getsports-cloudsql';
 const SSL = {
   key: fs.readFileSync(path.join(__dirname, '../auth/client-key.pem')),
   cert: fs.readFileSync(path.join(__dirname, '../auth/client-cert.pem')),
