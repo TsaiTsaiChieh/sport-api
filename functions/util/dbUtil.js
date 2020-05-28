@@ -1698,6 +1698,62 @@ const ExpireDividend = sequelize.define(
   }
 );
 
+
+/*現金紀錄表*/
+const MoneyLogs = sequelize.define(
+  'cashflow_money_logs',
+  {
+      money_id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+      },
+      uid: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+      },
+      money: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+      },
+      money_real: {
+        type: Sequelize.FLOAT,
+        primaryKey: true,
+      },
+      fee: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+      },
+      fee_real: {
+        type: Sequelize.FLOAT,
+        primaryKey: true,
+      },
+      money_active: {
+        type: Sequelize.STRING,
+      },
+      scheduled: {
+        type: Sequelize.STRING,
+      },
+      createdAt: {
+        type: Sequelize.DATE(3),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
+      },
+      updatedAt: {
+          type: Sequelize.DATE(3),
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
+      },
+      
+  },
+  {
+      indexes: [
+          {
+              fields: ['money_id', 'money', 'uid']
+          }
+      ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1734,7 +1790,8 @@ const dbUtil = {
   UserFollow,
   Topic_DonateArticle,
   Service_ReportTopics,
-  ExpireDividend
+  ExpireDividend,
+  MoneyLogs
 };
 
 module.exports = dbUtil;
