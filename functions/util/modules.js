@@ -20,7 +20,7 @@ const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
-const errs = require('./errorCode');
+// const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 const to = require('await-to-js').default;
 
