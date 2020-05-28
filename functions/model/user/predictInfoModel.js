@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -16,8 +17,7 @@ function predictInfo(args) {
 
     // 1.
     try {
-      const memberInfo = await db.User.findOne({ where: { uid: userUid } });
-      const checkResult = await modules.checkUserRight(memberInfo, [1, 2]);
+      const checkResult = await checkUserRight(userUid, [1, 2], '130825');
       if (checkResult.code) return reject(checkResult);
     } catch (err) {
       console.error('Error 1. in user/predictonInfoModell by YuHsien', err);

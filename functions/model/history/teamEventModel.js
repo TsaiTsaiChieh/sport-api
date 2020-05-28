@@ -143,6 +143,26 @@ async function repackage(args, predictions, teamEvent) {
       if (ele.totals_result === 'fair|under') {
         ele.totals_result = 'under';
       }
+      let result_tw;
+      if (ele.spread_home_tw && ele.spread_home_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `讓${ele.spread_home_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `受讓${ele.spread_home_tw}`;
+        } else {
+        }
+      } else if (ele.spread_away_tw && ele.spread_away_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `受讓${ele.spread_away_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `讓${ele.spread_away_tw}`;
+        } else {
+        }
+      } else if (ele.spread_home_tw === 'pk' || ele.spread_away_tw === 'pk') {
+        result_tw = 'pk';
+      } else {
+        result_tw = null;
+      }
       if (args.league === 'eSoccer') {
         temp = {
           scheduled: ele.scheduled,
@@ -165,6 +185,7 @@ async function repackage(args, predictions, teamEvent) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
           over_tw: ele.totals_over_tw,
           home_rate: ele.spread.home_rate,
           away_rate: ele.spread.away_rate,
@@ -189,6 +210,7 @@ async function repackage(args, predictions, teamEvent) {
           totals_result: ele.totals_result,
           home_tw: ele.spread_home_tw,
           away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
           over_tw: ele.totals_over_tw,
           home_rate: ele.spread.home_rate,
           away_rate: ele.spread.away_rate,

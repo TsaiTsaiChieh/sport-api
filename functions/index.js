@@ -6,15 +6,12 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
-
 app.use(cookieParser());
 app.disable('x-powered-by');
 const helmet = require('helmet');
 app.use(helmet());
 app.use(helmet.xssFilter());
-
 app.use(helmet.frameguard());
-
 app.use(
   bodyParser.json({
     limit: '50mb',
@@ -27,7 +24,6 @@ app.use(
     extended: true
   })
 );
-
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader(
@@ -37,6 +33,35 @@ app.use((req, res, next) => {
   next();
 });
 
+// 下面admin用
+const adminapp = express();
+adminapp.use(cookieParser());
+adminapp.disable('x-powered-by');
+adminapp.use(helmet());
+adminapp.use(helmet.xssFilter());
+adminapp.use(helmet.frameguard());
+adminapp.use(
+  bodyParser.json({
+    limit: '50mb',
+    extended: true
+  })
+);
+adminapp.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true
+  })
+);
+adminapp.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, private'
+  );
+  next();
+});
+// 上面admin用
+
 const whitelist = [
   'https://chat.doinfo.cc',
   'https://doinfo.cc',
@@ -44,8 +69,10 @@ const whitelist = [
   'http://127.0.0.1:5000',
   'http://localhost:8080',
   'http://localhost:8081',
+  'http://localhost:9528',
   'https://dosports.web.app',
   'https://api-dosports.web.app',
+  'https://admin-dosports.web.app',
   'https://getsports.cc',
   'https://getsport.cc'
 ];
@@ -70,10 +97,12 @@ const runtimeOpts = {
 };
 
 app.use(cors(corsOptions));
+adminapp.use(cors(corsOptions));
 
 app.use(express.json());
+adminapp.use(express.json());
+adminapp.use('/admin', require('./routers/admin'));
 // app.use('/sqlinit', require('./sqlinit'));
-app.use('/admin', require('./routers/admin'));
 app.use('/auth', require('./routers/authentication'));
 app.use('/user', require('./routers/user'));
 app.use('/messages', require('./routers/messages'));
@@ -141,3 +170,4 @@ app.get('/awakeAPI', (req, res) => {
 });
 
 exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
+exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);

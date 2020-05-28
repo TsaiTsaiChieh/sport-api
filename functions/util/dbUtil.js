@@ -1464,6 +1464,7 @@ const Buy = sequelize.define(
   {
     buy_id: {
       type: Sequelize.INTEGER,
+      autoIncrement: true,
       primaryKey: true
     },
     uid: {
@@ -1474,21 +1475,43 @@ const Buy = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_id: {
-      type: Sequelize.STRING
+    god_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
     },
     god_rank: {
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    scheduled: {
-      type: Sequelize.INTEGER
+    god_period: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    day_of_year: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    season: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    buy_status: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    matches_date: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    matches_date_tw: {
+      type: Sequelize.DATE,
+      allowNull: false
     }
   },
   {
     indexes: [
       {
-        fields: ['buy_id', 'uid', 'league_id']
+        fields: ['uid', 'league_id', 'matches_date']
       }
     ]
   }

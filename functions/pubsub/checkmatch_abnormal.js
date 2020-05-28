@@ -1,11 +1,11 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-// const settleMatchesModel = require('../model/user/settleMatchesModel');
+const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
-const firestoreArray = ['esport_eSoccer'];
-const sportArray = ['esports'];
-const leagueArray = ['eSoccer'];
+const firestoreArray = ['esport_eSoccer', 'baseball_KBO'];
+const sportArray = ['esports', 'baseball'];
+const leagueArray = ['eSoccer', 'KBO'];
 function queryMatches(firestoreName) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -32,10 +32,9 @@ async function checkmatch_abnormal() {
       const leagueName = leagueArray[i];
       try {
         const totalData = await queryMatches(firestoreName);
-        console.log(totalData.length);
 
-        for (let i = 0; i < totalData.length; i++) {
-          const betsID = totalData[i].bets_id;
+        for (let j = 0; j < totalData.length; j++) {
+          const betsID = totalData[j].bets_id;
           const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
           const parameterPBP = {
             betsID: betsID,
@@ -307,7 +306,26 @@ async function pbpHistory(parameterHistory) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
     }
-
+    if (leagueName === 'KBO') {
+      if (!data.results[0].ss) {
+        realtimeData = await modules.database
+          .ref(`${sportName}/${leagueName}/${betsID}`)
+          .once('value');
+        realtimeData = realtimeData.val();
+        data = realtimeData;
+        data.results[0].ss = 'no data';
+        if (!realtimeData.Summary.info.home.Total.points) {
+          homeScores = -99;
+          awayScores = -99;
+        } else {
+          homeScores = realtimeData.Summary.info.home.Total.points;
+          awayScores = realtimeData.Summary.info.away.Total.points;
+        }
+      } else {
+        homeScores = data.results[0].ss.split('-')[0];
+        awayScores = data.results[0].ss.split('-')[1];
+      }
+    }
     try {
       await modules.firestore
         .collection(firestoreName)
@@ -391,12 +409,12 @@ async function pbpHistory(parameterHistory) {
       //       { merge: true }
       //     );
       // settlementAccordingMatch(); 采潔的結算
-      // await settleMatchesModel({
-      //   token: {
-      //     uid: '999'
-      //   },
-      //   bets_id: betsID
-      // });
+      await settleMatchesModel({
+        token: {
+          uid: '999'
+        },
+        bets_id: betsID
+      });
     } catch (err) {
       return reject(
         new AppErrors.PBPAbnormalError(`${err} at pbpHistory of yuhsien by DY`)
