@@ -1467,51 +1467,61 @@ const Buy = sequelize.define(
       autoIncrement: true,
       primaryKey: true
     },
-    uid: {
+    uid: { // 購買者 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    league_id: {
+    league_id: { // 聯盟 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_uid: {
+    god_uid: { // 要購買的大神 uid
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_rank: {
+    god_rank: { // 大神當期的階級
       type: Sequelize.INTEGER(4),
       allowNull: false
     },
-    god_period: {
+    god_period: { // 大神當期的期數
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    day_of_year: {
+    day_of_year: { // 開賽時間/勝注勝率計算的日期（今年的第幾天）
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    season: {
+    season: { // 賽季年度
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    buy_status: {
+    buy_status: { // 款項狀態：-1/0/1 （已退款/處理中/已付費）
       type: Sequelize.INTEGER(4),
       allowNull: false
     },
-    matches_date: {
+    matches_date: { // 賽事當天日期 unix time (+0)
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    matches_date_tw: {
+    matches_date_tw: { // matches_date 欄位的 DATE format
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    buy_date: { // 購買者購買當天日期的 unix time (+0)
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    buy_date_tw: { // buy_date 欄位的 DATE format
       type: Sequelize.DATE,
       allowNull: false
     }
   },
   {
-    indexes: [
+    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['uid', 'league_id', 'matches_date']
+        fields: ['uid', 'league_id', 'god_uid', 'matches_date'],
+        unique: true
+
       }
     ]
   }
