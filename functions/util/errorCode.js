@@ -8,12 +8,19 @@ const errorCodeLists = {
   1305: { msg: ['user status abnormal'], backend: ['使用者不存在', 'user not found.'] },
   1306: { msg: ['user status abnormal'], backend: ['users_titles doc 找不到', 'users_titles doc not found'] },
   1307: { msg: ['delete failed'], backend: ['欲刪除的在 doc 找不到', 'delete something not (found) in the doc'] },
-  1308: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
   1323: { msg: ['非數字'], backend: ['非數字', ''] },
+
+  1308: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
+  130810: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
+  130815: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
+  130820: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
+  130825: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
+  130830: { msg: ['使用者狀態異常'], backend: ['使用者權限不正確，請確認使用者權限', ''] },
 
   13001: { msg: ['更新 使用者 失敗'], backend: ['更新 Update Users default_god_league_rank 失敗 資料庫原因錯誤', ''] },
   13002: { msg: ['更新 使用者 失敗'], backend: ['更新 Update Users default_god_league_rank 失敗 非大神不能更新', ''] },
 
+  13101: { msg: ['查詢 賽事 失敗'], backend: ['該比賽  無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!', ''] },
   13109: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13110: { msg: ['更新 賽事 失敗'], backend: ['更新 Update matches spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   13111: { msg: ['更新 賽事 失敗'], backend: ['更新 賽事結算讓分 結果異常，不應該為空白', ''] },
@@ -61,19 +68,30 @@ const errorCodeLists = {
   13543: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
 };
 
-function dbErrsMsg(serverCode, backendcode, property = { otherMsg: '', showOrder: 0 }) {
+const isError = e => e && e.stack && e.message;
+
+function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', showOrder: 0 }) {
   // 準備針對 DB錯誤記錄
   return errsMsg(serverCode, backendcode, property);
 }
 
-function errsMsg(serverCode, backendcode, property = { otherMsg: '', showOrder: 0 }) { // othermsg 當 500 或 特殊情況 可以自行輸入
+// 當有變數要顯示在字串內時，可以用 { msg: `ooxxooxx ${bets_id} ooxxooxx` } msg會自動取代
+function errsMsg(serverCode, backendcode, property = { custMsg: '', showOrder: 0 }) { // custMsg 當 500 或 特殊情況 可以自行輸入
   let showOrder = property.showOrder;
-  const otherMsg = property.otherMsg;
+  const custMsg = property.custMsg;
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
-  // otherMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
-  return otherMsg
-    ? { code: serverCode, err: { code: backendcode, msg: (typeof otherMsg === 'string') ? otherMsg : otherMsg.message } }
+  // custMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
+  return custMsg
+    ? {
+      code: serverCode,
+      err: {
+        code: backendcode,
+        msg: (typeof custMsg === 'string') ? custMsg
+          : isError(custMsg) ? custMsg.message
+            : JSON.stringify(custMsg)
+      }
+    }
     : Object.keys(errorCodeLists).includes(backendcode)
       ? { code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }
       : serverCode !== 500
