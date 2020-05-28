@@ -3,51 +3,56 @@ const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddURL = 'https://api.betsapi.com/v2/event/odds/summary';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
-const leagues = ['esport_eSoccer'];
 const Match = db.Match;
 const MatchSpread = db.Spread;
 const MatchTotals = db.Totals;
-const leagueUniteID = '22000';
+const leagueUniteID = ['22000'];
+const sports = ['1'];
 async function handicap_esport() {
-  for (let i = 0; i < leagues.length; i++) {
-    const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
-    const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
-    const querysSpreadOpening = await query_opening(
-      'flag.spread',
-      1,
-      leagues[i]
-    );
-    const querysTotalsOpening = await query_opening(
-      'flag.totals',
-      1,
-      leagues[i]
-    );
+  for (let i = 0; i < sports.length; i++) {
+    const querysForEvent = await query_event(leagueUniteID[i]);
+    if (querysForEvent > 0) {
+      await upsertHandicap(querysForEvent, sports[i], leagueUniteID[i]);
+    }
 
-    if (querysSpread.length > 0) {
-      for (let z = 0; z < querysSpread.length; z++) {
-        await getHandicap(leagues[i], querysSpread[z]);
-      }
-    }
-    if (querysTotals.length > 0) {
-      for (let x = 0; x < querysTotals.length; x++) {
-        await getTotals(leagues[i], querysTotals[x]);
-      }
-    }
-    if (querysSpreadOpening.length > 0) {
-      for (let c = 0; c < querysSpreadOpening.length; c++) {
-        await updateHandicap(leagues[i], querysSpreadOpening[c]);
-      }
-    }
-    if (querysTotalsOpening.length > 0) {
-      for (let v = 0; v < querysTotalsOpening.length; v++) {
-        await updateHandicap(leagues[i], querysTotalsOpening[v]);
-      }
-    }
+    //const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
+    //const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
+    //const querysSpreadOpening = await query_opening(
+    //  'flag.spread',
+    //  1,
+    //  leagues[i]
+    //);
+    //const querysTotalsOpening = await query_opening(
+    //  'flag.totals',
+    //  1,
+    //  leagues[i]
+    //);
+
+    //if (querysSpread.length > 0) {
+    //  for (let z = 0; z < querysSpread.length; z++) {
+    //    await getHandicap(leagues[i], querysSpread[z]);
+    //  }
+    //}
+    //if (querysTotals.length > 0) {
+    //  for (let x = 0; x < querysTotals.length; x++) {
+    //    await getTotals(leagues[i], querysTotals[x]);
+    //  }
+    //}
+    //if (querysSpreadOpening.length > 0) {
+    //  for (let c = 0; c < querysSpreadOpening.length; c++) {
+    //    await updateHandicap(leagues[i], querysSpreadOpening[c]);
+    //  }
+    //}
+    //if (querysTotalsOpening.length > 0) {
+    //  for (let v = 0; v < querysTotalsOpening.length; v++) {
+    //    await updateHandicap(leagues[i], querysTotalsOpening[v]);
+    //  }
+    //}
   }
   console.log('handicap_esports success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -60,69 +65,147 @@ async function axiosForURL(URL) {
     }
   });
 }
-async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
-  return new Promise(async function(resolve, reject) {
+async function query_event(league) {
+  return new Promise(async function (resolve, reject) {
+    const unix = Math.floor(Date.now() / 1000);
+    const tomorrow = modules.convertTimezoneFormat(unix, {
+      op: 'add',
+      value: 1,
+      unit: 'days'
+    });
+    const now = modules.convertTimezoneFormat(unix);
+    const queries = await db.sequelize.query(
+      `(
+				 SELECT game.bets_id AS bets_id
+					 FROM matches AS game
+					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
+						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
+						AND game.league_id =  ${league}
+			 )`,
+      {
+        type: db.sequelize.QueryTypes.SELECT
+      }
+    );
+    return resolve(queries);
+  });
+}
+async function upsertHandicap(querysForEvent, sport, league) {
+  return new Promise(async function (resolve, reject) {
     try {
-      await eventSnapshot.set(
-        {
-          newest_spread: {
-            handicap: Number.parseFloat(newest_spread.handicap),
-            home_odd: Number.parseFloat(newest_spread.home_od),
-            away_odd: Number.parseFloat(newest_spread.away_od),
-            away_tw: newest_spread.away_tw,
-            home_tw: newest_spread.home_tw,
-            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(Number.parseInt(newest_spread.add_time) * 1000)
-            ),
-            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date()
-            )
+      for (let i = 0; i < querysForEvent; i++) {
+        const ele = querysForEvent[i];
+        const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
+        const data = await axiosForURL(URL);
+        let spread_odds = [];
+        let totals_odds = [];
+        /* 因為 res 可能為 {
+        "success": 1,
+        "results": {}
+      } */
+        if (data.results.odds) {
+          spread_odds = data.results.odds[`${sport}_2`];
+          totals_odds = data.results.odds[`${sport}_3`];
+        }
+        let newest_spread;
+        if (spread_odds.length > 0) {
+          newest_spread = spread_odds[spread_odds.length - 1];
+          newest_spread = spreadCalculator(newest_spread);
+          await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+        }
+        let newest_totals;
+        if (totals_odds.length > 0) {
+          newest_totals = totals_odds[totals_odds.length - 1];
+          newest_totals = totalsCalculator(newest_totals);
+          await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+        }
+        for (let j = 0; j < spread_odds.length; j++) {
+          let odd = spread_odds[j];
+          odd = spreadCalculator(odd);
+          if (odd.home_od && odd.handicap && odd.away_od) {
+            await write2MysqlOfMatchSpread(odd, ele, league);
           }
-        },
-        { merge: true }
-      );
+        }
+        for (let k = 0; k < totals_odds.length; k++) {
+          let odd = totals_odds[k];
+          odd = totalsCalculator(odd);
+          if (odd.over_od && odd.handicap && odd.under_od) {
+            await write2MysqlOfMatchTotals(odd, ele, league);
+          }
+        }
+      }
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of newest_spread by DY`
+        new AppErrors.HandicapEsoccerError(
+          `${err.stack} at handicap_esports by DY`
         )
       );
     }
   });
 }
-async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await eventSnapshot.set(
-        {
-          newest_totals: {
-            handicap: Number.parseFloat(newest_totals.handicap),
-            under_odd: Number.parseFloat(newest_totals.under_od),
-            over_odd: Number.parseFloat(newest_totals.over_od),
-            over_tw: newest_totals.over_tw,
-            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(Number.parseInt(newest_totals.add_time) * 1000)
-            ),
-            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date()
-            )
-          }
-        },
-        { merge: true }
-      );
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of newest_totals by DY`
-        )
-      );
-    }
-  });
-}
+//async function write2firestoreAboutNewestSpread(eventSnapshot, newest_spread) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await eventSnapshot.set(
+//        {
+//          newest_spread: {
+//            handicap: Number.parseFloat(newest_spread.handicap),
+//            home_odd: Number.parseFloat(newest_spread.home_od),
+//            away_odd: Number.parseFloat(newest_spread.away_od),
+//            away_tw: newest_spread.away_tw,
+//            home_tw: newest_spread.home_tw,
+//            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//              new Date(Number.parseInt(newest_spread.add_time) * 1000)
+//            ),
+//            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//              new Date()
+//            )
+//          }
+//        },
+//        { merge: true }
+//      );
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of newest_spread by DY`
+//        )
+//      );
+//    }
+//  });
+//}
+//async function write2firestoreAboutNewestTotals(eventSnapshot, newest_totals) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await eventSnapshot.set(
+//        {
+//          newest_totals: {
+//            handicap: Number.parseFloat(newest_totals.handicap),
+//            under_odd: Number.parseFloat(newest_totals.under_od),
+//            over_odd: Number.parseFloat(newest_totals.over_od),
+//            over_tw: newest_totals.over_tw,
+//            add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//              new Date(Number.parseInt(newest_totals.add_time) * 1000)
+//            ),
+//            insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//              new Date()
+//            )
+//          }
+//        },
+//        { merge: true }
+//      );
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of newest_totals by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -137,7 +220,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   });
 }
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -151,36 +234,36 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
     }
   });
 }
-async function write2firestoreAboutSpread(eventSnapshot, odd) {
-  return new Promise(async function(resolve, reject) {
-    const spread = {};
-    spread[odd.id] = {
-      handicap: Number.parseFloat(odd.handicap),
-      home_odd: Number.parseFloat(odd.home_od),
-      away_odd: Number.parseFloat(odd.away_od),
-      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-        new Date(Number.parseInt(odd.add_time) * 1000)
-      ),
-      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-        new Date()
-      ),
-      away_tw: odd.away_tw,
-      home_tw: odd.home_tw
-    };
-    try {
-      await eventSnapshot.set({ spreads: spread }, { merge: true });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of spreads by DY`
-        )
-      );
-    }
-  });
-}
+//async function write2firestoreAboutSpread(eventSnapshot, odd) {
+//  return new Promise(async function (resolve, reject) {
+//    const spread = {};
+//    spread[odd.id] = {
+//      handicap: Number.parseFloat(odd.handicap),
+//      home_odd: Number.parseFloat(odd.home_od),
+//      away_odd: Number.parseFloat(odd.away_od),
+//      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//        new Date(Number.parseInt(odd.add_time) * 1000)
+//      ),
+//      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//        new Date()
+//      ),
+//      away_tw: odd.away_tw,
+//      home_tw: odd.home_tw
+//    };
+//    try {
+//      await eventSnapshot.set({ spreads: spread }, { merge: true });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of spreads by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2MysqlOfMatchSpread(odd, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
@@ -204,7 +287,7 @@ async function write2MysqlOfMatchSpread(odd, ele) {
   });
 }
 async function write2MysqlOfMatchTotals(odd, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
@@ -226,35 +309,35 @@ async function write2MysqlOfMatchTotals(odd, ele) {
     }
   });
 }
-async function write2firestoreAboutTotals(eventSnapshot, odd) {
-  return new Promise(async function(resolve, reject) {
-    const totals = {};
-    totals[odd.id] = {
-      handicap: Number.parseFloat(odd.handicap),
-      under_odd: Number.parseFloat(odd.under_od),
-      over_odd: Number.parseFloat(odd.over_od),
-      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-        new Date(Number.parseInt(odd.add_time) * 1000)
-      ),
-      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-        new Date()
-      ),
-      over_tw: odd.over_tw
-    };
-    try {
-      await eventSnapshot.set({ totals: totals }, { merge: true });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of totals by DY`
-        )
-      );
-    }
-  });
-}
+//async function write2firestoreAboutTotals(eventSnapshot, odd) {
+//  return new Promise(async function (resolve, reject) {
+//    const totals = {};
+//    totals[odd.id] = {
+//      handicap: Number.parseFloat(odd.handicap),
+//      under_odd: Number.parseFloat(odd.under_od),
+//      over_odd: Number.parseFloat(odd.over_od),
+//      add_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//        new Date(Number.parseInt(odd.add_time) * 1000)
+//      ),
+//      insert_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//        new Date()
+//      ),
+//      over_tw: odd.over_tw
+//    };
+//    try {
+//      await eventSnapshot.set({ totals: totals }, { merge: true });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of totals by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function updateHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
@@ -311,34 +394,34 @@ async function updateHandicap(league, ele) {
     }
   });
 }
-async function query_opening(flag, value, league) {
-  return new Promise(async function(resolve, reject) {
-    const eventsRef = modules.firestore.collection(league);
-    const eles = [];
-    try {
-      const querys = await eventsRef
-        .where(flag, '==', value)
-        .where('scheduled', '>', modules.moment() / 1000)
-        .get();
-      querys.forEach(function(docs) {
-        eles.push(docs.data());
-      });
-      return resolve(await Promise.all(eles));
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of query_opening by DY`
-        )
-      );
-    }
-  });
-}
+//async function query_opening(flag, value, league) {
+//  return new Promise(async function (resolve, reject) {
+//    const eventsRef = modules.firestore.collection(league);
+//    const eles = [];
+//    try {
+//      const querys = await eventsRef
+//        .where(flag, '==', value)
+//        .where('scheduled', '>', modules.moment() / 1000)
+//        .get();
+//      querys.forEach(function (docs) {
+//        eles.push(docs.data());
+//      });
+//      return resolve(await Promise.all(eles));
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of query_opening by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2firestoreAboutAllSpread(
   eventSnapshot,
   spread,
   spreadData
 ) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -358,35 +441,35 @@ async function write2firestoreAboutAllSpread(
     }
   });
 }
-async function query_handicap(flag, value, leagues) {
-  return new Promise(async function(resolve, reject) {
-    const date = modules.moment();
-    const eles = [];
-    const eventsRef = modules.firestore.collection(leagues);
-    const beginningDate = modules.moment(date);
-    const endDate = modules.moment(date).add(24, 'hours');
-    // 只針對明天（和今天時間相減相差 24 小時內）的賽事
-    try {
-      const querys = await eventsRef
-        .where(flag, '==', value)
-        .where('scheduled', '>=', beginningDate / 1000)
-        .where('scheduled', '<=', endDate / 1000)
-        .get();
-      querys.forEach(async function(docs) {
-        eles.push(docs.data());
-      });
-      return resolve(await Promise.all(eles));
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err.stack} at handicap_esports of query_handicap by DY`
-        )
-      );
-    }
-  });
-}
+//async function query_handicap(flag, value, leagues) {
+//  return new Promise(async function (resolve, reject) {
+//    const date = modules.moment();
+//    const eles = [];
+//    const eventsRef = modules.firestore.collection(leagues);
+//    const beginningDate = modules.moment(date);
+//    const endDate = modules.moment(date).add(24, 'hours');
+//    // 只針對明天（和今天時間相減相差 24 小時內）的賽事
+//    try {
+//      const querys = await eventsRef
+//        .where(flag, '==', value)
+//        .where('scheduled', '>=', beginningDate / 1000)
+//        .where('scheduled', '<=', endDate / 1000)
+//        .get();
+//      querys.forEach(async function (docs) {
+//        eles.push(docs.data());
+//      });
+//      return resolve(await Promise.all(eles));
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err.stack} at handicap_esports of query_handicap by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -403,7 +486,7 @@ async function write2MysqlOfMatchAboutAllSpread(ele, spreadData) {
   });
 }
 async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: spreadData.id,
@@ -427,7 +510,7 @@ async function write2MysqlOfMatchSpreadAboutAllSpread(ele, spreadData) {
   });
 }
 async function getHandicap(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;
@@ -479,7 +562,7 @@ async function write2firestoreAboutAllTotals(
   totals,
   totalsData
 ) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await eventSnapshot.set(
         {
@@ -500,7 +583,7 @@ async function write2firestoreAboutAllTotals(
   });
 }
 async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -517,7 +600,7 @@ async function write2MysqlOfMatchAboutAllTotals(ele, totalsData) {
   });
 }
 async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: totalsData.id,
@@ -540,7 +623,7 @@ async function write2MysqlOfMatchTotalsAboutAllTotals(ele, totalsData) {
   });
 }
 async function getTotals(league, ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const eventSnapshot = modules.getDoc(league, ele.bets_id);
       const URL = `${oddURL}?token=${modules.betsToken}&event_id=${ele.bets_id}`;

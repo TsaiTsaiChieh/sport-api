@@ -1,14 +1,14 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'baseball_KBO';
+//const firebaseName = 'baseball_KBO';
 const Match = db.Match;
 const leagueUniteID = '349';
 const leagueUniteName = 'KBO';
 const sportID = 16;
 module.exports.KBO = {};
-module.exports.KBO.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
+module.exports.KBO.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
     try {
       const leagueID = 349;
 
@@ -17,7 +17,7 @@ module.exports.KBO.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          await write2firestore(ele);
+          //await write2firestore(ele);
           await write2realtime(ele);
           await write2MysqlOfMatch(ele);
           // await write2MysqlOfMatchTeam(ele);
@@ -35,7 +35,7 @@ module.exports.KBO.upcoming = async function(date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -46,25 +46,25 @@ async function axiosForURL(URL) {
     }
   });
 }
-async function write2firestore(ele) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await modules.firestore
-        .collection(firebaseName)
-        .doc(ele.id)
-        .set(repackage_bets(ele), { merge: true });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err} at prematchFunctions_KBO by DY`
-        )
-      );
-    }
-  });
-}
+//async function write2firestore(ele) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await modules.firestore
+//        .collection(firebaseName)
+//        .doc(ele.id)
+//        .set(repackage_bets(ele), { merge: true });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err} at prematchFunctions_KBO by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2realtime(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.database
         .ref(`baseball/KBO/${ele.id}/Summary/status`)
@@ -80,7 +80,7 @@ async function write2realtime(ele) {
   });
 }
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,

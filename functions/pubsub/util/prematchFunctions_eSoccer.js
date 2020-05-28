@@ -1,7 +1,7 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'esport_eSoccer';
+//const firebaseName = 'esports_eSoccer';
 const leagueUniteID = '22000';
 const leagueUniteName = 'eSoccer';
 const sportID = 1;
@@ -9,8 +9,8 @@ const leagueArray = [22614, 22808, 22764, 22537, 22724];
 const Match = db.Match;
 const MatchTeam = db.Team;
 module.exports.eSoccer = {};
-module.exports.eSoccer.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
+module.exports.eSoccer.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
@@ -25,7 +25,7 @@ module.exports.eSoccer.upcoming = async function(date) {
             if (ele.away.name.indexOf('Esports') !== -1) {
               ele.away.name = ele.away.name.replace('Esports', '');
             }
-            await write2firestore(ele);
+            //await write2firestore(ele);
             await write2realtime(ele);
             await write2MysqlOfMatch(ele);
             await write2MysqlOfMatchTeam(ele);
@@ -46,7 +46,7 @@ module.exports.eSoccer.upcoming = async function(date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -57,25 +57,25 @@ async function axiosForURL(URL) {
     }
   });
 }
-async function write2firestore(ele) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await modules.firestore
-        .collection(firebaseName)
-        .doc(ele.id)
-        .set(repackage_bets(ele), { merge: true });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err} at prematchFunctions_ESoccer by DY`
-        )
-      );
-    }
-  });
-}
+//async function write2firestore(ele) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await modules.firestore
+//        .collection(firebaseName)
+//        .doc(ele.id)
+//        .set(repackage_bets(ele), { merge: true });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err} at prematchFunctions_ESoccer by DY`
+//        )
+//      );
+//    }
+//  });
+//}
 async function write2realtime(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.database
         .ref(`esports/eSoccer/${ele.id}/Summary/status`)
@@ -91,7 +91,7 @@ async function write2realtime(ele) {
   });
 }
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,
@@ -116,7 +116,7 @@ async function write2MysqlOfMatch(ele) {
   });
 }
 async function write2MysqlOfMatchTeam(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataHomeTeam = {
         team_id: ele.home.id,
