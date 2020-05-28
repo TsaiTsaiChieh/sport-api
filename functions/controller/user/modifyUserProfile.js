@@ -19,31 +19,29 @@ async function modifyUserProfile(req, res) {
     });
   const userStatus = userSnapshot != null ? userSnapshot.status : 0;
   const data = {};
-  const nowTimeStamp = await admin.firestore.Timestamp.now();
+  const nowTimeStamp = modules.moment().unix();
   const args = {};
-  data.displayName = req.body.displayName;
+  data.display_name = req.body.display_name;
   data.name = req.body.name;
   data.phone = req.body.phone;
   data.email = req.body.email;
   data.birthday = req.body.birthday;
-  // console.log(modules.zone);
   data.birthday_tw = modules.moment.tz(args.birthday, modules.zone).format('YYYY-MM-DD HH:mm:ss');
-
   data.uid = uid;
   switch (userStatus) {
     case 0: // 新會員
     {
       const schema = {
         type: 'object',
-        required: ['displayName', 'name', 'phone', 'email', 'birthday'],
+        required: ['display_name', 'name', 'phone', 'email', 'birthday'],
         properties: {
-          displayName: { type: 'string', minLength: 2, maxLength: 15 },
+          display_name: { type: 'string', minLength: 2, maxLength: 15 },
           name: { type: 'string', minLength: 2, maxLength: 10 },
           phone: { type: 'string', minLength: 10, maxLength: 15 },
           email: { type: 'string', format: 'email' },
           birthday: { type: 'integer' },
           avatar: { type: 'string', format: 'url' },
-          signature: { type: 'string', maxLength: 50 }
+          signature: { type: 'string', maxLength: 20 }
         }
       };
       const valid = modules.ajv.validate(schema, data);
@@ -118,7 +116,7 @@ async function modifyUserProfile(req, res) {
       admin.auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
-        displayName: req.body.displayName
+        display_name: req.body.display_name
       });
       admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
@@ -149,7 +147,7 @@ async function modifyUserProfile(req, res) {
   // if (req.body.email) data.email = req.body.email;
   // if (req.body.phone) data.phone = req.body.phone;
   if (req.body.signature) data.signature = req.body.signature;
-  if (req.body.title) data.defaultTitle = req.body.title;
+  // if (req.body.title) data.defaultTitle = req.body.title;//移到另外API
   data.updateTime = nowTimeStamp;
   const resultJson = {};
   // const refCode = req.body.refCode;
@@ -178,7 +176,6 @@ async function modifyUserProfile(req, res) {
   //   }
   // }
   // console.log(data); return;
-  data.display_name = data.displayName;
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
   await db.User.upsert(data)
     .then(async(ref) => {
