@@ -84,6 +84,20 @@ module.exports = settleGodTitle;
  * }
  *
  *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": "",
+    "schemaPath": "#/required",
+    "params": {
+      "missingProperty": "period"
+    },
+    "message": "should have required property 'period'"
+  }
+]
+ *
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:
