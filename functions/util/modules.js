@@ -23,6 +23,7 @@ const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 // const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 const to = require('await-to-js').default;
+const NP = require('number-precision');
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -781,70 +782,66 @@ function predictionsWinList(data) {
         (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
         0
       );
-      const predictFaultCounts =
-        predictSpreadFaultCounts + predictTotalsFaultCounts;
+      const predictFaultCounts = NP.plus(predictSpreadFaultCounts, predictTotalsFaultCounts);
 
       // 避免分母是0 平盤無效
       const spreadWinRate =
-        predictSpreadCorrectCounts + predictSpreadFaultCounts === 0
+        NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts) === 0
           ? 0
-          : predictSpreadCorrectCounts /
-            (predictSpreadCorrectCounts + predictSpreadFaultCounts);
+          : NP.divide(predictSpreadCorrectCounts, NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts));
       const totalsWinRate =
-        predictTotalsCorrectCounts + predictTotalsFaultCounts === 0
+        NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts) === 0
           ? 0
-          : predictTotalsCorrectCounts /
-            (predictTotalsCorrectCounts + predictTotalsFaultCounts);
+          : NP.divide(predictTotalsCorrectCounts, NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts));
       const winRate =
-        predictCorrectCounts + predictFaultCounts === 0
+        NP.plus(predictCorrectCounts, predictFaultCounts) === 0
           ? 0
-          : predictCorrectCounts / (predictCorrectCounts + predictFaultCounts);
+          : NP.divide(predictCorrectCounts, NP.plus(predictCorrectCounts, predictFaultCounts));
 
       // 勝注
       const predictSpreadCorrectBets = data.reduce(
         (acc, cur) =>
           correct.includes(cur.spread_result_flag)
-            ? cur.spread_result_flag * cur.spread_bets + acc
+            ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
       const predictTotalsCorrectBets = data.reduce(
         (acc, cur) =>
           correct.includes(cur.totals_result_flag)
-            ? cur.totals_result_flag * cur.totals_bets + acc
+            ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
       );
-      const predictCorrectBets =
-        predictSpreadCorrectBets + predictTotalsCorrectBets;
+      const predictCorrectBets = NP.plus(predictSpreadCorrectBets, predictTotalsCorrectBets);
 
       const predictSpreadFaultBets = data.reduce(
         (acc, cur) =>
           fault.includes(cur.spread_result_flag)
-            ? cur.spread_result_flag * cur.spread_bets + acc
+            ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
       const predictTotalsFaultBets = data.reduce(
         (acc, cur) =>
           fault.includes(cur.totals_result_flag)
-            ? cur.totals_result_flag * cur.totals_bets + acc
+            ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
       );
-      const predictFaultBets = predictSpreadFaultBets + predictTotalsFaultBets;
+      const predictFaultBets = NP.plus(predictSpreadFaultBets, predictTotalsFaultBets);
 
-      const spreadWinBets = predictSpreadCorrectBets + predictSpreadFaultBets;
-      const totalsWinBets = predictTotalsCorrectBets + predictTotalsFaultBets;
-      const winBets = predictCorrectBets + predictFaultBets;
+      const spreadWinBets = NP.plus(predictSpreadCorrectBets, predictSpreadFaultBets);
+      const totalsWinBets = NP.plus(predictTotalsCorrectBets, predictTotalsFaultBets);
+      const winBets = NP.plus(predictCorrectBets, predictFaultBets);
 
       // 注數計算
 
       result.push({
         uid: data[0].uid,
         league_id: data[0].league_id,
-        win_rate: Number(winRate.toFixed(2)),
-        win_bets: Number(winBets.toFixed(2)),
+        win_rate: winRate,
+        win_bets: winBets,
         matches_count: data.length,
         correct_counts: predictCorrectCounts,
         fault_counts: predictFaultCounts,
@@ -887,6 +884,7 @@ function predictionsWinList(data) {
 //     alias_ch: '黃蜂',
 //     player_name: null
 // }
+//
 // 電競足球
 // home_alias = 'Atletico Madrid (Boulevard_Prospect)'
 //
@@ -898,9 +896,9 @@ function predictionsWinList(data) {
 // }
 //
 // team_name: ele.home_alias,
-// alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-// alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
-// player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+// alias: sliceTeamAndPlayer(ele.home_alias).team,
+// alias_ch: sliceTeamAndPlayer(ele.home_alias_ch).team,
+// player_name: sliceTeamAndPlayer(ele.home_alias).player_name,
 //
 // 將電競足球的隊名和球員分開
 function sliceTeamAndPlayer(name) {
@@ -987,5 +985,6 @@ module.exports = {
   acceptLeague,
   MATCH_STATUS,
   to,
+  NP,
   godUserPriceTable
 };
