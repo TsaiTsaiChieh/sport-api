@@ -32,7 +32,7 @@ async function handicap() {
   // go through each league
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
-    if (querysForEvent > 0) {
+    if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
     // flag.spread/totals === 0 represent did not have first handicap information
@@ -109,7 +109,7 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 1,
+      value: 2,
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);
@@ -131,8 +131,9 @@ async function query_event(league) {
 async function upsertHandicap(querysForEvent, sport, league) {
   return new Promise(async function(resolve, reject) {
     try {
-      for (let i = 0; i < querysForEvent; i++) {
+      for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
+
         const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
         const data = await axiosForURL(URL);
         let spread_odds = [];
@@ -142,8 +143,12 @@ async function upsertHandicap(querysForEvent, sport, league) {
         "results": {}
       } */
         if (data.results.odds) {
-          spread_odds = data.results.odds[`${sport}_2`];
-          totals_odds = data.results.odds[`${sport}_3`];
+          if (data.results.odds[`${sport}_2`]) {
+            spread_odds = data.results.odds[`${sport}_2`];
+          }
+          if (data.results.odds[`${sport}_3`]) {
+            totals_odds = data.results.odds[`${sport}_3`];
+          }
         }
         let newest_spread;
         if (spread_odds.length > 0) {
@@ -253,7 +258,9 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
       });
       return resolve('ok');
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err} at handicap by DY`));
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap ${ele.bets_id} by DY`)
+      );
     }
   });
 }
@@ -266,7 +273,9 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
       });
       return resolve('ok');
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err} at handicap by DY`));
+      return reject(
+        new AppErrors.MysqlError(`${err} at handicap ${ele.bets_id} by DY`)
+      );
     }
   });
 }
@@ -315,7 +324,9 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at handicap of MatchSpread by DY`)
+        new AppErrors.MysqlError(
+          `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
+        )
       );
     }
   });
@@ -336,7 +347,9 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at handicap of MatchTotals by DY`)
+        new AppErrors.MysqlError(
+          `${err} at handicap of MatchTotals ${ele.bets_id} by DY`
+        )
       );
     }
   });

@@ -13,9 +13,12 @@ function queryMatches() {
         // take 169 ms
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id       
-            FROM matches AS game,     
+            FROM matches AS game   
            WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
-        )`
+        )`,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
       );
       // const data = await modules.firestore
       //   .collection(firestoreName)
@@ -26,7 +29,7 @@ function queryMatches() {
       // data.docs.map(function (doc) {
       //   totalData.push(doc.data());
       // });
-      return resolve(await queries);
+      return resolve(queries);
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
@@ -79,8 +82,9 @@ async function doPBP(parameter) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const leagueName = modules.leagueDecoder(parameter.leagueID);
-    const sportName = modules.league2Sport(leagueName);
-    const firestoreName = `${sportName}_${leagueName}`;
+    const sportName = modules.league2Sport(leagueName).sport;
+
+    // const firestoreName = `${sportName}_${leagueName}`;
 
     try {
       const data = await axiosForURL(pbpURL);
@@ -111,18 +115,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -3 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at checkmatch_abnormal of status by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -3 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at checkmatch_abnormal of status by DY`
+            //    )
+            //  );
+            // }
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -148,18 +152,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: -2 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: -2 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status by DY`
+            //    )
+            //  );
+            // }
           }
           if (data.results[0].time_status === '3') {
             try {
@@ -167,7 +171,6 @@ async function doPBP(parameter) {
                 betsID: betsID,
                 sportName: sportName,
                 leagueName: leagueName,
-                firestoreName: firestoreName,
                 data: data
               };
               await pbpHistory(parameterHistory);
@@ -207,18 +210,18 @@ async function doPBP(parameter) {
                 )
               );
             }
-            try {
-              await modules.firestore
-                .collection(firestoreName)
-                .doc(betsID)
-                .set({ flag: { status: 1 } }, { merge: true });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} at doPBP of status on ${betsID} by DY`
-                )
-              );
-            }
+            // try {
+            //  await modules.firestore
+            //    .collection(firestoreName)
+            //    .doc(betsID)
+            //    .set({ flag: { status: 1 } }, { merge: true });
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseCollectError(
+            //      `${err} at doPBP of status on ${betsID} by DY`
+            //    )
+            //  );
+            // }
             try {
               await modules.database
                 .ref(`${sportName}/${leagueName}/${betsID}/Summary/league`)
@@ -255,7 +258,7 @@ async function pbpHistory(parameterHistory) {
     const betsID = parameterHistory.betsID;
     const sportName = parameterHistory.sportName;
     const leagueName = parameterHistory.leagueName;
-    const firestoreName = parameterHistory.firestoreName;
+    // const firestoreName = parameterHistory.firestoreName;
     let realtimeData;
     let homeScores = 'no data';
     let awayScores = 'no data';
@@ -333,18 +336,18 @@ async function pbpHistory(parameterHistory) {
         awayScores = data.results[0].ss.split('-')[1];
       }
     }
-    try {
-      await modules.firestore
-        .collection(firestoreName)
-        .doc(betsID)
-        .set({ flag: { status: 0 } }, { merge: true });
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err} at pbpESoccer of status by DY`
-        )
-      );
-    }
+    // try {
+    //  await modules.firestore
+    //    .collection(firestoreName)
+    //    .doc(betsID)
+    //    .set({ flag: { status: 0 } }, { merge: true });
+    // } catch (err) {
+    //  return reject(
+    //    new AppErrors.FirebaseCollectError(
+    //      `${err} at pbpESoccer of status by DY`
+    //    )
+    //  );
+    // }
 
     try {
       await Match.upsert({
@@ -423,6 +426,11 @@ async function pbpHistory(parameterHistory) {
         bets_id: betsID
       });
     } catch (err) {
+      console.log(
+        'Error in pubsub/pbp_eSoccer on YuHsien by DY:  %o : %o',
+        err,
+        betsID
+      );
       return reject(
         new AppErrors.PBPAbnormalError(`${err} at pbpHistory of yuhsien by DY`)
       );

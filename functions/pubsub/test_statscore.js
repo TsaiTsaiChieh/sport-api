@@ -1,6 +1,6 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
-const db = require('../util/dbUtil');
+// const db = require('../util/dbUtil');
 
 async function test_statscore(req, res) {
   try {
@@ -8,18 +8,22 @@ async function test_statscore(req, res) {
       'https://api.statscore.com/v2/events/3330182?token=dd0509a109c9549d6bb541bd76bfb281';
     const data = await axiosForURL(pbpURL);
 
-    for (
-      let i = 0;
-      i <
-      data.api.data.competition.season.stage.group.event.events_incidents
-        .length;
-      i++
-    ) {
-      console.log(
-        data.api.data.competition.season.stage.group.event.events_incidents[i]
-          .incident_name
-      );
-    }
+    // 文字直播
+    // for (
+    //  let i = 0;
+    //  i <
+    //  data.api.data.competition.season.stage.group.event.events_incidents
+    //    .length;
+    //  i++
+    // ) {
+    //  console.log(
+    //    data.api.data.competition.season.stage.group.event.events_incidents[i]
+    //      .incident_name
+    //  );
+    // }
+
+    // 團隊各項數值
+    // data.api.data.competition.season.stage.group.event.participants.stats.
 
     res.json(data);
   } catch (err) {
@@ -27,7 +31,7 @@ async function test_statscore(req, res) {
   }
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
