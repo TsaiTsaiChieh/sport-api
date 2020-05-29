@@ -42,6 +42,10 @@ router.post(
   require('../controller/user/contactServiceController')
 );
 router.get(
+  '/servicedata',
+  require('../controller/user/contactService_data')
+);
+router.get(
   '/getTitlesAndSignature/:uid',
   require('../controller/user/getTitlesAndSignatureController')
 );
