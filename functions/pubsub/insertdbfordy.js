@@ -1,27 +1,18 @@
 // const settleMatchesModel = require('../model/user/settleMatchesModel');
-// const modules = require('../util/modules');
-const db = require('../util/dbUtil');
-const to = require('await-to-js').default;
-
+const modules = require('../util/modules');
+// const db = require('../util/dbUtil');
+// const Sp = db.Spread;
 async function inserttest(req, res) {
   try {
-    const [err, r] = await to(
-      db.Match.update(
-        {
-          spread_result: null,
-          totals_result: null
-        },
-        {
-          where: {
-            bets_id: '2398520'
-          }
-        }
-      )
-    );
-    console.log(err);
-    console.log(r[0]);
-
-    res.json('ok');
+    const unix = Math.floor(Date.now() / 1000);
+    const tomorrow = modules.convertTimezoneFormat(unix, {
+      op: 'add',
+      value: 1,
+      unit: 'days'
+    });
+    const now = modules.convertTimezoneFormat(unix);
+    console.log(now);
+    console.log(tomorrow);
   } catch (err) {
     console.log(err);
   }

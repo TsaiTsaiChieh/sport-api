@@ -55,21 +55,24 @@ exports.getUserProfile = async function(userId) {
     // let userIdStr = userId.toString().trim();
   const userIdStr = userId;
   if (userIdStr.length < 1) {
-    console.warn('firebaseGetUserData no userId : ', userId);
+    console.warn('MySQLGetUserData no userId : ', userId);
     return returnJson;
   }
 
-  await modules.firestore.collection('users').doc(userIdStr).get().then(userRecord => {
-    if (!userRecord.exists) {
+  await db.User.findAll({
+    where: {
+      uid: userIdStr
+    }
+  }).then(userRecord => {
+    if (userRecord.length <= 0) {
       console.log('No such document!');
       returnJson.status = 0;
       returnJson.success = true;
     } else {
       console.log('document found!', userRecord.createTime);
-      returnJson.data = userRecord.data();
+      returnJson.data = userRecord;
       returnJson.status = returnJson.data.status;
       returnJson.success = true;
-      // console.log(`Retrieved data: ${JSON.stringify(userRecord)}`);
     }
     console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
     return returnJson;

@@ -115,6 +115,7 @@ app.use('/topics', require('./routers/topics'));
 app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
+app.use('/cashflow', require('./routers/cashflow'));
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
@@ -165,7 +166,7 @@ exports.pbp_abnormal = functions
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json({ test: 'awake' });
+  res.status(200).json({ test: 'awake0528v01' });
 });
 
 exports.api = functions.runWith(runtimeOpts).https.onRequest(app);

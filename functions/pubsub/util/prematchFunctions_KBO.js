@@ -1,10 +1,10 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const firebaseName = 'baseball_KBO';
+// const firebaseName = 'baseball_KBO';
 const Match = db.Match;
 const leagueUniteID = '349';
-const leagueUniteName = 'KBO';
+// const leagueUniteName = 'KBO';
 const sportID = 16;
 module.exports.KBO = {};
 module.exports.KBO.upcoming = async function(date) {
@@ -17,7 +17,7 @@ module.exports.KBO.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          await write2firestore(ele);
+          // await write2firestore(ele);
           await write2realtime(ele);
           await write2MysqlOfMatch(ele);
           // await write2MysqlOfMatchTeam(ele);
@@ -46,23 +46,23 @@ async function axiosForURL(URL) {
     }
   });
 }
-async function write2firestore(ele) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await modules.firestore
-        .collection(firebaseName)
-        .doc(ele.id)
-        .set(repackage_bets(ele), { merge: true });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err} at prematchFunctions_KBO by DY`
-        )
-      );
-    }
-  });
-}
+// async function write2firestore(ele) {
+//  return new Promise(async function (resolve, reject) {
+//    try {
+//      await modules.firestore
+//        .collection(firebaseName)
+//        .doc(ele.id)
+//        .set(repackage_bets(ele), { merge: true });
+//      return resolve('ok');
+//    } catch (err) {
+//      return reject(
+//        new AppErrors.FirebaseCollectError(
+//          `${err} at prematchFunctions_KBO by DY`
+//        )
+//      );
+//    }
+//  });
+// }
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -105,41 +105,41 @@ async function write2MysqlOfMatch(ele) {
   });
 }
 
-function repackage_bets(ele) {
-  const leagueCH = '韓國職棒';
+// function repackage_bets(ele) {
+//  const leagueCH = '韓國職棒';
 
-  return {
-    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-    scheduled: Number.parseInt(ele.time),
-    scheduled_tw: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-      new Date(Number.parseInt(ele.time) * 1000)
-    ),
-    bets_id: ele.id,
-    league: {
-      ori_bets_id: ele.league.id,
-      bets_id: leagueUniteID,
-      name: leagueUniteName,
-      name_ch: leagueCH
-    },
-    home: {
-      name: ele.home.name,
-      alias: ele.home.name,
-      alias_ch: ele.home.name,
-      image_id: ele.home.image_id,
-      bets_id: ele.home.id
-    },
-    away: {
-      name: ele.away.name,
-      alias: ele.away.name,
-      alias_ch: ele.away.name,
-      image_id: ele.away.image_id,
-      bets_id: ele.away.id
-    },
-    flag: {
-      spread: 0,
-      totals: 0,
-      status: 2,
-      prematch: 1
-    }
-  };
-}
+//  return {
+//    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+//    scheduled: Number.parseInt(ele.time),
+//    scheduled_tw: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+//      new Date(Number.parseInt(ele.time) * 1000)
+//    ),
+//    bets_id: ele.id,
+//    league: {
+//      ori_bets_id: ele.league.id,
+//      bets_id: leagueUniteID,
+//      name: leagueUniteName,
+//      name_ch: leagueCH
+//    },
+//    home: {
+//      name: ele.home.name,
+//      alias: ele.home.name,
+//      alias_ch: ele.home.name,
+//      image_id: ele.home.image_id,
+//      bets_id: ele.home.id
+//    },
+//    away: {
+//      name: ele.away.name,
+//      alias: ele.away.name,
+//      alias_ch: ele.away.name,
+//      image_id: ele.away.image_id,
+//      bets_id: ele.away.id
+//    },
+//    flag: {
+//      spread: 0,
+//      totals: 0,
+//      status: 2,
+//      prematch: 1
+//    }
+//  };
+// }
