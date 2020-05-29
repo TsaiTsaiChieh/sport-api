@@ -17,6 +17,7 @@ function findUser(uid) {
 function getSeason(league_id) {
   return new Promise(async function(resolve, reject) {
     try {
+      // find the first one and return
       const results = await db.Season.findOne({
         where: {
           league_id: league_id,
