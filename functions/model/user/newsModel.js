@@ -44,7 +44,7 @@ function newsModel(method, args, uid) {
            WHERE un.scheduled BETWEEN :begin and :end
              AND un.status=1
              AND un.active=1
-             AND uns.system_id not in (:news_id)
+
            ORDER BY un.scheduled DESC
        LIMIT :start_system, :limit_system
           `,
@@ -109,18 +109,6 @@ function newsModel(method, args, uid) {
               active: 0
             });
           });
-          del_res = db.sequelize.query(
-            `
-              UPDATE user__news 
-                 SET active=0
-               WHERE uid='${uid}'
-                 AND news_id in (${del_join})
-                 AND status=1
-            `,
-            {
-              type: db.sequelize.QueryTypes.DELETE
-            }
-          );
         } else {
           del_res = db.sequelize.query(
             `
