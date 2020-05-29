@@ -180,6 +180,17 @@ class CoinOrDividendNotEnough extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class CouldNotBuyOwnPredictions extends ExtendableError {
+  constructor(
+    message = '無法購買自己的預測',
+    status = 1211,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -383,6 +394,7 @@ module.exports = {
   OnlyAcceptNormalUser,
   GodUserDidNotSell,
   CoinOrDividendNotEnough,
+  CouldNotBuyOwnPredictions,
   UserPredictFailed,
   DeletePredictionsFailed,
   MysqlError,
