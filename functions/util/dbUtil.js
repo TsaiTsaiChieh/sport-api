@@ -1459,7 +1459,7 @@ const Home_Banner = sequelize.define(
   }
 );
 
-const Buy = sequelize.define(
+const UserBuy = sequelize.define(
   'user__buy',
   {
     buy_id: {
@@ -1691,7 +1691,7 @@ const dbUtil = {
   Home_Banner,
   Home_List,
   Service_Contact,
-  Buy,
+  UserBuy,
   Honor_board,
   News,
   News_System,
