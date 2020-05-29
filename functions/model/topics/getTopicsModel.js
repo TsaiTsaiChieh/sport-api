@@ -53,7 +53,7 @@ async function getTopics(args) {
       let order = [];
       if (args.sortBy === 'view') {
         order = [['view_count', 'DESC']];
-      } else if (args.sortBy === 'view') {
+      } else if (args.sortBy === 'like') {
         order = [['like_count', 'DESC']];
       } else {
         order = [['article_id', 'DESC']];

@@ -15,8 +15,13 @@ async function model(args) {
         attributes: ['uid', 'status', 'avatar', 'display_name', 'name', 'phone', 'email'],
         raw: true
       });
+      const roles = [];
+      if (result.status === 9) {
+        roles.push('admin'); // 後台前端套件管控用
+        roles.push('service');
+      }
 
-      resolve({ code: 200, token: args.bearer, userInfo: result });
+      resolve({ code: 200, token: args.bearer, roles: roles, userInfo: result });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

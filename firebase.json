@@ -10,6 +10,7 @@
       "site": "api-getsports",
       "public": "public",
       "ignore": [
+        "firebase.json",
         "**/.*",
         "**/node_modules/**"
       ],
@@ -61,6 +62,7 @@
       "site": "admin-api-dosports",
       "public": "public",
       "ignore": [
+        "firebase.json",
         "**/.*",
         "**/node_modules/**"
       ],

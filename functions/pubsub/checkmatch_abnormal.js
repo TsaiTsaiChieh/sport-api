@@ -3,22 +3,30 @@ const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
-const firestoreArray = ['esport_eSoccer', 'baseball_KBO'];
-const sportArray = ['esports', 'baseball'];
-const leagueArray = ['eSoccer', 'KBO'];
-function queryMatches(firestoreName) {
+// const firestoreArray = ['esport_eSoccer', 'baseball_KBO'];
+// const sportArray = ['esports', 'baseball'];
+// const leagueArray = ['eSoccer', 'KBO'];
+function queryMatches() {
   return new Promise(async function(resolve, reject) {
     try {
-      const data = await modules.firestore
-        .collection(firestoreName)
-        .where('flag.status', '==', modules.MATCH_STATUS.ABNORMAL)
-        .get();
-      const totalData = [];
+      const queries = await db.sequelize.query(
+        // take 169 ms
+        `(
+          SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id       
+            FROM matches AS game,     
+           WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
+        )`
+      );
+      // const data = await modules.firestore
+      //   .collection(firestoreName)
+      //   .where('flag.status', '==', modules.MATCH_STATUS.ABNORMAL)
+      //   .get();
+      // const totalData = [];
 
-      data.docs.map(function(doc) {
-        totalData.push(doc.data());
-      });
-      return resolve(await Promise.all(totalData));
+      // data.docs.map(function (doc) {
+      //   totalData.push(doc.data());
+      // });
+      return resolve(await queries);
     } catch (err) {
       return reject(`${err.stack} by DY`);
     }
@@ -26,33 +34,31 @@ function queryMatches(firestoreName) {
 }
 async function checkmatch_abnormal() {
   return new Promise(async function(resolve, reject) {
-    for (let i = 0; i < firestoreArray.length; i++) {
-      const firestoreName = firestoreArray[i];
-      const sportName = sportArray[i];
-      const leagueName = leagueArray[i];
-      try {
-        const totalData = await queryMatches(firestoreName);
+    // const firestoreName = firestoreArray[i];
+    // const sportName = sportArray[i];
+    // const leagueName = leagueArray[i];
+    try {
+      const totalData = await queryMatches();
 
-        for (let j = 0; j < totalData.length; j++) {
-          const betsID = totalData[j].bets_id;
-          const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
-          const parameterPBP = {
-            betsID: betsID,
-            pbpURL: pbpURL,
-            sportName: sportName,
-            leagueName: leagueName,
-            firestoreName: firestoreName
-          };
-          await doPBP(parameterPBP);
-        }
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseCollectError(
-            `${err} at checkmatch_abnormal by DY`
-          )
-        );
+      for (let j = 0; j < totalData.length; j++) {
+        const betsID = totalData[j].bets_id;
+        const leagueID = totalData[j].league_id;
+        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
+        const parameterPBP = {
+          betsID: betsID,
+          pbpURL: pbpURL,
+          leagueID: leagueID
+        };
+        await doPBP(parameterPBP);
       }
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at checkmatch_abnormal by DY`
+        )
+      );
     }
+
     return resolve('ok');
   });
 }
@@ -72,9 +78,10 @@ async function doPBP(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
-    const sportName = parameter.sportName;
-    const leagueName = parameter.leagueName;
-    const firestoreName = parameter.firestoreName;
+    const leagueName = modules.leagueDecoder(parameter.leagueID);
+    const sportName = modules.league2Sport(leagueName);
+    const firestoreName = `${sportName}_${leagueName}`;
+
     try {
       const data = await axiosForURL(pbpURL);
 

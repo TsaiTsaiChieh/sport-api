@@ -38,34 +38,15 @@ async function prematch() {
     //   console.error(error);
     // }
     try {
-      await KBO(now);
-      await KBO(tomorrow);
-      await CPBL(now);
-      await CPBL(tomorrow);
+      await KBO_functions.KBO.upcoming(now);
+      await KBO_functions.KBO.upcoming(tomorrow);
+      await CPBL_functions.CPBL.upcoming(now);
+      await CPBL_functions.CPBL.upcoming(tomorrow);
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }
     return resolve('ok');
   });
 }
-async function KBO(date) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await KBO_functions.KBO.upcoming(date);
-      return resolve('ok');
-    } catch (err) {
-      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
-    }
-  });
-}
-async function CPBL(date) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      await CPBL_functions.CPBL.upcoming(date);
-      return resolve('ok');
-    } catch (err) {
-      return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
-    }
-  });
-}
+
 module.exports = prematch;

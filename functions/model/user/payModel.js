@@ -29,21 +29,20 @@ function payModel(method, args, uid) {
           try{
             trans = await db.sequelize.models.user.update({ coin: self.coin + exchange.coin, dividend: self.dividend + exchange.dividend }, { where: { uid: uid } });
             const trans_args = {
-              to_uid   : uid,
-              type     : 'buy_coin',
-              dividend : exchange.dividend, // 0:紅利 1:搞幣 2:搞錠
-              coin     : exchange.coin
+              to_uid: uid,
+              type: 'buy_coin',
+              dividend: exchange.dividend, // 0:紅利 1:搞幣 2:搞錠
+              coin: exchange.coin
             };
             transfer.doTransfer(db, trans_args);
-          }catch (error) {
+          } catch (error) {
             console.error(error);
-            reject(errs.errsMsg('500','20002'));
+            reject(errs.errsMsg('500', '20002'));
           }
-          
         } else if (exchange.type === 'ingot2coin') {
           const pre_purse = await db.sequelize.models.user.findOne({
             where: {
-              uid:uid
+              uid: uid
             },
             attributes: ['coin', 'dividend', 'ingot'],
             raw: true
@@ -100,7 +99,7 @@ function payModel(method, args, uid) {
         /*取得經過計算後的錢包*/
         const purse = await db.sequelize.models.user.findOne({
           where: {
-            uid:uid
+            uid: uid
           },
           attributes: ['coin', 'dividend', 'ingot'],
           raw: true
@@ -113,7 +112,7 @@ function payModel(method, args, uid) {
       }
     } catch (error) {
       console.log(error);
-      reject(errs.errsMsg('500','20001'));
+      reject(errs.errsMsg('500', '20001'));
     }
   });
 }

@@ -8,6 +8,8 @@
     "deploy": "firebase deploy",
     "api": "firebase deploy --only functions:api",
     "admin": "firebase deploy --only functions:admin",
+    "product-api": "firebase deploy -P product --only functions:api",
+    "product-admin": "firebase deploy -P product --only functions:admin",
     "logs": "firebase functions:log",
     "grunt": "grunt",
     "test": "jest test/ --testTimeout=30000"

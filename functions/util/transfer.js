@@ -6,7 +6,7 @@ function doTransfer(db, args) {
   const from_uid = args.from_uid || 'default';
   const to_uid = args.to_uid || 'default';
   const type_id = args.type_id || 0;
-  const article_id = args.article_id || 0;
+  // const article_id = args.article_id || 0;
   const type = args.type || 'default';
   const money_type = args.money_type || 0;
   const money_value = args.money_value || 0;

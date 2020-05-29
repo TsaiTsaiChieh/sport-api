@@ -64,7 +64,7 @@ exports.getUserProfile = async function(userId) {
       uid: userIdStr
     }
   }).then(userRecord => {
-    if (userRecord.length<=0) {
+    if (userRecord.length <= 0) {
       console.log('No such document!');
       returnJson.status = 0;
       returnJson.success = true;
