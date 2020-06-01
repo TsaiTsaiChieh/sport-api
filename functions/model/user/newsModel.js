@@ -44,7 +44,6 @@ function newsModel(method, args, uid) {
            WHERE un.scheduled BETWEEN :begin and :end
              AND un.status=1
              AND un.active=1
-             AND uns.system_id not in (${news_id})
            ORDER BY un.scheduled DESC
        LIMIT :start_system, :limit_system
           `,
