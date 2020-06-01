@@ -1462,7 +1462,7 @@ const Home_Banner = sequelize.define(
   }
 );
 
-const Buy = sequelize.define(
+const UserBuy = sequelize.define(
   'user__buy',
   {
     buy_id: {
@@ -1470,51 +1470,61 @@ const Buy = sequelize.define(
       autoIncrement: true,
       primaryKey: true
     },
-    uid: {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    league_id: {
+    uid: { // 購買者 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_uid: {
+    league_id: { // 聯盟 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_rank: {
+    god_uid: { // 要購買的大神 uid
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    god_rank: { // 大神當期的階級
+      type: Sequelize.INTEGER(4),
+      allowNull: false
+    },
+    god_period: { // 大神當期的期數
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    god_period: {
+    day_of_year: { // 開賽時間/勝注勝率計算的日期（今年的第幾天）
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    day_of_year: {
+    season: { // 賽季年度
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    season: {
+    buy_status: { // 款項狀態：-1/0/1 （已退款/處理中/已付費）
+      type: Sequelize.INTEGER(4),
+      allowNull: false
+    },
+    matches_date: { // 賽事當天日期 unix time (+0)
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    buy_status: {
+    matches_date_tw: { // matches_date 欄位的 DATE format
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    buy_date: { // 購買者購買當天日期的 unix time (+0)
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    matches_date: {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    matches_date_tw: {
+    buy_date_tw: { // buy_date 欄位的 DATE format
       type: Sequelize.DATE,
       allowNull: false
     }
   },
   {
-    indexes: [
+    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['uid', 'league_id', 'matches_date']
+        fields: ['uid', 'league_id', 'god_uid', 'matches_date'],
+        unique: true
+
       }
     ]
   }
@@ -1698,6 +1708,61 @@ const ExpireDividend = sequelize.define(
   }
 );
 
+/* 現金紀錄表 */
+const MoneyLogs = sequelize.define(
+  'cashflow_money_logs',
+  {
+    money_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    money: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    money_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    fee: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    fee_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    money_active: {
+      type: Sequelize.STRING
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
+  },
+  {
+    indexes: [
+      {
+        fields: ['money_id', 'money', 'uid']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -1724,7 +1789,7 @@ const dbUtil = {
   Home_Banner,
   Home_List,
   Service_Contact,
-  Buy,
+  UserBuy,
   Honor_board,
   News,
   News_System,
@@ -1734,7 +1799,8 @@ const dbUtil = {
   UserFollow,
   Topic_DonateArticle,
   Service_ReportTopics,
-  ExpireDividend
+  ExpireDividend,
+  MoneyLogs
 };
 
 module.exports = dbUtil;

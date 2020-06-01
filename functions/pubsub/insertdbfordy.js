@@ -2,7 +2,7 @@
 // const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 // const Sp = db.Spread;
-//const to = require('await-to-js').default;
+// const to = require('await-to-js').default;
 async function inserttest(req, res) {
   try {
     const matchInfo = await db.sequelize.query(
