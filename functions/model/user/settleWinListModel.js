@@ -120,7 +120,7 @@ async function settleWinList(args) {
 
   for (const data of resultWinList) {
     let r = {};
-    let err, winListsHistory, created, tt;
+    let err, winListsHistory, created;
     const season = await getSeason(data.league_id);
 
     // 精確小數位數修正
