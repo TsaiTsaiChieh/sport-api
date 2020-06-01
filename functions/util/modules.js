@@ -20,7 +20,7 @@ const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
-const errs = require('./errorCode');
+// const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
@@ -549,6 +549,8 @@ const mergeDeep = (target, source) => {
   };
 };
 
+// 取小數位
+// point = Math.abs(num) - parseInt(Math.abs(num));
 /*
 {
   homePoints:
@@ -586,6 +588,44 @@ function settleSpread(data) {
     : homePoints - handicap > awayPoints
       ? 'home'
       : 'away';
+}
+
+// point 用來取得 handicap 的 小數位數值
+// 整數、0.5 為一般處理
+// 0.25 需要另外判斷
+// 0.75 需要另外判斷
+function settleSpreadSoccer(data) {
+  const sp_25 = [0.25];
+  // const sp_5 = [0.5];
+  const sp_75 = [0.75];
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = Math.abs(data.spreadHandicap);
+  const point = handicap - parseInt(handicap);
+  const result = homePoints - awayPoints - handicap;
+
+  // 整數 和局
+  if (result === 0) return 'fair2';
+
+  if (sp_25.includes(point)) {
+    return result === -0.25
+      ? 'fair|away'
+      : result > -0.25
+        ? 'home'
+        : 'away';
+  }
+
+  if (sp_75.includes(point)) {
+    return result === 0.25
+      ? 'fair|home'
+      : result > 0.25
+        ? 'home'
+        : 'away';
+  }
+
+  // 整數 和 0.5
+  return result > 0 ? 'home' : 'away';
 }
 
 /*
@@ -627,6 +667,46 @@ function settleTotals(data) {
       : 'under';
 }
 
+// point 用來取得 handicap 的 小數位數值
+// 整數、0.5 為一般處理
+// 0.25 需要另外判斷
+// 0.75 需要另外判斷
+function settleTotalsSoccer(data) {
+  const sp_25 = [0.25];
+  // const sp_5 = [0.5];
+  const sp_75 = [0.75];
+  const homePoints = data.homePoints;
+  const awayPoints = data.awayPoints;
+
+  const handicap = Math.abs(data.totalsHandicap);
+  const point = handicap - parseInt(handicap);
+  const result = homePoints + awayPoints - handicap;
+
+  // 整數 和局
+  if (result === 0) return 'fair2';
+
+  if (sp_25.includes(point)) {
+    return result === -0.25
+      ? 'fair|under'
+      : result > -0.25
+        ? 'over'
+        : 'under';
+  }
+
+  if (sp_75.includes(point)) {
+    return result === 0.25
+      ? 'fair|over'
+      : result > 0.25
+        ? 'over'
+        : 'under';
+  }
+
+  // 整數 和 0.5
+  return result > 0
+    ? 'over'
+    : 'under';
+}
+
 function perdictionsResultFlag(option, settelResult) {
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
   if (
@@ -636,7 +716,7 @@ function perdictionsResultFlag(option, settelResult) {
     return settleOption === option ? 0.5 : -0.5;
   }
 
-  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
+  // -2 未結算，-1 輸，0 不算，0.95 贏，0.5 平 (一半一半)
   return settelResult === 'fair2' ? 0 : settelResult === option ? 0.95 : -1;
 }
 
@@ -837,14 +917,6 @@ function sliceTeamAndPlayer(name) {
   };
 }
 
-// 檢查使用者權限  rightArr 傳入權限陣列
-// rightArr = [1, 2] // 一般使用者, 大神
-async function checkUserRight(memberInfo, rightArr = []) {
-  if (memberInfo === null) return errs.errsMsg('404', '1301');
-  if (!rightArr.includes(memberInfo.status)) return errs.errsMsg('404', '1308');
-  return {};
-}
-
 function godUserPriceTable(rank) {
   rank = Number.parseInt(rank);
   switch (rank) {
@@ -912,12 +984,13 @@ module.exports = {
   fieldSorter,
   mergeDeep,
   settleSpread,
+  settleSpreadSoccer,
   settleTotals,
+  settleTotalsSoccer,
   perdictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
   acceptLeague,
-  checkUserRight,
   MATCH_STATUS,
   to,
   godUserPriceTable,

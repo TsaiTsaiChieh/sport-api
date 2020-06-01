@@ -1,4 +1,5 @@
 const { getTitlesPeriod, leagueCodebook } = require('../../util/modules');
+const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
@@ -9,6 +10,9 @@ async function postGodLeagueRankSetAllLeagueTitle(args) {
   const period = getTitlesPeriod(Date.now()).period;
 
   const result = { success: [] };
+
+  const checkResult = await checkUserRight(userUid, [2], '130830');
+  if (checkResult.code) throw checkResult;
 
   for (const title of args.titles) {
     const [err, r] = await to(db.Title.update({

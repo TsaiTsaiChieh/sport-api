@@ -2,27 +2,28 @@ const modules = require('../util/modules');
 const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-const firestoreName = 'baseball_KBO';
+// const firestoreName = 'baseball_KBO';
 const KBOpbpInplay = KBOpbp.KBOpbpInplay;
 const KBOpbpHistory = KBOpbp.KBOpbpHistory;
 const Match = db.Match;
 async function checkmatch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
-      const data = await modules.firestore
-        .collection(firestoreName)
-        .where('flag.status', '>', 0)
-        .get();
+      const totalData = await queryForEvents();
+      // const data = await modules.firestore
+      //  .collection(firestoreName)
+      //  .where('flag.status', '>', 0)
+      //  .get();
 
-      const totalData = [];
-      data.forEach((doc) => {
-        totalData.push(doc.data());
-      });
+      // const totalData = [];
+      // data.forEach((doc) => {
+      //  totalData.push(doc.data());
+      // });
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const gameTime = totalData[i].scheduled * 1000;
         const nowTime = Date.now();
-        const eventStatus = totalData[i].flag.status;
+        const eventStatus = totalData[i].status;
         switch (eventStatus) {
           case 2: {
             if (gameTime <= nowTime) {
@@ -34,10 +35,10 @@ async function checkmatch_KBO() {
                 await modules.database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
-                await modules.firestore
-                  .collection(firestoreName)
-                  .doc(betsID)
-                  .set({ flag: { status: 1 } }, { merge: true });
+                // await modules.firestore
+                //  .collection(firestoreName)
+                //  .doc(betsID)
+                //  .set({ flag: { status: 1 } }, { merge: true });
 
                 const parameter = {
                   betsID: betsID
@@ -96,6 +97,23 @@ async function checkmatch_KBO() {
       );
     }
     return resolve('ok');
+  });
+}
+
+async function queryForEvents() {
+  return new Promise(async function(resolve, reject) {
+    const queries = await db.sequelize.query(
+      `(
+				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
+					 FROM matches AS game
+					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+						AND game.league_id =  '349'
+			 )`,
+      {
+        type: db.sequelize.QueryTypes.SELECT
+      }
+    );
+    return resolve(queries);
   });
 }
 module.exports = checkmatch_KBO;
