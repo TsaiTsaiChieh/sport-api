@@ -428,6 +428,56 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   };
 }
 
+// titles
+// {
+//   continue:
+//   predict_rate1:
+//   predict_rate2:
+//   predict_rate3:
+//   win_bets_continue:
+//   matches_rate1:
+//   matches_rate2:
+//   matches_continue
+// }
+function getTitles(titles, num = 1) {
+  switch (num) {
+    case 1:
+      return { 1: titles.continue };
+    case 2:
+      return { 2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3] };
+    case 3:
+      return { 3: [titles.predict_rate1, titles.predict_rate3] };
+    case 4:
+      return { 4: titles.win_bets_continue };
+    case 5:
+      return { 5: [titles.matches_rate1, titles.matches_rate2] };
+    case 6:
+      return { 6: titles.matches_continue };
+  }
+}
+
+// titles
+// {
+//   continue:
+//   predict_rate1:
+//   predict_rate2:
+//   predict_rate3:
+//   win_bets_continue:
+//   matches_rate1:
+//   matches_rate2:
+//   matches_continue
+// }
+function getAllTitles(titles) {
+  return {
+    1: titles.continue,
+    2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3],
+    3: [titles.predict_rate1, titles.predict_rate3],
+    4: titles.win_bets_continue,
+    5: [titles.matches_rate1, titles.matches_rate2],
+    6: titles.matches_continue
+  };
+}
+
 function userStatusCodebook(role) {
   switch (role) {
     case 1:
@@ -961,6 +1011,8 @@ module.exports = {
   addDataInCollectionWithId,
   getTitlesPeriod,
   getTitlesNextPeriod,
+  getTitles,
+  getAllTitles,
   userStatusCodebook,
   translate,
   simple2Tradition,
