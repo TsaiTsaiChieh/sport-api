@@ -38,14 +38,14 @@ function doTransfer(db, args) {
 
 /* 寫入轉換紀錄 */
 function doMoney(db, args) {
-  const uid        = args.uid;
-  const money      = args.ingot || 0 ;
-  const money_real = args.ingot_real || 0 ;
-  const fee        =  args.fee || 0;
-  const fee_real   =  args.fee_real || 0;
-  const scheduled  = moment().unix();
-  const date       = moment().format('YYYY-MM-DD');
-  const transfer   = db.sequelize.query(
+  const uid = args.uid;
+  const money = args.ingot || 0;
+  const money_real = args.ingot_real || 0;
+  const fee = args.fee || 0;
+  const fee_real = args.fee_real || 0;
+  const scheduled = moment().unix();
+  const date = moment().format('YYYY-MM-DD');
+  const transfer = db.sequelize.query(
     `
       INSERT  INTO 
               cashflow_money_logs ( uid,  money,  money_real,  fee,  fee_real,  scheduled,  createdAt,  updatedAt )
@@ -54,7 +54,7 @@ function doMoney(db, args) {
       `,
     {
       logging: true,
-      replacements: { uid:uid, money:money, money_real:money_real, fee:fee, fee_real:fee_real, scheduled:scheduled, createdAt: date, updatedAt: date },
+      replacements: { uid: uid, money: money, money_real: money_real, fee: fee, fee_real: fee_real, scheduled: scheduled, createdAt: date, updatedAt: date },
       type: db.sequelize.QueryTypes.INSERT
     });
 
