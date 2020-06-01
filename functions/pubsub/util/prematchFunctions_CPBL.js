@@ -7,8 +7,8 @@ const leagueUniteID = '11235';
 // const leagueUniteName = 'CPBL';
 const sportID = 16;
 module.exports.CPBL = {};
-module.exports.CPBL.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
+module.exports.CPBL.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
     try {
       const leagueID = 11235;
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
@@ -18,7 +18,8 @@ module.exports.CPBL.upcoming = async function(date) {
           const ele = data.results[j];
           // await write2firestore(ele);
           await write2realtime(ele);
-          await write2MysqlOfMatch(ele);
+          const change = await checkTheHandicap(ele);
+          await write2MysqlOfMatch(ele, change);
           // await write2MysqlOfMatchTeam(ele);
         }
       } else {
@@ -34,7 +35,7 @@ module.exports.CPBL.upcoming = async function(date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -45,7 +46,20 @@ async function axiosForURL(URL) {
     }
   });
 }
-
+async function checkTheHandicap(ele) {
+  const URL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}&odds_market=2,3`;
+  const data = await axiosForURL(URL);
+  let changeFlag = 0;
+  if (data.results.odds) {
+    if (data.results.odds[`${sportID}_2`]) {
+      changeFlag = 1;
+    }
+    if (data.results.odds[`${sportID}_3`]) {
+      changeFlag = 1;
+    }
+  }
+  return changeFlag;
+}
 // async function write2firestore(ele) {
 //  return new Promise(async function (resolve, reject) {
 //    try {
@@ -64,7 +78,7 @@ async function axiosForURL(URL) {
 //  });
 // }
 async function write2realtime(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.database
         .ref(`baseball/CPBL/${ele.id}/Summary/status`)
@@ -79,23 +93,40 @@ async function write2realtime(ele) {
     }
   });
 }
-async function write2MysqlOfMatch(ele) {
-  return new Promise(async function(resolve, reject) {
+async function write2MysqlOfMatch(ele, change) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const dataEvent = {
-        bets_id: ele.id,
-        league_id: leagueUniteID,
-        ori_league_id: ele.league.id,
-        sport_id: ele.sport_id,
-        ori_sport_id: ele.sport_id,
-        home_id: ele.home.id,
-        away_id: ele.away.id,
-        scheduled: Number.parseInt(ele.time),
-        scheduled_tw: Number.parseInt(ele.time) * 1000,
-        flag_prematch: 1,
-        status: 2
-      };
-      await Match.upsert(dataEvent);
+      if (change === 0) {
+        const dataEvent = {
+          bets_id: ele.id,
+          league_id: leagueUniteID,
+          ori_league_id: ele.league.id,
+          sport_id: ele.sport_id,
+          ori_sport_id: ele.sport_id,
+          home_id: ele.home.id,
+          away_id: ele.away.id,
+          scheduled: Number.parseInt(ele.time),
+          scheduled_tw: Number.parseInt(ele.time) * 1000,
+          flag_prematch: 1,
+          status: 2
+        };
+        await Match.upsert(dataEvent);
+      } else {
+        const dataEvent = {
+          bets_id: ele.id,
+          league_id: leagueUniteID,
+          ori_league_id: ele.league.id,
+          sport_id: ele.sport_id,
+          ori_sport_id: ele.sport_id,
+          home_id: ele.away.id,
+          away_id: ele.home.id,
+          scheduled: Number.parseInt(ele.time),
+          scheduled_tw: Number.parseInt(ele.time) * 1000,
+          flag_prematch: 1,
+          status: 2
+        };
+        await Match.upsert(dataEvent);
+      }
       return resolve('ok');
     } catch (err) {
       return reject(
