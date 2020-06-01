@@ -31,13 +31,11 @@ async function purchasePredictions(args) {
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err, overage] = await modules.to(checkUserDepositIsEnough(args, godData, deposit));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  // [err] = await modules.to(updateOverageToUserTable(args, overage));
-  // if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  // [err, a] = await modules.to(insertPurchaseToUserBuyTable(args));
   [err, purchaseData] = await modules.to(repackagePurchaseData(args, godData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err] = await modules.to(transactionsForPurchase(args, overage, purchaseData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
+  return repackageReturnData(args);
 }
 
 function isTheSameUser(args) {
@@ -136,21 +134,6 @@ async function checkUserDepositIsEnough(args, godData, deposit) {
   return { coin, dividend };
 }
 
-// async function updateOverageToUserTable(args, overage) {
-//   const [err, result] = await modules.to(db.User.update(
-//     { coin: overage.coin, dividend: overage.dividend },
-//     { where: { uid: args.token.uid } }));
-
-//   if (err) throw new AppErrors.MysqlError(`${err.stack} by TsaiChieh`);
-//   // result 0 means is failed, result 1 means update is success
-//   if (!result[0]) throw new AppErrors.UpdateUserCoinAndDividend('by TsaiChieh');
-// }
-
-// async function insertPurchaseToUserBuyTable(args) {
-// const [err, result] = await modules.to(db.Buy.create());
-// const [err, result] = repackagePurchaseData(args);
-// }
-
 async function repackagePurchaseData(args, godData) {
   const [getSeasonErr, season] = await modules.to(dbEngine.getSeason(modules.leagueCodebook(args.god_title).id));
   if (getSeasonErr) throw new AppErrors.MysqlError(`${getSeasonErr.stack} by TsaiChieh`);
@@ -177,34 +160,35 @@ async function repackagePurchaseData(args, godData) {
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const transaction = await db.sequelize.transaction();
-  // console.log(purchaseData);
-
-  const [purchaseErr, purchaseResult] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
-  console.log('-----好扯喔', purchaseResult);
-  let [overageErr, overageResult] = await modules.to(db.User.update(
+  const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
+  const [overageErr] = await modules.to(db.User.update(
     { coin: overage.coin, dividend: overage.dividend },
     { where: { uid: args.token.uid }, transaction }));
-  console.log('-----好扯喔~沒啦', overageResult);
-  // if (purchaseErr) await transaction.rollback();
-  // const [purchaseErr, purchaseResult] = await modules.to(db.UserBuy.create(purchaseData));
-  // console.log('-----', purchaseResult);
-  overageErr = 'a';
-  if (purchaseErr || overageErr) {
-    if (purchaseErr)console.log('??????我是誰是一喔', purchaseErr);
-    if (overageErr) console.log('??????我是誰是二喔', overageErr);
-    // If the execution reaches this line, an error was thrown.
-    // We rollback the transaction.
-    const [transactionErr, transactionResult] = await modules.to(transaction.rollback());
-    if (transactionErr) {
-      console.log('??????我是誰是三喔', transactionResult);
-    }
-    console.log(transactionResult, '有出來嗎？');
+  if (purchaseErr) {
+    // If the execution reaches this line, an error was thrown, rollback the transaction.
+    await transaction.rollback();
+    throw new AppErrors.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
+  }
+  if (overageErr) {
+    await transaction.rollback();
+    throw new AppErrors.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
   }
 
-  // console.log('-----', purchaseResult);
-  // await user.addSibling({
-  //   firstName: 'Lisa',
-  //   lastName: 'Simpson'
-  // }, { transaction: t });
+  // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
+  await transaction.commit();
+}
+
+async function repackageReturnData(args) {
+  const data = {
+    consumer: args.token.uid,
+    god_uid: args.god_uid,
+    god_league: args.god_title,
+    discount: args.discount,
+    message: 'success'
+  };
+  const [err, result] = await modules.to(Promise.resolve(data));
+
+  if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  return result;
 }
 module.exports = purchasePredictions;
