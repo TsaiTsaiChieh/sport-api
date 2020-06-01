@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -16,7 +16,7 @@ async function teamEvent(args) {
 }
 
 async function queryRate(teamEvent) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
 
     for (let i = 0; i < teamEvent.length; i++) {
@@ -44,7 +44,7 @@ async function queryRate(teamEvent) {
 function queryTeamEvent(args) {
   const move = 86400; // 一天的秒數
 
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -68,7 +68,46 @@ function queryTeamEvent(args) {
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
-          )
+					)
+					UNION (
+						SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
+									 home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+									 NULL AS spread_home_tw, NULL AS spread_away_tw, total.over_tw AS totals_over_tw
+							FROM matches AS game,
+									 match__teams AS home,
+                   match__totals AS total,
+									 match__teams AS away
+						 WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${args.team_id}' )
+							 AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+							 AND game.status = ${modules.MATCH_STATUS.END}
+							 AND game.home_id = home.team_id
+							 AND game.away_id = away.team_id 
+							 AND game.spread_id IS NULL
+							 AND game.totals_id = total.totals_id
+							 AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
+                 args.date1
+               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
+									 
+					 )
+					 UNION (
+						SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
+									 home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+									 spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, NULL AS totals_over_tw
+							FROM matches AS game,
+									 match__teams AS home,
+									 match__spreads AS spread,                 
+									 match__teams AS away
+						 WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${args.team_id}' )
+							 AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+							 AND game.status = ${modules.MATCH_STATUS.END}
+							 AND game.home_id = home.team_id
+							 AND game.away_id = away.team_id 
+							 AND game.spread_id = spread.spread_id
+							 AND game.totals_id = NULL
+							 AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
+                 args.date1
+               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}					 
+					 )
           UNION (
            SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
@@ -83,7 +122,7 @@ function queryTeamEvent(args) {
               AND game.status = ${modules.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
-              AND (game.spread_id IS NULL OR game.totals_id IS NULL)
+              AND (game.spread_id IS NULL AND game.totals_id IS NULL)
               AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
                 args.date1
               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
