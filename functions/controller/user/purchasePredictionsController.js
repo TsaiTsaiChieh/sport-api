@@ -51,3 +51,46 @@ async function purchasePredictions(req, res) {
 }
 
 module.exports = purchasePredictions;
+
+/**
+ * @api {post} /user purchase_predictions
+ * @apiVersion 1.0.0
+ * @apiDescription 使用者（除了自己）可購買大神的預測 by Tsai-Chieh
+ * @apiName Purchase the predictions which are god sell
+ * @apiGroup User
+ * @apiPermission login user with enough coin or dividend
+ *
+ * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
+ * @apiParam {String} god_uid 要購買的大神 uid
+ * @apiParam {String} god_title 要購買的大神聯盟種類
+ * @apiParam {String} mathes_date 要購買的開賽日期，注意只能購買有販售狀態的，購買當日即可看大神該日所有有下注單的
+ * @apiParam {String} discount 是否要用紅利來折扣搞幣
+ * @apiParamExample {JSON} Request-Example
+ * {
+    "god_uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
+    "god_title": "NBA",
+    "matches_date": "2020-07-01",
+    "discount": false
+}
+ * @apiSuccessExample {JSON} Success-Response
+ {
+    "consumer": "QztgShRWSSNonhm2pc3hKoPU7Al2",
+    "god_uid": "Xw4dOKa4mWh3Kvlx35mPtAOX2P52",
+    "god_league": "NBA",
+    "discount": false,
+    "message": "success"
+}
+ *
+ * @apiError 400 Bad Request
+ * @apiError 401 Unauthorized
+ * @apiError 403 Forbidden
+ * @apiError 500 Internal Server Error
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * @apiErrorExample {JSON} 500-Response
+ * HTTP/1.1 500 Internal Server Error
+ * {
+    "code": 500,
+    "error": {}
+}
+ */

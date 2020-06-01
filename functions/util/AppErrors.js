@@ -180,6 +180,17 @@ class CoinOrDividendNotEnough extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class CouldNotBuyOwnPredictions extends ExtendableError {
+  constructor(
+    message = '無法購買自己的預測',
+    status = 1211,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -337,6 +348,61 @@ class PurchasePredictionsModelError extends ExtendableError {
   }
 }
 
+class UpdateUserCoinAndDividend extends ExtendableError {
+  constructor(
+    message = '更新使用者搞幣或紅利失敗 (users table)',
+    status = 1515,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class PropertyMissingError extends ExtendableError {
+  constructor(
+    message = '資料欄位缺漏 (undefined)',
+    status = 1516,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class UnknownLeague extends ExtendableError {
+  constructor(
+    message = '未知的聯盟',
+    status = 1517,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class CreateUserBuysTableRollback extends ExtendableError {
+  constructor(
+    message = '寫入購買者預測表的回滾',
+    status = 1518,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class UpdateUserCoinORDividendRollback extends ExtendableError {
+  constructor(
+    message = '更新購買者搞幣或紅利的回滾',
+    status = 1519,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -350,6 +416,7 @@ module.exports = {
   OnlyAcceptNormalUser,
   GodUserDidNotSell,
   CoinOrDividendNotEnough,
+  CouldNotBuyOwnPredictions,
   UserPredictFailed,
   DeletePredictionsFailed,
   MysqlError,
@@ -367,5 +434,10 @@ module.exports = {
   RepackageError,
   PBPAbnormalError,
   firestoreQueryError,
-  PurchasePredictionsModelError
+  PurchasePredictionsModelError,
+  UpdateUserCoinAndDividend,
+  PropertyMissingError,
+  UnknownLeague,
+  CreateUserBuysTableRollback,
+  UpdateUserCoinORDividendRollback
 };
