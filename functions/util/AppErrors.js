@@ -381,6 +381,28 @@ class UnknownLeague extends ExtendableError {
   }
 }
 
+class CreateUserBuysTableRollback extends ExtendableError {
+  constructor(
+    message = '寫入購買者預測表的回滾',
+    status = 1518,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class UpdateUserCoinORDividendRollback extends ExtendableError {
+  constructor(
+    message = '更新購買者搞幣或紅利的回滾',
+    status = 1519,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -415,5 +437,7 @@ module.exports = {
   PurchasePredictionsModelError,
   UpdateUserCoinAndDividend,
   PropertyMissingError,
-  UnknownLeague
+  UnknownLeague,
+  CreateUserBuysTableRollback,
+  UpdateUserCoinORDividendRollback
 };
