@@ -69,6 +69,8 @@ const errorCodeLists = {
 
   13610: { msg: ['查詢 使用者預測單 失敗'], backend: ['大神預測牌組中有當天賽事的販售情況(PaidType)不一致，需要進行確認', ''] },
 
+  13710: { msg: ['查詢 使用者購買預測單 失敗'], backend: ['正常情況下 使用者 購買 大神預測牌組 在一個聯盟 該日期只會有一筆，二筆以上為異常', ''] },
+
   20001: { msg: ['更新 交易 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20002: { msg: ['更新 搞錠轉換搞幣 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
