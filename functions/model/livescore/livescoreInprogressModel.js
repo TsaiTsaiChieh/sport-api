@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function livescoreInProgress(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const inplayMathes = await queryInplayMatches(args);
       const result = await repackage(args, inplayMathes);
@@ -15,7 +15,7 @@ async function livescoreInProgress(args) {
 }
 
 function queryInplayMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end = modules.convertTimezone(args.date, {
@@ -36,13 +36,11 @@ function queryInplayMatches(args) {
                     match__teams AS away,
                     match__spreads AS spread,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+              WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND game.spread_id = spread.spread_id
-                AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${
-          end * 1000 - 1
-        }'
+                AND game.scheduled*1000 BETWEEN :begin AND :end
                 AND game.ori_league_id = league.ori_league_id
                 AND game.status = '${modules.MATCH_STATUS.INPLAY}'
            )
@@ -56,19 +54,22 @@ function queryInplayMatches(args) {
                     match__teams AS away,
                     match__spreads AS spread,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+              WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND game.spread_id IS NULL
-                AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${
-          end * 1000 - 1
-        }'
+                AND game.scheduled*1000 BETWEEN :begin AND :end
                 AND game.ori_league_id = league.ori_league_id
                 AND game.status = '${modules.MATCH_STATUS.INPLAY}'
            )
            ORDER BY scheduled
            `,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            begin: begin * 1000,
+            end: end * 1000 - 1
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

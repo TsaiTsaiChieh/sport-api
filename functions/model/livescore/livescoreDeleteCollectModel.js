@@ -1,7 +1,7 @@
 // const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function postCollect(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await repackage(args);
 
@@ -19,10 +19,14 @@ async function repackage(args) {
       `
       DELETE 
         FROM user__collections
-       WHERE uid = '${args.token.uid}' and
-       bets_id = ${args.eventID}
+       WHERE uid = :uid and
+       bets_id = :eventID
      `,
       {
+        replacements: {
+          uid: args.token.uid,
+          eventID: args.eventID
+        },
         type: db.sequelize.QueryTypes.DELETE
       }
     );

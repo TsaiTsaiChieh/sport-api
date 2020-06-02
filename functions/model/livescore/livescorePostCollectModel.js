@@ -2,7 +2,7 @@
 const db = require('../../util/dbUtil');
 const Collection = db.Collection;
 function postCollect(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const result = await repackage(args);
 
@@ -20,10 +20,13 @@ async function repackage(args) {
     `
       SELECT *
         FROM matches
-       WHERE bets_id = ${args.eventID} 
+       WHERE bets_id = :eventID 
        
      `,
     {
+      replacements: {
+        eventID: args.eventID
+      },
       type: db.sequelize.QueryTypes.SELECT
     }
   );
