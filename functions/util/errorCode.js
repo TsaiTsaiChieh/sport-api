@@ -67,6 +67,8 @@ const errorCodeLists = {
   13542: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles 失敗 無對應 league 無法更新 default_title', ''] },
   13543: { msg: ['更新 大神稱號 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
 
+  13610: { msg: ['查詢 使用者預測單 失敗'], backend: ['大神預測牌組中有當天賽事的販售情況(PaidType)不一致，需要進行確認', ''] },
+
   20001: { msg: ['更新 交易 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20002: { msg: ['更新 搞錠轉換搞幣 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] }
@@ -80,9 +82,9 @@ function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', showOrder:
 }
 
 // 當有變數要顯示在字串內時，可以用 { msg: `ooxxooxx ${bets_id} ooxxooxx` } msg會自動取代
-function errsMsg(serverCode, backendcode, property = { custMsg: '', showOrder: 0 }) { // custMsg 當 500 或 特殊情況 可以自行輸入
+function errsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) { // custMsg 當 500 或 特殊情況 可以自行輸入
   let showOrder = property.showOrder;
-  const custMsg = property.custMsg;
+  const { custMsg, addMsg } = property;
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
 
   // custMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
@@ -97,7 +99,7 @@ function errsMsg(serverCode, backendcode, property = { custMsg: '', showOrder: 0
       }
     }
     : Object.keys(errorCodeLists).includes(backendcode)
-      ? { code: serverCode, err: { code: backendcode, msg: errorCodeLists[backendcode].msg[showOrder] } }
+      ? { code: serverCode, err: { code: backendcode, msg: `${errorCodeLists[backendcode].msg[showOrder]}  ${addMsg}` } }
       : serverCode !== 500
         ? { code: 500, err: { code: 500, msg: `${backendcode} 該後端code不存在!` } }
         : { code: 500, err: { code: 500, msg: '呼叫錯誤顯示方式錯誤！' } };
