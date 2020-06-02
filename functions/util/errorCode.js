@@ -75,7 +75,7 @@ const errorCodeLists = {
 };
 
 const isError = e => e && e.stack && e.message;
-const isDBError = e => e && e.parent.sqlState && e.parent.sqlMessage;
+// const isDBError = e => e && e.parent.sqlState && e.parent.sqlMessage;
 
 function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) {
   // 準備針對 DB錯誤記錄
