@@ -75,18 +75,25 @@ const errorCodeLists = {
 };
 
 const isError = e => e && e.stack && e.message;
+const isDBError = e => e && e.parent.sqlState && e.parent.sqlMessage;
 
-function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', showOrder: 0 }) {
+function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) {
   // 準備針對 DB錯誤記錄
+  // if (isDBError(property)) {
+  //     code: serverCode,
+  //     err: {
+  //       code: backendcode,
+  //       msg: `${property.parent.sqlState} ${property.parent.sqlMessage}`
+  //     }
+  // }
   return errsMsg(serverCode, backendcode, property);
 }
 
 // 當有變數要顯示在字串內時，可以用 { msg: `ooxxooxx ${bets_id} ooxxooxx` } msg會自動取代
 function errsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) { // custMsg 當 500 或 特殊情況 可以自行輸入
-  let showOrder = property.showOrder;
   const { custMsg, addMsg } = property;
+  let showOrder = property.showOrder;
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
-
   // custMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
   return custMsg
     ? {
