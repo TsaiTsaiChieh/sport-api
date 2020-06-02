@@ -4,7 +4,6 @@ const countPerPage = 50;
 async function model(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      console.log(countPerPage, args.page);
       const where = {};
       if (args.uid) where.uid = args.uid;
       if (args.name) where.name = { [Op.like]: args.name + '%' };

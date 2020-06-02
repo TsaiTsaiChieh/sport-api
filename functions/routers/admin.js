@@ -62,6 +62,12 @@ router.post(
   verification.admin,
   require('../controller/admin/user/editUserController')
 );
+router.post(
+  '/service/getReports',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/service/getReportsController')
+);
 
 /// 以下為原本的
 router.post(
