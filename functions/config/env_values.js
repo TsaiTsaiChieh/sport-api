@@ -39,8 +39,8 @@ exports.lineConfig = {
   profileURL: 'https://api.line.me/v2/profile',
   tokenURL: 'https://api.line.me/oauth2/v2.1/token',
   verifyURL: 'https://api.line.me/oauth2/v2.1/verify',
-  channelID: '1576253248',
-  channelSecret: 'e4a91d4e33e26967fa6c267292bd06ec',
+  channelID: '1654287441',
+  channelSecret: '3ae318ddf60243d9e932c6a7918b80f4',
   callbackURL: this.apiURL + 'auth/lineLoginHandler'
 };
 exports.betsToken = '35388-8IqMa0NK19LJVY';

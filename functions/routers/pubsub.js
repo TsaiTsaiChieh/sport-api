@@ -23,4 +23,6 @@ router.get('/title_period', require('../pubsub/titlePeriod'));
 router.get('/mysql', require('../pubsub/mysql/connection'));
 
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
+// test statscore
+router.get('/test_statscore', require('../pubsub/test_statscore'));
 module.exports = router;

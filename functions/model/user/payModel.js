@@ -8,9 +8,17 @@ function payModel(method, args, uid) {
       if (method === 'PUT') {
         const exchange = {
           type: args.type,
+          output: args.output,
           ingot: args.ingot || 0,
+          ingot_real: args.ingot_real || 0,
           coin: args.coin || 0,
-          dividend: args.dividend || 0
+          coin_real: args.coin_real || 0,
+          dividend: args.dividend || 0,
+          dividend_real: args.dividend_real || 0,
+          money: args.money || 0,
+          money_real: args.money_real || 0,
+          fee: args.fee || 0,
+          fee_real: args.fee_real || 0
         };
         const self = await db.sequelize.models.user.findOne({
           where: { uid: uid },
@@ -20,7 +28,6 @@ function payModel(method, args, uid) {
         if (exchange.type === 'buy_coin') {
           try {
             trans = await db.sequelize.models.user.update({ coin: self.coin + exchange.coin, dividend: self.dividend + exchange.dividend }, { where: { uid: uid } });
-
             const trans_args = {
               to_uid: uid,
               type: 'buy_coin',
@@ -33,16 +40,6 @@ function payModel(method, args, uid) {
             reject(errs.errsMsg('500', '20002'));
           }
         } else if (exchange.type === 'ingot2coin') {
-          /* 提領比例計算 */
-          let ratio = 0;
-          if (exchange.ingot <= 3000) {
-            ratio = 0.015;
-          } else if (exchange.ingot > 3000 && exchange.ingot < 10000) {
-            ratio = 0.01;
-          } else {
-            ratio = 0.005;
-          }
-
           const pre_purse = await db.sequelize.models.user.findOne({
             where: {
               uid: uid
@@ -50,18 +47,50 @@ function payModel(method, args, uid) {
             attributes: ['coin', 'dividend', 'ingot'],
             raw: true
           });
+          if (exchange.output === 'coin') {
+            /* 提領比例計算 */
+            const ratio = 0;
 
-          if ((pre_purse.ingot - exchange.ingot) < 0) {
-            reject(errs.errsMsg('500', '20003'));
-          } else {
-            trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot, coin: self.coin + (1 - ratio) * exchange.ingot }, { where: { uid: uid } });
-            const trans_args = {
-              to_uid: uid,
-              type: 'ingot2coin',
-              ingot: exchange.ingot, // 0:紅利 1:搞幣 2:搞錠
-              coin: exchange.coin
-            };
-            transfer.doTransfer(db, trans_args);
+            if ((pre_purse.ingot - exchange.ingot) < 0) {
+              reject(errs.errsMsg('500', '20003'));
+            } else {
+              trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot, coin: self.coin + (1 - ratio) * exchange.ingot }, { where: { uid: uid } });
+              const trans_args = {
+                to_uid: uid,
+                type: 'ingot2coin',
+                ingot: exchange.ingot, // 0:紅利 1:搞幣 2:搞錠
+                ingot_real: exchange.ingot_real,
+                coin: exchange.coin,
+                coin_real: exchange.coin_real
+              };
+
+              transfer.doTransfer(db, trans_args);
+            }
+          } else if (exchange.output === 'cash') {
+            let ratio = 0;
+            if (exchange.ingot <= 3000) {
+              ratio = 0.015;
+            } else if (exchange.ingot > 3000 && exchange.ingot < 10000) {
+              ratio = 0.01;
+            } else {
+              ratio = 0.005;
+            }
+
+            if ((pre_purse.ingot - exchange.ingot) < 0) {
+              reject(errs.errsMsg('500', '20003'));
+            } else {
+              trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot, coin: self.coin + (1 - ratio) * exchange.ingot }, { where: { uid: uid } });
+              const trans_args = {
+                uid: uid,
+                type: 'ingot2coin',
+                ingot: exchange.ingot,
+                money: exchange.money,
+                money_real: exchange.money_real,
+                fee: exchange.fee,
+                fee_real: exchange.fee_real
+              };
+              transfer.doMoney(db, trans_args);
+            }
           }
         } else {
           console.log('您尚未選擇任何一項類別!');
@@ -76,7 +105,6 @@ function payModel(method, args, uid) {
           raw: true
         });
         const payList = {
-          // eslint-disable-next-line no-undef
           status: trans[0],
           purse: purse
         };
