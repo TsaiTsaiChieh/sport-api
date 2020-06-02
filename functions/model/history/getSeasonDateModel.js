@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 // const AppErrors = require('../../util/AppErrors');
 
 async function getSeasonDate(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await queryForSeasonDate(args);
       resolve(result);
@@ -14,7 +14,7 @@ async function getSeasonDate(args) {
 }
 
 function queryForSeasonDate(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms

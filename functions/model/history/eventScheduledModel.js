@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function eventScheduled(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const events = await queryTwoDaysEvent(args);
       const result = await repackage(events);
@@ -15,7 +15,7 @@ async function eventScheduled(args) {
 }
 
 function queryTwoDaysEvent(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')

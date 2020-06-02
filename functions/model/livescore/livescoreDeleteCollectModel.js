@@ -1,7 +1,7 @@
 // const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function postCollect(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const result = await repackage(args);
 

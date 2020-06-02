@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 
 async function livescoreHome(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const homeMatches = await queryHomeMatches(args);
 
@@ -17,7 +17,7 @@ async function livescoreHome(args) {
   });
 }
 function queryHomeMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')
