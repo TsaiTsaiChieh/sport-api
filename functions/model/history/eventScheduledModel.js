@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function eventScheduled(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const events = await queryTwoDaysEvent(args);
       const result = await repackage(events);
@@ -15,7 +15,7 @@ async function eventScheduled(args) {
 }
 
 function queryTwoDaysEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')
@@ -37,12 +37,13 @@ function queryTwoDaysEvent(args) {
                  match__teams AS home,
                  match__teams AS away
            WHERE game.scheduled BETWEEN '${begin}' AND '${end}'
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
              AND game.home_id = home.team_id
              AND game.away_id = away.team_id
              ORDER BY scheduled
          )`,
         {
+          replacements: { leagueID: modules.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

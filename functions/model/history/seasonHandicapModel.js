@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function seasonHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
@@ -22,7 +22,7 @@ async function seasonHandicap(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -35,10 +35,10 @@ function queryHomeEvents(args) {
                  match__seasons AS season,
                  match__spreads AS spread,
                  match__totals AS totals
-           WHERE game.bets_id = '${args.event_id}'
+           WHERE game.bets_id = :event_id
              AND historygame.status = ${modules.MATCH_STATUS.END}
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
+             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND historygame.bets_id = spread.match_id
@@ -48,6 +48,10 @@ function queryHomeEvents(args) {
         ORDER BY historygame.scheduled      
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -60,7 +64,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -73,10 +77,10 @@ function queryAwayEvents(args) {
                match__seasons AS season,
                match__spreads AS spread,
                match__totals AS totals
-         WHERE game.bets_id = '${args.event_id}'
+         WHERE game.bets_id = :event_id
            AND historygame.status = ${modules.MATCH_STATUS.END}
-           AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-           AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+           AND game.league_id = :leagueID
+           AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
            AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
            AND historygame.bets_id = spread.match_id
@@ -86,6 +90,10 @@ function queryAwayEvents(args) {
       ORDER BY historygame.scheduled        
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -98,7 +106,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -111,10 +119,10 @@ function queryTwoTeamsEvents(args) {
                  match__seasons AS season,
                  match__spreads AS spread,
                  match__totals AS totals
-           WHERE game.bets_id = '${args.event_id}'
+           WHERE game.bets_id = :event_id
              AND historygame.status = ${modules.MATCH_STATUS.END}
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
+             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.away_id = historygame.home_id) 
              AND (game.home_id = historygame.away_id OR game.away_id = historygame.away_id)
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
@@ -125,6 +133,10 @@ function queryTwoTeamsEvents(args) {
         ORDER BY historygame.scheduled            
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function teamEvent(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamEvent = await queryTeamEvent(args);
       const predictions = await queryRate(teamEvent);
@@ -16,7 +16,7 @@ async function teamEvent(args) {
 }
 
 async function queryRate(teamEvent) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const matchArray = [];
 
     for (let i = 0; i < teamEvent.length; i++) {
@@ -27,8 +27,13 @@ async function queryRate(teamEvent) {
         const queriesForRate = await db.sequelize.query(
           `SELECT bets_id, spread_option, totals_option
         FROM user__predictions AS prediction
-        WHERE bets_id IN (${matchArray})`,
-          { type: db.sequelize.QueryTypes.SELECT }
+        WHERE bets_id IN (:matchArray)`,
+          {
+            replacements: {
+              matchArray: matchArray
+            },
+            type: db.sequelize.QueryTypes.SELECT
+          }
         );
 
         return resolve(queriesForRate);
@@ -44,7 +49,7 @@ async function queryRate(teamEvent) {
 function queryTeamEvent(args) {
   const move = 86400; // 一天的秒數
 
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(
@@ -56,18 +61,14 @@ function queryTeamEvent(args) {
                   match__totals AS total,
                   match__teams AS home,
                   match__teams AS away
-            WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
-          args.team_id
-        }')
-              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+            WHERE (game.home_id = :team_id OR game.away_id = :team_id)
+              AND game.league_id = :leagueID
               AND game.status = ${modules.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND game.spread_id = spread.spread_id
               AND game.totals_id = total.totals_id
-              AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
+              AND game.scheduled BETWEEN UNIX_TIMESTAMP(:date1) AND UNIX_TIMESTAMP(:date2)+${move}
 					)
 					UNION (
 						SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
@@ -77,16 +78,14 @@ function queryTeamEvent(args) {
 									 match__teams AS home,
                    match__totals AS total,
 									 match__teams AS away
-						 WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${args.team_id}' )
-							 AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+						 WHERE (game.home_id = :team_id OR game.away_id = :team_id )
+							 AND game.league_id = :leagueID
 							 AND game.status = ${modules.MATCH_STATUS.END}
 							 AND game.home_id = home.team_id
 							 AND game.away_id = away.team_id 
 							 AND game.spread_id IS NULL
 							 AND game.totals_id = total.totals_id
-							 AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                 args.date1
-               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
+							 AND game.scheduled BETWEEN UNIX_TIMESTAMP(:date1) AND UNIX_TIMESTAMP(:date2)+${move}
 									 
 					 )
 					 UNION (
@@ -97,16 +96,14 @@ function queryTeamEvent(args) {
 									 match__teams AS home,
 									 match__spreads AS spread,                 
 									 match__teams AS away
-						 WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${args.team_id}' )
-							 AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+						 WHERE (game.home_id = :team_id OR game.away_id = :team_id )
+							 AND game.league_id = :leagueID
 							 AND game.status = ${modules.MATCH_STATUS.END}
 							 AND game.home_id = home.team_id
 							 AND game.away_id = away.team_id 
 							 AND game.spread_id = spread.spread_id
 							 AND game.totals_id = NULL
-							 AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                 args.date1
-               }') AND UNIX_TIMESTAMP('${args.date2}')+${move}					 
+							 AND game.scheduled BETWEEN UNIX_TIMESTAMP(:date1) AND UNIX_TIMESTAMP(:date2)+${move}					 
 					 )
           UNION (
            SELECT game.bets_id AS id, game.home_points AS home_points,game.away_points AS away_points, game.spread_result AS spread_result, game.totals_result AS totals_result, game.scheduled AS scheduled,
@@ -115,22 +112,24 @@ function queryTeamEvent(args) {
              FROM matches AS game,
                   match__teams AS home,
                   match__teams AS away
-            WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
-          args.team_id
-        }' )
-              AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+            WHERE (game.home_id = :team_id OR game.away_id = :team_id )
+              AND game.league_id = :leagueID
               AND game.status = ${modules.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND (game.spread_id IS NULL AND game.totals_id IS NULL)
-              AND game.scheduled BETWEEN UNIX_TIMESTAMP('${
-                args.date1
-              }') AND UNIX_TIMESTAMP('${args.date2}')+${move}
+              AND game.scheduled BETWEEN UNIX_TIMESTAMP(:date1) AND UNIX_TIMESTAMP(:date2)+${move}
                   
           )
           ORDER BY scheduled 
          `,
         {
+          replacements: {
+            team_id: args.team_id,
+            leagueID: modules.leagueCodebook(args.league).id,
+            date1: args.date1,
+            date2: args.date2
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

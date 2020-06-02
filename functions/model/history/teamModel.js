@@ -2,7 +2,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 async function teams(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teams = await queryAllTeams(args);
       const result = await repackage(teams);
@@ -14,18 +14,19 @@ async function teams(args) {
 }
 
 function queryAllTeams(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
            SELECT name, name_ch, groups, team_id
              FROM match__teams teams
-            WHERE teams.league_id = '${
-              modules.leagueCodebook(args.league).id
-            }'   
+            WHERE teams.league_id = :leagueID
          )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

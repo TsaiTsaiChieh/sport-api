@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 // 幾勝幾敗 win-lose
 async function teamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const teamHandicap = await queryTeamHandicap(args);
       const result = await repackage(args, teamHandicap);
@@ -15,7 +15,7 @@ async function teamHandicap(args) {
 }
 
 function queryTeamHandicap(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       // take 168ms in mysql
       // take 2619ms in firebase serve
@@ -28,20 +28,18 @@ function queryTeamHandicap(args) {
                  match__seasons season,
                  match__spreads spread,
                  match__totals  total
-           WHERE (game.home_id = '${args.team_id}' OR game.away_id = '${
-          args.team_id
-        }')
-             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+           WHERE (game.home_id = :team_id OR game.away_id = :team_id)
+             AND season.league_id = :leagueID
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND game.spread_id = spread.spread_id
              AND game.totals_id = total.totals_id
          )`,
         {
-          type: db.sequelize.QueryTypes.SELECT,
           replacements: {
             team_id: args.team_id,
-            league: args.league
-          }
+            leagueID: modules.leagueCodebook(args.league).id
+          },
+          type: db.sequelize.QueryTypes.SELECT
         }
       );
 
@@ -174,8 +172,8 @@ async function repackage(args, teamHandicap) {
         )
           ? '0.00'
           : Number(
-            (fraction[i] / (fraction[i] + denominator[i] + draw[i])) * 100
-          ).toFixed(2)
+              (fraction[i] / (fraction[i] + denominator[i] + draw[i])) * 100
+            ).toFixed(2)
       };
       data.push(temp);
     }
