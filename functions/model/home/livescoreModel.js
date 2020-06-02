@@ -43,7 +43,7 @@ function queryHomeMatches(args) {
                     match__teams AS away,
                     match__spreads AS spread,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+              WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND game.spread_id = spread.spread_id
@@ -63,7 +63,7 @@ function queryHomeMatches(args) {
                     match__teams AS away,
                     match__spreads AS spread,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+              WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND game.spread_id IS NULL
@@ -77,6 +77,7 @@ function queryHomeMatches(args) {
 					 LIMIT 4
            `,
         {
+          replacements: { leagueID: modules.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -95,7 +96,7 @@ function queryHomeMatches(args) {
 												match__teams AS away,
 												match__spreads AS spread,
 												match__leagues AS league
-									WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+									WHERE game.league_id = :leagueID
 										AND game.home_id = home.team_id
 										AND game.away_id = away.team_id
 										AND game.spread_id = spread.spread_id
@@ -113,7 +114,7 @@ function queryHomeMatches(args) {
 												match__teams AS away,
 												match__spreads AS spread,
 												match__leagues AS league
-									WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+									WHERE game.league_id = :leagueID
 										AND game.home_id = home.team_id
 										AND game.away_id = away.team_id
 										AND game.spread_id IS NULL
@@ -125,6 +126,7 @@ function queryHomeMatches(args) {
 							 LIMIT ${number}
 							 `,
           {
+            replacements: { leagueID: modules.leagueCodebook(args.league).id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -147,7 +149,7 @@ function queryHomeMatches(args) {
 											match__teams AS away,
 											match__spreads AS spread,
 											match__leagues AS league
-								WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+								WHERE game.league_id = :leagueID
 									AND game.home_id = home.team_id
 									AND game.away_id = away.team_id
 									AND game.spread_id = spread.spread_id
@@ -165,7 +167,7 @@ function queryHomeMatches(args) {
 											match__teams AS away,
 											match__spreads AS spread,
 											match__leagues AS league
-								WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
+								WHERE game.league_id = :leagueID
 									AND game.home_id = home.team_id
 									AND game.away_id = away.team_id
 									AND game.spread_id IS NULL
@@ -177,6 +179,7 @@ function queryHomeMatches(args) {
 						 LIMIT ${number}
 						 `,
           {
+            replacements: { leagueID: modules.leagueCodebook(args.league).id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
