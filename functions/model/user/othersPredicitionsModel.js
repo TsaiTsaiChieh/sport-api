@@ -1,5 +1,6 @@
+/* eslint-disable prefer-const */
 const {
-  getTitlesPeriod, moment, convertTimezone, sliceTeamAndPlayer, groupBy
+  getTitlesPeriod, moment, convertTimezone, convertTimezoneFormat, sliceTeamAndPlayer, groupBy, getTitles
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -41,11 +42,15 @@ async function othersPredictions(args) {
   const othersUid = args.othersUid;
   const period = getTitlesPeriod(Date.now()).period;
   // const now = moment(Date.now()).unix(); // * 1000;
-  const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+  // 昨天
+  const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
+    { op: 'subtract', value: 1, unit: 'days' });
+  // 明天
   const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
     { op: 'add', value: 1, unit: 'days' }) - 1;
 
   let predictionsInfoList = []; // 使用者/大神 預測資訊
+  let predictionsLeagueInfoList = {}; // 預測資訊 所屬聯盟 相關資訊
   let result = {};
 
   // 該使用者預測資料，時間以  本期  今日  為主
@@ -86,9 +91,9 @@ async function othersPredictions(args) {
                     and prediction.bets_id = matches.bets_id
                     and matches.home_id = team_home.team_id
                     and matches.away_id = team_away.team_id
-                    and prediction.uid = :uid
-                    -- and prediction.match_scheduled between :begin and :end
-                    -- and prediction_desc.day = :begin
+                    and prediction.uid = :otherUid
+                   -- and prediction.match_scheduled between :begin and :end
+                   -- and prediction_desc.day = :begin
                ) prediction
          inner join users
             on prediction.uid = users.uid
@@ -104,9 +109,11 @@ async function othersPredictions(args) {
            and prediction.league_id = buys.league_id
          where titles.period = :period
           -- and buys.matches_date = :begin
+          -- and buys.uid = :buy_id
       `, {
     replacements: {
-      uid: othersUid,
+      buy_id: userUid,
+      otherUid: othersUid,
       begin: begin,
       end: end,
       period: period
@@ -114,7 +121,7 @@ async function othersPredictions(args) {
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  if (predictionsInfoDocs.length === 0) return predictionsInfoList; // 回傳 空Array
+  if (predictionsInfoDocs.length === 0) return { }; // 回傳 空Array
 
   result = { // 初始化 為了固定 json 位置
     begin: begin,
@@ -124,51 +131,87 @@ async function othersPredictions(args) {
   // 把賽事資料 重包裝格式
   groupBy(predictionsInfoDocs, 'league').forEach(function(data) { // 分聯盟陣列
     let league = '';
-    let paidType;
 
     data.forEach(function(ele) { // 取出 聯盟陣列中的賽事
+      // 先確定 paidType 情況
+      const info_datetime = convertTimezoneFormat(ele.match_scheduled);
+      let paidType;
+
       // 目前開發階段，有可能 大神預測牌組販售，但該牌組內可能混合著其他 free 的情況，所以目前產出資料無法完全正確
       // 理論上正式上線後，大神預測牌組免費或販售後，該牌組內只會只有一種情情況，不會有混合在一起的情況
-      paidType = getPaidType({ sell: ele.sell, uid: userUid, buyId: ele.buys_uid });
+      const nowPaidType = getPaidType({ sell: ele.sell, uid: userUid, buyId: ele.buys_uid });
 
-      const temp = repackage(ele);
+      // if (paidType !== undefined && paidType !== nowPaidType) {
+      //   throw errs.errsMsg('404', '13610', { custMsg: `大神預測牌組中有當天賽事的販售情況(PaidType)不一致，需要進行確認 目前販售: ${nowPaidType}  原本販售: ${paidType}  賽事id: ${ele.bets_id}  購買牌組id: ${ele.buys_uid}` });
+      // }
+      paidType = nowPaidType;
 
-      // unpaid (未付費)  沒有結果 (大分、客讓)。有引言、沒有秘笈
-      // 免費、已付費 才能看到 下注內容：讓分(主客)和注數、大小(主客)和注數
-      if (paidType === 'unpaid') {
-        if (ele.spread_id !== null) {
-          temp.spread.predict = '';
-          temp.spread.bets = '';
-        }
-
-        if (ele.spread_id !== null) {
-          temp.totals.predict = '';
-          temp.totals.bets = '';
-        }
-      }
-
-      predictionsInfoList.push(temp);
+      // 開始處理 result
       league = ele.league;
 
-      // 處理 引言(描述)、武功祕技 是否顯示
-      // free 免費預測：完整預測內容，沒有武功秘笈、介紹文
-      // paid 需要區分登入、未登入，getPaidType() 已做處理產生 unpaid(未付費)、paid(已付費) 兩種情況
-      // unpaid(未付費) = 未登入 和 已登入 未購買
-      // paid(已付費) = 已登入 有購買
+      predictionsInfoList.push(repackage(ele, paidType));
+
+      predictionsLeagueInfoList[info_datetime] = repackageInfo(ele, paidType);
+
       result[league] = {
-        info: {
-          paid_type: paidType,
-          info: paidType === 'free' ? '' : ele.description, // unpaid (未付費)、paid (已付費) 會出現
-          tips: paidType === 'paid' ? ele.tips : '', // 只有 已付費才會出現
-          rank: ele.rank_id,
-          title: getTitles(ele, ele.default_title)
-        },
+        info: predictionsLeagueInfoList,
         predictions: predictionsInfoList
       };
     });
 
     predictionsInfoList = [];
+    predictionsLeagueInfoList = {};
   });
+
+  // // 處理 league info
+  // for (const [key, value] of Object.entries(result)) {
+  //   // 去除 begin、end
+  //   if (key === 'begin' || key === 'end') continue;
+  //   result[key] = { info: [] };
+
+  //   value.predictions.forEach(function(ele) {
+  //     const info_datetime = convertTimezoneFormat(ele.scheduled);
+  //     let paidType;
+
+  //     // 目前開發階段，有可能 大神預測牌組販售，但該牌組內可能混合著其他 free 的情況，所以目前產出資料無法完全正確
+  //     // 理論上正式上線後，大神預測牌組免費或販售後，該牌組內只會只有一種情情況，不會有混合在一起的情況
+  //     const nowPaidType = getPaidType({ sell: ele.sell, uid: userUid, buyId: ele.buys_uid });
+
+  //     if (paidType !== undefined && paidType !== nowPaidType) {
+  //       throw errs.errsMsg('404', '13610', { custMsg: `大神預測牌組中有當天賽事的販售情況(PaidType)不一致，需要進行確認 目前販售: ${nowPaidType}  原本販售: ${paidType}  賽事id: ${ele.bets_id}  購買牌組id: ${ele.buys_uid}` });
+  //     }
+  //     paidType = nowPaidType;
+
+  //     // unpaid (未付費)  沒有結果 (大分、客讓)。有引言、沒有秘笈
+  //     // 免費、已付費 才能看到 下注內容：讓分(主客)和注數、大小(主客)和注數
+  //     if (paidType === 'unpaid') {
+  //       if (ele.spread_id !== null) {
+  //         temp.spread.predict = '';
+  //         // temp.spread.bets = '';
+  //       }
+
+  //       if (ele.spread_id !== null) {
+  //         temp.totals.predict = '';
+  //         // temp.totals.bets = '';
+  //       }
+  //     }
+  //     console.log('======ele:', ele);
+  //     // 處理 引言(描述)、武功祕技 是否顯示
+  //     // free 免費預測：完整預測內容，沒有武功秘笈、介紹文
+  //     // paid 需要區分登入、未登入，getPaidType() 已做處理產生 unpaid(未付費)、paid(已付費) 兩種情況
+  //     // unpaid(未付費) = 未登入 和 已登入 未購買
+  //     // paid(已付費) = 已登入 有購買
+  //     result[key].info.push({
+  //       [info_datetime]: {
+  //         paid_type: paidType,
+  //         info: paidType === 'free' ? '' : ele.description, // unpaid (未付費)、paid (已付費) 會出現
+  //         tips: paidType === 'paid' ? ele.tips : '', // 只有 已付費才會出現
+  //         rank: ele.rank_id,
+  //         title: getTitles(ele, ele.default_title)
+  //       }
+  //     });
+  //   });
+  // };
 
   return result;
 }
@@ -191,24 +234,22 @@ function checkBuyGodPredictions(uid, buyId) {
   return true; // 已付費
 }
 
-function getTitles(titles, num = 1) {
-  switch (num) {
-    case 1:
-      return { 1: titles.continue };
-    case 2:
-      return { 2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3] };
-    case 3:
-      return { 3: [titles.predict_rate1, titles.predict_rate3] };
-    case 4:
-      return { 4: titles.win_bets_continue };
-    case 5:
-      return { 5: [titles.matches_rate1, titles.matches_rate2] };
-    case 6:
-      return { 6: titles.matches_continue };
-  }
+function repackageInfo(ele, paidType) {
+  // 處理 引言(描述)、武功祕技 是否顯示
+  // free 免費預測：完整預測內容，沒有武功秘笈、介紹文
+  // paid 需要區分登入、未登入，getPaidType() 已做處理產生 unpaid(未付費)、paid(已付費) 兩種情況
+  // unpaid(未付費) = 未登入 和 已登入 未購買
+  // paid(已付費) = 已登入 有購買
+  return {
+    paid_type: paidType,
+    info: paidType === 'free' ? '' : ele.description, // unpaid (未付費)、paid (已付費) 會出現
+    tips: paidType === 'paid' ? ele.tips : '', // 只有 已付費才會出現
+    rank: ele.rank_id,
+    title: getTitles(ele, ele.default_title)
+  };
 }
 
-function repackage(ele) {
+function repackage(ele, paidType) {
   const data = {
     bets_id: ele.bets_id,
     scheduled: ele.match_scheduled, // 開賽時間
@@ -229,9 +270,11 @@ function repackage(ele) {
     totals: {}
   };
 
+  // unpaid (未付費)  沒有結果 (大分、客讓)。有引言、沒有秘笈
+  // 免費、已付費 才能看到 下注內容：讓分(主客)和注數、大小(主客)和注數
   if (!(ele.spread_id == null)) { // 有讓分資料
     data.spread = {
-      predict: ele.spread_option,
+      predict: (paidType === 'unpaid') ? '' : ele.spread_option,
       spread_id: ele.spread_id,
       handicap: ele.spread_handicap,
       handicap_home_tw: ele.home_tw ? ele.home_tw : '',
@@ -241,9 +284,11 @@ function repackage(ele) {
     };
   }
 
+  // unpaid (未付費)  沒有結果 (大分、客讓)。有引言、沒有秘笈
+  // 免費、已付費 才能看到 下注內容：讓分(主客)和注數、大小(主客)和注數
   if (!(ele.totals_id == null)) { // 有大小資料
     data.totals = {
-      predict: ele.totals_option,
+      predict: (paidType === 'unpaid') ? '' : ele.totals_option,
       totals_id: ele.totals_id,
       handicap: ele.over_tw, // ele.totals_handicap,
       percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
