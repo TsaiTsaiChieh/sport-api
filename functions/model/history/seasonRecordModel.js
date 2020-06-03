@@ -22,7 +22,7 @@ async function seasonRecord(args) {
 }
 
 function queryHomeEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -57,7 +57,7 @@ function queryHomeEvents(args) {
 }
 
 function queryAwayEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -92,7 +92,7 @@ function queryAwayEvents(args) {
 }
 
 function queryTwoTeamsEvents(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -172,7 +172,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtHomeDraw = homeAtHomeDraw + 1;
         }
-			}
+      }
       if (ele.aim_home_id === ele.history_away_id) {
         homeAtAwayGet = homeAtAwayGet + ele.history_away_points;
         homeAtAwayLoss = homeAtAwayLoss + ele.history_home_points;
@@ -183,12 +183,17 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtAwayDraw = homeAtAwayDraw + 1;
         }
-			}
-		}
-		homeAtHomeGet = (homeAtHomeGet / homeEvents.length).toFixed(2);
-		homeAtHomeLoss = (homeAtHomeLoss / homeEvents.length).toFixed(2);
-		homeAtAwayGet = (homeAtAwayGet / homeEvents.length).toFixed(2);
-		homeAtAwayLoss = (homeAtAwayLoss / homeEvents.length).toFixed(2);
+      }
+    }
+
+    homeAtHomeGet = parseFloat((homeAtHomeGet / homeEvents.length).toFixed(2));
+    homeAtHomeLoss = parseFloat(
+      (homeAtHomeLoss / homeEvents.length).toFixed(2)
+    );
+    homeAtAwayGet = parseFloat((homeAtAwayGet / homeEvents.length).toFixed(2));
+    homeAtAwayLoss = parseFloat(
+      (homeAtAwayLoss / homeEvents.length).toFixed(2)
+    );
     for (let i = 0; i < awayEvents.length; i++) {
       const ele = awayEvents[i];
       // 計算主隊本季賽績
@@ -214,11 +219,15 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           awayAtAwayDraw = awayAtAwayDraw + 1;
         }
       }
-		}
-		awayAtHomeGet = (awayAtHomeGet / awayEvents.length).toFixed(2);
-		awayAtHomeLoss = (awayAtHomeLoss / awayEvents.length).toFixed(2);
-		awayAtAwayGet = (awayAtAwayGet / awayEvents.length).toFixed(2);
-		awayAtAwayLoss = (awayAtAwayLoss / awayEvents.length).toFixed(2);
+    }
+    awayAtHomeGet = parseFloat((awayAtHomeGet / awayEvents.length).toFixed(2));
+    awayAtHomeLoss = parseFloat(
+      (awayAtHomeLoss / awayEvents.length).toFixed(2)
+    );
+    awayAtAwayGet = parseFloat((awayAtAwayGet / awayEvents.length).toFixed(2));
+    awayAtAwayLoss = parseFloat(
+      (awayAtAwayLoss / awayEvents.length).toFixed(2)
+    );
     for (let i = 0; i < twoTeamsEvents.length; i++) {
       const ele = twoTeamsEvents[i];
       // 計算主隊本季賽績
@@ -244,17 +253,23 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           vsHomeAtAwayDraw = vsHomeAtAwayDraw + 1;
         }
       }
-		}
-		vsHomeAtHomeGet = (vsHomeAtHomeGet / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtHomeLoss = (vsHomeAtHomeLoss / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtAwayGet = (vsHomeAtAwayGet / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtAwayLoss = (vsHomeAtAwayLoss / twoTeamsEvents.length).toFixed(2);
+    }
+    vsHomeAtHomeGet = parseFloat(
+      (vsHomeAtHomeGet / twoTeamsEvents.length).toFixed(2)
+    );
+    vsHomeAtHomeLoss = parseFloat(
+      (vsHomeAtHomeLoss / twoTeamsEvents.length).toFixed(2)
+    );
+    vsHomeAtAwayGet = parseFloat(
+      (vsHomeAtAwayGet / twoTeamsEvents.length).toFixed(2)
+    );
+    vsHomeAtAwayLoss = parseFloat(
+      (vsHomeAtAwayLoss / twoTeamsEvents.length).toFixed(2)
+    );
     let data = [];
     const dataSeason = [];
-		const dataVS = [];
-		console.log(awayAtHomeWin);
-		console.log(awayAtAwayWin);
-		
+    const dataVS = [];
+
     const total = {
       home: {
         Win: homeAtHomeWin + homeAtAwayWin,
@@ -293,12 +308,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     };
     const totalScore = {
       home: {
-        Get: parseFloat(homeAtHomeGet) + parseFloat(homeAtAwayGet),
-        Loss: parseFloat(homeAtHomeLoss) + parseFloat(homeAtAwayLoss)
+        Get: parseFloat((homeAtHomeGet + homeAtAwayGet).toFixed(2)),
+        Loss: parseFloat((homeAtHomeLoss + homeAtAwayLoss).toFixed(2))
       },
       away: {
-        Get: parseFloat(awayAtHomeGet) + parseFloat(awayAtAwayGet),
-        Loss: parseFloat(awayAtHomeLoss) + parseFloat(awayAtAwayLoss)
+        Get: parseFloat((awayAtHomeGet + awayAtAwayGet).toFixed(2)),
+        Loss: parseFloat((awayAtHomeLoss + awayAtAwayLoss).toFixed(2))
       }
     };
     const atHomeScore = {
@@ -359,12 +374,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     };
     const vsTotalScore = {
       home: {
-        Get: parseFloat(vsHomeAtHomeGet) + parseFloat(vsHomeAtAwayGet),
-        Loss: parseFloat(vsHomeAtHomeLoss) + parseFloat(vsHomeAtAwayLoss)
+        Get: parseFloat((vsHomeAtHomeGet + vsHomeAtAwayGet).toFixed(2)),
+        Loss: parseFloat((vsHomeAtHomeLoss + vsHomeAtAwayLoss).toFixed(2))
       },
       away: {
-        Get: parseFloat(vsHomeAtAwayLoss) + parseFloat(vsHomeAtHomeLoss),
-        Loss: parseFloat(vsHomeAtAwayGet) + parseFloat(vsHomeAtHomeGet)
+        Get: parseFloat((vsHomeAtAwayLoss + vsHomeAtHomeLoss).toFixed(2)),
+        Loss: parseFloat((vsHomeAtAwayGet + vsHomeAtHomeGet).toFixed(2))
       }
     };
     const vsAtHomeScore = {
