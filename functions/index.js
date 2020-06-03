@@ -74,7 +74,8 @@ const whitelist = [
   'https://api-dosports.web.app',
   'https://admin-dosports.web.app',
   'https://getsports.cc',
-  'https://getsport.cc'
+  'https://getsport.cc',
+  'https://api-getsports.web.app/'
 ];
 const localOrigin = 'http://172.16.21';
 
@@ -125,53 +126,53 @@ app.get('/awakeAPI', (req, res) => {
 // API cloud function
 exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
 // admin cloud function
-exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
-
-// 各聯盟API排程
-exports.prematch = functions.pubsub
-  .schedule('0 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch'));
-exports.prematch_esport = functions.pubsub
-  .schedule('0 */3 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_esport'));
-exports.handicap = functions.pubsub
-  .schedule('0 */1 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/handicap'));
-exports.handicap_esport = functions.pubsub
-  .schedule('*/30 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/handicap_esport'));
-// exports.lineups = functions.pubsub
-//   .schedule('*/10 * * * *')
+// exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
+//
+// // 各聯盟API排程
+// exports.prematch = functions.pubsub
+//   .schedule('0 5 * * *')
 //   .timeZone('Asia/Taipei')
-//   .onRun(require('./pubsub/lineups'));
-exports.lineups_MLB = functions.pubsub
-  .schedule('0 */1 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/lineups_MLB'));
-// exports.pbp_MLB = functions.pubsub
-//   .schedule('* * * * *')
+//   .onRun(require('./pubsub/prematch'));
+// exports.prematch_esport = functions.pubsub
+//   .schedule('0 */3 * * *')
 //   .timeZone('Asia/Taipei')
-//   .onRun(require('./pubsub/checkmatch_MLB'));
-// exports.pbp_NBA = functions.pubsub
-//   .schedule('* * * * *')
+//   .onRun(require('./pubsub/prematch_esport'));
+// exports.handicap = functions.pubsub
+//   .schedule('0 */1 * * *')
 //   .timeZone('Asia/Taipei')
-//   .onRun(require('./pubsub/checkmatch_NBA'));
-exports.pbp_eSoccer = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_eSoccer'));
-exports.pbp_KBO = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_KBO'));
-exports.pbp_abnormal = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('*/10 * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_abnormal'));
+//   .onRun(require('./pubsub/handicap'));
+// exports.handicap_esport = functions.pubsub
+//   .schedule('*/30 * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/handicap_esport'));
+// // exports.lineups = functions.pubsub
+// //   .schedule('*/10 * * * *')
+// //   .timeZone('Asia/Taipei')
+// //   .onRun(require('./pubsub/lineups'));
+// exports.lineups_MLB = functions.pubsub
+//   .schedule('0 */1 * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/lineups_MLB'));
+// // exports.pbp_MLB = functions.pubsub
+// //   .schedule('* * * * *')
+// //   .timeZone('Asia/Taipei')
+// //   .onRun(require('./pubsub/checkmatch_MLB'));
+// // exports.pbp_NBA = functions.pubsub
+// //   .schedule('* * * * *')
+// //   .timeZone('Asia/Taipei')
+// //   .onRun(require('./pubsub/checkmatch_NBA'));
+// exports.pbp_eSoccer = functions
+//   .runWith(runtimeOpts)
+//   .pubsub.schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_eSoccer'));
+// exports.pbp_KBO = functions
+//   .runWith(runtimeOpts)
+//   .pubsub.schedule('* * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_KBO'));
+// exports.pbp_abnormal = functions
+//   .runWith(runtimeOpts)
+//   .pubsub.schedule('*/10 * * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/checkmatch_abnormal'));
