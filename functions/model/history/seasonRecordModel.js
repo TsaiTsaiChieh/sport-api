@@ -32,15 +32,19 @@ function queryHomeEvents(args) {
             FROM matches AS game,
                  matches AS historygame,
                  match__seasons AS season
-           WHERE game.bets_id = '${args.event_id}'
+           WHERE game.bets_id = :event_id
              AND historygame.status = ${modules.MATCH_STATUS.END}
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
+             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
              AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
         ORDER BY historygame.scheduled      
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -63,15 +67,19 @@ function queryAwayEvents(args) {
           FROM matches AS game,
                matches AS historygame,
                match__seasons AS season
-         WHERE game.bets_id = '${args.event_id}'
+         WHERE game.bets_id = :event_id
            AND historygame.status = ${modules.MATCH_STATUS.END}
-           AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-           AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+           AND game.league_id = :leagueID
+           AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
            AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
       ORDER BY historygame.scheduled        
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -94,16 +102,20 @@ function queryTwoTeamsEvents(args) {
             FROM matches AS game,
                  matches AS historygame,
                  match__seasons AS season
-           WHERE game.bets_id = '${args.event_id}'
+           WHERE game.bets_id = :event_id
              AND historygame.status = ${modules.MATCH_STATUS.END}
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
-             AND season.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
+             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.away_id = historygame.home_id) 
              AND (game.home_id = historygame.away_id OR game.away_id = historygame.away_id)
              AND historygame.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
         ORDER BY historygame.scheduled            
         )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -160,7 +172,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtHomeDraw = homeAtHomeDraw + 1;
         }
-      }
+			}
       if (ele.aim_home_id === ele.history_away_id) {
         homeAtAwayGet = homeAtAwayGet + ele.history_away_points;
         homeAtAwayLoss = homeAtAwayLoss + ele.history_home_points;
@@ -171,8 +183,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtAwayDraw = homeAtAwayDraw + 1;
         }
-      }
-    }
+			}
+		}
+		homeAtHomeGet = (homeAtHomeGet / homeEvents.length).toFixed(2);
+		homeAtHomeLoss = (homeAtHomeLoss / homeEvents.length).toFixed(2);
+		homeAtAwayGet = (homeAtAwayGet / homeEvents.length).toFixed(2);
+		homeAtAwayLoss = (homeAtAwayLoss / homeEvents.length).toFixed(2);
     for (let i = 0; i < awayEvents.length; i++) {
       const ele = awayEvents[i];
       // 計算主隊本季賽績
@@ -198,7 +214,11 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           awayAtAwayDraw = awayAtAwayDraw + 1;
         }
       }
-    }
+		}
+		awayAtHomeGet = (awayAtHomeGet / awayEvents.length).toFixed(2);
+		awayAtHomeLoss = (awayAtHomeLoss / awayEvents.length).toFixed(2);
+		awayAtAwayGet = (awayAtAwayGet / awayEvents.length).toFixed(2);
+		awayAtAwayLoss = (awayAtAwayLoss / awayEvents.length).toFixed(2);
     for (let i = 0; i < twoTeamsEvents.length; i++) {
       const ele = twoTeamsEvents[i];
       // 計算主隊本季賽績
@@ -224,10 +244,17 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           vsHomeAtAwayDraw = vsHomeAtAwayDraw + 1;
         }
       }
-    }
+		}
+		vsHomeAtHomeGet = (vsHomeAtHomeGet / twoTeamsEvents.length).toFixed(2);
+		vsHomeAtHomeLoss = (vsHomeAtHomeLoss / twoTeamsEvents.length).toFixed(2);
+		vsHomeAtAwayGet = (vsHomeAtAwayGet / twoTeamsEvents.length).toFixed(2);
+		vsHomeAtAwayLoss = (vsHomeAtAwayLoss / twoTeamsEvents.length).toFixed(2);
     let data = [];
     const dataSeason = [];
-    const dataVS = [];
+		const dataVS = [];
+		console.log(awayAtHomeWin);
+		console.log(awayAtAwayWin);
+		
     const total = {
       home: {
         Win: homeAtHomeWin + homeAtAwayWin,
@@ -249,7 +276,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
       away: {
         Lose: awayAtHomeLose,
         Draw: awayAtHomeDraw,
-        Win: awayAtAwayWin
+        Win: awayAtHomeWin
       }
     };
     const atAway = {
@@ -266,12 +293,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     };
     const totalScore = {
       home: {
-        Get: homeAtHomeGet + homeAtAwayGet,
-        Loss: homeAtHomeLoss + homeAtAwayLoss
+        Get: parseFloat(homeAtHomeGet) + parseFloat(homeAtAwayGet),
+        Loss: parseFloat(homeAtHomeLoss) + parseFloat(homeAtAwayLoss)
       },
       away: {
-        Get: awayAtHomeGet + awayAtAwayGet,
-        Loss: awayAtHomeLoss + awayAtAwayLoss
+        Get: parseFloat(awayAtHomeGet) + parseFloat(awayAtAwayGet),
+        Loss: parseFloat(awayAtHomeLoss) + parseFloat(awayAtAwayLoss)
       }
     };
     const atHomeScore = {
@@ -332,12 +359,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     };
     const vsTotalScore = {
       home: {
-        Get: vsHomeAtHomeGet + vsHomeAtAwayGet,
-        Loss: vsHomeAtHomeLoss + vsHomeAtAwayLoss
+        Get: parseFloat(vsHomeAtHomeGet) + parseFloat(vsHomeAtAwayGet),
+        Loss: parseFloat(vsHomeAtHomeLoss) + parseFloat(vsHomeAtAwayLoss)
       },
       away: {
-        Get: vsHomeAtAwayLoss + vsHomeAtHomeLoss,
-        Loss: vsHomeAtAwayGet + vsHomeAtHomeGet
+        Get: parseFloat(vsHomeAtAwayLoss) + parseFloat(vsHomeAtHomeLoss),
+        Loss: parseFloat(vsHomeAtAwayGet) + parseFloat(vsHomeAtHomeGet)
       }
     };
     const vsAtHomeScore = {

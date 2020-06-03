@@ -21,9 +21,12 @@ function queryForSeasonDate(args) {
         `(
           SELECT season.league_name AS league_name, season.start_date AS season_start_date, season.end_date AS season_end_date
             FROM match__seasons AS season
-           WHERE season.league_id = '${modules.leagueCodebook(args.league).id}'
+           WHERE season.league_id = :leagueID
          )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
