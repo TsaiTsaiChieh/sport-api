@@ -172,7 +172,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtHomeDraw = homeAtHomeDraw + 1;
         }
-			}
+      }
       if (ele.aim_home_id === ele.history_away_id) {
         homeAtAwayGet = homeAtAwayGet + ele.history_away_points;
         homeAtAwayLoss = homeAtAwayLoss + ele.history_home_points;
@@ -183,12 +183,12 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         } else {
           homeAtAwayDraw = homeAtAwayDraw + 1;
         }
-			}
-		}
-		homeAtHomeGet = (homeAtHomeGet / homeEvents.length).toFixed(2);
-		homeAtHomeLoss = (homeAtHomeLoss / homeEvents.length).toFixed(2);
-		homeAtAwayGet = (homeAtAwayGet / homeEvents.length).toFixed(2);
-		homeAtAwayLoss = (homeAtAwayLoss / homeEvents.length).toFixed(2);
+      }
+    }
+    homeAtHomeGet = (homeAtHomeGet / homeEvents.length).toFixed(2);
+    homeAtHomeLoss = (homeAtHomeLoss / homeEvents.length).toFixed(2);
+    homeAtAwayGet = (homeAtAwayGet / homeEvents.length).toFixed(2);
+    homeAtAwayLoss = (homeAtAwayLoss / homeEvents.length).toFixed(2);
     for (let i = 0; i < awayEvents.length; i++) {
       const ele = awayEvents[i];
       // 計算主隊本季賽績
@@ -214,11 +214,11 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           awayAtAwayDraw = awayAtAwayDraw + 1;
         }
       }
-		}
-		awayAtHomeGet = (awayAtHomeGet / awayEvents.length).toFixed(2);
-		awayAtHomeLoss = (awayAtHomeLoss / awayEvents.length).toFixed(2);
-		awayAtAwayGet = (awayAtAwayGet / awayEvents.length).toFixed(2);
-		awayAtAwayLoss = (awayAtAwayLoss / awayEvents.length).toFixed(2);
+    }
+    awayAtHomeGet = (awayAtHomeGet / awayEvents.length).toFixed(2);
+    awayAtHomeLoss = (awayAtHomeLoss / awayEvents.length).toFixed(2);
+    awayAtAwayGet = (awayAtAwayGet / awayEvents.length).toFixed(2);
+    awayAtAwayLoss = (awayAtAwayLoss / awayEvents.length).toFixed(2);
     for (let i = 0; i < twoTeamsEvents.length; i++) {
       const ele = twoTeamsEvents[i];
       // 計算主隊本季賽績
@@ -244,17 +244,17 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
           vsHomeAtAwayDraw = vsHomeAtAwayDraw + 1;
         }
       }
-		}
-		vsHomeAtHomeGet = (vsHomeAtHomeGet / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtHomeLoss = (vsHomeAtHomeLoss / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtAwayGet = (vsHomeAtAwayGet / twoTeamsEvents.length).toFixed(2);
-		vsHomeAtAwayLoss = (vsHomeAtAwayLoss / twoTeamsEvents.length).toFixed(2);
+    }
+    vsHomeAtHomeGet = (vsHomeAtHomeGet / twoTeamsEvents.length).toFixed(2);
+    vsHomeAtHomeLoss = (vsHomeAtHomeLoss / twoTeamsEvents.length).toFixed(2);
+    vsHomeAtAwayGet = (vsHomeAtAwayGet / twoTeamsEvents.length).toFixed(2);
+    vsHomeAtAwayLoss = (vsHomeAtAwayLoss / twoTeamsEvents.length).toFixed(2);
     let data = [];
     const dataSeason = [];
-		const dataVS = [];
-		console.log(awayAtHomeWin);
-		console.log(awayAtAwayWin);
-		
+    const dataVS = [];
+    console.log(awayAtHomeWin);
+    console.log(awayAtAwayWin);
+
     const total = {
       home: {
         Win: homeAtHomeWin + homeAtAwayWin,
