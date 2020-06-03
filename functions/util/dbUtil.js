@@ -1658,9 +1658,9 @@ const Transfer_Status = sequelize.define(
   }
 );
 
-/* 紅利14天過期紀錄表 */
-const ExpireDividend = sequelize.define(
-  'cashflow_expire_dividend',
+/* 紅利紀錄表 */
+const Dividend = sequelize.define(
+  'cashflow_dividend',
   {
     expire_id: {
       type: Sequelize.INTEGER,
@@ -1676,9 +1676,15 @@ const ExpireDividend = sequelize.define(
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    expire_date: {
-      type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+    },
+    scheduled: {
+      type: Sequelize.INTEGER
+    },
+    expire_scheduled: {
+      type: Sequelize.INTEGER
     },
     createdAt: {
       type: Sequelize.DATE(3),
@@ -1686,7 +1692,7 @@ const ExpireDividend = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
   },
   {
@@ -2038,15 +2044,15 @@ const CashflowDonate = sequelize.define(
         type: Sequelize.INTEGER,
         primaryKey: true,
       },
-      dividend_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
       coin: {
         type: Sequelize.INTEGER,
         primaryKey: true,
       },
-      coin_real: {
+      ingot: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+      },
+      ingot_real: {
         type: Sequelize.FLOAT,
         primaryKey: true,
       },
@@ -2071,7 +2077,6 @@ const CashflowDonate = sequelize.define(
       ]
   }
 );
-
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2108,7 +2113,7 @@ const dbUtil = {
   UserFollow,
   Topic_DonateArticle,
   Service_ReportTopics,
-  ExpireDividend,
+  Dividend,
   MoneyLogs,
   CashflowDeposit,
   IngotTransfer,

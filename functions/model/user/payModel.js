@@ -1,6 +1,6 @@
 const db = require('../../util/dbUtil');
-const transfer = require('../../util/transfer');
 const errs = require('../../util/errorCode');
+const modules = require('../../util/modules');
 function payModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -20,53 +20,72 @@ function payModel(method, args, uid) {
           fee           : args.fee           || 0,
           fee_real      : args.fee_real      || 0
         }
+        const scheduled = modules.moment().unix();
         const self = await db.sequelize.models.user.findOne({
           where: { uid: uid },
           attributes: ['ingot', 'coin', 'dividend'],
           raw: true
         });
         if (exchange.type === 'buy_coin') {
+          
+          const t = await db.sequelize.transaction();
+          
           try{
-            trans = await db.sequelize.models.user.update({ coin: self.coin + exchange.coin, dividend: self.dividend + exchange.dividend }, { where: { uid: uid } });
-            const trans_args = {
-              to_uid: uid,
-              type: 'buy_coin',
-              dividend: exchange.dividend, // 0:紅利 1:搞幣 2:搞錠
-              coin: exchange.coin
-            };
-            transfer.doTransfer(db, trans_args);
+            user             = await db.sequelize.models.user.update({ coin: self.coin + exchange.coin, dividend: self.dividend + exchange.dividend }, { where: { uid: uid } });
+            cashflow_deposit = await db.sequelize.models.cashflow_deposit.create({uid:uid, money:exchange.money, money_real:exchange.money_real, coin:exchange.coin, coin_real:exchange.coin_real, dividend:exchange.dividend, dividend_real:exchange.dividend_real, scheduled:scheduled});
+            if(!trans || !cashflow_deposit){
+              reject(errs.errsMsg('500', '20001'));
+              return;
+            }
+            await t.commit();
           } catch (error) {
             console.error(error);
+            await t.rollback();//回滾
             reject(errs.errsMsg('500', '20002'));
+            return;
           }
         } else if (exchange.type === 'ingot2coin') {
-          const pre_purse = await db.sequelize.models.user.findOne({
-            where: {
-              uid: uid
-            },
-            attributes: ['coin', 'dividend', 'ingot'],
-            raw: true
-          });
-          if(exchange.output ==='coin'){
-            /* 提領比例計算 */
-            let ratio = 0;
-            
+          /*撈取使用者貨幣資料*/
+          try {
+            const pre_purse = await db.sequelize.models.user.findOne({
+              where: {
+                uid: uid
+              },
+              attributes: ['coin', 'dividend', 'ingot'],
+              raw: true
+            });
             if ((pre_purse.ingot - exchange.ingot) < 0) {
               reject(errs.errsMsg('500','20003'));
-            } else {
+              return;
+            }
+          } catch (err) {
+            console.error(err);
+            reject({ code: 500, error: err });
+            return;
+          }
+          if(exchange.output ==='coin'){
+
+            let ratio = 0;
+
+            const t = await db.sequelize.transaction();
+            
+            try{
               trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot, coin: self.coin + (1-ratio)*exchange.ingot }, { where: { uid: uid } });
-              const trans_args = {
-                to_uid     : uid,
-                type       : 'ingot2coin',
-                ingot      : exchange.ingot, // 0:紅利 1:搞幣 2:搞錠
-                ingot_real : exchange.ingot_real,
-                coin       : exchange.coin,
-                coin_real  : exchange.coin_real
-              };
-           
-              transfer.doTransfer(db, trans_args);
+              const status = 0;//搞錠轉換搞幣
+              const cashflow_ingot_transfer_coin = await db.sequelize.models.cashflow_ingot_transfer.create({uid:uid, status:status, ingot:(-1)*exchange.ingot, ingot_real:(-1)*exchange.ingot_real, coin:exchange.coin, coin_real:exchange.coin_real, money:exchange.money, money_real:exchange.money_real, fee:exchange.fee, fee_real:exchange.fee_real, scheduled:scheduled})
+              if(!trans || !cashflow_ingot_transfer_coin){
+                reject(errs.errsMsg('500', '20001'));
+                return;
+              }
+              await t.commit();
+            } catch (err) {
+              console.error(err);
+              await t.rollback();
+              reject({ code: 500, error: err });
+              return;
             }
           }else if(exchange.output==="cash"){
+            /*手續費-之後前後端都需調整為資料庫撈取*/
             let ratio = 0;
             if (exchange.ingot <= 3000) {
               ratio = 0.015;
@@ -75,21 +94,30 @@ function payModel(method, args, uid) {
             } else {
               ratio = 0.005;
             }
+
+
+            exchange.money = Math.round((1-ratio)*exchange.ingot);
+            exchange.money_real = (1-ratio)*exchange.ingot;
+            exchange.fee = Math.round(ratio*exchange.ingot);
+            exchange.fee_real = ratio*exchange.ingot;
             
-            if ((pre_purse.ingot - exchange.ingot) < 0) {
-              reject(errs.errsMsg('500','20003'));
-            } else {
-              trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot, coin: self.coin + (1-ratio)*exchange.ingot }, { where: { uid: uid } });
-              const trans_args = {
-                uid: uid,
-                type  : 'ingot2coin',
-                ingot : exchange.ingot,
-                money : exchange.money,
-                money_real : exchange.money_real,
-                fee   : exchange.fee,
-                fee_real : exchange.fee_real
-              };
-              transfer.doMoney(db, trans_args);
+            
+            const t = await db.sequelize.transaction();
+            
+            try{
+                trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot}, { where: { uid: uid } });
+                const status = 1;//搞錠轉換現金
+                const cashflow_ingot_transfer_cash = await db.sequelize.models.cashflow_ingot_transfer.create({uid:uid, status:status, ingot:(-1)*exchange.ingot, ingot_real:(-1)*exchange.ingot_real, coin:exchange.coin, coin_real:exchange.coin_real, money:exchange.money, money_real:exchange.money_real, money:exchange.dividend, money_real:exchange.dividend_real, fee:exchange.fee, fee_real:exchange.fee_real, scheduled:scheduled});
+                if(!trans || !cashflow_ingot_transfer_cash){
+                  reject(errs.errsMsg('500', '20001'));
+                  return;
+                }
+                await t.commit();
+              } catch (err) {
+                console.error(err);
+                await t.rollback();
+                reject({ code: 500, error: err });
+                return;
             }
           }
         } else {
@@ -113,6 +141,7 @@ function payModel(method, args, uid) {
     } catch (error) {
       console.log(error);
       reject(errs.errsMsg('500', '20001'));
+      return;
     }
   });
 }
