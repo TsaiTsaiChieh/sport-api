@@ -95,12 +95,10 @@ function payModel(method, args, uid) {
               ratio = 0.005;
             }
 
-
             exchange.money = Math.round((1-ratio)*exchange.ingot);
             exchange.money_real = (1-ratio)*exchange.ingot;
             exchange.fee = Math.round(ratio*exchange.ingot);
-            exchange.fee_real = ratio*exchange.ingot;
-            
+            exchange.fee_real = ratio*exchange.ingot;   
             
             const t = await db.sequelize.transaction();
             
@@ -123,8 +121,8 @@ function payModel(method, args, uid) {
         } else {
           console.log('您尚未選擇任何一項類別!');
         }
-       
-        /*取得經過計算後的錢包*/
+
+        /* 取得經過計算後的錢包 */
         const purse = await db.sequelize.models.user.findOne({
           where: {
             uid: uid

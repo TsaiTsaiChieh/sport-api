@@ -1,31 +1,6 @@
 
 const moment = require('moment');
 
-function buy_coin(db, args) {
-  const money         = args.money;
-  const money_real    = args.money_real;
-  const coin          = args.coin;
-  const coin_real     = args.coin_real;
-  const dividend      = args.dividend;
-  const dividend_real = args.dividend_real;
-  const scheduled     = moment().unix();
-  const transfer = db.sequelize.query(
-  `
-        INSERT  INTO 
-                ( from_uid,  to_uid,  type_id,  type,  money_type,  money_value,  ingot, ingot_real, coin, coin_real, dividend, dividend_real, title,  content,  scheduled,  createdAt,  updatedAt )
-        VALUES
-                                    ( $from_uid, $to_uid, $type_id, $type, $money_type, $money_value, $ingot, $ingot_real, $coin, $coin_real, $dividend, $dividend_real, $title, $content, $scheduled, $createdAt, $updatedAt )
-  `
-  );
-}
-
-
-
-
-
-
-
-
 /* 寫入轉換紀錄 */
 // function doTransfer(db, args) {
 //   const from_uid = args.from_uid || 'default';

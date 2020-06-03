@@ -11,7 +11,7 @@ const sports = ['1'];
 async function handicap_esport() {
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteID[i]);
-    if (querysForEvent > 0) {
+    if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteID[i]);
     }
 
@@ -70,7 +70,7 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 1,
+      value: 2,
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);
@@ -80,7 +80,7 @@ async function query_event(league) {
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
-						AND game.league_id =  ${league}
+						AND game.league_id =  '${league}'
 			 )`,
       {
         type: db.sequelize.QueryTypes.SELECT
@@ -92,7 +92,7 @@ async function query_event(league) {
 async function upsertHandicap(querysForEvent, sport, league) {
   return new Promise(async function(resolve, reject) {
     try {
-      for (let i = 0; i < querysForEvent; i++) {
+      for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
         const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
         const data = await axiosForURL(URL);
@@ -103,32 +103,55 @@ async function upsertHandicap(querysForEvent, sport, league) {
         "results": {}
       } */
         if (data.results.odds) {
-          spread_odds = data.results.odds[`${sport}_2`];
-          totals_odds = data.results.odds[`${sport}_3`];
+          if (data.results.odds[`${sport}_2`]) {
+            spread_odds = data.results.odds[`${sport}_2`];
+          }
+          if (data.results.odds[`${sport}_3`]) {
+            totals_odds = data.results.odds[`${sport}_3`];
+          }
         }
         let newest_spread;
+
         if (spread_odds.length > 0) {
-          newest_spread = spread_odds[spread_odds.length - 1];
-          newest_spread = spreadCalculator(newest_spread);
-          await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+          if (
+            spread_odds[spread_odds.length - 1].home_od !== null &&
+            spread_odds[spread_odds.length - 1].handicap !== null &&
+            spread_odds[spread_odds.length - 1].away_od !== null
+          ) {
+            newest_spread = spread_odds[spread_odds.length - 1];
+            newest_spread = spreadCalculator(newest_spread);
+            await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+          }
         }
         let newest_totals;
         if (totals_odds.length > 0) {
-          newest_totals = totals_odds[totals_odds.length - 1];
+          if (
+            totals_odds[totals_odds.length - 1].home_od !== null &&
+            totals_odds[totals_odds.length - 1].handicap !== null &&
+            totals_odds[totals_odds.length - 1].away_od !== null
+          ) {newest_totals = totals_odds[totals_odds.length - 1];}
           newest_totals = totalsCalculator(newest_totals);
           await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
         }
         for (let j = 0; j < spread_odds.length; j++) {
           let odd = spread_odds[j];
           odd = spreadCalculator(odd);
-          if (odd.home_od && odd.handicap && odd.away_od) {
+          if (
+            odd.home_od !== null &&
+            odd.handicap !== null &&
+            odd.away_od !== null
+          ) {
             await write2MysqlOfMatchSpread(odd, ele, league);
           }
         }
         for (let k = 0; k < totals_odds.length; k++) {
           let odd = totals_odds[k];
           odd = totalsCalculator(odd);
-          if (odd.over_od && odd.handicap && odd.under_od) {
+          if (
+            odd.over_od !== null &&
+            odd.handicap !== null &&
+            odd.under_od !== null
+          ) {
             await write2MysqlOfMatchTotals(odd, ele, league);
           }
         }
@@ -214,7 +237,9 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err.stack} at handicap_esports by DY`)
+        new AppErrors.MysqlError(
+          `${err.stack} at handicap_esports ${ele.bets_id} by DY`
+        )
       );
     }
   });
@@ -229,7 +254,9 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err.stack} at handicap_esports by DY`)
+        new AppErrors.MysqlError(
+          `${err.stack} at handicap_esports ${ele.bets_id} by DY`
+        )
       );
     }
   });
@@ -262,13 +289,13 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 //    }
 //  });
 // }
-async function write2MysqlOfMatchSpread(odd, ele) {
+async function write2MysqlOfMatchSpread(odd, ele, league) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
         match_id: ele.bets_id,
-        league_id: leagueUniteID,
+        league_id: league,
         handicap: Number.parseFloat(odd.handicap),
         home_odd: Number.parseFloat(odd.home_od),
         away_odd: Number.parseFloat(odd.away_od),
@@ -280,19 +307,19 @@ async function write2MysqlOfMatchSpread(odd, ele) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err.stack} at handicap_esports of MatchSpread by DY`
+          `${err.stack} at handicap_esports of MatchSpread ${ele.bets_id} by DY`
         )
       );
     }
   });
 }
-async function write2MysqlOfMatchTotals(odd, ele) {
+async function write2MysqlOfMatchTotals(odd, ele, league) {
   return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
         match_id: ele.bets_id,
-        league_id: leagueUniteID,
+        league_id: league,
         handicap: Number.parseFloat(odd.handicap),
         over_odd: Number.parseFloat(odd.over_od),
         under_odd: Number.parseFloat(odd.under_od),
@@ -303,7 +330,7 @@ async function write2MysqlOfMatchTotals(odd, ele) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err.stack} at handicap_esports of MatchTotals by DY`
+          `${err.stack} at handicap_esports of MatchTotals ${ele.bets_id} by DY`
         )
       );
     }
