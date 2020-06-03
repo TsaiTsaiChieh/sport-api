@@ -105,9 +105,6 @@ const User = sequelize.define(
       type: Sequelize.INTEGER
     },
     block_message: {
-      type: Sequelize.INTEGER
-    },
-    block_message_tw: {
       type: Sequelize.DATE
     },
     coin: {
@@ -1239,6 +1236,9 @@ const Topic_Reply = sequelize.define(
       // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
+    },
+    delete_reason: {
+      type: Sequelize.TEXT
     }
   },
   {
