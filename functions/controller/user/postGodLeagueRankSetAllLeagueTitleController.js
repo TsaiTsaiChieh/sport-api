@@ -68,6 +68,88 @@ module.exports = postGodLeagueRankSetAllLeagueTitle;
   ]
 }
  *
+ *
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": "",
+    "schemaPath": "#/required",
+    "params": {
+      "missingProperty": "titles"
+    },
+    "message": "should have required property 'titles'"
+  }
+]
+ *
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": ".titles[0]",
+    "schemaPath": "#/properties/titles/items/required",
+    "params": {
+      "missingProperty": "league"
+    },
+    "message": "should have required property 'league'"
+  }
+]
+ *
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": ".titles[0]",
+    "schemaPath": "#/properties/titles/items/required",
+    "params": {
+      "missingProperty": "default_title"
+    },
+    "message": "should have required property 'default_title'"
+  }
+]
+ *
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "enum",
+    "dataPath": ".titles[0].league",
+    "schemaPath": "#/properties/titles/items/properties/league/enum",
+    "params": {
+      "allowedValues": [
+        "NBA",
+        "MLB",
+        "eSoccer",
+        "KBO"
+      ]
+    },
+    "message": "should be equal to one of the allowed values"
+  },
+  {
+    "keyword": "enum",
+    "dataPath": ".titles[1].default_title",
+    "schemaPath": "#/properties/titles/items/properties/default_title/enum",
+    "params": {
+      "allowedValues": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "message": "should be equal to one of the allowed values"
+  }
+]
+ *
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:

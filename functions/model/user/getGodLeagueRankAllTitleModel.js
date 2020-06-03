@@ -1,4 +1,4 @@
-const { getTitlesPeriod, leagueDecoder } = require('../../util/modules');
+const { getTitlesPeriod, leagueDecoder, getAllTitles } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -40,7 +40,7 @@ async function getGodLeagueRankAllTitle(args) {
     result.lists[leagueDecoder(data.league_id)] = {
       rank: data.rank_id,
       default_title: data.default_title,
-      titles: getTitles(data)
+      titles: getAllTitles(data)
     };
 
     result.default_league_rank = data.default_god_league_rank && check_league_lists.includes(data.default_god_league_rank)
@@ -49,17 +49,6 @@ async function getGodLeagueRankAllTitle(args) {
   });
 
   return result;
-}
-
-function getTitles(titles) {
-  return {
-    1: titles.continue,
-    2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3],
-    3: [titles.predict_rate1, titles.predict_rate3],
-    4: titles.win_bets_continue,
-    5: [titles.matches_rate1, titles.matches_rate2],
-    6: titles.matches_continue
-  };
 }
 
 module.exports = getGodLeagueRankAllTitle;

@@ -83,6 +83,20 @@ module.exports = settleWinList;
  * }
  *
  *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": "",
+    "schemaPath": "#/required",
+    "params": {
+      "missingProperty": "date"
+    },
+    "message": "should have required property 'date'"
+  }
+]
+ *
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:
