@@ -65,50 +65,51 @@ async function othersPredictions(args) {
   // !!! 登入人員ID先註解掉，正式上線要打開
   //
   const predictionsInfoDocs = await db.sequelize.query(`
-        select prediction.*, 
-               spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
-               totals.handicap totals_handicap, totals.over_tw,
-               users.status, users.default_god_league_rank,
-               titles.rank_id, titles.default_title,
-               titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
-               titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-          from (
-                 select prediction.bets_id, sell, match_scheduled,
-                        prediction.league_id, league.name league,
-                        prediction.uid,
-                        team_home.alias home_alias, team_home.alias_ch home_alias_ch,
-                        team_away.alias away_alias, team_away.alias_ch away_alias_ch,
-                        prediction.spread_id, prediction.spread_option, prediction.spread_bets,
-                        prediction.totals_id, prediction.totals_option, prediction.totals_bets,
-                        prediction_desc.description, prediction_desc.tips
-                   from view__leagues league,
-                        matches,
-                        match__teams team_home,
-                        match__teams team_away,
-                        user__predictions prediction force index(user__predictions_uid_match_scheduled)
-                   left join user__prediction__descriptions prediction_desc
-                     on prediction.uid = prediction_desc.uid
-                    and prediction.league_id = prediction_desc.league_id
-                  where prediction.league_id = league.league_id
-                    and prediction.bets_id = matches.bets_id
-                    and matches.home_id = team_home.team_id
-                    and matches.away_id = team_away.team_id
-                    and prediction.uid = :otherUid
-                   -- and prediction.match_scheduled between :begin and :end
-                   -- and prediction_desc.day = :begin
-               ) prediction
-         inner join users
-            on prediction.uid = users.uid
-          left join match__totals totals
-            on prediction.totals_id = totals.totals_id
-          left join match__spreads spread
-            on prediction.spread_id = spread.spread_id
-          left join titles
-            on prediction.uid = titles.uid
-           and prediction.league_id = titles.league_id
-         where titles.period = :period
-         order by prediction.league_id, prediction.uid, prediction.match_scheduled
-      `, {
+    select prediction.*, 
+           spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
+           totals.handicap totals_handicap, totals.over_tw,
+           users.status, users.default_god_league_rank,
+           titles.rank_id, titles.default_title,
+           titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
+           titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue
+      from (
+             select prediction.bets_id, sell, match_scheduled,
+                    prediction.league_id, league.name league,
+                    prediction.uid,
+                    team_home.alias home_alias, team_home.alias_ch home_alias_ch,
+                    team_away.alias away_alias, team_away.alias_ch away_alias_ch,
+                    prediction.spread_id, prediction.spread_option, prediction.spread_bets,
+                    prediction.totals_id, prediction.totals_option, prediction.totals_bets,
+                    prediction_desc.description, prediction_desc.tips,
+                    DATE_FORMAT(prediction_desc.updatedAt, '%Y/%m/%d %T') updatedAt
+               from view__leagues league,
+                    matches,
+                    match__teams team_home,
+                    match__teams team_away,
+                    user__predictions prediction force index(user__predictions_uid_match_scheduled)
+               left join user__prediction__descriptions prediction_desc
+                 on prediction.uid = prediction_desc.uid
+                and prediction.league_id = prediction_desc.league_id
+              where prediction.league_id = league.league_id
+                and prediction.bets_id = matches.bets_id
+                and matches.home_id = team_home.team_id
+                and matches.away_id = team_away.team_id
+                and prediction.uid = :otherUid
+                -- and prediction.match_scheduled between :begin and :end
+                -- and prediction_desc.day = :begin
+           ) prediction
+     inner join users
+        on prediction.uid = users.uid
+      left join match__totals totals
+        on prediction.totals_id = totals.totals_id
+      left join match__spreads spread
+        on prediction.spread_id = spread.spread_id
+      left join titles
+        on prediction.uid = titles.uid
+       and prediction.league_id = titles.league_id
+     where titles.period = :period
+     order by prediction.league_id, prediction.uid, prediction.match_scheduled
+  `, {
     replacements: {
       otherUid: othersUid,
       begin: begin,
@@ -214,6 +215,7 @@ function repackageInfo(ele, paidType) {
     paid_type: paidType,
     info: paidType === 'free' ? '' : ele.description, // unpaid (未付費)、paid (已付費) 會出現
     tips: paidType === 'paid' ? ele.tips : '', // 只有 已付費才會出現
+    tipsUpdate: ele.updatedAt,
     rank: ele.rank_id,
     title: getTitles(ele, ele.default_title),
     people: ele.people // 購買人數
