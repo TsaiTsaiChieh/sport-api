@@ -36,7 +36,7 @@ function dividendExpireModel(args) {
                 `,
                 {
                   logging: true,
-                  replacements: { expire_scheduled:expire_scheduled, from: from, to: to },
+                  replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
                   type: db.sequelize.QueryTypes.INSERT
                 });
       resolve(expire);
@@ -56,10 +56,9 @@ function dividendExpireModel(args) {
                 }
       );
 
+      let update = 0;
 
-      const update = 0;
-
-      expire_uids.forEach(function(data){
+      expire_uids.forEach(function(data) {
         console.log(data, data.uid);
         const expire = db.sequelize.query(
           `
@@ -70,14 +69,14 @@ function dividendExpireModel(args) {
           ,
           {
             logging: true,
-            replacements: { expire_points:data.total_expire_points, uid: data.uid },
+            replacements: { expire_points: data.total_expire_points, uid: data.uid },
             type: db.sequelize.QueryTypes.UPDATE
           });
-          if(expire!=null){
-            update++;
-          }
+        if (expire != null) {
+          update++;
+        }
       });
-      resolve({'updates':update});
+      resolve({ updates: update });
     }
   });
 }

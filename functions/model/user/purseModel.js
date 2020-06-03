@@ -5,8 +5,8 @@ const db = require('../../util/dbUtil');
 function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const begin = modules.moment().startOf('month').subtract('month', 1).unix();
-      const end = modules.moment().endOf('month').endOf('month').subtract('month', 1).unix();
+      // const begin = modules.moment().startOf('month').subtract('month', 1).unix();
+      // const end = modules.moment().endOf('month').endOf('month').subtract('month', 1).unix();
 
       const purse = await db.sequelize.query(
         `
@@ -28,7 +28,7 @@ function purseModel(args, method, uid) {
         `,
         {
           plain: true,
-          bind: { uid: uid},
+          bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

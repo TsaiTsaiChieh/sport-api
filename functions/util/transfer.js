@@ -22,7 +22,7 @@ const moment = require('moment');
 //   const date = moment().format('YYYY-MM-DD');
 //   const transfer = db.sequelize.query(
 //     `
-//       INSERT  INTO 
+//       INSERT  INTO
 //               user__transfer__logs( from_uid,  to_uid,  type_id,  type,  money_type,  money_value,  ingot, ingot_real, coin, coin_real, dividend, dividend_real, title,  content,  scheduled,  createdAt,  updatedAt )
 //       VALUES
 //                                   ( $from_uid, $to_uid, $type_id, $type, $money_type, $money_value, $ingot, $ingot_real, $coin, $coin_real, $dividend, $dividend_real, $title, $content, $scheduled, $createdAt, $updatedAt )
@@ -47,7 +47,7 @@ const moment = require('moment');
 //   const date       = moment().format('YYYY-MM-DD');
 //   const transfer   = db.sequelize.query(
 //     `
-//       INSERT  INTO 
+//       INSERT  INTO
 //               cashflow_money_logs ( uid,  money,  money_real,  fee,  fee_real,  scheduled,  createdAt,  updatedAt )
 //       VALUES
 //                                   ( :uid, :money, :money_real, :fee, :fee_real, :scheduled, :createdAt, :updatedAt )
