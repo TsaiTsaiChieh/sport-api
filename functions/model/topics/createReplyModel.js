@@ -22,8 +22,17 @@ async function createReply(args) {
         reject({ code: 403, error: 'token expired' });
         return;
       }
+      if (!await func.chkUserBlocking(args.token.uid)) {
+        reject({ code: 403, error: 'user is blocking' });
+        return;
+      }
+
       const topicInfo = await func.getTopicInfo(args.article_id);
 
+      if (topicInfo.status !== 1 && topicInfo.status !== 3) {
+        reject({ code: 404, error: 'topic not found' });
+        return;
+      }
       if (topicInfo.length === 0) {
         reject({ code: 404, error: 'topic not found' });
         return;

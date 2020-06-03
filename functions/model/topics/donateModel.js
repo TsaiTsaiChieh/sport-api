@@ -107,6 +107,10 @@ async function donate(args) {
         reject({ code: 500, error: err });
         return;
       }
+      if (article[0].status !== 1 && article[0].status !== 3) {
+        reject({ code: 404, error: 'topic not found' });
+        return;
+      }
 
       const donate_uid = article[0].uid;
       if (uid === donate_uid) {

@@ -1,31 +1,40 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../../util/modules');
-const model = require('../../../model/admin/user/editUserModel');
+const model = require('../../../model/admin/service/dealModel');
 async function controller(req, res) {
   const schema = {
     type: 'object',
     properties: {
-      uid: {
-        type: 'string'
+      article_id: {
+        type: 'integer'
       },
-      name: {
-        type: 'string'
+      report_id: {
+        type: 'integer'
       },
-      display_name: {
-        type: 'string'
+      type: {
+        type: 'string',
+        enum: ['article', 'reply']
       },
-      email: {
-        type: 'string'
+      status: { // 處理狀態
+        type: 'string',
+        enum: ['1', '2', '3', '9']
       },
-      phone: {
-        type: 'string'
+      article_status: { // 文章狀態
+        type: 'string',
+        enum: ['1', '2', '3', '-1', '-2']
+      },
+      reply: {
+        type: ['string', 'null']
+      },
+      blobkuser: {
+        type: 'boolean'
       }
     },
-    required: ['uid', 'name', 'display_name', 'email', 'phone']
+    required: ['article_id', 'type', 'status']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    console.log(modules.ajv.errors);
+    // console.log(modules.ajv.errors);
     const ajv_errs = [];
     for (let i = 0; i < modules.ajv.errors.length; i++) {
       ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
