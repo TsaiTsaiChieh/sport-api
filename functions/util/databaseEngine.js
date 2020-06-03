@@ -46,7 +46,7 @@ async function checkUserRight(uid, rightArr = [], source = null) {
 
 // 查該大神販售牌組的購牌人數
 async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_unix) {
-  const [err, counts] = await to(db.Buy.count({
+  const [err, counts] = await to(db.UserBuy.count({
     where: {
       god_uid: god_uid,
       league_id: league_id,
@@ -63,7 +63,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
 
 // 檢查該 uid 是否有購買大神牌組
 async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
-  const [err, counts] = await to(db.Buy.count({
+  const [err, counts] = await to(db.UserBuy.count({
     where: {
       uid: uid,
       god_uid: god_uid,
