@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
@@ -74,7 +73,8 @@ const whitelist = [
   'https://api-dosports.web.app',
   'https://admin-dosports.web.app',
   'https://getsports.cc',
-  'https://getsport.cc'
+  'https://getsport.cc',
+  'https://api-getsports.web.app/'
 ];
 const localOrigin = 'http://172.16.21';
 

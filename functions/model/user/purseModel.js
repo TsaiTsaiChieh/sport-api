@@ -1,12 +1,11 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const begin = modules.moment().startOf('month').subtract('month', 1).unix();
-      const end = modules.moment().endOf('month').endOf('month').subtract('month', 1).unix();
+      // const begin = modules.moment().startOf('month').subtract('month', 1).unix();
+      // const end = modules.moment().endOf('month').endOf('month').subtract('month', 1).unix();
 
       const purse = await db.sequelize.query(
         `
@@ -21,16 +20,14 @@ function purseModel(args, method, uid) {
         });
 
       const expire = await db.sequelize.query(
-        `SELECT SUM(money_value) as dividend
-           FROM user__transfer__logs
-          WHERE to_uid = $uid
-            AND money_type=0
-            AND scheduled
-        BETWEEN $begin AND $end   
+        `
+          SELECT SUM(expire_dividend) as dividend
+            FROM cashflow_expire_dividends 
+           WHERE uid=$uid
         `,
         {
           plain: true,
-          bind: { uid: uid, begin: begin, end: end },
+          bind: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

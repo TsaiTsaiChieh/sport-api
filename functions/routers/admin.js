@@ -44,6 +44,30 @@ router.post(
   verification.admin,
   require('../controller/admin/home/updateHomeBannerController')
 );
+router.post(
+  '/topics/setViewCount',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/topics/setViewCountController')
+);
+router.post(
+  '/user/getUsers',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/getUsersController')
+);
+router.post(
+  '/user/editUser',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/editUserController')
+);
+router.post(
+  '/service/getReports',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/service/getReportsController')
+);
 
 /// 以下為原本的
 router.post(

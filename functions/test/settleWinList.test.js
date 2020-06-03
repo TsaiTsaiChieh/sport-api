@@ -57,11 +57,11 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[1]).toHaveProperty('spread_win_rate', 0);
     expect(settleResult[1]).toHaveProperty('totals_win_rate', 1);
     expect(settleResult[1]).toHaveProperty('spread_correct_bets', 0);
-    expect(settleResult[1]).toHaveProperty('totals_correct_bets', 2.8499999999999996);
+    expect(settleResult[1]).toHaveProperty('totals_correct_bets', 2.85);
     expect(settleResult[1]).toHaveProperty('spread_fault_bets', -3);
     expect(settleResult[1]).toHaveProperty('totals_fault_bets', 0);
     expect(settleResult[1]).toHaveProperty('spread_win_bets', -3);
-    expect(settleResult[1]).toHaveProperty('totals_win_bets', 2.8499999999999996);
+    expect(settleResult[1]).toHaveProperty('totals_win_bets', 2.85);
   });
 
   it('兩個人 1人一筆 1人二筆 ', () => {
@@ -127,10 +127,10 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[1]).toHaveProperty('spread_win_rate', 0.5);
     expect(settleResult[1]).toHaveProperty('totals_win_rate', 0.5);
     expect(settleResult[1]).toHaveProperty('spread_correct_bets', 1.9);
-    expect(settleResult[1]).toHaveProperty('totals_correct_bets', 2.8499999999999996);
+    expect(settleResult[1]).toHaveProperty('totals_correct_bets', 2.85);
     expect(settleResult[1]).toHaveProperty('spread_fault_bets', -3);
     expect(settleResult[1]).toHaveProperty('totals_fault_bets', -1);
     expect(settleResult[1]).toHaveProperty('spread_win_bets', -1.1);
-    expect(settleResult[1]).toHaveProperty('totals_win_bets', 1.8499999999999996);
+    expect(settleResult[1]).toHaveProperty('totals_win_bets', 1.85);
   });
 });

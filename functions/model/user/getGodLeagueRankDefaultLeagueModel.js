@@ -1,4 +1,4 @@
-const { getTitlesPeriod, leagueDecoder } = require('../../util/modules');
+const { getTitlesPeriod, leagueDecoder, getTitles } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -50,23 +50,6 @@ async function getGodLeagueRankDefaultLeague(args) {
   });
 
   return result;
-}
-
-function getTitles(titles, num = 1) {
-  switch (num) {
-    case 1:
-      return { 1: titles.continue };
-    case 2:
-      return { 2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3] };
-    case 3:
-      return { 3: [titles.predict_rate1, titles.predict_rate3] };
-    case 4:
-      return { 4: titles.win_bets_continue };
-    case 5:
-      return { 5: [titles.matches_rate1, titles.matches_rate2] };
-    case 6:
-      return { 6: titles.matches_continue };
-  }
 }
 
 // function getTitlesText(titles, num = 1) {

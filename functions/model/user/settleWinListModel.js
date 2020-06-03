@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
-const { convertTimezone, getTitlesNextPeriod, moment, predictionsWinList } = require('../../util/modules');
-const { checkUserRight } = require('../../util/databaseEngine');
-const { getSeason } = require('../../util/databaseEngine');
+const { convertTimezone, getTitlesNextPeriod, moment, predictionsWinList, NP } = require('../../util/modules');
+const { checkUserRight, getSeason } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -54,6 +53,7 @@ async function settleWinList(args) {
   const week = moment(begin * 1000).week();
   const momentObject = moment(begin * 1000).toObject();
   const month = momentObject.months + 1;
+  const floatNumber = 4;
 
   // !!!! 這個有可能產生跨年賽季問題
   // const season = momentObject.years; // 改成底下取得 league_id 時，從 getSeason(league_id) 取得
@@ -120,8 +120,14 @@ async function settleWinList(args) {
 
   for (const data of resultWinList) {
     let r = {};
-    let err, winListsHistory, created, tt;
+    let err, winListsHistory, created;
     const season = await getSeason(data.league_id);
+
+    // 精確小數位數修正
+    data.win_bets = NP.round(data.win_bets, floatNumber);
+    data.win_rate = NP.round(data.win_rate, floatNumber);
+    data.spread_win_rate = NP.round(data.spread_win_rate, floatNumber);
+    data.totals_win_rate = NP.round(data.totals_win_rate, floatNumber);
 
     try {
       [err, [winListsHistory, created]] = await to(db.Users_WinListsHistory.findOrCreate({
@@ -318,7 +324,7 @@ async function settleWinList(args) {
     // 回寫 win_bets、win_rate 到 titles
     [err, r2] = await to(db.Title.update({
       win_bets: ele.sum_period.win_bets,
-      win_rate: (this_period_win_rate * 100).toFixed(2)
+      win_rate: NP.round(NP.times(this_period_win_rate, 100), floatNumber)
     }, {
       where: {
         uid: uid,
@@ -418,7 +424,7 @@ function groupSum(arr, filterField, groupByField) {
     if (c[sumName] === sumValue) { // 進行累計
       d(`${colors.fg.Yellow}  %o uid_league_histories id ${colors.Reset}`, c.id);
       groupByField.forEach((key) => {
-        p[sumName][key] += c[key];
+        p[sumName][key] = NP.plus(p[sumName][key], c[key]); // p[sumName][key] += c[key];
         d('    GroupBy: %o Sum: %o BeSum: %o', key, p[sumName][key], c[key]);
       });
     }
@@ -431,18 +437,17 @@ function groupSum(arr, filterField, groupByField) {
 }
 
 function numberCount(num1, num2, f = 2) {
-  // console.log('numberCount: %o / %o', Number(num1), ( Number(num1) + Number(num2)));
-  return isNotANumber(num1) || isNotANumber(num2) || (Number(num1) + Number(num2)) === 0 // 不是數字 且 避免分母是0
+  // console.log('numberCount: %o / %o', Number(num1), (Number(num1) + Number(num2)));
+  NP.enableBoundaryChecking(false);
+  return isNotANumber(num1) || isNotANumber(num2) || NP.plus(num1, num2) === 0 // 不是數字 且 避免分母是0
     ? 0
-    : Number(
-      Number(num1) / (Number(num1) + Number(num2))
-    ).toFixed(f);
+    : NP.round(NP.divide(num1, NP.plus(num1, num2)), f);
 }
 
 // https://1loc.dev/
 const toNumber = str => +str;
 const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
-function isNotANumber(inputData) {return !isNumber(inputData);}
+const isNotANumber = value => !isNumber(value);
 
 const colors = {
   Reset: '\x1b[0m',
