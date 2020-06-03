@@ -95,8 +95,8 @@ async function othersPredictions(args) {
                 and matches.home_id = team_home.team_id
                 and matches.away_id = team_away.team_id
                 and prediction.uid = :otherUid
-                -- and prediction.match_scheduled between :begin and :end
-                -- and prediction_desc.day = :begin
+                and prediction.match_scheduled between :begin and :end
+                and prediction_desc.day = :begin
            ) prediction
      inner join users
         on prediction.uid = users.uid
