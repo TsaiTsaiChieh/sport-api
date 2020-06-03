@@ -79,6 +79,20 @@ module.exports = settleMatches;
  * }
  *
  *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": "",
+    "schemaPath": "#/required",
+    "params": {
+      "missingProperty": "bets_id"
+    },
+    "message": "should have required property 'bets_id'"
+  }
+]
+ *
  * @apiError 500 Internal Server Error
  *
  * @apiErrorExample Error-Response:

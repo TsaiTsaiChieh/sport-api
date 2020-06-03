@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { moment, sliceTeamAndPlayer, groupBy } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -26,10 +26,10 @@ function predictInfo(args) {
 
     // 2.
     try {
-      // const now_YYYYMMDD = modules.moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      // const tomorrow_YYYYMMDD = modules.moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = modules.moment(Date.now()).unix(); // * 1000;
-      // const tomorrow = modules.moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
+      // const now_YYYYMMDD = moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
+      // const tomorrow_YYYYMMDD = moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
+      const now = moment(Date.now()).unix(); // * 1000;
+      // const tomorrow = moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
 
       // 使用者預測資訊
       // 賽前 (scheduled 開賽時間 > api呼叫時間)
@@ -104,12 +104,6 @@ function predictInfo(args) {
   });
 }
 
-function groupBy(arr, prop) { // 將陣列裡面的 object 依照 attrib 來進行分類成 array
-  const map = new Map(Array.from(arr, obj => [obj[prop], []]));
-  arr.forEach(obj => map.get(obj[prop]).push(obj));
-  return Array.from(map.values());
-}
-
 function repackage(ele) {
   const data = {
     bets_id: ele.bets_id,
@@ -117,15 +111,15 @@ function repackage(ele) {
     league: ele.league,
     home: {
       team_name: ele.home_alias,
-      alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-      alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
-      player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name
+      alias: sliceTeamAndPlayer(ele.home_alias).team,
+      alias_ch: sliceTeamAndPlayer(ele.home_alias_ch).team,
+      player_name: sliceTeamAndPlayer(ele.home_alias).player_name
     },
     away: {
       team_name: ele.away_alias,
-      alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
-      alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
-      player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name
+      alias: sliceTeamAndPlayer(ele.away_alias).team,
+      alias_ch: sliceTeamAndPlayer(ele.away_alias_ch).team,
+      player_name: sliceTeamAndPlayer(ele.away_alias).player_name
     },
     spread: {},
     totals: {}

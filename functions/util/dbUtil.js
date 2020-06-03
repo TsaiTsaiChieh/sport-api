@@ -105,9 +105,6 @@ const User = sequelize.define(
       type: Sequelize.INTEGER
     },
     block_message: {
-      type: Sequelize.INTEGER
-    },
-    block_message_tw: {
       type: Sequelize.DATE
     },
     coin: {
@@ -1239,6 +1236,9 @@ const Topic_Reply = sequelize.define(
       // 預設1為正常 其他可能-1為刪除之類的 待討論
       type: Sequelize.INTEGER,
       defaultValue: 1
+    },
+    delete_reason: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -1688,7 +1688,7 @@ const Dividend = sequelize.define(
     },
     status: {
       type: Sequelize.INTEGER,
-      primaryKey: true,
+      primaryKey: true
     },
     scheduled: {
       type: Sequelize.INTEGER
@@ -1769,321 +1769,320 @@ const MoneyLogs = sequelize.define(
   }
 );
 
-/*金流-搞幣儲值*/
+/* 金流-搞幣儲值 */
 const CashflowDeposit = sequelize.define(
   'cashflow_deposit',
   {
-      deposit_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-      },
-      uid: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-      },
-      money: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      money_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      money_status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      coin: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      coin_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      coin_status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      dividend: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      dividend_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      dividend_status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      scheduled: {
-        type: Sequelize.STRING,
-      },
-      createdAt: {
-        type: Sequelize.DATE(3),
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
-      },
-      updatedAt: {
-          type: Sequelize.DATE(3),
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
-      },
-      
+    deposit_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    money: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    money_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    money_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    coin_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    dividend_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
   },
   {
-      indexes: [
-          {
-              fields: ['deposit_id', 'money', 'uid']
-          }
-      ]
+    indexes: [
+      {
+        fields: ['deposit_id', 'money', 'uid']
+      }
+    ]
   }
 );
 
-
-/*金流-搞錠轉換*/
+/* 金流-搞錠轉換 */
 const IngotTransfer = sequelize.define(
   'cashflow_ingot_transfer',
   {
-      transfer_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-      },
-      uid: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-      },
-      status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      coin: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      coin_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      money: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      money_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      fee: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      fee_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      scheduled: {
-        type: Sequelize.STRING,
-      },
-      createdAt: {
-        type: Sequelize.DATE(3),
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
-      },
-      updatedAt: {
-          type: Sequelize.DATE(3),
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
-      },
-      
+    transfer_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    money: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    money_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    fee: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    fee_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
   },
   {
-      indexes: [
-          {
-              fields: ['transfer_id', 'money', 'uid']
-          }
-      ]
+    indexes: [
+      {
+        fields: ['transfer_id', 'money', 'uid']
+      }
+    ]
   }
 );
 
-/*金流-購牌*/
+/* 金流-購牌 */
 const CashflowBuy = sequelize.define(
   'cashflow_buy',
   {
-      buy_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-      },
-      uid: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      dividend: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      dividend_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      coin: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      coin_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      scheduled: {
-        type: Sequelize.STRING,
-      },
-      createdAt: {
-        type: Sequelize.DATE(3),
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
-      },
-      updatedAt: {
-          type: Sequelize.DATE(3),
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
-      },
-      
+    buy_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
   },
   {
-      indexes: [
-          {
-              fields: ['buy_id', 'status', 'uid']
-          }
-      ]
+    indexes: [
+      {
+        fields: ['buy_id', 'status', 'uid']
+      }
+    ]
   }
 );
 
-/*金流-賣牌*/
+/* 金流-賣牌 */
 const CashflowSell = sequelize.define(
   'cashflow_sell',
   {
-      sell_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-      },
-      buy_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-      },
-      uid: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      scheduled: {
-        type: Sequelize.STRING,
-      },
-      createdAt: {
-        type: Sequelize.DATE(3),
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
-      },
-      updatedAt: {
-          type: Sequelize.DATE(3),
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
-      },
-      
+    sell_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    buy_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false
+    },
+    uid: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
   },
   {
-      indexes: [
-          {
-              fields: ['sell_id', 'status', 'uid']
-          }
-      ]
+    indexes: [
+      {
+        fields: ['sell_id', 'status', 'uid']
+      }
+    ]
   }
 );
 
-/*金流-打賞*/
+/* 金流-打賞 */
 const CashflowDonate = sequelize.define(
   'cashflow_donate',
   {
-      donate_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-      },
-      status: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      article_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      from_uid: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-      },
-      uid: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-      },
-      dividend: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      coin: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-      },
-      ingot_real: {
-        type: Sequelize.FLOAT,
-        primaryKey: true,
-      },
-      scheduled: {
-        type: Sequelize.STRING,
-      },
-      createdAt: {
-        type: Sequelize.DATE(3),
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)'),
-      },
-      updatedAt: {
-          type: Sequelize.DATE(3),
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)'),
-      },
-      
+    donate_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    article_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    from_uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    dividend: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    ingot_real: {
+      type: Sequelize.FLOAT,
+      primaryKey: true
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+    }
+
   },
   {
-      indexes: [
-          {
-              fields: ['donate_id', 'status', 'uid']
-          }
-      ]
+    indexes: [
+      {
+        fields: ['donate_id', 'status', 'uid']
+      }
+    ]
   }
 );
 const dbUtil = {

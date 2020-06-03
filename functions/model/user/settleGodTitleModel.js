@@ -1,5 +1,5 @@
 const {
-  convertTimezone, moment, groupsByOrdersLimit, mergeDeep, fieldSorter
+  convertTimezone, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
 } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 
@@ -265,11 +265,15 @@ async function settleGodTitle(args) {
   // });
 }
 
+const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
+const isNotANumber = value => !isNumber(value);
+
 function numberRate(num1, num2, f = 2) {
   // console.log('numberRate: %o / %o', Number(num1), Number(num2));
-  return Number(num2) === 0
+  NP.enableBoundaryChecking(false);
+  return isNotANumber(num1) || isNotANumber(num2) || num2 === 0
     ? 0
-    : Number(Number(num1) / Number(num2)).toFixed(f);
+    : NP.round(NP.divide(num1, num2), f);
 }
 
 // 連贏Ｎ天
@@ -316,7 +320,7 @@ function nnPassN(uid_league_data) {
 
     item.winRateAcc = (item.totalsCountAcc === 0)
       ? 0
-      : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率
+      : NP.times(numberRate(item.correctCountsAcc, item.totalsCountAcc, 4), 100); // 勝率
 
     allRecords.push(item);
   });
@@ -412,7 +416,7 @@ function nPassN(n, allRecords, result_flag) {
   item.correctCountsAcc = preCorrectCountsAcc + correctCount;
   item.winRateAcc = (item.totalsCountAcc === 0)
     ? 0
-    : numberRate(item.correctCountsAcc, item.totalsCountAcc) * 100; // 勝率 * 100
+    : NP.times(numberRate(item.correctCountsAcc, item.totalsCountAcc, 4), 100); // 勝率 * 100
 
   n++;
   item.days = n;

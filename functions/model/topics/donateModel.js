@@ -87,6 +87,7 @@ function logData(article_id, uid, cost) {
 }
 async function donate(args) {
   return new Promise(async function(resolve, reject) {
+    const t = await db.sequelize.transaction();
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
@@ -122,22 +123,22 @@ async function donate(args) {
         return;
       }
 
-      let money_type,
-          coin = 0,
-          dividend = 0,
-          ingot = args.cost - Math.round(args.cost/2),
-          ingot_real = args.cost - args.cost/2,
-          scheduled = modules.moment().unix();
+      let money_type;
+      let coin = 0;
+      let dividend = 0;
+      const ingot = args.cost - Math.round(args.cost / 2);
+      const ingot_real = args.cost - args.cost / 2;
+      const scheduled = modules.moment().unix();
       if (args.type === 'coin') {
         money_type = 1;
-        coin = (-1)*args.cost;
+        coin = (-1) * args.cost;
         if (user_money.coin < args.cost) {
           reject({ code: 403, error: 'coin not enough' });
           return;
         }
       } else if (args.type === 'dividend') {
         money_type = 0;
-        dividend = (-1)*args.cost;
+        dividend = (-1) * args.cost;
         if (user_money.dividend < args.cost) {
           reject({ code: 403, error: 'dividend not enough' });
           return;
@@ -151,18 +152,18 @@ async function donate(args) {
       // const dst = await checkUser(donate_uid); // 被捐贈者data
 
       const trans_args = {
-        status     : money_type,
-        from_uid   : uid,
-        uid        : donate_uid,
-        article_id : args.article_id,
-        dividend   : dividend,
-        coin       : coin,
-        ingot      : ingot,
-        ingot_real : ingot_real,
-        scheduled  : scheduled
+        status: money_type,
+        from_uid: uid,
+        uid: donate_uid,
+        article_id: args.article_id,
+        dividend: dividend,
+        coin: coin,
+        ingot: ingot,
+        ingot_real: ingot_real,
+        scheduled: scheduled
       };
-  
-      const t = await db.sequelize.transaction();
+
+      // const t = await db.sequelize.transaction();
 
       setMoney(uid, donate_uid, money_type, args.cost);
       logData(args.article_id, uid, (args.cost / 2));

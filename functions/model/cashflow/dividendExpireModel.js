@@ -22,18 +22,18 @@ function dividendExpireModel(args) {
       resolve(expire);
     } else if (args.method === 'PUT') {
       const expire = await db.sequelize.query(
-        `
-            UPDATE cashflow_dividends
-                SET status=0,
-                    expire_scheduled = :expire_scheduled
-              WHERE scheduled
-            BETWEEN :from AND :to
-        `,
-        {
-          logging: true,
-          replacements: { expire_scheduled:expire_scheduled, from: from, to: to },
-          type: db.sequelize.QueryTypes.INSERT
-        });
+                `
+                    UPDATE cashflow_dividends
+                       SET status=0,
+                           expire_scheduled = :expire_scheduled
+                     WHERE scheduled
+                   BETWEEN :from AND :to
+                `,
+                {
+                  logging: true,
+                  replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
+                  type: db.sequelize.QueryTypes.INSERT
+                });
       resolve(expire);
     } else if (args.method === 'DELETE') {
       const expire_uids = await db.sequelize.query(
@@ -51,8 +51,9 @@ function dividendExpireModel(args) {
         }
       );
 
-      const update = 0;
-      expire_uids.forEach(function(data){
+      let update = 0;
+
+      expire_uids.forEach(function(data) {
         console.log(data, data.uid);
         const expire = db.sequelize.query(
           `
@@ -63,14 +64,14 @@ function dividendExpireModel(args) {
           ,
           {
             logging: true,
-            replacements: { expire_points:data.total_expire_points, uid: data.uid },
+            replacements: { expire_points: data.total_expire_points, uid: data.uid },
             type: db.sequelize.QueryTypes.UPDATE
           });
-          if(expire!=null){
-            update++;
-          }
+        if (expire != null) {
+          update++;
+        }
       });
-      resolve({'updates':update});
+      resolve({ updates: update });
     }
   });
 }
