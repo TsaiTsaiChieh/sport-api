@@ -47,7 +47,7 @@ async function modifyUserProfile(req, res) {
         }
       };
       const valid = modules.ajv.validate(schema, data);
-      
+
       // if (!valid) return res.status(400).json(modules.ajv.errors);
       if (!valid) {
         res.status(400).json(modules.ajv.errors);
