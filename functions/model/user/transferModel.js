@@ -7,7 +7,7 @@ async function transferModel(method, args, uid) {
     try {
       const begin = modules.convertTimezone(args.begin);
       const end = modules.convertTimezone(args.end);
-     
+
       const total = db.sequelize.query(
         `
         SELECT 0 as ingot, coin, dividend, "儲值搞幣" as title, "buy_coin" as en_title , NULL as article_title, scheduled 
@@ -41,13 +41,13 @@ async function transferModel(method, args, uid) {
            AND cd.status=0
            AND scheduled BETWEEN :begin AND :end
           `
-           ,
-          {
-            logging: true,
-            replacements: { uid:uid, begin:begin, end:end },
-            type: db.sequelize.QueryTypes.SELECT
-          });
-     
+        ,
+        {
+          logging: true,
+          replacements: { uid: uid, begin: begin, end: end },
+          type: db.sequelize.QueryTypes.SELECT
+        });
+
       resolve(total);
     } catch (err) {
       console.log('Error in user/tranfer by henry:  %o', err);
