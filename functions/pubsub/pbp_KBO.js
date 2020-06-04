@@ -90,8 +90,7 @@ async function KBOpbpHistory(parameter) {
           home_points: homeScores,
           away_points: awayScores,
           status: 0
-				});
-			
+        });
       } catch (err) {
         return reject(
           new AppErrors.MysqlError(
