@@ -35,12 +35,10 @@ function queryAllCollection(args) {
                  match__teams AS home,
                  match__teams AS away,
                  match__spreads AS spread
-            WHERE collections.uid = '${args.token.uid}'
+            WHERE collections.uid = :uid
               AND collections.bets_id = game.bets_id 
-              AND collections.league_id = '${
-                modules.leagueCodebook(args.league).id
-              }'  
-              AND collections.scheduled BETWEEN ${begin} AND ${end}  
+              AND collections.league_id = :leagueID
+              AND collections.scheduled BETWEEN :begin AND :end
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id
               AND game.spread_id = spread.spread_id
@@ -55,18 +53,22 @@ function queryAllCollection(args) {
                    match__teams AS home,
                    match__teams AS away,
                    match__spreads AS spread
-             WHERE collections.uid = '${args.token.uid}'
+             WHERE collections.uid = :uid
              AND collections.bets_id = game.bets_id 
-             AND collections.league_id = '${
-               modules.leagueCodebook(args.league).id
-             }'  
-             AND collections.scheduled BETWEEN ${begin} AND ${end}  
+             AND collections.league_id = :leagueID
+             AND collections.scheduled BETWEEN :begin AND :end  
              AND game.home_id = home.team_id
              AND game.away_id = away.team_id
              AND game.spread_id IS NULL
          )
            `,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            uid: args.token.uid,
+            begin: begin,
+            end: end
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

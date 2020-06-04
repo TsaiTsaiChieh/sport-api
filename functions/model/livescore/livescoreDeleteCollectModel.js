@@ -19,10 +19,14 @@ async function repackage(args) {
       `
       DELETE 
         FROM user__collections
-       WHERE uid = '${args.token.uid}' and
-       bets_id = ${args.eventID}
+       WHERE uid = :uid and
+       bets_id = :eventID
      `,
       {
+        replacements: {
+          uid: args.token.uid,
+          eventID: args.eventID
+        },
         type: db.sequelize.QueryTypes.DELETE
       }
     );
