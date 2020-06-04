@@ -92,18 +92,33 @@ function payModel(method, args, uid) {
             } else {
               ratio = 0.005;
             }
+            
+            /*後端計算轉換現金及手續費*/
+            exchange.fee_real_backend = (-1) * ratio * exchange.ingot;
+            exchange.fee_backend = Math.round(exchange.fee_real_backend);
+            exchange.money_real_backend = exchange.ingot - exchange.fee_real_backend;
+            exchange.money_backend = Math.round(exchange.money_real_backend);
 
-            exchange.money = Math.round((1 - ratio) * exchange.ingot);
-            exchange.money_real = (1 - ratio) * exchange.ingot;
-            exchange.fee = Math.round(ratio * exchange.ingot);
-            exchange.fee_real = ratio * exchange.ingot;
+            /*判斷前後端計算是否一致*/
+            if(exchange.fee_real_backend!==exchange.fee_real){
+              reject(errs.errsMsg('500','20005'));return;
+            }
+            if(exchange.fee_backend!==exchange.fee){
+              reject(errs.errsMsg('500','20005'));return;
+            }
+            if(exchange.money_real_backend!==exchange.money_real){
+              reject(errs.errsMsg('500','20004'));return;
+            }
+            if(exchange.money_backend!==exchange.money){
+              reject(errs.errsMsg('500','20004'));return;
+            }
 
             const t = await db.sequelize.transaction();
 
             try {
               trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot }, { where: { uid: uid } });
               const status = 1;// 搞錠轉換現金
-              const cashflow_ingot_transfer_cash = await db.sequelize.models.cashflow_ingot_transfer.create({ uid: uid, status: status, ingot: (-1) * exchange.ingot, ingot_real: (-1) * exchange.ingot_real, coin: exchange.coin, coin_real: exchange.coin_real, money: exchange.money, money_real: exchange.money_real, dividend: exchange.dividend, dividend_real: exchange.dividend_real, fee: exchange.fee, fee_real: exchange.fee_real, scheduled: scheduled });
+              const cashflow_ingot_transfer_cash = await db.sequelize.models.cashflow_ingot_transfer.create({ uid: uid, status: status, ingot: (-1) * exchange.ingot, ingot_real: (-1) * exchange.ingot_real, coin: exchange.coin, coin_real: exchange.coin_real, money: exchange.money_backend, money_real: exchange.money_real_backend, dividend: exchange.dividend, dividend_real: exchange.dividend_real, fee: exchange.fee_backend, fee_real: exchange.fee_real_backend, scheduled: scheduled });
               if (!trans || !cashflow_ingot_transfer_cash) {
                 reject(errs.errsMsg('500', '20001'));
                 return;

@@ -74,7 +74,10 @@ async function transferModel(method, args, uid) {
           replacements: { uid:uid }
         }
       );
-      resolve(donating);
+      
+      console.log(donating);return;
+
+      resolve({total:total})
     } catch (err) {
       console.log('Error in user/tranfer by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
