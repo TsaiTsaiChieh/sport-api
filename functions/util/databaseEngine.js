@@ -46,7 +46,7 @@ async function checkUserRight(uid, rightArr = [], source = null) {
 
 // 查該大神販售牌組的購牌人數
 async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_unix) {
-  const [err, counts] = await to(db.Buy.count({
+  const [err, counts] = await to(db.UserBuy.count({
     where: {
       god_uid: god_uid,
       league_id: league_id,
@@ -55,7 +55,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
   }));
   if (err) {
     console.error('Error 1. in util/databaseEngine/countGodSellPredictionBuyers by YuHsien', err);
-    throw errs.dbErrsMsg('500', '500', err);
+    throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
   return counts;
@@ -63,7 +63,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
 
 // 檢查該 uid 是否有購買大神牌組
 async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
-  const [err, counts] = await to(db.Buy.count({
+  const [err, counts] = await to(db.UserBuy.count({
     where: {
       uid: uid,
       god_uid: god_uid,
@@ -73,10 +73,10 @@ async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_u
   }));
   if (err) {
     console.error('Error 1. in util/databaseEngine/checkBuyGodSellPrediction by YuHsien', err);
-    throw errs.dbErrsMsg('500', '500', err);
+    throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
-  if (counts > 1) throw errs.dbErrsMsg('400', '13710', err);
+  if (counts > 1) throw errs.dbErrsMsg('400', '13710', { custMsg: err });
   if (counts === 0) return false; // 未購買
 
   return true; // 有購買

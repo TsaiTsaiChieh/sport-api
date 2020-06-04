@@ -987,6 +987,7 @@ function validateProperty(data, propertyName) {
   if (property === undefined) throw new AppErrors.PropertyMissingError(`${propertyName} 資料欄位缺漏 (undefined)`);
   return property;
 }
+
 module.exports = {
   redis,
   express,
