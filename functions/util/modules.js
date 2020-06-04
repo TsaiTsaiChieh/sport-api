@@ -988,7 +988,6 @@ function validateProperty(data, propertyName) {
   return property;
 }
 
-
 module.exports = {
   redis,
   express,

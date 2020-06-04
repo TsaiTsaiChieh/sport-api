@@ -5,7 +5,10 @@ const {
 
 const db = require('../../util/dbUtil');
 
-async function settleGodRank() {
+/* 鑽石、金、銀、銅 對應表 */
+const related = ['diamond', 'gold', 'silver', 'copper'];
+
+async function settleGodRank(args) {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
   // 同時在同一聯盟得到鑽石大神及金銀銅大神，以鑽石大神為主
   // 鑽大神 5位
@@ -23,6 +26,8 @@ async function settleGodRank() {
   // 4. 再有相同者, 以該聯盟 下注總注數 為排名判斷
   // 5. 再有相同者, 該聯盟注數正負相加之總和排名
   // 6. 預防再有重複，新增最後一筆下注時間判斷?
+  const uid = args.token.uid;
+  const league_id = args.body.league_id;
   const now = new Date();
   const currentSeason = moment().year();
   const currentMonth = moment().month();
@@ -80,7 +85,7 @@ async function settleGodRank() {
       }
   );
   const diamond_list = [];
-  diamond.forEach(function(items) { 
+  diamond.forEach(function(items) { // 這裡有順序性
     diamond_list.push(repackage(period, period_date, uid, currentSeason, currentMonth, items));
     generateGSC(period, period_date, uid, currentSeason, currentMonth, items);/* 產生金銀銅大神 */
   });
@@ -118,9 +123,16 @@ function repackageGSC(period, period_date, uid, currentSeason, currentMonth, ele
     updateGod(i, rank, god);// 更新大神狀態
     insertTitle(i, god, period, period_date);// 寫入大神歷史戰績(金、銀、銅)
   }
+  // const data = {
+  //   'gold':god[1],
+  //   'silver':god[2],
+  //   'copper':god[3]
+  // };
+  // return god;
 }
 /* 產生金銀銅大神 */
 async function generateGSC(period, period_date, uid, currentSeason, currentMonth, ele) {
+// await ele_list.forEach(function(ele) {
   /* gold silver copper calculate */
   const gsc_list = [];
   const gsc = await db.sequelize.query(
@@ -177,6 +189,7 @@ async function generateGSC(period, period_date, uid, currentSeason, currentMonth
   gsc.forEach(function(items) {
     gsc_list.push(repackageGSC(period, period_date, uid, currentSeason, currentMonth, items));
   });
+// });
 }
 
 /* 寫入大神歷史戰績 */

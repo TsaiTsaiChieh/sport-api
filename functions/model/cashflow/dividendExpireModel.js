@@ -5,9 +5,9 @@ function dividendExpireModel(args) {
   return new Promise(async function(resolve, reject) {
     const from = modules.moment(new Date()).subtract(1, 'months').startOf('month').unix();// 上個月第一天
     const to = modules.moment(new Date()).subtract(1, 'months').endOf('month').unix();// 上個月最後一天
-    
+
     const expire_scheduled = modules.moment(new Date()).unix();
-    
+
     if (args.method === 'POST') {
       const expire = await db.sequelize.query(
         `
