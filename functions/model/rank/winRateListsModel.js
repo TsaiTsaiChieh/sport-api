@@ -62,6 +62,7 @@ function winRateLists(args) {
             left join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
+             and titles.period = :period
             left join 
                  (
                    select uid, max(sell) sell
@@ -70,7 +71,6 @@ function winRateLists(args) {
                     group by uid
                  ) prediction
               on titles.uid = prediction.uid
-           where titles.period = :period
            order by ${rangeWinRateCodebook(range)} desc
         `, {
           replacements: {
