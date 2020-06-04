@@ -335,8 +335,8 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
         match_id: ele.bets_id,
         league_id: leagueUniteID,
         handicap: Number.parseFloat(odd.handicap),
-        home_odd: Number.parseFloat(odd.home_od),
-        away_odd: Number.parseFloat(odd.away_od),
+        home_odd: Number.parseFloat(odd.away_od),
+        away_odd: Number.parseFloat(odd.home_od),
         home_tw: odd.home_tw,
         away_tw: odd.away_tw,
         add_time: Number.parseInt(odd.add_time) * 1000

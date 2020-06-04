@@ -2,28 +2,6 @@ const { ajv } = require('../../util/modules');
 const postGodLeagueRankSetDefaultLeagueModel = require('../../model/user/postGodLeagueRankSetDefaultLeagueModel');
 
 async function postGodLeagueRankSetDefaultLeague(req, res) {
-  // const schema = {
-  //   type: 'object',
-  //   required: ['lists'],
-  //   properties: {
-  //     lists: {
-  //       type: 'array',
-  //       items: {
-  //         type: 'object',
-  //         required: ['league', 'rank'],
-  //         properties: {
-  //           league: {
-  //             enum: ['NBA', 'MLB', 'eSoccer', 'KBO'] // 目前測試資料和 modules.acceptLeague 不一致
-  //           },
-  //           rank: {
-  //             enum: [1, 2, 3, 4]
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
-
   const schema = {
     required: ['league'],
     properties: {
@@ -68,6 +46,21 @@ module.exports = postGodLeagueRankSetDefaultLeague;
     "2WMRgHyUwvTLyHpLoANk7gWADZn1"
   ]
 }
+ *
+ *
+ * @apiErrorExample {JSON} 400-Response
+ * HTTP/1.1 400 Bad Request
+ * [
+  {
+    "keyword": "required",
+    "dataPath": "",
+    "schemaPath": "#/required",
+    "params": {
+      "missingProperty": "league"
+    },
+    "message": "should have required property 'league'"
+  }
+]
  *
  * @apiError 500 Internal Server Error
  *

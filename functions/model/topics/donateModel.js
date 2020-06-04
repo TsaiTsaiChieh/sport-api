@@ -1,6 +1,6 @@
 /* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
-const transfer = require('../../util/transfer');
+const modules = require('../../util/modules');
 function dbFind(article_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
     try {
@@ -87,6 +87,7 @@ function logData(article_id, uid, cost) {
 }
 async function donate(args) {
   return new Promise(async function(resolve, reject) {
+    const t = await db.sequelize.transaction();
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
@@ -123,14 +124,21 @@ async function donate(args) {
       }
 
       let money_type;
+      let coin = 0;
+      let dividend = 0;
+      const ingot = args.cost - Math.round(args.cost / 2);
+      const ingot_real = args.cost - args.cost / 2;
+      const scheduled = modules.moment().unix();
       if (args.type === 'coin') {
         money_type = 1;
+        coin = (-1) * args.cost;
         if (user_money.coin < args.cost) {
           reject({ code: 403, error: 'coin not enough' });
           return;
         }
       } else if (args.type === 'dividend') {
         money_type = 0;
+        dividend = (-1) * args.cost;
         if (user_money.dividend < args.cost) {
           reject({ code: 403, error: 'dividend not enough' });
           return;
@@ -144,23 +152,31 @@ async function donate(args) {
       // const dst = await checkUser(donate_uid); // 被捐贈者data
 
       const trans_args = {
+        status: money_type,
         from_uid: uid,
-        to_uid: donate_uid,
-        type_id: args.article_id,
-        type: 'article_donate',
-        money_type: money_type, // 0:紅利 1:搞幣 2:搞錠
-        money_value: args.cost
+        uid: donate_uid,
+        article_id: args.article_id,
+        dividend: dividend,
+        coin: coin,
+        ingot: ingot,
+        ingot_real: ingot_real,
+        scheduled: scheduled
       };
-      setMoney(uid, donate_uid, money_type, args.cost);
-      transfer.doTransfer(db, trans_args);
-      logData(args.article_id, uid, (args.cost / 2));
 
+      // const t = await db.sequelize.transaction();
+
+      setMoney(uid, donate_uid, money_type, args.cost);
+      logData(args.article_id, uid, (args.cost / 2));
+      await db.sequelize.models.cashflow_donate.create(trans_args);
+
+      await t.commit();
       // console.log(article)
       // await checkLiked(uid, args.aid);
 
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);
+      await t.rollback();
       reject({ code: 500, error: err });
     }
   });

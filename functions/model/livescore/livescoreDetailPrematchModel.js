@@ -29,8 +29,8 @@ function queryMatch(args) {
                     match__spreads AS spread,
                     match__totals AS total,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
-                AND game.bets_id = '${args.eventID}'
+              WHERE game.league_id = :leagueID
+                AND game.bets_id = :eventID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND game.spread_id = spread.spread_id
@@ -46,8 +46,8 @@ function queryMatch(args) {
                     match__teams AS home,
                     match__teams AS away,
                     match__leagues AS league
-              WHERE game.league_id = '${modules.leagueCodebook(args.league).id}'
-                AND game.bets_id = '${args.eventID}'
+              WHERE game.league_id = :leagueID
+                AND game.bets_id = :eventID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
                 AND (game.spread_id IS NULL OR game.totals_id IS NULL)
@@ -55,6 +55,10 @@ function queryMatch(args) {
            )
            `,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            eventID: args.eventID
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

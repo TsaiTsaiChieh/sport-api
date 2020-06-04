@@ -3,13 +3,16 @@ const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 function dividendExpireModel(args) {
   return new Promise(async function(resolve, reject) {
-    const from = modules.moment(new Date()).subtract(1, 'months').startOf('month').format('YYYY-MM-DD');// 上個月第一天
-    const to = modules.moment(new Date()).subtract(1, 'months').endOf('month').format('YYYY-MM-DD');// 上個月最後一天
+    const from = modules.moment(new Date()).subtract(1, 'months').startOf('month').unix();// 上個月第一天
+    const to = modules.moment(new Date()).subtract(1, 'months').endOf('month').unix();// 上個月最後一天
+
+    const expire_scheduled = modules.moment(new Date()).unix();
     if (args.method === 'POST') {
-      const expire = db.sequelize.query(
+      const expire = await db.sequelize.query(
                 `
-                    SELECT uid, SUM(expire_points)
-                      FROM cashflow_expire_dividends
+                    SELECT uid, SUM(expire_points) as total_expire_points
+                      FROM cashflow_dividends
+                     WHERE status=0
                      GROUP BY uid
                 `,
                 {
@@ -18,50 +21,62 @@ function dividendExpireModel(args) {
       resolve(expire);
       /* 改為另外寫一個table */
     } else if (args.method === 'PUT') {
-      const expire = db.sequelize.query(
+      // INSERT INTO cashflow_expire_dividends (uid, expire_points)
+      //               SELECT to_uid, dividend
+      //               FROM user__transfer__logs
+      //               WHERE createdAt BETWEEN :from AND :to
+      //                 AND dividend>0
+      const expire = await db.sequelize.query(
                 `
-                    INSERT INTO cashflow_expire_dividends (uid, expire_points)
-                    SELECT to_uid, dividend
-                    FROM user__transfer__logs
-                    WHERE createdAt BETWEEN :from AND :to
-                      AND dividend>0
+                    UPDATE cashflow_dividends
+                       SET status=0,
+                           expire_scheduled = :expire_scheduled
+                     WHERE scheduled
+                   BETWEEN :from AND :to
                 `,
                 {
                   logging: true,
-                  replacements: { from: from, to: to },
+                  replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
                   type: db.sequelize.QueryTypes.INSERT
                 });
       resolve(expire);
     } else if (args.method === 'DELETE') {
-      const expire_uids = db.sequelize.query(
+      const expire_uids = await db.sequelize.query(
                 `
-                SELECT GROUP_CONCAT(transfer_id) group_transfer_id
-                  FROM user__transfer__logs
-                 WHERE createdAt BETWEEN :from AND :to
-                   AND dividend>0 
+                SELECT uid, SUM(expire_points) as total_expire_points
+                  FROM cashflow_dividends
+                 WHERE scheduled BETWEEN :from AND :to
+                   AND status = 0
+                   AND expire_points > 0 
+                 GROUP BY uid
                 `,
                 {
-                  logging: true,
-                  plain: true,
                   replacements: { from: from, to: to },
                   type: db.sequelize.QueryTypes.SELECT
                 }
       );
 
-      const uids = expire_uids.group_transfer_id;
-      const expire = db.sequelize.query(
-                `
-                    UPDATE user__transfer__logs
-                       SET dividend_status=0
-                     WHERE transfer_id in :uids
-                `
-                ,
-                {
-                  logging: true,
-                  replacements: { from: from, to: to, uids: uids },
-                  type: db.sequelize.QueryTypes.UPDATE
-                });
-      resolve(expire);
+      let update = 0;
+
+      expire_uids.forEach(function(data) {
+        console.log(data, data.uid);
+        const expire = db.sequelize.query(
+          `
+              UPDATE users
+                 SET dividend = dividend-:expire_points
+               WHERE uid = :uid
+          `
+          ,
+          {
+            logging: true,
+            replacements: { expire_points: data.total_expire_points, uid: data.uid },
+            type: db.sequelize.QueryTypes.UPDATE
+          });
+        if (expire != null) {
+          update++;
+        }
+      });
+      resolve({ updates: update });
     }
   });
 }

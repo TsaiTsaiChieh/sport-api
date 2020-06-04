@@ -23,6 +23,7 @@ async function modifyUserProfile(req, res) {
   const args = {};
   data.display_name = req.body.display_name;
   data.name = req.body.name;
+  data.country_code = req.body.country_code;
   data.phone = req.body.phone;
   data.email = req.body.email;
   data.birthday = req.body.birthday;
@@ -37,7 +38,7 @@ async function modifyUserProfile(req, res) {
         properties: {
           display_name: { type: 'string', minLength: 2, maxLength: 15 },
           name: { type: 'string', minLength: 2, maxLength: 10 },
-          phone: { type: 'string', minLength: 10, maxLength: 15 },
+          phone: { type: 'string', minLength: 9, maxLength: 10 },
           email: { type: 'string', format: 'email' },
           birthday: { type: 'integer' },
           avatar: { type: 'string', format: 'url' },
@@ -49,6 +50,7 @@ async function modifyUserProfile(req, res) {
       // if (!valid) return res.status(400).json(modules.ajv.errors);
       if (!valid) {
         res.status(400).json(modules.ajv.errors);
+        return;
       }
 
       // const uniqueNameSnapshot = await modules.firestore
@@ -176,6 +178,17 @@ async function modifyUserProfile(req, res) {
   //   }
   // }
   // console.log(data); return;
+  // const display_name_unique = await db.User.findOne({
+  //   where: {
+  //     display_name: data.display_name
+  //   },
+  //   attributes: ['uid'],
+  //   raw: true
+  // });
+
+  // if(display_name_unique!=null){
+  //   reject({'error':'error'});
+  // }
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
   await db.User.upsert(data)
     .then(async(ref) => {

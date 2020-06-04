@@ -55,11 +55,11 @@ function queryFiveFightEvent(args) {
                    match__totals AS total,
                    match__teams AS home,
                    match__teams AS away
-             WHERE game.bets_id = '${args.event_id}'
-               AND five.bets_id != '${args.event_id}'
+             WHERE game.bets_id = :event_id
+               AND five.bets_id != :event_id
                AND five.status = ${modules.MATCH_STATUS.END}
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.league_id = :leagueID
                AND five.home_id = home.team_id
                AND five.away_id = away.team_id 
                AND five.spread_id = spread.spread_id
@@ -74,11 +74,11 @@ function queryFiveFightEvent(args) {
 									 match__teams AS home,
 									 match__totals AS total,
                    match__teams AS away
-             WHERE game.bets_id = '${args.bets_id}'
+             WHERE game.bets_id = :event_id
                AND five.status = ${modules.MATCH_STATUS.END}
-               AND five.bets_id != '${args.bets_id}'
+               AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.league_id = :leagueID
                AND five.home_id = home.team_id
                AND five.away_id = away.team_id 
 							 AND five.spread_id IS NULL 
@@ -93,11 +93,11 @@ function queryFiveFightEvent(args) {
 									 match__teams AS home,
 									 match__spreads AS spread,
                    match__teams AS away
-             WHERE game.bets_id = '${args.bets_id}'
+             WHERE game.bets_id = :event_id
                AND five.status = ${modules.MATCH_STATUS.END}
-               AND five.bets_id != '${args.bets_id}'
+               AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.league_id = :leagueID
                AND five.home_id = home.team_id
 							 AND five.away_id = away.team_id 
 							 AND five.spread_id = spread.spread_id
@@ -111,11 +111,11 @@ function queryFiveFightEvent(args) {
                    matches AS five,
                    match__teams AS home,
                    match__teams AS away
-             WHERE game.bets_id = '${args.bets_id}'
+             WHERE game.bets_id = :event_id
                AND five.status = ${modules.MATCH_STATUS.END}
-               AND five.bets_id != '${args.bets_id}'
+               AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = '${modules.leagueCodebook(args.league).id}'
+               AND five.league_id = :leagueID
                AND five.home_id = home.team_id
                AND five.away_id = away.team_id 
                AND (five.spread_id IS NULL AND five.totals_id IS NULL)       
@@ -124,6 +124,10 @@ function queryFiveFightEvent(args) {
           LIMIT 5             
           `,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

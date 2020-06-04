@@ -7,7 +7,7 @@ function searchUserDetail(args) {
       const uid = args;
       const searchUserDetail = await db.sequelize.query(
         `
-        SELECT *
+        SELECT uid, display_name
           FROM users
          WHERE uid = '${uid}'
         `,
