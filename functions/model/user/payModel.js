@@ -92,25 +92,25 @@ function payModel(method, args, uid) {
             } else {
               ratio = 0.005;
             }
-            
-            /*後端計算轉換現金及手續費*/
+
+            /* 後端計算轉換現金及手續費 */
             exchange.fee_real_backend = (-1) * ratio * exchange.ingot;
             exchange.fee_backend = Math.round(exchange.fee_real_backend);
             exchange.money_real_backend = exchange.ingot - exchange.fee_real_backend;
             exchange.money_backend = Math.round(exchange.money_real_backend);
 
-            /*判斷前後端計算是否一致*/
-            if(exchange.fee_real_backend!==exchange.fee_real){
-              reject(errs.errsMsg('500','20005'));return;
+            /* 判斷前後端計算是否一致 */
+            if (exchange.fee_real_backend !== exchange.fee_real) {
+              reject(errs.errsMsg('500', '20005')); return;
             }
-            if(exchange.fee_backend!==exchange.fee){
-              reject(errs.errsMsg('500','20005'));return;
+            if (exchange.fee_backend !== exchange.fee) {
+              reject(errs.errsMsg('500', '20005')); return;
             }
-            if(exchange.money_real_backend!==exchange.money_real){
-              reject(errs.errsMsg('500','20004'));return;
+            if (exchange.money_real_backend !== exchange.money_real) {
+              reject(errs.errsMsg('500', '20004')); return;
             }
-            if(exchange.money_backend!==exchange.money){
-              reject(errs.errsMsg('500','20004'));return;
+            if (exchange.money_backend !== exchange.money) {
+              reject(errs.errsMsg('500', '20004')); return;
             }
 
             const t = await db.sequelize.transaction();
