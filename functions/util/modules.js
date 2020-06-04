@@ -759,7 +759,7 @@ function settleTotalsSoccer(data) {
     : 'under';
 }
 
-function perdictionsResultFlag(option, settelResult) {
+function predictionsResultFlag(option, settelResult) {
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
   if (
     ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
@@ -1038,7 +1038,7 @@ module.exports = {
   settleSpreadSoccer,
   settleTotals,
   settleTotalsSoccer,
-  perdictionsResultFlag,
+  predictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
   acceptLeague,

@@ -1,5 +1,5 @@
 const {
-  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer, perdictionsResultFlag,
+  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer, predictionsResultFlag,
   leagueDecoder
 } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
@@ -145,8 +145,8 @@ async function settleMatchesModel(args) {
     if (settelTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : perdictionsResultFlag(data.spread_option, settelSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : perdictionsResultFlag(data.totals_option, settelTotalsResult);
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settelSpreadResult);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settelTotalsResult);
     d(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({
