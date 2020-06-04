@@ -2,25 +2,28 @@ const modules = require('./modules');
 const db = require('../util/dbUtil');
 const firebaseAdmin = modules.firebaseAdmin;
 
-exports.getFirebaseUser = function(accessToken) {
+exports.getFirebaseUser = async function(accessToken) {
   // const firebaseUid = `line:${body.id}`;
   const firebaseUid = accessToken.id_token.sub.toString();
-
-  return firebaseAdmin.auth().getUser(firebaseUid).then(function(userRecord) {
+  try {
+    const userRecord = await firebaseAdmin.auth().getUser(firebaseUid);
+    console.error(JSON.stringify(userRecord));
     return userRecord;
-  }).catch((error) => {
-    const userJson = {
-      identifier: 'Line',
-      uid: firebaseUid,
-      displayName: accessToken.id_token.name,
-      photoURL: accessToken.id_token.picture,
-      email: accessToken.id_token.email
-    };
-    if (error.code === 'auth/user-not-found') {
-      return firebaseAdmin.auth().createUser(userJson);
+  } catch (e) {
+    if (e.code === 'auth/user-not-found') {
+      const userJson = {
+        identifier: 'Line',
+        uid: firebaseUid,
+        displayName: accessToken.id_token.name,
+        photoURL: accessToken.id_token.picture,
+        email: accessToken.id_token.email
+      };
+      return await firebaseAdmin.auth().createUser(userJson);
+    } else {
+      console.error('firebaseUser error code ' + e.code);
+      return null;
     }
-    return Promise.reject(error);
-  });
+  }
 };
 
 // async function getUserProfile(req, res) {
