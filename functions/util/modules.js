@@ -2,7 +2,9 @@ const express = require('express');
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const firebase = require('firebase');
-const moment = require('moment');
+const Moment = require('moment');
+const MomentRange = require('moment-range');
+const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
@@ -74,6 +76,50 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   /* 處理時間格式 */
   if (operation.format) return datetime.format(operation.format);
   else return datetime.format('YYYYMMDD');
+}
+
+/*
+  date: 2020-07-01 or 20200701
+*/
+function dateInfo(date, zone = zone_tw) {
+  const dateBeginUnix = moment.tz(date, zone).unix();
+  const dateEndUnix = moment.tz(date, zone).add(1, 'days').unix() - 1;
+
+  const yesterday = moment.tz(date, zone).subtract(1, 'days');
+  const yesterdayYYYYMMDD = yesterday.format('YYYYMMDD');
+  const yesterdayBeginUnix = moment.tz(date, zone).subtract(1, 'days').unix();
+  const yesterdayEndUnix = moment.tz(date, zone).unix() - 1;
+
+  const tomorrow = moment.tz(date, zone).add(1, 'days');
+  const tomorrowYYYYMMDD = tomorrow.format('YYYYMMDD');
+  const tomorrowBeginUnix = moment.tz(date, zone).add(1, 'days').unix();
+  const tomorrowEndUnix = moment.tz(date, zone).add(2, 'days').unix() - 1;
+
+  return {
+    date: date,
+    dateBeginUnix: dateBeginUnix,
+    dateEndUnix: dateEndUnix,
+    yesterday: yesterday,
+    yesterdayYYYYMMDD: yesterdayYYYYMMDD,
+    yesterdayBeginUnix: yesterdayBeginUnix,
+    yesterdayEndUnix: yesterdayEndUnix,
+    tomorrow: tomorrow,
+    tomorrowYYYYMMDD: tomorrowYYYYMMDD,
+    tomorrowBeginUnix: tomorrowBeginUnix,
+    tomorrowEndUnix: tomorrowEndUnix
+  };
+}
+/*
+  dateUnix: Math.floor(Date.now() / 1000)
+*/
+function dateUnixInfo(dateUnix, zone = zone_tw) {
+  return dateInfo(moment.tz(dateUnix * 1000, zone).format('YYYYMMDD'));
+}
+/*
+  date_now: Date.now()
+*/
+function dateNowInfo(date_now, zone = zone_tw) {
+  return dateUnixInfo(Math.floor(date_now / 1000));
 }
 
 function initFirebase() {
@@ -1027,6 +1073,9 @@ module.exports = {
   UTF8,
   convertTimezone,
   convertTimezoneFormat,
+  dateInfo,
+  dateUnixInfo,
+  dateNowInfo,
   leagueDecoder,
   acceptNumberAndLetter,
   httpStatus,
