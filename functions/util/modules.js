@@ -81,22 +81,25 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 /*
   date: 2020-07-01 or 20200701
 */
-function dateInfo(date, zone = zone_tw) {
-  const dateBeginUnix = moment.tz(date, zone).unix();
-  const dateEndUnix = moment.tz(date, zone).add(1, 'days').unix() - 1;
+function coreDateInfo(sdate, zone = zone_tw) {
+  const mdate = moment.tz(sdate, zone);
+  const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
+  const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
+  const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const yesterday = moment.tz(date, zone).subtract(1, 'days');
+  const yesterday = moment.tz(sdate, zone).subtract(1, 'days');
   const yesterdayYYYYMMDD = yesterday.format('YYYYMMDD');
-  const yesterdayBeginUnix = moment.tz(date, zone).subtract(1, 'days').unix();
-  const yesterdayEndUnix = moment.tz(date, zone).unix() - 1;
+  const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
+  const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const tomorrow = moment.tz(date, zone).add(1, 'days');
+  const tomorrow = moment.tz(sdate, zone).add(1, 'days');
   const tomorrowYYYYMMDD = tomorrow.format('YYYYMMDD');
-  const tomorrowBeginUnix = moment.tz(date, zone).add(1, 'days').unix();
-  const tomorrowEndUnix = moment.tz(date, zone).add(2, 'days').unix() - 1;
+  const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
+  const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
   return {
-    date: date,
+    mdate: mdate,
+    dateYYYYMMDD: dateYYYYMMDD,
     dateBeginUnix: dateBeginUnix,
     dateEndUnix: dateEndUnix,
     yesterday: yesterday,
@@ -110,16 +113,16 @@ function dateInfo(date, zone = zone_tw) {
   };
 }
 /*
-  dateUnix: Math.floor(Date.now() / 1000)
+  date: 2020-07-01 or 20200701
 */
-function dateUnixInfo(dateUnix, zone = zone_tw) {
-  return dateInfo(moment.tz(dateUnix * 1000, zone).format('YYYYMMDD'));
+function dateInfo(sdate, zone = zone_tw) {
+  return coreDateInfo(moment.tz(sdate, zone));
 }
 /*
-  date_now: Date.now()
+  dateUnix: Date.now() or unix()
 */
-function dateNowInfo(date_now, zone = zone_tw) {
-  return dateUnixInfo(Math.floor(date_now / 1000));
+function dateUnixInfo(dateUnix, zone = zone_tw) {
+  return coreDateInfo(dateUnix);
 }
 
 function initFirebase() {
@@ -1075,7 +1078,6 @@ module.exports = {
   convertTimezoneFormat,
   dateInfo,
   dateUnixInfo,
-  dateNowInfo,
   leagueDecoder,
   acceptNumberAndLetter,
   httpStatus,
