@@ -1756,7 +1756,7 @@ const MoneyLogs = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
 
   },
@@ -1828,7 +1828,7 @@ const CashflowDeposit = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
 
   },
@@ -1924,6 +1924,14 @@ const CashflowBuy = sequelize.define(
       autoIncrement: true
     },
     uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },    
+    god_uid: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    league_id: {
       type: Sequelize.INTEGER,
       primaryKey: true
     },
@@ -1956,9 +1964,8 @@ const CashflowBuy = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
-
   },
   {
     indexes: [
@@ -2009,7 +2016,7 @@ const CashflowSell = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
 
   },
@@ -2073,7 +2080,7 @@ const CashflowDonate = sequelize.define(
     },
     updatedAt: {
       type: Sequelize.DATE(3),
-      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
 
   },
