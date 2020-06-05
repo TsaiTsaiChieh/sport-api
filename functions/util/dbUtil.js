@@ -141,6 +141,30 @@ const User = sequelize.define(
 );
 
 /*
+ * 帳號禁言記錄
+ */
+const User_BlockLog = sequelize.define('user__blocklog', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  newcount: {
+    type: Sequelize.INTEGER
+  },
+  start: {
+    type: Sequelize.DATE
+  },
+  end: {
+    type: Sequelize.DATE
+  }
+});
+
+/*
  * 歷史大神 含 大神戰績資訊
  */
 const Title = sequelize.define(
@@ -2097,6 +2121,7 @@ const dbUtil = {
   Prediction,
   PredictionDescription,
   User,
+  User_BlockLog,
   Title,
   Collection,
   Rank,
