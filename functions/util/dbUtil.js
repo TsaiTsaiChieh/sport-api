@@ -468,7 +468,10 @@ const Team = sequelize.define(
     },
     radar_id: {
       type: Sequelize.STRING
-    },
+		},
+		statscore_id: {
+			type: Sequelize.STRING
+		},
     name: {
       type: Sequelize.STRING
     },
@@ -527,7 +530,10 @@ const Match = sequelize.define(
     },
     radar_id: {
       type: Sequelize.STRING
-    },
+		},
+		statscore_id: {
+			type: Sequelize.STRING
+		},
     home_id: {
       type: Sequelize.STRING
     },
@@ -611,7 +617,11 @@ const Match = sequelize.define(
       },
       {
         fields: ['away_id']
-      }
+			},
+      {
+        fields: ['statscore_id']
+			}
+			
       // {
       //   fields: ['home_id', 'away_id', 'league_id']
       // }
