@@ -63,6 +63,18 @@ router.post(
   require('../controller/admin/user/editUserController')
 );
 router.post(
+  '/user/getUserBlockLog',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/getUserBlockLogController')
+);
+router.post(
+  '/user/unblockUser',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/unblockUserController')
+);
+router.post(
   '/service/getReports',
   verification.token,
   verification.admin,
