@@ -67,8 +67,8 @@ async function KBOpbpHistory(parameter) {
           awayScores = realtimeData.Summary.info.away.Total.points;
         }
       } else {
-        homeScores = data.results[0].ss.split('-')[0];
-        awayScores = data.results[0].ss.split('-')[1];
+        homeScores = data.results[0].ss.split('-')[1];
+        awayScores = data.results[0].ss.split('-')[0];
       }
 
       // try {
@@ -411,8 +411,8 @@ async function doPBP(parameter) {
           if (!data.results[0].ss) {
             data.results[0].ss = 'no data';
           } else {
-            homeScores = data.results[0].ss.split('-')[0];
-            awayScores = data.results[0].ss.split('-')[1];
+            homeScores = data.results[0].ss.split('-')[1];
+            awayScores = data.results[0].ss.split('-')[0];
           }
 
           try {

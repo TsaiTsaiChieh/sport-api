@@ -21,11 +21,12 @@ function queryAllTeams(args) {
         `(
            SELECT name, name_ch, groups, team_id
              FROM match__teams teams
-            WHERE teams.league_id = '${
-              modules.leagueCodebook(args.league).id
-            }'   
+            WHERE teams.league_id = :leagueID
          )`,
         {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id
+          },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

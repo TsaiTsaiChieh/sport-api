@@ -38,6 +38,7 @@ async function modifyUserProfile(req, res) {
         properties: {
           display_name: { type: 'string', minLength: 2, maxLength: 15 },
           name: { type: 'string', minLength: 2, maxLength: 10 },
+          country_code: { type: 'string', minLength: 2, maxLength: 4 },
           phone: { type: 'string', minLength: 9, maxLength: 10 },
           email: { type: 'string', format: 'email' },
           birthday: { type: 'integer' },
@@ -46,7 +47,7 @@ async function modifyUserProfile(req, res) {
         }
       };
       const valid = modules.ajv.validate(schema, data);
-      console.log(modules.ajv.errors);
+
       // if (!valid) return res.status(400).json(modules.ajv.errors);
       if (!valid) {
         res.status(400).json(modules.ajv.errors);
@@ -151,6 +152,7 @@ async function modifyUserProfile(req, res) {
   // if (req.body.title) data.defaultTitle = req.body.title;//移到另外API
   data.updateTime = nowTimeStamp;
   const resultJson = {};
+
   // const refCode = req.body.refCode;
   // const userReferrer = userSnapshot.exists ? userSnapshot.referrer : undefined;
   // if (refCode && !userReferrer && refCode !== uid) {

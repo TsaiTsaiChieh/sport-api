@@ -48,7 +48,7 @@ async function othersPredictions(args) {
     { op: 'subtract', value: 1, unit: 'days' });
   // 明天
   const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-    { op: 'add', value: 1, unit: 'days' }) - 1;
+    { op: 'add', value: 2, unit: 'days' }) - 1;
 
   let predictionsInfoList = []; // 使用者/大神 預測資訊
   let predictionsLeagueInfoList = {}; // 預測資訊 所屬聯盟 相關資訊
@@ -90,13 +90,13 @@ async function othersPredictions(args) {
                left join user__prediction__descriptions prediction_desc
                  on prediction.uid = prediction_desc.uid
                 and prediction.league_id = prediction_desc.league_id
+                and prediction_desc.day = :begin
               where prediction.league_id = league.league_id
                 and prediction.bets_id = matches.bets_id
                 and matches.home_id = team_home.team_id
                 and matches.away_id = team_away.team_id
                 and prediction.uid = :otherUid
-                -- and prediction.match_scheduled between :begin and :end
-                -- and prediction_desc.day = :begin
+                and prediction.match_scheduled between :begin and :end
            ) prediction
      inner join users
         on prediction.uid = users.uid
@@ -107,7 +107,7 @@ async function othersPredictions(args) {
       left join titles
         on prediction.uid = titles.uid
        and prediction.league_id = titles.league_id
-     where titles.period = :period
+       and titles.period = :period
      order by prediction.league_id, prediction.uid, prediction.match_scheduled
   `, {
     replacements: {
@@ -116,6 +116,7 @@ async function othersPredictions(args) {
       end: end,
       period: period
     },
+    logging: console.log,
     type: db.sequelize.QueryTypes.SELECT
   });
 
