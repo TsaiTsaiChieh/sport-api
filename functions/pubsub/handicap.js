@@ -155,9 +155,11 @@ async function upsertHandicap(querysForEvent, sport, league) {
           if (
             spread_odds[spread_odds.length - 1].home_od !== null &&
             spread_odds[spread_odds.length - 1].handicap !== null &&
-            spread_odds[spread_odds.length - 1].away_od !== null
+            spread_odds[spread_odds.length - 1].away_od !== null &&
+            spread_odds[spread_odds.length - 1].home_od !== '-' &&
+            spread_odds[spread_odds.length - 1].away_od !== '-'
           ) {
-            newest_spread = spread_odds[spread_odds.length - 1];
+            newest_spread = spread_odds[0];
             newest_spread = spreadCalculator(newest_spread);
             await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
           }
@@ -165,11 +167,13 @@ async function upsertHandicap(querysForEvent, sport, league) {
         let newest_totals;
         if (totals_odds.length > 0) {
           if (
-            totals_odds[totals_odds.length - 1].home_od !== null &&
+            totals_odds[totals_odds.length - 1].over_od !== null &&
             totals_odds[totals_odds.length - 1].handicap !== null &&
-            totals_odds[totals_odds.length - 1].away_od !== null
+            totals_odds[totals_odds.length - 1].under_od !== null &&
+            totals_odds[totals_odds.length - 1].over_od !== '-' &&
+            totals_odds[totals_odds.length - 1].under_od !== '-'
           ) {
-            newest_totals = totals_odds[totals_odds.length - 1];
+            newest_totals = totals_odds[0];
             newest_totals = totalsCalculator(newest_totals);
             await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
           }
@@ -180,7 +184,9 @@ async function upsertHandicap(querysForEvent, sport, league) {
           if (
             odd.home_od !== null &&
             odd.handicap !== null &&
-            odd.away_od !== null
+            odd.away_od !== null &&
+            odd.home_od !== '-' &&
+            odd.away_od !== '-'
           ) {
             await write2MysqlOfMatchSpread(odd, ele, league);
           }
@@ -191,7 +197,9 @@ async function upsertHandicap(querysForEvent, sport, league) {
           if (
             odd.over_od !== null &&
             odd.handicap !== null &&
-            odd.under_od !== null
+            odd.under_od !== null &&
+            odd.over_od !== '-' &&
+            odd.over_od !== '-'
           ) {
             await write2MysqlOfMatchTotals(odd, ele, league);
           }
