@@ -1930,7 +1930,7 @@ const CashflowBuy = sequelize.define(
     uid: {
       type: Sequelize.STRING,
       primaryKey: true
-    },    
+    },
     god_uid: {
       type: Sequelize.STRING,
       primaryKey: true
