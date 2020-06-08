@@ -2,7 +2,9 @@ const express = require('express');
 const envValues = require('../config/env_values');
 const firebaseAdmin = require('firebase-admin');
 const firebase = require('firebase');
-const moment = require('moment');
+const Moment = require('moment');
+const MomentRange = require('moment-range');
+const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
@@ -74,6 +76,54 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   /* 處理時間格式 */
   if (operation.format) return datetime.format(operation.format);
   else return datetime.format('YYYYMMDD');
+}
+
+/*
+  date: 2020-07-01 or 20200701
+*/
+function coreDateInfo(sdate, zone = zone_tw) {
+  sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
+  const mdate = moment.tz(sdate, zone);
+  const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
+  const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
+  const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
+
+  const yesterday = moment.tz(sdate, zone).subtract(1, 'days');
+  const yesterdayYYYYMMDD = yesterday.format('YYYYMMDD');
+  const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
+  const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
+
+  const tomorrow = moment.tz(sdate, zone).add(1, 'days');
+  const tomorrowYYYYMMDD = tomorrow.format('YYYYMMDD');
+  const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
+  const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
+
+  return {
+    mdate: mdate,
+    dateYYYYMMDD: dateYYYYMMDD,
+    dateBeginUnix: dateBeginUnix,
+    dateEndUnix: dateEndUnix,
+    yesterday: yesterday,
+    yesterdayYYYYMMDD: yesterdayYYYYMMDD,
+    yesterdayBeginUnix: yesterdayBeginUnix,
+    yesterdayEndUnix: yesterdayEndUnix,
+    tomorrow: tomorrow,
+    tomorrowYYYYMMDD: tomorrowYYYYMMDD,
+    tomorrowBeginUnix: tomorrowBeginUnix,
+    tomorrowEndUnix: tomorrowEndUnix
+  };
+}
+/*
+  date: 2020-07-01 or 20200701
+*/
+function dateInfo(sdate, zone = zone_tw) {
+  return coreDateInfo(moment.tz(sdate, zone));
+}
+/*
+  dateUnix: Date.now() or unix()
+*/
+function dateUnixInfo(dateUnix, zone = zone_tw) {
+  return coreDateInfo(dateUnix, zone);
 }
 
 function initFirebase() {
@@ -396,18 +446,35 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
       .valueOf();
 
     if (begin <= date && date <= end) {
+      const periodBeginDate = moment(specificDate) // 該期開始計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2 - 2, 'weeks')
+        .format(format);
+      const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+      const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const periodEndDate = moment(specificDate) // 該期結束計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2, 'weeks')
+        .subtract(1, 'days')
+        .format(format);
+      const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+      const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const nowWeekOfyear = moment.tz(date, zone_tw).week();
+      const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
+
       return {
         period: i, // 期數
-        date: moment(specificDate) // 該期開始計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2 - 2, 'weeks')
-          .format(format),
-        end: moment(specificDate) // 該期結束計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2, 'weeks')
-          .subtract(1, 'days')
-          .format(format),
-        weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
+        date: periodBeginDate, // 該期開始計算的日期
+        end: periodEndDate, // 該期結束計算的日期
+        weekPeriod: date < middle ? 1 : 2, // 該期數是第幾個星期
+        periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+        periodBeginDateEndUnix: periodBeginDateEndUnix,
+        periodEndDateBeginUnix: periodEndDateBeginUnix,
+        periodEndDateEndUnix: periodEndDateEndUnix,
+        inputDateWeekOfyear: nowWeekOfyear, // 該日期在該年的第幾星期
+        inputDateDayOfYear: nowDayOfYear // 該日期在該年的第幾天
       };
     }
   }
@@ -421,11 +488,26 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
 function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
+
+  const periodBeginDate = moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+  const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+  const periodEndDate = moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+  const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
   return {
     period: t.period + 1,
-    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format),
-    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format),
-    weekPeriod: t.weekPeriod
+    date: periodBeginDate,
+    end: periodEndDate,
+    weekPeriod: t.weekPeriod,
+    periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+    periodBeginDateEndUnix: periodBeginDateEndUnix,
+    periodEndDateBeginUnix: periodEndDateBeginUnix,
+    periodEndDateEndUnix: periodEndDateEndUnix,
+    inputDateWeekOfyear: t.inputDateWeekOfyear,
+    inputDateDayOfYear: t.inputDateDayOfYear
   };
 }
 
@@ -759,7 +841,7 @@ function settleTotalsSoccer(data) {
     : 'under';
 }
 
-function perdictionsResultFlag(option, settelResult) {
+function predictionsResultFlag(option, settelResult) {
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
   if (
     ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
@@ -1028,6 +1110,8 @@ module.exports = {
   UTF8,
   convertTimezone,
   convertTimezoneFormat,
+  dateInfo,
+  dateUnixInfo,
   leagueDecoder,
   acceptNumberAndLetter,
   httpStatus,
@@ -1039,7 +1123,7 @@ module.exports = {
   settleSpreadSoccer,
   settleTotals,
   settleTotalsSoccer,
-  perdictionsResultFlag,
+  predictionsResultFlag,
   predictionsWinList,
   sliceTeamAndPlayer,
   acceptLeague,

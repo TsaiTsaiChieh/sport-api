@@ -40,6 +40,7 @@
     "jsonwebtoken": "8.5.1",
     "line-login": "1.0.14",
     "moment": "2.24.0",
+    "moment-range": "^4.0.2",
     "moment-timezone": "0.5.28",
     "mysql2": "2.1.0",
     "number-precision": "1.4.0",
