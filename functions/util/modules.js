@@ -82,6 +82,7 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   date: 2020-07-01 or 20200701
 */
 function coreDateInfo(sdate, zone = zone_tw) {
+  sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
   const mdate = moment.tz(sdate, zone);
   const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
@@ -122,7 +123,7 @@ function dateInfo(sdate, zone = zone_tw) {
   dateUnix: Date.now() or unix()
 */
 function dateUnixInfo(dateUnix, zone = zone_tw) {
-  return coreDateInfo(dateUnix);
+  return coreDateInfo(dateUnix, zone);
 }
 
 function initFirebase() {
@@ -445,18 +446,35 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
       .valueOf();
 
     if (begin <= date && date <= end) {
+      const periodBeginDate = moment(specificDate) // 該期開始計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2 - 2, 'weeks')
+        .format(format);
+      const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+      const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const periodEndDate = moment(specificDate) // 該期結束計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2, 'weeks')
+        .subtract(1, 'days')
+        .format(format);
+      const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+      const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const nowWeekOfyear = moment.tz(date, zone_tw).week();
+      const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
+
       return {
         period: i, // 期數
-        date: moment(specificDate) // 該期開始計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2 - 2, 'weeks')
-          .format(format),
-        end: moment(specificDate) // 該期結束計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2, 'weeks')
-          .subtract(1, 'days')
-          .format(format),
-        weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
+        date: periodBeginDate, // 該期開始計算的日期
+        end: periodEndDate, // 該期結束計算的日期
+        weekPeriod: date < middle ? 1 : 2, // 該期數是第幾個星期
+        periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+        periodBeginDateEndUnix: periodBeginDateEndUnix,
+        periodEndDateBeginUnix: periodEndDateBeginUnix,
+        periodEndDateEndUnix: periodEndDateEndUnix,
+        inputDateWeekOfyear: nowWeekOfyear, // 該日期在該年的第幾星期
+        inputDateDayOfYear: nowDayOfYear // 該日期在該年的第幾天
       };
     }
   }
@@ -470,11 +488,26 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
 function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
+
+  const periodBeginDate = moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+  const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+  const periodEndDate = moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+  const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
   return {
     period: t.period + 1,
-    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format),
-    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format),
-    weekPeriod: t.weekPeriod
+    date: periodBeginDate,
+    end: periodEndDate,
+    weekPeriod: t.weekPeriod,
+    periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+    periodBeginDateEndUnix: periodBeginDateEndUnix,
+    periodEndDateBeginUnix: periodEndDateBeginUnix,
+    periodEndDateEndUnix: periodEndDateEndUnix,
+    inputDateWeekOfyear: t.inputDateWeekOfyear,
+    inputDateDayOfYear: t.inputDateDayOfYear
   };
 }
 
