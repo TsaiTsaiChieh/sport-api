@@ -142,8 +142,9 @@ async function othersPredictions(args) {
 
     const info_datetime_unix = convertTimezone(ele.info_datetime);
     ele.people = await countGodSellPredictionBuyers(othersUid, ele.league_id, info_datetime_unix);
-    ele.buy_uid = await checkBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix)
-      ? userUid : null;
+    // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
+    ele.buy_uid = await checkBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
+      ? null : userUid;
     // console.log('*****=', othersUid, ele.league_id, info_datetime, ele.people, convertTimezone(info_datetime));
 
     temp_league_id = ele.league_id;
