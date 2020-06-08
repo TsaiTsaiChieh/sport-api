@@ -37,12 +37,13 @@ function queryTwoDaysEvent(args) {
                  match__teams AS home,
                  match__teams AS away
            WHERE game.scheduled BETWEEN '${begin}' AND '${end}'
-             AND game.league_id = '${modules.leagueCodebook(args.league).id}'
+             AND game.league_id = :leagueID
              AND game.home_id = home.team_id
              AND game.away_id = away.team_id
              ORDER BY scheduled
          )`,
         {
+          replacements: { leagueID: modules.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
