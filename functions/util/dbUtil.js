@@ -2097,6 +2097,26 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
+const Token = sequelize.define(
+  'token',
+  {
+		name:{
+			type: Sequelize.STRING,
+      allowNull: false
+		},
+    token: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['name']
+      }
+    ]
+  }
+);
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2139,7 +2159,8 @@ const dbUtil = {
   IngotTransfer,
   CashflowBuy,
   CashflowSell,
-  CashflowDonate
+	CashflowDonate,
+	Token
 };
 
 module.exports = dbUtil;
