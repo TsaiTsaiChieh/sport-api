@@ -27,7 +27,7 @@ router.get('/god', require('../pubsub/god'));
 
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 // test statscore
-// router.get('/auth_statscore', require('../pubsub/auth_statscore'));
+router.get('/auth_statscore', require('../pubsub/auth_statscore'));
 router.get(
   '/prematch_statscore_KBO',
   require('../pubsub/prematch_statscore_KBO')
