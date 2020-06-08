@@ -4,9 +4,6 @@ const db = require('../../util/dbUtil');
 function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      // const begin = modules.moment().startOf('month').subtract('month', 1).unix();
-      // const end = modules.moment().endOf('month').endOf('month').subtract('month', 1).unix();
-
       const purse = await db.sequelize.query(
         `
         SELECT coin, dividend, ingot
@@ -21,8 +18,8 @@ function purseModel(args, method, uid) {
 
       const expire = await db.sequelize.query(
         `
-          SELECT SUM(expire_dividend) as dividend
-            FROM cashflow_expire_dividends 
+          SELECT SUM(expire_points) as dividend
+            FROM cashflow_dividends 
            WHERE uid=$uid
         `,
         {
@@ -31,6 +28,7 @@ function purseModel(args, method, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
+
       const expire_dividend = parseInt(expire.dividend);
       const purseList = {
         purse,

@@ -171,8 +171,8 @@ async function settleWinList(args) {
           season: season
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13327', err.parent.code);}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13327', err.parent.code);}
+    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
+    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinListsHistory.update({
@@ -206,7 +206,7 @@ async function settleWinList(args) {
           season: season
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', err.parent.code);}
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });}
     }
 
     result.status['1'].lists.push({ uid: data.uid, league: data.league_id });
@@ -281,8 +281,8 @@ async function settleWinList(args) {
           this_season_fault_counts: ele.sum_season.fault_counts
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13433', err.parent.code);}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13433', err.parent.code);}
+    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
+    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinLists.update({
@@ -312,7 +312,7 @@ async function settleWinList(args) {
           league_id: data.league_id
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13436', err.parent.code);}
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });}
     }
 
     // if (r) return reject(errs.errsMsg('404', '13420')); // 更新筆數異常
@@ -332,7 +332,7 @@ async function settleWinList(args) {
         period: period
       }
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13539', err.parent.code);}
+    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });}
 
     // 有可能不是大神，無更新筆數
     // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常

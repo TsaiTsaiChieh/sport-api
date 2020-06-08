@@ -19,7 +19,7 @@ async function postGodLeagueRankReceiveBack(args) {
     }
   }));
 
-  if (err) {console.error(err); throw errs.dbErrsMsg('404', '13543', err.parent.code);}
+  if (err) {console.error(err); throw errs.dbErrsMsg('404', '13543', { addMsg: err.parent.code });}
   if (r[0] >= 1) result.success = '>=1';
 
   return result;

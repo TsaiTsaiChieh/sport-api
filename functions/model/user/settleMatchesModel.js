@@ -1,5 +1,5 @@
 const {
-  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer, perdictionsResultFlag,
+  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer, predictionsResultFlag,
   leagueDecoder
 } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
@@ -87,7 +87,7 @@ async function settleMatchesModel(args) {
         bets_id: bets_id
       }
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', err.parent.code);}
+    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });}
     if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
     result[bets_id] = { status: 1, msg: '賽事結算成功！' };
   };
@@ -145,8 +145,8 @@ async function settleMatchesModel(args) {
     if (settelTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : perdictionsResultFlag(data.spread_option, settelSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : perdictionsResultFlag(data.totals_option, settelTotalsResult);
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settelSpreadResult);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settelTotalsResult);
     d(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({
@@ -159,7 +159,7 @@ async function settleMatchesModel(args) {
         id: data.id
       }
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13213', err.parent.code);}
+    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13213', { addMsg: err.parent.code });}
     if (r[0] !== 1) throw errs.errsMsg('404', '13214'); // 更新筆數異常
 
     result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };

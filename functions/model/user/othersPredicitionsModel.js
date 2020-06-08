@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 const {
-  getTitlesPeriod, moment, convertTimezone, convertTimezoneFormat, sliceTeamAndPlayer, groupBy, getTitles
+  getTitlesPeriod, dateUnixInfo, convertTimezone, convertTimezoneFormat,
+  sliceTeamAndPlayer, groupBy, getTitles
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -42,13 +43,11 @@ async function othersPredictions(args) {
 
   const othersUid = args.othersUid;
   const period = getTitlesPeriod(Date.now()).period;
-  // const now = moment(Date.now()).unix(); // * 1000;
-  // 昨天
-  const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-    { op: 'subtract', value: 1, unit: 'days' });
-  // 明天
-  const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-    { op: 'add', value: 1, unit: 'days' }) - 1;
+  const nowInfo = dateUnixInfo(Date.now());
+  const yesterdayUnix = nowInfo.yesterdayBeginUnix;
+  const todayUnix = nowInfo.dateBeginUnix;
+  const tomorrowUnix = nowInfo.tomorrowBeginUnix;
+  const tomorrowEndUnix = nowInfo.tomorrowEndUnix;
 
   let predictionsInfoList = []; // 使用者/大神 預測資訊
   let predictionsLeagueInfoList = {}; // 預測資訊 所屬聯盟 相關資訊
@@ -90,13 +89,13 @@ async function othersPredictions(args) {
                left join user__prediction__descriptions prediction_desc
                  on prediction.uid = prediction_desc.uid
                 and prediction.league_id = prediction_desc.league_id
+                and prediction_desc.day in (:yesterdayUnix, :todayUnix, :tomorrowUnix)
               where prediction.league_id = league.league_id
                 and prediction.bets_id = matches.bets_id
                 and matches.home_id = team_home.team_id
                 and matches.away_id = team_away.team_id
                 and prediction.uid = :otherUid
                 and prediction.match_scheduled between :begin and :end
-                and prediction_desc.day = :begin
            ) prediction
      inner join users
         on prediction.uid = users.uid
@@ -107,13 +106,16 @@ async function othersPredictions(args) {
       left join titles
         on prediction.uid = titles.uid
        and prediction.league_id = titles.league_id
-     where titles.period = :period
+       and titles.period = :period
      order by prediction.league_id, prediction.uid, prediction.match_scheduled
   `, {
     replacements: {
       otherUid: othersUid,
-      begin: begin,
-      end: end,
+      yesterdayUnix: yesterdayUnix,
+      todayUnix: todayUnix,
+      tomorrowUnix: tomorrowUnix,
+      begin: yesterdayUnix,
+      end: tomorrowEndUnix,
       period: period
     },
     type: db.sequelize.QueryTypes.SELECT
@@ -122,8 +124,8 @@ async function othersPredictions(args) {
   if (predictionsInfoDocs.length === 0) return { }; // 回傳 空Array
 
   result = { // 初始化 為了固定 json 位置
-    begin: begin,
-    end: end
+    begin: yesterdayUnix,
+    end: tomorrowEndUnix
   };
 
   // 補上 大神預測牌組 的 購買人數 和 登入者是否購買該大神預測牌組

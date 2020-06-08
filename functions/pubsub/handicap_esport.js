@@ -118,7 +118,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
             spread_odds[spread_odds.length - 1].handicap !== null &&
             spread_odds[spread_odds.length - 1].away_od !== null
           ) {
-            newest_spread = spread_odds[spread_odds.length - 1];
+            newest_spread = spread_odds[0];
             newest_spread = spreadCalculator(newest_spread);
             await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
           }
@@ -129,7 +129,9 @@ async function upsertHandicap(querysForEvent, sport, league) {
             totals_odds[totals_odds.length - 1].home_od !== null &&
             totals_odds[totals_odds.length - 1].handicap !== null &&
             totals_odds[totals_odds.length - 1].away_od !== null
-          ) {newest_totals = totals_odds[totals_odds.length - 1];}
+          ) {
+            newest_totals = totals_odds[0];
+          }
           newest_totals = totalsCalculator(newest_totals);
           await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
         }
