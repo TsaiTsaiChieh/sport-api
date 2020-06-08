@@ -414,6 +414,17 @@ class UpdateUserCoinORDividendRollback extends ExtendableError {
   }
 }
 
+class CreateCashflowBuyRollback extends ExtendableError {
+  constructor(
+    message = '寫入購買者金流表的回滾',
+    status = 1520,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -451,5 +462,6 @@ module.exports = {
   PropertyMissingError,
   UnknownLeague,
   CreateUserBuysTableRollback,
-  UpdateUserCoinORDividendRollback
+  UpdateUserCoinORDividendRollback,
+  CreateCashflowBuyRollback
 };

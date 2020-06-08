@@ -9,7 +9,7 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken, zone_tw } = envValues;
+const { sportRadarKeys, betsToken, zone_tw, statscoreToken } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -82,6 +82,7 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
   date: 2020-07-01 or 20200701
 */
 function coreDateInfo(sdate, zone = zone_tw) {
+  sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
   const mdate = moment.tz(sdate, zone);
   const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
@@ -122,7 +123,7 @@ function dateInfo(sdate, zone = zone_tw) {
   dateUnix: Date.now() or unix()
 */
 function dateUnixInfo(dateUnix, zone = zone_tw) {
-  return coreDateInfo(dateUnix);
+  return coreDateInfo(dateUnix, zone);
 }
 
 function initFirebase() {
@@ -445,18 +446,35 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
       .valueOf();
 
     if (begin <= date && date <= end) {
+      const periodBeginDate = moment(specificDate) // 該期開始計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2 - 2, 'weeks')
+        .format(format);
+      const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+      const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const periodEndDate = moment(specificDate) // 該期結束計算的日期
+        .utcOffset(UTF8)
+        .add(i * 2, 'weeks')
+        .subtract(1, 'days')
+        .format(format);
+      const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+      const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+      const nowWeekOfyear = moment.tz(date, zone_tw).week();
+      const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
+
       return {
         period: i, // 期數
-        date: moment(specificDate) // 該期開始計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2 - 2, 'weeks')
-          .format(format),
-        end: moment(specificDate) // 該期結束計算的日期
-          .utcOffset(UTF8)
-          .add(i * 2, 'weeks')
-          .subtract(1, 'days')
-          .format(format),
-        weekPeriod: date < middle ? 1 : 2 // 該期數是第幾個星期
+        date: periodBeginDate, // 該期開始計算的日期
+        end: periodEndDate, // 該期結束計算的日期
+        weekPeriod: date < middle ? 1 : 2, // 該期數是第幾個星期
+        periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+        periodBeginDateEndUnix: periodBeginDateEndUnix,
+        periodEndDateBeginUnix: periodEndDateBeginUnix,
+        periodEndDateEndUnix: periodEndDateEndUnix,
+        inputDateWeekOfyear: nowWeekOfyear, // 該日期在該年的第幾星期
+        inputDateDayOfYear: nowDayOfYear // 該日期在該年的第幾天
       };
     }
   }
@@ -470,11 +488,26 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
 function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
+
+  const periodBeginDate = moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
+  const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+
+  const periodEndDate = moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format);
+  const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
+  const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+
   return {
     period: t.period + 1,
-    date: moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format),
-    end: moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format),
-    weekPeriod: t.weekPeriod
+    date: periodBeginDate,
+    end: periodEndDate,
+    weekPeriod: t.weekPeriod,
+    periodBeginDateBeginUnix: periodBeginDateBeginUnix,
+    periodBeginDateEndUnix: periodBeginDateEndUnix,
+    periodEndDateBeginUnix: periodEndDateBeginUnix,
+    periodEndDateEndUnix: periodEndDateEndUnix,
+    inputDateWeekOfyear: t.inputDateWeekOfyear,
+    inputDateDayOfYear: t.inputDateDayOfYear
   };
 }
 
@@ -494,7 +527,9 @@ function getTitles(titles, num = 1) {
     case 1:
       return { 1: titles.continue };
     case 2:
-      return { 2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3] };
+      return {
+        2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3]
+      };
     case 3:
       return { 3: [titles.predict_rate1, titles.predict_rate3] };
     case 4:
@@ -710,19 +745,11 @@ function settleSpreadSoccer(data) {
   if (result === 0) return 'fair2';
 
   if (sp_25.includes(point)) {
-    return result === -0.25
-      ? 'fair|away'
-      : result > -0.25
-        ? 'home'
-        : 'away';
+    return result === -0.25 ? 'fair|away' : result > -0.25 ? 'home' : 'away';
   }
 
   if (sp_75.includes(point)) {
-    return result === 0.25
-      ? 'fair|home'
-      : result > 0.25
-        ? 'home'
-        : 'away';
+    return result === 0.25 ? 'fair|home' : result > 0.25 ? 'home' : 'away';
   }
 
   // 整數 和 0.5
@@ -787,25 +814,15 @@ function settleTotalsSoccer(data) {
   if (result === 0) return 'fair2';
 
   if (sp_25.includes(point)) {
-    return result === -0.25
-      ? 'fair|under'
-      : result > -0.25
-        ? 'over'
-        : 'under';
+    return result === -0.25 ? 'fair|under' : result > -0.25 ? 'over' : 'under';
   }
 
   if (sp_75.includes(point)) {
-    return result === 0.25
-      ? 'fair|over'
-      : result > 0.25
-        ? 'over'
-        : 'under';
+    return result === 0.25 ? 'fair|over' : result > 0.25 ? 'over' : 'under';
   }
 
   // 整數 和 0.5
-  return result > 0
-    ? 'over'
-    : 'under';
+  return result > 0 ? 'over' : 'under';
 }
 
 function predictionsResultFlag(option, settelResult) {
@@ -882,21 +899,33 @@ function predictionsWinList(data) {
         (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
         0
       );
-      const predictFaultCounts = NP.plus(predictSpreadFaultCounts, predictTotalsFaultCounts);
+      const predictFaultCounts = NP.plus(
+        predictSpreadFaultCounts,
+        predictTotalsFaultCounts
+      );
 
       // 避免分母是0 平盤無效
       const spreadWinRate =
         NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts) === 0
           ? 0
-          : NP.divide(predictSpreadCorrectCounts, NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts));
+          : NP.divide(
+            predictSpreadCorrectCounts,
+            NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts)
+          );
       const totalsWinRate =
         NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts) === 0
           ? 0
-          : NP.divide(predictTotalsCorrectCounts, NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts));
+          : NP.divide(
+            predictTotalsCorrectCounts,
+            NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts)
+          );
       const winRate =
         NP.plus(predictCorrectCounts, predictFaultCounts) === 0
           ? 0
-          : NP.divide(predictCorrectCounts, NP.plus(predictCorrectCounts, predictFaultCounts));
+          : NP.divide(
+            predictCorrectCounts,
+            NP.plus(predictCorrectCounts, predictFaultCounts)
+          );
 
       // 勝注
       const predictSpreadCorrectBets = data.reduce(
@@ -913,7 +942,10 @@ function predictionsWinList(data) {
             : acc,
         0
       );
-      const predictCorrectBets = NP.plus(predictSpreadCorrectBets, predictTotalsCorrectBets);
+      const predictCorrectBets = NP.plus(
+        predictSpreadCorrectBets,
+        predictTotalsCorrectBets
+      );
 
       const predictSpreadFaultBets = data.reduce(
         (acc, cur) =>
@@ -929,10 +961,19 @@ function predictionsWinList(data) {
             : acc,
         0
       );
-      const predictFaultBets = NP.plus(predictSpreadFaultBets, predictTotalsFaultBets);
+      const predictFaultBets = NP.plus(
+        predictSpreadFaultBets,
+        predictTotalsFaultBets
+      );
 
-      const spreadWinBets = NP.plus(predictSpreadCorrectBets, predictSpreadFaultBets);
-      const totalsWinBets = NP.plus(predictTotalsCorrectBets, predictTotalsFaultBets);
+      const spreadWinBets = NP.plus(
+        predictSpreadCorrectBets,
+        predictSpreadFaultBets
+      );
+      const totalsWinBets = NP.plus(
+        predictTotalsCorrectBets,
+        predictTotalsFaultBets
+      );
       const winBets = NP.plus(predictCorrectBets, predictFaultBets);
 
       // 注數計算
@@ -1033,7 +1074,11 @@ function godUserPriceTable(rank) {
 
 function validateProperty(data, propertyName) {
   const property = data[propertyName];
-  if (property === undefined) throw new AppErrors.PropertyMissingError(`${propertyName} 資料欄位缺漏 (undefined)`);
+  if (property === undefined) {
+    throw new AppErrors.PropertyMissingError(
+      `${propertyName} 資料欄位缺漏 (undefined)`
+    );
+  }
   return property;
 }
 
@@ -1098,5 +1143,6 @@ module.exports = {
   to,
   godUserPriceTable,
   validateProperty,
-  NP
+  NP,
+  statscoreToken
 };
