@@ -5,7 +5,8 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const SELL = 1;
 const PAID = 1;
-const scheduled = modules.moment().unix();
+const WIN_BET = 1;
+
 async function purchasePredictions(args) {
   /* user case: [QztgShRWSSNonhm2pc3hKoPU7Al2]（user phone number is 3）
      want to purchase [Xw4dOKa4mWh3Kvlx35mPtAOX2P52] (god user belong to certain period and league)
@@ -94,9 +95,9 @@ async function checkGodPredictions(args) {
   if (err) throw new AppErrors.MysqlError(`${err.stack} by TsaiChieh`);
   // Although the error in underline will happen when the null result, but it also will be caught by the err variable by the calling function, i.e. purchasePredictions
   if (!results.length) throw new AppErrors.GodUserDidNotSell(`${args.god_title} (${args.matches_date})`);
-  
-  if (results[0].match_scheduled >= modules.moment(args.now).unix()) throw new AppErrors.PurchasePredictionsModelError(`因為購買的最晚開賽時間：${modules.convertTimezoneFormat(results[0].match_scheduled, {format:'YYYY-MM-DD HH:mm'})} 小於購買時間：${modules.convertTimezoneFormat(modules.moment(args.now).unix(), {format:'YYYY-MM-DD HH:mm'})}`);
-  
+
+  if (results[0].match_scheduled <= modules.moment(args.now).unix()) throw new AppErrors.PurchasePredictionsModelError(`因為購買的最晚開賽時間：${modules.convertTimezoneFormat(results[0].match_scheduled, { format: 'YYYY-MM-DD HH:mm' })} 小於購買時間：${modules.convertTimezoneFormat(modules.moment(args.now).unix(), { format: 'YYYY-MM-DD HH:mm' })}`);
+
   return results;
 }
 
@@ -166,7 +167,18 @@ async function repackagePurchaseData(args, godData) {
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const transaction = await db.sequelize.transaction();
-  const [cashflow_buy] = await modules.to(db.sequelize.models.cashflow_buy.create({ uid: args.token.uid, status: 1, coin: overage.coin, coin_real: overage.coin, dividend: overage.dividend, dividend_real: overage.dividend, god_uid: args.god_uid, league_id: modules.leagueCodebook(args.god_title).id, scheduled: modules.moment(args.now).unix() }), { transaction });
+  // 寫入購牌紀錄（金流）table designed by Henry
+  const [cashflowErr] = await modules.to(db.CashflowBuy.create({
+    uid: args.token.uid,
+    status: WIN_BET,
+    coin: overage.coin,
+    coin_real: overage.coin,
+    dividend: overage.dividend,
+    dividend_real: overage.dividend,
+    god_uid: args.god_uid,
+    league_id: modules.leagueCodebook(args.god_title).id,
+    scheduled: modules.moment(args.now).unix()
+  }, { transaction }));
   const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
   const [overageErr] = await modules.to(db.User.update(
     { coin: overage.coin, dividend: overage.dividend },
@@ -180,9 +192,9 @@ async function transactionsForPurchase(args, overage, purchaseData) {
     await transaction.rollback();
     throw new AppErrors.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
   }
-  if (cashflow_buy) {
+  if (cashflowErr) {
     await transaction.rollback();
-    throw new AppErrors.CreateCashflowBuyRollback(`${overageErr.stack} by henry`);
+    throw new AppErrors.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
   }
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
