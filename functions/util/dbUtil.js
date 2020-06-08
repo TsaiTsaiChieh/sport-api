@@ -1859,6 +1859,10 @@ const IngotTransfer = sequelize.define(
       type: Sequelize.INTEGER,
       primaryKey: true
     },
+    cash_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
     ingot: {
       type: Sequelize.INTEGER,
       primaryKey: true
@@ -1992,7 +1996,7 @@ const CashflowSell = sequelize.define(
       allowNull: false
     },
     uid: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       primaryKey: true
     },
     status: {
