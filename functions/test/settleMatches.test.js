@@ -1,7 +1,7 @@
 const { settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
-  perdictionsResultFlag } = require('../util/modules');
+  predictionsResultFlag } = require('../util/modules');
 
-const resultFlag = perdictionsResultFlag;
+const resultFlag = predictionsResultFlag;
 
 // ======================================================
 // ======================================================

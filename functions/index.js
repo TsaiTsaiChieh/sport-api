@@ -175,3 +175,9 @@ exports.pbp_abnormal = functions
   .pubsub.schedule('*/10 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_abnormal'));
+
+// 大神
+exports.god = functions.pubsub
+  .schedule('0 1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/god'));
