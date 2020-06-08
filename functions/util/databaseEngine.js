@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, getTitlesPeriod } = require('../util/modules');
+const { dateUnixInfo, getTitlesPeriod } = require('../util/modules');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -63,7 +63,10 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
 }
 
 // 檢查該 uid 是否有購買特定大神牌組
+// 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
 async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
+  if (uid === god_uid) return 2; // 大神看自己的預測牌組
+
   const [err, counts] = await to(db.UserBuy.count({
     where: {
       uid: uid,
@@ -78,20 +81,20 @@ async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_u
   };
 
   if (counts > 1) throw errs.dbErrsMsg('400', '13710', { custMsg: err });
-  if (counts === 0) return false; // 未購買
+  if (counts === 0) return 0; // 未購買
 
-  return true; // 有購買
+  return 1; // 有購買
 }
 
 // 檢查該大神是否販售預測牌組
 async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
-  const end = moment(matches_date_unix * 1000).add(1, 'days').unix() - 1;
+  const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
   const [err, counts] = await to(db.Prediction.count({
     where: {
       uid: god_uid,
       league_id: league_id,
       match_scheduled: {
-        [db.Op.between]: [matches_date_unix, end]
+        [db.Op.between]: [matches_date_unix, end_unix]
       },
       sell: 1
     }
@@ -108,7 +111,7 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
 
 // 檢查該大神預測牌組勝注
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
-  const end = moment(matches_date_unix * 1000).add(1, 'days').unix() - 1;
+  const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
   const period = getTitlesPeriod(matches_date_unix * 1000).period;
 
   const infos = await db.sequelize.query(`
@@ -136,7 +139,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                from users__win__lists__histories
               where uid = :uid
                 and league_id = :league_id
-                and date_timestamp = :matches_date_unix
+                and date_timestamp = :begin
            ) histories,
            (
              select all_counts = failed_counts matches_fail_status
@@ -146,7 +149,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :matches_date_unix and :end
+                         and predictions.match_scheduled between :begin and :end
                     ) matches_all,
                     (
                       select count(predictions.id) failed_counts
@@ -154,7 +157,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :matches_date_unix and :end
+                         and predictions.match_scheduled between :begin and :end
                          and matches.status < 0
                     ) matches_failed
            ) failedcount
@@ -164,11 +167,12 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
     replacements: {
       uid: god_uid,
       league_id: league_id,
-      matches_date_unix: matches_date_unix,
-      end: end,
+      begin: matches_date_unix,
+      end: end_unix,
       period: period
     },
-    type: db.sequelize.QueryTypes.SELECT
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: console.log
   });
 
   return infos;
