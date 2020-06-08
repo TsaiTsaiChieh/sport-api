@@ -148,25 +148,24 @@ async function god(req, res) {
       end: yesterdayEndUnix,
       period: period.period
     },
-    type: db.sequelize.QueryTypes.SELECT,
-    logging: console.log
+    type: db.sequelize.QueryTypes.SELECT
   });
+
+  // await getGodSellPredictionDatesWinBetsInfo('2WMRgHyUwvTLyHpLoANk7gWADZn1', '20200608', '20200608');
 
   // 判斷 該大神預測牌組結算是否 >=0  當 "否" 時，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
   log('判斷 該大神預測牌組結算是否 >=0 ');
-  const infos = godLists.map(async function(data, index) {
+  const lists = await Promise.all(godLists.map(function(data, index) {
     log('取得 大神預測牌組結算 ', index, data.uid, data.league_id, yesterdayYYYYMMDDUnix);
     return getGodSellPredictionWinBetsInfo(data.uid, data.league_id, yesterdayYYYYMMDDUnix);
-  });
+  }));
 
-  await Promise.all(infos);
-  console.log('infos: %o', infos);
+  for (const list of lists) {
+    const data = list[0];
+    log(data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp, data.win_bets);
 
-  for (const data of infos) {
-    log('------', data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp, data.win_bets);
     if (data.win_bets === undefined || data.win_bets >= 0) continue;
 
-    log('------', data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp);
     // 否，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
     const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
 

@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { dateUnixInfo, getTitlesPeriod } = require('../util/modules');
+const { moment, dateUnixInfo, getTitlesPeriod } = require('../util/modules');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -109,7 +109,22 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
   return true; // 有販售
 }
 
-// 檢查該大神預測牌組勝注
+// 查日期區間大神預測牌組勝注資訊
+async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
+  const range1 = moment().range(sDate, eDate);
+  const range2 = range1.snapTo('day');
+  const sDateBeginUnix = range2.start.unix();
+  const eDateEndUnix = range2.end.unix();
+  console.log('sDate: %o  eDate: %o', sDateBeginUnix, eDateEndUnix);
+
+  const sDateBetweeneDateAllDateUnix = [];
+  Array.from(range1.by('day')).forEach(function(date) {
+    sDateBetweeneDateAllDateUnix.push(date.unix());
+  });
+  console.log('sDateBetweeneDateAllDateUnix: ', sDateBetweeneDateAllDateUnix);
+}
+
+// 查該大神預測牌組勝注
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
   const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
   const period = getTitlesPeriod(matches_date_unix * 1000).period;
@@ -117,7 +132,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   const infos = await db.sequelize.query(`
     select users.uid, users.avatar, users.display_name,
            titles.period, titles.rank_id, titles.price, titles.sub_price,
-           histories.league_id,
+           titles.league_id, titles.name,
            win_bets, date_timestamp,
            matches_fail_status
       from (
@@ -126,11 +141,13 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
               where uid = :uid
            ) users,
            (
-             select titles.uid, titles.period, titles.rank_id, ranks.price, ranks.sub_price
-               from titles, user__ranks ranks
+             select titles.uid, titles.league_id, view__leagues.name,
+                    titles.period, titles.rank_id, ranks.price, ranks.sub_price
+               from titles, user__ranks ranks, view__leagues
               where titles.rank_id = ranks.rank_id
+                and titles.league_id = view__leagues.league_id
                 and uid = :uid
-                and league_id = :league_id
+                and titles.league_id = :league_id
                 and period = :period
            ) titles,
            (
@@ -171,8 +188,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
       end: end_unix,
       period: period
     },
-    type: db.sequelize.QueryTypes.SELECT,
-    logging: console.log
+    type: db.sequelize.QueryTypes.SELECT
   });
 
   return infos;
@@ -185,5 +201,6 @@ module.exports = {
   countGodSellPredictionBuyers,
   checkBuyGodSellPrediction,
   checkGodSellPrediction,
+  getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo
 };
