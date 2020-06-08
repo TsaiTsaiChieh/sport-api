@@ -3,7 +3,7 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 
 async function livescoreHome(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const homeMatches = await queryHomeMatches(args);
 
@@ -17,7 +17,7 @@ async function livescoreHome(args) {
   });
 }
 function queryHomeMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(
         modules.moment().utcOffset(8).format('YYYY-MM-DD')
@@ -61,7 +61,6 @@ function queryHomeMatches(args) {
                FROM matches AS game,
                     match__teams AS home,
                     match__teams AS away,
-                    match__spreads AS spread,
                     match__leagues AS league
               WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
@@ -112,7 +111,6 @@ function queryHomeMatches(args) {
 									 FROM matches AS game,
 												match__teams AS home,
 												match__teams AS away,
-												match__spreads AS spread,
 												match__leagues AS league
 									WHERE game.league_id = :leagueID
 										AND game.home_id = home.team_id
@@ -165,7 +163,6 @@ function queryHomeMatches(args) {
 								 FROM matches AS game,
 											match__teams AS home,
 											match__teams AS away,
-											match__spreads AS spread,
 											match__leagues AS league
 								WHERE game.league_id = :leagueID
 									AND game.home_id = home.team_id

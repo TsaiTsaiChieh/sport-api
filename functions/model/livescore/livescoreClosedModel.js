@@ -3,7 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
 async function livescoreClosed(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const closedMathes = await queryClosedMatches(args);
       const result = await repackage(args, closedMathes);
@@ -15,7 +15,7 @@ async function livescoreClosed(args) {
 }
 
 function queryClosedMatches(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end = modules.convertTimezone(args.date, {
@@ -52,7 +52,6 @@ function queryClosedMatches(args) {
                FROM matches AS game,
                     match__teams AS home,
                     match__teams AS away,
-                    match__spreads AS spread,
                     match__leagues AS league
               WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id

@@ -1,9 +1,9 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-
+const competitionID = '5469'; //KBO
+const leagueID = '349';
 async function prematch_statscore() {
   return new Promise(async function (resolve, reject) {
-    const urlauth = `https://api.statscore.com/v2/oauth?client_id=630&secret_key=Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs`;
     const unix = Math.floor(Date.now() / 1000);
     const date2 = modules.convertTimezoneFormat(unix, {
       format: 'YYYY-MM-DD 00:00:00',
@@ -14,7 +14,32 @@ async function prematch_statscore() {
     const date1 = modules.convertTimezoneFormat(unix, {
       format: 'YYYY-MM-DD 00:00:00'
     });
-    const url = `https://api.statscore.com/v2/events?token=63c019f209250e5ff62b19772b8349eb&date_from=${date1}&date_to=${date2}&competition_id=41`;
+
+    //console.log(modules.convertTimezone(date1));
+    //console.log(modules.convertTimezone(date2));
+
+    //const URL = `https://api.statscore.com/v2/events?token=${modules.statscoreToken.token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
+    //const data = await axiosForURL(URL);
+    //const eventLength =
+    //  data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
+    //    .length;
+
+    //const ele = queryForMatches(modules.convertTimezone(date1),modules.convertTimezone(date2))
+
+    //for (let i = 0; i < eventLength; i++) {
+    //  let eventID =
+    //    data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+    //      .id;
+    //  let startDate = modules.convertTimezone(data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+    //      .start_date) + 28800; // 加八個小時
+    //  let homeTeamName =
+    //    data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+    //      .participants[0].name; //KT wiz
+    //  let awayTeamName =
+    //    data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+    //			.participants[1].name; //KIA Tigers
+
+    //}
   });
 }
 
@@ -30,15 +55,25 @@ async function axiosForURL(URL) {
     }
   });
 }
-
+async function queryForMatches(date1, date2) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const queries2 = await db.sequelize.query(
+        // take 169 ms
+        `(
+							
+				)`,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
+      return resolve(queries);
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
+    }
+  });
+}
 module.exports = prematch_statscore;
-//排程1:每天更新token
-//const urlauth = `https://api.statscore.com/v2/oauth?client_id=630&secret_key=Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs`;
-
-//排程2:撈取今日與明日賽事
-//const date1 = `2020-06-05 00:00:00`;
-//const date2 = `2020-06-07 00:00:00`;
-//const url = `https://api.statscore.com/v2/events?token=63c019f209250e5ff62b19772b8349eb&date_from=${date1}&date_to=${date2}&competition_id=41`;
 // 賽事有幾場：aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events.length
 // 主隊 aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events[0].participants[0].name
 // 客隊 aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events[0].participants[1].name
