@@ -1,5 +1,7 @@
-const { moment, convertTimezone, convertTimezoneFormat, getTitlesPeriod, getTitlesNextPeriod } = require('../util/modules');
-const { checkGodSellPrediction, getGodSellPredictionWinBetsInfo } = require('../util/databaseEngine');
+const {
+  moment, dateUnixInfo, getTitlesPeriod, getTitlesNextPeriod
+} = require('../util/modules');
+const { getGodSellPredictionWinBetsInfo } = require('../util/databaseEngine');
 const db = require('../util/dbUtil');
 const to = require('await-to-js').default;
 const errs = require('../util/errorCode');
@@ -19,31 +21,29 @@ function log(...args) {
 // 4. `每天` `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
 // 5. `每天` `清晨 5:00` 大神預測牌組結算
 async function god(req, res) {
-  const nowUnix = Math.floor(Date.now() / 1000);
-  const nowYYYYMMDD = convertTimezoneFormat(nowUnix);
-  const nowYYYYMMDD2 = moment.tz(nowUnix * 1000, zone_tw).format('YYYY-MM-DD'); // YYYY-MM-DD
-  const nowYYYYMMDDUnix = convertTimezone(nowYYYYMMDD2);
-  const yesterdayUnix = moment(nowUnix * 1000).subtract(1, 'days').unix();
-  const yesterdayYYYYMMDD2 = moment.tz(yesterdayUnix * 1000, zone_tw).format('YYYY-MM-DD'); // YYYY-MM-DD
-  const nowHHmm = moment.tz(nowUnix * 1000, zone_tw).format('HHmm');
+  const nowInfo = dateUnixInfo(Date.now());
+  const nowUnix = nowInfo.mdate.unix();
+  const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
+  // const nowYYYYMMDDUnix = nowInfo.dateBeginUnix;
+  const yesterdayYYYYMMDD = nowInfo.yesterdayYYYYMMDD;
+  const yesterdayYYYYMMDDUnix = nowInfo.yesterdayBeginUnix;
+  const yesterdayBeginUnix = nowInfo.yesterdayBeginUnix;
+  const yesterdayEndUnix = nowInfo.yesterdayEndUnix;
+  const nowHHmm = nowInfo.mdate.format('HHmm');
   const period = getTitlesPeriod(Date.now());
   const nextPeriod = getTitlesNextPeriod(Date.now());
-  const nextPeriodStartDateUnix = moment(nextPeriod.end, 'YYYYMMDD').add(1, 'days').unix();
-  const nowDayofWeek = moment.tz(nowUnix * 1000, zone_tw).isoWeekday();
+  const nextPeriodStartDateUnix = moment.tz(nextPeriod.end, 'YYYYMMDD', zone_tw).add(1, 'days').unix();
+  const nowDayOfWeek = moment.tz(nowUnix * 1000, zone_tw).isoWeekday();
   const nowDayOfMonth = moment.tz(nowUnix * 1000, zone_tw).format('DD');
 
   log('========== pubsub god start ==========');
-  log('nowUnix: ', nowUnix);
-  log('nowYYYYMMDD: ', nowYYYYMMDD);
-  log('nowYYYYMMDD2: ', nowYYYYMMDD2);
-  log('nowYYYYMMDDUnix: ', nowYYYYMMDDUnix);
-  log('yesterdayUnix: ', yesterdayUnix);
-  log('yesterdayYYYYMMDD2: ', yesterdayYYYYMMDD2);
+  log(Date.now());
+  log(nowInfo);
   log('nowHHmmss: ', nowHHmm, typeof nowHHmm);
   log('period: ', period);
   log('nextPeriod: ', nextPeriod);
   log('nextPeriodStartDateUnix: ', nextPeriodStartDateUnix);
-  log('nowDayofWeek: ', nowDayofWeek);
+  log('nowDayOfWeek: ', nowDayOfWeek);
   log('nowDayOfMonth: ', nowDayOfMonth);
 
   //
@@ -60,13 +60,13 @@ async function god(req, res) {
   //
   if (nowHHmm === '1700') {
     log('每天 17:00 賽事勝注勝率計算 run');
-    await settleWinList({ args: { uid: '999' }, date: nowYYYYMMDD2 });
+    await settleWinList({ args: { uid: '999' }, date: nowYYYYMMDD });
   }
 
   //
   // 3. `每天` `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
   //
-  if (nowHHmm === '1700' && nowDayofWeek === 1) {
+  if (nowHHmm === '1700' && nowDayOfWeek === 1) {
     log('每天 17:00 這這個星期的星期一日期 更新 上星期記錄，並清空 本星期記錄 設為 0 run');
 
     const [err, r] = await to(db.sequelize.query(`
@@ -127,30 +127,61 @@ async function god(req, res) {
   if (nowHHmm === '0500') {
     log('每天 清晨 05:00 大神預測牌組結算 run');
     log('前日 勝注勝率');
-    await settleWinList({ args: { uid: '999' }, date: yesterdayYYYYMMDD2 });
+    await settleWinList({ args: { uid: '999' }, date: yesterdayYYYYMMDD });
   }
 
   // const t = await checkGodSellPrediction('vl2qMYWJTnTLbmO4rtN8rxdodCo2', '22000', nowYYYYMMDDUnix);
 
-  // 取得 這期聯盟大神們
+  // 取得 這期聯盟大神們 昨日 有售牌
+  log('取得 這期聯盟大神們 昨日 有售牌 ');
   const godLists = await db.sequelize.query(`
-      select uid, league_id
-        from titles
-       where period = :period
+    select distinct titles.uid, titles.league_id
+      from titles, user__predictions predictions
+     where titles.uid = predictions.uid
+       and titles.league_id = predictions.league_id
+       and titles.period = :period
+       and predictions.match_scheduled between :begin and :end
+       and predictions.sell = 1
     `, {
     replacements: {
+      begin: yesterdayBeginUnix,
+      end: yesterdayEndUnix,
       period: period.period
     },
-    logging: console.log,
-    type: db.sequelize.QueryTypes.SELECT
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: console.log
   });
-  log('godLists======', godLists);
 
-  log('更新 user_buys 筆數: ');
-  // 判斷 該大神結算是否 >=0  當否時，把 buy_status 改成 處理中(一般退款、全額退款)
+  // 判斷 該大神預測牌組結算是否 >=0  當 "否" 時，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
+  log('判斷 該大神預測牌組結算是否 >=0 ');
+  const infos = godLists.map(async function(data, index) {
+    log('取得 大神預測牌組結算 ', index, data.uid, data.league_id, yesterdayYYYYMMDDUnix);
+    return getGodSellPredictionWinBetsInfo(data.uid, data.league_id, yesterdayYYYYMMDDUnix);
+  });
 
-  const t2 = await getGodSellPredictionWinBetsInfo('vl2qMYWJTnTLbmO4rtN8rxdodCo2', '22000', 1591200000);
-  log(t2);
+  await Promise.all(infos);
+  console.log('infos: %o', infos);
+
+  for (const data of infos) {
+    log('------', data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp, data.win_bets);
+    if (data.win_bets === undefined || data.win_bets >= 0) continue;
+
+    log('------', data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp);
+    // 否，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
+    const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
+
+    const [err, r] = await to(db.UserBuy.update({
+      buy_status: buy_status
+    }, {
+      where: {
+        god_uid: data.uid,
+        league_id: data.league_id,
+        matches_date: data.date_timestamp
+      }
+    }));
+    if (err) {console.error(err); console.error(err.dbErrsMsg('404', '50110', { addMsg: err.parent.code }));}
+    if (r > 0) log('更新 user_buys 筆數: ', r);
+  };
 
   //
   log('========== pubsub god end ==========');

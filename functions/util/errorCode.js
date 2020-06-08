@@ -76,7 +76,9 @@ const errorCodeLists = {
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
 
   50010: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
-  50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] }
+  50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
+
+  50110: { msg: ['排程 更新 UserBuy 錯誤'], backend: ['排程 更新 UserBuy 錯誤', ''] }
 };
 
 const isError = e => e && e.stack && e.message;
