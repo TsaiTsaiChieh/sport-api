@@ -161,7 +161,7 @@ async function repackagePurchaseData(args, godData) {
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const transaction = await db.sequelize.transaction();
-  const [cashflow_buy] = await modules.to(db.sequelize.models.cashflow_buy.create({ uid: args.token.uid, status: 1, coin: overage.coin, coin_real: overage.coin, dividend: overage.dividend, dividend_real: overage.dividend, god_uid: args.god_uid, league_id: modules.leagueCodebook(args.god_title).id, scheduled: modules.moment(args.now).unix() }), { transaction });
+  const [cashflow_buy] = await modules.to(db.sequelize.models.cashflow_buy.create({ uid: args.token.uid, status: 1, coin: overage.coin, coin_real: overage.coin, dividend: overage.dividend, dividend_real: overage.dividend, god_uid: args.god_uid, league_id: modules.leagueCodebook(args.god_title).id, scheduled: modules.moment(args.now).unix() }, { transaction }));
   const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
   const [overageErr] = await modules.to(db.User.update(
     { coin: overage.coin, dividend: overage.dividend },
