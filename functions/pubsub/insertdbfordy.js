@@ -15,7 +15,6 @@ async function inserttest(req, res) {
     const now = modules.convertTimezoneFormat(unix, {
       format: 'YYYY-MM-DD 00:00:00'
     });
-    
   } catch (err) {
     console.log(err);
   }

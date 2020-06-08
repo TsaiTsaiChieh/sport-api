@@ -1,9 +1,9 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-const competitionID = '5469'; //KBO
+const competitionID = '5469'; // KBO
 const leagueID = '349';
 async function prematch_statscore() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const date2 = modules.convertTimezoneFormat(unix, {
       format: 'YYYY-MM-DD 00:00:00',
@@ -15,18 +15,18 @@ async function prematch_statscore() {
       format: 'YYYY-MM-DD 00:00:00'
     });
 
-    //console.log(modules.convertTimezone(date1));
-    //console.log(modules.convertTimezone(date2));
+    // console.log(modules.convertTimezone(date1));
+    // console.log(modules.convertTimezone(date2));
 
-    //const URL = `https://api.statscore.com/v2/events?token=${modules.statscoreToken.token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
-    //const data = await axiosForURL(URL);
-    //const eventLength =
+    // const URL = `https://api.statscore.com/v2/events?token=${modules.statscoreToken.token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
+    // const data = await axiosForURL(URL);
+    // const eventLength =
     //  data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
     //    .length;
 
-    //const ele = queryForMatches(modules.convertTimezone(date1),modules.convertTimezone(date2))
+    // const ele = queryForMatches(modules.convertTimezone(date1),modules.convertTimezone(date2))
 
-    //for (let i = 0; i < eventLength; i++) {
+    // for (let i = 0; i < eventLength; i++) {
     //  let eventID =
     //    data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
     //      .id;
@@ -39,12 +39,12 @@ async function prematch_statscore() {
     //    data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
     //			.participants[1].name; //KIA Tigers
 
-    //}
+    // }
   });
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
@@ -56,7 +56,7 @@ async function axiosForURL(URL) {
   });
 }
 async function queryForMatches(date1, date2) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries2 = await db.sequelize.query(
         // take 169 ms
@@ -77,7 +77,7 @@ module.exports = prematch_statscore;
 // 賽事有幾場：aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events.length
 // 主隊 aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events[0].participants[0].name
 // 客隊 aa.api.data.competitions[0].seasons[0].stages[0].groups[0].events[0].participants[1].name
-//---
+// ---
 // HITS stat[0].value
 // ERRORS stat[1].value
 // Stolen bases stat[2].value
@@ -101,7 +101,7 @@ module.exports = prematch_statscore;
 // 1st base stat[20].value 壘包資訊
 // 2nd base stat[21].value
 // 3rd base stat[22].value
-//----
+// ----
 // 是否為贏家 results[0].value
 // 是否正在進行 results[1].value
 // 總得分 results[2].value

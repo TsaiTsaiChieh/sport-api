@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function livescoreAll(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const allMatches = await queryAllMatches(args);
       const result = await repackage(args, allMatches);
@@ -15,7 +15,7 @@ async function livescoreAll(args) {
 }
 
 function queryAllMatches(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.date);
       const end = modules.convertTimezone(args.date, {
