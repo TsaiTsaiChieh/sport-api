@@ -181,6 +181,17 @@ class CoinOrDividendNotEnough extends ExtendableError {
   }
 }
 
+class PurchaseTimeShouldBeforeLastMatch extends ExtendableError {
+  constructor(
+    message = '已開賽，無法購買',
+    status = 1212,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 class CouldNotBuyOwnPredictions extends ExtendableError {
   constructor(
     message = '無法購買自己的預測',
@@ -427,6 +438,7 @@ module.exports = {
   OnlyAcceptNormalUser,
   GodUserDidNotSell,
   CoinOrDividendNotEnough,
+  PurchaseTimeShouldBeforeLastMatch,
   CouldNotBuyOwnPredictions,
   UserPredictFailed,
   DeletePredictionsFailed,

@@ -612,6 +612,7 @@ const Match = sequelize.define(
       {
         fields: ['away_id']
       }
+
       // {
       //   fields: ['home_id', 'away_id', 'league_id']
       // }

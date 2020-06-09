@@ -1,8 +1,11 @@
-/* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
+const ADMIN_USER = 9;
+const MANAGER_USER = 8;
+const SERVICE_USER = 7;
+
 async function admin(req, res, next) {
   try {
     const result = await db.sequelize.models.user.findOne({
@@ -140,23 +143,33 @@ async function getRoleAndTitles(uid) {
     where: { uid },
     attributes: ['status']
   });
-  if (userResults.status === NORMAL_USER) {
-    // req.token.customClaims = { role: NORMAL_USER, titles: [] };
-    return { role: NORMAL_USER, titles: [] };
-  } else if (userResults.status === GOD_USER) {
-    const titlesResult = await db.Title.findAll({
-      where: {
-        uid,
-        period: modules.getTitlesPeriod(new Date()).period
-      },
-      attributes: ['league_id']
-    });
-    const titles = [];
-    for (let i = 0; i < titlesResult.length; i++) {
-      titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+  switch (userResults.status) {
+    case NORMAL_USER:
+      return { role: NORMAL_USER, titles: [] };
+    case GOD_USER:
+    {
+      const titlesResult = await db.Title.findAll({
+        where: {
+          uid,
+          period: modules.getTitlesPeriod(new Date()).period
+        },
+        attributes: ['league_id']
+      });
+      const titles = [];
+      for (let i = 0; i < titlesResult.length; i++) {
+        titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+      }
+      // req.token.customClaims = { role: GOD_USER, titles };
+      return { role: GOD_USER, titles };
     }
-    // req.token.customClaims = { role: GOD_USER, titles };
-    return { role: GOD_USER, titles };
+    case SERVICE_USER:
+      return { role: SERVICE_USER, titles: ['客服人員'] };
+    case MANAGER_USER:
+      return { role: MANAGER_USER, titles: ['客服主管'] };
+    case ADMIN_USER:
+      return { role: ADMIN_USER, titles: ['Admin'] };
+    default:
+      return { role: NORMAL_USER, titles: [] };
   }
 }
 
