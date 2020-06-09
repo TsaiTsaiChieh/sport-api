@@ -118,7 +118,7 @@ function payModel(method, args, uid) {
             try {
               trans = await db.sequelize.models.user.update({ ingot: self.ingot - exchange.ingot }, { where: { uid: uid } });
               const status = 1;// 搞錠轉換現金
-              const cashflow_ingot_transfer_cash = await db.sequelize.models.cashflow_ingot_transfer.create({ uid: uid, status: status, cash_status:0, ingot: (-1) * exchange.ingot, ingot_real: (-1) * exchange.ingot_real, coin: exchange.coin, coin_real: exchange.coin_real, money: exchange.money_backend, money_real: exchange.money_real_backend, dividend: exchange.dividend, dividend_real: exchange.dividend_real, fee: (-1) * exchange.fee_backend, fee_real: (-1) * exchange.fee_real_backend, scheduled: scheduled });
+              const cashflow_ingot_transfer_cash = await db.sequelize.models.cashflow_ingot_transfer.create({ uid: uid, status: status, cash_status: 0, ingot: (-1) * exchange.ingot, ingot_real: (-1) * exchange.ingot_real, coin: exchange.coin, coin_real: exchange.coin_real, money: exchange.money_backend, money_real: exchange.money_real_backend, dividend: exchange.dividend, dividend_real: exchange.dividend_real, fee: (-1) * exchange.fee_backend, fee_real: (-1) * exchange.fee_real_backend, scheduled: scheduled });
               if (!trans || !cashflow_ingot_transfer_cash) {
                 reject(errs.errsMsg('500', '20001'));
                 return;

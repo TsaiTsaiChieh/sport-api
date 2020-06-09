@@ -109,7 +109,11 @@ async function isMatchValid(args, ele, filter) {
         ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
         filter.failed.push(ele);
       } else if (results) {
+        const date = modules.convertTimezoneFormat(results[0].scheduled);
+        const match_date = modules.convertTimezone(date);
         ele.match_scheduled = results[0].scheduled;
+        ele.match_scheduled_tw = results[0].scheduled_tw;
+        ele.match_date = match_date;
         ele.home = {
           id: results[0].home_id,
           alias: results[0].home_alias,
@@ -280,9 +284,12 @@ function repackagePrediction(args, ele) {
     league_id: ele.league_id,
     sell: args.sell,
     match_scheduled: ele.match_scheduled,
+    match_scheduled_tw: ele.match_scheduled_tw,
+    match_date: ele.match_date,
     uid: args.token.uid,
     user_status: args.token.customClaims.role
   };
+
   if (ele.spread) {
     data.spread_id = ele.spread[0];
     data.spread_option = ele.spread[1];
