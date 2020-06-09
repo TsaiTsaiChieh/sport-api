@@ -112,7 +112,7 @@ function repackageMatch(ele) {
     const data = {
       id: ele.bets_id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
       league_id: ele.league_id,
       league: ele.league,
       home: {

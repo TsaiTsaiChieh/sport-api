@@ -78,7 +78,9 @@ const errorCodeLists = {
   20005: { msg: ['搞錠轉換 手續費金額不一致'], backend: ['搞錠轉換 手續費金額不一致', ''] },
 
   50010: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
-  50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] }
+  50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
+
+  50110: { msg: ['排程 更新 UserBuy 錯誤'], backend: ['排程 更新 UserBuy 錯誤', ''] }
 };
 
 const isError = e => e && e.stack && e.message;

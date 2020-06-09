@@ -61,7 +61,6 @@ function queryHomeMatches(args) {
                FROM matches AS game,
                     match__teams AS home,
                     match__teams AS away,
-                    match__spreads AS spread,
                     match__leagues AS league
               WHERE game.league_id = :leagueID
                 AND game.home_id = home.team_id
@@ -112,7 +111,6 @@ function queryHomeMatches(args) {
 									 FROM matches AS game,
 												match__teams AS home,
 												match__teams AS away,
-												match__spreads AS spread,
 												match__leagues AS league
 									WHERE game.league_id = :leagueID
 										AND game.home_id = home.team_id
@@ -165,7 +163,6 @@ function queryHomeMatches(args) {
 								 FROM matches AS game,
 											match__teams AS home,
 											match__teams AS away,
-											match__spreads AS spread,
 											match__leagues AS league
 								WHERE game.league_id = :leagueID
 									AND game.home_id = home.team_id

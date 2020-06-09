@@ -1,7 +1,7 @@
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function purseModel(args, method, uid) {
+async function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const purse = await db.sequelize.query(

@@ -5,13 +5,16 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const SELL = 1;
 const PAID = 1;
+const WIN_BET = 1;
+
 async function purchasePredictions(args) {
-  /* user case: [QztgShRWSSNonhm2pc3hKoPU7Al2]（user）
+  /* user case: [QztgShRWSSNonhm2pc3hKoPU7Al2]（user phone number is 3）
      want to purchase [Xw4dOKa4mWh3Kvlx35mPtAOX2P52] (god user belong to certain period and league)
      prediction(s) which is(are) in certain date and league */
   // 0. 檢查是否是自己要買自己的牌
   // 1. 檢查購買的大神是否有此使用者且是該聯盟該期的大神 checkGodUserRank
-  // 2. 檢查該大神該天有無預測該聯盟賽事且確實是販售狀態，有則取出 checkGodPredictions
+  // 2. 檢查該大神該天有無預測該聯盟賽事且確實是販售狀態 checkGodPredictions
+  // 2-1. 檢查開賽時間是否大於購買者的時間，否的話則不能購買 checkBuyTimeBeforeMatchesScheduled
   // 3. 取出使用者紅利和搞幣 getUserDividendAndCoin
   // 4. 檢查購買者想要用紅利折抵嗎 & 紅利+搞幣是否足夠，並回傳餘額(overage) checkUserDepositIsEnough
   // XXX step 5 不要立即寫回，將餘額先存起來
@@ -73,13 +76,15 @@ async function checkGodPredictions(args) {
   const begin = modules.convertTimezone(args.matches_date);
   const end = modules.convertTimezone(args.matches_date, { op: 'add', value: 1, unit: 'days' }) - 1;
   const [err, results] = await modules.to(db.sequelize.query(
-    // index is range (user__predictions), taking 230-600ms
-    `SELECT bets_id
+    // index is range (user__predictions), taking 165ms
+    `SELECT bets_id, match_scheduled
        FROM user__predictions
       WHERE uid = :god_uid
         AND league_id = ':league_id'
         AND match_scheduled BETWEEN ${begin} AND ${end}
-        AND SELL = ${SELL}`,
+        AND SELL = ${SELL}
+   ORDER BY match_scheduled DESC
+      LIMIT 1`,
     {
       replacements: {
         god_uid: args.god_uid,
@@ -90,6 +95,8 @@ async function checkGodPredictions(args) {
   if (err) throw new AppErrors.MysqlError(`${err.stack} by TsaiChieh`);
   // Although the error in underline will happen when the null result, but it also will be caught by the err variable by the calling function, i.e. purchasePredictions
   if (!results.length) throw new AppErrors.GodUserDidNotSell(`${args.god_title} (${args.matches_date})`);
+
+  if (results[0].match_scheduled <= modules.moment(args.now).unix()) throw new AppErrors.PurchasePredictionsModelError(`因為購買的最晚開賽時間：${modules.convertTimezoneFormat(results[0].match_scheduled, { format: 'YYYY-MM-DD HH:mm' })} 小於購買時間：${modules.convertTimezoneFormat(modules.moment(args.now).unix(), { format: 'YYYY-MM-DD HH:mm' })}`);
 
   return results;
 }
@@ -160,6 +167,18 @@ async function repackagePurchaseData(args, godData) {
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const transaction = await db.sequelize.transaction();
+  // 寫入購牌紀錄（金流）table designed by Henry
+  const [cashflowErr] = await modules.to(db.CashflowBuy.create({
+    uid: args.token.uid,
+    status: WIN_BET,
+    coin: overage.coin,
+    coin_real: overage.coin,
+    dividend: overage.dividend,
+    dividend_real: overage.dividend,
+    god_uid: args.god_uid,
+    league_id: modules.leagueCodebook(args.god_title).id,
+    scheduled: modules.moment(args.now).unix()
+  }, { transaction }));
   const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
   const [overageErr] = await modules.to(db.User.update(
     { coin: overage.coin, dividend: overage.dividend },
@@ -172,6 +191,10 @@ async function transactionsForPurchase(args, overage, purchaseData) {
   if (overageErr) {
     await transaction.rollback();
     throw new AppErrors.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
+  }
+  if (cashflowErr) {
+    await transaction.rollback();
+    throw new AppErrors.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
   }
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
