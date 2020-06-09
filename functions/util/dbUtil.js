@@ -696,11 +696,11 @@ const Prediction = sequelize.define(
     match_scheduled: {
       type: Sequelize.INTEGER
     },
+    match_scheduled_tw: { // match_scheduled 欄位的 DATE format
+      type: Sequelize.DATE
+    },
     matches_date: {
       type: Sequelize.INTEGER
-    },
-    matches_date_tw: { // matches_date 欄位的 DATE format
-      type: Sequelize.DATE
     },
     spread_id: {
       type: Sequelize.STRING,
