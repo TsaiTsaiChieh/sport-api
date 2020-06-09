@@ -5,7 +5,7 @@ const {
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { countGodSellPredictionBuyers, checkBuyGodSellPrediction } = require('../../util/databaseEngine');
+const { countGodSellPredictionBuyers, checkUidBuyGodSellPrediction } = require('../../util/databaseEngine');
 
 async function othersPredictions(args) {
   // "依據 uid 撈取所有聯盟的預測。依據付費狀態有不同呈現項目
@@ -119,8 +119,7 @@ async function othersPredictions(args) {
       end: tomorrowEndUnix,
       period: period
     },
-    type: db.sequelize.QueryTypes.SELECT,
-    logging: console.log
+    type: db.sequelize.QueryTypes.SELECT
   });
 
   if (predictionsInfoDocs.length === 0) return { }; // 回傳 空Array
@@ -145,7 +144,7 @@ async function othersPredictions(args) {
     const info_datetime_unix = convertTimezone(ele.info_datetime);
     ele.people = await countGodSellPredictionBuyers(othersUid, ele.league_id, info_datetime_unix);
     // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
-    ele.buy_uid = await checkBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
+    ele.buy_uid = await checkUidBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
       ? null : userUid;
     // console.log('*****=', othersUid, ele.league_id, info_datetime, ele.people, convertTimezone(info_datetime));
 

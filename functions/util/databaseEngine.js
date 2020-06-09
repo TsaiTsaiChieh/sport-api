@@ -64,7 +64,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
 
 // 檢查該 uid 是否有購買特定大神牌組
 // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
-async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
+async function checkUidBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
   if (uid === god_uid) return 2; // 大神看自己的預測牌組
 
   const [err, counts] = await to(db.UserBuy.count({
@@ -76,7 +76,7 @@ async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_u
     }
   }));
   if (err) {
-    console.error('Error 1. in util/databaseEngine/checkBuyGodSellPrediction by YuHsien', err);
+    console.error('Error 1. in util/databaseEngine/checkUidBuyGodSellPrediction by YuHsien', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -184,7 +184,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :begin and :end
+                         and predictions.match_date = :begin
                     ) matches_all,
                     (
                       select count(predictions.id) failed_counts
@@ -192,7 +192,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :begin and :end
+                         and predictions.match_date = :begin
                          and matches.status < 0
                     ) matches_failed
            ) failedcount
@@ -217,7 +217,7 @@ module.exports = {
   getSeason,
   checkUserRight,
   countGodSellPredictionBuyers,
-  checkBuyGodSellPrediction,
+  checkUidBuyGodSellPrediction,
   checkGodSellPrediction,
   getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo
