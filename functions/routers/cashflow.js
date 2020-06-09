@@ -16,4 +16,15 @@ router.delete(
   '/dividend_expire',
   require('../controller/cashflow/dividendExpireController')
 );
+
+/* 紅利回饋 */
+router.post(
+  '/dividend_refund',
+  require('../controller/cashflow/DividendRefundController')
+);
+/* 搞錠轉換現金() */
+router.post(
+  '/ingot_transfer',
+  require('../controller/cashflow/IngotTransferController')
+);
 module.exports = router;
