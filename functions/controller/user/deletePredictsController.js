@@ -56,7 +56,7 @@ async function deletePredictions(req, res) {
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(400).json(modules.ajv.errors);
   }
   req.body.token = req.token;
   req.body.now = now;
@@ -80,7 +80,7 @@ async function deletePredictions(req, res) {
 module.exports = deletePredictions;
 
 /**
- * @api {delete} /user/predictions 個人預測頁-刪除注單
+ * @api {delete} /user/predictions Predict Matches
  * @apiVersion 1.0.0
  * @apiDescription Normal user delete own prediction form by Tsai-Chieh
  * @apiName Delete own prediction form
