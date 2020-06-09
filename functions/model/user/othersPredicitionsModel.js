@@ -89,6 +89,7 @@ async function othersPredictions(args) {
                left join user__prediction__descriptions prediction_desc
                  on prediction.uid = prediction_desc.uid
                 and prediction.league_id = prediction_desc.league_id
+                and prediction.matches_date = prediction_desc.day
                 and prediction_desc.day in (:yesterdayUnix, :todayUnix, :tomorrowUnix)
               where prediction.league_id = league.league_id
                 and prediction.bets_id = matches.bets_id
@@ -118,7 +119,8 @@ async function othersPredictions(args) {
       end: tomorrowEndUnix,
       period: period
     },
-    type: db.sequelize.QueryTypes.SELECT
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: console.log
   });
 
   if (predictionsInfoDocs.length === 0) return { }; // 回傳 空Array
