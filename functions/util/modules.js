@@ -1020,6 +1020,7 @@ function predictionsWinList(data) {
 // 輸入：price, sub_price, coin, dividend
 // 輸出退款：coin_real, dividend_real, coin, dividend
 function setttelRefundCoinDividend(price, sub_price, coin, dividend) {
+  NP.enableBoundaryChecking(false);
   const refundMoney = 90; // NP.minus(price, sub_price);
   const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
   const r_dividend_real = NP.minus(refundMoney, r_coin_real);
