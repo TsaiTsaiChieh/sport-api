@@ -110,18 +110,36 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
 }
 
 // 查日期區間大神預測牌組勝注資訊
+// await getGodSellPredictionDatesWinBetsInfo('2WMRgHyUwvTLyHpLoANk7gWADZn1', '20200608', '20200608');
 async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
   const range1 = moment().range(sDate, eDate);
-  const range2 = range1.snapTo('day');
-  const sDateBeginUnix = range2.start.unix();
-  const eDateEndUnix = range2.end.unix();
-  console.log('sDate: %o  eDate: %o', sDateBeginUnix, eDateEndUnix);
 
-  const sDateBetweeneDateAllDateUnix = [];
+  const dateBetween = [];
   Array.from(range1.by('day')).forEach(function(date) {
-    sDateBetweeneDateAllDateUnix.push(date.unix());
+    dateBetween.push(date.unix());
   });
-  console.log('sDateBetweeneDateAllDateUnix: ', sDateBetweeneDateAllDateUnix);
+
+  // 取得 user__buys 購買資料
+  const buyLists = await db.sequelize.query(`
+    select uid, league_id, god_uid, matches_date, god_rank, god_period, buy_status
+      from user__buys
+     where uid = :uid
+       and matches_date in (:dateBetween)
+  `, {
+    replacements: {
+      uid: uid,
+      dateBetween: dateBetween
+    },
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: console.log
+  });
+
+  // 取得 該大神預測牌組勝注
+  const result = await Promise.all(buyLists.map(function(data, index) {
+    return getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, data.matches_date);
+  }));
+
+  return result;
 }
 
 // 查該大神預測牌組勝注
