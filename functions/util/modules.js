@@ -1016,9 +1016,9 @@ function predictionsWinList(data) {
   return result;
 }
 
-// 搞幣紅利結算退款 setttelRefundCoinDividend
+// 結算退款 搞幣紅利 setttelRefundCoinDividend
 // 輸入：price, sub_price, coin, dividend
-// 輸出：coin_real, dividend_real, coin, dividend (退款)
+// 輸出退款：coin_real, dividend_real, coin, dividend
 function setttelRefundCoinDividend(price, sub_price, coin, dividend) {
   const refundMoney = 90; // NP.minus(price, sub_price);
   const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
