@@ -1,7 +1,7 @@
 const {
   moment, dateUnixInfo, getTitlesPeriod, getTitlesNextPeriod
 } = require('../util/modules');
-const { getGodSellPredictionWinBetsInfo, getGodSellPredictionDatesWinBetsInfo } = require('../util/databaseEngine');
+const { getGodSellPredictionWinBetsInfo } = require('../util/databaseEngine');
 const db = require('../util/dbUtil');
 const to = require('await-to-js').default;
 const errs = require('../util/errorCode');
