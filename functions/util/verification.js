@@ -48,7 +48,7 @@ async function confirmLogin(req, res, next) {
   }
   return next();
 }
-async function confirmLogin_v2(req, res, next) {
+async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則取得 token，mysql 版本
   try {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
@@ -63,7 +63,7 @@ async function confirmLogin_v2(req, res, next) {
       // do nothing
     }
   } catch (err) {
-    console.error('Error in util/verification confirmLogin functions', err);
+    console.error('Error in util/verification confirmLogin_v2 functions', err);
     return res.status(500).json({ code: 500, error: err });
   }
   return next();
@@ -113,7 +113,7 @@ async function token_v2(req, res, next) {
   return next();
 }
 
-async function getToken(req, res, next) { // 只取得token 未登入不擋
+async function getToken(req, res, next) { // 只取得 token 未登入不擋，舊版本 (純 firebase 版本)
   try {
     const bearerHeader = req.headers.authorization;
 

@@ -86,7 +86,6 @@ module.exports = purchasePredictions;
  * @apiError 403 Forbidden
  * @apiError 500 Internal Server Error
  *
- * @apiErrorExample {JSON} 400-Response
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {

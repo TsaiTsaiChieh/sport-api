@@ -720,6 +720,12 @@ const Prediction = sequelize.define(
     match_scheduled: {
       type: Sequelize.INTEGER
     },
+    match_scheduled_tw: { // match_scheduled 欄位的 DATE format
+      type: Sequelize.DATE
+    },
+    match_date: {
+      type: Sequelize.INTEGER
+    },
     spread_id: {
       type: Sequelize.STRING,
       defaultValue: null
@@ -791,6 +797,9 @@ const Prediction = sequelize.define(
       },
       {
         fields: ['spread_id', 'totals_id'] // 為了刪除注單功能：清空 spread_id 和 totals_id 同時為空的無效注單
+      },
+      {
+        fields: ['uid', 'league_id', 'match_date']
       }
     ]
   }

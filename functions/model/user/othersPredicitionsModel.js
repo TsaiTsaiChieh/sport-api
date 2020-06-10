@@ -5,7 +5,7 @@ const {
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { countGodSellPredictionBuyers, checkBuyGodSellPrediction } = require('../../util/databaseEngine');
+const { countGodSellPredictionBuyers, checkUidBuyGodSellPrediction } = require('../../util/databaseEngine');
 
 async function othersPredictions(args) {
   // "依據 uid 撈取所有聯盟的預測。依據付費狀態有不同呈現項目
@@ -89,6 +89,7 @@ async function othersPredictions(args) {
                left join user__prediction__descriptions prediction_desc
                  on prediction.uid = prediction_desc.uid
                 and prediction.league_id = prediction_desc.league_id
+                and prediction.matches_date = prediction_desc.day
                 and prediction_desc.day in (:yesterdayUnix, :todayUnix, :tomorrowUnix)
               where prediction.league_id = league.league_id
                 and prediction.bets_id = matches.bets_id
@@ -143,7 +144,7 @@ async function othersPredictions(args) {
     const info_datetime_unix = convertTimezone(ele.info_datetime);
     ele.people = await countGodSellPredictionBuyers(othersUid, ele.league_id, info_datetime_unix);
     // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
-    ele.buy_uid = await checkBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
+    ele.buy_uid = await checkUidBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
       ? null : userUid;
     // console.log('*****=', othersUid, ele.league_id, info_datetime, ele.people, convertTimezone(info_datetime));
 
