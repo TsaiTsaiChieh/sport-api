@@ -1016,6 +1016,19 @@ function predictionsWinList(data) {
   return result;
 }
 
+// 結算退款 搞幣紅利 setttelRefundCoinDividend
+// 輸入：price, sub_price, coin, dividend
+// 輸出退款：coin_real, dividend_real, coin, dividend
+function setttelRefundCoinDividend(price, sub_price, coin, dividend) {
+  NP.enableBoundaryChecking(false);
+  const refundMoney = 90; // NP.minus(price, sub_price);
+  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
+  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
+  const r_coin = Math.ceil(r_coin_real);
+  const r_dividend = NP.minus(refundMoney, r_coin);
+  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
+}
+
 // 一般 NBA MLB
 // home_alias = 'CHA'
 //
@@ -1137,6 +1150,7 @@ module.exports = {
   settleTotalsSoccer,
   predictionsResultFlag,
   predictionsWinList,
+  setttelRefundCoinDividend,
   sliceTeamAndPlayer,
   acceptLeague,
   MATCH_STATUS,
