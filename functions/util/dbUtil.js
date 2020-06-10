@@ -1602,7 +1602,8 @@ const News = sequelize.define(
   'user__new',
   {
     news_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      primaryKey: true
     },
     uid: {
       type: Sequelize.STRING
@@ -1616,6 +1617,11 @@ const News = sequelize.define(
     status: {
       type: Sequelize.INTEGER
     },
+    active: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1,
+      allowNull: false
+    },
     scheduled: {
       type: Sequelize.INTEGER
     }
@@ -1623,7 +1629,7 @@ const News = sequelize.define(
   {
     indexes: [
       {
-        fields: ['honor_id', 'uid', 'rank_id']
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
       }
     ]
   }

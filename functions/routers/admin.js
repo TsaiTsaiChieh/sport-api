@@ -74,6 +74,18 @@ router.post(
   verification.admin,
   require('../controller/admin/user/unblockUserController')
 );
+router.get(
+  '/user/getNews',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/getNewsController')
+);
+router.post(
+  '/user/editNews',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/editNewsController')
+);
 router.post(
   '/service/getReports',
   verification.token,
