@@ -80,7 +80,7 @@ router.get(
 // 他人主頁
 router.get(
   '/others_profile',
-  verification.token_v2,
+  verification.confirmLogin_v2,
   require('../controller/user/othersProfileController')
 );
 // 購買預測
