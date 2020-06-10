@@ -21,19 +21,19 @@ async function transferModel(method, args, uid) {
             AND scheduled BETWEEN :begin AND :end
             AND status=0  
           UNION 
-          SELECT ingot, coin, 0 AS dividend, "搞錠兌換現金" as title, "ingot2money" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
+          SELECT ingot, 0 AS coin, 0 AS dividend, "搞錠兌換現金" as title, "ingot2money" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
             FROM cashflow_ingot_transfers
           WHERE uid = :uid
             AND status=1    
             AND scheduled BETWEEN :begin AND :end   
           UNION
-          SELECT ingot, coin, 0 AS dividend, "搞錠兌換現金(入帳)" as title, "ingot2money_income" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
+          SELECT 0 AS ingot, 0 AS coin, 0 AS dividend, "搞錠兌換現金(入帳)" as title, "ingot2money_income" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
             FROM cashflow_ingot_transfers
           WHERE uid = :uid
             AND status=1    
             AND scheduled BETWEEN :begin AND :end 
           UNION 
-          SELECT ingot, coin, 0 AS dividend, "搞錠兌換現金(匯款失敗)" as title, "ingot2money_failed" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
+          SELECT (-1) * ingot, 0 AS coin, 0 AS dividend, "搞錠兌換現金(匯款失敗)" as title, "ingot2money_failed" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
             FROM cashflow_ingot_transfers
           WHERE uid = :uid
             AND status=1    

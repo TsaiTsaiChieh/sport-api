@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { dateUnixInfo, getTitlesPeriod } = require('../util/modules');
+const { moment, dateUnixInfo, getTitlesPeriod } = require('../util/modules');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -64,7 +64,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
 
 // 檢查該 uid 是否有購買特定大神牌組
 // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
-async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
+async function checkUidBuyGodSellPrediction(uid, god_uid, league_id, matches_date_unix) {
   if (uid === god_uid) return 2; // 大神看自己的預測牌組
 
   const [err, counts] = await to(db.UserBuy.count({
@@ -76,7 +76,7 @@ async function checkBuyGodSellPrediction(uid, god_uid, league_id, matches_date_u
     }
   }));
   if (err) {
-    console.error('Error 1. in util/databaseEngine/checkBuyGodSellPrediction by YuHsien', err);
+    console.error('Error 1. in util/databaseEngine/checkUidBuyGodSellPrediction by YuHsien', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -109,7 +109,40 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
   return true; // 有販售
 }
 
-// 檢查該大神預測牌組勝注
+// 查日期區間大神預測牌組勝注資訊
+// await getGodSellPredictionDatesWinBetsInfo('2WMRgHyUwvTLyHpLoANk7gWADZn1', '20200608', '20200608');
+async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
+  const range1 = moment().range(sDate, eDate);
+
+  const dateBetween = [];
+  Array.from(range1.by('day')).forEach(function(date) {
+    dateBetween.push(date.unix());
+  });
+
+  // 取得 user__buys 購買資料
+  const buyLists = await db.sequelize.query(`
+    select uid, league_id, god_uid, matches_date, god_rank, god_period, buy_status
+      from user__buys
+     where uid = :uid
+       and matches_date in (:dateBetween)
+  `, {
+    replacements: {
+      uid: uid,
+      dateBetween: dateBetween
+    },
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: console.log
+  });
+
+  // 取得 該大神預測牌組勝注
+  const result = await Promise.all(buyLists.map(function(data, index) {
+    return getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, data.matches_date);
+  }));
+
+  return result;
+}
+
+// 查該大神預測牌組勝注
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
   const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
   const period = getTitlesPeriod(matches_date_unix * 1000).period;
@@ -117,7 +150,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   const infos = await db.sequelize.query(`
     select users.uid, users.avatar, users.display_name,
            titles.period, titles.rank_id, titles.price, titles.sub_price,
-           histories.league_id,
+           titles.league_id, titles.name,
            win_bets, date_timestamp,
            matches_fail_status
       from (
@@ -126,11 +159,13 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
               where uid = :uid
            ) users,
            (
-             select titles.uid, titles.period, titles.rank_id, ranks.price, ranks.sub_price
-               from titles, user__ranks ranks
+             select titles.uid, titles.league_id, view__leagues.name,
+                    titles.period, titles.rank_id, ranks.price, ranks.sub_price
+               from titles, user__ranks ranks, view__leagues
               where titles.rank_id = ranks.rank_id
+                and titles.league_id = view__leagues.league_id
                 and uid = :uid
-                and league_id = :league_id
+                and titles.league_id = :league_id
                 and period = :period
            ) titles,
            (
@@ -149,7 +184,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :begin and :end
+                         and predictions.match_date = :begin
                     ) matches_all,
                     (
                       select count(predictions.id) failed_counts
@@ -157,7 +192,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
                        where predictions.bets_id = matches.bets_id
                          and predictions.uid = :uid
                          and predictions.league_id = :league_id
-                         and predictions.match_scheduled between :begin and :end
+                         and predictions.match_date = :begin
                          and matches.status < 0
                     ) matches_failed
            ) failedcount
@@ -171,8 +206,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
       end: end_unix,
       period: period
     },
-    type: db.sequelize.QueryTypes.SELECT,
-    logging: console.log
+    type: db.sequelize.QueryTypes.SELECT
   });
 
   return infos;
@@ -183,7 +217,8 @@ module.exports = {
   getSeason,
   checkUserRight,
   countGodSellPredictionBuyers,
-  checkBuyGodSellPrediction,
+  checkUidBuyGodSellPrediction,
   checkGodSellPrediction,
+  getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo
 };

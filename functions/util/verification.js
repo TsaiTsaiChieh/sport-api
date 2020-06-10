@@ -1,8 +1,11 @@
-/* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
+const ADMIN_USER = 9;
+const MANAGER_USER = 8;
+const SERVICE_USER = 7;
+
 async function admin(req, res, next) {
   try {
     const result = await db.sequelize.models.user.findOne({
@@ -45,7 +48,7 @@ async function confirmLogin(req, res, next) {
   }
   return next();
 }
-async function confirmLogin_v2(req, res, next) {
+async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則取得 token，mysql 版本
   try {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
@@ -60,7 +63,7 @@ async function confirmLogin_v2(req, res, next) {
       // do nothing
     }
   } catch (err) {
-    console.error('Error in util/verification confirmLogin functions', err);
+    console.error('Error in util/verification confirmLogin_v2 functions', err);
     return res.status(500).json({ code: 500, error: err });
   }
   return next();
@@ -110,7 +113,7 @@ async function token_v2(req, res, next) {
   return next();
 }
 
-async function getToken(req, res, next) { // 只取得token 未登入不擋
+async function getToken(req, res, next) { // 只取得 token 未登入不擋，舊版本 (純 firebase 版本)
   try {
     const bearerHeader = req.headers.authorization;
 
@@ -140,23 +143,33 @@ async function getRoleAndTitles(uid) {
     where: { uid },
     attributes: ['status']
   });
-  if (userResults.status === NORMAL_USER) {
-    // req.token.customClaims = { role: NORMAL_USER, titles: [] };
-    return { role: NORMAL_USER, titles: [] };
-  } else if (userResults.status === GOD_USER) {
-    const titlesResult = await db.Title.findAll({
-      where: {
-        uid,
-        period: modules.getTitlesPeriod(new Date()).period
-      },
-      attributes: ['league_id']
-    });
-    const titles = [];
-    for (let i = 0; i < titlesResult.length; i++) {
-      titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+  switch (userResults.status) {
+    case NORMAL_USER:
+      return { role: NORMAL_USER, titles: [] };
+    case GOD_USER:
+    {
+      const titlesResult = await db.Title.findAll({
+        where: {
+          uid,
+          period: modules.getTitlesPeriod(new Date()).period
+        },
+        attributes: ['league_id']
+      });
+      const titles = [];
+      for (let i = 0; i < titlesResult.length; i++) {
+        titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+      }
+      // req.token.customClaims = { role: GOD_USER, titles };
+      return { role: GOD_USER, titles };
     }
-    // req.token.customClaims = { role: GOD_USER, titles };
-    return { role: GOD_USER, titles };
+    case SERVICE_USER:
+      return { role: SERVICE_USER, titles: ['客服人員'] };
+    case MANAGER_USER:
+      return { role: MANAGER_USER, titles: ['客服主管'] };
+    case ADMIN_USER:
+      return { role: ADMIN_USER, titles: ['Admin'] };
+    default:
+      return { role: NORMAL_USER, titles: [] };
   }
 }
 

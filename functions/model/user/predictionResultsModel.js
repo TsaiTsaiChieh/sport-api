@@ -112,9 +112,8 @@ function repackageMatch(ele) {
     const data = {
       id: ele.bets_id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A hh:mm' }),
       league_id: ele.league_id,
-      league: ele.league,
       home: {
         id: ele.home_id,
         alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
@@ -131,20 +130,20 @@ function repackageMatch(ele) {
       },
       spread: {
         id: ele.spread_id ? ele.spread_id : null,
-        handicap: ele.spread_handicap ? ele.spread_handicap : null,
-        home_tw: ele.home_tw ? ele.home_tw : null,
-        away_tw: ele.away_tw ? ele.home_tw : null,
+        handicap: ele.spread_handicap !== null ? ele.spread_handicap : null,
+        home_tw: ele.home_tw !== null ? ele.home_tw : null,
+        away_tw: ele.away_tw !== null ? ele.home_tw : null,
         predict: ele.spread_option ? ele.spread_option : null,
-        ori_bets: ele.spread_bets ? ele.spread_bets : null,
-        result: ele.spread_option ? ele.spread_result_flag : null
+        ori_bets: ele.spread_bets !== null ? ele.spread_bets : null,
+        result: ele.spread_option !== null ? ele.spread_result_flag : null
       },
       totals: {
         id: ele.totals_id ? ele.totals_id : null,
-        handicap: ele.totals_handicap ? ele.totals_handicap : null,
-        over_tw: ele.over_tw ? ele.over_tw : null,
+        handicap: ele.totals_handicap !== null ? ele.totals_handicap : null,
+        over_tw: ele.over_tw !== null ? ele.over_tw : null,
         predict: ele.totals_option ? ele.totals_option : null,
-        ori_bets: ele.totals_bets ? ele.totals_bets : null,
-        result: ele.totals_option ? ele.totals_result_flag : null
+        ori_bets: ele.totals_bets !== null ? ele.totals_bets : null,
+        result: ele.totals_option !== null ? ele.totals_result_flag : null
       }
     };
     repackageHandicap(ele, data, 'spread');
