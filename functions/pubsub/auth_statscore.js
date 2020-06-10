@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
+const AppErrors = require('../util/AppErrors');
 const Token = db.Token;
 const client_id = '630';
 const secret_key = 'Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs';
@@ -22,7 +23,7 @@ async function auth_statscore() {
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios(URL);
       return resolve(data);
