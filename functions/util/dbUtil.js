@@ -2112,6 +2112,7 @@ const Token = sequelize.define(
   {
     indexes: [
       {
+				unique: true,
         fields: ['name']
       }
     ]
