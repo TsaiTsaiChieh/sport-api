@@ -142,7 +142,7 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
 }
 
 // 查該大神預測牌組勝注
-// matches_fail_status // -1 全額退款，0 一般退款  判斷依據是 預測數 是否等同 預測無效數
+// matches_fail_status  -1 全額退款，0 一般退款  判斷依據是 預測數 是否等同 預測無效數
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
   const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
   const period = getTitlesPeriod(matches_date_unix * 1000).period;
