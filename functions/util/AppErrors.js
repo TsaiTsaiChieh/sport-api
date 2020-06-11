@@ -394,7 +394,7 @@ class UnknownLeague extends ExtendableError {
 
 class CreateUserBuysTableRollback extends ExtendableError {
   constructor(
-    message = '寫入購買者預測表的回滾',
+    message = '寫入使用者購買表的回滾',
     status = 1518,
     isPublic = true,
     code = httpStatus.INTERNAL_SERVER_ERROR
