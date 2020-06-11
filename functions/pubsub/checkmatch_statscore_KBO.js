@@ -24,6 +24,7 @@ async function checkmatch_statscore_KBO() {
                 let realtimeData = await modules.database
                   .ref(`baseball/KBO/${betsID}`)
                   .once('value');
+                realtimeData = realtimeData.val();
                 await Match.upsert({
                   bets_id: betsID,
                   status: 1
@@ -31,7 +32,7 @@ async function checkmatch_statscore_KBO() {
                 await modules.database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
-                realtimeData = realtimeData.val();
+
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
