@@ -181,3 +181,9 @@ exports.god = functions.pubsub
   .schedule('0 1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god'));
+
+// 金流
+exports.god = functions.pubsub
+  .schedule('0 1 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/cashflow'));
