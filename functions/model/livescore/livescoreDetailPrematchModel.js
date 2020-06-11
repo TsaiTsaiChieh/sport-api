@@ -73,14 +73,11 @@ async function repackage(args, match) {
     if (args.league === 'NBA') {
       match.sport = modules.league2Sport(args.league);
       return match;
-    }
-
-    if (args.league === 'MLB') {
+    } else if (args.league === 'MLB') {
       match.sport = modules.league2Sport(args.league);
 
       return match;
-    }
-    if (args.league === 'eSoccer') {
+    } else if (args.league === 'eSoccer') {
       const ele = match[0];
       const temp = {
         id: ele.id,
@@ -128,6 +125,43 @@ async function repackage(args, match) {
         }
       };
 
+      return temp;
+    } else {
+      const ele = match[0];
+      match.sport = modules.league2Sport(args.league);
+      const temp = {
+        id: ele.id,
+        status: ele.status,
+        sport: modules.league2Sport(args.league).sport,
+        league: ele.league_name_ch,
+        ori_league: args.league,
+        scheduled: ele.scheduled * 1000,
+        newest_spread: {
+          handicap: ele.spread_handicap ? ele.spread_handicap : null,
+          home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+          away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+        },
+        newest_totals: {
+          handicap: ele.total_handicap ? ele.total_handicap : null,
+          over_tw: ele.total_over_tw ? ele.total_over_tw : null
+        },
+        home: {
+          team_name: ele.home_name,
+          player_name: null,
+          name: ele.home_name,
+          alias: ele.home_alias,
+          alias_ch: ele.home_alias_ch,
+          image_id: ele.home_image_id
+        },
+        away: {
+          team_name: ele.away_name,
+          player_name: null,
+          name: ele.away_name,
+          alias: ele.away_alias,
+          alias_ch: ele.away_alias_ch,
+          image_id: ele.away_image_id
+        }
+      };
       return temp;
     }
   } catch (err) {

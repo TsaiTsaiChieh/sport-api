@@ -1,5 +1,7 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
+const AppErrors = require('../util/AppErrors');
+const Token = db.Token;
 const client_id = '630';
 const secret_key = 'Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs';
 
@@ -8,15 +10,11 @@ async function auth_statscore() {
     try {
       const URL = `https://api.statscore.com/v2/oauth?client_id=${client_id}&secret_key=${secret_key}`;
       const data = await axiosForURL(URL);
-      modules.fs.writeFile(
-        './auth/statscoreToken.json',
-        `{
-    	"token": "${data.api.data.token}"
-    }`,
-        function(err) {
-          if (err) console.log(`${err} on auth_statscore by DY`);
-        }
-      );
+      await Token.upsert({
+        name: 'statscore',
+        token: data.api.data.token
+      });
+
       return resolve('auth ok');
     } catch (err) {
       return reject('auth_statscore by DY');

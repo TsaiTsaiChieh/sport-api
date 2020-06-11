@@ -79,7 +79,7 @@ const whitelist = [
 const localOrigin = 'http://172.16.21';
 
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
@@ -119,7 +119,7 @@ app.use('/cashflow', require('./routers/cashflow'));
 
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json({ test: 'awake0528v01' });
+  res.status(200).json({test: 'awake0528v01'});
 });
 
 // API cloud function
@@ -176,6 +176,19 @@ exports.pbp_abnormal = functions
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_abnormal'));
 
+exports.auth_statscore = functions.pubsub
+  .schedule('0 0 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/auth_statscore'));
+exports.prematch_statscore_KBO = functions.pubsub
+  .schedule('0 0 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_KBO'));
+exports.pbp_statscore_KBO = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/pbp_statscore_KBO'));
 // 大神
 exports.god = functions.pubsub
   .schedule('0 1 * * *')
