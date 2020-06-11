@@ -4,7 +4,7 @@ auth/
 ./firtebase_request.js
 .BAK
 .env
-
+pubsub/dy.js
 #www/
 #vue-ssr-client-manifest.json
 #server/

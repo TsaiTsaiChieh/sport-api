@@ -1,4 +1,5 @@
 const db = require('../../util/dbUtil');
+const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
@@ -18,6 +19,10 @@ async function createTopic(args) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
+        return;
+      }
+      if (!await func.chkUserBlocking(args.token.uid)) {
+        reject({ code: 403, error: 'user is blocking' });
         return;
       }
 

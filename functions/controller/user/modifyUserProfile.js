@@ -104,7 +104,6 @@ async function modifyUserProfile(req, res) {
       data.status = 1;
       data.signature = '';
 
-      data.block_message = modules.convertTimezone(nowTimeStamp);
       data.block_message_tw = modules.moment.tz(data.block_message, modules.zone).format('YYYY-MM-DD HH:mm:ss');
       // data.createsTime = nowTimeStamp;
       // data.denys = [];

@@ -1,4 +1,5 @@
 const db = require('../../../util/dbUtil');
+const func = require('../../topics/topicFunctions');
 const countPerPage = 50;
 async function model(args) {
   return new Promise(async function(resolve, reject) {
@@ -13,18 +14,62 @@ async function model(args) {
         raw: true
       });
       /* 讀取一些別的資料 */
-      const usersToGet = [];
-      const usersInfo = [];
-      const articlesToGet = [];
-      const articlesInfo = [];
-      const repliesToGet = [];
-      const repliesInfo = [];
-      for (let i = 0; i < res.length; i++) {
-        // infosToGet.push(topics[i].article_id);
-        // usersToGet.push(topics[i].uid);
+      let usersToGet = [];
+      let usersInfo = [];
+      let articlesToGet = [];
+      let articlesInfo = [];
+      let repliesToGet = [];
+      let repliesInfo = [];
+      for (let i = 0; i < res.rows.length; i++) {
+        usersToGet.push(res.rows[i].uid);
+        if (res.rows[i].type === 'article') {
+          articlesToGet.push(res.rows[i].article_id);
+        } else if (res.rows[i].type === 'reply') {
+          repliesToGet.push(res.rows[i].article_id);
+        }
+      }
+      /* 去除重複的 */
+      usersToGet = [...new Set(usersToGet)];
+      articlesToGet = [...new Set(articlesToGet)];
+      repliesToGet = [...new Set(repliesToGet)];
+      /* 讀取user info */
+      try {
+        usersInfo = await func.getUserInfo(usersToGet);
+      } catch (error) {
+        console.error(error);
+        reject({ code: 500, error: 'get user info failed' });
+      }
+      /* 讀取要取得的回覆內容 */
+      try {
+        repliesInfo = await func.getReplyContent(repliesToGet);
+      } catch (error) {
+        console.error(error);
+        reject({ code: 500, error: 'get reply info failed' });
+      }
+      /* 讀取要取得的文章內容 */
+      try {
+        articlesInfo = await func.getArticlesContent(articlesToGet);
+      } catch (error) {
+        console.error(error);
+        reject({ code: 500, error: 'get article info failed' });
       }
 
-      resolve({ code: 200, count: res.count, data: res.rows });
+      for (let i = 0; i < res.rows.length; i++) {
+        let userInfo = usersInfo.filter(obj => obj.uid === res.rows[i].uid.toString());
+        userInfo = userInfo[0] ? userInfo[0] : null;
+        res.rows[i].user_info = userInfo;
+        if (res.rows[i].type === 'article') {
+          let articleInfo = articlesInfo.filter(obj => obj.article_id === res.rows[i].article_id);
+          articleInfo = articleInfo[0] ? articleInfo[0] : null;
+          res.rows[i].article_info = articleInfo;
+        } else if (res.rows[i].type === 'reply') {
+          let replyInfo = repliesInfo.filter(obj => obj.reply_id === res.rows[i].article_id);
+          replyInfo = replyInfo[0] ? replyInfo[0] : null;
+          res.rows[i].reply_info = replyInfo;
+        }
+      }
+
+      resolve({ code: 200, count: res.count, data: res.rows, log: { usersInfo: usersInfo } });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

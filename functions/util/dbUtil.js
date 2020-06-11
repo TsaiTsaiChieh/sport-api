@@ -141,6 +141,30 @@ const User = sequelize.define(
 );
 
 /*
+ * 帳號禁言記錄
+ */
+const User_BlockLog = sequelize.define('user__blocklog', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  newcount: {
+    type: Sequelize.INTEGER
+  },
+  start: {
+    type: Sequelize.DATE
+  },
+  end: {
+    type: Sequelize.DATE
+  }
+});
+
+/*
  * 歷史大神 含 大神戰績資訊
  */
 const Title = sequelize.define(
@@ -1578,7 +1602,8 @@ const News = sequelize.define(
   'user__new',
   {
     news_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      primaryKey: true
     },
     uid: {
       type: Sequelize.STRING
@@ -1592,6 +1617,11 @@ const News = sequelize.define(
     status: {
       type: Sequelize.INTEGER
     },
+    active: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1,
+      allowNull: false
+    },
     scheduled: {
       type: Sequelize.INTEGER
     }
@@ -1599,7 +1629,7 @@ const News = sequelize.define(
   {
     indexes: [
       {
-        fields: ['honor_id', 'uid', 'rank_id']
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
       }
     ]
   }
@@ -2114,6 +2144,27 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
+const Token = sequelize.define(
+  'token',
+  {
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    token: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['name']
+      }
+    ]
+  }
+);
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2126,6 +2177,7 @@ const dbUtil = {
   Prediction,
   PredictionDescription,
   User,
+  User_BlockLog,
   Title,
   Collection,
   Rank,
@@ -2156,7 +2208,8 @@ const dbUtil = {
   IngotTransfer,
   CashflowBuy,
   CashflowSell,
-  CashflowDonate
+  CashflowDonate,
+  Token
 };
 
 module.exports = dbUtil;

@@ -2,8 +2,32 @@
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 const messageModule = require('../../util/messageModule');
-
+async function getUserInfo(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status',
+          'avatar',
+          'display_name',
+          'signature',
+          'default_title'
+        ],
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
 function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -58,7 +82,15 @@ function createMessage(args) {
         .collection(`chat_${args.message.channelId}`)
         .doc();
       const messageId = messageDoc.id;
-      const user = messageModule.repackageUserData(userSnapshot.data());
+      // const user = messageModule.repackageUserData(userSnapshot.data()); //舊的
+      const mysql_user = await getUserInfo(args.token.uid);
+      const user = {
+        uid: mysql_user.uid,
+        displayName: mysql_user.display_name,
+        avatar: mysql_user.avatar,
+        status: mysql_user.status,
+        defaultTitle: {}
+      };
 
       insertData.message = {
         channelId: args.message.channelId,

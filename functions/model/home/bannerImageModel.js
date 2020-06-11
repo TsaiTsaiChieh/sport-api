@@ -11,7 +11,7 @@ function dbFind() {
             [Op.ne]: null
           }
         },
-        attributes: ['id', 'name', 'sort', 'imgurl', 'title', 'createdAt']
+        attributes: ['id', 'name', 'sort', 'imgurl', 'title', 'createdAt', 'updatedAt']
       });
       resolve(result);
     } catch (error) {

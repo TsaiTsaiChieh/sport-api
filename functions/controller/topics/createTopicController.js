@@ -1,10 +1,15 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const topicModel = require('../../model/topics/createTopicModel');
+const func = require('../../model/topics/topicFunctions');
 const types = require('./types');
 async function createTopic(req, res) {
   const league = types.getLeague();
   const category = types.getCategory();
+  const user = await func.getUserInfo([req.token.uid]);
+  if (user[0].status === 9) {
+    category.push(1);
+  }
 
   const schema = {
     type: 'object',
