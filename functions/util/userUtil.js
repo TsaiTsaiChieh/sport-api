@@ -4,19 +4,21 @@ const firebaseAdmin = modules.firebaseAdmin;
 
 exports.getFirebaseUser = async function(accessToken) {
   // const firebaseUid = `line:${body.id}`;
-  const firebaseUid = accessToken.id_token.sub.toString();
+  // const firebaseUid = accessToken.sub.toString();
+  const email = accessToken.email.toString();
   try {
-    const userRecord = await firebaseAdmin.auth().getUser(firebaseUid);
+    // const userRecord = await firebaseAdmin.auth().getUser(firebaseUid);
+    const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
     console.error(JSON.stringify(userRecord));
     return userRecord;
   } catch (e) {
     if (e.code === 'auth/user-not-found') {
       const userJson = {
         identifier: 'Line',
-        uid: firebaseUid,
-        displayName: accessToken.id_token.name,
-        photoURL: accessToken.id_token.picture,
-        email: accessToken.id_token.email
+        uid: accessToken.sub.toString(),
+        displayName: accessToken.name,
+        photoURL: accessToken.picture,
+        email: email
       };
       return await firebaseAdmin.auth().createUser(userJson);
     } else {
