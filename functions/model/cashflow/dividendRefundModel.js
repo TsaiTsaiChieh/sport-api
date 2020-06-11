@@ -19,6 +19,7 @@ function dividendRefundModel(args) {
     });
     /* 計算是否勝注<=0 */
     const buy = [];
+    // eslint-disable-next-line no-unused-vars
     for (const [index, data] of Object.entries(buyLists)) {
       const t = await getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
       t.forEach(function(ele) {
