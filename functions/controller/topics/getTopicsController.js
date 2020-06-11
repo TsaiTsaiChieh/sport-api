@@ -7,6 +7,7 @@ async function getTopics(req, res) {
   league.push(null);
   const category = types.getCategory();
   category.push(null);
+  category.push(1); // 可以選擇公告
   const schema = {
     type: 'object',
     properties: {
