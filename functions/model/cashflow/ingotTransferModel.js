@@ -11,7 +11,9 @@ async function ingotTransferModel(args) {
         where: { transfer_id: transfer_id },
         attribute: ['uid', 'ingot', 'ingot_real', 'coin', 'coin_real', 'money', 'money_real', 'dividend', 'dividend_real', 'fee', 'fee_real']
       }));
-   
+      if (transferErr) {
+        await t.rollback();
+      }
         /* 匯款入帳 */
       if (args.output === 'income') {
         transfer.status = 1;
@@ -27,12 +29,14 @@ async function ingotTransferModel(args) {
               type: db.sequelize.QueryTypes.INSERT
             }
         );
-
-       
+        if (incomeErr) {
+            await t.rollback();
+        }
+        resolve(income);
         /* 匯款失敗 */
       } else if (args.output === 'failed') {
         transfer.status = -1;
-        const [incomeErr, income] = await db.sequelize.query(
+        const [failedErr, failed] = await db.sequelize.query(
             `
                 INSERT INTO cashflow_ingot_transfers 
                             ( from_transfer_id, uid,  status,  cash_status,  ingot,  ingot_real,  coin,  coin_real,  money,  money_real,  fee,  fee_real,  scheduled) 
@@ -44,18 +48,12 @@ async function ingotTransferModel(args) {
               type: db.sequelize.QueryTypes.INSERT
             }
         );
+        if (failedErr) {
+            await t.rollback();
+        }
+        resolve(failed);
       }
-     
-      if (transferErr) {
-        await t.rollback();
-      }
-      if (incomeErr) {
-        await t.rollback();
-      }
-      if (failedErr) {
-        await t.rollback();
-      }
-      
+
       await t.commit();
       
     } catch (err) {

@@ -167,35 +167,13 @@ async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const transaction = await db.sequelize.transaction();
   // 寫入購牌紀錄（金流）table designed by Henry
-  const [cashflowErr] = await modules.to(db.CashflowBuy.create({
-    uid: args.token.uid,
-    status: PAID,
-    coin: overage.coin,
-    coin_real: overage.coin,
-    dividend: overage.dividend,
-    dividend_real: overage.dividend,
-    god_uid: args.god_uid,
-    league_id: modules.leagueCodebook(args.god_title).id,
-    scheduled: modules.moment(args.now).unix()
-  }, { transaction }));
-  const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
-  const [overageErr] = await modules.to(db.User.update(
-    { coin: overage.coin, dividend: overage.dividend },
-    { where: { uid: args.token.uid }, transaction }));
-  if (purchaseErr) {
-    // If the execution reaches this line, an error was thrown, rollback the transaction.
-    await transaction.rollback();
-    throw new AppErrors.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
-  }
-  if (overageErr) {
-    await transaction.rollback();
-    throw new AppErrors.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-  }
-  if (cashflowErr) {
-    await transaction.rollback();
-    throw new AppErrors.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
-  }
-
+  purchaseData.dividend = overage.dividend;
+  purchaseData.dividend_real = overage.dividend;
+  purchaseData.coin = overage.coin;
+  purchaseData.coin_real = overage.coin;
+  const status = PAID;
+  await dbEngine.createBuy(purchaseData, status)
+  
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
   await transaction.commit();
 }
