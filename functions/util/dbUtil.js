@@ -1700,6 +1700,10 @@ const Dividend = sequelize.define(
       type: Sequelize.INTEGER,
       primaryKey: true
     },
+    dividend_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
     scheduled: {
       type: Sequelize.INTEGER
     },
@@ -1860,6 +1864,10 @@ const IngotTransfer = sequelize.define(
       primaryKey: true,
       allowNull: false,
       autoIncrement: true
+    },
+    from_transfer_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
     },
     uid: {
       type: Sequelize.STRING,
