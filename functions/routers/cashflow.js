@@ -20,11 +20,11 @@ router.delete(
 /* 紅利回饋 */
 router.post(
   '/dividend_refund',
-  require('../controller/cashflow/DividendRefundController')
+  require('../controller/cashflow/dividendRefundController')
 );
 /* 搞錠轉換現金() */
 router.post(
   '/ingot_transfer',
-  require('../controller/cashflow/IngotTransferController')
+  require('../controller/cashflow/ingotTransferController')
 );
 module.exports = router;
