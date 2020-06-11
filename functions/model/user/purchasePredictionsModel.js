@@ -5,7 +5,6 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const SELL = 1;
 const PAID = 1;
-const WIN_BET = 1;
 
 async function purchasePredictions(args) {
   /* user case: [QztgShRWSSNonhm2pc3hKoPU7Al2]（user phone number is 3）
@@ -170,7 +169,7 @@ async function transactionsForPurchase(args, overage, purchaseData) {
   // 寫入購牌紀錄（金流）table designed by Henry
   const [cashflowErr] = await modules.to(db.CashflowBuy.create({
     uid: args.token.uid,
-    status: WIN_BET,
+    status: PAID,
     coin: overage.coin,
     coin_real: overage.coin,
     dividend: overage.dividend,
