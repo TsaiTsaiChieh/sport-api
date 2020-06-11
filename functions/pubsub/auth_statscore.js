@@ -6,7 +6,7 @@ const client_id = '630';
 const secret_key = 'Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs';
 
 async function auth_statscore() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const URL = `https://api.statscore.com/v2/oauth?client_id=${client_id}&secret_key=${secret_key}`;
       const data = await axiosForURL(URL);

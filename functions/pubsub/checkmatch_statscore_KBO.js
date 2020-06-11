@@ -7,7 +7,7 @@ const db = require('../util/dbUtil');
 const Match = db.Match;
 
 async function checkmatch_statscore_KBO() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
@@ -21,6 +21,9 @@ async function checkmatch_statscore_KBO() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
+                let realtimeData = await modules.database
+                  .ref(`baseball/KBO/${betsID}`)
+                  .once('value');
                 await Match.upsert({
                   bets_id: betsID,
                   status: 1
@@ -28,9 +31,6 @@ async function checkmatch_statscore_KBO() {
                 await modules.database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
-                let realtimeData = await modules.database
-                  .ref(`baseball/KBO/${betsID}`)
-                  .once('value');
                 realtimeData = realtimeData.val();
                 const parameter = {
                   betsID: betsID,
@@ -107,7 +107,7 @@ async function checkmatch_statscore_KBO() {
 }
 
 async function queryForEvents() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(

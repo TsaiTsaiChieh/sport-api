@@ -7,56 +7,67 @@ const leagueID = '349';
 
 async function prematch_statscore_KBO() {
   return new Promise(async function(resolve, reject) {
-    const unix = Math.floor(Date.now() / 1000);
-    const date2 = modules.convertTimezoneFormat(unix, {
-      format: 'YYYY-MM-DD 00:00:00',
-      op: 'add',
-      value: 2,
-      unit: 'days'
-    });
-    const date1 = modules.convertTimezoneFormat(unix, {
-      format: 'YYYY-MM-DD 00:00:00'
-    });
-    const token = await queryForToken();
+    try {
+      const unix = Math.floor(Date.now() / 1000);
+      const date2 = modules.convertTimezoneFormat(unix, {
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: 2,
+        unit: 'days'
+      });
+      const date1 = modules.convertTimezoneFormat(unix, {
+        format: 'YYYY-MM-DD 00:00:00'
+      });
+      const token = await queryForToken();
 
-    const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
-    const data = await axiosForURL(URL);
-    const ele = await queryForMatches(
-      modules.convertTimezone(date1),
-      modules.convertTimezone(date2)
-    );
+      const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
+      const data = await axiosForURL(URL);
+      const ele = await queryForMatches(
+        modules.convertTimezone(date1),
+        modules.convertTimezone(date2)
+      );
 
-    const eventLength =
-      data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
-        .length;
-    for (let i = 0; i < eventLength; i++) {
-      const eventID =
-        data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-          .id;
-      const startDate =
-        modules.convertTimezone(
+      const eventLength =
+        data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
+          .length;
+      for (let i = 0; i < eventLength; i++) {
+        const eventID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .start_date
-        ) + 28800; // 加八個小時
-      const homeTeamName =
-        data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-          .participants[0].name; // KT wiz
-      const awayTeamName =
-        data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-          .participants[1].name; // KIA Tigers
-      for (let j = 0; j < ele.length; j++) {
-        if (startDate === ele[j].scheduled) {
-          if (
-            homeTeamName === ele[j].home_name &&
-            awayTeamName === ele[j].away_name
-          ) {
-            await Match.upsert({
-              bets_id: ele[j].id,
-              radar_id: eventID
-            });
+            .id;
+        const startDate =
+          modules.convertTimezone(
+            data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[
+              i
+            ].start_date
+          ) + 28800; // 加八個小時
+        const homeTeamName =
+          data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+            .participants[0].name; // KT wiz
+        const awayTeamName =
+          data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
+            .participants[1].name; // KIA Tigers
+        for (let j = 0; j < ele.length; j++) {
+          if (startDate === ele[j].scheduled) {
+            if (
+              homeTeamName === ele[j].home_name &&
+              awayTeamName === ele[j].away_name
+            ) {
+              await Match.upsert({
+                bets_id: ele[j].id,
+                radar_id: eventID
+              });
+            }
           }
         }
       }
+      await modules.database
+        .ref(`baseball/KBO/${ele.id}/Summary/status`)
+        .set('scheduled');
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
+      );
     }
   });
 }
