@@ -213,8 +213,9 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
 }
 
 async function createBuy(Data, status, action, trans) {
-  trans ? '': await db.sequelize.transaction();
-  if(action==='buy'){
+  // eslint-disable-next-line no-unused-expressions
+  trans ? '' : await db.sequelize.transaction();
+  if (action === 'buy') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowBuy.create(Data));
     if (cashflowErr) {
@@ -231,16 +232,16 @@ async function createBuy(Data, status, action, trans) {
     /* 狀態為購牌的話就更新 */
     } else {
       const [purchaseErr] = await modules.to(
-      db.UserBuy.update(
-        { buy_status: status },
-        { where: { buy_id: Data.buy_uid }, trans }
-      ));
+        db.UserBuy.update(
+          { buy_status: status },
+          { where: { buy_id: Data.buy_uid }, trans }
+        ));
       if (purchaseErr) {
         await trans.rollback();
         throw new AppError.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
       }
     }
-    
+
     const [overageErr] = await modules.to(db.User.update(
       { coin: Data.coin, dividend: Data.dividend },
       { where: { uid: Data.uid }, trans }));
@@ -248,7 +249,7 @@ async function createBuy(Data, status, action, trans) {
       await trans.rollback();
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
     }
-  }else if(action==='sell'){
+  } else if (action === 'sell') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowSell.create(Data));
     if (cashflowErr) {
@@ -263,7 +264,8 @@ async function createBuy(Data, status, action, trans) {
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
     }
   }
-  trans ? '': await trans.commit();
+  // eslint-disable-next-line no-unused-expressions
+  trans ? '' : await trans.commit();
 }
 module.exports = {
   findUser,
