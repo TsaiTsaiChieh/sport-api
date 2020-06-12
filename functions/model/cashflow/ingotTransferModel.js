@@ -11,8 +11,10 @@ async function ingotTransferModel(args) {
         where: { transfer_id: transfer_id },
         attribute: ['uid', 'ingot', 'ingot_real', 'coin', 'coin_real', 'money', 'money_real', 'dividend', 'dividend_real', 'fee', 'fee_real']
       }));
-
-      /* 匯款入帳 */
+      if (transferErr) {
+        await t.rollback();
+      }
+        /* 匯款入帳 */
       if (args.output === 'income') {
         transfer.status = 1;
         const [incomeErr, income] = await db.sequelize.query(
@@ -22,66 +24,38 @@ async function ingotTransferModel(args) {
                      VALUES ( $transfer_id, $uid, $status, $cash_status, $ingot, $ingot_real, $coin, $coin_real, $money, $money_real, $fee, $fee_real, $scheduled)
             `,
             {
-              bind: {
-                transfer_id: transfer_id,
-                uid: transfer.uid,
-                status: transfer.status,
-                cash_status: transfer.cash_status,
-                ingot: transfer.ingot,
-                ingot_real: transfer.ingot_real,
-                coin: transfer.coin,
-                coin_real: transfer.coin_real,
-                money: transfer.money,
-                money_real: transfer.money_real,
-                fee: transfer.fee,
-                fee_real: transfer.fee_real,
-                scheduled
-              },
+              bind: { transfer_id:transfer_id, uid:transfer.uid, status:transfer.status, cash_status:transfer.cash_status, ingot:transfer.ingot, ingot_real:transfer.ingot_real, coin:transfer.coin, coin_real:transfer.coin_real, 
+                      money:transfer.money, money_real:transfer.money_real, fee:transfer.fee, fee_real:transfer.fee_real, scheduled},
               type: db.sequelize.QueryTypes.INSERT
             }
         );
-
+        if (incomeErr) {
+            await t.rollback();
+        }
+        resolve(income);
         /* 匯款失敗 */
       } else if (args.output === 'failed') {
         transfer.status = -1;
-        const [incomeErr, income] = await db.sequelize.query(
+        const [failedErr, failed] = await db.sequelize.query(
             `
                 INSERT INTO cashflow_ingot_transfers 
                             ( from_transfer_id, uid,  status,  cash_status,  ingot,  ingot_real,  coin,  coin_real,  money,  money_real,  fee,  fee_real,  scheduled) 
                      VALUES ( $transfer_id, $uid, $status, $cash_status, $ingot, $ingot_real, $coin, $coin_real, $money, $money_real, $fee, $fee_real, $scheduled)
             `,
             {
-              bind: {
-                transfer_id: transfer_id,
-                uid: transfer.uid,
-                status: transfer.status,
-                cash_status: transfer.cash_status,
-                ingot: transfer.ingot,
-                ingot_real: transfer.ingot_real,
-                coin: transfer.coin,
-                coin_real: transfer.coin_real,
-                money: transfer.money,
-                money_real: transfer.money_real,
-                fee: transfer.fee,
-                fee_real: transfer.fee_real,
-                scheduled
-              },
+              bind: { transfer_id:transfer_id, uid:transfer.uid, status:transfer.status, cash_status:transfer.cash_status, ingot:transfer.ingot, ingot_real:transfer.ingot_real, coin:transfer.coin, coin_real:transfer.coin_real, 
+                      money:transfer.money, money_real:transfer.money_real, fee:transfer.fee, fee_real:transfer.fee_real, scheduled},
               type: db.sequelize.QueryTypes.INSERT
             }
         );
-      }
-
-      if (transferErr) {
-        await t.rollback();
-      }
-      if (incomeErr) {
-        await t.rollback();
-      }
-      if (failedErr) {
-        await t.rollback();
+        if (failedErr) {
+            await t.rollback();
+        }
+        resolve(failed);
       }
 
       await t.commit();
+      
     } catch (err) {
       await t.rollback();
     }

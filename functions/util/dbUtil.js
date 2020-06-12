@@ -1977,19 +1977,15 @@ const CashflowBuy = sequelize.define(
     },
     uid: {
       type: Sequelize.STRING,
-      primaryKey: true
     },
     god_uid: {
       type: Sequelize.STRING,
-      primaryKey: true
     },
     league_id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
     },
     status: {
       type: Sequelize.INTEGER,
-      primaryKey: true
     },
     dividend: {
       type: Sequelize.INTEGER,
@@ -2007,6 +2003,10 @@ const CashflowBuy = sequelize.define(
       type: Sequelize.FLOAT,
       primaryKey: true
     },
+    matches_date: {
+      type: Sequelize.INTEGER,
+
+    },
     scheduled: {
       type: Sequelize.STRING
     },
@@ -2020,9 +2020,10 @@ const CashflowBuy = sequelize.define(
     }
   },
   {
-    indexes: [
+    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['buy_id', 'status', 'uid']
+        fields: ['uid', 'league_id', 'god_uid', 'status', 'matches_date'],
+        unique: true
       }
     ]
   }
