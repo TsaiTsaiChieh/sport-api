@@ -30,7 +30,7 @@ module.exports.getTopicInfo = async function(aid) {
   return new Promise(async function(resolve, reject) {
     try {
       // console.log('function: get topic info by aid:' + aid);
-      const result = await db.sequelize.models.topic__article.findAll({
+      const result = await db.sequelize.models.topic__article.findOne({
         where: {
           article_id: aid,
           status: 1

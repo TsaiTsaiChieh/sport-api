@@ -58,7 +58,7 @@ async function loginHandler(req, res) {
     return res.redirect(307, `${envValues.productURL}lineLogin?token=${token}`);
   } catch (err) {
     console.error('Error in authentication/lineHandler function by Rex', err);
-    res.redirect(401, envValues.productURL);
+    res.redirect(307, `${envValues.productURL}loginFailed`);
   }
 }
 module.exports = loginHandler;

@@ -1979,16 +1979,16 @@ const CashflowBuy = sequelize.define(
       type: Sequelize.INTEGER,
     },
     uid: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING
     },
     god_uid: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER
     },
     status: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER
     },
     dividend: {
       type: Sequelize.INTEGER,
@@ -2007,7 +2007,7 @@ const CashflowBuy = sequelize.define(
       primaryKey: true
     },
     matches_date: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER
 
     },
     scheduled: {
