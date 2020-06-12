@@ -28,12 +28,11 @@ async function createReply(args) {
       }
 
       const topicInfo = await func.getTopicInfo(args.article_id);
-
-      if (topicInfo.status !== 1 && topicInfo.status !== 3) {
+      if (topicInfo === null) {
         reject({ code: 404, error: 'topic not found' });
         return;
       }
-      if (topicInfo.length === 0) {
+      if (topicInfo.status !== 1 && topicInfo.status !== 3) {
         reject({ code: 404, error: 'topic not found' });
         return;
       }
