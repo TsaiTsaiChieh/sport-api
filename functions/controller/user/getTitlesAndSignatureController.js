@@ -3,26 +3,32 @@ const modules = require('../../util/modules');
 const model = require('../../model/user/getTitlesAndSignatureModel');
 
 async function getTitlesAndSignature(req, res) {
+  const now = new Date();
   const schema = {
     type: 'object',
     required: ['uid'],
     properties: {
       uid: {
-        type: 'string'
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter
       }
     }
   };
-  const args = {};
-  args.uid = req.params.uid;
-  const validate = modules.ajv.validate(schema, args);
-  if (!validate) return res.status(400).json(modules.ajv.errors);
-  args.token = req.token;
+
+  const args = {
+    now,
+    uid: req.params.uid,
+    token: req.token
+  };
+
+  const valid = modules.ajv.validate(schema, args);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
 
   try {
     res.json(await model(args));
   } catch (err) {
-    console.log(
-      'Error in controller/user/getTitlesAndSignatureController fucntion by TsaiChieh',
+    console.error(
+      'Error in controller/user/getTitlesAndSignatureController by TsaiChieh',
       err
     );
     res.status(err.code).json(err.error);
@@ -33,8 +39,8 @@ module.exports = getTitlesAndSignature;
 
 /**
  * @api {get} /user/getTitlesAndSignature/:uid Get Titles And Signature
- * @apiVersion 1.0.1
- * @apiDescription 看使用者的的頭銜和點數 by Tsai-Chieh
+ * @apiVersion 2.0.0
+ * @apiDescription 看使用者簽名檔和當期所有稱號 by Tsai-Chieh
  *
  * @apiName getTitlesAndSignature
  * @apiGroup User
