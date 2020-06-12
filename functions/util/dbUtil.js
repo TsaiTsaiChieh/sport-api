@@ -1976,7 +1976,7 @@ const CashflowBuy = sequelize.define(
       autoIncrement: true
     },
     buy_id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.INTEGER
     },
     uid: {
       type: Sequelize.STRING

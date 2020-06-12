@@ -9,7 +9,7 @@ function dividendExpireModel(args) {
     const expire_scheduled = modules.moment(new Date()).unix();
 
     if (args.method === 'POST') {
-      /*撈取本月到期紅利*/
+      /* 撈取本月到期紅利 */
       const expire = await db.sequelize.query(
         `
           SELECT uid, SUM(expire_points) as total_expire_points
@@ -25,7 +25,7 @@ function dividendExpireModel(args) {
         });
       resolve(expire);
     } else if (args.method === 'PUT') {
-      /*上個月紅利過期更新*/
+      /* 上個月紅利過期更新 */
       const expire = await db.sequelize.query(
         `
             UPDATE cashflow_dividends
@@ -41,7 +41,7 @@ function dividendExpireModel(args) {
         });
       resolve(expire);
     } else if (args.method === 'DELETE') {
-      /*刪除使用者錢包紅利*/
+      /* 刪除使用者錢包紅利 */
       const expire_uids = await db.sequelize.query(
         `
         SELECT uid, SUM(expire_points) as total_expire_points
