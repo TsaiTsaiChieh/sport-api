@@ -834,8 +834,8 @@ function predictionsResultFlag(option, settelResult) {
     return settleOption === option ? 0.5 : -0.5;
   }
 
-  // -2 未結算，-1 輸，0 不算，0.95 贏，0.5 平 (一半一半)
-  return settelResult === 'fair2' ? 0 : settelResult === option ? 0.95 : -1;
+  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
+  return settelResult === 'fair2' ? 0 : settelResult === option ? 1 : -1;
 }
 
 /* 輸入資料格式
@@ -854,21 +854,21 @@ function predictionsResultFlag(option, settelResult) {
       spread_bets: 3,
       totals_bets: 3,
       spread_result_flag: -1,
-      totals_result_flag: 0.95
+      totals_result_flag: 1     // 0.95
     },
     {
       uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
       league_id: 3939,
       spread_bets: 1,
       totals_bets: 2,
-      spread_result_flag: 0.95,
+      spread_result_flag: 1,    // 0.95,
       totals_result_flag: -1
     }
   ]
 */
 function predictionsWinList(data) {
-  const correct = [0.95, 0.5];
-  const fault = [-1, -0.5];
+  const correct = [1, 0.5]; // 0.95 // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
+  const fault = [-1, -0.5]; // // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
   const result = [];
   // const totalPredictCounts = data.length;
 
@@ -1016,10 +1016,10 @@ function predictionsWinList(data) {
   return result;
 }
 
-// 結算退款 搞幣紅利 setttelRefundCoinDividend
+// 結算退款 搞幣紅利 settleRefundCoinDividend
 // 輸入：price, sub_price, coin, dividend
 // 輸出退款：coin_real, dividend_real, coin, dividend
-function setttelRefundCoinDividend(price, sub_price, coin, dividend) {
+function settleRefundCoinDividend(price, sub_price, coin, dividend) {
   NP.enableBoundaryChecking(false);
   const refundMoney = 90; // NP.minus(price, sub_price);
   const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
@@ -1150,7 +1150,7 @@ module.exports = {
   settleTotalsSoccer,
   predictionsResultFlag,
   predictionsWinList,
-  setttelRefundCoinDividend,
+  settleRefundCoinDividend,
   sliceTeamAndPlayer,
   acceptLeague,
   MATCH_STATUS,

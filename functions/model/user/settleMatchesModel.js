@@ -6,7 +6,14 @@ const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
-const d = require('debug')('user:settleMatchesModel');
+
+// const d = require('debug')('user:settleMatchesModel'); // firebase 升級後廢掉了
+const util = require('util');
+function d(...args) {
+  if (typeof (console) !== 'undefined') {
+    console.log('[user settleMatchesModel]', util.format(...args));
+  }
+}
 
 async function settleMatchesModel(args) {
   // 1. 管理者才能進行 API 呼叫
@@ -78,17 +85,23 @@ async function settleMatchesModel(args) {
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
     if (settelTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
 
+    d(bets_id, settelSpreadResult, settelTotalsResult);
+
     // 回寫結果
-    const [err, r] = await to(db.Match.update({
-      spread_result: settelSpreadResult,
-      totals_result: settelTotalsResult
-    }, {
-      where: {
-        bets_id: bets_id
-      }
-    }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });}
-    if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
+    if (settelSpreadResult !== null || settelTotalsResult !== null) {
+      const [err, r] = await to(db.Match.update({
+        spread_result: settelSpreadResult,
+        totals_result: settelTotalsResult
+      }, {
+        where: {
+          bets_id: bets_id
+        }
+      }));
+
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });}
+      if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
+    }
+
     result[bets_id] = { status: 1, msg: '賽事結算成功！' };
   };
   // });
