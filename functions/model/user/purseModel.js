@@ -1,6 +1,6 @@
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-
+const modules = require('../../util/modules');
 async function purseModel(args, method, uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -18,16 +18,17 @@ async function purseModel(args, method, uid) {
           type: db.sequelize.QueryTypes.SELECT
         });
 
+   
       const expire = await db.sequelize.query(
         `
           SELECT SUM(expire_points) as dividend
             FROM cashflow_dividends 
            WHERE uid=$uid
-             AND scheduled BETWEEN :from AND :to
+             AND scheduled BETWEEN $from AND $to
         `,
         {
           plain: true,
-          bind: {  uid: uid, expire_scheduled: expire_scheduled, from: from, to: to },
+          bind: {  uid: uid, from: from, to: to },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
