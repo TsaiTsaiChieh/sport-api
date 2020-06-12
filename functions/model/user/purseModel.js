@@ -18,7 +18,6 @@ async function purseModel(args, method, uid) {
           type: db.sequelize.QueryTypes.SELECT
         });
 
-   
       const expire = await db.sequelize.query(
         `
           SELECT SUM(expire_points) as dividend
@@ -28,7 +27,7 @@ async function purseModel(args, method, uid) {
         `,
         {
           plain: true,
-          bind: {  uid: uid, from: from, to: to },
+          bind: { uid: uid, from: from, to: to },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

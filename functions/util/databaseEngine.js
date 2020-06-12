@@ -212,9 +212,8 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   return infos;
 }
 
-<<<<<<< HEAD
 async function createBuy(Data, status, action) {
-  if(action==='buy'){
+  if (action === 'buy') {
     Data.status = status;
     const t = await db.sequelize.transaction();
     const [cashflowErr] = await modules.to(db.CashflowBuy.create(Data));
@@ -231,12 +230,6 @@ async function createBuy(Data, status, action) {
     const [overageErr] = await modules.to(db.User.update(
       { coin: Data.coin, dividend: Data.dividend },
       { where: { uid: Data.uid }, t }));
-
-    // if (purchaseErr) {
-    //   // If the execution reaches this line, an error was thrown, rollback the transaction.
-    //   await t.rollback();
-    //   throw new AppError.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
-    // }
     if (overageErr) {
       await t.rollback();
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
@@ -246,17 +239,13 @@ async function createBuy(Data, status, action) {
       throw new AppError.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
     }
     t.commit();
-  }else if(action==='sell'){
+  } else if (action === 'sell') {
     Data.status = status;
     const t = await db.sequelize.transaction();
     const [cashflowErr] = await modules.to(db.CashflowSell.create(Data));
     const [overageErr] = await modules.to(db.User.update(
       { coin: Data.coin, dividend: Data.dividend },
       { where: { uid: Data.uid }, t }));
-    if (purchaseErr) {
-      await t.rollback();
-      throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-    }
     if (overageErr) {
       await t.rollback();
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
@@ -267,51 +256,6 @@ async function createBuy(Data, status, action) {
     }
     t.commit();
   }
-=======
-async function createBuy(purchaseData, status) {
-  /*
-    uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
-    league_id: 2274,
-    matches_date: 1593532800,
-    matches_date_tw: 1593532800000,
-    god_uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52',
-    god_rank: 1,
-    god_period: 7,
-    day_of_year: 183,
-    season: 2019,
-    buy_status: 1,
-    buy_date: 1591868725,
-    buy_date_tw: 1591868725106,
-    dividend: 0,
-    dividend_real: 0,
-    coin: 40334,
-    coin_real: 40334
-  */
-
-  purchaseData.status = status;
-  const t = await db.sequelize.transaction();
-  const [cashflowErr] = await modules.to(db.CashflowBuy.create(purchaseData));
-  const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData));
-  const [overageErr] = await modules.to(db.User.update(
-    { coin: purchaseData.coin, dividend: purchaseData.dividend },
-    { where: { uid: purchaseData.uid }, t }));
-
-  if (purchaseErr) {
-    // If the execution reaches this line, an error was thrown, rollback the transaction.
-    await t.rollback();
-    throw new AppError.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
-  }
-  if (overageErr) {
-    await t.rollback();
-    throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-  }
-  if (cashflowErr) {
-    await t.rollback();
-    throw new AppError.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
-  }
-
-  t.commit();
->>>>>>> 9b7e013022844c1d32773a74f7a8c3dcf035d3aa
 }
 module.exports = {
   findUser,

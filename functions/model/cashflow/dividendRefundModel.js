@@ -26,7 +26,7 @@ function dividendRefundModel(args) {
         /* 因應勝注是否<=0去發放紅利 */
         if (ele.win_bet <= 0) {
           /* (購牌金額-90)*0.05 */
-          ele.dividend_real = (ele.sub_price * 100) * 0.05  / 100;
+          ele.dividend_real = (ele.sub_price * 100) * 0.05 / 100;
         } else {
           /* 購牌金額*0.05 */
           ele.dividend_real = (ele.price * 100) * 0.05 / 100;
