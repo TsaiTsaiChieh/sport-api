@@ -165,17 +165,17 @@ async function repackagePurchaseData(args, godData) {
 
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
-  const transaction = await db.sequelize.transaction();
+  const trans = await db.sequelize.transaction();
   // 寫入購牌紀錄（金流）table designed by Henry
   purchaseData.dividend = overage.dividend;
   purchaseData.dividend_real = overage.dividend;
   purchaseData.coin = overage.coin;
   purchaseData.coin_real = overage.coin;
   const status = PAID;
-  await dbEngine.createBuy(purchaseData, status);
+  await dbEngine.createBuy(purchaseData, status, 'buy', trans);
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
-  await transaction.commit();
+  await trans.commit();
 }
 
 async function repackageReturnData(args) {
