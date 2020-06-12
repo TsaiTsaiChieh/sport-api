@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, dateUnixInfo, getTitlesPeriod} = require('../util/modules');
+const { moment, dateUnixInfo, getTitlesPeriod } = require('../util/modules');
 const modules = require('../util/modules');
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -212,8 +212,7 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   return infos;
 }
 
-async function createBuy(purchaseData, status)
-{
+async function createBuy(purchaseData, status) {
   /*
     uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
     league_id: 2274,
@@ -232,15 +231,15 @@ async function createBuy(purchaseData, status)
     coin: 40334,
     coin_real: 40334
   */
- 
-  purchaseData.status = status
+
+  purchaseData.status = status;
   const t = await db.sequelize.transaction();
   const [cashflowErr] = await modules.to(db.CashflowBuy.create(purchaseData));
   const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData));
   const [overageErr] = await modules.to(db.User.update(
     { coin: purchaseData.coin, dividend: purchaseData.dividend },
     { where: { uid: purchaseData.uid }, t }));
-    
+
   if (purchaseErr) {
     // If the execution reaches this line, an error was thrown, rollback the transaction.
     await t.rollback();
@@ -256,7 +255,6 @@ async function createBuy(purchaseData, status)
   }
 
   t.commit();
-
 }
 module.exports = {
   findUser,

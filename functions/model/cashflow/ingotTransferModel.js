@@ -14,7 +14,7 @@ async function ingotTransferModel(args) {
       if (transferErr) {
         await t.rollback();
       }
-        /* 匯款入帳 */
+      /* 匯款入帳 */
       if (args.output === 'income') {
         transfer.status = 1;
         const [incomeErr, income] = await db.sequelize.query(
@@ -24,13 +24,26 @@ async function ingotTransferModel(args) {
                      VALUES ( $transfer_id, $uid, $status, $cash_status, $ingot, $ingot_real, $coin, $coin_real, $money, $money_real, $fee, $fee_real, $scheduled)
             `,
             {
-              bind: { transfer_id:transfer_id, uid:transfer.uid, status:transfer.status, cash_status:transfer.cash_status, ingot:transfer.ingot, ingot_real:transfer.ingot_real, coin:transfer.coin, coin_real:transfer.coin_real, 
-                      money:transfer.money, money_real:transfer.money_real, fee:transfer.fee, fee_real:transfer.fee_real, scheduled},
+              bind: {
+                transfer_id: transfer_id,
+                uid: transfer.uid,
+                status: transfer.status,
+                cash_status: transfer.cash_status,
+                ingot: transfer.ingot,
+                ingot_real: transfer.ingot_real,
+                coin: transfer.coin,
+                coin_real: transfer.coin_real,
+                money: transfer.money,
+                money_real: transfer.money_real,
+                fee: transfer.fee,
+                fee_real: transfer.fee_real,
+                scheduled
+              },
               type: db.sequelize.QueryTypes.INSERT
             }
         );
         if (incomeErr) {
-            await t.rollback();
+          await t.rollback();
         }
         resolve(income);
         /* 匯款失敗 */
@@ -43,19 +56,31 @@ async function ingotTransferModel(args) {
                      VALUES ( $transfer_id, $uid, $status, $cash_status, $ingot, $ingot_real, $coin, $coin_real, $money, $money_real, $fee, $fee_real, $scheduled)
             `,
             {
-              bind: { transfer_id:transfer_id, uid:transfer.uid, status:transfer.status, cash_status:transfer.cash_status, ingot:transfer.ingot, ingot_real:transfer.ingot_real, coin:transfer.coin, coin_real:transfer.coin_real, 
-                      money:transfer.money, money_real:transfer.money_real, fee:transfer.fee, fee_real:transfer.fee_real, scheduled},
+              bind: {
+                transfer_id: transfer_id,
+                uid: transfer.uid,
+                status: transfer.status,
+                cash_status: transfer.cash_status,
+                ingot: transfer.ingot,
+                ingot_real: transfer.ingot_real,
+                coin: transfer.coin,
+                coin_real: transfer.coin_real,
+                money: transfer.money,
+                money_real: transfer.money_real,
+                fee: transfer.fee,
+                fee_real: transfer.fee_real,
+                scheduled
+              },
               type: db.sequelize.QueryTypes.INSERT
             }
         );
         if (failedErr) {
-            await t.rollback();
+          await t.rollback();
         }
         resolve(failed);
       }
 
       await t.commit();
-      
     } catch (err) {
       await t.rollback();
     }
