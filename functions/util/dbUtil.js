@@ -1969,11 +1969,14 @@ const IngotTransfer = sequelize.define(
 const CashflowBuy = sequelize.define(
   'cashflow_buy',
   {
-    buy_id: {
+    cbuy_id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
       autoIncrement: true
+    },
+    buy_id: {
+      type: Sequelize.INTEGER,
     },
     uid: {
       type: Sequelize.STRING,
@@ -2022,7 +2025,7 @@ const CashflowBuy = sequelize.define(
   {
     indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['uid', 'league_id', 'god_uid', 'status', 'matches_date'],
+        fields: ['buy_id', 'uid', 'league_id', 'god_uid', 'status', 'matches_date'],
         unique: true
       }
     ]
