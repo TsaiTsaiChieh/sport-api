@@ -1730,6 +1730,10 @@ const Dividend = sequelize.define(
       type: Sequelize.INTEGER,
       primaryKey: true
     },
+    dividend_status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
     scheduled: {
       type: Sequelize.INTEGER
     },
@@ -1890,6 +1894,10 @@ const IngotTransfer = sequelize.define(
       primaryKey: true,
       allowNull: false,
       autoIncrement: true
+    },
+    from_transfer_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
     },
     uid: {
       type: Sequelize.STRING,
@@ -2136,6 +2144,27 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
+const Token = sequelize.define(
+  'token',
+  {
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    token: {
+      type: Sequelize.STRING,
+      allowNull: false
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['name']
+      }
+    ]
+  }
+);
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2179,7 +2208,8 @@ const dbUtil = {
   IngotTransfer,
   CashflowBuy,
   CashflowSell,
-  CashflowDonate
+  CashflowDonate,
+  Token
 };
 
 module.exports = dbUtil;
