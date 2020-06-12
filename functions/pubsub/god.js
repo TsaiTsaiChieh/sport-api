@@ -9,9 +9,10 @@ const { zone_tw } = require('../config/env_values');
 const settleGodRank = require('../model/user/settleGodRankModel');
 const settleWinList = require('../model/user/settleWinListModel');
 
+const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god]', ...args);
+    console.log('[pubsub god]', util.format(...args));
   }
 }
 
