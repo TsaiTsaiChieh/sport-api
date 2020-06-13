@@ -181,14 +181,14 @@ exports.auth_statscore = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
 exports.prematch_statscore_KBO = functions.pubsub
-  .schedule('0 0 * * *')
+  .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_KBO'));
 exports.pbp_statscore_KBO = functions
   .runWith(runtimeOpts)
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/pbp_statscore_KBO'));
+  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
 // 大神
 exports.god = functions.pubsub
   .schedule('0 1 * * *')
