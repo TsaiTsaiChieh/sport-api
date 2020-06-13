@@ -11,45 +11,53 @@ let nowPitcherHome = 0;
 let nowPitcherAway = 0;
 
 async function KBOpbpInplay(parameter) {
-  // 12 秒一次
-  const perStep = 12000;
+  // 18 秒一次
+  let perStep;
+  let timesPerLoop;
+  if (parameter.first === 1) {
+    // 最一開始需要初始化所以較長時間
+    perStep = 30000;
+    timesPerLoop = 2; // 一分鐘1次
+  } else {
+    perStep = 18000;
+    timesPerLoop = 4; // 一分鐘3次
+  }
+
   // 一分鐘4次，則需設定為5
 
-  const timesPerLoop = 2;
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
-  let realtimeData;
-  if (parameter.realtimeData !== null) {
-    realtimeData = parameter.realtimeData;
-  } else {
-    realtimeData = null;
-  }
-  if (realtimeData) {
-    if (realtimeData.Summary.info) {
-      if (realtimeData.Summary.Now_event) {
-        eventNow = realtimeData.Summary.Now_event;
-      }
-      if (realtimeData.Summary.Now_event_order) {
-        eventOrderNow = realtimeData.Summary.Now_event_order;
-      }
-      if (realtimeData.Summary.Now_hitter_home) {
-        nowHitterHome = realtimeData.Summary.Now_hitter_home;
-      }
-      if (realtimeData.Summary.Now_pitcher_home) {
-        nowPitcherHome = realtimeData.Summary.Now_pitcher_home;
-      }
-      if (realtimeData.Summary.Now_hitter_away) {
-        nowHitterAway = realtimeData.Summary.Now_hitter_away;
-      }
-      if (realtimeData.Summary.Now_pitcher_away) {
-        nowPitcherAway = realtimeData.Summary.Now_pitcher_away;
-      }
-    }
-  }
+
   const token = await queryForToken();
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
   const timerForStatus2 = setInterval(async function() {
+    let realtimeData = await modules.database
+      .ref(`baseball/KBO/${betsID}`)
+      .once('value');
+    realtimeData = realtimeData.val();
+    if (realtimeData) {
+      if (realtimeData.Summary.info) {
+        if (realtimeData.Summary.Now_event) {
+          eventNow = realtimeData.Summary.Now_event;
+        }
+        if (realtimeData.Summary.Now_event_order) {
+          eventOrderNow = realtimeData.Summary.Now_event_order;
+        }
+        if (realtimeData.Summary.Now_hitter_home) {
+          nowHitterHome = realtimeData.Summary.Now_hitter_home;
+        }
+        if (realtimeData.Summary.Now_pitcher_home) {
+          nowPitcherHome = realtimeData.Summary.Now_pitcher_home;
+        }
+        if (realtimeData.Summary.Now_hitter_away) {
+          nowHitterAway = realtimeData.Summary.Now_hitter_away;
+        }
+        if (realtimeData.Summary.Now_pitcher_away) {
+          nowPitcherAway = realtimeData.Summary.Now_pitcher_away;
+        }
+      }
+    }
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL,
@@ -496,7 +504,8 @@ async function doPBP(parameter) {
         data.api.data.competition.season.stage.group.event.events_incidents
           .length;
       // here
-      for (let eventCount = eventNow; eventCount < totalEvent; eventCount++) {
+      const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
+      for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
         realtimeData = await modules.database
           .ref(`baseball/KBO/${betsID}`)
           .once('value');
@@ -510,7 +519,7 @@ async function doPBP(parameter) {
 
         await modules.database
           .ref(`baseball/KBO/${betsID}/Summary/Now_event`)
-          .set(eventCount);
+          .set(realtimeData.Summary.Now_event + 1);
         if (realtimeData.Summary.Now_hitter_home) {
           nowHitterHome = realtimeData.Summary.Now_hitter_home;
         }

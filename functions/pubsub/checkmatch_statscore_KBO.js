@@ -21,10 +21,6 @@ async function checkmatch_statscore_KBO() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
-                let realtimeData = await modules.database
-                  .ref(`baseball/KBO/${betsID}`)
-                  .once('value');
-                realtimeData = realtimeData.val();
                 await Match.upsert({
                   bets_id: betsID,
                   status: 1
@@ -36,7 +32,7 @@ async function checkmatch_statscore_KBO() {
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  realtimeData: realtimeData
+                  first: 1
                 };
                 await KBOpbpInplay(parameter);
               } catch (err) {
@@ -71,7 +67,7 @@ async function checkmatch_statscore_KBO() {
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  realtimeData: realtimeData
+                  first: 0
                 };
                 await KBOpbpInplay(parameter);
               }
