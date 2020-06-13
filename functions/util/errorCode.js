@@ -76,6 +76,7 @@ const errorCodeLists = {
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20004: { msg: ['搞錠轉換 現金金額不一致'], backend: ['搞錠轉換 現金金額不一致', ''] },
   20005: { msg: ['搞錠轉換 手續費金額不一致'], backend: ['搞錠轉換 手續費金額不一致', ''] },
+  20006: { msg: ['寫入紅利回饋失敗'], backend: ['寫入紅利回饋失敗', ''] },
 
   50010: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
   50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },

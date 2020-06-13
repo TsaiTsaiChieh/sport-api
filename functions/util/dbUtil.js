@@ -141,6 +141,30 @@ const User = sequelize.define(
 );
 
 /*
+ * 帳號禁言記錄
+ */
+const User_BlockLog = sequelize.define('user__blocklog', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  uid: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  newcount: {
+    type: Sequelize.INTEGER
+  },
+  start: {
+    type: Sequelize.DATE
+  },
+  end: {
+    type: Sequelize.DATE
+  }
+});
+
+/*
  * 歷史大神 含 大神戰績資訊
  */
 const Title = sequelize.define(
@@ -1578,7 +1602,8 @@ const News = sequelize.define(
   'user__new',
   {
     news_id: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      primaryKey: true
     },
     uid: {
       type: Sequelize.STRING
@@ -1592,6 +1617,11 @@ const News = sequelize.define(
     status: {
       type: Sequelize.INTEGER
     },
+    active: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1,
+      allowNull: false
+    },
     scheduled: {
       type: Sequelize.INTEGER
     }
@@ -1599,7 +1629,7 @@ const News = sequelize.define(
   {
     indexes: [
       {
-        fields: ['honor_id', 'uid', 'rank_id']
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
       }
     ]
   }
@@ -1697,6 +1727,10 @@ const Dividend = sequelize.define(
       allowNull: false
     },
     status: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend_status: {
       type: Sequelize.INTEGER,
       primaryKey: true
     },
@@ -1861,6 +1895,10 @@ const IngotTransfer = sequelize.define(
       allowNull: false,
       autoIncrement: true
     },
+    from_transfer_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
     uid: {
       type: Sequelize.STRING,
       primaryKey: true
@@ -1931,27 +1969,26 @@ const IngotTransfer = sequelize.define(
 const CashflowBuy = sequelize.define(
   'cashflow_buy',
   {
-    buy_id: {
+    cbuy_id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
       autoIncrement: true
     },
+    buy_id: {
+      type: Sequelize.INTEGER
+    },
     uid: {
-      type: Sequelize.STRING,
-      primaryKey: true
+      type: Sequelize.STRING
     },
     god_uid: {
-      type: Sequelize.STRING,
-      primaryKey: true
+      type: Sequelize.STRING
     },
     league_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     status: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     dividend: {
       type: Sequelize.INTEGER,
@@ -1969,6 +2006,10 @@ const CashflowBuy = sequelize.define(
       type: Sequelize.FLOAT,
       primaryKey: true
     },
+    matches_date: {
+      type: Sequelize.INTEGER
+
+    },
     scheduled: {
       type: Sequelize.STRING
     },
@@ -1982,9 +2023,10 @@ const CashflowBuy = sequelize.define(
     }
   },
   {
-    indexes: [
+    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['buy_id', 'status', 'uid']
+        fields: ['buy_id', 'uid', 'league_id', 'god_uid', 'status', 'matches_date'],
+        unique: true
       }
     ]
   }
@@ -2109,10 +2151,10 @@ const CashflowDonate = sequelize.define(
 const Token = sequelize.define(
   'token',
   {
-		name:{
-			type: Sequelize.STRING,
+    name: {
+      type: Sequelize.STRING,
       allowNull: false
-		},
+    },
     token: {
       type: Sequelize.STRING,
       allowNull: false
@@ -2121,7 +2163,7 @@ const Token = sequelize.define(
   {
     indexes: [
       {
-				unique: true,
+        unique: true,
         fields: ['name']
       }
     ]
@@ -2139,6 +2181,7 @@ const dbUtil = {
   Prediction,
   PredictionDescription,
   User,
+  User_BlockLog,
   Title,
   Collection,
   Rank,
@@ -2169,8 +2212,8 @@ const dbUtil = {
   IngotTransfer,
   CashflowBuy,
   CashflowSell,
-	CashflowDonate,
-	Token
+  CashflowDonate,
+  Token
 };
 
 module.exports = dbUtil;

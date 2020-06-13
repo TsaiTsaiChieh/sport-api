@@ -30,7 +30,7 @@ module.exports.getTopicInfo = async function(aid) {
   return new Promise(async function(resolve, reject) {
     try {
       // console.log('function: get topic info by aid:' + aid);
-      const result = await db.sequelize.models.topic__article.findAll({
+      const result = await db.sequelize.models.topic__article.findOne({
         where: {
           article_id: aid,
           status: 1
@@ -138,6 +138,26 @@ module.exports.getReplyContent = async function(replies) { // 傳入array rid
     }
   });
 };
+module.exports.getArticlesContent = async function(aids) { // 傳入array rid
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__article.findAll({
+        where: {
+          article_id: {
+            status: 1,
+            [Op.or]: aids
+          }
+        },
+        group: 'article_id',
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      resolve({});
+    }
+  });
+};
 module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得自己有無按過讚（單篇）
   return new Promise(async function(resolve, reject) {
     try {
@@ -178,6 +198,28 @@ module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自�
     } catch (error) {
       console.error(error);
       resolve({});
+    }
+  });
+};
+module.exports.chkUserBlocking = async function(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      const block_date = new Date(result.block_message);
+      const block_ts = block_date.getTime();
+      if (Date.now() < block_ts) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    } catch (error) {
+      console.error(error);
+      reject(error);
     }
   });
 };

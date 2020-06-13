@@ -44,6 +44,10 @@ async function createTopic(args) {
 
       // 撈原文
       let orig_article;
+      if (orig_article.status !== 1 && orig_article.status !== 3) {
+        reject({ code: 404, error: 'topic not found' });
+        return;
+      }
       try {
         const article = await dbFind(args.article_id);
         if (!article[0]) {
