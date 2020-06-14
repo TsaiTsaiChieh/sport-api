@@ -111,7 +111,7 @@ async function queryForEvents() {
 				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
 					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
-						AND game.league_id =  '349'
+						AND game.league_id = '349'
 			 )`,
         {
           type: db.sequelize.QueryTypes.SELECT
