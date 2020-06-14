@@ -9,12 +9,12 @@ let hitterHomeNow = 0;
 let hitterAwayNow = 0;
 let pitcherHomeNow = 0;
 let pitcherAwayNow = 0;
-let inningNow = 0;
-let halfNow = 0;
+let inningNow = 1;
+let halfNow = '0';
 let memberHomeNow = 0;
 let memberAwayNow = 0;
 async function KBOpbpInplay(parameter) {
-  // 18 秒一次
+  // 14 秒一次
   let perStep;
   let timesPerLoop;
   if (parameter.first === 1) {
@@ -22,8 +22,8 @@ async function KBOpbpInplay(parameter) {
     perStep = 50000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
-    perStep = 18000;
-    timesPerLoop = 4; // 一分鐘3次
+    perStep = 14000;
+    timesPerLoop = 5; // 一分鐘3次
   }
 
   const betsID = parameter.betsID;
@@ -74,7 +74,8 @@ async function KBOpbpInplay(parameter) {
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL,
-      realtimeData: realtimeData
+      realtimeData: realtimeData,
+      first: parameter.first
     };
 
     countForStatus2 = countForStatus2 + 1;
@@ -156,6 +157,7 @@ async function doPBP(parameter) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
+    let first = parameter.first;
     let pbpFlag = 1;
 
     const data = await axiosForURL(pbpURL);
@@ -264,13 +266,15 @@ async function doPBP(parameter) {
     // check the event is home or away
 
     // initial the realtime database
-    if (parameter.first === 1) {
+
+    if (first === 1) {
       await initRealtime(betsID, data);
-    }
-    // do the pbp
-    if (pbpFlag === 1) {
-      await writeRealtime(betsID, realtimeData, data);
-      await writeBacktoReal(betsID);
+      first = 0;
+    } else {
+      if (pbpFlag === 1) {
+        await writeRealtime(betsID, realtimeData, data);
+        await writeBacktoReal(betsID);
+      }
     }
 
     return resolve('ok');
@@ -333,16 +337,17 @@ async function initRealtime(betsID, data) {
         )
       );
     }
-    const homeLineup = data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+    const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
       function(a, b) {
         return a.id > b.id ? 1 : -1;
       }
     );
-    const awayLineup = data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+    const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
       function(a, b) {
         return a.id > b.id ? 1 : -1;
       }
     );
+
     for (let playercount = 0; playercount < 9; playercount++) {
       try {
         await modules.database
@@ -563,7 +568,6 @@ async function writeRealtime(betsID, realtimeData, data) {
 
     const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
-      // Now_halfs Now_innings Now_event Now_event_order Now_hitter_home Now_hitter_away Now_member_home Now_member_away
       inningNow = changeInning(
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -596,7 +600,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].incident_id !== 2527
               ? '0'
               : '1';
-      if (half !== halfNow && half !== 'common') {
+      if (half !== halfNow || half === 'common') {
         eventOrderNow = 0;
       } else {
         eventOrderNow = eventOrderNow + 1;
@@ -803,7 +807,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             ) {
               // 主隊有代打情況
               resetFlag = 1;
-              const homeLineup = data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+              const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
                 function(a, b) {
                   return a.id > b.id ? 1 : -1;
                 }
@@ -917,7 +921,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               ].name
             ) {
               resetFlag = 1;
-              const awayLineup = data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+              const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
                 function(a, b) {
                   return a.id > b.id ? 1 : -1;
                 }
@@ -961,39 +965,39 @@ async function writeRealtime(betsID, realtimeData, data) {
                 );
               }
               memberAwayNow = memberAwayNow + 1;
-              if (resetFlag === 0) {
-                try {
-                  await modules.database
-                    .ref(
-                      `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                    )
-                    .set(
-                      realtimeData.Summary.info.away.Now_lineup[
-                        `lineup${hitterAwayNow}`
-                      ].ab + 1
-                    );
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-              } else {
-                try {
-                  await modules.database
-                    .ref(
-                      `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                    )
-                    .set(1);
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-              }
+            }
+          }
+          if (resetFlag === 0) {
+            try {
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+                )
+                .set(
+                  realtimeData.Summary.info.away.Now_lineup[
+                    `lineup${hitterAwayNow}`
+                  ].ab + 1
+                );
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
+            }
+          } else {
+            try {
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+                )
+                .set(1);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
             }
           }
         }
@@ -1157,7 +1161,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               )
             );
           }
-          const homeLineup = data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+          const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
             function(a, b) {
               return a.id > b.id ? 1 : -1;
             }
@@ -1200,7 +1204,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               )
             );
           }
-          const awayLineup = data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+          const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
             function(a, b) {
               return a.id > b.id ? 1 : -1;
             }
