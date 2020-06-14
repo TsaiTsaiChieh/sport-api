@@ -600,7 +600,10 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].incident_id !== 2527
               ? '0'
               : '1';
-      if (half !== halfNow || half === 'common') {
+
+      if (half !== halfNow && half !== 'common') {
+        eventOrderNow = 0;
+      } else if (half === 'common') {
         eventOrderNow = 0;
       } else {
         eventOrderNow = eventOrderNow + 1;
@@ -1549,8 +1552,8 @@ async function writeRealtime(betsID, realtimeData, data) {
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
           ].participant_id === homeID
-            ? '1'
-            : '0';
+            ? '0'
+            : '1';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
             await modules.database
