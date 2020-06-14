@@ -41,12 +41,29 @@ function getGodAllTitles(args, userData) {
 function repackageReturnData(userData, titles) {
   try {
     const data = {
-      signature: userData.signature
-
+      uid: userData.uid,
+      role: userData.status === GOD_STATUS ? 'GOD' : 'NORMAL',
+      display_name: userData.display_name,
+      avatar: userData.attributes,
+      signature: userData.signature,
+      default_title: defaultTitle(userData, titles),
+      all_titles: {
+        titles
+      }
     };
+    return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
     throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  }
+}
+
+function defaultTitle(userData, titles) {
+  for (let i = 0; i < titles.length; i++) {
+    const ele = titles[i];
+    if (ele.league_id === userData.default_god_league_rank) {
+      return ele;
+    } else return { league_id: '0', rank_id: 0 };
   }
 }
 
