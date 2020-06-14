@@ -38,9 +38,9 @@ async function getTitlesAndSignature(req, res) {
 module.exports = getTitlesAndSignature;
 
 /**
- * @api {get} /user/getTitlesAndSignature/:uid Get Titles And Signature
+ * @api {get} /user/getTitlesAndSignature/uid 聊天室-使用者簽名檔和當期所有稱號
  * @apiVersion 2.0.0
- * @apiDescription 看使用者簽名檔和當期所有稱號 by Tsai-Chieh
+ * @apiDescription Get Titles And Signature by Tsai-Chieh
  *
  * @apiName getTitlesAndSignature
  * @apiGroup User
@@ -106,7 +106,6 @@ module.exports = getTitlesAndSignature;
  * @apiError 404 Not Found
  * @apiError 500 Internal Server Error
  *
- * @apiErrorExample {JSON} 401-Response
  * @apiErrorExample {JSON} 404-Response
  * HTTP/1.1 404 Not Found
 {
