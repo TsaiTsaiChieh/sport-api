@@ -425,6 +425,17 @@ class CreateCashflowBuyRollback extends ExtendableError {
   }
 }
 
+class PredictionHistory extends ExtendableError {
+  constructor(
+    message = '歷史紀錄 API 錯誤',
+    status = 1521,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -463,5 +474,6 @@ module.exports = {
   UnknownLeague,
   CreateUserBuysTableRollback,
   UpdateUserCoinORDividendRollback,
-  CreateCashflowBuyRollback
+  CreateCashflowBuyRollback,
+  PredictionHistory
 };
