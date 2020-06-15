@@ -5,6 +5,7 @@ const GOD_USER = 2;
 const ADMIN_USER = 9;
 const MANAGER_USER = 8;
 const SERVICE_USER = 7;
+const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = modules.httpStatus;
 
 async function admin(req, res, next) {
   try {
@@ -14,15 +15,15 @@ async function admin(req, res, next) {
       },
       raw: true
     });
-    if (result.status >= 9) {
+    if (result.status >= ADMIN_USER) {
       req.admin = true;
       req.adminUid = req.token.uid;
       return next();
     } else {
-      return res.status(401).json({ code: 401, error: 'Unauthorized admin' });
+      return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: 'Unauthorized admin' });
     }
   } catch (err) {
-    res.status(500).json({ code: 500, error: 'check admin error' });
+    res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: 'check admin error' });
   }
 }
 
@@ -44,7 +45,7 @@ async function confirmLogin(req, res, next) {
     }
   } catch (err) {
     console.error('Error in util/verification confirmLogin functions', err);
-    return res.status(500).json({ code: 500, error: err });
+    return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: err });
   }
   return next();
 }
@@ -64,7 +65,7 @@ async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則�
     }
   } catch (err) {
     console.error('Error in util/verification confirmLogin_v2 functions', err);
-    return res.status(500).json({ code: 500, error: err });
+    return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: err });
   }
   return next();
 }
@@ -84,11 +85,11 @@ async function token(req, res, next) {
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
-      return res.sendStatus(401);
+      return res.sendStatus(UNAUTHORIZED);
     }
   } catch (err) {
     console.error('Error in util/verification token functions', err);
-    return res.sendStatus(401);
+    return res.sendStatus(UNAUTHORIZED);
   }
   next();
 }
@@ -96,7 +97,7 @@ async function token(req, res, next) {
 async function token_v2(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
-    if (!bearerHeader) res.sendStatus(401);
+    if (!bearerHeader) res.sendStatus(UNAUTHORIZED);
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
@@ -108,7 +109,7 @@ async function token_v2(req, res, next) {
     }
   } catch (err) {
     console.error('Error in util/verification token_v2 functions', err);
-    return res.sendStatus(401);
+    return res.sendStatus(UNAUTHORIZED);
   }
   return next();
 }

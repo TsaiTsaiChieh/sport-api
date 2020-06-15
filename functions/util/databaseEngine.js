@@ -212,9 +212,9 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   return infos;
 }
 
-async function createBuy(Data, status, action, trans) {
-  // eslint-disable-next-line no-unused-expressions
-  trans ? '' : await db.sequelize.transaction();
+async function createData(Data, status, action, inTrans = undefined) {
+  const trans = inTrans !== undefined ? inTrans : await db.sequelize.transaction();
+  Data.scheduled = modules.moment().unix();
   if (action === 'buy') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowBuy.create(Data));
@@ -231,17 +231,16 @@ async function createBuy(Data, status, action, trans) {
       }
     /* 狀態為購牌的話就更新 */
     } else {
-      const [purchaseErr] = await modules.to(
-        db.UserBuy.update(
-          { buy_status: status },
-          { where: { buy_id: Data.buy_uid }, trans }
-        ));
+      const [purchaseErr] = await modules.to(db.UserBuy.update(
+        { buy_status: status },
+        { where: { buy_id: Data.buy_id } }
+      )
+      );
       if (purchaseErr) {
         await trans.rollback();
         throw new AppError.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
       }
     }
-
     const [overageErr] = await modules.to(db.User.update(
       { coin: Data.coin, dividend: Data.dividend },
       { where: { uid: Data.uid }, trans }));
@@ -256,16 +255,9 @@ async function createBuy(Data, status, action, trans) {
       await trans.rollback();
       throw new AppError.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
     }
-    const [overageErr] = await modules.to(db.User.update(
-      { coin: Data.coin, dividend: Data.dividend },
-      { where: { uid: Data.uid }, trans }));
-    if (overageErr) {
-      await trans.rollback();
-      throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-    }
   }
-  // eslint-disable-next-line no-unused-expressions
-  trans ? '' : await trans.commit();
+  if (inTrans === undefined) await trans.commit();
+  // const test = inTrans !== undefined ? await trans.commit() : '';
 }
 module.exports = {
   findUser,
@@ -276,5 +268,5 @@ module.exports = {
   checkGodSellPrediction,
   getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo,
-  createBuy
+  createData
 };
