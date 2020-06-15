@@ -172,7 +172,7 @@ async function transactionsForPurchase(args, overage, purchaseData) {
   purchaseData.coin = overage.coin;
   purchaseData.coin_real = overage.coin;
   const status = PAID;
-  await dbEngine.createBuy(purchaseData, status, 'buy', trans);
+  await dbEngine.createBuy(Data, Data_status, 'buy');
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
   await trans.commit();
