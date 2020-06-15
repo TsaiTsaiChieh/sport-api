@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-const { moment, dateUnixInfo, settleRefundCoinDividend } = require('../util/modules');
+const { moment, dateUnixInfo, settleRefundCoinDividend, settleIngot, settleRefundIngot } = require('../util/modules');
 const { getGodSellPredictionWinBetsInfo, createBuy } = require('../util/databaseEngine');
 const dividendExpireModel = require('../model/cashflow/dividendExpireModel');
 const db = require('../util/dbUtil');
@@ -45,76 +45,90 @@ async function god(req, res) {
   // 1. `每天`  `清晨 05:00` 紅利退款 搞幣退款
   //
   // 清晨 HHmm 0500
-  if (nowHHmm === '0500') {
-    log('每天 清晨 05:00 紅利 退款  run');
+  // if (nowHHmm === '0500') {
+  log('每天 清晨 05:00 紅利 退款  run');
 
-    // 取得 該天那些大神販售預測牌組，那些 User 購買
-    // buy_status = 1 已付費
-    log('取得該天那些大神販售預測牌組，那些 User 購買  ');
-    const godSellDeckList = await db.sequelize.query(`
+  // 取得 該天那些大神販售預測牌組，那些 User 購買
+  // buy_status = 1 已付費
+  log('取得該天那些大神販售預測牌組，那些 User 購買  ');
+  const godSellDeckList = await db.sequelize.query(`
       select buy_id, uid, god_uid, league_id, buy_status, matches_date
         from user__buys
        where matches_date = :begin
          and buy_status = 1
     `, {
-      replacements: {
-        begin: yesterdayBeginUnix
-      },
-      type: db.sequelize.QueryTypes.SELECT
+    replacements: {
+      begin: yesterdayBeginUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  // 判斷 該大神預測牌組結算是否 >=0  當 "否" 時，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
+  log('判斷 該大神預測牌組結算是否 >=0 ');
+  const lists = [];
+  for (const [index, data] of Object.entries(godSellDeckList)) {
+    log('取得 大神預測牌組結算 第  %s筆', index, data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
+
+    // 如果已經取過就不要再取
+    if (godSellDeckListSettle[`${data.uid}${data.league_id}${yesterdayYYYYMMDDUnix}`] !== undefined) continue;
+
+    // 測試模擬資料;
+    // const t = [{
+    //   buy_id: 67,
+    //   uid: 'QztgShRWSSNonhm2pc3hKoPU7Al2',
+    //   god_uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52',
+    //   league_id: '2274',
+    //   date_timestamp: '1593532800',
+    //   win_bets: -1, // 1: >= 0   -1: <= 0
+    //   matches_fail_status: 0 // -1 全額退款，0 一般退款
+    // }];
+    const t = await getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
+
+    t.forEach(function(ele) {
+      lists.push(ele);
     });
-
-    // 判斷 該大神預測牌組結算是否 >=0  當 "否" 時，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
-    log('判斷 該大神預測牌組結算是否 >=0 ');
-    const lists = [];
-    for (const [index, data] of Object.entries(godSellDeckList)) {
-      log('取得 大神預測牌組結算 第  %s筆', index, data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
-
-      // 如果已經取過就不要再取
-      if (godSellDeckListSettle[`${data.uid}${data.league_id}${yesterdayYYYYMMDDUnix}`] !== undefined) continue;
-
-      // 測試模擬資料;
-      // const t = [{
-      //   buy_id: 67,
-      //   uid: 'QztgShRWSSNonhm2pc3hKoPU7Al2',
-      //   god_uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52',
-      //   league_id: '2274',
-      //   date_timestamp: '1593532800',
-      //   win_bets: -1, // 1: >= 0   -1: <= 0
-      //   matches_fail_status: 1 // -1 全額退款，0 一般退款
-      // }];
-      const t = await getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
-
-      t.forEach(function(ele) {
-        lists.push(ele);
-      });
-    }
-
-    for (const data of lists) {
-      log(`${data.uid}  ${data.league_id} ${yesterdayYYYYMMDDUnix} ${data.date_timestamp} 注數：${data.win_bets}`);
-      godSellDeckListSettle[`${data.uid}${data.league_id}${yesterdayYYYYMMDDUnix}`] = data;
-
-      if (data.win_bets === undefined || data.win_bets >= 0) continue;
-
-      // 否，計算退款比例 按 搞幣+紅利 支付比例退回  會有一定比例`紅利`退回
-      const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
-      const refundInfo = settleRefundCoinDividend(179, 89, 80, 99);
-
-      // coin 搞幣   dividend 紅利
-      log(`新增退款資料 到 cashflow_buy buy_id: ${data.buy_id} 使用者id:${data.uid} 退款情況:${buy_status} 退款支付比例:`, refundInfo);
-      await createBuy({
-        uid: data.uid,
-        league_id: data.league_id,
-        god_uid: data.god_uid,
-        buy_id: data.buy_id,
-        matches_date: data.date_timestamp,
-        dividend_real: refundInfo.dividend_real,
-        dividend: refundInfo.dividend,
-        coin_real: refundInfo.coin_real,
-        coin: refundInfo.coin,
-        status: buy_status
-      }, buy_status, 'buy');
-    };
   }
+
+  for (const data of lists) {
+    log(`[紅利] ${data.uid}  ${data.league_id} ${yesterdayYYYYMMDDUnix} ${data.date_timestamp} 注數：${data.win_bets}`);
+    godSellDeckListSettle[`${data.uid}${data.league_id}${yesterdayYYYYMMDDUnix}`] = data;
+
+    if (data.win_bets === undefined || data.win_bets >= 0) continue;
+
+    // 否，計算退款比例 按 搞幣+紅利 支付比例退回  會有一定比例`紅利`退回
+    const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
+    const refundInfo = settleRefundCoinDividend(179, 89, 80, 99);
+
+    // coin 搞幣   dividend 紅利
+    log(`新增退款資料 到 cashflow_buy buy_id: ${data.buy_id} 使用者id:${data.uid} 退款情況:${buy_status} 退款支付比例:`, refundInfo);
+    await createBuy({
+      uid: data.uid,
+      league_id: data.league_id,
+      god_uid: data.god_uid,
+      buy_id: data.buy_id,
+      matches_date: data.date_timestamp,
+      dividend_real: refundInfo.dividend_real,
+      dividend: refundInfo.dividend,
+      coin_real: refundInfo.coin_real,
+      coin: refundInfo.coin,
+      status: buy_status
+    }, buy_status, 'buy');
+  };
+
+  // 鎬錠
+  for (const data of Object.values(godSellDeckListSettle)) { // win_bets < 0
+    log(`[搞錠] ${data.uid}  ${data.league_id} ${yesterdayYYYYMMDDUnix} ${data.date_timestamp} 注數：${data.win_bets}`);
+
+    if (data.win_bets === undefined || data.win_bets >= 0) {
+      const Ingotinfo = settleIngot();
+      console.log('Ingotinfo: ', Ingotinfo);
+    } else {
+      log(`新增退款資料 到 cashflow_buy buy_id: ${data.buy_id} 使用者id:${data.uid} 退款情況:${buy_status} 退款支付比例:`, refundInfo);
+      const refundIngotInfo = settleRefundIngot();
+      console.log('refundIngotInfo: ', refundIngotInfo);
+    }
+  };
+  // }
 
   //
   // 2. `每天`  `清晨 12:00` `這個月第 14 天日期` 本月到期紅利
