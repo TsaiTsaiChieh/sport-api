@@ -1991,20 +1991,16 @@ const CashflowBuy = sequelize.define(
       type: Sequelize.INTEGER
     },
     dividend: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     dividend_real: {
-      type: Sequelize.FLOAT,
-      primaryKey: true
+      type: Sequelize.FLOAT
     },
     coin: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     coin_real: {
-      type: Sequelize.FLOAT,
-      primaryKey: true
+      type: Sequelize.FLOAT
     },
     matches_date: {
       type: Sequelize.INTEGER
