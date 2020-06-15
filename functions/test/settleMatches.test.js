@@ -22,7 +22,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 7.5 主隊 10分  客隊 1分 ', () => {
@@ -35,7 +35,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleSpread(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
   });
@@ -53,7 +53,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 7 主隊 10分  客隊 1分 ', () => {
@@ -66,7 +66,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleSpread(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -98,7 +98,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 7 主隊 10分  客隊 1分 ', () => {
@@ -111,7 +111,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleSpread(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -162,7 +162,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleTotals(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -177,7 +177,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
   });
 
@@ -193,7 +193,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleTotals(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -208,7 +208,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 20 主隊 10分  客隊 10分 ', () => {
@@ -238,7 +238,7 @@ describe('測試 冰球/棒球/籃球', () => {
       const settleResult = settleTotals(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -253,7 +253,7 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 20 主隊 10分  客隊 10分  主隊賠率 1.93  客隊賠率 2.03', () => {
@@ -322,7 +322,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -337,7 +337,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
 
@@ -368,7 +368,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -383,7 +383,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 0.25 主隊 1分  客隊 1分', () => {
@@ -410,7 +410,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -425,7 +425,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     // - .25
@@ -453,7 +453,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -468,7 +468,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 -0.25 主隊 1分  客隊 1分', () => {
@@ -495,7 +495,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -510,7 +510,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
 
@@ -528,7 +528,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 .5 主隊 1分  客隊 0分 ', () => {
@@ -541,7 +541,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -556,7 +556,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 .5 主隊 1分  客隊 1分 ', () => {
@@ -570,7 +570,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 .5 主隊 2分  客隊 0分 ', () => {
@@ -583,7 +583,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -598,7 +598,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
 
@@ -617,7 +617,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 0.75 主隊 1分  客隊 0分 ', () => {
@@ -645,7 +645,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 0.75 主隊 1分  客隊 1分 ', () => {
@@ -659,7 +659,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 0.75 主隊 2分  客隊 0分 ', () => {
@@ -672,7 +672,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -687,7 +687,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     // - .75
@@ -702,7 +702,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 -0.75 主隊 1分  客隊 0分 ', () => {
@@ -730,7 +730,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 -0.75 主隊 1分  客隊 1分 ', () => {
@@ -744,7 +744,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 -0.75 主隊 2分  客隊 0分 ', () => {
@@ -757,7 +757,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -772,7 +772,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
 
@@ -790,7 +790,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 1 主隊 1分  客隊 0分 ', () => {
@@ -818,7 +818,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 1 主隊 1分  客隊 1分 ', () => {
@@ -832,7 +832,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
 
     it('讓分 球頭 1 主隊 2分  客隊 0分 ', () => {
@@ -845,7 +845,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleSpreadSoccer(data);
       expect(settleResult).toBe('home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.95);
+      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
@@ -860,7 +860,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('away');
 
       expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(0.95);
+      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
   
@@ -893,7 +893,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -907,7 +907,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
@@ -939,7 +939,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -953,7 +953,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -967,7 +967,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -996,7 +996,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -1010,7 +1010,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -1024,7 +1024,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
@@ -1042,7 +1042,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 .5 主隊 1分  客隊 0分 ', () => {
@@ -1055,7 +1055,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -1069,7 +1069,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -1083,7 +1083,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
@@ -1103,7 +1103,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 .75 主隊 1分  客隊 0分 ', () => {
@@ -1144,7 +1144,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
 
@@ -1160,7 +1160,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 -0.75 主隊 1分  客隊 0分 ', () => {
@@ -1201,7 +1201,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
@@ -1219,7 +1219,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 1 主隊 1分  客隊 0分 ', () => {
@@ -1260,7 +1260,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
@@ -1278,7 +1278,7 @@ describe('測試 足球/電子足球', () => {
       expect(settleResult).toBe('under');
 
       expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(0.95);
+      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
     it('大小 球頭 1.25 主隊 1分  客隊 0分 ', () => {
@@ -1319,7 +1319,7 @@ describe('測試 足球/電子足球', () => {
       const settleResult = settleTotalsSoccer(data);
       expect(settleResult).toBe('over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.95);
+      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });

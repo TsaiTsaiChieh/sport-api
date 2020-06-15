@@ -63,10 +63,40 @@ router.post(
   require('../controller/admin/user/editUserController')
 );
 router.post(
+  '/user/getUserBlockLog',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/getUserBlockLogController')
+);
+router.post(
+  '/user/unblockUser',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/unblockUserController')
+);
+router.get(
+  '/user/getNews',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/getNewsController')
+);
+router.post(
+  '/user/editNews',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/user/editNewsController')
+);
+router.post(
   '/service/getReports',
   verification.token,
   verification.admin,
   require('../controller/admin/service/getReportsController')
+);
+router.post(
+  '/service/deal',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/service/dealController')
 );
 
 /// 以下為原本的

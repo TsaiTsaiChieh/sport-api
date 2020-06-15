@@ -10,7 +10,7 @@ function honorModel(req) {
       const league_id = req.body.league_id;
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now, 'YYYY-MM-DD');
+        const period = await modules.getTitlesNextPeriod(now, 'YYYY-MM-DD');
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 

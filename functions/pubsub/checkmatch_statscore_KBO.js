@@ -1,43 +1,134 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
-// const db = require('../util/dbUtil');
+const KBOpbp = require('./pbp_statscore_KBO');
+const KBOpbpInplay = KBOpbp.KBOpbpInplay;
+const KBOpbpHistory = KBOpbp.KBOpbpHistory;
+const db = require('../util/dbUtil');
+const Match = db.Match;
 
-async function test_statscore(req, res) {
-  try {
-    const pbpURL =
-      'https://api.statscore.com/v2/events/3330182?token=dd0509a109c9549d6bb541bd76bfb281';
-    const data = await axiosForURL(pbpURL);
-
-    // 文字直播
-    // for (
-    //  let i = 0;
-    //  i <
-    //  data.api.data.competition.season.stage.group.event.events_incidents
-    //    .length;
-    //  i++
-    // ) {
-    //  console.log(
-    //    data.api.data.competition.season.stage.group.event.events_incidents[i]
-    //      .incident_name
-    //  );
-    // }
-
-    // 團隊各項數值
-    // data.api.data.competition.season.stage.group.event.participants.stats.
-
-    res.json(data);
-  } catch (err) {
-    console.log(err);
-  }
-}
-async function axiosForURL(URL) {
+async function checkmatch_statscore_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
-      return resolve(data);
+      const totalData = await queryForEvents();
+      for (let i = 0; i < totalData.length; i++) {
+        const betsID = totalData[i].bets_id;
+        const statscoreID = totalData[i].statscore_id;
+        const gameTime = totalData[i].scheduled * 1000;
+        const nowTime = Date.now();
+        const eventStatus = totalData[i].status;
+
+        switch (eventStatus) {
+          case 2: {
+            if (gameTime <= nowTime) {
+              try {
+                let realtimeData = await modules.database
+                  .ref(`baseball/KBO/${betsID}`)
+                  .once('value');
+                await Match.upsert({
+                  bets_id: betsID,
+                  status: 1
+                });
+                await modules.database
+                  .ref(`baseball/KBO/${betsID}/Summary/status`)
+                  .set('inprogress');
+                realtimeData = realtimeData.val();
+                const parameter = {
+                  betsID: betsID,
+                  statscoreID: statscoreID,
+                  realtimeData: realtimeData
+                };
+                await KBOpbpInplay(parameter);
+              } catch (err) {
+                return reject(
+                  new AppErrors.PBPEsoccerError(
+                    `${err} at checkmatch_statscore_KBO by DY`
+                  )
+                );
+              }
+            } else {
+              try {
+                await modules.database
+                  .ref(`baseball/KBO/${betsID}/Summary/status`)
+                  .set('scheduled');
+              } catch (err) {
+                return reject(
+                  new AppErrors.PBPEsoccerError(
+                    `${err} at checkmatch_statscore_KBO by DY`
+                  )
+                );
+              }
+            }
+            break;
+          }
+          case 1: {
+            try {
+              let realtimeData = await modules.database
+                .ref(`baseball/KBO/${betsID}`)
+                .once('value');
+              realtimeData = realtimeData.val();
+              if (realtimeData.Summary.status !== 'closed') {
+                const parameter = {
+                  betsID: betsID,
+                  statscoreID: statscoreID,
+                  realtimeData: realtimeData
+                };
+                await KBOpbpInplay(parameter);
+              }
+
+              if (realtimeData.Summary.status === 'closed') {
+                const parameter = {
+                  betsID: betsID,
+                  statscoreID: statscoreID
+                };
+                await KBOpbpHistory(parameter);
+              }
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseCollectError(
+                  `${err} checkmatch_statscore_KBO by DY`
+                )
+              );
+            }
+            break;
+          }
+          default: {
+          }
+        }
+      }
     } catch (err) {
-      return reject(new AppErrors.AxiosError(`${err} at test_statscore by DY`));
+      return reject(
+        new AppErrors.FirebaseCollectError(
+          `${err} at checkmatch_statscore_KBO by DY`
+        )
+      );
+    }
+    return resolve('ok');
+  });
+}
+
+async function queryForEvents() {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const queries = await db.sequelize.query(
+        `(
+				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
+					 FROM matches AS game
+					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+						AND game.league_id =  '349'
+			 )`,
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
+      return resolve(queries);
+    } catch (err) {
+      return reject(
+        new AppErrors.PBPEsoccerError(
+          `${err} at checkmatch_statscore_KBO by DY`
+        )
+      );
     }
   });
 }
-module.exports = test_statscore;
+
+module.exports = checkmatch_statscore_KBO;

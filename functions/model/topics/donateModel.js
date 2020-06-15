@@ -13,6 +13,7 @@ function dbFind(article_id) { // 確認文章存在
       });
       resolve(result);
     } catch (error) {
+      console.error('1!!');
       console.error(error);
       reject('get article error');
     }
@@ -35,7 +36,7 @@ function getMoney(uid) {
   });
 }
 function setMoney(uid, donate_uid, type, cost) {
-  console.log(uid, donate_uid, type, cost);
+  // console.log(uid, donate_uid, type, cost);
   return new Promise(async function(resolve, reject) {
     const minus = await db.sequelize.models.user.findOne({
       where: { uid: uid },
@@ -80,6 +81,7 @@ function logData(article_id, uid, cost) {
       await db.sequelize.models.topic__donate.create(insertData);
       resolve();
     } catch (error) {
+      console.error('2!!');
       console.error(error);
       reject('cannot log data');
     }
@@ -103,8 +105,13 @@ async function donate(args) {
           return;
         }
       } catch (err) {
+        console.error('3!!');
         console.error(err);
         reject({ code: 500, error: err });
+        return;
+      }
+      if (article[0].status !== 1 && article[0].status !== 3) {
+        reject({ code: 404, error: 'topic not found' });
         return;
       }
 

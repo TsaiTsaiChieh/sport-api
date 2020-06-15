@@ -1,27 +1,15 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../../util/modules');
-const model = require('../../../model/admin/user/editUserModel');
+const model = require('../../../model/admin/user/getUserBlockLogModel');
 async function controller(req, res) {
   const schema = {
     type: 'object',
     properties: {
       uid: {
         type: 'string'
-      },
-      name: {
-        type: 'string'
-      },
-      display_name: {
-        type: 'string'
-      },
-      email: {
-        type: 'string'
-      },
-      phone: {
-        type: 'string'
       }
     },
-    required: ['uid', 'name', 'display_name', 'email', 'phone']
+    required: ['uid']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
