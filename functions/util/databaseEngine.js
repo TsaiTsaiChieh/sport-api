@@ -212,9 +212,9 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   return infos;
 }
 
-async function createBuy(Data, status, action, inTrans=undefined) {
+async function createBuy(Data, status, action, inTrans = undefined) {
   const trans = inTrans !== undefined ? inTrans : await db.sequelize.transaction();
-  if(action==='buy'){
+  if (action === 'buy') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowBuy.create(Data));
     if (cashflowErr) {
@@ -231,9 +231,9 @@ async function createBuy(Data, status, action, inTrans=undefined) {
     /* 狀態為購牌的話就更新 */
     } else {
       const [purchaseErr] = await modules.to(db.UserBuy.update(
-          {  buy_status: status },
-          { where: { buy_id: Data.buy_id }}
-        )
+        { buy_status: status },
+        { where: { buy_id: Data.buy_id } }
+      )
       );
       if (purchaseErr) {
         await trans.rollback();
@@ -247,7 +247,7 @@ async function createBuy(Data, status, action, inTrans=undefined) {
       await trans.rollback();
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
     }
-  }else if(action==='sell'){
+  } else if (action === 'sell') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowSell.create(Data));
     if (cashflowErr) {
@@ -262,8 +262,8 @@ async function createBuy(Data, status, action, inTrans=undefined) {
       throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
     }
   }
-
-  inTrans !== undefined ? await trans.commit() : '';
+  if (inTrans === undefined) await trans.commit();
+  // const test = inTrans !== undefined ? await trans.commit() : '';
 }
 module.exports = {
   findUser,
