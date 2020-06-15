@@ -189,6 +189,14 @@ exports.pbp_statscore_KBO = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_statscore_KBO'));
+exports.prematch_statscore_NPB = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_NPB'));
+exports.prematch_statscore_CPBL = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_CPBL'));
 // 大神
 exports.god = functions.pubsub
   .schedule('0 1 * * *')
