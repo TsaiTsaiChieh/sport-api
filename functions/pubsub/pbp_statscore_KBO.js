@@ -13,6 +13,20 @@ let inningNow = 1;
 let halfNow = '0';
 let memberHomeNow = 0;
 let memberAwayNow = 0;
+let pitcherHomeBalls = 0;
+let pitcherHomeStrikes = 0;
+let pitcherHomeER = 0;
+let pitcherHomeH = 0;
+let pitcherHomeK = 0;
+let pitcherAwayBalls = 0;
+let pitcherAwayStrikes = 0;
+let pitcherAwayER = 0;
+let pitcherAwayH = 0;
+let pitcherAwayK = 0;
+let hitterHomeAB = 0;
+let hitterHomeH = 0;
+let hitterAwayAB = 0;
+let hitterAwayH = 0;
 async function KBOpbpInplay(parameter) {
   // 14 秒一次
   let perStep;
@@ -37,7 +51,7 @@ async function KBOpbpInplay(parameter) {
       .ref(`baseball/KBO/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
-    if (realtimeData) {
+    if (parameter.first === 0) {
       if (realtimeData.Summary.info) {
         if (realtimeData.Summary.Now_event) {
           eventNow = realtimeData.Summary.Now_event;
@@ -68,6 +82,73 @@ async function KBOpbpInplay(parameter) {
         }
         if (realtimeData.Summary.Now_member_away) {
           memberAwayNow = realtimeData.Summary.Now_member_away;
+        }
+        if (realtimeData.Summary.info.away) {
+          if (realtimeData.Summary.Now_hitter_away !== 0) {
+            hitterAwayAB =
+              realtimeData.Summary.info.away.Now_lineup[
+                `lineup${realtimeData.Summary.Now_hitter_away}`
+              ].ab;
+            hitterAwayH =
+              realtimeData.Summary.info.away.Now_lineup[
+                `lineup${realtimeData.Summary.Now_hitter_away}`
+              ].h;
+          }
+          pitcherAwayBalls =
+            realtimeData.Summary.info.away.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_away}`
+            ].balls;
+          pitcherAwayStrikes =
+            realtimeData.Summary.info.away.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_away}`
+            ].strikes;
+          pitcherAwayER =
+            realtimeData.Summary.info.away.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_away}`
+            ].ER;
+          pitcherAwayH =
+            realtimeData.Summary.info.away.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_away}`
+            ].h;
+          pitcherAwayK =
+            realtimeData.Summary.info.away.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_away}`
+            ].k;
+        }
+        if (realtimeData.Summary.info.home) {
+          if (realtimeData.Summary.Now_hitter_home !== 0) {
+            hitterAwayAB =
+              realtimeData.Summary.info.home.Now_lineup[
+                `lineup${realtimeData.Summary.Now_hitter_home}`
+              ].ab;
+
+            hitterAwayH =
+              realtimeData.Summary.info.home.Now_lineup[
+                `lineup${realtimeData.Summary.Now_hitter_home}`
+              ].h;
+          }
+
+          pitcherHomeBalls =
+            realtimeData.Summary.info.home.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_home}`
+            ].balls;
+
+          pitcherHomeStrikes =
+            realtimeData.Summary.info.home.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_home}`
+            ].strikes;
+          pitcherHomeER =
+            realtimeData.Summary.info.home.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_home}`
+            ].er;
+          pitcherHomeH =
+            realtimeData.Summary.info.home.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_home}`
+            ].h;
+          pitcherHomeK =
+            realtimeData.Summary.info.home.Now_lineup[
+              `lineup${realtimeData.Summary.Now_pitcher_home}`
+            ].k;
         }
       }
     }
@@ -337,56 +418,104 @@ async function initRealtime(betsID, data) {
         )
       );
     }
-    const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-      function(a, b) {
-        return a.id > b.id ? 1 : -1;
-      }
-    );
-    const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-      function(a, b) {
-        return a.id > b.id ? 1 : -1;
-      }
-    );
+    if (
+      data.api.data.competition.season.stage.group.event.participants[0].lineups
+        .length > 0
+    ) {
+      // 有lineup
+      const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+        function(a, b) {
+          return a.id > b.id ? 1 : -1;
+        }
+      );
+      const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+        function(a, b) {
+          return a.id > b.id ? 1 : -1;
+        }
+      );
 
-    for (let playercount = 0; playercount < 9; playercount++) {
-      try {
-        await modules.database
-          .ref(
-            `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${
-              playercount + 1
-            }`
-          )
-          .set({
-            ab: 0,
-            h: 0,
-            name: homeLineup[playercount].participant_name,
-            jersey_number: homeLineup[playercount].shirt_nr,
-            order: playercount + 1,
-            id: homeLineup[playercount].id,
-            start: 1
-          });
-        await modules.database
-          .ref(
-            `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${
-              playercount + 1
-            }`
-          )
-          .set({
-            ab: 0,
-            h: 0,
-            name: awayLineup[playercount].participant_name,
-            jersey_number: awayLineup[playercount].shirt_nr,
-            order: playercount + 1,
-            id: awayLineup[playercount].id,
-            start: 1
-          });
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at doPBP on ${betsID} by DY`
-          )
-        );
+      for (let playercount = 0; playercount < 9; playercount++) {
+        try {
+          await modules.database
+            .ref(
+              `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${
+                playercount + 1
+              }`
+            )
+            .set({
+              ab: 0,
+              h: 0,
+              name: homeLineup[playercount].participant_name,
+              jersey_number: homeLineup[playercount].shirt_nr,
+              order: playercount + 1,
+              id: homeLineup[playercount].id,
+              start: 1
+            });
+          await modules.database
+            .ref(
+              `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${
+                playercount + 1
+              }`
+            )
+            .set({
+              ab: 0,
+              h: 0,
+              name: awayLineup[playercount].participant_name,
+              jersey_number: awayLineup[playercount].shirt_nr,
+              order: playercount + 1,
+              id: awayLineup[playercount].id,
+              start: 1
+            });
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP on ${betsID} by DY`
+            )
+          );
+        }
       }
+      // 投手
+      await modules.database
+        .ref(`baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup10`)
+        .set({
+          strikes: 0,
+          balls: 0,
+          er: 0,
+          h: 0,
+          ip: 0,
+          k: 0,
+          name: homeLineup[9].participant_name,
+          jersey_number: homeLineup[9].shirt_nr,
+          order: 10,
+          id: homeLineup[9].id,
+          start: 1
+        });
+      await modules.database
+        .ref(`baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup10`)
+        .set({
+          strikes: 0,
+          balls: 0,
+          er: 0,
+          h: 0,
+          ip: 0,
+          k: 0,
+          name: awayLineup[9].participant_name,
+          jersey_number: awayLineup[9].shirt_nr,
+          order: 10,
+          id: awayLineup[9].id,
+          start: 1
+        });
+      // 教練
+      await modules.database
+        .ref(`baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup0`)
+        .set({
+          name: homeLineup[10].participant_name
+        });
+      await modules.database
+        .ref(`baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup0`)
+        .set({
+          name: awayLineup[10].participant_name
+        });
     }
     try {
       await modules.database
@@ -425,54 +554,12 @@ async function initRealtime(betsID, data) {
       await modules.database
         .ref(`baseball/KBO/${betsID}/Summary/Now_member_away`)
         .set(11);
-      // 投手
-      await modules.database
-        .ref(`baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup10`)
-        .set({
-          strikes: 0,
-          balls: 0,
-          er: 0,
-          h: 0,
-          ip: 0,
-          k: 0,
-          name: homeLineup[9].participant_name,
-          jersey_number: homeLineup[9].shirt_nr,
-          order: 10,
-          id: homeLineup[9].id,
-          start: 1
-        });
-      await modules.database
-        .ref(`baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup10`)
-        .set({
-          strikes: 0,
-          balls: 0,
-          er: 0,
-          h: 0,
-          ip: 0,
-          k: 0,
-          name: awayLineup[9].participant_name,
-          jersey_number: awayLineup[9].shirt_nr,
-          order: 10,
-          id: awayLineup[9].id,
-          start: 1
-        });
       await modules.database
         .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_home`)
         .set(10);
       await modules.database
         .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_away`)
         .set(10);
-      // 教練
-      await modules.database
-        .ref(`baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup0`)
-        .set({
-          name: homeLineup[10].participant_name
-        });
-      await modules.database
-        .ref(`baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup0`)
-        .set({
-          name: awayLineup[10].participant_name
-        });
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -568,6 +655,20 @@ async function writeRealtime(betsID, realtimeData, data) {
 
     const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
+      if (
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].incident_id === 2523 ||
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].incident_id === 2524 ||
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].incident_id === 562
+      ) {
+        eventNow = eventNow + 1;
+        continue;
+      }
       inningNow = changeInning(
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -589,7 +690,10 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].incident_id !== 504 &&
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2527
+            ].incident_id !== 2527 &&
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].incident_id !== 2522
               ? '1'
               : '0'
             : data.api.data.competition.season.stage.group.event.events_incidents[
@@ -597,7 +701,10 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].incident_id !== 504 &&
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2527
+            ].incident_id !== 2527 &&
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].incident_id !== 2522
               ? '0'
               : '1';
 
@@ -622,6 +729,10 @@ async function writeRealtime(betsID, realtimeData, data) {
                 ' ' +
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name,
+              description_ch: translateCommon(
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].incident_name
+              ),
               Inning: inningNow,
               Half: halfNow,
               id:
@@ -641,6 +752,14 @@ async function writeRealtime(betsID, realtimeData, data) {
                 ' ' +
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name,
+              description_ch: translateNormal(
+                half,
+                realtimeData,
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].participant_name,
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].incident_name
+              ),
               Inning: inningNow,
               Half: half,
               id:
@@ -737,7 +856,6 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .participants[1].stats[22].value
               )
           );
-        // here
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
@@ -795,6 +913,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               )
             );
           }
+
           if (
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
@@ -808,86 +927,103 @@ async function writeRealtime(betsID, realtimeData, data) {
                 `lineup${hitterHomeNow}`
               ].name
             ) {
-              // 主隊有代打情況
               resetFlag = 1;
-              const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-                function(a, b) {
-                  return a.id > b.id ? 1 : -1;
+              // 主隊有代打情況
+              // 需再額外判斷api是否錯誤
+              for (let pc = 1; pc < 10; pc++) {
+                if (
+                  data.api.data.competition.season.stage.group.event
+                    .events_incidents[eventCount].participant_name ===
+                  realtimeData.Summary.info.home.Now_lineup[`lineup${pc}`].name
+                ) {
+                  resetFlag = 0;
+                  break;
                 }
-              );
-              try {
-                await modules.database
-                  .ref(
-                    `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}}`
-                  )
-                  .set(
-                    realtimeData.Summary.info.home.Now_lineup[
-                      `lineup${hitterHomeNow}`
-                    ]
+              }
+              if (resetFlag === 1) {
+                const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+                  function(a, b) {
+                    return a.id > b.id ? 1 : -1;
+                  }
+                );
+                try {
+                  await modules.database
+                    .ref(
+                      `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}}`
+                    )
+                    .set(
+                      realtimeData.Summary.info.home.Now_lineup[
+                        `lineup${hitterHomeNow}`
+                      ]
+                    );
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP on ${betsID} by DY`
+                    )
                   );
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
+                }
+                // 將新的打擊手移到目前的order上
+                try {
+                  await modules.database
+                    .ref(
+                      `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}`
+                    )
+                    .set({
+                      ab: 0,
+                      h: 0,
+                      id: homeLineup[memberHomeNow].id,
+                      jersey_number: homeLineup[memberHomeNow].shirt_nr,
+                      name: homeLineup[memberHomeNow].participant_name,
+                      order: hitterHomeNow,
+                      start: 0
+                    });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP on ${betsID} by DY`
+                    )
+                  );
+                }
+                memberHomeNow = memberHomeNow + 1;
+                hitterHomeH = 0;
+                hitterHomeAB = 0;
               }
-              // 將新的打擊手移到目前的order上
-              try {
-                await modules.database
-                  .ref(
-                    `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}`
-                  )
-                  .set({
-                    ab: 0,
-                    h: 0,
-                    id: homeLineup[memberHomeNow].id,
-                    jersey_number: homeLineup[memberHomeNow].shirt_nr,
-                    name: homeLineup[memberHomeNow].participant_name,
-                    order: hitterHomeNow,
-                    start: 0
-                  });
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-              memberHomeNow = memberHomeNow + 1;
             }
-          }
-          if (resetFlag === 0) {
-            try {
-              await modules.database
-                .ref(
-                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-                )
-                .set(
+            if (resetFlag === 0) {
+              try {
+                hitterHomeAB =
                   realtimeData.Summary.info.home.Now_lineup[
                     `lineup${hitterHomeNow}`
-                  ].ab + 1
+                  ].ab;
+                hitterHomeAB = hitterHomeAB + 1;
+                await modules.database
+                  .ref(
+                    `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
+                  )
+                  .set(hitterHomeAB);
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at doPBP on ${betsID} by DY`
+                  )
                 );
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              await modules.database
-                .ref(
-                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-                )
-                .set(1);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
+              }
+            } else {
+              hitterHomeAB = hitterHomeAB + 1;
+              try {
+                await modules.database
+                  .ref(
+                    `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
+                  )
+                  .set(hitterHomeAB);
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at doPBP on ${betsID} by DY`
+                  )
+                );
+              }
             }
           }
         } else {
@@ -924,83 +1060,99 @@ async function writeRealtime(betsID, realtimeData, data) {
               ].name
             ) {
               resetFlag = 1;
-              const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-                function(a, b) {
-                  return a.id > b.id ? 1 : -1;
+              for (let pc = 1; pc < 10; pc++) {
+                if (
+                  data.api.data.competition.season.stage.group.event
+                    .events_incidents[eventCount].participant_name ===
+                  realtimeData.Summary.info.away.Now_lineup[`lineup${pc}`].name
+                ) {
+                  resetFlag = 0;
+                  break;
                 }
-              );
-              try {
-                await modules.database
-                  .ref(
-                    `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
-                  )
-                  .set(
-                    realtimeData.Summary.info.away.Now_lineup[
-                      `lineup${hitterAwayNow}`
-                    ]
+              }
+              if (resetFlag === 1) {
+                const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+                  function(a, b) {
+                    return a.id > b.id ? 1 : -1;
+                  }
+                );
+                try {
+                  await modules.database
+                    .ref(
+                      `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
+                    )
+                    .set(
+                      realtimeData.Summary.info.away.Now_lineup[
+                        `lineup${hitterAwayNow}`
+                      ]
+                    );
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP on ${betsID} by DY`
+                    )
                   );
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
+                }
+                try {
+                  await modules.database
+                    .ref(
+                      `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}`
+                    )
+                    .set({
+                      ab: 0,
+                      h: 0,
+                      id: awayLineup[memberAwayNow].id,
+                      jersey_number: awayLineup[memberAwayNow].shirt_nr,
+                      name: awayLineup[memberAwayNow].participant_name,
+                      order: hitterAwayNow,
+                      start: 0
+                    });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP on ${betsID} by DY`
+                    )
+                  );
+                }
+                memberAwayNow = memberAwayNow + 1;
+                hitterAwayH = 0;
+                hitterAwayAB = 0;
               }
-              try {
-                await modules.database
-                  .ref(
-                    `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}`
-                  )
-                  .set({
-                    ab: 0,
-                    h: 0,
-                    id: awayLineup[memberAwayNow].id,
-                    jersey_number: awayLineup[memberAwayNow].shirt_nr,
-                    name: awayLineup[memberAwayNow].participant_name,
-                    order: hitterAwayNow,
-                    start: 0
-                  });
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-              memberAwayNow = memberAwayNow + 1;
             }
-          }
-          if (resetFlag === 0) {
-            try {
-              await modules.database
-                .ref(
-                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                )
-                .set(
+            if (resetFlag === 0) {
+              try {
+                hitterAwayAB =
                   realtimeData.Summary.info.away.Now_lineup[
                     `lineup${hitterAwayNow}`
-                  ].ab + 1
+                  ].ab;
+                hitterAwayAB = hitterAwayAB + 1;
+                await modules.database
+                  .ref(
+                    `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+                  )
+                  .set(hitterAwayAB);
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at doPBP on ${betsID} by DY`
+                  )
                 );
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              await modules.database
-                .ref(
-                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                )
-                .set(1);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
+              }
+            } else {
+              try {
+                hitterAwayAB = hitterAwayAB + 1;
+                await modules.database
+                  .ref(
+                    `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+                  )
+                  .set(hitterAwayAB);
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at doPBP on ${betsID} by DY`
+                  )
+                );
+              }
             }
           }
         }
@@ -1032,27 +1184,28 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          await modules.database
-            .ref(
-              `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-            )
-            .set(
-              realtimeData.Summary.info.away.Now_lineup[
-                `lineup${hitterAwayNow}`
-              ].ab - 1
-            );
-        } else {
-          await modules.database
-            .ref(
-              `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-            )
-            .set(
-              realtimeData.Summary.info.home.Now_lineup[
-                `lineup${hitterHomeNow}`
-              ].ab - 1
-            );
+          // 有 lineup
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            hitterAwayAB = hitterAwayAB - 1;
+            await modules.database
+              .ref(
+                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+              )
+              .set(hitterAwayAB);
+          } else {
+            hitterHomeAB = hitterHomeAB - 1;
+            await modules.database
+              .ref(
+                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
+              )
+              .set(hitterHomeAB);
+          }
         }
       }
       if (
@@ -1085,42 +1238,42 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-              )
-              .set(
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${hitterHomeNow}`
-                ].ab - 1
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              hitterHomeAB = hitterHomeAB - 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
+                )
+                .set(hitterHomeAB);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-              )
-              .set(
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${hitterAwayNow}`
-                ].ab - 1
+            }
+          } else {
+            try {
+              hitterAwayAB = hitterAwayAB - 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
+                )
+                .set(hitterAwayAB);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1151,93 +1304,109 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_home`)
-              .set(memberHomeNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-          const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-            function(a, b) {
-              return a.id > b.id ? 1 : -1;
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              await modules.database
+                .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_home`)
+                .set(memberHomeNow);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
             }
-          );
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}`
-              )
-              .set({
-                balls: 0,
-                er: 0,
-                h: 0,
-                id: homeLineup[memberHomeNow].id,
-                ip: 0,
-                jersey_number: homeLineup[memberHomeNow].shirt_nr,
-                k: 0,
-                name: homeLineup[memberHomeNow].participant_name,
-                order: memberHomeNow,
-                start: 0,
-                strikes: 0
-              });
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
+            const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+              function(a, b) {
+                return a.id > b.id ? 1 : -1;
+              }
             );
-          }
-          memberHomeNow = memberHomeNow + 1;
-        } else {
-          try {
-            await modules.database
-              .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_away`)
-              .set(memberAwayNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-          const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-            function(a, b) {
-              return a.id > b.id ? 1 : -1;
+            try {
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}`
+                )
+                .set({
+                  balls: 0,
+                  er: 0,
+                  h: 0,
+                  id: homeLineup[memberHomeNow].id,
+                  ip: 0,
+                  jersey_number: homeLineup[memberHomeNow].shirt_nr,
+                  k: 0,
+                  name: homeLineup[memberHomeNow].participant_name,
+                  order: memberHomeNow,
+                  start: 0,
+                  strikes: 0
+                });
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
             }
-          );
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
-              )
-              .set({
-                balls: 0,
-                er: 0,
-                h: 0,
-                id: awayLineup[memberAwayNow].id,
-                ip: 0,
-                jersey_number: awayLineup[memberAwayNow].shirt_nr,
-                k: 0,
-                name: awayLineup[memberAwayNow].participant_name,
-                order: memberAwayNow,
-                start: 0,
-                strikes: 0
-              });
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
+            memberHomeNow = memberHomeNow + 1;
+            pitcherHomeBalls = 0;
+            pitcherHomeStrikes = 0;
+            pitcherHomeER = 0;
+            pitcherHomeH = 0;
+            pitcherHomeK = 0;
+          } else {
+            try {
+              await modules.database
+                .ref(`baseball/KBO/${betsID}/Summary/Now_pitcher_away`)
+                .set(memberAwayNow);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
+            }
+            const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+              function(a, b) {
+                return a.id > b.id ? 1 : -1;
+              }
             );
+            try {
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
+                )
+                .set({
+                  balls: 0,
+                  er: 0,
+                  h: 0,
+                  id: awayLineup[memberAwayNow].id,
+                  ip: 0,
+                  jersey_number: awayLineup[memberAwayNow].shirt_nr,
+                  k: 0,
+                  name: awayLineup[memberAwayNow].participant_name,
+                  order: memberAwayNow,
+                  start: 0,
+                  strikes: 0
+                });
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
+              );
+            }
+            memberAwayNow = memberAwayNow + 1;
+            pitcherAwayBalls = 0;
+            pitcherAwayStrikes = 0;
+            pitcherAwayER = 0;
+            pitcherAwayH = 0;
+            pitcherAwayK = 0;
           }
-          memberAwayNow = memberAwayNow + 1;
         }
       }
       if (
@@ -1267,43 +1436,51 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/er`
-              )
-              .set(
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              pitcherAwayER =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${pitcherAwayNow}`
-                ].er + 1
+                ].er;
+              pitcherAwayER = pitcherAwayER + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/er`
+                )
+                .set(pitcherAwayER);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            // 主隊投手er+1
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/er`
-              )
-              .set(
+            }
+          } else {
+            try {
+              // 主隊投手er+1
+              pitcherHomeER =
                 realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherHomeNow}`
-                ].er + 1
+                  `lineup${pitcherAwayNow}`
+                ].er;
+              pitcherHomeER = pitcherHomeER + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/er`
+                )
+                .set(pitcherHomeER);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1335,42 +1512,50 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/k`
-              )
-              .set(
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              pitcherAwayK =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${pitcherAwayNow}`
-                ].k + 1
+                ].k;
+              pitcherAwayK = pitcherAwayK + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/k`
+                )
+                .set(pitcherAwayK);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/k`
-              )
-              .set(
+            }
+          } else {
+            try {
+              pitcherHomeK =
                 realtimeData.Summary.info.home.Now_lineup[
                   `lineup${pitcherHomeNow}`
-                ].k + 1
+                ].k;
+              pitcherHomeK = pitcherHomeK + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/k`
+                )
+                .set(pitcherHomeK);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1401,76 +1586,86 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/h`
-              )
-              .set(
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              hitterHomeH =
                 realtimeData.Summary.info.home.Now_lineup[
                   `lineup${hitterHomeNow}`
-                ].h + 1
+                ].h;
+              hitterHomeH = hitterHomeH + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/h`
+                )
+                .set(hitterHomeH);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/h`
-              )
-              .set(
+            }
+            try {
+              pitcherAwayH =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${pitcherAwayNow}`
-                ].h + 1
+                ].h;
+              pitcherAwayH = pitcherAwayH + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/h`
+                )
+                .set(pitcherAwayH);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/h`
-              )
-              .set(
+            }
+          } else {
+            try {
+              hitterAwayH =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${hitterAwayNow}`
-                ].h + 1
+                ].h;
+              hitterAwayH = hitterAwayH + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/h`
+                )
+                .set(hitterAwayH);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/h`
-              )
-              .set(
+            }
+            try {
+              pitcherHomeH =
                 realtimeData.Summary.info.home.Now_lineup[
                   `lineup${pitcherHomeNow}`
-                ].h + 1
+                ].h;
+              pitcherHomeH = pitcherHomeH + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/h`
+                )
+                .set(pitcherHomeH);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1504,42 +1699,50 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/strikes`
-              )
-              .set(
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              pitcherAwayStrikes =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${pitcherAwayNow}`
-                ].strikes + 1
+                ].strikes;
+              pitcherAwayStrikes = pitcherAwayStrikes + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/strikes`
+                )
+                .set(pitcherAwayStrikes);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/strikes`
-              )
-              .set(
+            }
+          } else {
+            try {
+              pitcherHomeStrikes =
                 realtimeData.Summary.info.home.Now_lineup[
                   `lineup${pitcherHomeNow}`
-                ].strikes + 1
+                ].strikes;
+              pitcherHomeStrikes = pitcherHomeStrikes + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/strikes`
+                )
+                .set(pitcherHomeStrikes);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1570,42 +1773,50 @@ async function writeRealtime(betsID, realtimeData, data) {
         if (
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
+          ].participant_name !== ''
         ) {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/balls`
-              )
-              .set(
+          if (
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].participant_id === homeID
+          ) {
+            try {
+              pitcherHomeBalls =
                 realtimeData.Summary.info.home.Now_lineup[
                   `lineup${pitcherHomeNow}`
-                ].balls + 1
+                ].balls;
+              pitcherHomeBalls = pitcherHomeBalls + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/balls`
+                )
+                .set(pitcherHomeBalls);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        } else {
-          try {
-            await modules.database
-              .ref(
-                `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/balls`
-              )
-              .set(
+            }
+          } else {
+            try {
+              pitcherAwayBalls =
                 realtimeData.Summary.info.away.Now_lineup[
                   `lineup${pitcherAwayNow}`
-                ].balls + 1
+                ].balls;
+              pitcherAwayBalls = pitcherAwayBalls + 1;
+              await modules.database
+                .ref(
+                  `baseball/KBO/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/balls`
+                )
+                .set(pitcherAwayBalls);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP on ${betsID} by DY`
+                )
               );
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
+            }
           }
         }
       }
@@ -1640,6 +1851,265 @@ async function writeBacktoReal(betsID) {
   });
 }
 
+function translateCommon(event) {
+  switch (event) {
+    case '1st inning started': {
+      return '第一局開始';
+    }
+    case '2nd inning started': {
+      return '第二局開始';
+    }
+    case '3rd inning started': {
+      return '第三局開始';
+    }
+    case '4th inning started': {
+      return '第四局開始';
+    }
+    case '5th inning started': {
+      return '第五局開始';
+    }
+    case '6th inning started': {
+      return '第六局開始';
+    }
+    case '7th inning started': {
+      return '第七局開始';
+    }
+    case '8th inning started': {
+      return '第八局開始';
+    }
+    case '9th inning started': {
+      return '第九局開始';
+    }
+    case '10th inning started': {
+      return '第十局開始';
+    }
+    case '11th inning started': {
+      return '第十一局開始';
+    }
+    case '12th inning started': {
+      return '第十二局開始';
+    }
+    case '13th inning started': {
+      return '第十三局開始';
+    }
+    case '14th inning started': {
+      return '第十四局開始';
+    }
+    case '15th inning started': {
+      return '第十五局開始';
+    }
+    case '16th inning started': {
+      return '第十六局開始';
+    }
+    case '17th inning started': {
+      return '第十七局開始';
+    }
+    case '18th inning started': {
+      return '第十八局開始';
+    }
+    case '19th inning started': {
+      return '第十九局開始';
+    }
+    case '20th inning started': {
+      return '第二十局開始';
+    }
+    case '21th inning started': {
+      return '第二十一局開始';
+    }
+    case '22th inning started': {
+      return '第二十二局開始';
+    }
+    case '23th inning started': {
+      return '第二十三局開始';
+    }
+    default: {
+      return '通用';
+    }
+  }
+}
+
+function translateNormal(half, realtimeData, name, event) {
+  let out;
+  let string_ch;
+
+  switch (event) {
+    case 'Not started': {
+      string_ch = '比賽尚未開始';
+      break;
+    }
+    case 'Finished regular time': {
+      string_ch = '比賽結束';
+      break;
+    }
+    case 'Hit by pitch': {
+      string_ch = '遭觸身';
+      break;
+    }
+    case 'Batter in the box': {
+      string_ch = '站上打擊位置';
+      break;
+    }
+    case 'Ball': {
+      string_ch = '投出壞球';
+      break;
+    }
+    case 'Strike': {
+      string_ch = '投出好球';
+      break;
+    }
+    case 'Swing and miss': {
+      string_ch = '揮棒落空';
+      break;
+    }
+    case 'Strikeout': {
+      string_ch = '被三振';
+      break;
+    }
+    case 'Out': {
+      string_ch = '出局';
+      break;
+    }
+    case 'Error': {
+      string_ch = '失誤';
+      break;
+    }
+    case 'Foul': {
+      string_ch = '失誤';
+      break;
+    }
+    case 'Walk': {
+      string_ch = '被保送';
+      break;
+    }
+    case 'Stolen base': {
+      string_ch = '跑者盜壘';
+      break;
+    }
+    case 'Pickoff attempt': {
+      string_ch = '牽制';
+      break;
+    }
+    case 'Single': {
+      string_ch = '擊出一壘安打';
+      break;
+    }
+    case 'Double': {
+      string_ch = '擊出二壘安打';
+      break;
+    }
+    case 'Triple': {
+      string_ch = '擊出三壘安打';
+      break;
+    }
+    case 'Home run': {
+      string_ch = '擊出全壘打';
+      break;
+    }
+    case 'Pitcher change': {
+      string_ch = '投手交換';
+      break;
+    }
+    case 'Double play': {
+      string_ch = '雙殺';
+      break;
+    }
+    case 'Triple play': {
+      string_ch = '三殺';
+      break;
+    }
+    case 'Wild pitch': {
+      string_ch = '野手選擇';
+      break;
+    }
+    case 'Sacrifice hit': {
+      string_ch = '擊出高飛犧牲打';
+      break;
+    }
+    case 'Coach visit the mound': {
+      string_ch = '教練上投手丘';
+      break;
+    }
+    default: {
+      string_ch = '';
+      break;
+    }
+  }
+
+  if (event === 'Ball' || event === 'Strike' || event === 'Pickoff attempt') {
+    if (half === '0') {
+      out =
+        realtimeData.Summary.info.away.Now_lineup[
+          `lineup${realtimeData.Summary.Now_pitcher_away}`
+        ].name +
+        ' ' +
+        string_ch;
+    } else {
+      out =
+        realtimeData.Summary.info.home.Now_lineup[
+          `lineup${realtimeData.Summary.Now_pitcher_home}`
+        ].name +
+        ' ' +
+        string_ch;
+    }
+  } else if (
+    event === 'Batter in the box' ||
+    event === 'Walk' ||
+    event === 'Swing and miss' ||
+    event === 'Strikeout' ||
+    event === 'Out' ||
+    event === 'Single' ||
+    event === 'Double' ||
+    event === 'Triple' ||
+    event === 'Home run' ||
+    event === 'Sacrifice hit'
+  ) {
+    if (half === '0') {
+      if (hitterAwayNow === 0) {
+        out =
+          realtimeData.Summary.info.away.Now_lineup[
+            `lineup${hitterAwayNow + 1}`
+          ].name +
+          ' ' +
+          string_ch;
+      } else {
+        out =
+          realtimeData.Summary.info.away.Now_lineup[`lineup${hitterAwayNow}`]
+            .name +
+          ' ' +
+          string_ch;
+      }
+    } else {
+      if (hitterHomeNow === 0) {
+        out =
+          realtimeData.Summary.info.home.Now_lineup[
+            `lineup${hitterHomeNow + 1}`
+          ].name +
+          ' ' +
+          string_ch;
+      } else {
+        out =
+          realtimeData.Summary.info.home.Now_lineup[`lineup${hitterHomeNow}`]
+            .name +
+          ' ' +
+          string_ch;
+      }
+    }
+  } else if (
+    event === 'Stolen base' ||
+    event === 'Foul' ||
+    event === 'Not started' ||
+    event === 'Pitcher change' ||
+    event === 'Double play' ||
+    event === 'Triple play' ||
+    event === 'Wild pitch' ||
+    event === 'Coach visit the mound'
+  ) {
+    out = string_ch;
+  } else {
+    out = name + ' ' + string_ch;
+  }
+  return out;
+}
 function changeInning(inning, now_innings) {
   let inningNow = 0;
   switch (inning) {

@@ -1,16 +1,14 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-// const firebaseName = 'baseball_KBO';
 const Match = db.Match;
-const leagueUniteID = '349';
-// const leagueUniteName = 'KBO';
+const leagueUniteID = '347';
 const sportID = 16;
-module.exports.KBO = {};
-module.exports.KBO.upcoming = async function(date) {
+module.exports.NPB = {};
+module.exports.NPB.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
-      const leagueID = 349;
+      const leagueID = 347;
 
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
@@ -24,11 +22,11 @@ module.exports.KBO.upcoming = async function(date) {
       } else {
         console.log(leagueID + 'has no upcoming event now');
       }
-      console.log('KBO scheduled success');
+      console.log('NPB scheduled success');
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.PBPKBOError(`${err} at prematchFunctions by DY`)
+        new AppErrors.FirebaseRealtimeError(`${err} at prematchFunctions by DY`)
       );
     }
   });
@@ -63,13 +61,13 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`baseball/KBO/${ele.id}/Summary/status`)
+        .ref(`baseball/NPB/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at prematchFunctions_KBO by DY`
+          `${err} at prematchFunctions_NPB by DY`
         )
       );
     }
@@ -113,7 +111,7 @@ async function write2MysqlOfMatch(ele, change) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_KBO by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_NPB by DY`)
       );
     }
   });

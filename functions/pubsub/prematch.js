@@ -5,6 +5,7 @@ const AppErrors = require('../util/AppErrors');
 // const SBL_functions = require('./util/prematchFunctions_SBL');
 // const MLB_functions = require('./util/prematchFuntions_MLB');
 const KBO_functions = require('./util/prematchFunctions_KBO');
+const NPB_functions = require('./util/prematchFunctions_NPB');
 const CPBL_functions = require('./util/prematchFunctions_CPBL');
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
@@ -40,6 +41,8 @@ async function prematch() {
     try {
       await KBO_functions.KBO.upcoming(now);
       await KBO_functions.KBO.upcoming(tomorrow);
+      await NPB_functions.NPB.upcoming(now);
+      await NPB_functions.NPB.upcoming(tomorrow);
       await CPBL_functions.CPBL.upcoming(now);
       await CPBL_functions.CPBL.upcoming(tomorrow);
     } catch (err) {
