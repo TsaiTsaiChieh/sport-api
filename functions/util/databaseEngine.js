@@ -212,8 +212,9 @@ async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_
   return infos;
 }
 
-async function createBuy(Data, status, action, inTrans = undefined) {
+async function createData(Data, status, action, inTrans = undefined) {
   const trans = inTrans !== undefined ? inTrans : await db.sequelize.transaction();
+  Data.scheduled = modules.moment().unix();
   if (action === 'buy') {
     Data.status = status;
     const [cashflowErr] = await modules.to(db.CashflowBuy.create(Data));
@@ -254,13 +255,6 @@ async function createBuy(Data, status, action, inTrans = undefined) {
       await trans.rollback();
       throw new AppError.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
     }
-    const [overageErr] = await modules.to(db.User.update(
-      { coin: Data.coin, dividend: Data.dividend },
-      { where: { uid: Data.uid }, trans }));
-    if (overageErr) {
-      await trans.rollback();
-      throw new AppError.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-    }
   }
   if (inTrans === undefined) await trans.commit();
   // const test = inTrans !== undefined ? await trans.commit() : '';
@@ -274,5 +268,5 @@ module.exports = {
   checkGodSellPrediction,
   getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo,
-  createBuy
+  createData
 };
