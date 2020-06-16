@@ -1,4 +1,3 @@
-/* eslint-disable spaced-comment */
 const modules = require('../../util/modules');
 const dbEngine = require('../../util/databaseEngine');
 const db = require('../../util/dbUtil');
@@ -17,8 +16,8 @@ async function purchasePredictions(args) {
   // 3. 取出使用者紅利和搞幣 getUserDividendAndCoin
   // 4. 檢查購買者想要用紅利折抵嗎 & 紅利+搞幣是否足夠，並回傳餘額(overage) checkUserDepositIsEnough
   // XXX step 5 不要立即寫回，將餘額先存起來
-  //// 5. 將餘額寫回 user table updateOverageToUserTable
-  //// 6. 將購牌資訊寫進 user__buys table (若購牌資訊未成功寫入，步驟五要 rollback) insertPurchaseToUserBuyTable
+  // 5. 將餘額寫回 user table updateOverageToUserTable
+  // 6. 將購牌資訊寫進 user__buys table (若購牌資訊未成功寫入，步驟五要 rollback) insertPurchaseToUserBuyTable
   // 5. 重新包裝購買者的購買資訊並回傳(purchaseData) repackagePurchaseData
   // 6. 新增購牌記錄和更新餘額到 user__buys & users table，若失敗要回滾 update transactionsForPurchase
   // Destructuring assignment
@@ -165,39 +164,17 @@ async function repackagePurchaseData(args, godData) {
 
 async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
-  const transaction = await db.sequelize.transaction();
+  const trans = await db.sequelize.transaction();
   // 寫入購牌紀錄（金流）table designed by Henry
-  const [cashflowErr] = await modules.to(db.CashflowBuy.create({
-    uid: args.token.uid,
-    status: PAID,
-    coin: overage.coin,
-    coin_real: overage.coin,
-    dividend: overage.dividend,
-    dividend_real: overage.dividend,
-    god_uid: args.god_uid,
-    league_id: modules.leagueCodebook(args.god_title).id,
-    scheduled: modules.moment(args.now).unix()
-  }, { transaction }));
-  const [purchaseErr] = await modules.to(db.UserBuy.create(purchaseData), { transaction });
-  const [overageErr] = await modules.to(db.User.update(
-    { coin: overage.coin, dividend: overage.dividend },
-    { where: { uid: args.token.uid }, transaction }));
-  if (purchaseErr) {
-    // If the execution reaches this line, an error was thrown, rollback the transaction.
-    await transaction.rollback();
-    throw new AppErrors.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
-  }
-  if (overageErr) {
-    await transaction.rollback();
-    throw new AppErrors.UpdateUserCoinORDividendRollback(`${overageErr.stack} by TsaiChieh`);
-  }
-  if (cashflowErr) {
-    await transaction.rollback();
-    throw new AppErrors.CreateCashflowBuyRollback(`${cashflowErr.stack} by Henry`);
-  }
+  purchaseData.dividend = overage.dividend;
+  purchaseData.dividend_real = overage.dividend;
+  purchaseData.coin = overage.coin;
+  purchaseData.coin_real = overage.coin;
+  const status = PAID;
+  await dbEngine.createData(purchaseData, status, 'buy');
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
-  await transaction.commit();
+  await trans.commit();
 }
 
 async function repackageReturnData(args) {

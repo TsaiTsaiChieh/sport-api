@@ -9,39 +9,45 @@ function dividendExpireModel(args) {
     const expire_scheduled = modules.moment(new Date()).unix();
 
     if (args.method === 'POST') {
+      /* 撈取本月到期紅利 */
       const expire = await db.sequelize.query(
         `
-            SELECT uid, SUM(expire_points) as total_expire_points
-              FROM cashflow_dividends
-              WHERE status=0
-              GROUP BY uid
+          SELECT uid, SUM(expire_points) as total_expire_points
+          FROM cashflow_dividends
+          WHERE scheduled BETWEEN :from AND :to
+            AND status = 1
+            AND expire_points > 0 
+          GROUP BY uid
         `,
         {
+          replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
           type: db.sequelize.QueryTypes.SELECT
         });
       resolve(expire);
     } else if (args.method === 'PUT') {
+      /* 上個月紅利過期更新 */
       const expire = await db.sequelize.query(
-                `
-                    UPDATE cashflow_dividends
-                       SET status=0,
-                           expire_scheduled = :expire_scheduled
-                     WHERE scheduled
-                   BETWEEN :from AND :to
-                `,
-                {
-                  logging: true,
-                  replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
-                  type: db.sequelize.QueryTypes.INSERT
-                });
+        `
+            UPDATE cashflow_dividends
+                SET status=0,
+                    expire_scheduled = :expire_scheduled
+              WHERE scheduled
+            BETWEEN :from AND :to
+        `,
+        {
+          logging: true,
+          replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
+          type: db.sequelize.QueryTypes.INSERT
+        });
       resolve(expire);
     } else if (args.method === 'DELETE') {
+      /* 刪除使用者錢包紅利 */
       const expire_uids = await db.sequelize.query(
         `
         SELECT uid, SUM(expire_points) as total_expire_points
           FROM cashflow_dividends
           WHERE scheduled BETWEEN :from AND :to
-            AND status = 0
+            AND status = 1
             AND expire_points > 0 
           GROUP BY uid
         `,

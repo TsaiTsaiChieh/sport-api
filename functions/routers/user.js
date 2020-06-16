@@ -77,6 +77,12 @@ router.get(
   verification.token_v2,
   require('../controller/user/predictionResultsController')
 );
+// 歷史紀錄
+router.get(
+  '/prediction_history',
+  verification.confirmLogin_v2,
+  require('../controller/user/predictionHistoryController')
+);
 // 他人主頁
 router.get(
   '/others_profile',

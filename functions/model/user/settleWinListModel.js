@@ -6,7 +6,14 @@ const { checkUserRight, getSeason } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
-const d = require('debug')('user:settleWinListModel');
+
+// const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
+const util = require('util');
+function d(...args) {
+  if (typeof (console) !== 'undefined') {
+    console.log('[user settleWinListModel]', util.format(...args));
+  }
+}
 
 // 當要判斷細部計算是否正確，可以打開此 pdLog 模式，顯示更清楚計算細節
 // const isProgramDebug = false;
