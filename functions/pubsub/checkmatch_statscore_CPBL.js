@@ -1,15 +1,15 @@
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
-const KBOpbp = require('./pbp_statscore_KBO');
-const KBOpbpInplay = KBOpbp.KBOpbpInplay;
-const KBOpbpHistory = KBOpbp.KBOpbpHistory;
+const CPBLpbp = require('./pbp_statscore_CPBL');
+const CPBLpbpInplay = CPBLpbp.CPBLpbpInplay;
+const CPBLpbpHistory = CPBLpbp.CPBLpbpHistory;
 const db = require('../util/dbUtil');
 const Match = db.Match;
 const sport = 'baseball';
-const league = 'KBO';
+const league = 'CPBL';
 const leagueID = modules.leagueCodebook(league).id;
 
-async function checkmatch_statscore_KBO() {
+async function checkmatch_statscore_CPBL() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
@@ -37,11 +37,11 @@ async function checkmatch_statscore_KBO() {
                   statscoreID: statscoreID,
                   first: 1
                 };
-                await KBOpbpInplay(parameter);
+                await CPBLpbpInplay(parameter);
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
-                    `${err} at checkmatch_statscore_KBO by DY`
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at checkmatch_statscore_CPBL by DY`
                   )
                 );
               }
@@ -52,8 +52,8 @@ async function checkmatch_statscore_KBO() {
                   .set('scheduled');
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
-                    `${err} at checkmatch_statscore_KBO by DY`
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at checkmatch_statscore_CPBL by DY`
                   )
                 );
               }
@@ -72,7 +72,7 @@ async function checkmatch_statscore_KBO() {
                   statscoreID: statscoreID,
                   first: 0
                 };
-                await KBOpbpInplay(parameter);
+                await CPBLpbpInplay(parameter);
               }
 
               if (realtimeData.Summary.status === 'closed') {
@@ -80,12 +80,12 @@ async function checkmatch_statscore_KBO() {
                   betsID: betsID,
                   statscoreID: statscoreID
                 };
-                await KBOpbpHistory(parameter);
+                await CPBLpbpHistory(parameter);
               }
             } catch (err) {
               return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} checkmatch_statscore_KBO by DY`
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} checkmatch_statscore_CPBL by DY`
                 )
               );
             }
@@ -97,8 +97,8 @@ async function checkmatch_statscore_KBO() {
       }
     } catch (err) {
       return reject(
-        new AppErrors.FirebaseCollectError(
-          `${err} at checkmatch_statscore_KBO by DY`
+        new AppErrors.FirebaseRealtimeError(
+          `${err} at checkmatch_statscore_CPBL by DY`
         )
       );
     }
@@ -124,11 +124,11 @@ async function queryForEvents() {
     } catch (err) {
       return reject(
         new AppErrors.PBPEsoccerError(
-          `${err} at checkmatch_statscore_KBO by DY`
+          `${err} at checkmatch_statscore_CPBL by DY`
         )
       );
     }
   });
 }
 
-module.exports = checkmatch_statscore_KBO;
+module.exports = checkmatch_statscore_CPBL;

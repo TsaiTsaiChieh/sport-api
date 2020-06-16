@@ -4,6 +4,8 @@ const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = '5476'; // NPB
 const leagueID = '347';
+const sport = 'baseball';
+const league = 'NPB';
 
 async function prematch_statscore_NPB() {
   return new Promise(async function(resolve, reject) {
@@ -63,12 +65,12 @@ async function prematch_statscore_NPB() {
         }
       }
       await modules.database
-        .ref(`baseball/NPB/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_NPB by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -81,7 +83,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_NPB by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });

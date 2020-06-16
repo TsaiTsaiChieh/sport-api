@@ -4,7 +4,7 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
-const league = 'KBO';
+const league = 'CPBL';
 let eventNow = 0;
 let eventOrderNow = 0;
 let hitterHomeNow = 0;
@@ -29,7 +29,7 @@ let hitterHomeAB = 0;
 let hitterHomeH = 0;
 let hitterAwayAB = 0;
 let hitterAwayH = 0;
-async function KBOpbpInplay(parameter) {
+async function CPBLpbpInplay(parameter) {
   // 14 秒一次
   let perStep;
   let timesPerLoop;
@@ -171,7 +171,7 @@ async function KBOpbpInplay(parameter) {
   }, perStep);
 }
 
-async function KBOpbpHistory(parameter) {
+async function CPBLpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
@@ -221,7 +221,7 @@ async function KBOpbpHistory(parameter) {
         });
       } catch (err) {
         return reject(
-          new AppErrors.PBPEsoccerError(
+          new AppErrors.FirebaseRealtimeError(
             `${err} at pbp${league} of yuhsien on ${betsID} by DY`
           )
         );
@@ -2234,4 +2234,4 @@ function changeInning(inning, now_innings) {
   }
   return inningNow;
 }
-module.exports = { KBOpbpInplay, KBOpbpHistory };
+module.exports = { CPBLpbpInplay, CPBLpbpHistory };

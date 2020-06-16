@@ -4,6 +4,8 @@ const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = '5469'; // KBO
 const leagueID = '349';
+const sport = 'baseball';
+const league = 'KBO';
 
 async function prematch_statscore_KBO() {
   return new Promise(async function(resolve, reject) {
@@ -61,12 +63,12 @@ async function prematch_statscore_KBO() {
         }
       }
       await modules.database
-        .ref(`baseball/KBO/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -79,7 +81,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });

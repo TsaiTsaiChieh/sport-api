@@ -4,6 +4,8 @@ const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = '5482'; // CPBL
 const leagueID = '11235';
+const sport = 'baseball';
+const league = 'CPBL';
 
 async function prematch_statscore_CPBL() {
   return new Promise(async function(resolve, reject) {
@@ -63,12 +65,12 @@ async function prematch_statscore_CPBL() {
         }
       }
       await modules.database
-        .ref(`baseball/CPBL/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_CPBL by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -81,7 +83,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_CPBL by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
