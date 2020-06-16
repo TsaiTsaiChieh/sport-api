@@ -85,8 +85,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.home.id,
-          away_id: ele.away.id,
+          home_id: changeTeam(ele.home.id),
+          away_id: changeTeam(ele.away.id),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -100,8 +100,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.away.id,
-          away_id: ele.home.id,
+          home_id: changeTeam(ele.away.id),
+          away_id: changeTeam(ele.home.id),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -117,4 +117,40 @@ async function write2MysqlOfMatch(ele, change) {
       );
     }
   });
+}
+
+function changeTeam(team) {
+  team = team.split('Game')[0].trim();
+  switch (team) {
+    case 'Lotte Giants': {
+      return '2408';
+    }
+    case 'Samsung Lions': {
+      return '3356';
+    }
+    case 'KIA Tigers': {
+      return '4202';
+    }
+    case 'Doosan Bears': {
+      return '2406';
+    }
+    case 'Hanwha Eagles': {
+      return '2405';
+    }
+    case 'SK Wyverns': {
+      return '8043';
+    }
+    case 'LG Twins': {
+      return '2407';
+    }
+    case 'Kiwoom Heroes': {
+      return '269103';
+    }
+    case 'NC Dinos': {
+      return '3353';
+    }
+    case 'KT Wiz': {
+      return '3354';
+    }
+  }
 }

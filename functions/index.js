@@ -133,7 +133,7 @@ exports.prematch = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.prematch_esport = functions.pubsub
-  .schedule('0 */3 * * *')
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub

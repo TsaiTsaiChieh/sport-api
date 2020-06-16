@@ -14,40 +14,6 @@ async function handicap_esport() {
     if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteID[i]);
     }
-
-    // const querysSpread = await query_handicap('flag.spread', 0, leagues[i]);
-    // const querysTotals = await query_handicap('flag.totals', 0, leagues[i]);
-    // const querysSpreadOpening = await query_opening(
-    //  'flag.spread',
-    //  1,
-    //  leagues[i]
-    // );
-    // const querysTotalsOpening = await query_opening(
-    //  'flag.totals',
-    //  1,
-    //  leagues[i]
-    // );
-
-    // if (querysSpread.length > 0) {
-    //  for (let z = 0; z < querysSpread.length; z++) {
-    //    await getHandicap(leagues[i], querysSpread[z]);
-    //  }
-    // }
-    // if (querysTotals.length > 0) {
-    //  for (let x = 0; x < querysTotals.length; x++) {
-    //    await getTotals(leagues[i], querysTotals[x]);
-    //  }
-    // }
-    // if (querysSpreadOpening.length > 0) {
-    //  for (let c = 0; c < querysSpreadOpening.length; c++) {
-    //    await updateHandicap(leagues[i], querysSpreadOpening[c]);
-    //  }
-    // }
-    // if (querysTotalsOpening.length > 0) {
-    //  for (let v = 0; v < querysTotalsOpening.length; v++) {
-    //    await updateHandicap(leagues[i], querysTotalsOpening[v]);
-    //  }
-    // }
   }
   console.log('handicap_esports success');
 }
@@ -94,6 +60,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
     try {
       for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
+        // ele.bets_id為原始id
         const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
         const data = await axiosForURL(URL);
         let spread_odds = [];

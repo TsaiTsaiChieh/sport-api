@@ -39,7 +39,7 @@ async function KBOpbpInplay(parameter) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 14000;
-    timesPerLoop = 5; // 一分鐘3次
+    timesPerLoop = 5; // 一分鐘4次
   }
 
   const betsID = parameter.betsID;
