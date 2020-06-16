@@ -425,7 +425,7 @@ class CreateCashflowBuyRollback extends ExtendableError {
   }
 }
 
-class PredictionHistoryError extends ExtendableError {
+class PredictionHistoryModelError extends ExtendableError {
   constructor(
     message = '歷史紀錄 API 錯誤',
     status = 1521,
@@ -475,5 +475,5 @@ module.exports = {
   CreateUserBuysTableRollback,
   UpdateUserCoinORDividendRollback,
   CreateCashflowBuyRollback,
-  PredictionHistoryError
+  PredictionHistoryModelError
 };
