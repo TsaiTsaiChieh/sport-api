@@ -116,7 +116,8 @@ app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
-
+// app.use('/cashflow_gash', require('./routers/cashflow_gash'));//金流介接(gash)
+// app.use('/cashflow_neweb', require('./routers/cashflow_neweb'));//金流介接(藍新)
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
   res.status(200).json({ test: 'awake0528v01' });
