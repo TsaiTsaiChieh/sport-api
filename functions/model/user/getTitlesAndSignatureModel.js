@@ -61,10 +61,9 @@ function repackageReturnData(userData, titles) {
 function defaultTitle(userData, titles) {
   for (let i = 0; i < titles.length; i++) {
     const ele = titles[i];
-    if (ele.league_id === userData.default_god_league_rank) {
-      return ele;
-    } else return { league_id: '0', rank_id: 0 };
+    if (ele.league_id === userData.default_god_league_rank) return ele;
   }
+  return { league_id: '0', rank_id: 0 };
 }
 
 module.exports = getTitlesAndSignature;
