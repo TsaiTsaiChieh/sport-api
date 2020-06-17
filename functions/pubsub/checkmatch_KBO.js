@@ -2,7 +2,6 @@ const modules = require('../util/modules');
 const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-// const firestoreName = 'baseball_KBO';
 const KBOpbpInplay = KBOpbp.KBOpbpInplay;
 const KBOpbpHistory = KBOpbp.KBOpbpHistory;
 const Match = db.Match;
@@ -10,15 +9,6 @@ async function checkmatch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
-      // const data = await modules.firestore
-      //  .collection(firestoreName)
-      //  .where('flag.status', '>', 0)
-      //  .get();
-
-      // const totalData = [];
-      // data.forEach((doc) => {
-      //  totalData.push(doc.data());
-      // });
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const gameTime = totalData[i].scheduled * 1000;
@@ -35,11 +25,6 @@ async function checkmatch_KBO() {
                 await modules.database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
-                // await modules.firestore
-                //  .collection(firestoreName)
-                //  .doc(betsID)
-                //  .set({ flag: { status: 1 } }, { merge: true });
-
                 const parameter = {
                   betsID: betsID
                 };
@@ -102,7 +87,8 @@ async function checkmatch_KBO() {
 
 async function queryForEvents() {
   return new Promise(async function(resolve, reject) {
-    const queries = await db.sequelize.query(
+    try {
+      const queries = await db.sequelize.query(
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
@@ -112,8 +98,13 @@ async function queryForEvents() {
       {
         type: db.sequelize.QueryTypes.SELECT
       }
-    );
-    return resolve(queries);
+      );
+      return resolve(queries);
+    } catch (err) {
+      return reject(
+        new AppErrors.AxiosError(`${err} at checkmatch_KBO by DY`)
+      );
+    }
   });
 }
 module.exports = checkmatch_KBO;

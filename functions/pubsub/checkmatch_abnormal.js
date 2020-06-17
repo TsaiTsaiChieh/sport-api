@@ -3,9 +3,7 @@ const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
-// const firestoreArray = ['esport_eSoccer', 'baseball_KBO'];
-// const sportArray = ['esports', 'baseball'];
-// const leagueArray = ['eSoccer', 'KBO'];
+
 function queryMatches() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -27,6 +25,7 @@ function queryMatches() {
     }
   });
 }
+
 async function checkmatch_abnormal() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -50,10 +49,10 @@ async function checkmatch_abnormal() {
         )
       );
     }
-
     return resolve('ok');
   });
 }
+
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -66,6 +65,7 @@ async function axiosForURL(URL) {
     }
   });
 }
+
 async function doPBP(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
@@ -205,6 +205,7 @@ async function doPBP(parameter) {
     return resolve('ok');
   });
 }
+
 async function pbpHistory(parameterHistory) {
   return new Promise(async function(resolve, reject) {
     let data = parameterHistory.data;

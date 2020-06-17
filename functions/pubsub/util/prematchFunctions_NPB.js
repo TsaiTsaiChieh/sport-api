@@ -33,6 +33,7 @@ module.exports.NPB.upcoming = async function(date) {
     }
   });
 };
+
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -45,6 +46,7 @@ async function axiosForURL(URL) {
     }
   });
 }
+
 async function checkTheHandicap(ele) {
   const URL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}&odds_market=2,3`;
   const data = await axiosForURL(URL);
@@ -75,6 +77,7 @@ async function write2realtime(ele) {
     }
   });
 }
+
 async function write2MysqlOfMatch(ele, change) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -118,6 +121,7 @@ async function write2MysqlOfMatch(ele, change) {
     }
   });
 }
+
 function changeTeam(team) {
   team = team.split('Game')[0].trim();
   switch (team) {

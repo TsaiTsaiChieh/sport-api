@@ -1,8 +1,6 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
-// const firestoreName = 'esport_eSoccer';
 const AppErrors = require('../util/AppErrors');
-// const settlementAccordingMatch = require('./handicap/settlementAccordingMatch');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 
 const Match = db.Match;
@@ -107,20 +105,6 @@ async function ESoccerpbpHistory(parameter) {
       if (!data.results[0].stats.redcards) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
-
-      // try {
-      //  await modules.firestore
-      //    .collection(firestoreName)
-      //    .doc(betsID)
-      //    .set({ flag: { status: 0 } }, { merge: true });
-      // } catch (err) {
-      //  return reject(
-      //    new AppErrors.FirebaseCollectError(
-      //      `${err} at pbpESoccer of status by DY`
-      //    )
-      //  );
-      // }
-
       try {
         await Match.upsert({
           bets_id: betsID,
@@ -147,50 +131,6 @@ async function ESoccerpbpHistory(parameter) {
         );
       }
       try {
-        //   await modules.firestore
-        //     .collection(`${firestoreName}_PBP`)
-        //     .doc(betsID)
-        //     .set(
-        //       {
-        //         league: {
-        //           name: data.results[0].league.name,
-        //           id: data.results[0].league.id
-        //         },
-        //         Now_clock: `${data.results[0].timer.tm}:${data.results[0].timer.ts}`,
-        //         home: {
-        //           name: data.results[0].home.name,
-        //           Total: {
-        //             points: homeScores,
-        //             attacks: data.results[0].stats.attacks[0],
-        //             ball_safe: data.results[0].stats.ball_safe[0],
-        //             corners: data.results[0].stats.corners[0],
-        //             dangerous_attacks: data.results[0].stats.dangerous_attacks[0],
-        //             goals: data.results[0].stats.goals[0],
-        //             off_target: data.results[0].stats.off_target[0],
-        //             on_target: data.results[0].stats.on_target[0],
-        //             yellowcards: data.results[0].stats.yellowcards[0],
-        //             redcards: data.results[0].stats.redcards[0]
-        //           }
-        //         },
-        //         away: {
-        //           name: data.results[0].away.name,
-        //           Total: {
-        //             points: awayScores,
-        //             attacks: data.results[0].stats.attacks[1],
-        //             ball_safe: data.results[0].stats.ball_safe[1],
-        //             corners: data.results[0].stats.corners[1],
-        //             dangerous_attacks: data.results[0].stats.dangerous_attacks[1],
-        //             goals: data.results[0].stats.goals[1],
-        //             off_target: data.results[0].stats.off_target[1],
-        //             on_target: data.results[0].stats.on_target[1],
-        //             yellowcards: data.results[0].stats.yellowcards[1],
-        //             redcards: data.results[0].stats.redcards[1]
-        //           }
-        //         }
-        //       },
-        //       { merge: true }
-        //     );
-        // settlementAccordingMatch(); 采潔的結算
         await settleMatchesModel({
           token: {
             uid: '999'

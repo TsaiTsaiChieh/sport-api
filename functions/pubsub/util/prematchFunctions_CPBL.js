@@ -1,10 +1,8 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-// const firebaseName = 'baseball_CPBL';
 const Match = db.Match;
 const leagueUniteID = '11235';
-// const leagueUniteName = 'CPBL';
 const sportID = 16;
 module.exports.CPBL = {};
 module.exports.CPBL.upcoming = async function(date) {
