@@ -117,7 +117,7 @@ async function god(req, res) {
     const refundInfo = settleRefundCoinDividend(data.price, data.sub_price, data.coin, data.dividend);
 
     // coin 搞幣   dividend 紅利
-    log(`[新增][購牌][退款資料] 到 cashflow_buy buy_id: ${data.buy_id} 使用者id:${data.uid} 退款情況:${buy_status} 退款支付比例:`, refundInfo);
+    log(`[新增][退款購牌資料] 到 cashflow_buy buy_id: ${data.buy_id} 使用者id:${data.uid} 退款情況:${buy_status} 退款支付比例:`, refundInfo);
     const [err, r] = await to(createData({
       uid: data.uid,
       league_id: data.league_id,
@@ -154,22 +154,47 @@ async function god(req, res) {
     // cashflow_sell status 1 正常情況
     if (data.win_bets > 0) {
       const Ingotinfo = settleIngot(data.price, data.sub_price);
-      log(`[新增][售牌][資料] 到 [cashflow_sell] buy_id: ${data.buy_id} 使用者id:${data.uid} 情況: 1 售牌收入比例:`, Ingotinfo);
       createInfo.ingot_real = Ingotinfo.ingot_real;
       createInfo.ingot = Ingotinfo.ingot;
       createInfo.money_real = Ingotinfo.money_real;
       createInfo.money = Ingotinfo.money;
       createInfo.status = 1; // 購牌勝注 > 0
+
+      log(`[新增][售牌資料] 到 [cashflow_sell] buy_id: ${data.buy_id} 使用者id:${data.uid} 情況: 1 售牌收入比例:`, Ingotinfo);
+      const [err, r] = await to(createData({
+        buy_id: data.buy_id,
+        uid: data.uid,
+        god_uid: data.god_uid,
+        league_id: data.league_id,
+        matches_date: data.matches_date,
+        ingot_real: Ingotinfo.ingot_real,
+        ingot: Ingotinfo.ingot,
+        money_real: Ingotinfo.money_real,
+        money: Ingotinfo.money,
+        status: 1 // 購牌勝注 > 0
+      }, 1, 'sell'));
+
+      if (err) {console.error(errs.dbErrsMsg('404', '50114', { addMsg: err }));}
     } else {
       //  (data.win_bets =< 0) cashflow_sell status -1, 0 賽事無效, 有退款過
       const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
       const refundIngotInfo = settleRefundIngot(data.price, data.sub_price);
-      log(`[新增][售牌][退款資料] 到 [cashflow_sell] buy_id: ${data.buy_id} 使用者id:${data.uid} 情況:${buy_status} 售牌收入退款比例:`, refundIngotInfo);
-      createInfo.ingot_real = buy_status === -1 ? 0 : refundIngotInfo.ingot_real; // 全額退費(賽事無效) 歸 0
-      createInfo.ingot = buy_status === -1 ? 0 : refundIngotInfo.ingot; // 全額退費(賽事無效) 歸 0
-      createInfo.money_real = buy_status === -1 ? 0 : refundIngotInfo.money_real; // 全額退費(賽事無效) 歸 0
-      createInfo.money = buy_status === -1 ? 0 : refundIngotInfo.money; // 全額退費(賽事無效) 歸 0
-      createInfo.status = buy_status; // 全額退費(賽事無效) 和 購牌勝注 <= 0
+
+      log(`[新增][售牌退款資料] 到 [cashflow_sell] buy_id: ${data.buy_id} 使用者id:${data.uid} 情況:${buy_status} 售牌收入退款比例:`, refundIngotInfo);
+      const [err, r] = await to(createData({
+        buy_id: data.buy_id,
+        uid: data.uid,
+        god_uid: data.god_uid,
+        league_id: data.league_id,
+        matches_date: data.matches_date,
+        ingot_real: buy_status === -1 ? 0 : refundIngotInfo.ingot_real, // 全額退費(賽事無效) 歸 0
+        ingot: buy_status === -1 ? 0 : refundIngotInfo.ingot, // 全額退費(賽事無效) 歸 0
+        money_real: buy_status === -1 ? 0 : refundIngotInfo.money_real, // 全額退費(賽事無效) 歸 0
+        money: buy_status === -1 ? 0 : refundIngotInfo.money, // 全額退費(賽事無效) 歸 0
+        status: buy_status // 全額退費(賽事無效) 和 購牌勝注 <= 0
+      }, buy_status, 'sell'));
+
+      if (err) {console.error(errs.dbErrsMsg('404', '50116', { addMsg: err }));}
     }
 
     const [err, r] = await to(createData({
@@ -178,12 +203,12 @@ async function god(req, res) {
       god_uid: data.god_uid,
       league_id: data.league_id,
       matches_date: data.matches_date,
-      ingot_real: createInfo.ingot_real,
-      ingot: createInfo.ingot,
-      money_real: createInfo.money_real,
-      money: createInfo.money,
-      status: createInfo.status // 購牌勝注 > 0
-    }, createInfo.status, 'sell'));
+      ingot_real: Ingotinfo.ingot_real,
+      ingot: Ingotinfo.ingot,
+      money_real: Ingotinfo.money_real,
+      money: Ingotinfo.money,
+      status: 1 // 購牌勝注 > 0
+    }, 1, 'sell'));
 
     if (err) {console.error(errs.dbErrsMsg('404', '50114', { addMsg: err }));}
   };
