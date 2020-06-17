@@ -85,8 +85,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.home.id),
-          away_id: changeTeam(ele.away.id),
+          home_id: changeTeam(ele.home.name),
+          away_id: changeTeam(ele.away.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -100,8 +100,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.away.id),
-          away_id: changeTeam(ele.home.id),
+          home_id: changeTeam(ele.away.name),
+          away_id: changeTeam(ele.home.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -129,6 +129,9 @@ function changeTeam(team) {
       return '3356';
     }
     case 'KIA Tigers': {
+      return '4202';
+    }
+    case 'Kia Tigers': {
       return '4202';
     }
     case 'Doosan Bears': {

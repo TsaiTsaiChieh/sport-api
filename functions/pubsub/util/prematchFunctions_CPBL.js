@@ -16,11 +16,9 @@ module.exports.CPBL.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          // await write2firestore(ele);
           await write2realtime(ele);
           const change = await checkTheHandicap(ele);
           await write2MysqlOfMatch(ele, change);
-          // await write2MysqlOfMatchTeam(ele);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -60,23 +58,7 @@ async function checkTheHandicap(ele) {
   }
   return changeFlag;
 }
-// async function write2firestore(ele) {
-//  return new Promise(async function (resolve, reject) {
-//    try {
-//      await modules.firestore
-//        .collection(firebaseName)
-//        .doc(ele.id)
-//        .set(repackage_bets(ele), { merge: true });
-//      return resolve('ok');
-//    } catch (err) {
-//      return reject(
-//        new AppErrors.FirebaseCollectError(
-//          `${err} at prematchFunctions_KBO by DY`
-//        )
-//      );
-//    }
-//  });
-// }
+
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -93,6 +75,7 @@ async function write2realtime(ele) {
     }
   });
 }
+
 async function write2MysqlOfMatch(ele, change) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -103,8 +86,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.home.id),
-          away_id: changeTeam(ele.away.id),
+          home_id: changeTeam(ele.home.name),
+          away_id: changeTeam(ele.away.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -118,8 +101,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.away.id),
-          away_id: changeTeam(ele.home.id),
+          home_id: changeTeam(ele.away.name),
+          away_id: changeTeam(ele.home.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -135,6 +118,7 @@ async function write2MysqlOfMatch(ele, change) {
     }
   });
 }
+
 function changeTeam(team) {
   team = team.split('Game')[0].trim();
   switch (team) {
@@ -148,6 +132,9 @@ function changeTeam(team) {
       return '224094';
     }
     case 'Uni-President Lions': {
+      return '224095';
+    }
+    case 'Uni-Lions': {
       return '224095';
     }
   }
