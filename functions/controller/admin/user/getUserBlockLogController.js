@@ -33,3 +33,16 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/user/getUserBlockLog/ getUserBlockLog
+ * @apiName getUserBlockLog
+ * @apiGroup Admin
+ * @apiDescription 取得使用者違規記錄
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} uid 使用者UID
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "uid":"oRMfGrKx7VVSlbW9UIawcvwZ6sr2",
+ * }
+ */

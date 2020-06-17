@@ -54,3 +54,27 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/service/deal/ deal
+ * @apiName deal
+ * @apiGroup Admin
+ * @apiDescription 處決檢舉
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} [article_id] 文章ID
+ * @apiParam {Integer} [report_id] 留言ID
+ * @apiParam {String} type 文章還是留言[`article`, `reply`]
+ * @apiParam {Integer} status 處理狀態[`1`待處理,`2`處理中,`3`擱置中,`9`已處理]
+ * @apiParam {Integer} article_status 文章狀蓋[`1`正常,`2`(文章)鎖定回覆,`3`(文章)不顯示在文章列表,`-1`使用者刪除,`-2`管理員刪除]
+ * @apiParam {String} reply 客服意見
+ * @apiParam {Boolean} blobkuser 是否禁言user
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "article_id": 161,
+ *   "type": "article",
+ *   "status": 9,
+ *   "article_status": -1,
+ *   "reply": "我沒意見",
+ *   "blobkuser": true,
+ * }
+ */

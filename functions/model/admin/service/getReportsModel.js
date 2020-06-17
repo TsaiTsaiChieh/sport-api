@@ -69,7 +69,7 @@ async function model(args) {
         }
       }
 
-      resolve({ code: 200, count: res.count, data: res.rows, log: { usersInfo: usersInfo } });
+      resolve({ code: 200, count: res.count, data: res.rows });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });

@@ -9,6 +9,7 @@ module.exports.getUserInfo = async function(users) {
           'uid',
           'status',
           'avatar',
+          'name',
           'display_name',
           'signature'
         ],

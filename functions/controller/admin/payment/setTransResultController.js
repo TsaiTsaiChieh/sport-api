@@ -1,29 +1,19 @@
 /* eslint-disable promise/always-return */
 const modules = require('../../../util/modules');
-const model = require('../../../model/admin/user/getUsersModel');
+const model = require('../../../model/admin/payment/setTransResultModel');
 async function controller(req, res) {
   const schema = {
     type: 'object',
     properties: {
-      page: {
+      transfer_id: {
+        type: 'number'
+      },
+      result: {
         type: 'number',
-        minimum: 0,
-        maximum: 99999
-      },
-      name: {
-        type: 'string'
-      },
-      displayName: {
-        type: 'string'
-      },
-      email: {
-        type: 'string'
-      },
-      phone: {
-        type: 'string'
+        enum: [-1, 0, 1]
       }
     },
-    required: ['page']
+    required: ['transfer_id', 'result']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -48,19 +38,16 @@ async function controller(req, res) {
 }
 module.exports = controller;
 /**
- * @api {POST} /admin/user/getUsers/ getUsers
- * @apiName getUsers
+ * @api {POST} /admin/payment/setTransResult/ setTransResult
+ * @apiName setTransResult
  * @apiGroup Admin
- * @apiDescription 取得使用者列表
+ * @apiDescription 匯款結果
  * @apiPermission service, admin
  * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
- * @apiParam {Integer} page 頁數
- * @apiParam {String} [name] 搜尋條件
- * @apiParam {String} [displayName] 搜尋條件
- * @apiParam {String} [email] 搜尋條件
- * @apiParam {String} [phone] 搜尋條件
- * @apiParamExample {JSON} Request-Example
+ * @apiParam {Integer} transfer_id transfer ID
+ * @apiParam {Integer} result 結果[`-1`失敗,`0`待匯款,`1`已匯款]
  * {
- *   "page": 0
+ *   "transfer_id": 2,
+ *   "result": -1
  * }
  */
