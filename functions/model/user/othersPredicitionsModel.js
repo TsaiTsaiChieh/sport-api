@@ -218,6 +218,7 @@ function repackageInfo(ele, paidType) {
   return {
     paid_type: paidType,
     info: paidType === 'free' ? '' : ele.description, // unpaid (未付費)、paid (已付費) 會出現
+    tipsShow: isString(ele.tips) ? ele.tips.length > 0 : false,
     tips: paidType === 'paid' ? ele.tips : '', // 只有 已付費才會出現
     tipsUpdate: ele.updatedAt,
     rank: ele.rank_id,
@@ -225,6 +226,9 @@ function repackageInfo(ele, paidType) {
     people: ele.people // 購買人數
   };
 }
+
+// https://1loc.dev/
+const isString = value => Object.prototype.toString.call(value) === '[object String]';
 
 function repackage(ele, paidType) {
   // unpaid (未付費)  沒有結果 (大分、客讓)。有引言、沒有秘笈

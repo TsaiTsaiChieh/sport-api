@@ -23,7 +23,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
 // const errs = require('./errorCode');
-const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1 };
+const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
@@ -1029,6 +1029,32 @@ function settleRefundCoinDividend(price, sub_price, coin, dividend) {
   return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
 }
 
+// 結算 搞錠 settleIngot
+// 輸入：price, sub_price, ingot
+// 輸出：company_real, god_real, company, god
+function settleIngot(price, sub_price, coin, dividend) {
+  NP.enableBoundaryChecking(false);
+  const refundMoney = 90; // NP.minus(price, sub_price);
+  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
+  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
+  const r_coin = Math.ceil(r_coin_real);
+  const r_dividend = NP.minus(refundMoney, r_coin);
+  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
+}
+
+// 結算 退款搞錠 settleRefundIngot
+// 輸入：price, sub_price, coin, dividend
+// 輸出退款：company_real, god_real, company, god
+function settleRefundIngot(price, sub_price, coin, dividend) {
+  NP.enableBoundaryChecking(false);
+  const refundMoney = 90; // NP.minus(price, sub_price);
+  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
+  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
+  const r_coin = Math.ceil(r_coin_real);
+  const r_dividend = NP.minus(refundMoney, r_coin);
+  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
+}
+
 // 一般 NBA MLB
 // home_alias = 'CHA'
 //
@@ -1151,6 +1177,8 @@ module.exports = {
   predictionsResultFlag,
   predictionsWinList,
   settleRefundCoinDividend,
+  settleIngot,
+  settleRefundIngot,
   sliceTeamAndPlayer,
   acceptLeague,
   MATCH_STATUS,
