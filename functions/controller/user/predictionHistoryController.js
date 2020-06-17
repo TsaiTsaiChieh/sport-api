@@ -16,7 +16,6 @@ async function predictionHistory(req, res) {
   };
   const valid = modules.ajv.validate(schema, req.query);
   if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
-  console.log(schema.properties.uid.default);
 
   const args = {
     now,
@@ -26,8 +25,11 @@ async function predictionHistory(req, res) {
   try {
     return res.json(await model(args));
   } catch (err) {
-    console.error(err);
-    res.status(err.code).json(err.isPublic ? { error: err.name, devcode: err.status, message: err.message } : err.code);
+    console.error('Error in controller/user/predictionHistoryController by TsaiChieh', err);
+    res.status(err.code)
+      .json(err.isPublic
+        ? { error: err.name, devcode: err.status, message: err.message }
+        : err.code);
   }
 }
 

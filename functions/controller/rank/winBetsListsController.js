@@ -116,7 +116,7 @@ module.exports = winBetsLists;
         "last_week",
         "this_month",
         "last_month",
-        "this_session"
+        "this_season"
       ]
     },
     "message": "should be equal to one of the allowed values"
