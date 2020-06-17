@@ -83,7 +83,7 @@ const errorCodeLists = {
 
   50110: { msg: ['排程 更新 UserBuy 錯誤'], backend: ['排程 更新 UserBuy 錯誤', ''] },
   50112: { msg: ['排程 createData buy 錯誤'], backend: ['排程 新增 購牌退款資料  createData buy 錯誤', ''] },
-  50114: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌資料  createData sell 錯誤', ''] },
+  50114: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌資料 和 售牌退款資料  createData sell 錯誤', ''] },
   50116: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌退款資料  createData sell 錯誤', ''] }
 };
 
