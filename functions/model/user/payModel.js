@@ -1,9 +1,6 @@
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const modules = require('../../util/modules');
-const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
-const neweb_config = require('../../config/cashflow/neweb_config');
-// console.log(cashflow_neweb.getOrderNo());return;
 function payModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -33,37 +30,6 @@ function payModel(method, args, uid) {
           const t = await db.sequelize.transaction();
 
           try {
-            /* 金流基本參數*/
-            const MerchantID = merchantID;
-            const HashKey = hashKey;
-            const HashIV = hashIV;
-            const URL = url;
-            const VER = ver;
-
-            /*商品名稱*/
-            const NTD = 288;											//商品價格
-            const Order_Title = "288搞幣";		//商品名稱
-            const ATM_ExpireDate = 3;						//ATM付款到期日
-            /* 金流-藍新資料 */
-            const trade_info_arr = {
-              'MerchantID': merchantID,
-              'RespondType': 'JSON',
-              'TimeStamp': 1485232229,
-              'Version': VER,
-              'MerchantOrderNo': getOrderNo(),
-              'Amt': NTD,
-              'ItemDesc': Order_Title,
-              'ReturnURL': ReturnURL, //支付完成 返回商店網址
-              'NotifyURL': NotifyURL_atm, //支付通知網址
-              'CustomerURL': CustomerURL, //商店取號網址
-              'ClientBackURL': ClientBackURL , //支付取消 返回商店網址
-              'ExpireDate': date("Y-m-d" , mktime(0,0,0,date("m"),date("d") + ATM_ExpireDate,date("Y")))
-            };
-            
-              const TradeInfo = create_mpg_aes_encrypt(trade_info_arr, HashKey, HashIV);
-              const SHA256 = sha256(neweb_sdk.SHA256(HashKey, TradeInfo, HashIV)).toUpperCase();
-              neweb_sdk.CheckOut(URL, MerchantID, TradeInfo, SHA256, VER);
-           
             await db.sequelize.models.user.update({ coin: self.coin + exchange.coin, dividend: self.dividend + exchange.dividend }, { where: { uid: uid } });
             const cashflow_deposit = await db.sequelize.models.cashflow_deposit.create({ uid: uid, money: exchange.money, money_real: exchange.money_real, coin: exchange.coin, coin_real: exchange.coin_real, dividend: exchange.dividend, dividend_real: exchange.dividend_real, scheduled: scheduled });
             if (!trans || !cashflow_deposit) {
