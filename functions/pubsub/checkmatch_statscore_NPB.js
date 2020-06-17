@@ -1,19 +1,25 @@
 const modules = require('../util/modules');
-const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
+const NPBpbp = require('./pbp_statscore_NPB');
+const NPBpbpInplay = NPBpbp.NPBpbpInplay;
+const NPBpbpHistory = NPBpbp.NPBpbpHistory;
 const db = require('../util/dbUtil');
-const KBOpbpInplay = KBOpbp.KBOpbpInplay;
-const KBOpbpHistory = KBOpbp.KBOpbpHistory;
 const Match = db.Match;
-async function checkmatch_KBO() {
+const sport = 'baseball';
+const league = 'NPB';
+const leagueID = modules.leagueCodebook(league).id;
+
+async function checkmatch_statscore_NPB() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
+        const statscoreID = totalData[i].statscore_id;
         const gameTime = totalData[i].scheduled * 1000;
         const nowTime = Date.now();
         const eventStatus = totalData[i].status;
+
         switch (eventStatus) {
           case 2: {
             if (gameTime <= nowTime) {
@@ -23,50 +29,63 @@ async function checkmatch_KBO() {
                   status: 1
                 });
                 await modules.database
-                  .ref(`baseball/KBO/${betsID}/Summary/status`)
+                  .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
+
                 const parameter = {
-                  betsID: betsID
+                  betsID: betsID,
+                  statscoreID: statscoreID,
+                  first: 1
                 };
-                await KBOpbpInplay(parameter);
+                await NPBpbpInplay(parameter);
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
-                    `${err} at checkmatch_KBO by DY`
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at checkmatch_statscore_${league} by DY`
                   )
                 );
               }
             } else {
-              await modules.database
-                .ref(`baseball/KBO/${betsID}/Summary/status`)
-                .set('scheduled');
+              try {
+                await modules.database
+                  .ref(`${sport}/${league}/${betsID}/Summary/status`)
+                  .set('scheduled');
+              } catch (err) {
+                return reject(
+                  new AppErrors.FirebaseRealtimeError(
+                    `${err} at checkmatch_statscore_${league} by DY`
+                  )
+                );
+              }
             }
             break;
           }
           case 1: {
             try {
               let realtimeData = await modules.database
-                .ref(`baseball/KBO/${betsID}`)
+                .ref(`${sport}/${league}/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
               if (realtimeData.Summary.status !== 'closed') {
                 const parameter = {
                   betsID: betsID,
-                  realtimeData: realtimeData
+                  statscoreID: statscoreID,
+                  first: 0
                 };
-                await KBOpbpInplay(parameter);
+                await NPBpbpInplay(parameter);
               }
 
               if (realtimeData.Summary.status === 'closed') {
                 const parameter = {
-                  betsID: betsID
+                  betsID: betsID,
+                  statscoreID: statscoreID
                 };
-                await KBOpbpHistory(parameter);
+                await NPBpbpHistory(parameter);
               }
             } catch (err) {
               return reject(
-                new AppErrors.FirebaseCollectError(
-                  `${err} atcheckmatch_KBO by DY`
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} checkmatch_statscore_${league} by DY`
                 )
               );
             }
@@ -78,7 +97,9 @@ async function checkmatch_KBO() {
       }
     } catch (err) {
       return reject(
-        new AppErrors.FirebaseCollectError(`${err} at checkmatch_KBO by DY`)
+        new AppErrors.FirebaseRealtimeError(
+          `${err} at checkmatch_statscore_${league} by DY`
+        )
       );
     }
     return resolve('ok');
@@ -89,22 +110,25 @@ async function queryForEvents() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
-      `(
-				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
+        `(
+				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
 					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
-						AND game.league_id =  '349'
+						AND game.league_id = '${leagueID}'
 			 )`,
-      {
-        type: db.sequelize.QueryTypes.SELECT
-      }
+        {
+          type: db.sequelize.QueryTypes.SELECT
+        }
       );
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at checkmatch_KBO by DY`)
+        new AppErrors.PBPEsoccerError(
+          `${err} at checkmatch_statscore_${league} by DY`
+        )
       );
     }
   });
 }
-module.exports = checkmatch_KBO;
+
+module.exports = checkmatch_statscore_NPB;

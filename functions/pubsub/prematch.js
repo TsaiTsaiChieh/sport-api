@@ -5,7 +5,9 @@ const AppErrors = require('../util/AppErrors');
 // const SBL_functions = require('./util/prematchFunctions_SBL');
 // const MLB_functions = require('./util/prematchFuntions_MLB');
 const KBO_functions = require('./util/prematchFunctions_KBO');
+const NPB_functions = require('./util/prematchFunctions_NPB');
 const CPBL_functions = require('./util/prematchFunctions_CPBL');
+const Soccer_functions = require('./util/prematchFunctions_Soccer');
 // upcomming is BetsAPI, prematch is for sportradar
 async function prematch() {
   return new Promise(async function(resolve, reject) {
@@ -16,32 +18,15 @@ async function prematch() {
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);
-    // try {
-    //   await NBA_functions.NBA.upcomming(tomorrow);
-    //   NBA_functions.NBA.prematch(now);
-    // } catch (error) {
-    //   console.error(error);
-    // }
-    // try {
-    //   await SBL_functions.SBL.upcomming(tomorrow);
-    //   SBL_functions.SBL.prematch(tomorrow);
-    // } catch (error) {
-    //   console.error(error);
-    // }
-    // try {
-    //   await MLB_functions.MLB_PRE.upcoming(now);
-    //   // query now 上午八點過後的場次
-    //   await MLB_functions.MLB_PRE.upcoming(tomorrow);
-    //   MLB_functions.MLB.prematch(now);
-    //   MLB_functions.MLB.teamStat(now);
-    // } catch (error) {
-    //   console.error(error);
-    // }
     try {
       await KBO_functions.KBO.upcoming(now);
       await KBO_functions.KBO.upcoming(tomorrow);
+      await NPB_functions.NPB.upcoming(now);
+      await NPB_functions.NPB.upcoming(tomorrow);
       await CPBL_functions.CPBL.upcoming(now);
       await CPBL_functions.CPBL.upcoming(tomorrow);
+      await Soccer_functions.Soccer.upcoming(now);
+      await Soccer_functions.Soccer.upcoming(tomorrow);
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }
