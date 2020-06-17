@@ -24,18 +24,22 @@ async function getUserPredictionData(args, userData) {
 
   const [err, results] = await modules.to(db.sequelize.query(
     // index is ref (user__predictions); eq_ref (matches); eq_ref (matches__teams[home]); eq_ref (matches__teams[away]); ref (match__spreads); ref (match__totals), taking 165ms
-    `SELECT *
-       FROM matches AS game
- INNER JOIN user__predictions AS prediction
+    `SELECT game.bets_id, game.league_id, game.sport_id, game.scheduled, game.home_points, game.away_points, 
+            prediction.sell, prediction.match_date, prediction.spread_id, prediction.spread_option, prediction.spread_bets, prediction.spread_result, prediction.spread_result_flag, 
+            prediction.user_status, prediction.totals_id, prediction.totals_option, prediction.totals_bets, prediction.totals_result, prediction.totals_result_flag, 
+            spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, 
+            totals.handicap AS totals_handicap, totals.over_tw
+       FROM user__predictions AS prediction
+ INNER JOIN matches AS game
          ON game.bets_id = prediction.bets_id
  INNER JOIN match__teams AS home
          ON game.home_id = home.team_id
  INNER JOIN match__teams AS away
          ON game.away_id = away.team_id
  INNER JOIN match__spreads AS spread
-         ON game.spread_id = spread.spread_id
+         ON spread.spread_id = prediction.spread_id
  INNER JOIN match__totals AS totals
-         ON game.totals_id = totals.totals_id
+         ON totals.totals_id = prediction.totals_id
       WHERE prediction.uid = '${userData.uid}'
         AND game.scheduled BETWEEN ${before} and ${begin}
         AND game.status = ${modules.MATCH_STATUS.END}
@@ -61,6 +65,14 @@ async function repackageReturnData(args, historyData) {
 }
 
 async function repackagePastPredictionData(args, ele) {
-  // console.log(ele);
+  const data = {
+    match_id: ele.bets_id,
+    match_date: modules.convertTimezoneFormat(ele.scheduled, { format: 'M/D' }),
+    league_id: ele.league_id,
+    sport_id: ele.sport_id,
+    scheduled: ele.scheduled,
+    scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' })
+  };
+  console.log(data);
 }
 module.exports = predictionHistory;
