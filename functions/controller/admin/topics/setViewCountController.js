@@ -36,3 +36,18 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/topics/setViewCount/ setViewCount
+ * @apiName setViewCount
+ * @apiGroup Admin
+ * @apiDescription 竄改閱讀次數
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} article_id 文章ID
+ * @apiParam {Integer} count 新的觀看數
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "Integer": 161,
+ *   "count": 99999999999999
+ * }
+ */

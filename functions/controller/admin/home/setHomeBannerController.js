@@ -51,3 +51,17 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/home/setHomeBanner/ setHomeBanner
+ * @apiName setHomeBanner
+ * @apiGroup Admin
+ * @apiDescription 修改輪播圖
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} id 圖片ID
+ * @apiParam {String} sort 排序
+ * @apiParam {String} name 圖片檔名
+ * @apiParam {String} [imgurl] 圖片URL
+ * @apiParam {String} [title] 標題
+ * @apiParam {String} [content] 內容
+ */

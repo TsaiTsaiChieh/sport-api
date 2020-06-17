@@ -47,3 +47,20 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/user/getUsers/ getUsers
+ * @apiName getUsers
+ * @apiGroup Admin
+ * @apiDescription 取得使用者列表
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} page 頁數
+ * @apiParam {String} [name] 搜尋條件
+ * @apiParam {String} [displayName] 搜尋條件
+ * @apiParam {String} [email] 搜尋條件
+ * @apiParam {String} [phone] 搜尋條件
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "page": 0
+ * }
+ */

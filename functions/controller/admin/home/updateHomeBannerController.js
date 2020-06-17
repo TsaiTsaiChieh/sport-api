@@ -39,3 +39,14 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/home/updateHomeBanner/ updateHomeBanner
+ * @apiName updateHomeBanner
+ * @apiGroup Admin
+ * @apiDescription 修改輪播圖內容
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} id 圖片ID
+ * @apiParam {String} title 標題
+ * @apiParam {String} content 內容
+ */

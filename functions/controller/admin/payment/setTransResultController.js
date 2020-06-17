@@ -37,3 +37,17 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/payment/setTransResult/ setTransResult
+ * @apiName setTransResult
+ * @apiGroup Admin
+ * @apiDescription 匯款結果
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} transfer_id transfer ID
+ * @apiParam {Integer} result 結果[`-1`失敗,`0`待匯款,`1`已匯款]
+ * {
+ *   "transfer_id": 2,
+ *   "result": -1
+ * }
+ */
