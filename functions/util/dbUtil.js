@@ -1828,40 +1828,31 @@ const CashflowDeposit = sequelize.define(
       primaryKey: true
     },
     money: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     money_real: {
-      type: Sequelize.FLOAT,
-      primaryKey: true
+      type: Sequelize.FLOAT
     },
     money_status: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     coin: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     coin_real: {
-      type: Sequelize.FLOAT,
-      primaryKey: true
+      type: Sequelize.FLOAT
     },
     coin_status: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     dividend: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     dividend_real: {
-      type: Sequelize.FLOAT,
-      primaryKey: true
+      type: Sequelize.FLOAT
     },
     dividend_status: {
-      type: Sequelize.INTEGER,
-      primaryKey: true
+      type: Sequelize.INTEGER
     },
     scheduled: {
       type: Sequelize.STRING

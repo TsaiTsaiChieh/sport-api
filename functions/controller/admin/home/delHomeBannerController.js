@@ -35,3 +35,15 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/home/delHomeBanner/ delHomeBanner
+ * @apiName delHomeBanner
+ * @apiGroup Admin
+ * @apiDescription 刪除輪播圖
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} id 輪播圖ID
+ * {
+ *   "id": 2
+ * }
+ */

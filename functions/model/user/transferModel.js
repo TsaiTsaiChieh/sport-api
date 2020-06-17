@@ -63,6 +63,14 @@ async function transferModel(method, args, uid) {
           WHERE cb.league_id = ml.league_id
             AND cb.uid = u.uid
             AND cb.status = 1
+          UNION
+         SELECT 0 as ingot, 0 as coin, 0 as dividend, "賽事無效退費(處理中)" as title, "dividend_expire" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_buys
+          WHERE status=-1
+          UNION
+         SELECT 0 as ingot, 0 as coin, 0 as dividend, "賽事注數小於0退費(處理中)" as title, "dividend_expire" as en_title, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_buys
+          WHERE status=0
           UNION 
          SELECT 0 as ingot, cb.coin, cb.dividend, "購牌退費" as title, "buy" as en_title, name_ch, display_name, NULL as article_title, scheduled
            FROM cashflow_buys cb, match__leagues ml, users u

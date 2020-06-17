@@ -22,7 +22,7 @@ router.post(
   '/dividend_refund',
   require('../controller/cashflow/dividendRefundController')
 );
-/* 搞錠轉換現金() */
+/* 搞錠轉換現金 */
 router.post(
   '/ingot_transfer',
   require('../controller/cashflow/ingotTransferController')

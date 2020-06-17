@@ -12,3 +12,12 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {GET} /admin/user/getNews/ getNews
+ * @apiName getNews
+ * @apiGroup Admin
+ * @apiDescription 取得系統通知
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} page 頁數
+ */

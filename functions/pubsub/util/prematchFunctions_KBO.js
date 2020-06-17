@@ -1,10 +1,8 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-// const firebaseName = 'baseball_KBO';
 const Match = db.Match;
 const leagueUniteID = '349';
-// const leagueUniteName = 'KBO';
 const sportID = 16;
 module.exports.KBO = {};
 module.exports.KBO.upcoming = async function(date) {
@@ -17,11 +15,9 @@ module.exports.KBO.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          // await write2firestore(ele);
           await write2realtime(ele);
           const change = await checkTheHandicap(ele);
           await write2MysqlOfMatch(ele, change);
-          // await write2MysqlOfMatchTeam(ele);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -61,23 +57,6 @@ async function checkTheHandicap(ele) {
   }
   return changeFlag;
 }
-// async function write2firestore(ele) {
-//  return new Promise(async function (resolve, reject) {
-//    try {
-//      await modules.firestore
-//        .collection(firebaseName)
-//        .doc(ele.id)
-//        .set(repackage_bets(ele), { merge: true });
-//      return resolve('ok');
-//    } catch (err) {
-//      return reject(
-//        new AppErrors.FirebaseCollectError(
-//          `${err} at prematchFunctions_KBO by DY`
-//        )
-//      );
-//    }
-//  });
-// }
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -104,8 +83,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.home.id,
-          away_id: ele.away.id,
+          home_id: changeTeam(ele.home.name),
+          away_id: changeTeam(ele.away.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -119,8 +98,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.away.id,
-          away_id: ele.home.id,
+          home_id: changeTeam(ele.away.name),
+          away_id: changeTeam(ele.home.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -138,41 +117,41 @@ async function write2MysqlOfMatch(ele, change) {
   });
 }
 
-// function repackage_bets(ele) {
-//  const leagueCH = '韓國職棒';
-
-//  return {
-//    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-//    scheduled: Number.parseInt(ele.time),
-//    scheduled_tw: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-//      new Date(Number.parseInt(ele.time) * 1000)
-//    ),
-//    bets_id: ele.id,
-//    league: {
-//      ori_bets_id: ele.league.id,
-//      bets_id: leagueUniteID,
-//      name: leagueUniteName,
-//      name_ch: leagueCH
-//    },
-//    home: {
-//      name: ele.home.name,
-//      alias: ele.home.name,
-//      alias_ch: ele.home.name,
-//      image_id: ele.home.image_id,
-//      bets_id: ele.home.id
-//    },
-//    away: {
-//      name: ele.away.name,
-//      alias: ele.away.name,
-//      alias_ch: ele.away.name,
-//      image_id: ele.away.image_id,
-//      bets_id: ele.away.id
-//    },
-//    flag: {
-//      spread: 0,
-//      totals: 0,
-//      status: 2,
-//      prematch: 1
-//    }
-//  };
-// }
+function changeTeam(team) {
+  team = team.split('Game')[0].trim();
+  switch (team) {
+    case 'Lotte Giants': {
+      return '2408';
+    }
+    case 'Samsung Lions': {
+      return '3356';
+    }
+    case 'KIA Tigers': {
+      return '4202';
+    }
+    case 'Kia Tigers': {
+      return '4202';
+    }
+    case 'Doosan Bears': {
+      return '2406';
+    }
+    case 'Hanwha Eagles': {
+      return '2405';
+    }
+    case 'SK Wyverns': {
+      return '8043';
+    }
+    case 'LG Twins': {
+      return '2407';
+    }
+    case 'Kiwoom Heroes': {
+      return '269103';
+    }
+    case 'NC Dinos': {
+      return '3353';
+    }
+    case 'KT Wiz': {
+      return '3354';
+    }
+  }
+}

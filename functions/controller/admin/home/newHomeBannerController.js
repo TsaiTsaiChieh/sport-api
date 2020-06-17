@@ -36,3 +36,17 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/home/newHomeBanner/ newHomeBanner
+ * @apiName newHomeBanner
+ * @apiGroup Admin
+ * @apiDescription 新增輪播圖
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} name 圖片檔名
+ * @apiParam {String} imgurl 圖片URL
+ * {
+ *   "name": "1585036268813.jpg",
+ *   "imgurl": "http:///"
+ * }
+ */
