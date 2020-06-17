@@ -165,7 +165,8 @@ function repackageHandicap(ele, data, handicapType) {
       // 當過盤結果為 0.95 時
       if (result === settlement.winOdd_v1 || result === settlement.winOdd_v2) {
         handicap.end = settlement.win;
-        handicap.bets = handicap.ori_bets * settlement.winOdd;
+        // TODO * settlement.winOdd_v1 or * winOdd_v2 較好
+        handicap.bets = handicap.ori_bets * settlement.win;
         // 當過盤結果為 0.5 時
       } else if (result === settlement.winHalfOdd) {
         handicap.end = settlement.win;
