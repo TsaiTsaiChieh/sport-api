@@ -2,12 +2,12 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5469'; // KBO
-const leagueID = '349';
+const competitionID = '5482'; // CPBL
+const leagueID = '11235';
 const sport = 'baseball';
-const league = 'KBO';
+const league = 'CPBL';
 
-async function prematch_statscore_KBO() {
+async function prematch_statscore_CPBL() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -42,12 +42,14 @@ async function prematch_statscore_KBO() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        const homeTeamName =
+        let homeTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[0].name; // KT wiz
-        const awayTeamName =
+        let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[1].name; // KIA Tigers
+        homeTeamName = teamTrans(homeTeamName);
+        awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
           if (startDate === ele[j].scheduled) {
             if (
@@ -85,6 +87,23 @@ async function axiosForURL(URL) {
       );
     }
   });
+}
+
+function teamTrans(team) {
+  switch (team) {
+    case 'Chinatrust Brothers': {
+      return 'CTBC Brothers';
+    }
+    case 'Rakuten Monkeys': {
+      return 'Rakuten Monkeys';
+    }
+    case 'Fubon Guardians': {
+      return 'Fubon Guardians';
+    }
+    case 'Uni-President Lions': {
+      return 'Uni-President Lions';
+    }
+  }
 }
 
 async function queryForToken() {
@@ -134,4 +153,4 @@ async function queryForMatches(date1, date2) {
     }
   });
 }
-module.exports = prematch_statscore_KBO;
+module.exports = prematch_statscore_CPBL;

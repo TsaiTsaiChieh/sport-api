@@ -98,6 +98,18 @@ router.post(
   verification.admin,
   require('../controller/admin/service/dealController')
 );
+router.post(
+  '/payment/getTransList',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/payment/getTransListController')
+);
+router.post(
+  '/payment/setTransResult',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/payment/setTransResultController')
+);
 
 /// 以下為原本的
 router.post(

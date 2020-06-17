@@ -5,7 +5,6 @@ const AppErrors = require('../../util/AppErrors');
 const TWO_WEEKS = 14;
 /*
 * 1. 檢查該使用者存在與否
-
 * possible used table: user__predictions, matches, match__teams, match__spreads, match__totals, users
 */
 
@@ -50,7 +49,18 @@ async function getUserPredictionData(args, userData) {
 }
 
 async function repackageReturnData(args, historyData) {
-  console.log(historyData);
+  // historyData is a object, groupBy function can group by property which league_id
+  // ex: [ [{NBA Data}, {NBA Data}, {NBA Data}] , [{eSoccer Data}, {eSoccer Data},... ] ] two layers
+  const temp = [];
+  const groupByLeague = modules.groupBy(historyData, 'league_id');
+  for (const i in groupByLeague) {
+    for (const j in groupByLeague[i]) {
+      temp.push(repackagePastPredictionData(args, groupByLeague[i][j]));
+    }
+  }
 }
 
+async function repackagePastPredictionData(args, ele) {
+  // console.log(ele);
+}
 module.exports = predictionHistory;
