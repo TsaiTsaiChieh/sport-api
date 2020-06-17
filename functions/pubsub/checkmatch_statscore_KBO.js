@@ -5,6 +5,9 @@ const KBOpbpInplay = KBOpbp.KBOpbpInplay;
 const KBOpbpHistory = KBOpbp.KBOpbpHistory;
 const db = require('../util/dbUtil');
 const Match = db.Match;
+const sport = 'baseball';
+const league = 'KBO';
+const leagueID = modules.leagueCodebook(league).id;
 
 async function checkmatch_statscore_KBO() {
   return new Promise(async function(resolve, reject) {
@@ -21,21 +24,18 @@ async function checkmatch_statscore_KBO() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
-                let realtimeData = await modules.database
-                  .ref(`baseball/KBO/${betsID}`)
-                  .once('value');
                 await Match.upsert({
                   bets_id: betsID,
                   status: 1
                 });
                 await modules.database
-                  .ref(`baseball/KBO/${betsID}/Summary/status`)
+                  .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
-                realtimeData = realtimeData.val();
+
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  realtimeData: realtimeData
+                  first: 1
                 };
                 await KBOpbpInplay(parameter);
               } catch (err) {
@@ -48,7 +48,7 @@ async function checkmatch_statscore_KBO() {
             } else {
               try {
                 await modules.database
-                  .ref(`baseball/KBO/${betsID}/Summary/status`)
+                  .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
                 return reject(
@@ -63,14 +63,14 @@ async function checkmatch_statscore_KBO() {
           case 1: {
             try {
               let realtimeData = await modules.database
-                .ref(`baseball/KBO/${betsID}`)
+                .ref(`${sport}/${league}/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
               if (realtimeData.Summary.status !== 'closed') {
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  realtimeData: realtimeData
+                  first: 0
                 };
                 await KBOpbpInplay(parameter);
               }
@@ -114,7 +114,7 @@ async function queryForEvents() {
 				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
 					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
-						AND game.league_id =  '349'
+						AND game.league_id = '${leagueID}'
 			 )`,
         {
           type: db.sequelize.QueryTypes.SELECT

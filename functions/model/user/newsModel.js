@@ -38,18 +38,19 @@ function newsModel(method, args, uid) {
 
         const system = await db.sequelize.query(
           `
-          SELECT un.news_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt, uns.active
+          SELECT un.news_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt, un.active
             FROM user__news un
             LEFT JOIN user__news__systems uns ON uns.system_id=un.news_id
            WHERE un.scheduled BETWEEN :begin and :end
              AND un.status=1
              AND un.active=1
+             AND (un.uid IS NULL OR un.uid=:uid)
            ORDER BY un.scheduled DESC
        LIMIT :start_system, :limit_system
           `,
           {
             logging: true,
-            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join() },
+            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join(), uid },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

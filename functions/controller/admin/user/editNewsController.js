@@ -12,6 +12,9 @@ async function controller(req, res) {
       news_id: {
         type: 'integer'
       },
+      uid: {
+        type: 'string'
+      },
       content: {
         type: 'string'
       }
@@ -40,3 +43,20 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/user/editNews/ editNews
+ * @apiName editNews
+ * @apiGroup Admin
+ * @apiDescription 編輯通知
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} uid 使用者UID
+ * @apiParam {String} method 方式 [`new`, `del`, `edit`]
+ * @apiParam {Integer} [news_id] 編輯或刪除的ID
+ * @apiParam {String} [content] content
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "method": "new",
+ *   "content": "入鏡！入鏡！"
+ * }
+ */

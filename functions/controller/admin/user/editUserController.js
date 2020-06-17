@@ -45,3 +45,21 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/user/editUser/ unblockUser
+ * @apiName unblockUser
+ * @apiGroup Admin
+ * @apiDescription 禁言及解除禁言使用者
+ * @apiPermission service, admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} uid 使用者UID
+ * @apiParam {Boolean} [name] 姓名
+ * @apiParam {String} [display_name] 顯示名稱
+ * @apiParam {String} [email] 電子郵件
+ * @apiParam {String} [phone] 鳳
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "uid": "oRMfGrKx7VVSlbW9UIawcvwZ6sr2",
+ *   "display_name": "摁摁"
+ * }
+ */

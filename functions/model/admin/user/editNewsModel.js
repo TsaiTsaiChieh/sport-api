@@ -53,6 +53,7 @@ async function model(args) {
           content: args.content,
           status: 1,
           active: 1,
+          uid: args.uid ? args.uid : null,
           scheduled: now
         });
       }
