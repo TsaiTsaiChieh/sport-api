@@ -12,6 +12,9 @@ async function controller(req, res) {
       news_id: {
         type: 'integer'
       },
+      uid: {
+        type: 'string'
+      },
       content: {
         type: 'string'
       }
