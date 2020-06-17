@@ -9,8 +9,8 @@ const router = modules.express.Router();
 
 // /* 超商條碼 */
 router.post(
-    '/cvs_barcode',
-    require('../controller/cashflow_neweb/cvsBarcodeController')
+  '/cvs_barcode',
+  require('../controller/cashflow_neweb/cvsBarcodeController')
 );
 
 // /* WebATM */
