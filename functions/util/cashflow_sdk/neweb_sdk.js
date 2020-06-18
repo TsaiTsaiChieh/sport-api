@@ -16,7 +16,7 @@ function create_mpg_aes_encrypt (parameter = "" , key = "", iv = "") {
         padding: CryptoJS.pad.Pkcs7,
         mode: CryptoJS.mode.CBC
     });
-    console.log(CryptoJS.enc.Utf8.parse(iv));
+    // console.log(CryptoJS.enc.Utf8.parse(iv));
     // var encryptedData = CryptoJS.AES.encrypt(return_str, key, {
     //     mode: CryptoJS.mode.CBC,
     //     padding: CryptoJS.pad.Pkcs7
@@ -114,8 +114,7 @@ function SHA_str(key="", tradeinfo="", iv=""){
 }
 
 function SHA256(str){
-    const sha = CryptoJS.SHA256('ajsdlfknasldfnsadk')
-    // console.log(sha);return;
+    const sha = CryptoJS.SHA256(str)
     return sha;
 }
 
@@ -137,8 +136,9 @@ function CheckOut(URL="", MerchantID="", TradeInfo="", SHA256="", VER="") {
 	szHtml +='</script>';
 	szHtml +='</body>';
     szHtml +='</html>';
-    console.log(szHtml);return;
-	return szHtml;
+    console.log(szHtml);
+    
+    return szHtml;
 }
 /*取得訂單編號*/
 function getOrderNo(){
@@ -146,6 +146,7 @@ function getOrderNo(){
     const serial_number = moment().format('YYYYMMDDHHMMSS');
 	return serial_number;
 }
+
 
 
 module.exports = {
