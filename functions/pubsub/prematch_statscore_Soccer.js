@@ -2,7 +2,7 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = ''; // 各種足球
+const competitionID = ['1718','1507']; // 各種足球
 const leagueID = '8';
 const sport = 'Soccer';
 const league = 'Soccer';
@@ -45,11 +45,11 @@ async function prematch_statscore_Soccer() {
           const homeTeamName =
             data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[
               i
-            ].participants[0].name; // KT wiz
+            ].participants[0].name;
           const awayTeamName =
             data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[
               i
-            ].participants[1].name; // KIA Tigers
+            ].participants[1].name; 
           for (let j = 0; j < ele.length; j++) {
             if (startDate === ele[j].scheduled) {
               if (

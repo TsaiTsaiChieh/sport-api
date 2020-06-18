@@ -193,11 +193,21 @@ exports.pbp_statscore_KBO = functions
 exports.prematch_statscore_NPB = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_statscore_NPB'));
+	.onRun(require('./pubsub/prematch_statscore_NPB'));
+	exports.pbp_statscore_NPB = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
 exports.prematch_statscore_CPBL = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_statscore_CPBL'));
+	.onRun(require('./pubsub/prematch_statscore_CPBL'));
+	exports.pbp_statscore_CPBL = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
 // 大神
 exports.god = functions.pubsub
   .schedule('0 1 * * *')
