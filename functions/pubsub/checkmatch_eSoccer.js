@@ -2,7 +2,6 @@ const modules = require('../util/modules');
 const ESoccerpbp = require('./pbp_eSoccer');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
-// const firestoreName = 'esports_eSoccer';
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
@@ -10,15 +9,6 @@ async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
-      // const data = await modules.firestore
-      //  .collection(firestoreName)
-      //  .where('flag.status', '>', 0)
-      //  .get();
-
-      // const totalData = [];
-      // data.forEach((doc) => {
-      //  totalData.push(doc.data());
-      // });
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const gameTime = totalData[i].scheduled * 1000;
@@ -35,11 +25,6 @@ async function checkmatch_eSoccer() {
                 await modules.database
                   .ref(`esports/eSoccer/${betsID}/Summary/status`)
                   .set('inprogress');
-                // await modules.firestore
-                //  .collection(firestoreName)
-                //  .doc(betsID)
-                //  .set({ flag: { status: 1 } }, { merge: true });
-
                 const parameter = {
                   betsID: betsID
                 };
@@ -101,7 +86,8 @@ async function checkmatch_eSoccer() {
 }
 async function queryForEvents() {
   return new Promise(async function(resolve, reject) {
-    const queries = await db.sequelize.query(
+    try {
+      const queries = await db.sequelize.query(
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
@@ -111,8 +97,13 @@ async function queryForEvents() {
       {
         type: db.sequelize.QueryTypes.SELECT
       }
-    );
-    return resolve(queries);
+      );
+      return resolve(queries);
+    } catch (err) {
+      return reject(
+        new AppErrors.AxiosError(`${err} at checkmatch_eSoccer by DY`)
+      );
+    }
   });
 }
 module.exports = checkmatch_eSoccer;

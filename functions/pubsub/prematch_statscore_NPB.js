@@ -2,12 +2,12 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5469'; // KBO
-const leagueID = '349';
+const competitionID = '5476'; // NPB
+const leagueID = '347';
 const sport = 'baseball';
-const league = 'KBO';
+const league = 'NPB';
 
-async function prematch_statscore_KBO() {
+async function prematch_statscore_NPB() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -42,12 +42,14 @@ async function prematch_statscore_KBO() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        const homeTeamName =
+        let homeTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name; // KT wiz
-        const awayTeamName =
+            .participants[0].name;
+        let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name; // KIA Tigers
+            .participants[1].name;
+        homeTeamName = teamTrans(homeTeamName);
+        awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
           if (startDate === ele[j].scheduled) {
             if (
@@ -86,7 +88,46 @@ async function axiosForURL(URL) {
     }
   });
 }
-
+function teamTrans(team) {
+  switch (team) {
+    case 'Yomiuri Giants': {
+      return 'Yomiuri Giants';
+    }
+    case 'Tokyo Yakult Swallows': {
+      return 'Yakult Swallows';
+    }
+    case 'Yokohama DeNA BayStars': {
+      return 'Yokohama Bay Stars';
+    }
+    case 'Chunichi Dragons': {
+      return 'Chunichi Dragons';
+    }
+    case 'Hanshin Tigers': {
+      return 'Hanshin Tigers';
+    }
+    case 'Hiroshima Toyo Carp': {
+      return 'Hiroshima Carp';
+    }
+    case 'Hokkaido Nippon-Ham Fighters': {
+      return 'Nippon Ham Fighters';
+    }
+    case 'Tohoku Rakuten Golden Eagles': {
+      return 'Rakuten Eagles';
+    }
+    case 'Saitama Seibu Lions': {
+      return 'Seibu Lions';
+    }
+    case 'Chiba Lotte Marines': {
+      return 'Lotte Marines';
+    }
+    case 'Orix Buffaloes': {
+      return 'Orix Buffaloes';
+    }
+    case 'Fukuoka SoftBank Hawks': {
+      return 'Softbank Hawks';
+    }
+  }
+}
 async function queryForToken() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -134,4 +175,4 @@ async function queryForMatches(date1, date2) {
     }
   });
 }
-module.exports = prematch_statscore_KBO;
+module.exports = prematch_statscore_NPB;

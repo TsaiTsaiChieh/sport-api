@@ -1,10 +1,8 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-// const firebaseName = 'baseball_CPBL';
 const Match = db.Match;
 const leagueUniteID = '11235';
-// const leagueUniteName = 'CPBL';
 const sportID = 16;
 module.exports.CPBL = {};
 module.exports.CPBL.upcoming = async function(date) {
@@ -16,11 +14,9 @@ module.exports.CPBL.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          // await write2firestore(ele);
           await write2realtime(ele);
           const change = await checkTheHandicap(ele);
           await write2MysqlOfMatch(ele, change);
-          // await write2MysqlOfMatchTeam(ele);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -60,23 +56,7 @@ async function checkTheHandicap(ele) {
   }
   return changeFlag;
 }
-// async function write2firestore(ele) {
-//  return new Promise(async function (resolve, reject) {
-//    try {
-//      await modules.firestore
-//        .collection(firebaseName)
-//        .doc(ele.id)
-//        .set(repackage_bets(ele), { merge: true });
-//      return resolve('ok');
-//    } catch (err) {
-//      return reject(
-//        new AppErrors.FirebaseCollectError(
-//          `${err} at prematchFunctions_KBO by DY`
-//        )
-//      );
-//    }
-//  });
-// }
+
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -93,6 +73,7 @@ async function write2realtime(ele) {
     }
   });
 }
+
 async function write2MysqlOfMatch(ele, change) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -103,8 +84,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.home.id,
-          away_id: ele.away.id,
+          home_id: changeTeam(ele.home.name),
+          away_id: changeTeam(ele.away.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -118,8 +99,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: ele.away.id,
-          away_id: ele.home.id,
+          home_id: changeTeam(ele.away.name),
+          away_id: changeTeam(ele.home.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -136,41 +117,23 @@ async function write2MysqlOfMatch(ele, change) {
   });
 }
 
-// function repackage_bets(ele) {
-//  const leagueCH = '中華職棒';
-
-//  return {
-//    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-//    scheduled: Number.parseInt(ele.time),
-//    scheduled_tw: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-//      new Date(Number.parseInt(ele.time) * 1000)
-//    ),
-//    bets_id: ele.id,
-//    league: {
-//      ori_bets_id: ele.league.id,
-//      bets_id: leagueUniteID,
-//      name: leagueUniteName,
-//      name_ch: leagueCH
-//    },
-//    home: {
-//      name: ele.home.name,
-//      alias: ele.home.name,
-//      alias_ch: ele.home.name,
-//      image_id: ele.home.image_id,
-//      bets_id: ele.home.id
-//    },
-//    away: {
-//      name: ele.away.name,
-//      alias: ele.away.name,
-//      alias_ch: ele.away.name,
-//      image_id: ele.away.image_id,
-//      bets_id: ele.away.id
-//    },
-//    flag: {
-//      spread: 0,
-//      totals: 0,
-//      status: 2,
-//      prematch: 1
-//    }
-//  };
-// }
+function changeTeam(team) {
+  team = team.split('Game')[0].trim();
+  switch (team) {
+    case 'CTBC Brothers': {
+      return '230422';
+    }
+    case 'Rakuten Monkeys': {
+      return '329121';
+    }
+    case 'Fubon Guardians': {
+      return '224094';
+    }
+    case 'Uni-President Lions': {
+      return '224095';
+    }
+    case 'Uni-Lions': {
+      return '224095';
+    }
+  }
+}

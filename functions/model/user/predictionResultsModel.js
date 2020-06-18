@@ -6,7 +6,8 @@ const settlement = {
   fair: 0,
   loss: -1,
   unsettlement: -2,
-  winOdd: 0.95,
+  winOdd_v1: 0.95,
+  winOdd_v2: 1,
   winHalfOdd: 0.5,
   fairOdd: 0,
   lossHalfOdd: -0.5,
@@ -162,9 +163,10 @@ function repackageHandicap(ele, data, handicapType) {
       const handicap = data[handicapType];
       const result = ele[`${handicapType}_result_flag`];
       // 當過盤結果為 0.95 時
-      if (result === settlement.winOdd) {
+      if (result === settlement.winOdd_v1 || result === settlement.winOdd_v2) {
         handicap.end = settlement.win;
-        handicap.bets = handicap.ori_bets * settlement.winOdd;
+        // TODO * settlement.winOdd_v1 or * winOdd_v2 較好
+        handicap.bets = handicap.ori_bets * settlement.win;
         // 當過盤結果為 0.5 時
       } else if (result === settlement.winHalfOdd) {
         handicap.end = settlement.win;

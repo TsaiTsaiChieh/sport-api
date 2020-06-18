@@ -116,7 +116,8 @@ app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
-
+// app.use('/cashflow_gash', require('./routers/cashflow_gash'));//金流介接(gash)
+app.use('/cashflow_neweb', require('./routers/cashflow_neweb'));// 金流介接(藍新)
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
   res.status(200).json({ test: 'awake0528v01' });
@@ -133,7 +134,7 @@ exports.prematch = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
 exports.prematch_esport = functions.pubsub
-  .schedule('0 */3 * * *')
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
 exports.handicap = functions.pubsub
@@ -181,14 +182,22 @@ exports.auth_statscore = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
 exports.prematch_statscore_KBO = functions.pubsub
-  .schedule('0 0 * * *')
+  .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_KBO'));
 exports.pbp_statscore_KBO = functions
   .runWith(runtimeOpts)
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/pbp_statscore_KBO'));
+  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
+exports.prematch_statscore_NPB = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_NPB'));
+exports.prematch_statscore_CPBL = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_CPBL'));
 // 大神
 exports.god = functions.pubsub
   .schedule('0 1 * * *')
