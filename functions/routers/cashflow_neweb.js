@@ -9,8 +9,8 @@ const router = modules.express.Router();
 
 /* 超商條碼 */
 router.get(
-    '/mpg',
-    require('../controller/cashflow_neweb/mpgController')
+  '/mpg',
+  require('../controller/cashflow_neweb/mpgController')
 );
 
 // router.get(
