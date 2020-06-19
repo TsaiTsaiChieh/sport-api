@@ -42,7 +42,7 @@ async function createTopic(args) {
           strike: ['style'],
           b: ['style'],
           a: ['href'],
-          img: ['src'],
+          img: ['src', 'alt'],
           font: ['size', 'color']
         },
         allowedSchemes: ['http', 'https'],
