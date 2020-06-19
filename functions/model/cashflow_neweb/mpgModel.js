@@ -7,7 +7,7 @@ async function mpgModel(exchange) {
         /*商品名稱*/
         const NTD = exchange.coin;										 	//商品價格
         const Order_Title = exchange.coin + "搞幣";		   //商品名稱
-        const ATM_ExpireDate = 5;						            //ATM付款到期日
+        const ATM_ExpireDate = 3;						            //ATM付款到期日
         /* 金流基本參數*/
         const MerchantID = neweb_config.merchantID;
         const HashKey = neweb_config.hashKey;
@@ -29,7 +29,7 @@ async function mpgModel(exchange) {
             'NotifyURL': neweb_config.NotifyMpgURL, //支付通知網址
             'CustomerURL': neweb_config.CustomerURL, //商店取號網址
             'ClientBackURL': neweb_config.ClientBackURL,
-            'ExpireDate' : '2020-06-20'
+            'ExpireDate' : expire_date
         };
         
         const TradeInfo = await neweb_sdk.create_mpg_aes_encrypt(trade_info_arr, HashKey, HashIV);
