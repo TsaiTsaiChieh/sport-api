@@ -18,7 +18,10 @@ async function prematch_statscore_NPB() {
         unit: 'days'
       });
       const date1 = modules.convertTimezoneFormat(unix, {
-        format: 'YYYY-MM-DD 00:00:00'
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: -1,
+        unit: 'days'
       });
       const token = await queryForToken();
 

@@ -18,8 +18,12 @@ async function prematch_statscore_Soccer() {
         unit: 'days'
       });
       const date1 = modules.convertTimezoneFormat(unix, {
-        format: 'YYYY-MM-DD 00:00:00'
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: -1,
+        unit: 'days'
       });
+
       const token = await queryForToken();
       for (let i = 0; i < competitionID.length; i++) {
         const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID[i]}`;
@@ -42,14 +46,16 @@ async function prematch_statscore_Soccer() {
               data.api.data.competitions[0].seasons[0].stages[0].groups[0]
                 .events[i].start_date
             ) + 28800; // 加八個小時
-          const homeTeamName =
+          const homeTeamName = change(
             data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[
               i
-            ].participants[0].name;
-          const awayTeamName =
+            ].participants[0].name
+          );
+          const awayTeamName = change(
             data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[
               i
-            ].participants[1].name;
+            ].participants[1].name
+          );
           for (let j = 0; j < ele.length; j++) {
             if (startDate === ele[j].scheduled) {
               if (
@@ -75,6 +81,53 @@ async function prematch_statscore_Soccer() {
       );
     }
   });
+}
+
+function change(team) {
+  switch (team) {
+    case 'CD Alaves': {
+      return 'Alaves';
+    }
+    case 'Valencia CF': {
+      return 'Valencia';
+    }
+    case 'Villarreal CF': {
+      return 'Villarreal';
+    }
+    case 'CD Leganes': {
+      return 'Leganes';
+    }
+    case 'Sevilla FC': {
+      return 'Sevilla';
+    }
+    case 'Espanyol Barcelona': {
+      return 'RCD Espanyol';
+    }
+    case 'Levante UD': {
+      return 'Levante';
+    }
+    case 'Real Betis Balompie, S.A.D.': {
+      return 'Real Betis';
+    }
+    case 'Seongnam Ilhwa Chunma': {
+      return 'Seongnam FC';
+    }
+    case 'Sangju Sangmu': {
+      return 'Sangju Sangmu FC';
+    }
+    case 'Football Club Seoul': {
+      return 'FC Seoul';
+    }
+    case 'Ulsan Hyundai Football Club': {
+      return 'Ulsan Hyundai FC';
+    }
+    case 'Football Club Pohang Steelers': {
+      return 'Pohang Steelers FC';
+    }
+    default: {
+      return team;
+    }
+  }
 }
 
 async function axiosForURL(URL) {

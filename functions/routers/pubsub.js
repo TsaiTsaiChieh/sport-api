@@ -39,4 +39,12 @@ router.get(
   '/checkmatch_statscore_KBO',
   require('../pubsub/checkmatch_statscore_KBO')
 );
+router.get(
+  '/prematch_statscore_Soccer',
+  require('../pubsub/prematch_statscore_Soccer')
+);
+router.get(
+  '/checkmatch_statscore_Soccer',
+  require('../pubsub/checkmatch_statscore_Soccer')
+);
 module.exports = router;

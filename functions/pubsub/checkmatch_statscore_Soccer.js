@@ -14,6 +14,9 @@ async function checkmatch_statscore_Soccer() {
     try {
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
+        if (!totalData[i].statscore_id) {
+          continue;
+        }
         const betsID = totalData[i].bets_id;
         const statscoreID = totalData[i].statscore_id;
         const gameTime = totalData[i].scheduled * 1000;

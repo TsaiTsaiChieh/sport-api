@@ -7,7 +7,6 @@ const sport = 'Soccer';
 const league = 'Soccer';
 let eventNow = 0;
 let halfNow = '0';
-let clockNow = '00:00';
 
 async function SoccerpbpInplay(parameter) {
   let perStep;
@@ -38,9 +37,6 @@ async function SoccerpbpInplay(parameter) {
         }
         if (realtimeData.Summary.Now_half) {
           halfNow = realtimeData.Summary.halfNow;
-        }
-        if (realtimeData.Summary.Now_clock) {
-          clockNow = realtimeData.Summary.Now_clock;
         }
       }
     }
@@ -576,7 +572,9 @@ async function writeRealtime(betsID, data) {
 
       try {
         await modules.database
-          .ref(`${sport}/${league}/${betsID}/Summary/Livetext/`)
+          .ref(
+            `${sport}/${league}/${betsID}/Summary/Livetext/event${eventCount}`
+          )
           .set({
             // 待翻譯
             description:
@@ -591,7 +589,7 @@ async function writeRealtime(betsID, data) {
               data.api.data.competition.season.stage.group.event
                 .events_incidents[eventCount].incident_name
             ),
-            Half: eventType === 'common' ? halfNow : eventType,
+            Half: eventType === 'common' ? '2' : eventType,
             id:
               data.api.data.competition.season.stage.group.event
                 .events_incidents[eventCount].id
@@ -718,7 +716,7 @@ function translate(name, event) {
       break;
     }
     case 'Goal': {
-      string_ch = '射進';
+      string_ch = '進球';
       break;
     }
     case 'Injury': {
@@ -845,7 +843,7 @@ function translate(name, event) {
       string_ch = '水停';
       break;
     }
-    case 'Referee\'s injury': {
+    case "Referee's injury": {
       string_ch = '裁判受傷';
       break;
     }
