@@ -13,7 +13,7 @@ router.get(
   require('../controller/cashflow_neweb/mpgController')
 );
 
-router.get(
+router.post(
   '/mpg_notify',
   require('../controller/cashflow_neweb/mpgNotifyController')
 );
