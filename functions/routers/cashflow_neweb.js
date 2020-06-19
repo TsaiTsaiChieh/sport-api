@@ -16,7 +16,7 @@ router.post(
   '/mpg',
   require('../controller/cashflow_neweb/mpgController')
 );
-  
+
 router.get(
   '/mpg_notify',
   require('../controller/cashflow_neweb/mpgNotifyController')
@@ -25,7 +25,7 @@ router.post(
   '/mpg_notify',
   require('../controller/cashflow_neweb/mpgNotifyController')
 );
-  
+
 /* WebATM */
 // router.post(
 //     '/webatm',
