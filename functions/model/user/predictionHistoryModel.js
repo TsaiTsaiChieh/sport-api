@@ -3,6 +3,8 @@ const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const TWO_WEEKS = 14;
+const ONE_DAY_UNIX = modules.convertTimezone(0, { op: 'add', value: 1, unit: 'days' });
+
 const settlement = {
   loss: -1,
   lossHalf: -0.5,
@@ -17,12 +19,14 @@ const settlement = {
 */
 
 async function predictionHistory(args) {
-  let err, userData, historyData;
+  let err, userData, historyData, d;
   [err, userData] = await modules.to(dbEngine.findUser(args.uid));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
   [err, historyData] = await modules.to(getUserPredictionData(args, userData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  [err] = await modules.to(repackageReturnData(args, historyData));
+  [err, d] = await modules.to(repackageReturnData(args, historyData));
+  if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
+  return d;
 }
 
 async function getUserPredictionData(args, userData) {
@@ -66,98 +70,90 @@ async function getUserPredictionData(args, userData) {
 async function repackageReturnData(args, historyData) {
   // groupByLeague is a object, groupBy function can group by property which league_id
   // ex: [ [{NBA Data}, {NBA Data}, {NBA Data}] , [{eSoccer Data}, {eSoccer Data},... ] ] two layers
-  const temp = [];
   const groupByLeague = modules.groupBy(historyData, 'league_id');
-  console.log('---', groupByLeague[0].length, groupByLeague[1].length, '---');
+  const data = {};
+  const pastPredictions = new Array(TWO_WEEKS);
+  groupByLeague.map(function(eachLeagueItem, leagueIndex, arr) { // 3(NBA), 26(eSoccer)
+    // console.log('??--', arr[leagueIndex][0].league_id);
+    const league = modules.leagueDecoder(arr[leagueIndex][0].league_id);
+    console.log(league);
 
-  // for (const i in groupByLeague) {
-  //   for (const j in groupByLeague[i]) {
-  //     repackagePastPredictionData(args, groupByLeague[i][j]);
-  //   }
-  // }
-  // for (const i in groupByLeague) {
-  //   repackagePastPredictionData(args, groupByLeague[0]);
-  // }
-  groupByLeague.map(function(eachLeagueItem) { // 3(NBA), 26(eSoccer)
-    eachLeagueItem.map(function(match, index) {
-      // console.log(match.league_id, index);
-      repackagePastPredictionData(args, match);
-    });
+    data[league] = pastPredictions;
+    for (let i = 0; i < TWO_WEEKS; i++) {
+      console.log(i);
+      eachLeagueItem.map(function(match) {
+        const matchDate = modules.convertTimezoneFormat(match.scheduled);
+        // get the match date unix time
+        const matchUnix = modules.convertTimezone(matchDate);
+        const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
+        if (addOneDayUnix === matchUnix) {
+          const a = repackageMatchDate(match, matchDate);
+          console.log('-----=======------', a.match.id, '-----=======------');
+          pastPredictions.splice(i, 0, a);
+        }
+      });
+    }
   });
+  return data;
 }
 
-async function repackagePastPredictionData(args, ele) {
-  // const matchDate = modules.convertTimezoneFormat(ele.scheduled);
-  // // get the match date unix time
-  // const matchUnix = modules.convertTimezone(matchDate);
-  // let oneDayUnix = args.before;
-  // // let i = 0;
-  // const pastPredictions = new Array(TWO_WEEKS);
-  // do {
-  //   // i++;
-  //   // console.log(i);
+function repackageMatchDate(ele, matchDate) {
+  const data = {
+    match: {
+      id: ele.bets_id,
+      date: matchDate,
+      league_id: ele.league_id,
+      sport_id: ele.sport_id,
+      scheduled: ele.scheduled,
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
+      home_points: ele.home_points,
+      away_points: ele.away_points,
+      home: {
+        id: ele.home_id,
+        team_name: ele.home_name,
+        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: ele.home_alias_ch,
+        name_ch: ele.home_name_ch,
+        image_id: ele.home_image_id
+      },
+      away: {
+        id: ele.away_id,
+        team_name: ele.away_name,
+        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: ele.away_alias_ch,
+        name_ch: ele.away_name_ch,
+        image_id: ele.away_image_id
+      }
+    },
+    predicted: {
+      sell: ele.sell,
+      user_status: ele.user_status,
+      spread: {
+        id: ele.spread_id,
+        handicap: ele.spread_handicap,
+        home_tw: ele.home_tw,
+        away_tw: ele.away_tw,
+        option: ele.spread_option,
+        bets: ele.spread_bets,
+        result: ele.spread_result,
+        end: returnSettlement(ele.spread_result_flag)
+      },
+      totals: {
+        id: ele.totals_id,
+        option: ele.totals_option,
+        handicap: ele.totals_handicap,
+        over_tw: ele.over_tw,
+        bets: ele.totals_bets,
+        result: ele.totals_result,
+        end: returnSettlement(ele.totals_result_flag)
+      }
+    }
+  };
+  // console.log(data, '進來了');
 
-  //   // console.log(matchUnix, oneDayUnix, matchDate);
-  //   if (matchUnix !== oneDayUnix) pastPredictions.push([]);
-  //   else {
-  //     const data = {
-  //       match: {
-  //         id: ele.bets_id,
-  //         date: matchDate,
-  //         league_id: ele.league_id,
-  //         sport_id: ele.sport_id,
-  //         scheduled: ele.scheduled,
-  //         scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
-  //         home_points: ele.home_points,
-  //         away_points: ele.away_points,
-  //         home: {
-  //           id: ele.home_id,
-  //           team_name: ele.home_name,
-  //           player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
-  //           alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-  //           alias_ch: ele.home_alias_ch,
-  //           name_ch: ele.home_name_ch,
-  //           image_id: ele.home_image_id
-  //         },
-  //         away: {
-  //           id: ele.away_id,
-  //           team_name: ele.away_name,
-  //           player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
-  //           alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
-  //           alias_ch: ele.away_alias_ch,
-  //           name_ch: ele.away_name_ch,
-  //           image_id: ele.away_image_id
-  //         }
-  //       },
-  //       predicted: {
-  //         sell: ele.sell,
-  //         user_status: ele.user_status,
-  //         spread: {
-  //           id: ele.spread_id,
-  //           handicap: ele.spread_handicap,
-  //           home_tw: ele.home_tw,
-  //           away_tw: ele.away_tw,
-  //           option: ele.spread_option,
-  //           bets: ele.spread_bets,
-  //           result: ele.spread_result,
-  //           end: returnSettlement(ele.spread_result_flag)
-  //         },
-  //         totals: {
-  //           id: ele.totals_id,
-  //           option: ele.totals_option,
-  //           handicap: ele.totals_handicap,
-  //           over_tw: ele.over_tw,
-  //           bets: ele.totals_bets,
-  //           result: ele.totals_result,
-  //           end: returnSettlement(ele.totals_result_flag)
-  //         }
-  //       }
-  //     };
-  //     pastPredictions.push(data);
-  //   }
-  //   oneDayUnix = modules.convertTimezone(oneDayUnix, { op: 'add', value: 1, unit: 'days' });
-  // } while (args.now < oneDayUnix);
-  // return pastPredictions;
+  return data;
 }
 
 function returnSettlement(flag) {
