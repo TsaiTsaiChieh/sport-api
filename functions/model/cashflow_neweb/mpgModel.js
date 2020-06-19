@@ -5,6 +5,7 @@ async function mpgModel(exchange) {
   return new Promise(async function(resolve, reject) {
     try {
         /*商品名稱*/
+        exchange.coin = 50;
         const NTD = exchange.coin;										 	//商品價格
         const Order_Title = exchange.coin + "搞幣";		   //商品名稱
         const ATM_ExpireDate = 5;						            //ATM付款到期日
