@@ -6,7 +6,6 @@ const Match = db.Match;
 const sport = 'Soccer';
 const league = 'Soccer';
 let eventNow = 0;
-let eventOrderNow = 0;
 let halfNow = '0';
 let clockNow = '00:00';
 
@@ -27,7 +26,7 @@ async function SoccerpbpInplay(parameter) {
   const token = await queryForToken();
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     let realtimeData = await modules.database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
@@ -36,9 +35,6 @@ async function SoccerpbpInplay(parameter) {
       if (realtimeData.Summary.info) {
         if (realtimeData.Summary.Now_event) {
           eventNow = realtimeData.Summary.Now_event;
-        }
-        if (realtimeData.Summary.Now_event_order) {
-          eventOrderNow = realtimeData.Summary.Now_event_order;
         }
         if (realtimeData.Summary.Now_half) {
           halfNow = realtimeData.Summary.halfNow;
@@ -66,7 +62,7 @@ async function SoccerpbpInplay(parameter) {
 }
 
 async function SoccerpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
       const statscoreID = parameter.statscoreID;
@@ -132,7 +128,7 @@ async function SoccerpbpHistory(parameter) {
 }
 
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -251,7 +247,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, realtimeData, data);
+        await writeRealtime(betsID, data);
         await writeBacktoReal(betsID);
       }
     }
@@ -261,9 +257,9 @@ async function doPBP(parameter) {
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -276,7 +272,7 @@ async function axiosForURL(URL) {
 }
 
 async function queryForToken() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -297,7 +293,7 @@ async function queryForToken() {
 }
 
 async function initRealtime(betsID, data) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
@@ -324,12 +320,12 @@ async function initRealtime(betsID, data) {
         .length > 0
     ) {
       const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
       const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
@@ -413,9 +409,6 @@ async function initRealtime(betsID, data) {
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(0);
       await modules.database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
-        .set(0);
-      await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_half`)
         .set('0');
       await modules.database
@@ -428,25 +421,13 @@ async function initRealtime(betsID, data) {
         )
       );
     }
-    if (realtimeData.Summary.Now_event) {
-      eventNow = realtimeData.Summary.Now_event;
-    }
-    if (realtimeData.Summary.Now_event_order) {
-      eventOrderNow = realtimeData.Summary.Now_event_order;
-    }
-    if (realtimeData.Summary.Now_half) {
-      halfNow = realtimeData.Summary.halfNow;
-    }
-    if (realtimeData.Summary.Now_clock) {
-      clockNow = realtimeData.Summary.Now_clock;
-    }
 
     resolve('ok');
   });
 }
 
-async function writeRealtime(betsID, realtimeData, data) {
-  return new Promise(async function (resolve, reject) {
+async function writeRealtime(betsID, data) {
+  return new Promise(async function(resolve, reject) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
@@ -519,7 +500,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             data.api.data.competition.season.stage.group.event.participants[1]
               .stats[31].value
         });
-      //here add clock
+      // here add clock
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -573,8 +554,7 @@ async function writeRealtime(betsID, realtimeData, data) {
     const totalEvent =
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
-    for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
-      //here pbp
+    for (let eventCount = eventNow; eventCount < totalEvent; eventCount++) {
       eventNow = eventNow + 1;
       halfNow = changeHalf(
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -582,7 +562,67 @@ async function writeRealtime(betsID, realtimeData, data) {
         ].event_status_name,
         halfNow
       );
+      // here pbp
+      const eventType =
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].participant_id === null
+          ? 'common'
+          : data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].participant_id === homeID
+            ? '1'
+            : '0';
+
+      try {
+        await modules.database
+          .ref(`${sport}/${league}/${betsID}/Summary/Livetext/`)
+          .set({
+            // 待翻譯
+            description:
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].participant_name +
+              ' ' +
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].incident_name,
+            description_ch: translate(
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].participant_name,
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].incident_name
+            ),
+            Half: eventType === 'common' ? halfNow : eventType,
+            id:
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].id
+          });
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at doPBP on ${betsID} by DY`
+          )
+        );
+      }
+      // here
     }
+    return resolve('ok');
+  });
+}
+
+async function writeBacktoReal(betsID) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      await modules.database
+        .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
+        .set(eventNow);
+    } catch (err) {
+      return reject(
+        new AppErrors.FirebaseRealtimeError(
+          `${err} at doPBP on ${betsID} by DY`
+        )
+      );
+    }
+    resolve('ok');
   });
 }
 
@@ -616,4 +656,210 @@ function changeHalf(half, now_halfs) {
   }
   return halfNow;
 }
-module.exports = {SoccerpbpInplay, SoccerpbpHistory};
+
+function translate(name, event) {
+  let out = '';
+  let string_ch;
+  switch (event) {
+    case '1st half started': {
+      string_ch = '上半場開始';
+      break;
+    }
+    case '2nd half started': {
+      string_ch = '下半場開始';
+      break;
+    }
+    case 'Attack': {
+      string_ch = '攻擊';
+      break;
+    }
+    case 'Dangerous attack': {
+      string_ch = '危險攻擊';
+      break;
+    }
+    case 'Free kick': {
+      string_ch = '進行自由球';
+      break;
+    }
+    case 'Dangerous free kick': {
+      string_ch = '進行危險自由球';
+      break;
+    }
+    case 'Shot on target': {
+      string_ch = '射正球門';
+      break;
+    }
+    case 'Shot off target': {
+      string_ch = '射歪球門';
+      break;
+    }
+    case 'Goal kick': {
+      string_ch = '守門員開球';
+      break;
+    }
+    case 'Corner': {
+      string_ch = '進行角球';
+      break;
+    }
+    case 'Throw in': {
+      string_ch = '投擲界外球';
+      break;
+    }
+    case 'Foul': {
+      string_ch = '失誤';
+      break;
+    }
+    case 'Shot blocked': {
+      string_ch = '擋住射門';
+      break;
+    }
+    case 'Goalkeeper saved': {
+      string_ch = '守門員擋下射門';
+      break;
+    }
+    case 'Goal': {
+      string_ch = '射進';
+      break;
+    }
+    case 'Injury': {
+      string_ch = '受傷';
+      break;
+    }
+    case 'Offside': {
+      string_ch = '越位';
+      break;
+    }
+    case 'Red card': {
+      string_ch = '拿到紅牌';
+      break;
+    }
+    case 'Yellow card': {
+      string_ch = '拿到黃牌';
+      break;
+    }
+    case 'Penalty': {
+      string_ch = '犯規';
+      break;
+    }
+    case 'Penalty goal': {
+      string_ch = '踢進點球';
+      break;
+    }
+    case 'Missed penalty': {
+      string_ch = '沒踢進點球';
+      break;
+    }
+    case 'Own goal': {
+      string_ch = '踢進烏龍球';
+      break;
+    }
+    case 'Goal cancelled': {
+      string_ch = '射門無效';
+      break;
+    }
+    case 'Shot woodwork': {
+      string_ch = '射中球門';
+      break;
+    }
+    case 'Not started': {
+      string_ch = '比賽尚未開始';
+      break;
+    }
+    case 'Extratime 1st half started': {
+      string_ch = '加賽上半局開始';
+      break;
+    }
+    case 'Extratime 2nd half started': {
+      string_ch = '加賽下半局開始';
+      break;
+    }
+    case 'Penalty shootout started': {
+      string_ch = '點球大戰開始';
+      break;
+    }
+    case 'Finished after extratime': {
+      string_ch = '加時結束';
+      break;
+    }
+    case 'Finished after penalties': {
+      string_ch = '點球結束';
+      break;
+    }
+    case 'Finished regular time': {
+      string_ch = '比賽結束';
+      break;
+    }
+    case 'Start delayed': {
+      string_ch = '比賽延遲開始';
+      break;
+    }
+    case 'Cancelled': {
+      string_ch = '比賽取消';
+      break;
+    }
+    case 'Postponed': {
+      string_ch = '比賽延期';
+      break;
+    }
+    case 'Interrupted': {
+      string_ch = '比賽中斷';
+      break;
+    }
+    case 'Abandoned': {
+      string_ch = '放棄比賽';
+      break;
+    }
+    case 'Halftime': {
+      string_ch = '中場休息';
+      break;
+    }
+    case 'Waiting for extratime': {
+      string_ch = '等待加時';
+      break;
+    }
+    case 'Extratime halftime': {
+      string_ch = '加時賽中場休息';
+      break;
+    }
+    case 'Waiting for penalty': {
+      string_ch = '等待點球';
+      break;
+    }
+    case 'Added time': {
+      string_ch = '傷停補時';
+      break;
+    }
+    case 'Substitution out': {
+      string_ch = '被換下場';
+      break;
+    }
+    case 'Substitution in': {
+      string_ch = '被換上場';
+      break;
+    }
+    case 'To finish': {
+      string_ch = '比賽完成';
+      break;
+    }
+    case 'Water break': {
+      string_ch = '水停';
+      break;
+    }
+    case 'Referee\'s injury': {
+      string_ch = '裁判受傷';
+      break;
+    }
+    case 'Break during the game': {
+      string_ch = '賽中休息';
+      break;
+    }
+    case 'Kick off': {
+      string_ch = '比賽開始';
+      break;
+    }
+  }
+  out = name + ' ' + string_ch;
+  return out;
+}
+
+module.exports = { SoccerpbpInplay, SoccerpbpHistory };
