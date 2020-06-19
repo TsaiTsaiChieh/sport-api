@@ -1823,6 +1823,18 @@ const CashflowDeposit = sequelize.define(
       allowNull: false,
       autoIncrement: true
     },
+    status: {
+      type: Sequelize.STRING
+    },
+    merchant_id: {
+      type: Sequelize.STRING
+    },
+    trade_info: {
+      type: Sequelize.STRING
+    },
+    trade_sha: {
+      type: Sequelize.STRING
+    },
     order_status: {
       type: Sequelize.INTEGER
     },
