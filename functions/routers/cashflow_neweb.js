@@ -7,21 +7,30 @@ const router = modules.express.Router();
 //     require('../controller/cashflow/cvsCodeController')
 // );
 
-// /* 超商條碼 */
-router.post(
-  '/cvs_barcode',
-  require('../controller/cashflow_neweb/cvsBarcodeController')
+/* 超商條碼 */
+router.get(
+  '/mpg',
+  require('../controller/cashflow_neweb/mpgController')
 );
 
-// /* WebATM */
+// router.get(
+//     '/cvs_barcode_notify',
+//     require('../controller/cashflow_neweb/cvsBarcodeNotifyController')
+// );
+
+/* WebATM */
 // router.post(
 //     '/webatm',
 //     require('../controller/cashflow/webAtmController')
 // );
 
-// /* ATM */
+/* ATM */
 // router.post(
 //     '/atm',
 //     require('../controller/cashflow/AtmController')
 // );
+// router.post(
+//     '/atm_notify',
+//     require('../controller/cashflow/AtmNotifyController')
+// )
 module.exports = router;

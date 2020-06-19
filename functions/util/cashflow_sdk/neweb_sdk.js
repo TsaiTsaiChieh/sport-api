@@ -16,14 +16,14 @@ function create_mpg_aes_encrypt(parameter = '', key = '', iv = '') {
     padding: CryptoJS.pad.Pkcs7,
     mode: CryptoJS.mode.CBC
   });
-  console.log(CryptoJS.enc.Utf8.parse(iv));
-  // var encryptedData = CryptoJS.AES.encrypt(return_str, key, {
-  //     mode: CryptoJS.mode.CBC,
-  //     padding: CryptoJS.pad.Pkcs7
-  // });
-  // console.log(cipher.ciphertext.toString());return;
-  // let cipher = encrypt(return_str, key, iv);
-  // console.log(decrypt(cipher, key, iv));
+    // console.log(CryptoJS.enc.Utf8.parse(iv));
+    // var encryptedData = CryptoJS.AES.encrypt(return_str, key, {
+    //     mode: CryptoJS.mode.CBC,
+    //     padding: CryptoJS.pad.Pkcs7
+    // });
+    // console.log(cipher.ciphertext.toString());return;
+    // let cipher = encrypt(return_str, key, iv);
+    // console.log(decrypt(cipher, key, iv));
 
   // console.log(enc);
   // return bin2hexJS(openssl_encrypt(addpadding(return_str), 'aes-256-cbc', key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, iv)).trim();
@@ -113,8 +113,7 @@ function SHA_str(key = '', tradeinfo = '', iv = '') {
 }
 
 function SHA256(str) {
-  const sha = CryptoJS.SHA256('ajsdlfknasldfnsadk');
-  // console.log(sha);return;
+  const sha = CryptoJS.SHA256(str);
   return sha;
 }
 
@@ -136,7 +135,8 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
   szHtml += '</script>';
   szHtml += '</body>';
   szHtml += '</html>';
-  console.log(szHtml); return;
+  console.log(szHtml);
+
   return szHtml;
 }
 /* 取得訂單編號 */
