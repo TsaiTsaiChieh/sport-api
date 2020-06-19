@@ -1823,6 +1823,9 @@ const CashflowDeposit = sequelize.define(
       allowNull: false,
       autoIncrement: true
     },
+    order_status: {
+      type: Sequelize.INTEGER
+    },
     uid: {
       type: Sequelize.STRING,
       primaryKey: true

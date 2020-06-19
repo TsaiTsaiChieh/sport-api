@@ -9,7 +9,6 @@ async function mpgNotifyModel(args) {
         `,
         {
           logging: true,
-
           type: db.sequelize.QueryTypes.INSERT
         });
       resolve(expire);
