@@ -13,10 +13,10 @@ router.get(
     require('../controller/cashflow_neweb/mpgController')
 );
 
-// router.get(
-//     '/cvs_barcode_notify',
-//     require('../controller/cashflow_neweb/cvsBarcodeNotifyController')
-// );
+router.get(
+    '/mpg_notify',
+    require('../controller/cashflow_neweb/mpgNotifyController')
+);
 
 /* WebATM */
 // router.post(

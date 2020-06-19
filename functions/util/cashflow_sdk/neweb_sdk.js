@@ -2,10 +2,13 @@ const moment = require('moment');
 const httpBuildQuery = require('http-build-query');
 const CryptoJS = require('crypto-js');
 const crypto   = require('crypto');
-const sha256JS   = require('js-sha256');
 /*HashKey AES 加解密 */
 function create_mpg_aes_encrypt (parameter = "" , key = "", iv = "") {
-    return_str = '';
+    
+  
+  
+  
+  return_str = '';
     if (parameter!=='') {
     //將參數經過 URL ENCODED QUERY STRING
     return_str = httpBuildQuery(parameter);
@@ -30,6 +33,34 @@ function create_mpg_aes_encrypt (parameter = "" , key = "", iv = "") {
     // console.log(cipher);
     // return;
     return cipher.ciphertext;
+}
+
+// /*HashKey AES 解密 */
+// function create_aes_decrypt($parameter = "", $key = "", $iv = "") {
+//  return strippadding(openssl_decrypt(hex2bin($parameter),'AES-256-CBC', $key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv));
+// }
+
+// function strippadding($string) {
+//  $slast = ord(substr($string, -1));
+//  $slastc = chr($slast);
+//  $pcheck = substr($string, -$slast);
+//  if (preg_match("/$slastc{" . $slast . "}/", $string)) {
+//  $string = substr($string, 0, strlen($string) - $slast);
+//  return $string;
+//  } else {
+//  return false;
+//  }
+// }
+
+function create_mpg_aes_decrypt(encryptedBase64Str, key, iv){
+
+  let cipher = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
+      iv: CryptoJS.enc.Utf8.parse(iv), // parse the IV 
+      padding: CryptoJS.pad.Pkcs7,
+      mode: CryptoJS.mode.CBC
+  });
+
+  return cipher;
 }
 
 function encrypt2(text) {
@@ -89,22 +120,7 @@ function bin2hexJS (s) {
   
     return o
   }
-// /*HashKey AES 解密 */
-// function create_aes_decrypt($parameter = "", $key = "", $iv = "") {
-//  return strippadding(openssl_decrypt(hex2bin($parameter),'AES-256-CBC', $key, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $iv));
-// }
 
-// function strippadding($string) {
-//  $slast = ord(substr($string, -1));
-//  $slastc = chr($slast);
-//  $pcheck = substr($string, -$slast);
-//  if (preg_match("/$slastc{" . $slast . "}/", $string)) {
-//  $string = substr($string, 0, strlen($string) - $slast);
-//  return $string;
-//  } else {
-//  return false;
-//  }
-// }
 
 /*HashIV SHA256 加密*/
 function SHA_str(key="", tradeinfo="", iv=""){
@@ -152,6 +168,7 @@ function getOrderNo(){
 module.exports = {
     getOrderNo,
     create_mpg_aes_encrypt,
+    create_mpg_aes_decrypt,
     SHA_str,
     SHA256,
     CheckOut

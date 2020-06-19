@@ -26,16 +26,19 @@ async function mpgModel(exchange) {
             'Amt': NTD,
             'ItemDesc': Order_Title,
             'ReturnURL': neweb_config.ReturnURL, //支付完成 返回商店網址
-            'NotifyURL': neweb_config.NotifyURL_atm, //支付通知網址
+            'NotifyURL': neweb_config.NotifyMpgURL, //支付通知網址
             'CustomerURL': neweb_config.CustomerURL, //商店取號網址
             'ClientBackURL': neweb_config.ClientBackURL,
-            'ExpireDate' : expire_date
+            'ExpireDate' : '2020-06-20'
         };
         
         const TradeInfo = await neweb_sdk.create_mpg_aes_encrypt(trade_info_arr, HashKey, HashIV);
         const SHA256 = await neweb_sdk.SHA256(neweb_sdk.SHA_str(HashKey, TradeInfo, HashIV)).toString().toUpperCase();
         const checkout = await neweb_sdk.CheckOut(URL, MerchantID, TradeInfo, SHA256, VER);
+        // console.log(TradeInfo);
+
         
+        // console.log(decrypt);return;
         resolve(checkout);
     } catch (err) {
       reject(err);
