@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, dateUnixInfo, getTitlesPeriod } = require('../util/modules');
+const { moment, dateUnixInfo, getTitlesPeriod, convertTimezone } = require('../util/modules');
 const modules = require('../util/modules');
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -115,8 +115,8 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
   const range1 = moment().range(sDate, eDate);
 
   const dateBetween = [];
-  Array.from(range1.by('day')).forEach(function(date) {
-    dateBetween.push(date.unix());
+  Array.from(range1.by('day')).forEach(function(data) {
+    dateBetween.push(convertTimezone(data.format('YYYYMMDD')));
   });
 
   // 取得 user__buys 購買資料
