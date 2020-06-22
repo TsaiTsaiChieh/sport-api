@@ -429,6 +429,12 @@ async function writeRealtime(betsID, data) {
   return new Promise(async function (resolve, reject) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
+    halfNow = changeHalf(
+      data.api.data.competition.season.stage.group.event.events_incidents[
+        eventCount
+      ].event_status_name,
+      halfNow
+    );
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
@@ -499,13 +505,25 @@ async function writeRealtime(betsID, data) {
             data.api.data.competition.season.stage.group.event.participants[1]
               .stats[31].value
         });
-      await modules.database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
-        .set(
-          changeTime(
-            data.api.data.competition.season.stage.group.event.clock_time
-          )
-        );
+      if (halfNow === '0') {
+        await modules.database
+          .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+          .set(
+            changeTime(
+              data.api.data.competition.season.stage.group.event.clock_time,
+              0
+            )
+          );
+      } else {
+        await modules.database
+          .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+          .set(
+            changeTime(
+              data.api.data.competition.season.stage.group.event.clock_time,
+              2700
+            )
+          );
+      }
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -561,12 +579,7 @@ async function writeRealtime(betsID, data) {
         .length;
     for (let eventCount = eventNow; eventCount < totalEvent; eventCount++) {
       eventNow = eventNow + 1;
-      halfNow = changeHalf(
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].event_status_name,
-        halfNow
-      );
+
       // here pbp
       const eventType =
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -606,25 +619,6 @@ async function writeRealtime(betsID, data) {
         await modules.database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_half`)
           .set(halfNow);
-        if (halfNow === '0') {
-          await modules.database
-            .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
-            .set(
-              changeTime(
-                data.api.data.competition.season.stage.group.event.clock_time,
-                0
-              )
-            );
-        } else {
-          await modules.database
-            .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
-            .set(
-              changeTime(
-                data.api.data.competition.season.stage.group.event.clock_time,
-                2700
-              )
-            );
-        }
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(

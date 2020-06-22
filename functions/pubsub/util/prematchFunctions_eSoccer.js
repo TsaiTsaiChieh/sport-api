@@ -7,8 +7,8 @@ const leagueArray = [22614, 22808, 22764, 22537, 22724];
 const Match = db.Match;
 const MatchTeam = db.Team;
 module.exports.eSoccer = {};
-module.exports.eSoccer.upcoming = async function(date) {
-  return new Promise(async function(resolve, reject) {
+module.exports.eSoccer.upcoming = async function (date) {
+  return new Promise(async function (resolve, reject) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
@@ -43,9 +43,9 @@ module.exports.eSoccer.upcoming = async function(date) {
   });
 };
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const {data} = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -56,7 +56,7 @@ async function axiosForURL(URL) {
 }
 
 async function write2realtime(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await modules.database
         .ref(`esports/eSoccer/${ele.id}/Summary/status`)
@@ -73,7 +73,7 @@ async function write2realtime(ele) {
 }
 
 async function write2MysqlOfMatch(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataEvent = {
         bets_id: ele.id,
@@ -99,15 +99,16 @@ async function write2MysqlOfMatch(ele) {
 }
 
 async function write2MysqlOfMatchTeam(ele) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const dataHomeTeam = {
         team_id: ele.home.id,
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
         name: ele.home.name.trim(),
+        name_ch: translate(ele.home.name.trim()),
         alias: ele.home.name.trim(),
-        alias_ch: ele.home.name.trim(),
+        alias_ch: translate(ele.home.name.trim()),
         image_id: ele.home.image_id
       };
       const dataAwayTeam = {
@@ -115,8 +116,9 @@ async function write2MysqlOfMatchTeam(ele) {
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
         name: ele.away.name.trim(),
+        name_ch: translate(ele.away.name.trim()),
         alias: ele.away.name.trim(),
-        alias_ch: ele.away.name.trim(),
+        alias_ch: translate(ele.away.name.trim()),
         image_id: ele.away.image_id
       };
       await MatchTeam.upsert(dataHomeTeam);
@@ -128,4 +130,73 @@ async function write2MysqlOfMatchTeam(ele) {
       );
     }
   });
+}
+function translate(team) {
+  let oriText = [
+    'Man City',
+    'PSG',
+    'Liverpool',
+    'Arsenal',
+    'Man Utd',
+    `M'Gladbach`,
+    'Tottenham',
+    'Real Madrid',
+    'Portugal',
+    'Spain',
+    'Napoli',
+    'CSKA Moscow',
+    'Dortmund',
+    'Barcelona',
+    'Valencia',
+    'Lokomotiv Moscow',
+    'Atalanta',
+    'Lazio',
+    'Shakhtar Donetsk',
+    'Ajax',
+    'Belgium',
+    'Porto',
+    'Dynamo Kyiv',
+    'AC Milan',
+    'Germany',
+    'Bayern',
+    'Spartak Moscow',
+    'Leverkusen',
+    'Inter Milan',
+    'Brazil',
+    'France'
+  ];
+  let changeText = [
+    '曼徹斯特城',
+    '巴黎聖日耳曼',
+    '利物浦',
+    '阿森納',
+    '曼徹斯特聯',
+    '門興格拉德巴赫',
+    '托特納姆',
+    '皇家馬德里',
+    '葡萄牙',
+    '西班牙',
+    '那不勒斯',
+    '莫斯科中央陸軍',
+    '多蒙特',
+    '巴塞隆納',
+    '巴倫西亞',
+    '莫斯科火車頭',
+    '亞特蘭大',
+    '拉齊奧',
+    '頓內次克礦工',
+    '阿賈克斯',
+    '比利時',
+    '波多',
+    '基輔戴拿模',
+    'AC 米蘭',
+    '德國',
+    '拜仁慕尼黑',
+    '莫斯科斯巴達克',
+    '拜耳樂沃庫森',
+    '國際米蘭',
+    '巴西',
+    '法國'
+  ];
+  return team;
 }
