@@ -1,27 +1,22 @@
 const modules = require('../util/modules');
 const router = modules.express.Router();
-
-/* 超商代碼 */
-// router.post(
-//     '/cvs_code',
-//     require('../controller/cashflow/cvsCodeController')
-// );
-
-// /* 超商條碼 */
+/* MPG 付款頁面 */
+router.get(
+  '/mpg',
+  require('../controller/cashflow_neweb/mpgController')
+);
 router.post(
-  '/cvs_barcode',
-  require('../controller/cashflow_neweb/cvsBarcodeController')
+  '/mpg',
+  require('../controller/cashflow_neweb/mpgController')
 );
 
-// /* WebATM */
-// router.post(
-//     '/webatm',
-//     require('../controller/cashflow/webAtmController')
-// );
-
-// /* ATM */
-// router.post(
-//     '/atm',
-//     require('../controller/cashflow/AtmController')
-// );
+/* MPG 付款成功通知頁面 */
+router.get(
+  '/mpg_notify',
+  require('../controller/cashflow_neweb/mpgNotifyController')
+);
+router.post(
+  '/mpg_notify',
+  require('../controller/cashflow_neweb/mpgNotifyController')
+);
 module.exports = router;
