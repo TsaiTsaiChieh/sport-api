@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
-const { moment, convertTimezone } = require('../../util/modules');
+const { NP, leagueCodebook } = require('../../util/modules');
 const errs = require('../../util/errorCode');
-const db = require('../../util/dbUtil');
-const { getGodSellPredictionDatesWinBetsInfo, getGodSellPredictionWinBetsInfo } = require('../../util/databaseEngine');
+// const db = require('../../util/dbUtil');
+const { getGodSellPredictionDatesWinBetsInfo } = require('../../util/databaseEngine');
 
 function buyModel(args, uid) {
   return new Promise(async function(resolve, reject) {
@@ -33,10 +33,19 @@ function buyModel(args, uid) {
       //   }
       // );
 
-      for (const [index, ele] of Object.entries(buy)) {
-        console.log('ele: ', ele);
-        // const t = await getGodSellPredictionWinBetsInfo(ele.god_uid, ele.league_id, ele.matches_date);
-        // console.log('t: ', t);
+      for (const ele of buy) {
+        buyList.push({
+          date: ele.matches_date,
+          god: {
+            god_name: ele.info.display_name,
+            avatar: ele.info.avatar
+          },
+          league: leagueCodebook(ele.info.name).name_ch,
+          cost: ele.info.price,
+          sub_price: ele.info.sub_price,
+          bets: NP.round(ele.info.win_bets, 2),
+          status: ele.buy_status
+        });
       };
 
       resolve(buyList);
@@ -46,5 +55,22 @@ function buyModel(args, uid) {
     }
   });
 }
+
+// function repackage(ele) {
+//   const data = {};
+//   const god = {};
+//   god.god_name = ele.display_name;
+//   god.avatar = ele.avatar;
+//   data.god = god;
+
+//   data.date = ele.date;
+//   data.league = ele.name;
+//   data.cost = ele.price;
+//   data.bets = ele.win_bets.toFixed(2);
+//   data.sub_price = ele.sub_price;
+//   data.status = ele.status;
+
+//   return data;
+// }
 
 module.exports = buyModel;
