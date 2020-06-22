@@ -15,7 +15,9 @@ const settlement = {
 };
 /*
 * 1. 檢查該使用者存在與否
-* possible used table: user__predictions, matches, match__teams, match__spreads, match__totals, users
+*    possible used table: user__predictions, matches, match__teams, match__spreads, match__totals, users
+* 2. 取得該使用者所有聯盟的已完賽資料
+* 3. 重新打包並回傳
 */
 
 async function predictionHistory(args) {
@@ -59,7 +61,6 @@ async function getUserPredictionData(args, userData) {
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
         AND game.status = ${modules.MATCH_STATUS.END}
         AND game.flag_prematch = ${modules.MATCH_STATUS.VALID};`,
-    //  ORDER BY game.scheduled DESC;`,
     {
       type: db.sequelize.QueryTypes.SELECT
     }));
@@ -71,7 +72,6 @@ async function getUserPredictionData(args, userData) {
 async function repackageReturnData(args, historyData) {
   const data = {};
   let league; // The data league key-pair
-
   // "groupByLeague" is an array which contains many objects,
   // grouped by property which is league_id,
   // this object looks like:
@@ -81,39 +81,28 @@ async function repackageReturnData(args, historyData) {
   // ]
   const groupByLeague = modules.groupBy(historyData, 'league_id');
   groupByLeague.map(function(eachLeagueItems) {
-    const tempArray = []; // To save repackage match data temp array
-    // "eachLeagueItems" contains each match information,
-    // like match id, schedule time, spread id and so on.
-    // league = modules.leagueDecoder(eachLeagueItems[0].league_id);
     // Create an array, a.k.a "pastPredictions",
-    // to save the past prediction data which from no const tempArray = []; // To save repackage match data temp arrayw today to 14 days ago,
+    // to save the past prediction data which from no array today to 14 days ago,
     // and each array belongs to each different league.
     const pastPredictions = new Array(TWO_WEEKS);
-    eachLeagueItems.map(function(match) {
-      league = modules.leagueDecoder(match.league_id);
-      // console.log(match.league_id,s '==--');
-
-      for (let i = 0; i < TWO_WEEKS; i++) {
-        const tempArray = []; // 可註解拿掉看看
+    for (let i = 0; i < TWO_WEEKS; i++) {
+      const tempArray = []; // To save repackage match data temp array
+      // "eachLeagueItems" contains each match information,
+      // like match id, schedule time, spread id and so on.
+      eachLeagueItems.map(function(match) {
+        league = modules.leagueDecoder(match.league_id);
         const matchDate = modules.convertTimezoneFormat(match.scheduled);
         // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
-        console.log(`${i}: ${matchUnix}/${matchUnix}, ${matchDate}`);
-        console.log('-----------====----');
-
-        if (matchUnix === addOneDayUnix) { // 當日期一樣就一直 push，當不一樣要 next i，並清空 tempArray
-          console.log(`${i}: ${matchUnix}/${matchUnix}, ${matchDate}`);
+        if (matchUnix === addOneDayUnix) {
           tempArray.push(repackageMatchDate(i, match, matchDate));
-          pastPredictions[i] = tempArray;
-          break;
-        } // if
-      } // TWO_WEEKS
-    }); // eachLeagueItems
-    console.log('＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋');
+        }
+      });
+      pastPredictions[i] = tempArray;
+    }
     data[league] = pastPredictions;
   });
-
   return data;
 }
 
@@ -124,7 +113,6 @@ function repackageMatchDate(i, ele, matchDate) {
       date: matchDate,
       league_id: ele.league_id,
       id: ele.bets_id
-
     //   sport_id: ele.sport_id,
     //   scheduled: ele.scheduled,
     //   scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
