@@ -1,15 +1,24 @@
 const db = require('../../util/dbUtil');
 
 async function mpgNotifyModel(args) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     try {
-      const notify = await db.sequelize.query(
+      let statu = 2;
+
+      if(args.Status){
+        statu = 3;
+      }else{
+        statu = 4;
+      }
+      const notify = db.sequelize.query(
         `
-          UPDATE cashflow_deposits SET status=1 WHERE serial_number=?
+          UPDATE cashflow_deposits SET status=:status WHERE serial_number=:serial_number
         `,
         {
+          logging:true,
           replacements: 
           {
+            status:statu,
             serial_number:'serial_number_test'
           },
           type: db.sequelize.QueryTypes.UPDATE
