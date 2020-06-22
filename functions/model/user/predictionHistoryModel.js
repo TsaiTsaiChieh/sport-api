@@ -59,6 +59,7 @@ async function getUserPredictionData(args, userData) {
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
         AND game.status = ${modules.MATCH_STATUS.END}
         AND game.flag_prematch = ${modules.MATCH_STATUS.VALID};`,
+    //  ORDER BY game.scheduled DESC;`,
     {
       type: db.sequelize.QueryTypes.SELECT
     }));
@@ -68,90 +69,110 @@ async function getUserPredictionData(args, userData) {
 }
 
 async function repackageReturnData(args, historyData) {
-  // groupByLeague is a object, groupBy function can group by property which league_id
-  // ex: [ [{NBA Data}, {NBA Data}, {NBA Data}] , [{eSoccer Data}, {eSoccer Data},... ] ] two layers
-  const groupByLeague = modules.groupBy(historyData, 'league_id');
   const data = {};
-  const pastPredictions = new Array(TWO_WEEKS);
-  groupByLeague.map(function(eachLeagueItem, leagueIndex, arr) { // 3(NBA), 26(eSoccer)
-    // console.log('??--', arr[leagueIndex][0].league_id);
-    const league = modules.leagueDecoder(arr[leagueIndex][0].league_id);
-    console.log(league);
+  let league; // The data league key-pair
 
-    data[league] = pastPredictions;
-    for (let i = 0; i < TWO_WEEKS; i++) {
-      console.log(i);
-      eachLeagueItem.map(function(match) {
+  // "groupByLeague" is an array which contains many objects,
+  // grouped by property which is league_id,
+  // this object looks like:
+  // [
+  //    [ {NBA Data}, {NBA Data}, {NBA Data} ],
+  //    [ {eSoccer Data}, {eSoccer Data},... ]
+  // ]
+  const groupByLeague = modules.groupBy(historyData, 'league_id');
+  groupByLeague.map(function(eachLeagueItems) {
+    const tempArray = []; // To save repackage match data temp array
+    // "eachLeagueItems" contains each match information,
+    // like match id, schedule time, spread id and so on.
+    // league = modules.leagueDecoder(eachLeagueItems[0].league_id);
+    // Create an array, a.k.a "pastPredictions",
+    // to save the past prediction data which from no const tempArray = []; // To save repackage match data temp arrayw today to 14 days ago,
+    // and each array belongs to each different league.
+    const pastPredictions = new Array(TWO_WEEKS);
+    eachLeagueItems.map(function(match) {
+      league = modules.leagueDecoder(match.league_id);
+      // console.log(match.league_id,s '==--');
+
+      for (let i = 0; i < TWO_WEEKS; i++) {
+        const tempArray = []; // 可註解拿掉看看
         const matchDate = modules.convertTimezoneFormat(match.scheduled);
-        // get the match date unix time
+        // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
-        if (addOneDayUnix === matchUnix) {
-          const a = repackageMatchDate(match, matchDate);
-          console.log('-----=======------', a.match.id, '-----=======------');
-          pastPredictions.splice(i, 0, a);
-        }
-      });
-    }
+        console.log(`${i}: ${matchUnix}/${matchUnix}, ${matchDate}`);
+        console.log('-----------====----');
+
+        if (matchUnix === addOneDayUnix) { // 當日期一樣就一直 push，當不一樣要 next i，並清空 tempArray
+          console.log(`${i}: ${matchUnix}/${matchUnix}, ${matchDate}`);
+          tempArray.push(repackageMatchDate(i, match, matchDate));
+          pastPredictions[i] = tempArray;
+          break;
+        } // if
+      } // TWO_WEEKS
+    }); // eachLeagueItems
+    console.log('＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋＋');
+    data[league] = pastPredictions;
   });
+
   return data;
 }
 
-function repackageMatchDate(ele, matchDate) {
+function repackageMatchDate(i, ele, matchDate) {
   const data = {
     match: {
-      id: ele.bets_id,
+      i,
       date: matchDate,
       league_id: ele.league_id,
-      sport_id: ele.sport_id,
-      scheduled: ele.scheduled,
-      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
-      home_points: ele.home_points,
-      away_points: ele.away_points,
-      home: {
-        id: ele.home_id,
-        team_name: ele.home_name,
-        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
-        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-        alias_ch: ele.home_alias_ch,
-        name_ch: ele.home_name_ch,
-        image_id: ele.home_image_id
-      },
-      away: {
-        id: ele.away_id,
-        team_name: ele.away_name,
-        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
-        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
-        alias_ch: ele.away_alias_ch,
-        name_ch: ele.away_name_ch,
-        image_id: ele.away_image_id
-      }
-    },
-    predicted: {
-      sell: ele.sell,
-      user_status: ele.user_status,
-      spread: {
-        id: ele.spread_id,
-        handicap: ele.spread_handicap,
-        home_tw: ele.home_tw,
-        away_tw: ele.away_tw,
-        option: ele.spread_option,
-        bets: ele.spread_bets,
-        result: ele.spread_result,
-        end: returnSettlement(ele.spread_result_flag)
-      },
-      totals: {
-        id: ele.totals_id,
-        option: ele.totals_option,
-        handicap: ele.totals_handicap,
-        over_tw: ele.over_tw,
-        bets: ele.totals_bets,
-        result: ele.totals_result,
-        end: returnSettlement(ele.totals_result_flag)
-      }
+      id: ele.bets_id
+
+    //   sport_id: ele.sport_id,
+    //   scheduled: ele.scheduled,
+    //   scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
+    //   home_points: ele.home_points,
+    //   away_points: ele.away_points,
+    //   home: {
+    //     id: ele.home_id,
+    //     team_name: ele.home_name,
+    //     player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+    //     alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+    //     alias_ch: ele.home_alias_ch,
+    //     name_ch: ele.home_name_ch,
+    //     image_id: ele.home_image_id
+    //   },
+    //   away: {
+    //     id: ele.away_id,
+    //     team_name: ele.away_name,
+    //     player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
+    //     alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+    //     alias_ch: ele.away_alias_ch,
+    //     name_ch: ele.away_name_ch,
+    //     image_id: ele.away_image_id
+    //   }
+    // },
+    // predicted: {
+    //   sell: ele.sell,
+    //   user_status: ele.user_status,
+    //   spread: {
+    //     id: ele.spread_id,
+    //     handicap: ele.spread_handicap,
+    //     home_tw: ele.home_tw,
+    //     away_tw: ele.away_tw,
+    //     option: ele.spread_option,
+    //     bets: ele.spread_bets,
+    //     result: ele.spread_result,
+    //     end: returnSettlement(ele.spread_result_flag)
+    //   },
+    //   totals: {
+    //     id: ele.totals_id,
+    //     option: ele.totals_option,
+    //     handicap: ele.totals_handicap,
+    //     over_tw: ele.over_tw,
+    //     bets: ele.totals_bets,
+    //     result: ele.totals_result,
+    //     end: returnSettlement(ele.totals_result_flag)
+    //   }
     }
   };
-  // console.log(data, '進來了');
 
   return data;
 }
