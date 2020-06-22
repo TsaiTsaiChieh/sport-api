@@ -45,7 +45,6 @@ function create_mpg_aes_decrypt(encryptedBase64Str, key, iv) {
   return cipher;
 }
 
-
 /* HashIV SHA256 加密 */
 function SHA_str(key = '', tradeinfo = '', iv = '') {
   const HashIV_Key = 'HashKey=' + key + '&' + tradeinfo + '&HashIV=' + iv;

@@ -5,9 +5,9 @@ async function mpgNotifyModel(args) {
     try {
       let statu = 2;
 
-      if(args.Status){
+      if (args.Status) {
         statu = 3;
-      }else{
+      } else {
         statu = 4;
       }
       const notify = db.sequelize.query(
@@ -15,11 +15,11 @@ async function mpgNotifyModel(args) {
           UPDATE cashflow_deposits SET status=:status WHERE serial_number=:serial_number
         `,
         {
-          logging:true,
-          replacements: 
+          logging: true,
+          replacements:
           {
-            status:statu,
-            serial_number:'serial_number_test'
+            status: statu,
+            serial_number: 'serial_number_test'
           },
           type: db.sequelize.QueryTypes.UPDATE
         });
