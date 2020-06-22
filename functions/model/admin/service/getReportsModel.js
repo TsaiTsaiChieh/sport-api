@@ -14,7 +14,9 @@ async function model(args) {
         raw: true
       });
       /* 讀取一些別的資料 */
+      let RusersToGet = []; // 檢舉玩家的時候
       let usersToGet = [];
+      let RusersInfo = [];
       let usersInfo = [];
       let articlesToGet = [];
       let articlesInfo = [];
@@ -26,15 +28,19 @@ async function model(args) {
           articlesToGet.push(res.rows[i].article_id);
         } else if (res.rows[i].type === 'reply') {
           repliesToGet.push(res.rows[i].article_id);
+        } else if (res.rows[i].type === 'user') {
+          RusersToGet.push(res.rows[i].article_id);
         }
       }
       /* 去除重複的 */
+      RusersToGet = [...new Set(RusersToGet)];
       usersToGet = [...new Set(usersToGet)];
       articlesToGet = [...new Set(articlesToGet)];
       repliesToGet = [...new Set(repliesToGet)];
       /* 讀取user info */
       try {
         usersInfo = await func.getUserInfo(usersToGet);
+        RusersInfo = await func.getUserInfo(RusersToGet);
       } catch (error) {
         console.error(error);
         reject({ code: 500, error: 'get user info failed' });
@@ -43,7 +49,6 @@ async function model(args) {
       try {
         repliesInfo = await func.getReplyContent(repliesToGet);
       } catch (error) {
-        console.error(error);
         reject({ code: 500, error: 'get reply info failed' });
       }
       /* 讀取要取得的文章內容 */
@@ -59,13 +64,17 @@ async function model(args) {
         userInfo = userInfo[0] ? userInfo[0] : null;
         res.rows[i].user_info = userInfo;
         if (res.rows[i].type === 'article') {
-          let articleInfo = articlesInfo.filter(obj => obj.article_id === res.rows[i].article_id);
+          let articleInfo = articlesInfo.filter(obj => obj.article_id === Number(res.rows[i].article_id));
           articleInfo = articleInfo[0] ? articleInfo[0] : null;
           res.rows[i].article_info = articleInfo;
         } else if (res.rows[i].type === 'reply') {
           let replyInfo = repliesInfo.filter(obj => obj.reply_id === res.rows[i].article_id);
           replyInfo = replyInfo[0] ? replyInfo[0] : null;
           res.rows[i].reply_info = replyInfo;
+        } else if (res.rows[i].type === 'user') {
+          let RuserInfo = RusersInfo.filter(obj => obj.uid === res.rows[i].article_id);
+          RuserInfo = RuserInfo[0] ? RuserInfo[0] : null;
+          res.rows[i].accuse_user_info = RuserInfo;
         }
       }
 

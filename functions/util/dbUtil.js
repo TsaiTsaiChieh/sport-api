@@ -1401,7 +1401,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
     allowNull: false
   },
   article_id: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   content: {

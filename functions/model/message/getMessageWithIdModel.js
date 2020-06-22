@@ -3,6 +3,26 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
 const messageModule = require('../../util/messageModule');
+async function getUserInfo(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status'
+        ],
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
 
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
@@ -11,8 +31,9 @@ function getMessageWithId(id) {
       const message = messageSnapshot.data();
       let body = {};
       if (message) {
-        const userSnapshot = await modules.getSnapshot('users', message.uid);
-        const user = userSnapshot.data();
+        // const userSnapshot = await modules.getSnapshot('users', message.uid);
+        // const user = userSnapshot.data();
+        const user = await getUserInfo(args.token.uid);
         if (user) {
           body = messageModule.repackageMessageDataWithFlag(message, user, 0);
         } else {
