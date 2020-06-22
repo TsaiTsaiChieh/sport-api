@@ -122,6 +122,12 @@ router.post(
   verification.adminlog,
   require('../controller/admin/payment/setTransResultController')
 );
+router.post(
+  '/manager/getLogs',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/manager/getLogsController')
+);
 
 /// 以下為原本的
 router.post(
