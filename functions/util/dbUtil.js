@@ -1823,6 +1823,9 @@ const CashflowDeposit = sequelize.define(
       allowNull: false,
       autoIncrement: true
     },
+    serial_number: {
+      type: Sequelize.STRING
+    },
     status: {
       type: Sequelize.STRING
     },
@@ -1834,9 +1837,6 @@ const CashflowDeposit = sequelize.define(
     },
     trade_sha: {
       type: Sequelize.STRING
-    },
-    order_status: {
-      type: Sequelize.INTEGER
     },
     uid: {
       type: Sequelize.STRING,
