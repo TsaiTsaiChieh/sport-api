@@ -21,14 +21,14 @@ const settlement = {
 */
 
 async function predictionHistory(args) {
-  let err, userData, historyData, d;
+  let err, userData, historyData, historyLogs;
   [err, userData] = await modules.to(dbEngine.findUser(args.uid));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
   [err, historyData] = await modules.to(getUserPredictionData(args, userData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  [err, d] = await modules.to(repackageReturnData(args, historyData));
+  [err, historyLogs] = await modules.to(repackageReturnData(args, historyData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  return d;
+  return historyLogs;
 }
 
 async function getUserPredictionData(args, userData) {
@@ -71,7 +71,7 @@ async function getUserPredictionData(args, userData) {
 
 async function repackageReturnData(args, historyData) {
   const data = {};
-  let league; // The data league key-pair
+  let league; // "data" object property
   // "groupByLeague" is an array which contains many objects,
   // grouped by property which is league_id,
   // this object looks like:
@@ -96,69 +96,69 @@ async function repackageReturnData(args, historyData) {
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
         if (matchUnix === addOneDayUnix) {
-          tempArray.push(repackageMatchDate(i, match, matchDate));
+          tempArray.push(repackageMatchDate(match, matchDate));
         }
       });
       pastPredictions[i] = tempArray;
     }
-    data[league] = pastPredictions;
+    // For decreasing date reason so reverse the array
+    data[league] = pastPredictions.reverse();
   });
   return data;
 }
 
-function repackageMatchDate(i, ele, matchDate) {
+function repackageMatchDate(ele, matchDate) {
   const data = {
     match: {
-      i,
       date: matchDate,
       league_id: ele.league_id,
-      id: ele.bets_id
-    //   sport_id: ele.sport_id,
-    //   scheduled: ele.scheduled,
-    //   scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
-    //   home_points: ele.home_points,
-    //   away_points: ele.away_points,
-    //   home: {
-    //     id: ele.home_id,
-    //     team_name: ele.home_name,
-    //     player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
-    //     alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-    //     alias_ch: ele.home_alias_ch,
-    //     name_ch: ele.home_name_ch,
-    //     image_id: ele.home_image_id
-    //   },
-    //   away: {
-    //     id: ele.away_id,
-    //     team_name: ele.away_name,
-    //     player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
-    //     alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
-    //     alias_ch: ele.away_alias_ch,
-    //     name_ch: ele.away_name_ch,
-    //     image_id: ele.away_image_id
-    //   }
-    // },
-    // predicted: {
-    //   sell: ele.sell,
-    //   user_status: ele.user_status,
-    //   spread: {
-    //     id: ele.spread_id,
-    //     handicap: ele.spread_handicap,
-    //     home_tw: ele.home_tw,
-    //     away_tw: ele.away_tw,
-    //     option: ele.spread_option,
-    //     bets: ele.spread_bets,
-    //     result: ele.spread_result,
-    //     end: returnSettlement(ele.spread_result_flag)
-    //   },
-    //   totals: {
-    //     id: ele.totals_id,
-    //     option: ele.totals_option,
-    //     handicap: ele.totals_handicap,
-    //     over_tw: ele.over_tw,
-    //     bets: ele.totals_bets,
-    //     result: ele.totals_result,
-    //     end: returnSettlement(ele.totals_result_flag)
-    //   }
+      id: ele.bets_id,
+      sport_id: ele.sport_id,
+      scheduled: ele.scheduled,
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
+      home_points: ele.home_points,
+      away_points: ele.away_points,
+      home: {
+        id: ele.home_id,
+        team_name: ele.home_name,
+        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+        alias_ch: ele.home_alias_ch,
+        name_ch: ele.home_name_ch,
+        image_id: ele.home_image_id
+      },
+      away: {
+        id: ele.away_id,
+        team_name: ele.away_name,
+        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
+        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+        alias_ch: ele.away_alias_ch,
+        name_ch: ele.away_name_ch,
+        image_id: ele.away_image_id
+      }
+    },
+    predicted: {
+      sell: ele.sell,
+      user_status: ele.user_status,
+      spread: {
+        id: ele.spread_id,
+        handicap: ele.spread_handicap,
+        home_tw: ele.home_tw,
+        away_tw: ele.away_tw,
+        option: ele.spread_option,
+        bets: ele.spread_bets,
+        result: ele.spread_result,
+        end: returnSettlement(ele.spread_result_flag)
+      },
+      totals: {
+        id: ele.totals_id,
+        option: ele.totals_option,
+        handicap: ele.totals_handicap,
+        over_tw: ele.over_tw,
+        bets: ele.totals_bets,
+        result: ele.totals_result,
+        end: returnSettlement(ele.totals_result_flag)
+      }
     }
   };
 
