@@ -1401,7 +1401,7 @@ const Service_ReportTopics = sequelize.define('service__reporttopic', {
     allowNull: false
   },
   article_id: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   content: {
@@ -2186,6 +2186,37 @@ const Token = sequelize.define(
     ]
   }
 );
+const AdminLogging = sequelize.define(
+  'admin__logging',
+  {
+    uid: {
+      type: Sequelize.STRING
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    api_name: {
+      type: Sequelize.STRING
+    },
+    description: {
+      type: Sequelize.STRING
+    },
+    post_content: {
+      type: Sequelize.STRING
+    },
+    ip: {
+      type: Sequelize.STRING
+    },
+    ua: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [{
+      fields: ['uid', 'name']
+    }]
+  }
+);
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2230,7 +2261,8 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
-  Token
+  Token,
+  AdminLogging
 };
 
 module.exports = dbUtil;

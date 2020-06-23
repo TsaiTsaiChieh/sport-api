@@ -14,7 +14,8 @@ async function getUserInfo(uid) {
           'avatar',
           'display_name',
           'signature',
-          'default_title'
+          'default_title',
+          'block_message'
         ],
         where: {
           uid: uid
@@ -35,17 +36,26 @@ function createMessage(args) {
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
 
       /* get user according token */
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
+      const mysql_user = await getUserInfo(args.token.uid);
+      // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       /* step1: check if user exists */
-      if (!userSnapshot.exists) {
+      if (!mysql_user) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
       /* step2: check user block message time */
-      if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
-        reject({ code: 403, error: 'user had been muted' });
-        return;
+      if (mysql_user.block_message && mysql_user.block_message !== null && mysql_user.block_message !== '') {
+        const block_date = new Date(mysql_user.block_message);
+        const block_ts = block_date.getTime();
+        if (Date.now() < block_ts) {
+          reject({ code: 403, error: 'user had been muted' });
+          return;
+        }
       }
+      // if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
+      //   reject({ code: 403, error: 'user had been muted' });
+      //   return;
+      // }
       /* step3: get reply message info (future can be written as function) */
       if (args.reply) {
         const messageSnapshot = await modules.getSnapshot(
@@ -83,7 +93,6 @@ function createMessage(args) {
         .doc();
       const messageId = messageDoc.id;
       // const user = messageModule.repackageUserData(userSnapshot.data()); //舊的
-      const mysql_user = await getUserInfo(args.token.uid);
       const user = {
         uid: mysql_user.uid,
         displayName: mysql_user.display_name,
