@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
 const messageModule = require('../../util/messageModule');
+const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -33,7 +34,7 @@ function getMessageWithId(id) {
       if (message) {
         // const userSnapshot = await modules.getSnapshot('users', message.uid);
         // const user = userSnapshot.data();
-        const user = await getUserInfo(args.token.uid);
+        const user = await getUserInfo(message.uid);
         if (user) {
           body = messageModule.repackageMessageDataWithFlag(message, user, 0);
         } else {
