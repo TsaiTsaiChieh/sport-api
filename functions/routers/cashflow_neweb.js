@@ -4,12 +4,12 @@ const router = modules.express.Router();
 /* MPG 付款頁面 */
 router.get(
   '/mpg',
-//   verification.token,
+  verification.token,
   require('../controller/cashflow_neweb/mpgController')
 );
 router.post(
   '/mpg',
-//   verification.token,
+  verification.token,
   require('../controller/cashflow_neweb/mpgController')
 );
 

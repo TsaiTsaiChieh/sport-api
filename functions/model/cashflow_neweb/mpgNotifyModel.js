@@ -10,14 +10,13 @@ async function updateTicket(res)
   const exchange = res.body;
  
 /* 金流基本參數*/
-
  const HashKey = neweb_config.hashKey;
  const HashIV = neweb_config.hashIV;
 
-
  const return_data = await neweb_sdk.create_mpg_aes_decrypt(exchange.TradeInfo, HashKey, HashIV);
  const rdata = JSON.parse(return_data);
- const serial_number = rdata.MerchantOrderNo 
+ console.log(rdata.Result.MerchantOrderNo);
+ const serial_number = rdata.Result.MerchantOrderNo 
  if(exchange.Status==='SUCCESS'){
     exchange.order_status = 1;
   }else{
@@ -25,7 +24,9 @@ async function updateTicket(res)
   }
   
   await db.CashflowDeposit.update({
-    payment_type: rdata.PaymentType,
+    order_status: 1,
+    payment_type: rdata.Result.PaymentType,
+    payment_store: rdata.Result.PayStore,
     trade_info:return_data,
     trade_sha: exchange.TradeSha
   }, {

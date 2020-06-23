@@ -1838,6 +1838,9 @@ const CashflowDeposit = sequelize.define(
     payment_type: {
       type: Sequelize.STRING
     },
+    payment_store: {
+      type: Sequelize.STRING
+    },
     trade_info: {
       type: Sequelize.STRING
     },

@@ -6,7 +6,12 @@ async function transferModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.begin);
-      const end = modules.convertTimezone(args.end);
+      const end = modules.convertTimezone(args.end, {
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      });
+     
       const total = db.sequelize.query(
         `
         SELECT * FROM(

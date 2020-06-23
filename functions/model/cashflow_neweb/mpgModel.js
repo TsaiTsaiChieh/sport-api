@@ -5,15 +5,16 @@ const db = require('../../util/dbUtil');
 async function mpgModel(res) {
   // console.log
   const exchange = res.body;
-  const uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
-  exchange.coin = 50;
-  exchange.dividend = 3;
+  const uid = res.token.uid;
+  // exchange.coin = 50;
+  // exchange.dividend = 3;
   // uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
   // console.log(exchange);console.log(uid);return;
   
+  
   return new Promise(async function(resolve, reject) {
     try {
-      
+
         /*商品名稱*/
         
         const NTD = exchange.coin;										 	//商品價格
