@@ -44,11 +44,13 @@ function createMessage(args) {
         return;
       }
       /* step2: check user block message time */
-      const block_date = new Date(mysql_user.block_message);
-      const block_ts = block_date.getTime();
-      if (Date.now() < block_ts) {
-        reject({ code: 403, error: 'user had been muted' });
-        return;
+      if (mysql_user.block_message && mysql_user.block_message !== null && mysql_user.block_message !== '') {
+        const block_date = new Date(mysql_user.block_message);
+        const block_ts = block_date.getTime();
+        if (Date.now() < block_ts) {
+          reject({ code: 403, error: 'user had been muted' });
+          return;
+        }
       }
       // if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
       //   reject({ code: 403, error: 'user had been muted' });
