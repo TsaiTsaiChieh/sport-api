@@ -27,7 +27,10 @@ async function predictionHistory(args) {
   [err, historyData] = await modules.to(getUserPredictionData(args, userData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
   [err, historyLogs] = await modules.to(repackageReturnData(args, historyData));
+  console.log('12121212121212121');
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
+  console.log('????????-----');
+
   return historyLogs;
 }
 
@@ -89,14 +92,17 @@ async function repackageReturnData(args, historyData) {
       const tempArray = []; // To save repackage match data temp array
       // "eachLeagueItems" contains each match information,
       // like match id, schedule time, spread id and so on.
-      eachLeagueItems.map(function(match) {
+      eachLeagueItems.map(async function(match) {
         league = modules.leagueDecoder(match.league_id);
         const matchDate = modules.convertTimezoneFormat(match.scheduled);
         // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
         if (matchUnix === addOneDayUnix) {
-          tempArray.push(repackageMatchDate(match, matchDate));
+          const [err, result] = await modules.to(repackageMatchDate(match, matchDate));
+          if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+          tempArray.push(result);
+          // tempArray.push(repackageMatchDate(match, matchDate));
         }
       });
       pastPredictions[i] = tempArray;
@@ -107,7 +113,7 @@ async function repackageReturnData(args, historyData) {
   return data;
 }
 
-function repackageMatchDate(ele, matchDate) {
+async function repackageMatchDate(ele, matchDate) {
   const data = {
     match: {
       date: matchDate,
@@ -161,8 +167,13 @@ function repackageMatchDate(ele, matchDate) {
       }
     }
   };
+  console.log(s);
 
-  return data;
+  const [err, result] = await modules.to(Promise.resolve(data));
+  console.log(err, '有嗎？？？');
+
+  if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh-------`);
+  return result;
 }
 
 function returnSettlement(flag) {
