@@ -4,8 +4,8 @@ const hashIV = 'C454ZaIyVYTvWLcP'; 																					// HashIV
 const url = 'https://ccore.newebpay.com/MPG/mpg_gateway'; // 測試環境URL
 const ver = '1.5';
 
-const test_url = 'https://dosports.web.app/';
-const apidosports = 'https://api-dosports.web.app/';
+const test_url = 'https://dosports.web.app';
+const apidosports = 'https://api-dosports.web.app';
 const ReturnURL = test_url + '/cashflow_neweb/thanks'; // 支付完成 返回商店網址
 const NotifyURL_atm = test_url + '/cashflow_neweb/atm_notify'; 		// ATM   支付通知網址
 const NotifyURL_webatm = test_url + '/cashflow_neweb/webatm_notify'; // WEBATM   支付通知網址

@@ -2,7 +2,7 @@ const mpgNotifyModel = require('../../model/cashflow_neweb/mpgNotifyModel');
 
 async function mpgNotifyController(req, res) {
   try {
-    res.json(mpgNotifyModel(req.body));
+    res.send(await mpgNotifyModel(req));
   } catch (err) {
     res.status(err.code).json(err.err);
   }

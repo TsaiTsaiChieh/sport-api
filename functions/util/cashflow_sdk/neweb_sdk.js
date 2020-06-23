@@ -36,13 +36,17 @@ function create_mpg_aes_encrypt(parameter = '', key = '', iv = '') {
 // }
 
 function create_mpg_aes_decrypt(encryptedBase64Str, key, iv) {
-  const cipher = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
+
+  var encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedBase64Str);
+
+  var encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+  const decryptedData = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
     iv: CryptoJS.enc.Utf8.parse(iv), // parse the IV
     padding: CryptoJS.pad.Pkcs7,
     mode: CryptoJS.mode.CBC
   });
-
-  return cipher;
+  var decryptedStr = decryptedData.toString(CryptoJS.enc.Utf8);
+  return decryptedStr;
 }
 
 
