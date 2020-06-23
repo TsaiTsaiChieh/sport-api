@@ -1,7 +1,8 @@
+const { leagueDecoder } = require('../../util/modules');
 const {
-  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer, predictionsResultFlag,
-  leagueDecoder
-} = require('../../util/modules');
+  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
+  predictionsResultFlag
+} = require('../../util/settleModules');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -40,8 +41,8 @@ async function settleMatchesModel(args) {
   // home_points、away_points 最終得分 需要有值 (不可null，必需 >= 0) 比賽有可能 0:0
   const matchInfo = await db.sequelize.query(`
         select bets_id, matches.league_id, home_id, away_id, home_points, away_points,
-               spread.handicap spread_handicap, home_odd, away_odd,
-               totals.handicap totals_handicap, over_odd, under_odd
+               spread.handicap spread_handicap, spread.rate spread_rate, home_odd, away_odd,
+               totals.handicap totals_handicap, totals.rate totals_rate, over_odd, under_odd
           from matches
           left join match__spreads spread
             on matches.spread_id = spread.spread_id
@@ -68,9 +69,11 @@ async function settleMatchesModel(args) {
       homePoints: data.home_points,
       awayPoints: data.away_points,
       spreadHandicap: data.spread_handicap,
+      spreadRate: data.spread_rate,
       spreadHomeOdd: data.home_odd,
       spreadAwayOdd: data.away_odd,
       totalsHandicap: data.totals_handicap,
+      totalRate: data.totals_rate,
       totalsOverOdd: data.over_odd,
       totalsUnderOdd: data.under_odd
     };

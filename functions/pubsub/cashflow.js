@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable prefer-const */
-const { dateUnixInfo, settleRefundCoinDividend, settleIngot, settleRefundIngot, mergeDeep } = require('../util/modules');
+const { dateUnixInfo, mergeDeep } = require('../util/modules');
+const { settleRefundCoinDividend, settleIngot, settleRefundIngot } = require('../util/settleModules');
 const { getGodSellPredictionWinBetsInfo, createData } = require('../util/databaseEngine');
 const dividendExpireModel = require('../model/cashflow/dividendExpireModel');
 const db = require('../util/dbUtil');

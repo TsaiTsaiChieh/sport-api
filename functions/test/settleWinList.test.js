@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { predictionsWinList } = require('../util/settleModules');
 
 describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
   it('兩個人 各一筆 ', () => {
@@ -22,7 +22,7 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
         }
       ];
 
-    const settleResult = modules.predictionsWinList(data);
+    const settleResult = predictionsWinList(data);
 
     expect(settleResult[0]).toHaveProperty('uid', '3IB0w6G4V8QUM2Ti3iCIfX4Viux1');
     expect(settleResult[0]).toHaveProperty('win_rate', 0);
@@ -93,7 +93,7 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
         }
       ];
 
-    const settleResult = modules.predictionsWinList(data);
+    const settleResult = predictionsWinList(data);
 
     expect(settleResult[0]).toHaveProperty('uid', '3IB0w6G4V8QUM2Ti3iCIfX4Viux1');
     expect(settleResult[0]).toHaveProperty('win_rate', 0);
