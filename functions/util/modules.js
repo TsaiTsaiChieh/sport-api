@@ -1030,29 +1030,29 @@ function settleRefundCoinDividend(price, sub_price, coin, dividend) {
 }
 
 // 結算 搞錠 settleIngot
-// 輸入：price, sub_price, ingot
-// 輸出：company_real, god_real, company, god
-function settleIngot(price, sub_price, coin, dividend) {
+// 輸入：price, sub_price
+// 輸出：money_real, ingot_real, money, ingot
+function settleIngot(price, sub_price) {
   NP.enableBoundaryChecking(false);
-  const refundMoney = 90; // NP.minus(price, sub_price);
-  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
-  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
-  const r_coin = Math.ceil(r_coin_real);
-  const r_dividend = NP.minus(refundMoney, r_coin);
-  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
+  // const refundMoney = 90; // NP.minus(price, sub_price);
+  const r_money_real = NP.round(NP.divide(price, 2), 2);
+  const r_ingot_real = NP.minus(price, r_money_real);
+  const r_money = Math.ceil(r_money_real);
+  const r_ingot = NP.minus(price, r_money);
+  return { money_real: r_money_real, ingot_real: r_ingot_real, money: r_money, ingot: r_ingot };
 }
 
 // 結算 退款搞錠 settleRefundIngot
-// 輸入：price, sub_price, coin, dividend
-// 輸出退款：company_real, god_real, company, god
-function settleRefundIngot(price, sub_price, coin, dividend) {
+// 輸入：price, sub_price
+// 輸出退款：money_real, ingot_real, money, ingot
+function settleRefundIngot(price, sub_price) {
   NP.enableBoundaryChecking(false);
-  const refundMoney = 90; // NP.minus(price, sub_price);
-  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
-  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
-  const r_coin = Math.ceil(r_coin_real);
-  const r_dividend = NP.minus(refundMoney, r_coin);
-  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
+  const refundMoney = NP.minus(price, 90);
+  const r_money_real = NP.round(NP.divide(refundMoney, 2), 2);
+  const r_ingot_real = NP.minus(refundMoney, r_money_real);
+  const r_money = Math.ceil(r_money_real);
+  const r_ingot = NP.minus(refundMoney, r_money);
+  return { money_real: r_money_real, ingot_real: r_ingot_real, money: r_money, ingot: r_ingot };
 }
 
 // 一般 NBA MLB
