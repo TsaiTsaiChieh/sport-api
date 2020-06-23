@@ -35,5 +35,20 @@ async function updateTicket(res)
     }
   });
   
+  /*更新錢包資料*/
+  const purse_deposit = await db.CashflowDeposit.findOne({
+    where: { serial_number: rdata.Result.MerchantOrderNo },
+    attributes: ['uid', 'coin', 'dividend'],
+    raw: true
+  });
+  //檢查資料庫是否有資料
+  const purse_self = await db.User.findOne({
+    where: { uid: purse_deposit.uid },
+    attributes: ['ingot', 'coin', 'dividend'],
+    raw: true
+  });  
+  if(typeof deposit!=undefined && typeof self!=undefined){
+    await db.User.update({ coin: purse_self.coin + purse_deposit.coin, dividend: purse_self.dividend + purse_deposit.dividend }, { where: { uid: purse_deposit.uid } });
+  }
 }
 module.exports = mpgNotifyModel;
