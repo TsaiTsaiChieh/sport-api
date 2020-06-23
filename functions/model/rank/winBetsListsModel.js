@@ -34,7 +34,7 @@ function winBetsLists(args) {
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
             from (
-                   select winlist.*, users.avatar, users.display_name
+                   select winlist.*, users.avatar, users.display_name, users.status
                      from (
                             select uid, users__win__lists.league_id, 
                                    last_month_win_bets, last_month_win_rate, 
@@ -100,7 +100,8 @@ function repackage(ele, rangstr) {
     // win_bets: ele.win_bets,
     uid: ele.uid,
     avatar: ele.avatar,
-    display_name: ele.display_name
+    display_name: ele.display_name,
+    status: ele.status
   };
 
   data.win_bets = ele[rangstr];

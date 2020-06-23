@@ -1,32 +1,31 @@
+const { NP, leagueCodebook, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
-const db = require('../../util/dbUtil');
-const dbEngine = require('../../util/databaseEngine');
-function buyModel(args, uid) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const buyList = [];
-      const begin = args.begin;
-      const end = args.end;
+const { getGodSellPredictionDatesWinBetsInfo } = require('../../util/databaseEngine');
 
-      const buy = await db.sequelize.query(
-        `
-          SELECT * FROM user__buys
-        `,
-        {
-          bind: { uid: uid, begin: begin, end: end },
-          type: db.sequelize.QueryTypes.SELECT
-        }
-      );
-      buy.forEach(function(ele) { // 這裡有順序性
-        dbEngine.getGodSellPredictionWinBetsInfo(ele.god_uid, ele.league_id, ele.matches_date);
-      });
+async function buyModel(args, uid) {
+  const buyList = [];
+  const begin = args.begin;
+  const end = args.end;
 
-      resolve(buyList);
-    } catch (err) {
-      console.log('Error in  user/buy by henry:  %o', err);
-      return reject(errs.errsMsg('500', '500', err.message));
-    }
-  });
+  const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
+  if (err) {console.error('Error in  user/buy by henry:  %o', err); throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });}
+
+  for (const ele of buy) {
+    buyList.push({
+      date: ele.matches_date,
+      god: {
+        god_name: ele.info.display_name,
+        avatar: ele.info.avatar
+      },
+      league: leagueCodebook(ele.info.name).name_ch,
+      cost: ele.info.price,
+      sub_price: ele.info.sub_price,
+      bets: NP.round(ele.info.win_bets, 2),
+      status: ele.buy_status // -2:已退款  -1:處理中 全額退款  0:處理中 賽事全無效  1:已付費
+    });
+  };
+
+  return buyList;
 }
 
 module.exports = buyModel;
