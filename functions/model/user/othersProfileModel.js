@@ -84,8 +84,6 @@ function repackageReturnData(args, others, followLeague) {
       others_rank: othersTitleLength ? others.otherUserTitle.rank_id : null,
       others_title: othersTitleLength ? modules.getTitles(others.otherUserTitle, others.otherUserTitle.default_title) : null
     };
-    console.log(a);
-
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
