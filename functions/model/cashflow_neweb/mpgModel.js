@@ -6,8 +6,8 @@ async function mpgModel(res) {
   // console.log
   const exchange = res.body;
   const uid = res.token.uid;
-  // exchange.coin = 50;
-  // exchange.dividend = 3;
+  exchange.coin = 30;
+  exchange.dividend = 2;
   // uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
   // console.log(exchange);console.log(uid);return;
   
