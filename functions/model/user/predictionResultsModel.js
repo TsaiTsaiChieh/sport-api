@@ -1,3 +1,4 @@
+
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
@@ -152,7 +153,7 @@ function repackageMatch(ele) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 
@@ -190,7 +191,7 @@ function repackageHandicap(ele, data, handicapType) {
     }
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 module.exports = predictionResult;
