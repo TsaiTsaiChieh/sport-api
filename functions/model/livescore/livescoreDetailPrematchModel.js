@@ -166,7 +166,7 @@ async function repackage(args, match) {
     }
   } catch (err) {
     console.error(`${err.stack} by DY`);
-    throw AppErrors.RepackageError(`${err.stack} by DY`);
+    throw new AppErrors.RepackageError(`${err.stack} by DY`);
   }
 }
 

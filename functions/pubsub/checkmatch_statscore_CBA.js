@@ -10,7 +10,7 @@ const league = 'CBA';
 const leagueID = modules.leagueCodebook(league).id;
 
 async function checkmatch_statscore_CBA() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
@@ -107,7 +107,7 @@ async function checkmatch_statscore_CBA() {
 }
 
 async function queryForEvents() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `(

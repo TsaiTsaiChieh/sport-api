@@ -1,4 +1,4 @@
-//from https://docs.google.com/document/d/1eLni15nSnqND1-o5nBo1YOy3jT8QnuclzVNDxshewSc/edit#
+// from https://docs.google.com/document/d/1eLni15nSnqND1-o5nBo1YOy3jT8QnuclzVNDxshewSc/edit#
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -7,19 +7,19 @@ const sports = [
   // 18,
   // 18,
   // 16,
-  1
-  //16,
-  //16,
-  //16
+  1,
+  16,
+  16,
+  16
 ];
 const leagueUniteIDArray = [
   // 2274
   // 8251
   // 225
-  8
-  //347, // 日職
-  //349, // 韓職
-  //11235 // 台職
+  8,
+  347, // 日職
+  349, // 韓職
+  11235 // 台職
 ];
 const Match = db.Match;
 const MatchSpread = db.Spread;
@@ -28,6 +28,7 @@ async function handicap() {
   // go through each league
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
+
     if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
@@ -35,9 +36,9 @@ async function handicap() {
   console.log('handicap success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -48,7 +49,7 @@ async function axiosForURL(URL) {
 }
 
 async function query_event(league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
@@ -63,7 +64,7 @@ async function query_event(league) {
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
-						AND game.league_id = ${league}
+						AND game.league_id = '${league}'
 			 )`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -76,7 +77,7 @@ async function query_event(league) {
   });
 }
 async function upsertHandicap(querysForEvent, sport, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
@@ -96,60 +97,64 @@ async function upsertHandicap(querysForEvent, sport, league) {
           if (data.results.odds[`${sport}_3`]) {
             totals_odds = data.results.odds[`${sport}_3`];
           }
-        }
-        let newest_spread;
-        if (spread_odds.length > 0) {
-          if (
-            spread_odds[spread_odds.length - 1].home_od !== null &&
-            spread_odds[spread_odds.length - 1].handicap !== null &&
-            spread_odds[spread_odds.length - 1].away_od !== null &&
-            spread_odds[spread_odds.length - 1].home_od !== '-' &&
-            spread_odds[spread_odds.length - 1].away_od !== '-'
-          ) {
-            newest_spread = spread_odds[0];
-            newest_spread = spreadCalculator(newest_spread, sport);
-            await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+
+          let newest_spread;
+          if (spread_odds.length > 0) {
+            if (
+              spread_odds[0].home_od !== null &&
+              spread_odds[0].handicap !== null &&
+              spread_odds[0].away_od !== null &&
+              spread_odds[0].home_od !== '-' &&
+              spread_odds[0].away_od !== '-'
+            ) {
+              newest_spread = spread_odds[0];
+              newest_spread = spreadCalculator(newest_spread, sport);
+              await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+              await write2MysqlOfMatchSpread(newest_spread, ele, league);
+            }
+          }
+          let newest_totals;
+          if (totals_odds.length > 0) {
+            if (
+              totals_odds[0].over_od !== null &&
+              totals_odds[0].handicap !== null &&
+              totals_odds[0].under_od !== null &&
+              totals_odds[0].over_od !== '-' &&
+              totals_odds[0].under_od !== '-'
+            ) {
+              newest_totals = totals_odds[0];
+              newest_totals = totalsCalculator(newest_totals, sport);
+              await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+              await write2MysqlOfMatchTotals(newest_totals, ele, league);
+            }
           }
         }
-        let newest_totals;
-        if (totals_odds.length > 0) {
-          if (
-            totals_odds[totals_odds.length - 1].over_od !== null &&
-            totals_odds[totals_odds.length - 1].handicap !== null &&
-            totals_odds[totals_odds.length - 1].under_od !== null &&
-            totals_odds[totals_odds.length - 1].over_od !== '-' &&
-            totals_odds[totals_odds.length - 1].under_od !== '-'
-          ) {
-            newest_totals = totals_odds[0];
-            newest_totals = totalsCalculator(newest_totals, sport);
-            await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-          }
-        }
-        for (let j = 0; j < spread_odds.length; j++) {
-          let odd = spread_odds[j];
-          odd = spreadCalculator(odd, sport);
-          if (
-            odd.home_od !== null &&
-            odd.handicap !== null &&
-            odd.away_od !== null &&
-            odd.home_od !== '-' &&
-            odd.away_od !== '-'
-          ) {
-            await write2MysqlOfMatchSpread(odd, ele, league);
-          }
-        }
-        for (let k = 0; k < totals_odds.length; k++) {
-          let odd = totals_odds[k];
-          odd = totalsCalculator(odd, sport);
-          if (
-            odd.over_od !== null &&
-            odd.handicap !== null &&
-            odd.under_od !== null &&
-            odd.over_od !== '-'
-          ) {
-            await write2MysqlOfMatchTotals(odd, ele, league);
-          }
-        }
+
+        // for (let j = 0; j < spread_odds.length; j++) {
+        //  let odd = spread_odds[j];
+        //  odd = spreadCalculator(odd, sport);
+        //  if (
+        //    odd.home_od !== null &&
+        //    odd.handicap !== null &&
+        //    odd.away_od !== null &&
+        //    odd.home_od !== '-' &&
+        //    odd.away_od !== '-'
+        //  ) {
+        //    await write2MysqlOfMatchSpread(odd, ele, league);
+        //  }
+        // }
+        // for (let k = 0; k < totals_odds.length; k++) {
+        //  let odd = totals_odds[k];
+        //  odd = totalsCalculator(odd, sport);
+        //  if (
+        //    odd.over_od !== null &&
+        //    odd.handicap !== null &&
+        //    odd.under_od !== null &&
+        //    odd.over_od !== '-'
+        //  ) {
+        //    await write2MysqlOfMatchTotals(odd, ele, league);
+        //  }
+        // }
       }
       return resolve('ok');
     } catch (err) {
@@ -159,7 +164,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 }
 
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -174,7 +179,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   });
 }
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -190,7 +195,7 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 }
 
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
@@ -215,7 +220,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   });
 }
 async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
@@ -242,30 +247,33 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 function spreadCalculator(handicapObj, sport) {
   if (handicapObj.handicap) {
     handicapObj.handicap = parseFloat(handicapObj.handicap);
+    handicapObj.home_odd = parseFloat(handicapObj.away_od);
+    handicapObj.away_odd = parseFloat(handicapObj.home_od);
+
     if (sport === 17 || sport === 18) {
-      //籃球或冰球
+      // 籃球或冰球
       if (handicapObj.handicap % 1 === 0) {
-        //整數盤口
+        // 整數盤口
         if (handicapObj.handicap >= 0) {
-          //主讓客
+          // 主讓客
           handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}平`;
           handicapObj.away_tw = null;
           handicapObj.rate = 0;
         } else {
-          //客讓主
+          // 客讓主
           handicapObj.home_tw = null;
           handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
           handicapObj.rate = 0;
         }
       } else {
-        //小數盤口
+        // 小數盤口
         if (handicapObj.handicap >= 0) {
-          //主讓客
+          // 主讓客
           handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}`;
           handicapObj.away_tw = null;
           handicapObj.rate = 0;
         } else {
-          //客讓主
+          // 客讓主
           handicapObj.home_tw = null;
           handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}`;
           handicapObj.rate = 0;
@@ -274,71 +282,71 @@ function spreadCalculator(handicapObj, sport) {
     }
 
     if (sport === 16) {
-      //棒球
+      // 棒球
       if (handicapObj.handicap % 1 === 0) {
-        //整數盤口
+        // 整數盤口
         if (handicapObj.home_odd !== handicapObj.away_odd) {
-          //不同賠率
+          // 不同賠率
           if (handicapObj.handicap >= 0) {
-            //主讓客
+            // 主讓客
             if (handicapObj.home_odd > handicapObj.away_odd) {
-              //主賠率>客賠率 顯示 +
+              // 主賠率>客賠率 顯示 +
               handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}+50`;
               handicapObj.away_tw = null;
               handicapObj.rate = 50;
             } else {
-              //客賠率>主賠率 顯示 -
+              // 客賠率>主賠率 顯示 -
               handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}-50`;
               handicapObj.away_tw = null;
               handicapObj.rate = -50;
             }
           } else {
-            //客讓主
+            // 客讓主
             if (handicapObj.home_odd > handicapObj.away_odd) {
-              //主賠率>客賠率 顯示 -
+              // 主賠率>客賠率 顯示 -
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}-50`;
               handicapObj.rate = -50;
             } else {
-              //客賠率>主賠率 顯示 +
+              // 客賠率>主賠率 顯示 +
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}+50`;
               handicapObj.rate = 50;
             }
           }
         } else {
-          //相同賠率
+          // 相同賠率
           if (handicapObj.handicap >= 0) {
-            //主讓客
+            // 主讓客
             handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}平`;
             handicapObj.away_tw = null;
             handicapObj.rate = 0;
           } else {
-            //客讓主
+            // 客讓主
             handicapObj.home_tw = null;
             handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
             handicapObj.rate = 0;
           }
         }
       } else {
-        //小數盤口
+        // 小數盤口
         if (handicapObj.handicap > 1 || handicapObj.handicap < -1) {
           if (handicapObj.home_odd !== handicapObj.away_odd) {
-            //不同賠率
+            // 不同賠率
             let tempHandicap;
             if (handicapObj.home_odd >= 1.85 && handicapObj.away_odd >= 1.85) {
-              //主/客賠率都大於等於 1.85 時不調整
+              // 主/客賠率都大於等於 1.85 時不調整
               if (handicapObj.handicap >= 0) {
-                //主讓客
+                // 主讓客
                 if (handicapObj.home_odd > handicapObj.away_odd) {
-                  //主賠率>客賠率 顯示 +
+                  // 主賠率>客賠率 顯示 +
                   handicapObj.home_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}+50`;
                   handicapObj.away_tw = null;
                   handicapObj.rate = 50;
                 } else {
-                  //主賠率<客賠率 顯示 -
+                  // 主賠率<客賠率 顯示 -
                   handicapObj.home_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
@@ -346,16 +354,16 @@ function spreadCalculator(handicapObj, sport) {
                   handicapObj.rate = -50;
                 }
               } else {
-                //客讓主
+                // 客讓主
                 if (handicapObj.home_odd > handicapObj.away_odd) {
-                  //主賠率>客賠率 顯示 -
+                  // 主賠率>客賠率 顯示 -
                   handicapObj.home_tw = null;
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
                   handicapObj.rate = -50;
                 } else {
-                  //主賠率<客賠率 顯示 +
+                  // 主賠率<客賠率 顯示 +
                   handicapObj.home_tw = null;
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
@@ -364,11 +372,20 @@ function spreadCalculator(handicapObj, sport) {
                 }
               }
             } else {
-              //主/客賠率其中一個小於 1.85 時做調整 todo
+              // 主/客賠率其中一個小於 1.85 時做調整 todo
               if (handicapObj.home_odd > handicapObj.away_odd) {
-                //主賠率>客賠率
+                // 主賠率>客賠率
                 if (handicapObj.handicap > 0) {
-                  //主讓客 = 同邊 = 往下數
+                  // 主讓客 = 斜邊 = 往上數
+                  tempHandicap = modifyHandicap(
+                    Math.abs(handicapObj.handicap),
+                    1,
+                    Math.round(
+                      (handicapObj.home_odd - handicapObj.away_odd) / 0.06
+                    )
+                  );
+                } else {
+                  // 客讓主 = 同邊 = 往下數
                   tempHandicap = modifyHandicap(
                     Math.abs(handicapObj.handicap),
                     -1,
@@ -376,150 +393,165 @@ function spreadCalculator(handicapObj, sport) {
                       (handicapObj.home_odd - handicapObj.away_odd) / 0.06
                     )
                   );
-                } else {
-                  //客讓主 = 斜邊 = 往上數
-                  tempHandicap = handicapObj.handicap = modifyHandicap(
-                    Math.abs(handicapObj.handicap),
-                    1,
-                    Math.round(
-                      (handicapObj.home_odd - handicapObj.away_odd) / 0.06
-                    )
-                  );
                 }
               } else {
-                //客賠率>主賠率
+                // 客賠率>主賠率
                 if (handicapObj.handicap >= 0) {
-                  //主讓客 = 斜邊 = 往上數
-                  tempHandicap = handicapObj.handicap = modifyHandicap(
-                    handicapObj.handicap,
-                    1,
-                    Math.round(
-                      (handicapObj.away_odd - handicapObj.home_odd) / 0.06
-                    )
-                  );
-                } else {
-                  //客讓主 = 同邊 = 往下數
-                  tempHandicap = handicapObj.handicap = modifyHandicap(
-                    handicapObj.handicap,
+                  // 主讓客 = 同邊 = 往下數
+                  tempHandicap = modifyHandicap(
+                    Math.abs(handicapObj.handicap),
                     -1,
                     Math.round(
                       (handicapObj.away_odd - handicapObj.home_odd) / 0.06
                     )
                   );
+                } else {
+                  // 客讓主 = 斜邊 = 往上數
+                  tempHandicap = modifyHandicap(
+                    Math.abs(handicapObj.handicap),
+                    1,
+                    Math.round(
+                      (handicapObj.away_odd - handicapObj.home_odd) / 0.06
+                    )
+                  );
                 }
               }
-            }
-            //here
-            if (tempHandicap === 'pk') {
-              handicapObj.handicap = 0;
-              handicapObj.rate = 0;
-              handicapObj.home_tw = `pk`;
-              handicapObj.away_tw = null;
-            } else if (tempHandicap[0] === '-') {
-              //盤口正負完全相反
-              tempHandicap = tempHandicap.replace('-', '');
-              if (handicapObj.handicap >= 0) {
-                if (tempHandicap.indexOf('-') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('-')[0]);
-                  handicapObj.rate = parseFloat(
-                    `-${tempHandicap.split('-')[1]}`
-                  );
-                } else if (tempHandicap.indexOf('+') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('+')[0]);
-                  handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                } else if (tempHandicap.indexOf('平') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('平')[0]
-                  );
-                  handicapObj.rate = 0;
-                } else if (tempHandicap.indexOf('輸') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('輸')[0]
-                  );
-                  handicapObj.rate = -100;
-                }
-                handicapObj.home_tw = null;
-                handicapObj.away_tw = tempHandicap;
-              } else {
-                if (tempHandicap.indexOf('-') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('-')[0]);
-                  handicapObj.rate = parseFloat(
-                    `-${tempHandicap.split('-')[1]}`
-                  );
-                } else if (tempHandicap.indexOf('+') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('+')[0]);
-                  handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                } else if (tempHandicap.indexOf('平') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('平')[0]
-                  );
-                  handicapObj.rate = 0;
-                } else if (tempHandicap.indexOf('輸') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('輸')[0]
-                  );
-                  handicapObj.rate = -100;
-                }
-                handicapObj.home_tw = tempHandicap;
+
+              // here
+
+              if (tempHandicap === 'pk') {
+                handicapObj.handicap = 0;
+                handicapObj.rate = 0;
+                handicapObj.home_tw = 'pk';
                 handicapObj.away_tw = null;
               }
-            } else {
-              //不用交換
               if (handicapObj.handicap >= 0) {
-                if (tempHandicap.indexOf('-') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('-')[0]);
-                  handicapObj.rate = parseFloat(
-                    `-${tempHandicap.split('-')[1]}`
-                  );
-                } else if (tempHandicap.indexOf('+') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('+')[0]);
-                  handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                } else if (tempHandicap.indexOf('平') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('平')[0]
-                  );
-                  handicapObj.rate = 0;
-                } else if (tempHandicap.indexOf('輸') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('輸')[0]
-                  );
-                  handicapObj.rate = -100;
+                // 原本的盤口>=0 主讓客
+                if (tempHandicap[0] === '-') {
+                  // 盤口變號 變成客讓主
+                  tempHandicap = tempHandicap.replace('-', '');
+                  if (tempHandicap.indexOf('-') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('-')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(
+                      `-${tempHandicap.split('-')[1]}`
+                    );
+                  } else if (tempHandicap.indexOf('+') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('+')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                  } else if (tempHandicap.indexOf('平') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('平')[0]}`
+                    );
+                    handicapObj.rate = 0;
+                  } else if (tempHandicap.indexOf('輸') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('輸')[0]}`
+                    );
+                    handicapObj.rate = -100;
+                  }
+                  handicapObj.home_tw = null;
+                  handicapObj.away_tw = tempHandicap;
+                } else {
+                  // 不用變號
+                  if (tempHandicap.indexOf('-') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      tempHandicap.split('-')[0]
+                    );
+                    handicapObj.rate = parseFloat(
+                      `-${tempHandicap.split('-')[1]}`
+                    );
+                  } else if (tempHandicap.indexOf('+') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      tempHandicap.split('+')[0]
+                    );
+                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                  } else if (tempHandicap.indexOf('平') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      tempHandicap.split('平')[0]
+                    );
+                    handicapObj.rate = 0;
+                  } else if (tempHandicap.indexOf('輸') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      tempHandicap.split('輸')[0]
+                    );
+                    handicapObj.rate = -100;
+                  }
+                  handicapObj.home_tw = tempHandicap;
+                  handicapObj.away_tw = null;
                 }
-                handicapObj.home_tw = tempHandicap;
-                handicapObj.away_tw = null;
               } else {
-                if (tempHandicap.indexOf('-') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('-')[0]);
-                  handicapObj.rate = parseFloat(
-                    `-${tempHandicap.split('-')[1]}`
-                  );
-                } else if (tempHandicap.indexOf('+') !== -1) {
-                  handicapObj.handicap = parseFloat(tempHandicap.split('+')[0]);
-                  handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                } else if (tempHandicap.indexOf('平') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('平')[0]
-                  );
-                  handicapObj.rate = 0;
-                } else if (tempHandicap.indexOf('輸') !== -1) {
-                  handicapObj.handicap = parseFloat(
-                    tempHandicap.split('輸')[0]
-                  );
-                  handicapObj.rate = -100;
+                // 原本的盤口<0 客讓主
+                if (tempHandicap[0] === '-') {
+                  // 變號 變成主讓客
+                  tempHandicap = tempHandicap.replace('-', '');
+                  if (tempHandicap.indexOf('-') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `${tempHandicap.split('-')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(
+                      `-${tempHandicap.split('-')[1]}`
+                    );
+                  } else if (tempHandicap.indexOf('+') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `${tempHandicap.split('+')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                  } else if (tempHandicap.indexOf('平') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `${tempHandicap.split('平')[0]}`
+                    );
+                    handicapObj.rate = 0;
+                  } else if (tempHandicap.indexOf('輸') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `${tempHandicap.split('輸')[0]}`
+                    );
+                    handicapObj.rate = -100;
+                  }
+                  handicapObj.home_tw = tempHandicap;
+                  handicapObj.away_tw = null;
+                } else {
+                  // 不用變號
+                  if (tempHandicap.indexOf('-') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('-')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(
+                      `-${tempHandicap.split('-')[1]}`
+                    );
+                  } else if (tempHandicap.indexOf('+') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('+')[0]}`
+                    );
+                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                  } else if (tempHandicap.indexOf('平') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('平')[0]}`
+                    );
+                    handicapObj.rate = 0;
+                  } else if (tempHandicap.indexOf('輸') !== -1) {
+                    handicapObj.handicap = parseFloat(
+                      `-${tempHandicap.split('輸')[0]}`
+                    );
+                    handicapObj.rate = -100;
+                  }
+                  handicapObj.home_tw = null;
+                  handicapObj.away_tw = tempHandicap;
                 }
-                handicapObj.home_tw = null;
-                handicapObj.away_tw = tempHandicap;
               }
             }
           } else {
-            //相同賠率
+            // 相同賠率
             if (handicapObj.handicap >= 0) {
-              //主讓客
+              // 主讓客
               handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}-50`;
               handicapObj.away_tw = null;
               handicapObj.rate = -50;
             } else {
-              //客讓主
+              // 客讓主
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}-50`;
               handicapObj.rate = -50;
@@ -535,10 +567,10 @@ function spreadCalculator(handicapObj, sport) {
     }
 
     if (sport === 1) {
-      //足球
+      // 足球
       handicapObj.handicap = handicapObj.handicap.toString();
       if (handicapObj.handicap.indexOf(',') !== -1) {
-        //有兩個以上盤口
+        // 有兩個以上盤口
         const firstHandicap = Math.abs(
           parseFloat(handicapObj.handicap.split(',')[0])
         );
@@ -590,7 +622,7 @@ function spreadCalculator(handicapObj, sport) {
           }
         }
       } else {
-        //只有一個盤口值
+        // 只有一個盤口值
         handicapObj.handicap = parseFloat(handicapObj.handicap);
         if (handicapObj.handicap === 0) {
           // 讓 0 分
@@ -620,11 +652,11 @@ function spreadCalculator(handicapObj, sport) {
             if (str2 === '25') {
               handicapObj.home_tw = `${str1}/${str1}.5`;
               handicapObj.away_tw = null;
-              handicapObj.rate = -100;
+              handicapObj.rate = -50;
             } else if (str2 === '75') {
               handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
               handicapObj.away_tw = null;
-              handicapObj.rate = -100;
+              handicapObj.rate = 50;
             } else {
               handicapObj.home_tw = Math.abs(handicapObj.handicap);
               handicapObj.away_tw = null;
@@ -632,18 +664,17 @@ function spreadCalculator(handicapObj, sport) {
             }
           } else {
             // 客讓主
-            handicapObj.handicap = Math.abs(handicapObj.handicap);
-            const str = handicapObj.handicap.toString();
+            const str = Math.abs(handicapObj.handicap).toString();
             const str1 = str.split('.')[0];
             const str2 = str.split('.')[1];
             if (str2 === '25') {
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${str1}/${str1}.5`;
-              handicapObj.rate = -100;
+              handicapObj.rate = -50;
             } else if (str2 === '75') {
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
-              handicapObj.rate = -100;
+              handicapObj.rate = 50;
             } else {
               handicapObj.home_tw = null;
               handicapObj.away_tw = Math.abs(handicapObj.handicap);
@@ -660,52 +691,52 @@ function spreadCalculator(handicapObj, sport) {
 function totalsCalculator(handicapObj, sport) {
   if (handicapObj.handicap) {
     if (sport === 17 || sport === 18) {
-      //籃球或冰球
+      // 籃球或冰球
       if (handicapObj.handicap % 1 === 0) {
-        //整數
+        // 整數
         handicapObj.over_tw = `${handicapObj.handicap}`;
         handicapObj.rate = 0;
       } else {
-        //小數
+        // 小數
         handicapObj.over_tw = `${handicapObj.handicap}`;
         handicapObj.rate = -100;
       }
     }
     if (sport === 16) {
-      //棒球
+      // 棒球
       if (handicapObj.handicap % 1 === 0) {
-        //整數
+        // 整數
         if (handicapObj.over_odd !== handicapObj.under_odd) {
           // 賠率不同
           if (handicapObj.over_odd > handicapObj.under_odd) {
-            //大分賠率>小分賠率
+            // 大分賠率>小分賠率
             handicapObj.over_tw = `${handicapObj.handicap}+50`;
             handicapObj.rate = 50;
           } else {
-            //大分賠率>小分賠率
+            // 大分賠率>小分賠率
             handicapObj.over_tw = `${handicapObj.handicap}-50`;
             handicapObj.rate = -50;
           }
         } else {
-          //賠率相同
+          // 賠率相同
           handicapObj.over_tw = `${handicapObj.handicap}`;
           handicapObj.rate = 0;
         }
       } else {
-        //小數
+        // 小數
         if (handicapObj.over_odd !== handicapObj.under_odd) {
           // 賠率不同
           if (handicapObj.over_odd > handicapObj.under_odd) {
-            //大分賠率>小分賠率
+            // 大分賠率>小分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}+50`;
             handicapObj.rate = 50;
           } else {
-            //大分賠率>小分賠率
+            // 大分賠率>小分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-50`;
             handicapObj.rate = -50;
           }
         } else {
-          //賠率相同
+          // 賠率相同
           handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}輸`;
           handicapObj.rate = -100;
         }
@@ -713,7 +744,7 @@ function totalsCalculator(handicapObj, sport) {
     }
 
     if (sport === 1) {
-      //足球
+      // 足球
       if (handicapObj.handicap) {
         handicapObj.handicap = handicapObj.handicap.toString();
         if (handicapObj.handicap.indexOf(',') !== -1) {
@@ -742,7 +773,7 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.rate = -50;
           }
         } else {
-          //盤口只有一個數
+          // 盤口只有一個數
           const str = handicapObj.handicap.toString();
           const str1 = str.split('.')[0];
           const str2 = str.split('.')[1];
@@ -779,37 +810,41 @@ function normalTable(handicap, upOrDown) {
     ];
   }
 }
-function modifyHandicap(handicapObj, upOrDown, unit) {
-  let specificTable = ['1+50', 'PK', '-1+50', '-1輸'];
+function modifyHandicap(handicap, upOrDown, unit) {
+  const specificTable = ['1+50', 'PK', '-1+50', '-1輸'];
   let handicapNow;
-  let unitArray = Math.ceil(unit / 4) + 1; //總共需要幾個table
-  let calculateArray = [];
+  const unitArray = Math.ceil(unit / 4) + 1; // 總共需要幾個unit組合
+  const calculateArray = [];
   if (upOrDown === 1) {
-    //往上數
-    for (i = 0; i < unitArray; i++) {
-      handicapNow = Math.floor(handicapObj.handicap) - i;
-      //add array
+    // 往上數
+    for (let i = 0; i < unitArray; i++) {
+      handicapNow = Math.floor(handicap) - i;
+      // add array
       if (handicapNow === 0) {
-        //加特殊情況
+        // 加特殊情況
         specificTable.forEach((item) => calculateArray.push(item));
       } else {
-        //加一般陣列
-        normalTable(handicapNow).forEach((item) => calculateArray.push(item));
+        // 加一般陣列
+        normalTable(handicapNow, upOrDown).forEach((item) =>
+          calculateArray.push(item)
+        );
       }
     }
   } else {
-    //往下數
-    for (i = 0; i < unitArray; i++) {
-      //add array
-      handicapNow = Math.floor(handicapObj.handicap) + i + 1;
-      //加一般陣列
+    // 往下數
+    for (let i = 0; i < unitArray; i++) {
+      // add array
+      handicapNow = Math.floor(handicap) + i + 1;
+      // 加一般陣列
       normalTable(handicapNow, upOrDown).forEach((item) =>
         calculateArray.push(item)
       );
     }
     unit = unit - 1;
   }
-  let tempHandicap = calculateArray[unit];
+
+  const tempHandicap = calculateArray[unit];
+
   return tempHandicap;
 }
 module.exports = handicap;

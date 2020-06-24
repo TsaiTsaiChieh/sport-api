@@ -7,7 +7,7 @@ const sport = 'Soccer';
 const league = 'Soccer';
 let eventNow = 0;
 let halfNow = '0';
-let clockNow = '';
+//let clockNow = '';
 async function SoccerpbpInplay(parameter) {
   let perStep;
   let timesPerLoop;
@@ -25,7 +25,7 @@ async function SoccerpbpInplay(parameter) {
   const token = await queryForToken();
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     let realtimeData = await modules.database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
@@ -38,9 +38,9 @@ async function SoccerpbpInplay(parameter) {
         if (realtimeData.Summary.Now_half) {
           halfNow = realtimeData.Summary.halfNow;
         }
-        if (realtimeData.Summary.Now_clock) {
-          clockNow = realtimeData.Summary.Now_clock;
-        }
+        //if (realtimeData.Summary.Now_clock) {
+        //  clockNow = realtimeData.Summary.Now_clock;
+        //}
       }
     }
     const parameterPBP = {
@@ -61,7 +61,7 @@ async function SoccerpbpInplay(parameter) {
 }
 
 async function SoccerpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
       const statscoreID = parameter.statscoreID;
@@ -127,7 +127,7 @@ async function SoccerpbpHistory(parameter) {
 }
 
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -256,9 +256,9 @@ async function doPBP(parameter) {
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -271,7 +271,7 @@ async function axiosForURL(URL) {
 }
 
 async function queryForToken() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -292,7 +292,7 @@ async function queryForToken() {
 }
 
 async function initRealtime(betsID, data) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
@@ -319,12 +319,12 @@ async function initRealtime(betsID, data) {
         .length > 0
     ) {
       const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
       const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
@@ -426,15 +426,10 @@ async function initRealtime(betsID, data) {
 }
 
 async function writeRealtime(betsID, data) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
-    halfNow = changeHalf(
-      data.api.data.competition.season.stage.group.event.events_incidents[
-        eventCount
-      ].event_status_name,
-      halfNow
-    );
+
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
@@ -579,7 +574,12 @@ async function writeRealtime(betsID, data) {
         .length;
     for (let eventCount = eventNow; eventCount < totalEvent; eventCount++) {
       eventNow = eventNow + 1;
-
+      halfNow = changeHalf(
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].event_status_name,
+        halfNow
+      );
       // here pbp
       const eventType =
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -587,10 +587,10 @@ async function writeRealtime(betsID, data) {
         ].participant_id === null
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ? '1'
-          : '0';
+            eventCount
+          ].participant_id === homeID
+            ? '1'
+            : '0';
 
       try {
         await modules.database
@@ -632,7 +632,7 @@ async function writeRealtime(betsID, data) {
 }
 
 async function writeBacktoReal(betsID) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
@@ -885,8 +885,8 @@ function translate(name, event) {
 }
 
 function changeTime(time, offset) {
-  //change time to 'xx:xx'
-  let finalTime = time + offset;
+  // change time to 'xx:xx'
+  const finalTime = time + offset;
   return `${Math.floor(finalTime / 60)}:${finalTime % 60}`;
 }
-module.exports = {SoccerpbpInplay, SoccerpbpHistory};
+module.exports = { SoccerpbpInplay, SoccerpbpHistory };

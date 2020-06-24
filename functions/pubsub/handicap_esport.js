@@ -17,9 +17,9 @@ async function handicap_esport() {
   console.log('handicap_esports success');
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -31,7 +31,7 @@ async function axiosForURL(URL) {
   });
 }
 async function query_event(league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
@@ -55,7 +55,7 @@ async function query_event(league) {
   });
 }
 async function upsertHandicap(querysForEvent, sport, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
@@ -79,49 +79,55 @@ async function upsertHandicap(querysForEvent, sport, league) {
 
         if (spread_odds.length > 0) {
           if (
-            spread_odds[spread_odds.length - 1].home_od !== null &&
-            spread_odds[spread_odds.length - 1].handicap !== null &&
-            spread_odds[spread_odds.length - 1].away_od !== null
+            spread_odds[0].home_od !== null &&
+            spread_odds[0].handicap !== null &&
+            spread_odds[0].away_od !== null &&
+            spread_odds[0].home_od !== '-' &&
+            spread_odds[0].away_od !== '-'
           ) {
             newest_spread = spread_odds[0];
             newest_spread = spreadCalculator(newest_spread);
             await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+            await write2MysqlOfMatchSpread(newest_spread, ele, league);
           }
         }
         let newest_totals;
         if (totals_odds.length > 0) {
           if (
-            totals_odds[totals_odds.length - 1].home_od !== null &&
-            totals_odds[totals_odds.length - 1].handicap !== null &&
-            totals_odds[totals_odds.length - 1].away_od !== null
+            totals_odds[0].over_od !== null &&
+            totals_odds[0].handicap !== null &&
+            totals_odds[0].under_od !== null &&
+            totals_odds[0].over_od !== '-' &&
+            totals_odds[0].under_od !== '-'
           ) {
             newest_totals = totals_odds[0];
           }
           newest_totals = totalsCalculator(newest_totals);
           await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+          await write2MysqlOfMatchTotals(newest_totals, ele, league);
         }
-        for (let j = 0; j < spread_odds.length; j++) {
-          let odd = spread_odds[j];
-          odd = spreadCalculator(odd);
-          if (
-            odd.home_od !== null &&
-            odd.handicap !== null &&
-            odd.away_od !== null
-          ) {
-            await write2MysqlOfMatchSpread(odd, ele, league);
-          }
-        }
-        for (let k = 0; k < totals_odds.length; k++) {
-          let odd = totals_odds[k];
-          odd = totalsCalculator(odd);
-          if (
-            odd.over_od !== null &&
-            odd.handicap !== null &&
-            odd.under_od !== null
-          ) {
-            await write2MysqlOfMatchTotals(odd, ele, league);
-          }
-        }
+        // for (let j = 0; j < spread_odds.length; j++) {
+        //  let odd = spread_odds[j];
+        //  odd = spreadCalculator(odd);
+        //  if (
+        //    odd.home_od !== null &&
+        //    odd.handicap !== null &&
+        //    odd.away_od !== null
+        //  ) {
+        //    await write2MysqlOfMatchSpread(odd, ele, league);
+        //  }
+        // }
+        // for (let k = 0; k < totals_odds.length; k++) {
+        //  let odd = totals_odds[k];
+        //  odd = totalsCalculator(odd);
+        //  if (
+        //    odd.over_od !== null &&
+        //    odd.handicap !== null &&
+        //    odd.under_od !== null
+        //  ) {
+        //    await write2MysqlOfMatchTotals(odd, ele, league);
+        //  }
+        // }
       }
       return resolve('ok');
     } catch (err) {
@@ -135,7 +141,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 }
 
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -153,7 +159,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
 }
 
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await Match.upsert({
         bets_id: ele.bets_id,
@@ -171,13 +177,14 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 }
 
 async function write2MysqlOfMatchSpread(odd, ele, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchSpread.upsert({
         spread_id: odd.id,
         match_id: ele.bets_id,
         league_id: league,
         handicap: Number.parseFloat(odd.handicap),
+        rate: Number.parseFloat(odd.rate),
         home_odd: Number.parseFloat(odd.home_od),
         away_odd: Number.parseFloat(odd.away_od),
         home_tw: odd.home_tw,
@@ -196,13 +203,14 @@ async function write2MysqlOfMatchSpread(odd, ele, league) {
 }
 
 async function write2MysqlOfMatchTotals(odd, ele, league) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await MatchTotals.upsert({
         totals_id: odd.id,
         match_id: ele.bets_id,
         league_id: league,
         handicap: Number.parseFloat(odd.handicap),
+        rate: Number.parseFloat(odd.rate),
         over_odd: Number.parseFloat(odd.over_od),
         under_odd: Number.parseFloat(odd.under_od),
         over_tw: odd.over_tw,
@@ -223,7 +231,7 @@ function spreadCalculator(handicapObj) {
   if (handicapObj.handicap) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
-      //有兩個以上盤口
+      // 有兩個以上盤口
       const firstHandicap = Math.abs(
         parseFloat(handicapObj.handicap.split(',')[0])
       );
@@ -274,7 +282,7 @@ function spreadCalculator(handicapObj) {
         }
       }
     } else {
-      //只有一個盤口值
+      // 只有一個盤口值
       handicapObj.handicap = parseFloat(handicapObj.handicap);
       if (handicapObj.handicap === 0) {
         // 讓 0 分
@@ -304,11 +312,11 @@ function spreadCalculator(handicapObj) {
           if (str2 === '25') {
             handicapObj.home_tw = `${str1}/${str1}.5`;
             handicapObj.away_tw = null;
-            handicapObj.rate = -100;
+            handicapObj.rate = -50;
           } else if (str2 === '75') {
             handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
             handicapObj.away_tw = null;
-            handicapObj.rate = -100;
+            handicapObj.rate = 50;
           } else {
             handicapObj.home_tw = Math.abs(handicapObj.handicap);
             handicapObj.away_tw = null;
@@ -323,11 +331,11 @@ function spreadCalculator(handicapObj) {
           if (str2 === '25') {
             handicapObj.home_tw = null;
             handicapObj.away_tw = `${str1}/${str1}.5`;
-            handicapObj.rate = -100;
+            handicapObj.rate = -50;
           } else if (str2 === '75') {
             handicapObj.home_tw = null;
             handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
-            handicapObj.rate = -100;
+            handicapObj.rate = 50;
           } else {
             handicapObj.home_tw = null;
             handicapObj.away_tw = Math.abs(handicapObj.handicap);
@@ -367,8 +375,8 @@ function totalsCalculator(handicapObj) {
       handicapObj.rate = -50;
     }
   } else {
-    //盤口只有一個數
-    const str = handicapObj.handicap.toString();
+    // 盤口只有一個數
+    const str = Math.abs(handicapObj.handicap).toString();
     const str1 = str.split('.')[0];
     const str2 = str.split('.')[1];
     if (str2 === '25') {
