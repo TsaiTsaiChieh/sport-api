@@ -34,8 +34,8 @@ async function god(req, res) {
   const period = getTitlesPeriod(Date.now());
   const nextPeriod = getTitlesNextPeriod(Date.now());
   const nextPeriodStartDateUnix = moment.tz(nextPeriod.end, 'YYYYMMDD', zone_tw).add(1, 'days').unix();
-  const nowDayOfWeek = moment.tz(nowUnix * 1000, zone_tw).isoWeekday();
-  const nowDayOfMonth = moment.tz(nowUnix * 1000, zone_tw).format('DD');
+  const nowDayOfWeek = nowInfo.mdate.isoWeekday();
+  const nowDayOfMonth = nowInfo.mdate.format('DD');
 
   log('========== pubsub god start ==========');
   log(Date.now());

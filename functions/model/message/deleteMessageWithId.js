@@ -3,6 +3,27 @@
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
 const day = 1;
+const db = require('../../util/dbUtil');
+async function getUserInfo(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status'
+        ],
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
 
 // like /message/delete
 function deleteMessageWithId(args) {
@@ -63,8 +84,9 @@ function deleteMessageWithId(args) {
           return;
         }
       } else if (args.deleteAction === -1) {
-        const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-        const user = userSnapshot.data();
+        // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
+        // const user = userSnapshot.data();
+        const user = await getUserInfo(args.token.uid);
         if (user.status >= 9) {
           await modules
             .getDoc(`chat_${args.channelId}`, args.messageId)
