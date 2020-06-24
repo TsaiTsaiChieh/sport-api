@@ -243,11 +243,11 @@ function spreadCalculator(handicapObj) {
         if (firstHandicap >= 0 && secondHandicap >= 0) {
           // 顯示在主隊區，代表主讓客
           handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
+          handicapObj.away_tw = null;
           handicapObj.handicap =
             (parseFloat(Math.abs(firstHandicap)) +
               parseFloat(Math.abs(secondHandicap))) /
             2;
-          handicapObj.away_tw = null;
           handicapObj.rate = 50;
         } else {
           // 顯示在客隊區

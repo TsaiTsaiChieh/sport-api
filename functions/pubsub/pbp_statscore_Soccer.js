@@ -7,7 +7,7 @@ const sport = 'Soccer';
 const league = 'Soccer';
 let eventNow = 0;
 let halfNow = '0';
-//let clockNow = '';
+// let clockNow = '';
 async function SoccerpbpInplay(parameter) {
   let perStep;
   let timesPerLoop;
@@ -38,9 +38,9 @@ async function SoccerpbpInplay(parameter) {
         if (realtimeData.Summary.Now_half) {
           halfNow = realtimeData.Summary.halfNow;
         }
-        //if (realtimeData.Summary.Now_clock) {
+        // if (realtimeData.Summary.Now_clock) {
         //  clockNow = realtimeData.Summary.Now_clock;
-        //}
+        // }
       }
     }
     const parameterPBP = {
