@@ -126,18 +126,21 @@ function settleTotalsSoccer(data) {
   return result > 0 ? 'over' : 'under';
 }
 
-function predictionsResultFlag(option, settelResult, rate = 50) {
+// option: home、away、over、under
+// settleResult: home、away、over、under, fair2, 'fair|home', 'fair|away', 'fair|over', 'fair|under'
+// rate: 目前固定50，將來是 +5,+10,+15...+100   -5,-10,-15...-100
+function predictionsResultFlag(option, settleResult, rate = 50) {
   const rateDivide100 = NP.divide(rate, 100);
   // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
   if (
-    ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
+    ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settleResult)
   ) {
-    const settleOption = settelResult.split('|')[1];
+    const settleOption = settleResult.split('|')[1];
     return settleOption === option ? rateDivide100 : -rateDivide100;
   }
 
   // -2 未結算，-1 輸，0 不算，1 贏，0.xx 輸，-0.xx   //無效 0.5 平 (一半一半)
-  return settelResult === 'fair2' ? 0 : settelResult === option ? 1 : -1;
+  return settleResult === 'fair2' ? 0 : settleResult === option ? 1 : -1;
 }
 
 /* 輸入資料格式
@@ -169,10 +172,10 @@ function predictionsResultFlag(option, settelResult, rate = 50) {
   ]
 */
 function predictionsWinList(data) {
-  const correct = [1, 0.5]; // 0.95 // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
-  const fault = [-1, -0.5]; // // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
+  // correct 和 fault 改成 >0 <0
+  // const correct = [1, 0.5]; // 0.95 // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
+  // const fault = [-1, -0.5]; // // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
   const result = [];
-  // const totalPredictCounts = data.length;
 
   // 先以 uid 分類，再用 league_id 分類
   const rePredictMatchInfo = groupBy(data, 'uid');
@@ -180,31 +183,33 @@ function predictionsWinList(data) {
   rePredictMatchInfo.forEach(function(uids) {
     const reLeagues = groupBy(uids, 'league_id');
 
-    reLeagues.forEach(function(data) {
-      // 勝率 winRate
-      const predictSpreadCorrectCounts = data.reduce(
-        (acc, cur) => (correct.includes(cur.spread_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictTotalsCorrectCounts = data.reduce(
-        (acc, cur) => (correct.includes(cur.totals_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictCorrectCounts =
-        predictSpreadCorrectCounts + predictTotalsCorrectCounts;
+    reLeagues.forEach(function(ele) {
+      // cur.spread_bets !== null or cur.totals_bets !== null 主要是確認是否有下注的情況，有可能有盤口結果，但使用者該盤口未下注
+      // cur.spread_result_flag > 0 or cur.totals_result_flag > 0 主要是用來判斷 猜對
+      // cur.spread_result_flag < 0 or cur.totals_result_flag < 0 主要是用來判斷 猜錯
+      // 整理上述 有下注猜對，有下注猜錯 這兩種情況才會計算 場數 和 注數
+      // 注數計算需要特別注意，如果 result_flag 為 null 會產生計算錯誤，正常情況下 result_flag 是不會產生 null 情況
 
-      const predictSpreadFaultCounts = data.reduce(
-        (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
+      // 勝率 winRate
+      const predictSpreadCorrectCounts = ele.reduce(
+        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.spread_result_flag)
         0
       );
-      const predictTotalsFaultCounts = data.reduce(
-        (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
+      const predictTotalsCorrectCounts = ele.reduce(
+        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.totals_result_flag)
         0
       );
-      const predictFaultCounts = NP.plus(
-        predictSpreadFaultCounts,
-        predictTotalsFaultCounts
+      const predictCorrectCounts = NP.plus(predictSpreadCorrectCounts, predictTotalsCorrectCounts);
+
+      const predictSpreadFaultCounts = ele.reduce(
+        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag < 0 ? ++acc : acc), // fault.includes(cur.spread_result_flag)
+        0
       );
+      const predictTotalsFaultCounts = ele.reduce(
+        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag < 0 ? ++acc : acc), // fault.includes(cur.totals_result_flag)
+        0
+      );
+      const predictFaultCounts = NP.plus(predictSpreadFaultCounts, predictTotalsFaultCounts);
 
       // 避免分母是0 平盤無效
       const spreadWinRate =
@@ -230,62 +235,48 @@ function predictionsWinList(data) {
           );
 
       // 勝注
-      const predictSpreadCorrectBets = data.reduce(
+      const predictSpreadCorrectBets = ele.reduce( // correct.includes(cur.spread_result_flag)
         (acc, cur) =>
-          correct.includes(cur.spread_result_flag)
+          cur.spread_bets !== null && cur.spread_result_flag > 0
             ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
-      const predictTotalsCorrectBets = data.reduce(
+      const predictTotalsCorrectBets = ele.reduce( // correct.includes(cur.totals_result_flag)
         (acc, cur) =>
-          correct.includes(cur.totals_result_flag)
+          cur.totals_bets !== null && cur.totals_result_flag > 0
             ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
       );
-      const predictCorrectBets = NP.plus(
-        predictSpreadCorrectBets,
-        predictTotalsCorrectBets
-      );
+      const predictCorrectBets = NP.plus(predictSpreadCorrectBets, predictTotalsCorrectBets);
 
-      const predictSpreadFaultBets = data.reduce(
+      const predictSpreadFaultBets = ele.reduce( // fault.includes(cur.spread_result_flag)
         (acc, cur) =>
-          fault.includes(cur.spread_result_flag)
+          cur.spread_bets !== null && cur.spread_result_flag < 0
             ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
-      const predictTotalsFaultBets = data.reduce(
+      const predictTotalsFaultBets = ele.reduce( // fault.includes(cur.totals_result_flag)
         (acc, cur) =>
-          fault.includes(cur.totals_result_flag)
+          cur.totals_bets !== null && cur.totals_result_flag < 0
             ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
       );
-      const predictFaultBets = NP.plus(
-        predictSpreadFaultBets,
-        predictTotalsFaultBets
-      );
+      const predictFaultBets = NP.plus(predictSpreadFaultBets, predictTotalsFaultBets);
 
-      const spreadWinBets = NP.plus(
-        predictSpreadCorrectBets,
-        predictSpreadFaultBets
-      );
-      const totalsWinBets = NP.plus(
-        predictTotalsCorrectBets,
-        predictTotalsFaultBets
-      );
+      const spreadWinBets = NP.plus(predictSpreadCorrectBets, predictSpreadFaultBets);
+      const totalsWinBets = NP.plus(predictTotalsCorrectBets, predictTotalsFaultBets);
       const winBets = NP.plus(predictCorrectBets, predictFaultBets);
 
-      // 注數計算
-
       result.push({
-        uid: data[0].uid,
-        league_id: data[0].league_id,
+        uid: ele[0].uid,
+        league_id: ele[0].league_id,
         win_rate: winRate,
         win_bets: winBets,
-        matches_count: data.length,
+        matches_count: ele.length,
         correct_counts: predictCorrectCounts,
         fault_counts: predictFaultCounts,
         spread_correct_counts: predictSpreadCorrectCounts,
@@ -304,15 +295,15 @@ function predictionsWinList(data) {
 
       // console.log('\n');
       // console.log('%o totalPredictCounts: %f  predictCorrectCounts: %f  predictFaultCounts: %f',
-      //   data[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
+      //   ele[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
       // console.log('winRate: %f', winRate * 100);
 
       // console.log('%o predictCorrectBets: %f  predictFaultBets: %f ',
-      //   data[0].uid, predictCorrectBets, predictFaultBets);
+      //   ele[0].uid, predictCorrectBets, predictFaultBets);
       // console.log('winBets: %0.2f', winBets);
 
       // console.log('\n');
-      // console.log('re: ', data);
+      // console.log('re: ', ele);
     });
   });
   return result;

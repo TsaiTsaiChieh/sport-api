@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
 const { convertTimezone, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
-const { predictionsWinList } = require('../util/settleModules');
+const { predictionsWinList } = require('../../util/settleModules');
 const { checkUserRight, getSeason } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
@@ -240,11 +240,11 @@ async function settleWinList(args) {
     // 檢查是否為數字
     const ele = allTotalCount;
 
-    const this_week_win_rate = numberCount(ele.sum_week.correct_counts, ele.sum_week.fault_counts);
-    const this_month_win_rate = numberCount(ele.sum_month.correct_counts, ele.sum_month.fault_counts);
-    const this_period_win_rate = numberCount(ele.sum_period.correct_counts, ele.sum_period.fault_counts);
-    const this_week1_of_period_win_rate = numberCount(ele.sum_week1_of_period.correct_counts, ele.sum_week1_of_period.fault_counts);
-    const this_season_win_rate = numberCount(ele.sum_season.correct_counts, ele.sum_season.fault_counts);
+    const this_week_win_rate = num1RateSum(ele.sum_week.correct_counts, ele.sum_week.fault_counts);
+    const this_month_win_rate = num1RateSum(ele.sum_month.correct_counts, ele.sum_month.fault_counts);
+    const this_period_win_rate = num1RateSum(ele.sum_period.correct_counts, ele.sum_period.fault_counts);
+    const this_week1_of_period_win_rate = num1RateSum(ele.sum_week1_of_period.correct_counts, ele.sum_week1_of_period.fault_counts);
+    const this_season_win_rate = num1RateSum(ele.sum_season.correct_counts, ele.sum_season.fault_counts);
 
     if (isNotANumber(this_week_win_rate)) throw errs.errsMsg('404', '1323'); // 非數值
     if (isNotANumber(this_month_win_rate)) throw errs.errsMsg('404', '1323'); // 非數值
@@ -444,8 +444,8 @@ function groupSum(arr, filterField, groupByField) {
   //   return {name: k, count: counts[k]}; });
 }
 
-function numberCount(num1, num2, f = 2) {
-  // console.log('numberCount: %o / %o', Number(num1), (Number(num1) + Number(num2)));
+function num1RateSum(num1, num2, f = 2) {
+  // console.log('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
   NP.enableBoundaryChecking(false);
   return isNotANumber(num1) || isNotANumber(num2) || NP.plus(num1, num2) === 0 // 不是數字 且 避免分母是0
     ? 0

@@ -80,21 +80,21 @@ async function settleMatchesModel(args) {
 
     // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
     // eSoccer Soccer 足球 計算方式和其他不同 (不用於 籃球、冰球、棒球等等)
-    const settelSpreadResult = (data.spread_handicap == null) ? null
+    const settleSpreadResult = (data.spread_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
-    if (settelSpreadResult === '') throw errs.errsMsg('404', '13111'); // 賽事結算讓分 結果不應該為空白
+    if (settleSpreadResult === '') throw errs.errsMsg('404', '13111'); // 賽事結算讓分 結果不應該為空白
 
-    const settelTotalsResult = (data.totals_handicap == null) ? null
+    const settleTotalsResult = (data.totals_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
-    if (settelTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
+    if (settleTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
 
-    d(bets_id, settelSpreadResult, settelTotalsResult);
+    d(bets_id, settleSpreadResult, settleTotalsResult);
 
     // 回寫結果
-    if (settelSpreadResult !== null || settelTotalsResult !== null) {
+    if (settleSpreadResult !== null || settleTotalsResult !== null) {
       const [err, r] = await to(db.Match.update({
-        spread_result: settelSpreadResult,
-        totals_result: settelTotalsResult
+        spread_result: settleSpreadResult,
+        totals_result: settleTotalsResult
       }, {
         where: {
           bets_id: bets_id
@@ -116,8 +116,8 @@ async function settleMatchesModel(args) {
   const predictMatchInfo = await db.sequelize.query(`
         select prediction.id, prediction.league_id, prediction.uid, prediction.spread_option, prediction.totals_option,
                matches.bets_id, home_id, away_id, home_points, away_points,
-               spread.spread_id, spread.handicap spread_handicap, home_odd, away_odd,
-               totals.totals_id, totals.handicap totals_handicap, over_odd, under_odd
+               spread.spread_id, spread.handicap spread_handicap, spread.rate spread_rate, home_odd, away_odd,
+               totals.totals_id, totals.handicap totals_handicap, totals.rate totals_rate, over_odd, under_odd
           from user__predictions prediction
          inner join matches
             on prediction.bets_id = matches.bets_id
@@ -134,6 +134,7 @@ async function settleMatchesModel(args) {
     replacements: {
       bets_id: bets_id
     },
+    logging: console.log,
     type: db.sequelize.QueryTypes.SELECT
   });
 
@@ -144,30 +145,32 @@ async function settleMatchesModel(args) {
       homePoints: data.home_points,
       awayPoints: data.away_points,
       spreadHandicap: data.spread_handicap,
+      spreadRate: data.spread_rate,
       spreadHomeOdd: data.home_odd,
       spreadAwayOdd: data.away_odd,
       totalsHandicap: data.totals_handicap,
+      totalRate: data.totals_rate,
       totalsOverOdd: data.over_odd,
       totalsUnderOdd: data.under_odd
     };
 
     // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
-    const settelSpreadResult = (data.spread_handicap == null) ? null
+    const settleSpreadResult = (data.spread_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
-    if (settelSpreadResult === '') throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為空白
+    if (settleSpreadResult === '') throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為空白
 
-    const settelTotalsResult = (data.totals_handicap == null) ? null
+    const settleTotalsResult = (data.totals_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
-    if (settelTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
+    if (settleTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settelSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settelTotalsResult);
-    d(bets_id, settelSpreadResult, settelTotalsResult, spreadResultFlag, totalsResultFlag);
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult);
+    d(bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({
-      spread_result: settelSpreadResult,
-      totals_result: settelTotalsResult,
+      spread_result: settleSpreadResult,
+      totals_result: settleTotalsResult,
       spread_result_flag: spreadResultFlag,
       totals_result_flag: totalsResultFlag
     }, {
