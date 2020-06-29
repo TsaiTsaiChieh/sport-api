@@ -27,7 +27,7 @@ async function updateTicket(res)
     order_status: 1,
     payment_type: rdata.Result.PaymentType,
     payment_store: rdata.Result.PayStore,
-    trade_info:return_data,
+    trade_info:exchange.TradeInfo,
     trade_sha: exchange.TradeSha
   }, {
     where: {
@@ -41,12 +41,14 @@ async function updateTicket(res)
     attributes: ['uid', 'coin', 'dividend'],
     raw: true
   });
+  // console.log(purse_deposit);
   //檢查資料庫是否有資料
   const purse_self = await db.User.findOne({
     where: { uid: purse_deposit.uid },
     attributes: ['ingot', 'coin', 'dividend'],
     raw: true
   });  
+  // console.log(purse_self);
   if(typeof deposit!=undefined && typeof self!=undefined){
     await db.User.update({ coin: purse_self.coin + purse_deposit.coin, dividend: purse_self.dividend + purse_deposit.dividend }, { where: { uid: purse_deposit.uid } });
   }

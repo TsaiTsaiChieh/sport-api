@@ -6,6 +6,7 @@ async function mpgModel(res) {
   // console.log
   const exchange = res.body;
   const uid = res.token.uid;
+  // console.log(uid);return;
   exchange.coin = 30;
   exchange.dividend = 2;
   // uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
@@ -32,6 +33,7 @@ async function mpgModel(res) {
         const serial_number = modules.moment(new Date()).format('YYYYMMDDHHMMSS');
         // const serial_number_unix = modules.moment(new Date()).unix();
         exchange.merchant_order_no = neweb_sdk.getOrderNo();
+        
         createTicket(exchange, uid);
         const trade_info_arr = {
             'MerchantID': MerchantID,
@@ -63,9 +65,10 @@ async function createTicket(exchange, uid)
 {
    /*寫入交易資料，未付款(status=0)*/
   //  const serial_number = uid + '_' + modules.moment().format('YYYYMMDDHHMMSS');
+   const scheduled = modules.moment().unix();
    const insert = await db.sequelize.query(
     `
-    INSERT INTO cashflow_deposits (uid, money, money_real, coin, coin_real, dividend, dividend_real, serial_number) VALUES (:uid, :money, :money_real, :coin, :coin_real, :dividend, :dividend_real, :serial_number)
+    INSERT INTO cashflow_deposits (uid, money, money_real, coin, coin_real, dividend, dividend_real, serial_number, scheduled) VALUES (:uid, :money, :money_real, :coin, :coin_real, :dividend, :dividend_real, :serial_number, :scheduled)
     `,
     {
       logging:true,
@@ -77,7 +80,8 @@ async function createTicket(exchange, uid)
         coin_real:exchange.coin,
         dividend:exchange.dividend,
         dividend_real:exchange.dividend,
-        serial_number:exchange.merchant_order_no
+        serial_number:exchange.merchant_order_no,
+        scheduled:scheduled
       },
       type: db.sequelize.QueryTypes.INSERT
     }
