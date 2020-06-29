@@ -1,27 +1,25 @@
-const { getTitlesPeriod, leagueCodebook, convertTimezone, moment } = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, dateUnixInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winBetsLists(args) {
-  return new Promise(async function(resolve, reject) {
-    const range = args.range;
-    const league = args.league;
-    const league_id = leagueCodebook(league).id;
-    const period = getTitlesPeriod(new Date()).period;
-    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'add', value: 1, unit: 'days' }) - 1;
+async function winBetsLists(args) {
+  const range = args.range;
+  const league = args.league;
+  const league_id = leagueCodebook(league).id;
+  const period = getTitlesPeriod(new Date()).period;
+  const nowInfo = dateUnixInfo(new Date());
+  const begin = nowInfo.dateBeginUnix;
+  const end = nowInfo.dateEndUnix;
 
-    const winBetsLists = {};
-    winBetsLists[league] = [];
+  const winBetsLists = {};
+  winBetsLists[league] = [];
 
-    try {
-      // eslint-disable-next-line no-unused-vars
-      for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
-        const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
+  // eslint-disable-next-line no-unused-vars
+  for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
+    const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
-        // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-        const leagueWinBetsListsQuery = await db.sequelize.query(`
+    // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
+    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -68,31 +66,26 @@ function winBetsLists(args) {
                  ) prediction
               on titles.uid = prediction.uid
            order by ${rangeWinBetsCodebook(range)} desc
-        `, {
-          replacements: {
-            league_id: league_id,
-            period: period,
-            begin: begin,
-            end: end
-          },
-          limit: 30,
-          type: db.sequelize.QueryTypes.SELECT
-        });
+      `, {
+      replacements: {
+        league_id: league_id,
+        period: period,
+        begin: begin,
+        end: end
+      },
+      limit: 30,
+      type: db.sequelize.QueryTypes.SELECT
+    }));
+    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13910');}
 
-        leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
-          leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));
-        });
+    leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
+      leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));
+    });
 
-        winBetsLists[key] = leagueWinBetsLists;
-      }
-    } catch (err) {
-      console.log('Error in  home/godlists by YuHsien:  %o', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
+    winBetsLists[key] = leagueWinBetsLists;
+  }
 
-    // resolve({ win_bets_lists: winBetsLists });
-    resolve({ userlists: winBetsLists[league] });
-  });
+  return { userlists: winBetsLists[league] };
 }
 
 function repackage(ele, rangstr) {
