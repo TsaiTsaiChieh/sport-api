@@ -81,7 +81,6 @@ function logData(article_id, uid, cost) {
       await db.sequelize.models.topic__donate.create(insertData);
       resolve();
     } catch (error) {
-      console.error('2!!');
       console.error(error);
       reject('cannot log data');
     }
@@ -105,13 +104,16 @@ async function donate(args) {
           return;
         }
       } catch (err) {
-        console.error('3!!');
         console.error(err);
         reject({ code: 500, error: err });
         return;
       }
       if (article[0].status !== 1 && article[0].status !== 3) {
         reject({ code: 404, error: 'topic not found' });
+        return;
+      }
+      if (article[0].category === 1) {
+        reject({ code: 403, error: 'cannot donate 公告' });
         return;
       }
 

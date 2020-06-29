@@ -60,8 +60,9 @@ function getUser(uid) {
 async function model(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const user = await getUser(args.uid);
       if (args.blobkuser) {
+        const uid = args.uid ? args.uid : args.blobkuid;
+        const user = await getUser(uid);
         let block_days = 0;
         if (user.block_count === 0) block_days = 1;
         else if (user.block_count === 1) block_days = 3;
@@ -74,12 +75,12 @@ async function model(args) {
         const datenow = new Date().toISOString();
 
         const new_blockcount = user.block_count + 1;
-        await dbEdit('user', args.uid, {
+        await dbEdit('user', uid, {
           block_count: new_blockcount,
           block_message: new_blockdate
         });
-        await dbEdit('blog', args.uid, {
-          uid: args.uid,
+        await dbEdit('blog', uid, {
+          uid: uid,
           newcount: new_blockcount,
           start: datenow,
           end: new_blockdate
@@ -96,21 +97,16 @@ async function model(args) {
           });
         }
       }
-      if (args.article_status) {
-        if (args.type === 'topic') {
-          await dbEdit('topic', args.article_id, {
-            delete_reason: args.reply
-          });
-        } else if (args.type === 'reply') {
-          await dbEdit('reply', args.article_id, {
-            delete_reason: args.reply
-          });
-        }
+      if (args.status) {
+        await dbEdit('report', args.report_id, {
+          status: args.status
+        });
       }
-      await dbEdit('report', args.report_id, {
-        reply: args.reply
-      });
-
+      if (args.reply) {
+        await dbEdit('report', args.report_id, {
+          reply: args.reply
+        });
+      }
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);
