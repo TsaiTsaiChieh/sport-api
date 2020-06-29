@@ -6,6 +6,7 @@ const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
+const floatNumber = 4;
 
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
@@ -14,14 +15,6 @@ function d(...args) {
     console.log('[user settleGodTitleModel]', util.format(...args));
   }
 }
-
-// 當要判斷細部計算是否正確，可以打開此 Debug 模式，顯示更清楚計算細節
-// const isProgramDebug = true;
-// const pdLog = function() {
-//   if (isProgramDebug) {
-//     console.log.apply(this, arguments);
-//   }
-// };
 
 async function settleGodTitle(args) {
   // return new Promise(async function(resolve, reject) {
@@ -183,8 +176,8 @@ async function settleGodTitle(args) {
            and prediction.league_id = title_user.league_id
           -- and prediction.match_scheduled between :begin and :end
            and (
-                    spread_result_flag in (-1, 0.95, 0.5, -0.5) 
-                 or totals_result_flag in (-1, 0.95, 0.5, -0.5)
+                 spread_result_flag != -2 or totals_result_flag != -2 or 
+                 spread_result_flag != 0 or totals_result_flag != 0
                )
       `, {
     replacements: {
@@ -275,7 +268,7 @@ async function settleGodTitle(args) {
 const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
 const isNotANumber = value => !isNumber(value);
 
-function numberRate(num1, num2, f = 2) {
+function num1RateSum(num1, num2, f = 2) {
   // console.log('numberRate: %o / %o', Number(num1), Number(num2));
   NP.enableBoundaryChecking(false);
   return isNotANumber(num1) || isNotANumber(num2) || num2 === 0
@@ -327,7 +320,7 @@ function nnPassN(uid_league_data) {
 
     item.winRateAcc = (item.totalsCountAcc === 0)
       ? 0
-      : NP.times(numberRate(item.correctCountsAcc, item.totalsCountAcc, 4), 100); // 勝率
+      : NP.times(num1RateSum(item.correctCountsAcc, item.totalsCountAcc, floatNumber), 100); // 勝率
 
     allRecords.push(item);
   });
@@ -416,14 +409,14 @@ function nPassN(n, allRecords, result_flag) {
     preCorrectCountsAcc = allRecords[n - 1].correctCountsAcc;
   }
 
-  const totalsCount = [0.95, 0.5, -1, -0.5].includes(result_flag) ? 1 : 0;
+  const totalsCount = (result_flag !== -2 && result_flag !== 0) ? 1 : 0;
   item.totalsCountAcc = preTotalsCountAcc + totalsCount;
 
-  const correctCount = [0.95, 0.5].includes(result_flag) ? 1 : 0;
+  const correctCount = (result_flag > 0) ? 1 : 0;
   item.correctCountsAcc = preCorrectCountsAcc + correctCount;
   item.winRateAcc = (item.totalsCountAcc === 0)
     ? 0
-    : NP.times(numberRate(item.correctCountsAcc, item.totalsCountAcc, 4), 100); // 勝率 * 100
+    : NP.times(num1RateSum(item.correctCountsAcc, item.totalsCountAcc, floatNumber), 100); // 勝率 * 100
 
   n++;
   item.days = n;
@@ -468,18 +461,18 @@ function matchesContinue(uid_league_data) {
 }
 
 // 連贏Ｎ場 計算專用的
-// 回傳 場數, (場數, 開賽時間, 過盤註記)
+// 回傳 場數, (場數, 過盤註記, 開賽時間)
 function passN(n, result_flag, match_scheduled) {
   const item = {};
 
   n++;
   item.days = n;
   item.match_scheduled = match_scheduled;
-  item.correctMark = [0.95, 0.5].includes(result_flag)
-    ? 1
-    : [-1, -0.5].includes(result_flag)
-      ? -1
-      : 0;
+  item.correctMark = (result_flag !== -2 || result_flag === 0)
+    ? 0
+    : (result_flag > 0)
+      ? 1
+      : -1;
 
   return { n: n, item: item };
 }
@@ -522,6 +515,15 @@ const colors = {
 // console.log = function() {
 //   if (DEBUG) {
 //     old_console_log.apply(this, arguments);
+//   }
+// };
+
+// 底下功能無效，提供 Debug 範例參考
+// 當要判斷細部計算是否正確，可以打開此 Debug 模式，顯示更清楚計算細節
+// const isProgramDebug = true;
+// const pdLog = function() {
+//   if (isProgramDebug) {
+//     console.log.apply(this, arguments);
 //   }
 // };
 
