@@ -1,6 +1,6 @@
 // 正式站 getsports-gsi
 // exports.apiURL = 'https://api-getsports.web.app/';
-// exports.productURL = 'https://getsports.cc/';
+// exports.productURL = 'https://getsport.cc/';
 // exports.cert = require('../auth/getsports-gsi-firebase-adminsdk.json');
 // exports.firebaseConfig = {
 //   apiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo',
