@@ -1,42 +1,31 @@
-const { moment, sliceTeamAndPlayer, groupBy } = require('../../util/modules');
+const { dateUnixInfo, sliceTeamAndPlayer, groupBy, to } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function predictInfo(args) {
+async function predictInfo(args) {
   // args.token 需求 token.uid
+  // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
+  // 2. 取得 使用者 未開賽 預測資料，該比賽必需是賽前，預測資料 排序以 開賽時間 (match_scheduled) 為主
 
-  return new Promise(async function(resolve, reject) {
-    // 1. 取得 使用者身份 例：大神、玩家 (users status： 1 normal 玩家  2 god 大神)
-    // 2. 取得 使用者 未開賽 預測資料，該比賽必需是賽前，預測資料 排序以 開賽時間 (match_scheduled) 為主
+  const userUid = args.token.uid;
+  let predictionsInfoList = []; // 使用者預測資訊
+  const response = {};
 
-    const userUid = args.token.uid;
+  // 1.
+  const checkResult = await checkUserRight(userUid, [1, 2], '130825');
+  if (checkResult.code) throw checkResult;
 
-    let predictionsInfoList = []; // 使用者預測資訊
-    const response = {};
+  // 2.
+  const nowInfo = dateUnixInfo(new Date());
+  const nowUnix = nowInfo.mdate.unix();
 
-    // 1.
-    try {
-      const checkResult = await checkUserRight(userUid, [1, 2], '130825');
-      if (checkResult.code) return reject(checkResult);
-    } catch (err) {
-      console.error('Error 1. in user/predictonInfoModell by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
+  // 使用者預測資訊
+  // 賽前 (scheduled 開賽時間 > api呼叫時間)
+  // 注意 percentage 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
 
-    // 2.
-    try {
-      // const now_YYYYMMDD = moment().utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      // const tomorrow_YYYYMMDD = moment().add(1, 'days').utcOffset(8).format('YYYYMMDD'); // 今天 年月日
-      const now = moment(Date.now()).unix(); // * 1000;
-      // const tomorrow = moment(now_YYYYMMDD).add(2, 'days').unix() * 1000;
-
-      // 使用者預測資訊
-      // 賽前 (scheduled 開賽時間 > api呼叫時間)
-      // 注意 percentage 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
-
-      // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled) 確保 match_scheduled 有使用 index
-      const predictionsInfoDocs = await db.sequelize.query(`
+  // prediction 後面可以加上 force index(user__predictions_uid_match_scheduled) 確保 match_scheduled 有使用 index
+  const [err, predictionsInfoDocs] = await to(db.sequelize.query(`
         select prediction.*, 
                spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
                totals.handicap totals_handicap, totals.over_tw
@@ -62,46 +51,44 @@ function predictInfo(args) {
             on prediction.spread_id = spread.spread_id
           left join match__totals totals
             on prediction.totals_id = totals.totals_id
-      `, {
-        replacements: {
-          uid: userUid,
-          now: now
-        },
-        limit: 30,
-        type: db.sequelize.QueryTypes.SELECT
-      });
+    `, {
+    replacements: {
+      uid: userUid,
+      now: nowUnix
+    },
+    limit: 30,
+    type: db.sequelize.QueryTypes.SELECT
+  }));
+  if (err) {
+    console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
+    throw errs.dbErrsMsg('404', '14050');
+  }
 
-      // 使用者 一開始尚未預測
-      if (predictionsInfoDocs.length === 0) {
-        // return reject(errs.errsMsg('404', '1303'));
-        return resolve(predictionsInfoList); // 回傳 空Array
-      }
+  // 使用者 一開始尚未預測
+  if (predictionsInfoDocs.length === 0) {
+    return predictionsInfoList; // 回傳 空Array
+  }
 
-      // 一個使用者，一天只會有一筆記錄
-      // if(predictionsInfoDocs.size > 1) {
-      //   // console.error('Error 2. in user/predictonInfoModell by YuHsien');
-      //   return reject(errs.errsMsg('404', '1304'));
-      // }
+  // 一個使用者，一天只會有一筆記錄
+  // if(predictionsInfoDocs.size > 1) {
+  //   // console.error('Error 2. in user/predictonInfoModell by YuHsien');
+  //   return reject(errs.errsMsg('404', '1304'));
+  // }
 
-      // 把賽事資料 重包裝格式
-      groupBy(predictionsInfoDocs, 'league').forEach(function(data) { // 分聯盟陣列
-        let league = '';
-        data.forEach(function(ele) { // 取出 聯盟陣列中的賽事
-          predictionsInfoList.push(
-            repackage(ele)
-          );
-          league = ele.league;
-        });
-        response[league] = predictionsInfoList;
-        predictionsInfoList = [];
-      });
-    } catch (err) {
-      console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
-
-    return resolve(response);
+  // 把賽事資料 重包裝格式
+  groupBy(predictionsInfoDocs, 'league').forEach(function(data) { // 分聯盟陣列
+    let league = '';
+    data.forEach(function(ele) { // 取出 聯盟陣列中的賽事
+      predictionsInfoList.push(
+        repackage(ele)
+      );
+      league = ele.league;
+    });
+    response[league] = predictionsInfoList;
+    predictionsInfoList = [];
   });
+
+  return response;
 }
 
 function repackage(ele) {
