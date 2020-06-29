@@ -395,6 +395,9 @@ const Spread = sequelize.define(
       type: Sequelize.FLOAT,
       defaultValue: null
     },
+    rate: {
+      type: Sequelize.INTEGER
+    },
     home_odd: {
       type: Sequelize.FLOAT
     },
@@ -445,6 +448,9 @@ const Totals = sequelize.define(
     handicap: {
       type: Sequelize.FLOAT,
       defaultValue: null
+    },
+    rate: {
+      type: Sequelize.INTEGER
     },
     over_odd: {
       type: Sequelize.FLOAT
