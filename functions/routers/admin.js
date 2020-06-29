@@ -72,7 +72,6 @@ router.post(
   '/user/getUserBlockLog',
   verification.token,
   verification.admin,
-  verification.adminlog,
   require('../controller/admin/user/getUserBlockLogController')
 );
 router.post(
@@ -99,7 +98,6 @@ router.post(
   '/service/getReports',
   verification.token,
   verification.admin,
-  verification.adminlog,
   require('../controller/admin/service/getReportsController')
 );
 router.post(

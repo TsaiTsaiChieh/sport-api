@@ -6,7 +6,7 @@ async function controller(req, res) {
     type: 'object',
     properties: {
       article_id: {
-        type: 'integer'
+        type: 'string'
       },
       report_id: {
         type: 'integer'
