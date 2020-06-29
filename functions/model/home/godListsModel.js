@@ -6,8 +6,8 @@ async function godlists() {
   const godLists = [];
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = dateUnixInfo(new Date());
-  const begin = nowInfo.dateBeginUnix;
-  const end = nowInfo.dateEndUnix;
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
   // 取得 首頁預設值
   const listLeague = await db.Home_List.findOne({ where: { id: 1 } });
@@ -34,8 +34,8 @@ async function godlists() {
     replacements: {
       league_id: league_id,
       period: period,
-      begin: begin,
-      end: end
+      begin: beginUnix,
+      end: endUnix
     },
     type: db.sequelize.QueryTypes.SELECT
   }));
