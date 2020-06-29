@@ -134,7 +134,6 @@ async function settleMatchesModel(args) {
     replacements: {
       bets_id: bets_id
     },
-    logging: console.log,
     type: db.sequelize.QueryTypes.SELECT
   });
 
