@@ -27,10 +27,7 @@ async function predictionHistory(args) {
   [err, historyData] = await modules.to(getUserPredictionData(args, userData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
   [err, historyLogs] = await modules.to(repackageReturnData(args, historyData));
-  console.log('12121212121212121');
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  console.log('????????-----');
-
   return historyLogs;
 }
 
@@ -99,6 +96,7 @@ async function repackageReturnData(args, historyData) {
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
         if (matchUnix === addOneDayUnix) {
+          // XXX error handling should be more careful
           const [err, result] = await modules.to(repackageMatchDate(match, matchDate));
           if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
           tempArray.push(result);
@@ -167,13 +165,10 @@ async function repackageMatchDate(ele, matchDate) {
       }
     }
   };
-  console.log(s);
-
-  const [err, result] = await modules.to(Promise.resolve(data));
-  console.log(err, '有嗎？？？');
-
-  if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh-------`);
-  return result;
+  // XXX error handling should be more careful
+  // const [err, result] = await modules.to(Promise.resolve(data));
+  // if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh);
+  return data;
 }
 
 function returnSettlement(flag) {
