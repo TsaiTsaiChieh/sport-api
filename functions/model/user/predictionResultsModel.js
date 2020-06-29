@@ -147,6 +147,7 @@ function repackageMatch(ele) {
         result: ele.totals_option !== null ? ele.totals_result_flag : null
       }
     };
+
     repackageHandicap(ele.spread_option, data.spread, ele.spread_result_flag);
     repackageHandicap(ele.totals_option, data.totals, ele.totals_result_flag);
     return data;
@@ -158,8 +159,7 @@ function repackageMatch(ele) {
 
 function repackageHandicap(option, handicap, result) {
   try {
-    // 當有下注讓分時
-    if (option) {
+    if (option) { // 當有下注
       if (result === settlement.unsettlement) { handicap.end = null; handicap.bets = null; return; } // 未結算
 
       // 先計算勝負注數，再補上 .end 註記(不算、勝、負)
@@ -169,6 +169,7 @@ function repackageHandicap(option, handicap, result) {
       if (result < 0) { handicap.end = settlement.loss; return; } // 負注
     }
 
+    // 當有下注讓分時
     // if (ele[`${handicapType}_option`]) {
     //   const handicap = data[handicapType];
     //   const result = ele[`${handicapType}_result_flag`];
