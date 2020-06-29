@@ -8,8 +8,8 @@ async function winRateLists(args) {
   const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = dateUnixInfo(new Date());
-  const begin = nowInfo.dateBeginUnix;
-  const end = nowInfo.dateEndUnix;
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
   // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
   // let winRateLists = {
@@ -74,8 +74,8 @@ async function winRateLists(args) {
       replacements: {
         league_id: league_id,
         period: period,
-        begin: begin,
-        end: end
+        begin: beginUnix,
+        end: endUnix
       },
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT

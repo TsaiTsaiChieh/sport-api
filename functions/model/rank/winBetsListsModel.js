@@ -8,8 +8,8 @@ async function winBetsLists(args) {
   const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = dateUnixInfo(new Date());
-  const begin = nowInfo.dateBeginUnix;
-  const end = nowInfo.dateEndUnix;
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
   const winBetsLists = {};
   winBetsLists[league] = [];
@@ -70,8 +70,8 @@ async function winBetsLists(args) {
       replacements: {
         league_id: league_id,
         period: period,
-        begin: begin,
-        end: end
+        begin: beginUnix,
+        end: endUnix
       },
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT

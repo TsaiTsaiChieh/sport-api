@@ -10,8 +10,8 @@ async function godlists(args) {
   const league = args.league;
   const league_id = leagueCodebook(league).id;
   const nowInfo = dateUnixInfo(new Date());
-  const begin = nowInfo.dateBeginUnix;
-  const end = nowInfo.dateEndUnix;
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
   // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
   const [err, godListsQuery] = await to(db.sequelize.query(`
@@ -48,8 +48,8 @@ async function godlists(args) {
     replacements: {
       league_id: league_id,
       period: period,
-      begin: begin,
-      end: end
+      begin: beginUnix,
+      end: endUnix
     },
     type: db.sequelize.QueryTypes.SELECT
   }));
