@@ -44,7 +44,7 @@ async function godlists(args) {
           on titles.uid = prediction.uid
        where titles.league_id = :league_id
          and titles.period = :period
-      `, {
+    `, {
     replacements: {
       league_id: league_id,
       period: period,
