@@ -53,7 +53,7 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 2,
+      value: -3,
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);
@@ -63,7 +63,7 @@ async function query_event(league) {
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
-						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
+						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${tomorrow}') AND UNIX_TIMESTAMP('${now}')
 						AND game.league_id = '${league}'
 			 )`,
         {
@@ -137,32 +137,6 @@ async function upsertHandicap(querysForEvent, sport, league) {
             }
           }
         }
-
-        // for (let j = 0; j < spread_odds.length; j++) {
-        //  let odd = spread_odds[j];
-        //  odd = spreadCalculator(odd, sport);
-        //  if (
-        //    odd.home_od !== null &&
-        //    odd.handicap !== null &&
-        //    odd.away_od !== null &&
-        //    odd.home_od !== '-' &&
-        //    odd.away_od !== '-'
-        //  ) {
-        //    await write2MysqlOfMatchSpread(odd, ele, league);
-        //  }
-        // }
-        // for (let k = 0; k < totals_odds.length; k++) {
-        //  let odd = totals_odds[k];
-        //  odd = totalsCalculator(odd, sport);
-        //  if (
-        //    odd.over_od !== null &&
-        //    odd.handicap !== null &&
-        //    odd.under_od !== null &&
-        //    odd.over_od !== '-'
-        //  ) {
-        //    await write2MysqlOfMatchTotals(odd, ele, league);
-        //  }
-        // }
       }
       return resolve('ok');
     } catch (err) {
@@ -419,10 +393,10 @@ function spreadCalculator(handicapObj, sport) {
 
               // here
 
-              if (tempHandicap === 'pk') {
+              if (tempHandicap === 'PK') {
                 handicapObj.handicap = 0;
                 handicapObj.rate = 0;
-                handicapObj.home_tw = 'pk';
+                handicapObj.home_tw = 'PK';
                 handicapObj.away_tw = null;
               }
               if (handicapObj.handicap >= 0) {

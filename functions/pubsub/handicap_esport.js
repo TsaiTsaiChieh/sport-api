@@ -41,7 +41,7 @@ async function query_event(league) {
     const now = modules.convertTimezoneFormat(unix);
     const queries = await db.sequelize.query(
       `(
-				 SELECT game.bets_id AS bets_id
+				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
@@ -78,56 +78,42 @@ async function upsertHandicap(querysForEvent, sport, league) {
         let newest_spread;
 
         if (spread_odds.length > 0) {
-          if (
-            spread_odds[0].home_od !== null &&
-            spread_odds[0].handicap !== null &&
-            spread_odds[0].away_od !== null &&
-            spread_odds[0].home_od !== '-' &&
-            spread_odds[0].away_od !== '-'
-          ) {
-            newest_spread = spread_odds[0];
-            newest_spread = spreadCalculator(newest_spread);
-            await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-            await write2MysqlOfMatchSpread(newest_spread, ele, league);
+          for (let spcount = 0; spcount < spread_odds.length; spcount++) {
+            if (
+              spread_odds[spcount].home_od !== null &&
+              spread_odds[spcount].handicap !== null &&
+              spread_odds[spcount].away_od !== null &&
+              spread_odds[spcount].home_od !== '-' &&
+              spread_odds[spcount].away_od !== '-' &&
+              spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
+            ) {
+              newest_spread = spread_odds[spcount];
+              newest_spread = spreadCalculator(newest_spread);
+              await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+              await write2MysqlOfMatchSpread(newest_spread, ele, league);
+              break;
+            }
           }
         }
         let newest_totals;
         if (totals_odds.length > 0) {
-          if (
-            totals_odds[0].over_od !== null &&
-            totals_odds[0].handicap !== null &&
-            totals_odds[0].under_od !== null &&
-            totals_odds[0].over_od !== '-' &&
-            totals_odds[0].under_od !== '-'
-          ) {
-            newest_totals = totals_odds[0];
+          for (let tocount = 0; tocount < totals_odds.length; tocount++) {
+            if (
+              totals_odds[tocount].over_od !== null &&
+              totals_odds[tocount].handicap !== null &&
+              totals_odds[tocount].under_od !== null &&
+              totals_odds[tocount].over_od !== '-' &&
+              totals_odds[tocount].under_od !== '-' &&
+              totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
+            ) {
+              newest_totals = totals_odds[tocount];
+              newest_totals = totalsCalculator(newest_totals);
+              await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+              await write2MysqlOfMatchTotals(newest_totals, ele, league);
+              break;
+            }
           }
-          newest_totals = totalsCalculator(newest_totals);
-          await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-          await write2MysqlOfMatchTotals(newest_totals, ele, league);
         }
-        // for (let j = 0; j < spread_odds.length; j++) {
-        //  let odd = spread_odds[j];
-        //  odd = spreadCalculator(odd);
-        //  if (
-        //    odd.home_od !== null &&
-        //    odd.handicap !== null &&
-        //    odd.away_od !== null
-        //  ) {
-        //    await write2MysqlOfMatchSpread(odd, ele, league);
-        //  }
-        // }
-        // for (let k = 0; k < totals_odds.length; k++) {
-        //  let odd = totals_odds[k];
-        //  odd = totalsCalculator(odd);
-        //  if (
-        //    odd.over_od !== null &&
-        //    odd.handicap !== null &&
-        //    odd.under_od !== null
-        //  ) {
-        //    await write2MysqlOfMatchTotals(odd, ele, league);
-        //  }
-        // }
       }
       return resolve('ok');
     } catch (err) {

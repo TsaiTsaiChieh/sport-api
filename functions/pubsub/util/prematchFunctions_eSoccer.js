@@ -12,8 +12,8 @@ module.exports.eSoccer.upcoming = async function(date) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
-        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
-        const data = await axiosForURL(URL);
+        let URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=1`;
+        let data = await axiosForURL(URL);
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {
             const ele = data.results[j];
@@ -25,7 +25,39 @@ module.exports.eSoccer.upcoming = async function(date) {
             }
             await write2realtime(ele);
             await write2MysqlOfMatch(ele);
-            await write2MysqlOfMatchTeam(ele);
+            await write2MysqlOfMatchTeam(ele, leagueID);
+          }
+          if (data.pager.total > 50) {
+            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=2`;
+            data = await axiosForURL(URL);
+            for (let k = 0; k < data.results.length; k++) {
+              const ele = data.results[k];
+              if (ele.home.name.indexOf('Esports') !== -1) {
+                ele.home.name = ele.home.name.replace('Esports', '');
+              }
+              if (ele.away.name.indexOf('Esports') !== -1) {
+                ele.away.name = ele.away.name.replace('Esports', '');
+              }
+              await write2realtime(ele);
+              await write2MysqlOfMatch(ele);
+              await write2MysqlOfMatchTeam(ele, leagueID);
+            }
+          }
+          if (data.pager.total > 100) {
+            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=3`;
+            data = await axiosForURL(URL);
+            for (let l = 0; l < data.results.length; l++) {
+              const ele = data.results[l];
+              if (ele.home.name.indexOf('Esports') !== -1) {
+                ele.home.name = ele.home.name.replace('Esports', '');
+              }
+              if (ele.away.name.indexOf('Esports') !== -1) {
+                ele.away.name = ele.away.name.replace('Esports', '');
+              }
+              await write2realtime(ele);
+              await write2MysqlOfMatch(ele);
+              await write2MysqlOfMatchTeam(ele, leagueID);
+            }
           }
         } else {
           console.log(leagueID + 'has no upcoming event now');
@@ -98,7 +130,7 @@ async function write2MysqlOfMatch(ele) {
   });
 }
 
-async function write2MysqlOfMatchTeam(ele) {
+async function write2MysqlOfMatchTeam(ele, leagueID) {
   return new Promise(async function(resolve, reject) {
     try {
       const dataHomeTeam = {
@@ -106,9 +138,9 @@ async function write2MysqlOfMatchTeam(ele) {
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
         name: ele.home.name.trim(),
-        name_ch: translate(ele.home.name.trim()),
+        name_ch: translate(ele.home.name.trim(), leagueID),
         alias: ele.home.name.trim(),
-        alias_ch: translate(ele.home.name.trim()),
+        alias_ch: translate(ele.home.name.trim(), leagueID),
         image_id: ele.home.image_id
       };
       const dataAwayTeam = {
@@ -116,9 +148,9 @@ async function write2MysqlOfMatchTeam(ele) {
         league_id: leagueUniteID,
         sport_id: ele.sport_id,
         name: ele.away.name.trim(),
-        name_ch: translate(ele.away.name.trim()),
+        name_ch: translate(ele.away.name.trim(), leagueID),
         alias: ele.away.name.trim(),
-        alias_ch: translate(ele.away.name.trim()),
+        alias_ch: translate(ele.away.name.trim(), leagueID),
         image_id: ele.away.image_id
       };
       await MatchTeam.upsert(dataHomeTeam);
@@ -131,7 +163,7 @@ async function write2MysqlOfMatchTeam(ele) {
     }
   });
 }
-function translate(team) {
+function translate(team, leagueID) {
   const eSB8ori = [
     'PSG',
     'Man City',
@@ -139,6 +171,7 @@ function translate(team) {
     'Arsenal',
     'Man Utd',
     "M'Gladbach",
+    "Borussia M'gladbach",
     'Tottenham',
     'Real Madrid',
     'Portugal',
@@ -163,7 +196,13 @@ function translate(team) {
     'Leverkusen',
     'Inter Milan',
     'Brazil',
-    'France'
+    'France',
+    'Netherlands',
+    'Italy',
+    'Sevilla',
+    'Atletico Madrid',
+    'RB Leipzig',
+    'England'
   ];
   const eSB8tran = [
     '巴黎聖日耳曼',
@@ -171,6 +210,7 @@ function translate(team) {
     '利物浦',
     '阿森納',
     '曼徹斯特聯',
+    '門興格拉德巴赫',
     '門興格拉德巴赫',
     '托特納姆',
     '皇家馬德里',
@@ -196,7 +236,13 @@ function translate(team) {
     '拜耳樂沃庫森',
     '國際米蘭',
     '巴西',
-    '法國'
+    '法國',
+    '荷蘭',
+    '義大利',
+    '塞維利亞',
+    '馬德里競技',
+    'RB萊比錫',
+    '英格蘭'
   ];
   const eLiga12ori = [
     'Club America',
@@ -381,7 +427,147 @@ function translate(team) {
     '西海岸 (WCU)',
     '帕怕克里奇 (ROB)'
   ];
-  const ePlayer12ori = ['Klinger (R10) Esports', 'Felipe I5I (SPQR) Esports'];
-  const ePlayer12tran = [];
+  const ePlayer12ori = [
+    'Klinger (R10)',
+    'Felipe I5I (SPQR)',
+    'Ajax Tore (Ajax)',
+    'Felipe Abd (Bundled)',
+    'Young (SPQR)',
+    'MarcosAB3 (SPQR)',
+    'Gabrielpn (R10)',
+    'Paulo Neto (Atlanta)',
+    'xPHzin (R10)',
+    'Resende (Ellevens)',
+    'MatheusTan (SPQR)',
+    'SLB Zezinho (Benfica)',
+    'C4MST3R (MGCF)',
+    'Hergesel (RDT)',
+    'Robert (SPQR)',
+    'Allan Castello (Lima)',
+    'Abrucio (R10)',
+    'SagraVitor_ ',
+    'Dijian (STRM)',
+    'STRM Solo (G10)',
+    'LucasTabata',
+    'MLobaoJr (NSE)',
+    'MLongaray7 (Club Brugge)',
+    'Felipe (MGCF)',
+    'Fifenzo',
+    'Brenner (Bundled)',
+    'Barrinha97 (R10)',
+    'Rafia13 (NSE)',
+    'Vini (NSE)',
+    'Vpzao',
+    'EbinhoB (Wolves)',
+    'Janoz (INF)',
+    'Digo Araujo (NSE)',
+    'Lucasrep98 (NSE)',
+    'Patrick',
+    'Tike (NSE)',
+    'Wendell Lira (SCP)',
+    'Guigonzc (Cruzeiro)',
+    'Klaiver (FDA)',
+    'goEBSoAlvess (EBS)',
+    'Spiderkong (Roma)',
+    'Derek (MGCF)',
+    'Rodrigo12L (NSE)',
+    'Tore (Ajax)',
+    'Chocooz',
+    'Senna (CEC)',
+    'Vecchia',
+    'AgussGM (SPQR)',
+    'AguusGM',
+    'Chocooz (SPQR)'
+  ];
+  const ePlayer12tran = [
+    '克林格 (R10)',
+    '菲利普 I5I (SPQR)',
+    '阿賈克斯·托 (Ajax)',
+    '菲利普 Abd (Bundled)',
+    '年輕人 (SPQR)',
+    'MarcosAB3 (SPQR)',
+    '加布里埃爾普 (R10)',
+    '保羅·內托 (Atlanta)',
+    'xPHzin (R10)',
+    '雷森德 (Ellevens)',
+    '馬修斯坦 (SPQR)',
+    'SLB 澤齊尼奧 (Benfica)',
+    'C4MST3R (MGCF)',
+    '黑格塞爾 (RDT)',
+    '羅伯特 (SPQR)',
+    '艾倫·卡斯特洛 (Lima)',
+    '阿布魯西奧 (R10)',
+    '薩格拉·維特',
+    'Dijian (STRM)',
+    'STRM Solo (G10)',
+    '盧卡斯·塔巴塔',
+    'MLobaoJr (NSE)',
+    'MLongaray7 (Club Brugge)',
+    '費利佩 (MGCF)',
+    '菲芬佐',
+    '布倫納 (Bundled)',
+    'Barrinha97 (R10)',
+    'Rafia13 (NSE)',
+    '維尼 (NSE)',
+    'Vpzao',
+    'EbinhoB (Wolves)',
+    '亞諾茲 (INF)',
+    '迪戈·阿勞霍 (NSE)',
+    'Lucasrep98 (NSE)',
+    '帕特里克',
+    '泰克 (NSE)',
+    '溫德爾·里拉 (SCP)',
+    '吉貢茲 (Cruzeiro)',
+    '克萊弗 (FDA)',
+    'goEBSoAlvess (EBS)',
+    '蜘蛛港 (Roma)',
+    '德里克 (MGCF)',
+    'Rodrigo12L (NSE)',
+    '托爾 (Ajax)',
+    '賈古斯',
+    '吸納 (CEC)',
+    '韋基亞',
+    'AgussGM (SPQR)',
+    'AguusGM',
+    '賈古斯 (SPQR)'
+  ];
+  let ori = [];
+  let tran = [];
+  switch (leagueID) {
+    case 22614: {
+      ori = eSB8ori;
+      tran = eSB8tran;
+      break;
+    }
+    case 22808: {
+      ori = eLiga12ori;
+      tran = eLiga12tran;
+      break;
+    }
+    case 22764: {
+      ori = eFUFV12ori;
+      tran = eFUFV12tran;
+      break;
+    }
+    case 22537: {
+      ori = ePro12ori;
+      tran = ePro12tran;
+      break;
+    }
+    case 22724: {
+      ori = ePlayer12ori;
+      tran = ePlayer12tran;
+      break;
+    }
+    default: {
+      // 未來的例外處理
+      break;
+    }
+  }
+
+  for (let i = 0; i < ori.length; i++) {
+    team = team.replace(ori[i], tran[i]);
+  }
+
   return team;
 }
