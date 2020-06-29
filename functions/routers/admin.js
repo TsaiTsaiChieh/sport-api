@@ -24,30 +24,35 @@ router.post(
   '/home/setHomeBanner',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/home/setHomeBannerController')
 );
 router.post(
   '/home/newHomeBanner',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/home/newHomeBannerController')
 );
 router.post(
   '/home/delHomeBanner',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/home/delHomeBannerController')
 );
 router.post(
   '/home/updateHomeBanner',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/home/updateHomeBannerController')
 );
 router.post(
   '/topics/setViewCount',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/topics/setViewCountController')
 );
 router.post(
@@ -60,6 +65,7 @@ router.post(
   '/user/editUser',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/user/editUserController')
 );
 router.post(
@@ -72,6 +78,7 @@ router.post(
   '/user/unblockUser',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/user/unblockUserController')
 );
 router.get(
@@ -84,6 +91,7 @@ router.post(
   '/user/editNews',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/user/editNewsController')
 );
 router.post(
@@ -96,6 +104,7 @@ router.post(
   '/service/deal',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/service/dealController')
 );
 router.post(
@@ -108,7 +117,14 @@ router.post(
   '/payment/setTransResult',
   verification.token,
   verification.admin,
+  verification.adminlog,
   require('../controller/admin/payment/setTransResultController')
+);
+router.post(
+  '/manager/getLogs',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/manager/getLogsController')
 );
 
 /// 以下為原本的

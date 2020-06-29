@@ -211,8 +211,13 @@ module.exports.chkUserBlocking = async function(uid) {
         },
         raw: true
       });
-      const block_date = new Date(result.block_message);
-      const block_ts = block_date.getTime();
+      let block_ts;
+      if (result.block_message && result.block_message !== null && result.block_message !== '') {
+        const block_date = new Date(result.block_message);
+        block_ts = block_date.getTime();
+      } else {
+        block_ts = 0;
+      }
       if (Date.now() < block_ts) {
         resolve(false);
       } else {

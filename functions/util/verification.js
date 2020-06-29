@@ -26,6 +26,28 @@ async function admin(req, res, next) {
     res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: 'check admin error' });
   }
 }
+async function adminlog(req, res, next) {
+  try {
+    const user = await db.sequelize.models.user.findOne({
+      where: {
+        uid: req.token.uid
+      },
+      raw: true
+    });
+    // await db.sequelize.models.admin__logging.sync({ alter: true });
+    await db.sequelize.models.admin__logging.create({
+      uid: req.token.uid,
+      name: user.display_name,
+      api_name: req.route.path,
+      post_content: JSON.stringify(req.body),
+      ip: req.headers['x-forwarded-for'] || req.headers['x-forwarded-host'] || req.headers['fastly-client-ip'] || req.connection.remoteAddress,
+      ua: req.get('User-Agent')
+    });
+    return next();
+  } catch (err) {
+    res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: err });
+  }
+}
 
 async function confirmLogin(req, res, next) {
   try {
@@ -174,4 +196,4 @@ async function getRoleAndTitles(uid) {
   }
 }
 
-module.exports = { token, token_v2, getToken, admin, confirmLogin, confirmLogin_v2 };
+module.exports = { token, token_v2, getToken, admin, adminlog, confirmLogin, confirmLogin_v2 };

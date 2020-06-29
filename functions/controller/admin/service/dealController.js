@@ -6,7 +6,7 @@ async function controller(req, res) {
     type: 'object',
     properties: {
       article_id: {
-        type: 'integer'
+        type: 'string'
       },
       report_id: {
         type: 'integer'
@@ -26,11 +26,14 @@ async function controller(req, res) {
       reply: {
         type: ['string', 'null']
       },
+      blobkuid: {
+        type: 'string'
+      },
       blobkuser: {
         type: 'boolean'
       }
     },
-    required: ['article_id', 'type', 'status']
+    required: ['report_id', 'status']
   };
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
