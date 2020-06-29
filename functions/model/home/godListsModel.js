@@ -39,7 +39,10 @@ async function godlists() {
     },
     type: db.sequelize.QueryTypes.SELECT
   }));
-  if (err) {console.error(err); throw errs.dbErrsMsg('404', '14020');}
+  if (err) {
+    console.error('Error in  home/godlists by YuHsien:  %o', err);
+    throw errs.dbErrsMsg('404', '14020');
+  }
   // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
   //      ,
   //  (

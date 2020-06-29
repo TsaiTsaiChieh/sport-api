@@ -66,7 +66,10 @@ async function winRateLists() {
       },
       type: db.sequelize.QueryTypes.SELECT
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '14040');}
+    if (err) {
+      console.error('Error 2. in home/winRateListsModel by YuHsien', err);
+      throw errs.dbErrsMsg('404', '14040');
+    }
 
     leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinRateLists.push(repackage(data));

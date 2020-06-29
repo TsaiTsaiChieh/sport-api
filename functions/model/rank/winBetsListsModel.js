@@ -76,7 +76,10 @@ async function winBetsLists(args) {
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13910');}
+    if (err) {
+      console.error('Error 2. in rank/winBetsListsModel by YuHsien', err);
+      throw errs.dbErrsMsg('404', '13910');
+    }
 
     leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));

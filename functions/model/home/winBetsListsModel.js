@@ -65,7 +65,10 @@ async function winBetsLists() {
       },
       type: db.sequelize.QueryTypes.SELECT
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '14030');}
+    if (err) {
+      console.error('Error in  home/WinBetsListsModel by YuHsien:  %o', err);
+      throw errs.dbErrsMsg('404', '14030');
+    }
 
     leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinBetsLists.push(repackage(data));

@@ -80,7 +80,10 @@ async function winRateLists(args) {
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '14010');}
+    if (err) {
+      console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
+      throw errs.dbErrsMsg('404', '14010');
+    }
 
     leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
