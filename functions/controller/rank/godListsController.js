@@ -8,7 +8,7 @@ async function godlists(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB']
+        enum: ['NBA', 'MLB', 'Soccer', 'eSoccer']
       }
     }
   };

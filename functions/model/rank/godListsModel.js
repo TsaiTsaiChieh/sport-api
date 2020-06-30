@@ -1,77 +1,71 @@
-const {
-  getTitlesPeriod, leagueCodebook, convertTimezone, moment, fieldSorter
-} = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function godlists(args) {
-  return new Promise(async function(resolve, reject) {
-    const godLists = {};
+async function godlists(args) {
+  const godLists = {};
 
-    // 取得當期期數
-    const period = getTitlesPeriod(new Date()).period;
-    const league = args.league;
-    const league_id = leagueCodebook(league).id;
-    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'add', value: 1, unit: 'days' }) - 1;
+  // 取得當期期數
+  const period = getTitlesPeriod(new Date()).period;
+  const league = args.league;
+  const league_id = leagueCodebook(league).id;
+  const nowInfo = coreDateInfo(new Date());
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
-    try {
-      // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-      const godListsQuery = await db.sequelize.query(`
-        select titles.uid, users.avatar, users.display_name, titles.rank_id, 
-               CASE prediction.sell
-                 WHEN 1 THEN 1
-                 WHEN 0 THEN 0
-                 ELSE -1
-               END sell,
-               titles.default_title,
-               titles.win_bets, titles.win_rate,
-               titles.continue, 
-               titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
-               titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-          from titles
-         inner join
-               (
-                 select * 
-                   from users
-                  where status = 2
-               ) users
-            on titles.uid = users.uid
-          left join 
-               (
-                 select uid, max(sell) sell
-                  from user__predictions
-                 where match_scheduled between :begin and :end
-                 group by uid
-               ) prediction
-            on titles.uid = prediction.uid
-         where titles.league_id = :league_id
-           and titles.period = :period
-      `, {
-        replacements: {
-          league_id: league_id,
-          period: period,
-          begin: begin,
-          end: end
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
+  // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
+  const [err, godListsQuery] = await to(db.sequelize.query(`
+      select titles.uid, users.avatar, users.display_name, titles.rank_id, 
+             CASE prediction.sell
+               WHEN 1 THEN 1
+               WHEN 0 THEN 0
+               ELSE -1
+             END sell,
+             titles.default_title,
+             titles.win_bets, titles.win_rate,
+             titles.continue, 
+             titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
+             titles.matches_rate1, titles.matches_rate2, titles.matches_continue
+        from titles
+       inner join
+             (
+               select * 
+                 from users
+                where status = 2
+             ) users
+          on titles.uid = users.uid
+        left join 
+             (
+               select uid, max(sell) sell
+                 from user__predictions
+                where match_scheduled between :begin and :end
+                group by uid
+             ) prediction
+          on titles.uid = prediction.uid
+       where titles.league_id = :league_id
+         and titles.period = :period
+    `, {
+    replacements: {
+      league_id: league_id,
+      period: period,
+      begin: beginUnix,
+      end: endUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  }));
+  if (err) {
+    console.error('Error 2. in rank/godListsModel by YuHsien', err);
+    throw errs.dbErrsMsg('404', '13810');
+  }
+  if (godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
-      if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
+  // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
+  godListsQuery.sort(fieldSorter(['order'])); // 升 小->大
 
-      // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
-      godListsQuery.sort(fieldSorter(['order'])); // 升 小->大
+  // 鑽 金 銀 銅 分類
+  rankGroup(godListsQuery, godLists);
 
-      // 鑽 金 銀 銅 分類
-      rankGroup(godListsQuery, godLists);
-    } catch (err) {
-      console.log('Error in  rank/godlists by YuHsien:  %o', err);
-      return reject(errs.errsMsg('500', '500', err.message));
-    }
-
-    return resolve({ period: period, godlists: godLists });
-  });
+  return { period: period, godlists: godLists };
 }
 
 function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員

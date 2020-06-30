@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, dateUnixInfo, getTitlesPeriod, convertTimezone } = require('../util/modules');
+const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
 const modules = require('../util/modules');
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
@@ -88,7 +88,7 @@ async function checkUidBuyGodSellPrediction(uid, god_uid, league_id, matches_dat
 
 // 檢查該大神是否販售預測牌組
 async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
-  const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
+  const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
   const [err, counts] = await to(db.Prediction.count({
     where: {
       uid: god_uid,
@@ -116,7 +116,7 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
 
   const dateBetween = [];
   Array.from(range1.by('day')).forEach(function(data) {
-    dateBetween.push(convertTimezone(data.format('YYYYMMDD')));
+    dateBetween.push(convertDateYMDToGTM0Unix(data.format('YYYYMMDD')));
   });
 
   // 取得 user__buys 購買資料
@@ -153,7 +153,7 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
 // 查該大神預測牌組勝注
 // matches_fail_status  -1 全額退款，0 一般退款  判斷依據是 預測數 是否等同 預測無效數
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
-  const end_unix = dateUnixInfo(matches_date_unix).dateEndUnix;
+  const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
   const period = getTitlesPeriod(matches_date_unix * 1000).period;
 
   const infos = await db.sequelize.query(`

@@ -1,5 +1,5 @@
 const {
-  moment, dateUnixInfo, getTitlesPeriod, getTitlesNextPeriod
+  moment, date3UnixInfo, getTitlesPeriod, getTitlesNextPeriod
 } = require('../util/modules');
 const { getGodSellPredictionWinBetsInfo } = require('../util/databaseEngine');
 const db = require('../util/dbUtil');
@@ -22,7 +22,7 @@ function log(...args) {
 // 4. `每天` `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
 // 5. `每天` `清晨 5:00` 大神預測牌組結算
 async function god(req, res) {
-  const nowInfo = dateUnixInfo(Date.now());
+  const nowInfo = date3UnixInfo(Date.now());
   const nowUnix = nowInfo.mdate.unix();
   const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
   // const nowYYYYMMDDUnix = nowInfo.dateBeginUnix;

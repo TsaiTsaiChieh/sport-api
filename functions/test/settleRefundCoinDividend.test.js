@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { settleRefundCoinDividend, settleIngot, settleRefundIngot } = require('../util/settleModules');
 
 describe('結算退款 搞幣紅利', () => {
   describe('鑽石大神', () => {
@@ -11,7 +11,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '99' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 40.22);
@@ -29,7 +29,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '80' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 49.78);
@@ -47,7 +47,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '0' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 90);
@@ -65,7 +65,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '179' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 0);
@@ -85,7 +85,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '69' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 53.25);
@@ -121,7 +121,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '0' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 90);
@@ -139,7 +139,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '169' 
         };
 
-      const settleResult = modules.settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 0);
