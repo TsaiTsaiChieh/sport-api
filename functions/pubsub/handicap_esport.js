@@ -41,7 +41,7 @@ async function query_event(league) {
     const now = modules.convertTimezoneFormat(unix);
     const queries = await db.sequelize.query(
       `(
-				 SELECT game.bets_id AS bets_id
+				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
@@ -78,48 +78,40 @@ async function upsertHandicap(querysForEvent, sport, league) {
         let newest_spread;
 
         if (spread_odds.length > 0) {
-          if (
-            spread_odds[spread_odds.length - 1].home_od !== null &&
-            spread_odds[spread_odds.length - 1].handicap !== null &&
-            spread_odds[spread_odds.length - 1].away_od !== null
-          ) {
-            newest_spread = spread_odds[0];
-            newest_spread = spreadCalculator(newest_spread);
-            await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+          for (let spcount = 0; spcount < spread_odds.length; spcount++) {
+            if (
+              spread_odds[spcount].home_od !== null &&
+              spread_odds[spcount].handicap !== null &&
+              spread_odds[spcount].away_od !== null &&
+              spread_odds[spcount].home_od !== '-' &&
+              spread_odds[spcount].away_od !== '-' &&
+              spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
+            ) {
+              newest_spread = spread_odds[spcount];
+              newest_spread = spreadCalculator(newest_spread);
+              await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+              await write2MysqlOfMatchSpread(newest_spread, ele, league);
+              break;
+            }
           }
         }
         let newest_totals;
         if (totals_odds.length > 0) {
-          if (
-            totals_odds[totals_odds.length - 1].home_od !== null &&
-            totals_odds[totals_odds.length - 1].handicap !== null &&
-            totals_odds[totals_odds.length - 1].away_od !== null
-          ) {
-            newest_totals = totals_odds[0];
-          }
-          newest_totals = totalsCalculator(newest_totals);
-          await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-        }
-        for (let j = 0; j < spread_odds.length; j++) {
-          let odd = spread_odds[j];
-          odd = spreadCalculator(odd);
-          if (
-            odd.home_od !== null &&
-            odd.handicap !== null &&
-            odd.away_od !== null
-          ) {
-            await write2MysqlOfMatchSpread(odd, ele, league);
-          }
-        }
-        for (let k = 0; k < totals_odds.length; k++) {
-          let odd = totals_odds[k];
-          odd = totalsCalculator(odd);
-          if (
-            odd.over_od !== null &&
-            odd.handicap !== null &&
-            odd.under_od !== null
-          ) {
-            await write2MysqlOfMatchTotals(odd, ele, league);
+          for (let tocount = 0; tocount < totals_odds.length; tocount++) {
+            if (
+              totals_odds[tocount].over_od !== null &&
+              totals_odds[tocount].handicap !== null &&
+              totals_odds[tocount].under_od !== null &&
+              totals_odds[tocount].over_od !== '-' &&
+              totals_odds[tocount].under_od !== '-' &&
+              totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
+            ) {
+              newest_totals = totals_odds[tocount];
+              newest_totals = totalsCalculator(newest_totals);
+              await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+              await write2MysqlOfMatchTotals(newest_totals, ele, league);
+              break;
+            }
           }
         }
       }
@@ -178,6 +170,7 @@ async function write2MysqlOfMatchSpread(odd, ele, league) {
         match_id: ele.bets_id,
         league_id: league,
         handicap: Number.parseFloat(odd.handicap),
+        rate: Number.parseFloat(odd.rate),
         home_odd: Number.parseFloat(odd.home_od),
         away_odd: Number.parseFloat(odd.away_od),
         home_tw: odd.home_tw,
@@ -203,6 +196,7 @@ async function write2MysqlOfMatchTotals(odd, ele, league) {
         match_id: ele.bets_id,
         league_id: league,
         handicap: Number.parseFloat(odd.handicap),
+        rate: Number.parseFloat(odd.rate),
         over_odd: Number.parseFloat(odd.over_od),
         under_odd: Number.parseFloat(odd.under_od),
         over_tw: odd.over_tw,
@@ -223,75 +217,99 @@ function spreadCalculator(handicapObj) {
   if (handicapObj.handicap) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
-      // 同時有兩個盤口值
+      // 有兩個以上盤口
       const firstHandicap = Math.abs(
         parseFloat(handicapObj.handicap.split(',')[0])
       );
       const secondHandicap = Math.abs(
         parseFloat(handicapObj.handicap.split(',')[1])
       );
-
       if (firstHandicap % 1 !== 0) {
-        // 第一盤口為小數，則顯示為+
+        // 第一盤口為小數
         if (firstHandicap >= 0 && secondHandicap >= 0) {
-          // 顯示在主隊區，代表主讓
+          // 顯示在主隊區，代表主讓客
           handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
           handicapObj.away_tw = null;
+          handicapObj.handicap =
+            (parseFloat(Math.abs(firstHandicap)) +
+              parseFloat(Math.abs(secondHandicap))) /
+            2;
+          handicapObj.rate = 50;
         } else {
           // 顯示在客隊區
           handicapObj.home_tw = null;
           handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
+          handicapObj.handicap =
+            (parseFloat(Math.abs(firstHandicap)) +
+              parseFloat(Math.abs(secondHandicap))) /
+            2;
+          handicapObj.rate = 50;
         }
       } else {
-        // 第一盤口為整數，則顯示為-
+        // 第一盤口為整數
         if (firstHandicap >= 0) {
           // 顯示在主隊區
           handicapObj.home_tw = firstHandicap + '/' + secondHandicap;
           handicapObj.away_tw = null;
+          handicapObj.handicap =
+            (parseFloat(Math.abs(firstHandicap)) +
+              parseFloat(Math.abs(secondHandicap))) /
+            2;
+          handicapObj.rate = -50;
         } else {
           // 顯示在客隊區
           handicapObj.home_tw = null;
           handicapObj.away_tw = firstHandicap + '/' + secondHandicap;
+          handicapObj.handicap =
+            (parseFloat(Math.abs(firstHandicap)) +
+              parseFloat(Math.abs(secondHandicap))) /
+            2;
+          handicapObj.rate = -50;
         }
       }
     } else {
       // 只有一個盤口值
       handicapObj.handicap = parseFloat(handicapObj.handicap);
-
       if (handicapObj.handicap === 0) {
         // 讓 0 分
         handicapObj.home_tw = 'pk';
         handicapObj.away_tw = null;
+        handicapObj.rate = 0;
       } else if (handicapObj.handicap % 1 === 0) {
         // 整數
-        if (handicapObj.handicap >= 0) {
-          // 放在主隊區
+        if (handicapObj.handicap > 0) {
+          // 主讓客
           handicapObj.home_tw = handicapObj.handicap;
           handicapObj.away_tw = null;
+          handicapObj.rate = 0;
         } else {
-          // 放在客隊區
+          // 客讓主
           handicapObj.home_tw = null;
-          handicapObj.away_tw = Math.abs(handicapObj.handicap);
+          handicapObj.away_tw = handicapObj.handicap;
+          handicapObj.rate = 0;
         }
       } else if (handicapObj.handicap % 1 !== 0) {
         // 小數
-        if (handicapObj.handicap >= 0) {
-          // 放在主隊區
+        if (handicapObj.handicap > 0) {
+          // 主讓客
           const str = handicapObj.handicap.toString();
           const str1 = str.split('.')[0];
           const str2 = str.split('.')[1];
           if (str2 === '25') {
             handicapObj.home_tw = `${str1}/${str1}.5`;
             handicapObj.away_tw = null;
+            handicapObj.rate = -50;
           } else if (str2 === '75') {
             handicapObj.home_tw = `${str1}.5/${parseFloat(str1) + 1}`;
             handicapObj.away_tw = null;
+            handicapObj.rate = 50;
           } else {
             handicapObj.home_tw = Math.abs(handicapObj.handicap);
             handicapObj.away_tw = null;
+            handicapObj.rate = -100;
           }
         } else {
-          // 放在客隊區
+          // 客讓主
           handicapObj.handicap = Math.abs(handicapObj.handicap);
           const str = handicapObj.handicap.toString();
           const str1 = str.split('.')[0];
@@ -299,12 +317,15 @@ function spreadCalculator(handicapObj) {
           if (str2 === '25') {
             handicapObj.home_tw = null;
             handicapObj.away_tw = `${str1}/${str1}.5`;
+            handicapObj.rate = -50;
           } else if (str2 === '75') {
             handicapObj.home_tw = null;
             handicapObj.away_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+            handicapObj.rate = 50;
           } else {
             handicapObj.home_tw = null;
             handicapObj.away_tw = Math.abs(handicapObj.handicap);
+            handicapObj.rate = -100;
           }
         }
       }
@@ -313,15 +334,47 @@ function spreadCalculator(handicapObj) {
   return handicapObj;
 }
 function totalsCalculator(handicapObj) {
-  const str = handicapObj.handicap.toString();
-  const str1 = str.split('.')[0];
-  const str2 = str.split('.')[1];
-  if (str2 === '25') {
-    handicapObj.over_tw = `${str1}/${str1}.5`;
-  } else if (str2 === '75') {
-    handicapObj.over_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+  handicapObj.handicap = handicapObj.handicap.toString();
+  if (handicapObj.handicap.indexOf(',') !== -1) {
+    const firstHandicap = Math.abs(
+      parseFloat(handicapObj.handicap.split(',')[0])
+    );
+    const secondHandicap = Math.abs(
+      parseFloat(handicapObj.handicap.split(',')[1])
+    );
+    if (firstHandicap % 1 !== 0) {
+      // 第一盤口為小數
+      handicapObj.over_tw = firstHandicap + '/' + secondHandicap;
+      handicapObj.handicap =
+        (parseFloat(Math.abs(firstHandicap)) +
+          parseFloat(Math.abs(secondHandicap))) /
+        2;
+      handicapObj.rate = 50;
+    } else {
+      // 第一盤口為整數
+      // 顯示在主隊區
+      handicapObj.over_tw = firstHandicap + '/' + secondHandicap;
+      handicapObj.handicap =
+        (parseFloat(Math.abs(firstHandicap)) +
+          parseFloat(Math.abs(secondHandicap))) /
+        2;
+      handicapObj.rate = -50;
+    }
   } else {
-    handicapObj.over_tw = Math.abs(handicapObj.handicap);
+    // 盤口只有一個數
+    const str = Math.abs(handicapObj.handicap).toString();
+    const str1 = str.split('.')[0];
+    const str2 = str.split('.')[1];
+    if (str2 === '25') {
+      handicapObj.over_tw = `${str1}/${str1}.5`;
+      handicapObj.rate = -50;
+    } else if (str2 === '75') {
+      handicapObj.over_tw = `${str1}.5/${parseFloat(str1) + 1}`;
+      handicapObj.rate = 50;
+    } else {
+      handicapObj.over_tw = Math.abs(handicapObj.handicap);
+      handicapObj.rate = 0;
+    }
   }
   return handicapObj;
 }

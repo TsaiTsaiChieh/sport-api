@@ -54,7 +54,7 @@ function repackageReturnData(userData, titles) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 

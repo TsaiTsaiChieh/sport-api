@@ -335,7 +335,7 @@ async function doPBP(parameter) {
             if (!data.results[0].timer) {
               data.results[0].timer = { tm: 'xx', ts: 'xx' };
             }
-            if (!data.results[0].ss) {
+            if (!data.results[0].ss || data.results[0].ss === null) {
               data.results[0].ss = 'no data';
             } else {
               homeScores = data.results[0].ss.split('-')[0];

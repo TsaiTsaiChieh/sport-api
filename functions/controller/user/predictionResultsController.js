@@ -4,7 +4,7 @@ const model = require('../../model/user/predictionResultsModel');
 async function predictionResult(req, res) {
   const schema = {
     type: 'object',
-    required: ['date'],
+    required: ['date', 'uid'],
     properties: {
       date: {
         type: 'string',
@@ -12,8 +12,14 @@ async function predictionResult(req, res) {
         // default value is today
         default: modules.convertTimezoneFormat(Math.floor(Date.now() / 1000),
           { format: 'YYYY-MM-DD' })
+      },
+      uid: {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        default: req.query.uid ? req.query.uid : (req.token ? req.token.uid : req.token)
       }
     }
+
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -22,8 +28,8 @@ async function predictionResult(req, res) {
   }
 
   const args = {
-    token: req.token,
-    date: req.query.date
+    date: req.query.date,
+    uid: schema.properties.uid.default
   };
   try {
     res.json(await model(args));
@@ -42,16 +48,15 @@ async function predictionResult(req, res) {
 module.exports = predictionResult;
 /**
  * @api {post} /user/prediction_result 個人預測頁-預測結果
- * @apiVersion 1.0.0
+ * @apiVersion 2.0.0
  * @apiDescription User check own prediction form which is settled by Tsai-Chieh
  * @apiName Check own prediction form
  * @apiGroup User
  * @apiPermission login user with completed data
  *
- * @apiParam (Request cookie) {token} __session token generate from firebase Admin SDK
  * @apiParam {String} [date] date, ex: `2020-07-01`
  *
- * @apiSampleRequest /user/prediction_result?date=2020-07-01
+ * @apiSampleRequest /user/prediction_result?date=2020-07-01&uid=Xw4dOKa4mWh3Kvlx35mPtAOX2P52
  * @apiSampleRequest /user/prediction_result
  *
  * @apiSuccess {Object} body 有下注的各聯盟內容

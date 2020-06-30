@@ -163,7 +163,7 @@ async function repackage(args, matches) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by DY`);
-    throw AppErrors.RepackageError(`${err.stack} by DY`);
+    throw new AppErrors.RepackageError(`${err.stack} by DY`);
   }
 }
 module.exports = livescoreInProgress;
