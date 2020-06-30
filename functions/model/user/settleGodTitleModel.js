@@ -56,7 +56,7 @@ async function settleGodTitle(args) {
   // 近 30 天
   const nowYYYYMMDD = moment().utcOffset(8).format('YYYY-MM-DD');
   const end_30days = convertDateYMDToGTM0Unix(nowYYYYMMDD);
-  const begin_30days = convertDateYMDToGTM0Unix(nowYYYYMMDD, -days) - 1;
+  const begin_30days = convertDateYMDToGTM0Unix(nowYYYYMMDD, { num: -days }) - 1;
 
   const result = {
     status: {

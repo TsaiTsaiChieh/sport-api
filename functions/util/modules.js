@@ -80,9 +80,9 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 
 /*
   sdate: 2020-07-01 or 20200701
-  op: 有預設值
+  op: 沒填寫會有預設值
     num: 正負數值為加減 unit
-    unit: days、weeks 等 以 moment 為主
+    unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertDateYMDToGTM0Unix(sdate, op) {
   let { num, unit, zone } = Object.assign({}, { num: 0, unit: 'days', zone: zone_tw }, op);
@@ -91,10 +91,10 @@ function convertDateYMDToGTM0Unix(sdate, op) {
 }
 /*
   sdateUnix: Date.now() or unix() or moment 型態 長度 33
-  op: 有預設值
-    format: YYYYMMDD or YYYY-MM-DD 以 moment 為主
+  op: 沒填寫會有預設值
+    format: YYYYMMDD or YYYY-MM-DD 以 moment 提供格式為主
     num: 正負數值為加減 unit
-    unit: days、weeks 等 以 moment 為主
+    unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertGTM0UnixToDateYMD(sdateUnix, op) {
   let { format, num, unit, zone } = Object.assign({}, { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw }, op);
