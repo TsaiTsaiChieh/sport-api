@@ -88,12 +88,12 @@ function coreDateInfo(sdate, zone = zone_tw) {
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
   const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const myesterday = mdate.subtract(1, 'days');
+  const myesterday = moment.tz(sdate, zone).subtract(1, 'days');
   const yesterdayYYYYMMDD = myesterday.format('YYYYMMDD');
   const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
   const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const mtomorrow = mdate.add(1, 'days');
+  const mtomorrow = moment.tz(sdate, zone).add(1, 'days');
   const tomorrowYYYYMMDD = mtomorrow.format('YYYYMMDD');
   const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
   const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
