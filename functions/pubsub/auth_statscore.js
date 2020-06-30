@@ -2,8 +2,8 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Token = db.Token;
-const client_id = '630';
-const secret_key = 'Tglq4dTZN9zriJmw2L7xjI1hKZrZ5yrR7xs';
+const client_id = '645';
+const secret_key = 'kvh20JqGAv7iLvEVg0ijbWCo4RrxIPKzAU5';
 
 async function auth_statscore() {
   return new Promise(async function(resolve, reject) {
