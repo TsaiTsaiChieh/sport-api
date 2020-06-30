@@ -7,7 +7,7 @@ async function controller(req, res) {
     properties: {
       method: {
         type: 'string',
-        enum: ['new', 'del', 'edit']
+        enum: ['new', 'del', 'edit'] // 注意這支API是多功能的 雖然叫edit但是也可以新增/修改/刪除
       },
       news_id: {
         type: 'integer'
