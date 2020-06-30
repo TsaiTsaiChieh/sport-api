@@ -123,10 +123,16 @@ function changeTeam(team) {
     case 'CTBC Brothers': {
       return '230422';
     }
+    case 'CITIC Brothers': {
+      return '230422';
+    }
     case 'Rakuten Monkeys': {
       return '329121';
     }
     case 'Fubon Guardians': {
+      return '224094';
+    }
+    case 'Fubon': {
       return '224094';
     }
     case 'Uni-President Lions': {

@@ -395,6 +395,9 @@ const Spread = sequelize.define(
       type: Sequelize.FLOAT,
       defaultValue: null
     },
+    rate: {
+      type: Sequelize.INTEGER
+    },
     home_odd: {
       type: Sequelize.FLOAT
     },
@@ -445,6 +448,9 @@ const Totals = sequelize.define(
     handicap: {
       type: Sequelize.FLOAT,
       defaultValue: null
+    },
+    rate: {
+      type: Sequelize.INTEGER
     },
     over_odd: {
       type: Sequelize.FLOAT
@@ -720,7 +726,8 @@ const Prediction = sequelize.define(
     match_scheduled: {
       type: Sequelize.INTEGER
     },
-    match_scheduled_tw: { // match_scheduled 欄位的 DATE format
+    match_scheduled_tw: {
+      // match_scheduled 欄位的 DATE format
       type: Sequelize.DATE
     },
     match_date: {
@@ -1504,61 +1511,73 @@ const UserBuy = sequelize.define(
       autoIncrement: true,
       primaryKey: true
     },
-    uid: { // 購買者 id
+    uid: {
+      // 購買者 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    league_id: { // 聯盟 id
+    league_id: {
+      // 聯盟 id
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_uid: { // 要購買的大神 uid
+    god_uid: {
+      // 要購買的大神 uid
       type: Sequelize.STRING,
       allowNull: false
     },
-    god_rank: { // 大神當期的階級
+    god_rank: {
+      // 大神當期的階級
       type: Sequelize.INTEGER(4),
       allowNull: false
     },
-    god_period: { // 大神當期的期數
+    god_period: {
+      // 大神當期的期數
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    day_of_year: { // 開賽時間/勝注勝率計算的日期（今年的第幾天）
+    day_of_year: {
+      // 開賽時間/勝注勝率計算的日期（今年的第幾天）
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    season: { // 賽季年度
+    season: {
+      // 賽季年度
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    buy_status: { // 款項狀態：-1/0/1 （已退款/處理中/已付費）
+    buy_status: {
+      // 款項狀態：-1/0/1 （已退款/處理中/已付費）
       type: Sequelize.INTEGER(4),
       allowNull: false
     },
-    matches_date: { // 賽事當天日期 unix time (+0)
+    matches_date: {
+      // 賽事當天日期 unix time (+0)
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    matches_date_tw: { // matches_date 欄位的 DATE format
+    matches_date_tw: {
+      // matches_date 欄位的 DATE format
       type: Sequelize.DATE,
       allowNull: false
     },
-    buy_date: { // 購買者購買當天日期的 unix time (+0)
+    buy_date: {
+      // 購買者購買當天日期的 unix time (+0)
       type: Sequelize.INTEGER,
       allowNull: false
     },
-    buy_date_tw: { // buy_date 欄位的 DATE format
+    buy_date_tw: {
+      // buy_date 欄位的 DATE format
       type: Sequelize.DATE,
       allowNull: false
     }
   },
   {
-    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
+    indexes: [
+      // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
         fields: ['uid', 'league_id', 'god_uid', 'matches_date'],
         unique: true
-
       }
     ]
   }
@@ -1802,7 +1821,6 @@ const MoneyLogs = sequelize.define(
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
-
   },
   {
     indexes: [
@@ -1880,7 +1898,6 @@ const CashflowDeposit = sequelize.define(
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
-
   },
   {
     indexes: [
@@ -1960,7 +1977,6 @@ const IngotTransfer = sequelize.define(
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
-
   },
   {
     indexes: [
@@ -2024,9 +2040,17 @@ const CashflowBuy = sequelize.define(
     }
   },
   {
-    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
+    indexes: [
+      // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['buy_id', 'uid', 'league_id', 'god_uid', 'status', 'matches_date'],
+        fields: [
+          'buy_id',
+          'uid',
+          'league_id',
+          'god_uid',
+          'status',
+          'matches_date'
+        ],
         unique: true
       }
     ]
@@ -2087,9 +2111,17 @@ const CashflowSell = sequelize.define(
     }
   },
   {
-    indexes: [ // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
+    indexes: [
+      // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
-        fields: ['buy_id', 'uid', 'god_uid', 'league_id', 'status', 'matches_date'],
+        fields: [
+          'buy_id',
+          'uid',
+          'god_uid',
+          'league_id',
+          'status',
+          'matches_date'
+        ],
         unique: true
       }
     ]
@@ -2149,7 +2181,6 @@ const CashflowDonate = sequelize.define(
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
     }
-
   },
   {
     indexes: [

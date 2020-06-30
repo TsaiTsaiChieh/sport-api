@@ -261,7 +261,7 @@ async function repackage(args, predictions, teamEvent) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by DY`);
-    throw AppErrors.RepackageError(`${err.stack} by DY`);
+    throw new AppErrors.RepackageError(`${err.stack} by DY`);
   }
 }
 
