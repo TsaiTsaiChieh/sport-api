@@ -24,7 +24,7 @@ router.post(
   '/home/setHomeBanner',
   verification.token,
   verification.admin,
-  verification.adminlog,
+  verification.adminlog, // 加了這個會把request的內容等等的東西log
   require('../controller/admin/home/setHomeBannerController')
 );
 router.post(
