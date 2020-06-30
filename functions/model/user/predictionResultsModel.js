@@ -70,8 +70,9 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                     AND prediction.bets_id = matches.bets_id 
                     AND matches.home_id = home.team_id 
                     AND matches.away_id = away.team_id 
-                    AND prediction.uid = '${args.token.uid}'
+                    AND prediction.uid = '${args.uid}'
                     AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
+                    AND matches.status = ${modules.MATCH_STATUS.END}
                     AND (spread_result_flag != ${settlement.unsettlement} OR totals_result_flag != ${settlement.unsettlement})
                 ) 
              AS prediction
