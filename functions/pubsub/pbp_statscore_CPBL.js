@@ -624,7 +624,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         )
       );
     }
-    for (let count = 3; count < 26; count++) {
+    for (let count = 6; count < 15; count++) {
       try {
         if (
           data.api.data.competition.season.stage.group.event.participants[0]
@@ -632,13 +632,13 @@ async function writeRealtime(betsID, realtimeData, data) {
         ) {
           await modules.database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/home/Innings${
-                count - 2
+              `${sport}/${league}/${betsID}/Summary/info/home/period${
+                count - 5
               }`
             )
             .set({
               scoring: {
-                runs:
+                points:
                   data.api.data.competition.season.stage.group.event
                     .participants[0].results[count].value
               }
@@ -650,13 +650,13 @@ async function writeRealtime(betsID, realtimeData, data) {
         ) {
           await modules.database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/away/Innings${
-                count - 2
+              `${sport}/${league}/${betsID}/Summary/info/away/period${
+                count - 5
               }`
             )
             .set({
               scoring: {
-                runs:
+                points:
                   data.api.data.competition.season.stage.group.event
                     .participants[1].results[count].value
               }

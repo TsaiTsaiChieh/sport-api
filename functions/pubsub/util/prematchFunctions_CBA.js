@@ -2,40 +2,36 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const Match = db.Match;
-const leagueUniteID = '347';
-const sportID = 16;
-const league = 'NPB';
-const sport = 'baseball';
-module.exports.NPB = {};
-module.exports.NPB.upcoming = async function(date) {
+const leagueUniteID = '2319';
+const sportID = 18;
+const league = 'CBA';
+const sport = 'basketball';
+module.exports.CBA = {};
+module.exports.CBA.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
-      const leagueID = [347, 23292];
-      for (let i = 0; i < leagueID.length; i++) {
-        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID[i]}&day=${date}`;
-        const data = await axiosForURL(URL);
-        if (data.results) {
-          for (let j = 0; j < data.results.length; j++) {
-            const ele = data.results[j];
-            await write2realtime(ele);
-            const change = await checkTheHandicap(ele);
-            await write2MysqlOfMatch(ele, change);
-          }
-        } else {
-          console.log(leagueID[i] + 'has no upcoming event now');
+      const leagueID = 2319;
+      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+      const data = await axiosForURL(URL);
+      if (data.results) {
+        for (let j = 0; j < data.results.length; j++) {
+          const ele = data.results[j];
+          await write2realtime(ele);
+          const change = await checkTheHandicap(ele);
+          await write2MysqlOfMatch(ele, change);
         }
+      } else {
+        console.log(leagueID + 'has no upcoming event now');
       }
-
       console.log(`${league} scheduled success`);
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.FirebaseRealtimeError(`${err} at prematchFunctions_${league} by DY`)
+        new AppErrors.PBPKBOError(`${err} at prematchFunctions by DY`)
       );
     }
   });
 };
-
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -48,7 +44,6 @@ async function axiosForURL(URL) {
     }
   });
 }
-
 async function checkTheHandicap(ele) {
   const URL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}&odds_market=2,3`;
   const data = await axiosForURL(URL);
@@ -63,6 +58,7 @@ async function checkTheHandicap(ele) {
   }
   return changeFlag;
 }
+
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -114,7 +110,6 @@ async function write2MysqlOfMatch(ele, change) {
         };
         await Match.upsert(dataEvent);
       }
-
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -125,43 +120,8 @@ async function write2MysqlOfMatch(ele, change) {
 }
 
 function changeTeam(team) {
-  team = team.split('Game')[0].trim();
   switch (team) {
-    case 'Yomiuri Giants': {
-      return '45295';
-    }
-    case 'Yakult Swallows': {
-      return '10216';
-    }
-    case 'Yokohama Bay Stars': {
-      return '3323';
-    }
-    case 'Chunichi Dragons': {
-      return '3318';
-    }
-    case 'Hanshin Tigers': {
-      return '3317';
-    }
-    case 'Hiroshima Carp': {
-      return '3324';
-    }
-    case 'Nippon Ham Fighters': {
-      return '10078';
-    }
-    case 'Rakuten Eagles': {
-      return '5438';
-    }
-    case 'Seibu Lions': {
-      return '2387';
-    }
-    case 'Lotte Marines': {
-      return '6650';
-    }
-    case 'Orix Buffaloes': {
-      return '8025';
-    }
-    case 'Softbank Hawks': {
-      return '2386';
-    }
+    case '': {}
   }
+  return team;
 }

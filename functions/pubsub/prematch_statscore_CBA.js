@@ -2,11 +2,11 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5469'; // KBO
-const leagueID = '349';
-const league = 'KBO';
+const competitionID = '133'; // CBA
+const leagueID = '2319';
+const league = 'CBA';
 
-async function prematch_statscore_KBO() {
+async function prematch_statscore_CBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -44,12 +44,14 @@ async function prematch_statscore_KBO() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        const homeTeamName =
+        let homeTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[0].name; // KT wiz
-        const awayTeamName =
+        let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[1].name; // KIA Tigers
+        homeTeamName = teamTrans(homeTeamName);
+        awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
           if (startDate === ele[j].scheduled) {
             if (
@@ -87,6 +89,65 @@ async function axiosForURL(URL) {
       );
     }
   });
+}
+
+function teamTrans(team) {
+  switch (team) {
+    case 'Bayi Rockets': {
+      return 'Bayi Nanchang Rockets';
+    }
+    case 'Beijing Royal Fighters': {
+      return 'Beijing Royal Fighters';
+    }
+    case 'Shougang Beijing Ducks': {
+      return 'Beijing Ducks';
+    }
+    case 'Fujian SBS Xunxing Sturgeons': {
+      return 'Fujian Sturgeons';
+    }
+    case 'Guangdong Hongyuan Southern Tigers': {
+      return 'Guangdong Southern Tigers';
+    }
+    case 'Jilin Tonggang Northeast Tigers': {
+      return 'Jilin Northeast Tigers';
+    }
+    case 'Liaoning Flying Leopards': {
+      return 'Liaoning Dinosaurs';
+    }
+    case 'Nanjing Tongxi Monkey King': {
+      return 'NanJing TongXi DaSheng';
+    }
+    case 'Qingdao DoubleStar Eagles': {
+      return 'Qingdao Double Star Eagle';
+    }
+    case 'Shandong Heroes': {
+      return 'Shangdong Golden Stars';
+    }
+    case 'Shanghai Bilibili Sharks': {
+      return 'Shanghai Sharks';
+    }
+    case 'Shenzhen Aviators': {
+      return 'Shenzhen Aviators';
+    }
+    case 'Guangzhou Long-Lions': {
+      return 'Guangzhou Long-Lions';
+    }
+    case 'Sichuan Jinqiang Blue Whales': {
+      return '‎Sichuan Whales';
+    }
+    case 'Tianjin Ronggang Gold Lions': {
+      return 'Tianjin Pioneers';
+    }
+    case 'Xinjiang Guanghui Flying Tigers': {
+      return 'Xinjiang Flying Tigers';
+    }
+    case 'Zhejiang Chouzhou Bank Golden Bulls': {
+      return 'Zhejiang Golden Bulls';
+    }
+    case 'Zhejiang Guangsha Lions': {
+      return 'Zhejiang Lions';
+    }
+  }
 }
 
 async function queryForToken() {
@@ -136,4 +197,4 @@ async function queryForMatches(date1, date2) {
     }
   });
 }
-module.exports = prematch_statscore_KBO;
+module.exports = prematch_statscore_CBA;

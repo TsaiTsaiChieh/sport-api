@@ -35,7 +35,7 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 2,
+      value: 1,
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);

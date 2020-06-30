@@ -4,6 +4,8 @@ const AppErrors = require('../../util/AppErrors');
 const leagueUniteID = '22000';
 const sportID = 1;
 const leagueArray = [22614, 22808, 22764, 22537, 22724];
+const league = 'eSoccer';
+const sport = 'esports';
 const Match = db.Match;
 const MatchTeam = db.Team;
 module.exports.eSoccer = {};
@@ -63,12 +65,12 @@ module.exports.eSoccer.upcoming = async function(date) {
           console.log(leagueID + 'has no upcoming event now');
         }
       }
-      console.log('esport scheduled success');
+      console.log(`${league} scheduled success`);
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.PrematchEsoccerError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_${league} by DY`
         )
       );
     }
@@ -81,7 +83,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -91,13 +93,13 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_${league} by DY`
         )
       );
     }
@@ -124,7 +126,7 @@ async function write2MysqlOfMatch(ele) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -158,7 +160,7 @@ async function write2MysqlOfMatchTeam(ele, leagueID) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });

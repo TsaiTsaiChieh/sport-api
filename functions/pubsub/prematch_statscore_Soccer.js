@@ -4,7 +4,6 @@ const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = ['1718', '1507']; // 各種足球
 const leagueID = '8';
-const sport = 'Soccer';
 const league = 'Soccer';
 
 async function prematch_statscore_Soccer() {
@@ -70,9 +69,9 @@ async function prematch_statscore_Soccer() {
             }
           }
         }
-        await modules.database
-          .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-          .set('scheduled');
+        // await modules.database
+        //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
+        //  .set('scheduled');
       }
       return resolve('ok');
     } catch (err) {

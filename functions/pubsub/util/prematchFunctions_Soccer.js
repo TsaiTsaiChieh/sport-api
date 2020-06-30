@@ -18,6 +18,8 @@ const leagueArray = [
   1040,
   13341
 ];
+const league = 'Soccer';
+const sport = 'Soccer';
 const Match = db.Match;
 module.exports.Soccer = {};
 module.exports.Soccer.upcoming = async function(date) {
@@ -63,7 +65,7 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`Soccer/Soccer/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {

@@ -4,7 +4,6 @@ const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = '5476'; // NPB
 const leagueID = '347';
-const sport = 'baseball';
 const league = 'NPB';
 
 async function prematch_statscore_NPB() {
@@ -67,9 +66,9 @@ async function prematch_statscore_NPB() {
           }
         }
       }
-      await modules.database
-        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-        .set('scheduled');
+      // await modules.database
+      //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
+      //  .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
