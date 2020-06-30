@@ -2196,7 +2196,7 @@ const AdminLogging = sequelize.define(
       type: Sequelize.STRING
     },
     post_content: {
-      type: Sequelize.STRING
+      type: Sequelize.TEXT
     },
     ip: {
       type: Sequelize.STRING
