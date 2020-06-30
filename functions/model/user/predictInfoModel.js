@@ -1,4 +1,4 @@
-const { dateUnixInfo, sliceTeamAndPlayer, groupBy, to } = require('../../util/modules');
+const { coreDateInfo, sliceTeamAndPlayer, groupBy, to } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -17,7 +17,7 @@ async function predictInfo(args) {
   if (checkResult.code) throw checkResult;
 
   // 2.
-  const nowInfo = dateUnixInfo(new Date());
+  const nowInfo = coreDateInfo(new Date());
   const nowUnix = nowInfo.mdate.unix();
 
   // 使用者預測資訊

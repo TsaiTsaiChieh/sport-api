@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 const {
-  getTitlesPeriod, dateUnixInfo, convertTimezone, convertTimezoneFormat,
+  getTitlesPeriod, date3UnixInfo, convertDateYMDToGTM0Unix, convertGTM0UnixToDateYMD,
   sliceTeamAndPlayer, groupBy, getTitles
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
@@ -43,7 +43,7 @@ async function othersPredictions(args) {
 
   const othersUid = args.othersUid;
   const period = getTitlesPeriod(Date.now()).period;
-  const nowInfo = dateUnixInfo(Date.now());
+  const nowInfo = date3UnixInfo(Date.now());
   const yesterdayUnix = nowInfo.yesterdayBeginUnix;
   const todayUnix = nowInfo.dateBeginUnix;
   const tomorrowUnix = nowInfo.tomorrowBeginUnix;
@@ -132,7 +132,7 @@ async function othersPredictions(args) {
   // 補上 大神預測牌組 的 購買人數 和 登入者是否購買該大神預測牌組
   let temp_league_id, temp_info_datetime, temp_people, temp_buy_uid;
   for (let ele of predictionsInfoDocs) {
-    ele.info_datetime = convertTimezoneFormat(ele.match_scheduled); // 取得賽事開打日期
+    ele.info_datetime = convertGTM0UnixToDateYMD(ele.match_scheduled); // 取得賽事開打日期
 
     // 避免重覆計算，因為每一次計算 都要查詢一次DB，所以同樣的條件下，不要再計算一次，直接給上次查詢的值
     if (temp_league_id === ele.league_id && temp_info_datetime === ele.info_datetime) {
@@ -141,12 +141,12 @@ async function othersPredictions(args) {
       continue;
     }
 
-    const info_datetime_unix = convertTimezone(ele.info_datetime);
+    const info_datetime_unix = convertDateYMDToGTM0Unix(ele.info_datetime);
     ele.people = await countGodSellPredictionBuyers(othersUid, ele.league_id, info_datetime_unix);
     // 0: 未購買  1: 有購買  2: 大神看自己的預測牌組
     ele.buy_uid = await checkUidBuyGodSellPrediction(userUid, othersUid, ele.league_id, info_datetime_unix) === 0
       ? null : userUid;
-    // console.log('*****=', othersUid, ele.league_id, info_datetime, ele.people, convertTimezone(info_datetime));
+    // console.log('*****=', othersUid, ele.league_id, info_datetime, ele.people, convertDateYMDToGTM0Unix(info_datetime));
 
     temp_league_id = ele.league_id;
     temp_info_datetime = ele.info_datetime;
@@ -159,7 +159,7 @@ async function othersPredictions(args) {
     let league = '';
 
     data.forEach(function(ele) { // 取出 聯盟陣列中的賽事
-      // const info_datetime = convertTimezoneFormat(ele.match_scheduled); // 取得該賽事開打日期 用作 大神預測牌組(購牌)日期
+      // const info_datetime = convertGTM0UnixToDateYMD(ele.match_scheduled); // 取得該賽事開打日期 用作 大神預測牌組(購牌)日期
 
       // 先確定 paidType 情況
       let paidType;

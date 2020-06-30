@@ -1,4 +1,4 @@
-const { getTitlesPeriod, leagueCodebook, dateUnixInfo, to } = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -7,7 +7,7 @@ async function winBetsLists(args) {
   const league = args.league;
   const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
-  const nowInfo = dateUnixInfo(new Date());
+  const nowInfo = coreDateInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = nowInfo.dateEndUnix;
 

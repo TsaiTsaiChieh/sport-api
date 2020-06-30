@@ -79,51 +79,83 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 }
 
 /*
-  date: 2020-07-01 or 20200701
+  sdate: 2020-07-01 or 20200701
+  op: 有預設值
+    num: 正負數值為加減 unit
+    unit: days、weeks 等 以 moment 為主
 */
-function coreDateInfo(sdate, zone = zone_tw) {
-  sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
-  const mdate = moment.tz(sdate, zone);
+function convertDateYMDToGTM0Unix(sdate, op) {
+  let { num, unit, zone } = Object.assign({}, { num: 0, unit: 'days', zone: zone_tw }, op);
+  num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
+  return moment.tz(sdate, zone).add(num, unit).unix();
+}
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+  op: 有預設值
+    format: YYYYMMDD or YYYY-MM-DD 以 moment 為主
+    num: 正負數值為加減 unit
+    unit: days、weeks 等 以 moment 為主
+*/
+function convertGTM0UnixToDateYMD(sdateUnix, op) {
+  let { format, num, unit, zone } = Object.assign({}, { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw }, op);
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
+  return moment.tz(sdateUnix, zone).add(num, unit).format(format);
+}
+
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+  日期區間結合 MomentRange 減少錯誤
+*/
+function coreDateInfo(sdateUnix, zone = zone_tw) {
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  const mdate = moment.tz(sdateUnix, zone);
   const dateYYYYMMDD = mdate.format('YYYYMMDD');
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
   const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
-
-  const myesterday = moment.tz(sdate, zone).subtract(1, 'days');
-  const yesterdayYYYYMMDD = myesterday.format('YYYYMMDD');
-  const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
-  const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
-
-  const mtomorrow = moment.tz(sdate, zone).add(1, 'days');
-  const tomorrowYYYYMMDD = mtomorrow.format('YYYYMMDD');
-  const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
-  const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
   return {
     mdate: mdate,
     dateYYYYMMDD: dateYYYYMMDD,
     dateBeginUnix: dateBeginUnix,
-    dateEndUnix: dateEndUnix,
-    myesterday: myesterday,
-    yesterdayYYYYMMDD: yesterdayYYYYMMDD,
-    yesterdayBeginUnix: yesterdayBeginUnix,
-    yesterdayEndUnix: yesterdayEndUnix,
-    mtomorrow: mtomorrow,
-    tomorrowYYYYMMDD: tomorrowYYYYMMDD,
-    tomorrowBeginUnix: tomorrowBeginUnix,
-    tomorrowEndUnix: tomorrowEndUnix
+    dateEndUnix: dateEndUnix
   };
 }
 /*
-  date: 2020-07-01 or 20200701
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
 */
-function dateInfo(sdate, zone = zone_tw) {
-  return coreDateInfo(moment.tz(sdate, zone));
+function date3Info(sdateUnix, zone = zone_tw) {
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  const sdateInfo = coreDateInfo(sdateUnix, zone);
+  const yesterdayInfo = coreDateInfo(moment.tz(sdateUnix, zone).subtract(1, 'days').unix(), zone);
+  const tomorrowInfo = coreDateInfo(moment.tz(sdateUnix, zone).add(1, 'days').unix(), zone);
+
+  return {
+    mdate: sdateInfo.mdate,
+    dateYYYYMMDD: sdateInfo.dateYYYYMMDD,
+    dateBeginUnix: sdateInfo.dateBeginUnix,
+    dateEndUnix: sdateInfo.dateEndUnix,
+    myesterday: yesterdayInfo.mdate,
+    yesterdayYYYYMMDD: yesterdayInfo.dateYYYYMMDD,
+    yesterdayBeginUnix: yesterdayInfo.dateBeginUnix,
+    yesterdayEndUnix: yesterdayInfo.dateEndUnix,
+    mtomorrow: tomorrowInfo.mdate,
+    tomorrowYYYYMMDD: tomorrowInfo.dateYYYYMMDD,
+    tomorrowBeginUnix: tomorrowInfo.dateBeginUnix,
+    tomorrowEndUnix: tomorrowInfo.dateEndUnix
+  };
 }
 /*
-  dateUnix: Date.now() or unix()
+  sdate: 2020-07-01 or 20200701
 */
-function dateUnixInfo(dateUnix, zone = zone_tw) {
-  return coreDateInfo(dateUnix, zone);
+function date3YMDInfo(sdate, zone = zone_tw) {
+  return date3Info(moment.tz(sdate, zone)); // 有 unix() 也可以  moment.tz(sdate, zone).unix()
+}
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+*/
+function date3UnixInfo(sdateUnix, zone = zone_tw) {
+  return date3Info(sdateUnix, zone);
 }
 
 function initFirebase() {
@@ -791,8 +823,11 @@ module.exports = {
   UTF8,
   convertTimezone,
   convertTimezoneFormat,
-  dateInfo,
-  dateUnixInfo,
+  convertDateYMDToGTM0Unix,
+  convertGTM0UnixToDateYMD,
+  coreDateInfo,
+  date3YMDInfo,
+  date3UnixInfo,
   leagueDecoder,
   acceptNumberAndLetter,
   httpStatus,

@@ -1,5 +1,5 @@
 const {
-  convertTimezone, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
+  convertDateYMDToGTM0Unix, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
 } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 
@@ -29,11 +29,11 @@ async function settleGodTitle(args) {
   // 2.5. 連贏Ｎ場
 
   // 產生 30 天測試用資料
-  // start = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
+  // start = convertDateYMDToGTM0Unix(moment().utcOffset(8).format('YYYY-MM-DD'));
   // console.log('start: %o  %o', moment().utcOffset(8).format('YYYY-MM-DD'), start)
 
   // for(i=1; i<=30; i++){
-  //   subtract = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
+  //   subtract = convertDateYMDToGTM0Unix(moment().utcOffset(8).format('YYYY-MM-DD'),
   //     { op: 'subtract', value: i, unit: 'days' }) * 1000;
 
   //   const period = modules.getTitlesNexteriod(subtract).period;
@@ -54,9 +54,9 @@ async function settleGodTitle(args) {
   const days = 30;
 
   // 近 30 天
-  const end_30days = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
-  const begin_30days = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-    { op: 'subtract', value: days, unit: 'days' }) - 1;
+  const nowYYYYMMDD = moment().utcOffset(8).format('YYYY-MM-DD');
+  const end_30days = convertDateYMDToGTM0Unix(nowYYYYMMDD);
+  const begin_30days = convertDateYMDToGTM0Unix(nowYYYYMMDD, -days) - 1;
 
   const result = {
     status: {

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { leagueCodebook, leagueDecoder } = require('../../util/modules');
-const { convertTimezone, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
+const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
 const { predictionsWinList } = require('../../util/settleModules');
 const { checkUserRight, getSeason } = require('../../util/databaseEngine');
 
@@ -52,8 +52,9 @@ async function settleWinList(args) {
   // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
   const userUid = args.token.uid;
-  const begin = convertTimezone(args.date);
-  const end = convertTimezone(args.date, { op: 'add', value: 1, unit: 'days' }) - 1;
+  const datInfo = date3YMDInfo(args.date);
+  const begin = datInfo.dateBeginUnix;
+  const end = datInfo.dateEndUnix;
   const tp = getTitlesNextPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;

@@ -1,11 +1,11 @@
-const { getTitlesPeriod, leagueCodebook, dateUnixInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 async function godlists() {
   const godLists = [];
   const period = getTitlesPeriod(new Date()).period;
-  const nowInfo = dateUnixInfo(new Date());
+  const nowInfo = coreDateInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = nowInfo.dateEndUnix;
 
