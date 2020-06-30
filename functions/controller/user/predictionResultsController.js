@@ -4,7 +4,7 @@ const model = require('../../model/user/predictionResultsModel');
 async function predictionResult(req, res) {
   const schema = {
     type: 'object',
-    required: ['date'],
+    required: ['date', 'uid'],
     properties: {
       date: {
         type: 'string',
@@ -12,8 +12,14 @@ async function predictionResult(req, res) {
         // default value is today
         default: modules.convertTimezoneFormat(Math.floor(Date.now() / 1000),
           { format: 'YYYY-MM-DD' })
+      },
+      uid: {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter,
+        default: req.query.uid ? req.query.uid : (req.token ? req.token.uid : req.token)
       }
     }
+
   };
 
   const valid = modules.ajv.validate(schema, req.query);
@@ -22,8 +28,8 @@ async function predictionResult(req, res) {
   }
 
   const args = {
-    token: req.token,
-    date: req.query.date
+    date: req.query.date,
+    uid: schema.properties.uid.default
   };
   try {
     res.json(await model(args));
