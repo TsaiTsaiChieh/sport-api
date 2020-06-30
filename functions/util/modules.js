@@ -84,17 +84,17 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 function coreDateInfo(sdate, zone = zone_tw) {
   sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
   const mdate = moment.tz(sdate, zone);
-  const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
+  const dateYYYYMMDD = mdate.format('YYYYMMDD');
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
   const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const yesterday = moment.tz(sdate, zone).subtract(1, 'days');
-  const yesterdayYYYYMMDD = yesterday.format('YYYYMMDD');
+  const myesterday = mdate.subtract(1, 'days');
+  const yesterdayYYYYMMDD = myesterday.format('YYYYMMDD');
   const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
   const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
-  const tomorrow = moment.tz(sdate, zone).add(1, 'days');
-  const tomorrowYYYYMMDD = tomorrow.format('YYYYMMDD');
+  const mtomorrow = mdate.add(1, 'days');
+  const tomorrowYYYYMMDD = mtomorrow.format('YYYYMMDD');
   const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
   const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
@@ -103,11 +103,11 @@ function coreDateInfo(sdate, zone = zone_tw) {
     dateYYYYMMDD: dateYYYYMMDD,
     dateBeginUnix: dateBeginUnix,
     dateEndUnix: dateEndUnix,
-    yesterday: yesterday,
+    myesterday: myesterday,
     yesterdayYYYYMMDD: yesterdayYYYYMMDD,
     yesterdayBeginUnix: yesterdayBeginUnix,
     yesterdayEndUnix: yesterdayEndUnix,
-    tomorrow: tomorrow,
+    mtomorrow: mtomorrow,
     tomorrowYYYYMMDD: tomorrowYYYYMMDD,
     tomorrowBeginUnix: tomorrowBeginUnix,
     tomorrowEndUnix: tomorrowEndUnix
