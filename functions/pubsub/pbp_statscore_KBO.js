@@ -691,12 +691,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         eventNow = eventNow + 1;
         continue;
       }
-      inningNow = changeInning(
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].event_status_name,
-        inningNow
-      );
+
       eventNow = eventNow + 1;
 
       const half =
@@ -730,10 +725,30 @@ async function writeRealtime(betsID, realtimeData, data) {
               ? '0'
               : '1';
 
-      if (half !== halfNow && half === 'common') {
+      if (
+        inningNow !==
+        changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        )
+      ) {
         eventOrderNow = 0;
+        inningNow = changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        );
       } else {
         eventOrderNow = eventOrderNow + 1;
+        inningNow = changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        );
       }
       try {
         if (half === 'common') {

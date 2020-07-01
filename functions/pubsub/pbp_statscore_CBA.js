@@ -243,7 +243,6 @@ async function doPBP(parameter) {
     } else {
       if (pbpFlag === 1) {
         await writeRealtime(betsID, realtimeData, data);
-        await writeBacktoReal(betsID);
       }
     }
 
@@ -344,7 +343,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[3].value,
           two_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[4],
+              .stats[4].value,
           two_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats[5].value,
@@ -353,7 +352,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[6].value,
           three_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[7],
+              .stats[7].value,
           three_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats[8].value,
@@ -362,7 +361,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[9].value,
           ft_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[10],
+              .stats[10].value,
           ft_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats[11].value,
@@ -385,7 +384,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[3].value,
           two_point_scored:
             data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[4],
+              .stats[4].value,
           two_point_percent:
             data.api.data.competition.season.stage.group.event.participants[1]
               .stats[5].value,
@@ -394,7 +393,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[6].value,
           three_point_scored:
             data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[7],
+              .stats[7].value,
           three_point_percent:
             data.api.data.competition.season.stage.group.event.participants[1]
               .stats[8].value,
@@ -403,7 +402,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[9].value,
           ft_point_scored:
             data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[10],
+              .stats[10].value,
           ft_point_percent:
             data.api.data.competition.season.stage.group.event.participants[1]
               .stats[11].value,
@@ -430,12 +429,7 @@ async function writeRealtime(betsID, realtimeData, data) {
     const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       eventNow = eventNow + 1;
-      periodNow = changePeriod(
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].event_status_name,
-        periodNow
-      );
+
       const period =
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -446,10 +440,30 @@ async function writeRealtime(betsID, realtimeData, data) {
           ].participant_id === homeID
             ? '1'
             : '0';
-      if (period !== periodNow && period === 'common') {
+      if (
+        periodNow !==
+        changePeriod(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          periodNow
+        )
+      ) {
         eventOrderNow = 0;
+        periodNow = changePeriod(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          periodNow
+        );
       } else {
         eventOrderNow = eventOrderNow + 1;
+        periodNow = changePeriod(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          periodNow
+        );
       }
 
       try {
@@ -470,10 +484,17 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .events_incidents[eventCount].incident_name
               ),
               Period: periodNow,
+              homeOrAway: period,
               id:
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].id
             });
+          await modules.database
+            .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+            .set(
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].event_time
+            );
         } else {
           await modules.database
             .ref(
@@ -494,11 +515,18 @@ async function writeRealtime(betsID, realtimeData, data) {
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
-              Period: period,
+              Period: periodNow,
+              homeOrAway: period,
               id:
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].id
             });
+          await modules.database
+            .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+            .set(
+              data.api.data.competition.season.stage.group.event
+                .events_incidents[eventCount].event_time
+            );
         }
       } catch (err) {
         return reject(
@@ -512,6 +540,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         await modules.database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
           .set(periodNow);
+        await writeBacktoReal(betsID);
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
@@ -568,6 +597,30 @@ function translateCommon(event) {
     }
     case '8th quarter started': {
       return '第八節開始';
+    }
+    case 'Break after 1st quarter': {
+      return '第一節結束';
+    }
+    case 'Break after 2nd quarter': {
+      return '第二節結束';
+    }
+    case 'Break after 3rd quarter': {
+      return '第三節結束';
+    }
+    case 'Break after 4th quarter': {
+      return '第四節結束';
+    }
+    case 'Break after 5th quarter': {
+      return '第五節結束';
+    }
+    case 'Break after 6th quarter': {
+      return '第六節結束';
+    }
+    case 'Break after 7th quarter': {
+      return '第七節結束';
+    }
+    case 'Break after 8th quarter': {
+      return '第八節結束';
     }
     default: {
       return '通用';
@@ -859,23 +912,43 @@ function translateNormal(realtimeData, name, event) {
 function changePeriod(period, now_periods) {
   let periodNow = 0;
   switch (period) {
-    case '1st quarter' || 'Not started': {
+    case '1st quarter': {
       periodNow = '1';
       break;
     }
-    case '2nd quarter' || 'Break after 1st quarter': {
+    case 'Not started': {
+      periodNow = '1';
+      break;
+    }
+    case '2nd quarter': {
       periodNow = '2';
       break;
     }
-    case '3rd quarter' || 'Break after 2nd quarter': {
+    case 'Break after 1st quarter': {
+      periodNow = '2';
+      break;
+    }
+    case '3rd quarter': {
       periodNow = '3';
       break;
     }
-    case '4th quarter' || 'Break after 3rd quarter': {
+    case 'Break after 2nd quarter': {
+      periodNow = '3';
+      break;
+    }
+    case '4th quarter': {
       periodNow = '4';
       break;
     }
-    case '5th quarter' || 'Break after 4th quarter': {
+    case 'Break after 3rd quarter': {
+      periodNow = '4';
+      break;
+    }
+    case '5th quarter': {
+      periodNow = '5';
+      break;
+    }
+    case 'Break after 4th quarter': {
       periodNow = '5';
       break;
     }
