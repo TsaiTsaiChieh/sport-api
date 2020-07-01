@@ -105,6 +105,9 @@ function teamTrans(team) {
     case 'Uni-President Lions': {
       return 'Uni-President Lions';
     }
+    default: {
+      return team;
+    }
   }
 }
 

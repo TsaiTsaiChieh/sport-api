@@ -5,7 +5,6 @@ const Match = db.Match;
 const competitionID = '133'; // CBA
 const leagueID = '2319';
 const league = 'CBA';
-
 async function prematch_statscore_CBA() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -13,13 +12,13 @@ async function prematch_statscore_CBA() {
       const date2 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: 2,
+        value: -1,
         unit: 'days'
       });
       const date1 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: -1,
+        value: -2,
         unit: 'days'
       });
       const token = await queryForToken();
@@ -34,6 +33,7 @@ async function prematch_statscore_CBA() {
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
           .length;
+      // eventLength
       for (let i = 0; i < eventLength; i++) {
         const eventID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
@@ -46,10 +46,11 @@ async function prematch_statscore_CBA() {
           ) + 28800; // 加八個小時
         let homeTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name; // KT wiz
+            .participants[0].name;
         let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name; // KIA Tigers
+            .participants[1].name;
+
         homeTeamName = teamTrans(homeTeamName);
         awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
@@ -66,9 +67,7 @@ async function prematch_statscore_CBA() {
           }
         }
       }
-      // await modules.database
-      //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-      //  .set('scheduled');
+
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -133,7 +132,7 @@ function teamTrans(team) {
       return 'Guangzhou Long-Lions';
     }
     case 'Sichuan Jinqiang Blue Whales': {
-      return '‎Sichuan Whales';
+      return 'Sichuan Whales';
     }
     case 'Tianjin Ronggang Gold Lions': {
       return 'Tianjin Pioneers';
@@ -146,6 +145,9 @@ function teamTrans(team) {
     }
     case 'Zhejiang Guangsha Lions': {
       return 'Zhejiang Lions';
+    }
+    default: {
+      return team;
     }
   }
 }

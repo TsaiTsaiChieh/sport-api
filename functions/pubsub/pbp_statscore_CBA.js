@@ -7,7 +7,7 @@ const sport = 'basketball';
 const league = 'CBA';
 let eventNow = 0;
 let eventOrderNow = 0;
-let periodNow = '0';
+let periodNow = '1';
 // let memberHomeNow = 0;
 // let memberAwayNow = 0;
 async function CBApbpInplay(parameter) {
@@ -20,7 +20,7 @@ async function CBApbpInplay(parameter) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 14000;
-    timesPerLoop = 5; // 一分鐘3次
+    timesPerLoop = 5; // 一分鐘4次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -316,7 +316,7 @@ async function initRealtime(betsID, data) {
         .set('00:00');
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
-        .set('0');
+        .set('1');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -446,9 +446,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           ].participant_id === homeID
             ? '1'
             : '0';
-      if (period !== periodNow && period !== 'common') {
-        eventOrderNow = 0;
-      } else if (period === 'common') {
+      if (period !== periodNow && period === 'common') {
         eventOrderNow = 0;
       } else {
         eventOrderNow = eventOrderNow + 1;
@@ -861,24 +859,24 @@ function translateNormal(realtimeData, name, event) {
 function changePeriod(period, now_periods) {
   let periodNow = 0;
   switch (period) {
-    case '1st quarter': {
-      periodNow = 1;
+    case '1st quarter' || 'Not started': {
+      periodNow = '1';
       break;
     }
     case '2nd quarter' || 'Break after 1st quarter': {
-      periodNow = 2;
+      periodNow = '2';
       break;
     }
     case '3rd quarter' || 'Break after 2nd quarter': {
-      periodNow = 3;
+      periodNow = '3';
       break;
     }
     case '4th quarter' || 'Break after 3rd quarter': {
-      periodNow = 4;
+      periodNow = '4';
       break;
     }
     case '5th quarter' || 'Break after 4th quarter': {
-      periodNow = 5;
+      periodNow = '5';
       break;
     }
     default: {

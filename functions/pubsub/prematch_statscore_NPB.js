@@ -128,6 +128,9 @@ function teamTrans(team) {
     case 'Fukuoka SoftBank Hawks': {
       return 'Softbank Hawks';
     }
+    default: {
+      return team;
+    }
   }
 }
 async function queryForToken() {

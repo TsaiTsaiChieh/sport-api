@@ -730,9 +730,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               ? '0'
               : '1';
 
-      if (half !== halfNow && half !== 'common') {
-        eventOrderNow = 0;
-      } else if (half === 'common') {
+      if (half !== halfNow && half === 'common') {
         eventOrderNow = 0;
       } else {
         eventOrderNow = eventOrderNow + 1;

@@ -195,6 +195,7 @@ function translate(team, leagueID) {
     'Germany',
     'Bayern',
     'Spartak Moscow',
+    'Bayer Leverkusen',
     'Leverkusen',
     'Inter Milan',
     'Brazil',
@@ -204,7 +205,12 @@ function translate(team, leagueID) {
     'Sevilla',
     'Atletico Madrid',
     'RB Leipzig',
-    'England'
+    'England',
+    'West Ham',
+    'Everton',
+    'Wolverhampton',
+    'C. Palace',
+    'Chelsea'
   ];
   const eSB8tran = [
     '巴黎聖日耳曼',
@@ -236,6 +242,7 @@ function translate(team, leagueID) {
     '拜仁慕尼黑',
     '莫斯科斯巴達克',
     '拜耳樂沃庫森',
+    '拜耳樂沃庫森',
     '國際米蘭',
     '巴西',
     '法國',
@@ -244,7 +251,12 @@ function translate(team, leagueID) {
     '塞維利亞',
     '馬德里競技',
     'RB萊比錫',
-    '英格蘭'
+    '英格蘭',
+    '西漢姆',
+    '艾佛頓',
+    '狼隊',
+    '水晶宮',
+    '切爾西'
   ];
   const eLiga12ori = [
     'Club America',
@@ -425,7 +437,7 @@ function translate(team, leagueID) {
     '佛斯 (FRZ)',
     '迪蒙切洛 (DNK)',
     '甘比特 (GMB)',
-    '閒置電視 (INA)',
+    'Inactivetv (INA)',
     '西海岸 (WCU)',
     '帕怕克里奇 (ROB)'
   ];
@@ -479,7 +491,8 @@ function translate(team, leagueID) {
     'Vecchia',
     'AgussGM (SPQR)',
     'AguusGM',
-    'Chocooz (SPQR)'
+    'Chocooz (SPQR)',
+    'Gloriousmuka'
   ];
   const ePlayer12tran = [
     '克林格 (R10)',
@@ -531,7 +544,8 @@ function translate(team, leagueID) {
     '韋基亞',
     'AgussGM (SPQR)',
     'AguusGM',
-    '賈古斯 (SPQR)'
+    '賈古斯 (SPQR)',
+    '葛羅瑞斯穆卡'
   ];
   let ori = [];
   let tran = [];

@@ -117,7 +117,7 @@ app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
 // app.use('/cashflow_gash', require('./routers/cashflow_gash'));//金流介接(gash)
-app.use('/cashflow_neweb', require('./routers/cashflow_neweb'));// 金流介接(藍新)
+app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接(藍新)
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
   res.status(200).json({ test: 'awake0528v01' });
@@ -128,6 +128,11 @@ exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
 // admin cloud function
 exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
+// 此排程再購買API後必須停掉
+exports.forpastevent = functions.pubsub
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')

@@ -47,4 +47,13 @@ router.get(
   '/checkmatch_statscore_Soccer',
   require('../pubsub/checkmatch_statscore_Soccer')
 );
+router.get(
+  '/prematch_statscore_CBA',
+  require('../pubsub/prematch_statscore_CBA')
+);
+router.get(
+  '/checkmatch_statscore_CBA',
+  require('../pubsub/checkmatch_statscore_CBA')
+);
+router.get('/forpastevent', require('../pubsub/forpastevent'));
 module.exports = router;
