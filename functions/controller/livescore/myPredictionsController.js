@@ -1,4 +1,4 @@
-git const modules = require('../../util/modules');
+const modules = require('../../util/modules');
 const model = require('../../model/livescore/myPredictionsModel');
 
 async function predictions(req, res) {
