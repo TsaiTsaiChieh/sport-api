@@ -1,31 +1,29 @@
-const { getTitlesPeriod, leagueCodebook, convertTimezone, moment } = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
-function winRateLists(args) {
-  return new Promise(async function(resolve, reject) {
-    const range = args.range;
-    const league = args.league;
-    const league_id = leagueCodebook(league).id;
-    const period = getTitlesPeriod(new Date()).period;
-    const begin = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = convertTimezone(moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'add', value: 1, unit: 'days' }) - 1;
+async function winRateLists(args) {
+  const range = args.range;
+  const league = args.league;
+  const league_id = leagueCodebook(league).id;
+  const period = getTitlesPeriod(new Date()).period;
+  const nowInfo = coreDateInfo(new Date());
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
-    // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
-    // let winRateLists = {
-    //   NBA: [],
-    //   MLB: []
-    // }
-    const winRateLists = {};
-    winRateLists[league] = []; // 像上面的範例
+  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
+  // let winRateLists = {
+  //   NBA: [],
+  //   MLB: []
+  // }
+  const winRateLists = {};
+  winRateLists[league] = []; // 像上面的範例
 
-    try {
-      // eslint-disable-next-line no-unused-vars
-      for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
-        const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
+  // eslint-disable-next-line no-unused-vars
+  for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
+    const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
-        const leagueWinRateListsQuery = await db.sequelize.query(`
+    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -73,30 +71,28 @@ function winRateLists(args) {
               on titles.uid = prediction.uid
            order by ${rangeWinRateCodebook(range)} desc
         `, {
-          replacements: {
-            league_id: league_id,
-            period: period,
-            begin: begin,
-            end: end
-          },
-          limit: 30,
-          type: db.sequelize.QueryTypes.SELECT
-        });
-
-        leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
-          leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
-        });
-
-        winRateLists[key] = leagueWinRateLists;
-      }
-    } catch (err) {
-      console.log('Error in  rank/godlists by YuHsien:  %o', err);
-      return reject(errs.errsMsg('500', '500', err));
+      replacements: {
+        league_id: league_id,
+        period: period,
+        begin: beginUnix,
+        end: endUnix
+      },
+      limit: 30,
+      type: db.sequelize.QueryTypes.SELECT
+    }));
+    if (err) {
+      console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
+      throw errs.dbErrsMsg('404', '14010');
     }
 
-    // resolve({ win_rate_lists: winRateLists });
-    resolve({ userlists: winRateLists[league] });
-  });
+    leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
+      leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
+    });
+
+    winRateLists[key] = leagueWinRateLists;
+  }
+
+  return { userlists: winRateLists[league] };
 }
 
 function repackage(ele, rangstr) {

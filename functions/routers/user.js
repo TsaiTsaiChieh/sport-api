@@ -74,7 +74,7 @@ router.delete(
 // 預測結果
 router.get(
   '/prediction_results',
-  verification.token_v2,
+  verification.confirmLogin_v2,
   require('../controller/user/predictionResultsController')
 );
 // 歷史紀錄

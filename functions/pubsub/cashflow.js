@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable prefer-const */
-const { dateUnixInfo, settleRefundCoinDividend, settleIngot, settleRefundIngot, mergeDeep } = require('../util/modules');
+const { date3UnixInfo, mergeDeep } = require('../util/modules');
+const { settleRefundCoinDividend, settleIngot, settleRefundIngot } = require('../util/settleModules');
 const { getGodSellPredictionWinBetsInfo, createData } = require('../util/databaseEngine');
 const dividendExpireModel = require('../model/cashflow/dividendExpireModel');
 const db = require('../util/dbUtil');
@@ -19,7 +20,7 @@ function log(...args) {
 // 3. `每天`  `下午 11:59` `這個月 月底` 更新金流紅利過期、刪除使用者紅利
 
 async function god(req, res) {
-  const nowInfo = dateUnixInfo(Date.now());
+  const nowInfo = date3UnixInfo(Date.now());
   // const nowUnix = nowInfo.mdate.unix();
   // const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
   // const nowYYYYMMDDUnix = nowInfo.dateBeginUnix;

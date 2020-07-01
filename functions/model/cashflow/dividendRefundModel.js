@@ -4,7 +4,7 @@ const { getGodSellPredictionWinBetsInfo } = require('../../util/databaseEngine')
 function dividendRefundModel(args) {
   return new Promise(async function(resolve, reject) {
     /* 前一天起始值、結束值、現在時間 */
-    const nowInfo = modules.dateUnixInfo(Date.now());
+    const nowInfo = modules.date3UnixInfo(Date.now());
     const yesterdayYYYYMMDDUnix = nowInfo.yesterdayBeginUnix;
     const scheduled = modules.moment().unix();
     const buyLists = await db.CashflowBuy.findAll({
