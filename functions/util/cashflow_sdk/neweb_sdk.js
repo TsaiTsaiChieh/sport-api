@@ -1,10 +1,10 @@
 const moment = require('moment');
 const httpBuildQuery = require('http-build-query');
 const CryptoJS = require('crypto-js');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 /* HashKey AES 加解密 */
 function create_mpg_aes_encrypt(parameter = '', key = '', iv = '') {
-  return_str = '';
+  let return_str = '';
   if (parameter !== '') {
     // 將參數經過 URL ENCODED QUERY STRING
     return_str = httpBuildQuery(parameter);
@@ -36,13 +36,15 @@ function create_mpg_aes_encrypt(parameter = '', key = '', iv = '') {
 // }
 
 function create_mpg_aes_decrypt(encryptedBase64Str, key, iv) {
-  const cipher = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
+  const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedBase64Str);
+
+  encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+  const decryptedData = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
     iv: CryptoJS.enc.Utf8.parse(iv), // parse the IV
     padding: CryptoJS.pad.Pkcs7,
     mode: CryptoJS.mode.CBC
   });
-
-  return cipher;
+  return decryptedData.toString(CryptoJS.enc.Utf8);
 }
 
 /* HashIV SHA256 加密 */
@@ -75,7 +77,7 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
   szHtml += '</script>';
   szHtml += '</body>';
   szHtml += '</html>';
-  console.log(szHtml);
+  // console.log(szHtml);
 
   return szHtml;
 }

@@ -1,5 +1,5 @@
 const { settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
-  predictionsResultFlag } = require('../util/modules');
+  predictionsResultFlag } = require('../util/settleModules');
 
 const resultFlag = predictionsResultFlag;
 
@@ -7,9 +7,9 @@ const resultFlag = predictionsResultFlag;
 // ======================================================
 // ======================================================
 //
-// 冰球/棒球/籃球
+// 冰球/籃球
 //
-describe('測試 冰球/棒球/籃球', () => {
+describe('測試 冰球/籃球', () => {
   describe('測試 讓分 球頭(handicap) 為 小數盤口', () => {
     it('讓分 球頭 7.5 主隊 10分  客隊 10分 ', () => {
       const data = {
@@ -41,7 +41,7 @@ describe('測試 冰球/棒球/籃球', () => {
   });
 
   // ======================================================
-  describe('測試 讓分 球頭(handicap) 為 整數盤口 賠率相同', () => {
+  describe('測試 讓分 球頭(handicap) 為 整數盤口 和 平局(中分洞)', () => {
     it('讓分 球頭 7 主隊 10分  客隊 10分 ', () => {
       const data = {
         spreadHandicap: 7,
@@ -70,9 +70,10 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(resultFlag('away', settleResult)).toBe(-1);
     });
 
-    it('讓分 球頭 7 主隊 10分  客隊 3分 ', () => {
+    it('讓分 球頭 7 Rate 0  主隊 10分  客隊 3分 ', () => {
       const data = {
         spreadHandicap: 7,
+        spreadRate: 0,
         homePoints: 10,
         awayPoints: 3
       };
@@ -83,68 +84,65 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(resultFlag('home', settleResult)).toBe(0);
       expect(resultFlag('away', settleResult)).toBe(0);
     });
-  });
 
-  // ======================================================
-  describe('測試 讓分 球頭(handicap) 為 整數盤口 賠率有分大小', () => {
-    it('讓分 球頭 7 主隊 10分  客隊 10分 ', () => {
+    it('讓分 球頭 7 Rate 10  主隊 10分  客隊 3分 ', () => {
       const data = {
         spreadHandicap: 7,
+        spreadRate: 10,
         homePoints: 10,
-        awayPoints: 10
-      };
-
-      const settleResult = settleSpread(data);
-      expect(settleResult).toBe('away');
-
-      expect(resultFlag('home', settleResult)).toBe(-1);
-      expect(resultFlag('away', settleResult)).toBe(1); // 0.95
-    });
-
-    it('讓分 球頭 7 主隊 10分  客隊 1分 ', () => {
-      const data = {
-        spreadHandicap: 7,
-        homePoints: 10,
-        awayPoints: 1
-      };
-
-      const settleResult = settleSpread(data);
-      expect(settleResult).toBe('home');
-
-      expect(resultFlag('home', settleResult)).toBe(1); // 0.95
-      expect(resultFlag('away', settleResult)).toBe(-1);
-    });
-
-    it('讓分 球頭 7 主隊 10分  客隊 3分 主隊賠率 1.93  客隊賠率 2.03', () => {
-      const data = {
-        spreadHandicap: 7,
-        homePoints: 10,
-        awayPoints: 3,
-        spreadHomeOdd: 1.93,
-        spreadAwayOdd: 2.03
-      };
-
-      const settleResult = settleSpread(data);
-      expect(settleResult).toBe('fair|away');
-
-      expect(resultFlag('home', settleResult)).toBe(-0.5);
-      expect(resultFlag('away', settleResult)).toBe(0.5);
-    });
-
-    it('讓分 球頭 7 主隊 10分  客隊 3分 主隊賠率 2.03  客隊賠率 1.93', () => {
-      const data = {
-        spreadHandicap: 7,
-        homePoints: 10,
-        awayPoints: 3,
-        spreadHomeOdd: 2.03,
-        spreadAwayOdd: 1.93
+        awayPoints: 3
       };
 
       const settleResult = settleSpread(data);
       expect(settleResult).toBe('fair|home');
 
-      expect(resultFlag('home', settleResult)).toBe(0.5);
-      expect(resultFlag('away', settleResult)).toBe(-0.5);
+      expect(resultFlag('home', settleResult, data.spreadRate)).toBe(0.1);
+      expect(resultFlag('away', settleResult, data.spreadRate)).toBe(-0.1);
+    });
+
+    it('讓分 球頭 7 Rate -10  主隊 10分  客隊 3分 ', () => {
+      const data = {
+        spreadHandicap: 7,
+        spreadRate: -10,
+        homePoints: 10,
+        awayPoints: 3
+      };
+
+      const settleResult = settleSpread(data);
+      expect(settleResult).toBe('fair|home');
+
+      expect(resultFlag('home', settleResult, data.spreadRate)).toBe(-0.1);
+      expect(resultFlag('away', settleResult, data.spreadRate)).toBe(0.1);
+    });
+
+    it('讓分 球頭 -7 Rate 10  主隊 3分  客隊 10分 ', () => {
+      const data = {
+        spreadHandicap: -7,
+        spreadRate: 10,
+        homePoints: 3,
+        awayPoints: 10
+      };
+
+      const settleResult = settleSpread(data);
+      expect(settleResult).toBe('fair|away');
+
+      expect(resultFlag('home', settleResult, data.spreadRate)).toBe(-0.1);
+      expect(resultFlag('away', settleResult, data.spreadRate)).toBe(0.1);
+    });
+
+    it('讓分 球頭 -7 Rate -10  主隊 3分  客隊 10分 ', () => {
+      const data = {
+        spreadHandicap: -7,
+        spreadRate: -10,
+        homePoints: 3,
+        awayPoints: 10
+      };
+
+      const settleResult = settleSpread(data);
+      expect(settleResult).toBe('fair|away');
+
+      expect(resultFlag('home', settleResult, data.spreadRate)).toBe(0.1);
+      expect(resultFlag('away', settleResult, data.spreadRate)).toBe(-0.1);
     });
   });
 
@@ -182,7 +180,7 @@ describe('測試 冰球/棒球/籃球', () => {
   });
 
   // ======================================================
-  describe('測試 大小 球頭(handicap) 為 整數盤口 賠率相同', () => {
+  describe('測試 大小 球頭(handicap) 為 整數盤口 和 平局(中分洞)', () => {
     it('大小 球頭 20 主隊 11分  客隊 10分 ', () => {
       const data = {
         totalsHandicap: 20,
@@ -211,9 +209,10 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(resultFlag('under', settleResult)).toBe(1); // 0.95
     });
 
-    it('大小 球頭 20 主隊 10分  客隊 10分 ', () => {
+    it('大小 球頭 20 Rate 0  主隊 10分  客隊 10分 ', () => {
       const data = {
         totalsHandicap: 20,
+        totalsRate: 0,
         homePoints: 10,
         awayPoints: 10
       };
@@ -224,70 +223,38 @@ describe('測試 冰球/棒球/籃球', () => {
       expect(resultFlag('over', settleResult)).toBe(0);
       expect(resultFlag('under', settleResult)).toBe(0);
     });
-  });
 
-  // ======================================================
-  describe('測試 大小 球頭(handicap) 為 整數盤口 賠率有分大小', () => {
-    it('大小 球頭 20 主隊 11分  客隊 10分 ', () => {
+    it('大小 球頭 20 Rate 10  主隊 10分  客隊 10分 ', () => {
       const data = {
         totalsHandicap: 20,
-        homePoints: 11,
+        totalsRate: 10,
+        homePoints: 10,
         awayPoints: 10
-      };
-
-      const settleResult = settleTotals(data);
-      expect(settleResult).toBe('over');
-
-      expect(resultFlag('over', settleResult)).toBe(1); // 0.95
-      expect(resultFlag('under', settleResult)).toBe(-1);
-    });
-
-    it('大小 球頭 20 主隊 10分  客隊 1分 ', () => {
-      const data = {
-        totalsHandicap: 20,
-        homePoints: 10,
-        awayPoints: 1
-      };
-
-      const settleResult = settleTotals(data);
-      expect(settleResult).toBe('under');
-
-      expect(resultFlag('over', settleResult)).toBe(-1);
-      expect(resultFlag('under', settleResult)).toBe(1); // 0.95
-    });
-
-    it('大小 球頭 20 主隊 10分  客隊 10分  主隊賠率 1.93  客隊賠率 2.03', () => {
-      const data = {
-        totalsHandicap: 20,
-        homePoints: 10,
-        awayPoints: 10,
-        totalsOverOdd: 1.93,
-        totalsUnderOdd: 2.03
-      };
-
-      const settleResult = settleTotals(data);
-      expect(settleResult).toBe('fair|under');
-
-      expect(resultFlag('over', settleResult)).toBe(-0.5);
-      expect(resultFlag('under', settleResult)).toBe(0.5);
-    });
-
-    it('大小 球頭 20 主隊 10分  客隊 10分  主隊賠率 2.03  客隊賠率 1.93', () => {
-      const data = {
-        totalsHandicap: 20,
-        homePoints: 10,
-        awayPoints: 10,
-        totalsOverOdd: 2.03,
-        totalsUnderOdd: 1.93
       };
 
       const settleResult = settleTotals(data);
       expect(settleResult).toBe('fair|over');
 
-      expect(resultFlag('over', settleResult)).toBe(0.5);
-      expect(resultFlag('under', settleResult)).toBe(-0.5);
+      expect(resultFlag('over', settleResult, data.totalsRate)).toBe(0.1);
+      expect(resultFlag('under', settleResult, data.totalsRate)).toBe(-0.1);
+    });
+
+    it('大小 球頭 20 Rate -10  主隊 10分  客隊 10分 ', () => {
+      const data = {
+        totalsHandicap: 20,
+        totalsRate: -10,
+        homePoints: 10,
+        awayPoints: 10
+      };
+
+      const settleResult = settleTotals(data);
+      expect(settleResult).toBe('fair|over');
+
+      expect(resultFlag('over', settleResult, data.totalsRate)).toBe(-0.1);
+      expect(resultFlag('under', settleResult, data.totalsRate)).toBe(0.1);
     });
   });
+
 });
 
 // ======================================================

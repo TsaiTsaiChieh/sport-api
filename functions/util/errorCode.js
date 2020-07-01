@@ -71,6 +71,15 @@ const errorCodeLists = {
 
   13710: { msg: ['查詢 使用者購買預測單 失敗'], backend: ['正常情況下 使用者 購買 大神預測牌組 在一個聯盟 該日期只會有一筆，二筆以上為異常', ''] },
 
+  13810: { msg: ['查詢 排行榜大神清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+  13910: { msg: ['查詢 排行榜勝注清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+  14010: { msg: ['查詢 排行榜勝率清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+  14020: { msg: ['查詢 首頁大神清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+  14030: { msg: ['查詢 首頁勝注清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+  14040: { msg: ['查詢 首頁勝率清單 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+
+  14050: { msg: ['查詢 我的預測 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
+
   20001: { msg: ['更新 交易 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20002: { msg: ['更新 搞錠轉換搞幣 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
@@ -91,7 +100,8 @@ const errorCodeLists = {
 const isError = e => e && e.stack && e.message;
 // const isDBError = e => e && e.parent.sqlState && e.parent.sqlMessage;
 
-function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) {
+function dbErrsMsg(serverCode, backendcode, property) {
+  property = Object.assign({}, { custMsg: '', addMsg: '', showOrder: 0 }, property);
   // 準備針對 DB錯誤記錄
   // if (isDBError(property)) {
   //     code: serverCode,
@@ -104,11 +114,11 @@ function dbErrsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: ''
 }
 
 // 當有變數要顯示在字串內時，可以用 { msg: `ooxxooxx ${bets_id} ooxxooxx` } msg會自動取代
-function errsMsg(serverCode, backendcode, property = { custMsg: '', addMsg: '', showOrder: 0 }) { // custMsg 當 500 或 特殊情況 可以自行輸入
-  const { custMsg, addMsg } = property;
-  let showOrder = property.showOrder;
+function errsMsg(serverCode, backendcode, property) { // custMsg 當 500 或 特殊情況 可以自行輸入
+  let { custMsg, addMsg, showOrder } = Object.assign({}, { custMsg: '', addMsg: '', showOrder: 0 }, property);
   showOrder = [0].includes(showOrder) ? showOrder : 0; // 給顯示順序給一個預設值0，將來多國可以設定 1 英文之類
-  // custMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在，目前 500 err 預設顯示是 err.message，將來可以 err.stack
+  // custMsg 特殊情況強制輸出 否則 先檢查 errorCode 是否存在
+  // 目前 500 err 預設顯示是 err.message，將來可以 err.stack
   return custMsg
     ? {
       code: serverCode,

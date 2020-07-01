@@ -1,3 +1,4 @@
+
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
@@ -69,8 +70,9 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                     AND prediction.bets_id = matches.bets_id 
                     AND matches.home_id = home.team_id 
                     AND matches.away_id = away.team_id 
-                    AND prediction.uid = '${args.token.uid}'
+                    AND prediction.uid = '${args.uid}'
                     AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
+                    AND matches.status = ${modules.MATCH_STATUS.END}
                     AND (spread_result_flag != ${settlement.unsettlement} OR totals_result_flag != ${settlement.unsettlement})
                 ) 
              AS prediction
@@ -147,50 +149,61 @@ function repackageMatch(ele) {
         result: ele.totals_option !== null ? ele.totals_result_flag : null
       }
     };
-    repackageHandicap(ele, data, 'spread');
-    repackageHandicap(ele, data, 'totals');
+
+    repackageHandicap(ele.spread_option, data.spread, ele.spread_result_flag);
+    repackageHandicap(ele.totals_option, data.totals, ele.totals_result_flag);
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 
-function repackageHandicap(ele, data, handicapType) {
+function repackageHandicap(option, handicap, result) {
   try {
-    // 當有下注讓分時
-    if (ele[`${handicapType}_option`]) {
-      const handicap = data[handicapType];
-      const result = ele[`${handicapType}_result_flag`];
-      // 當過盤結果為 0.95 時
-      if (result === settlement.winOdd_v1 || result === settlement.winOdd_v2) {
-        handicap.end = settlement.win;
-        // TODO * settlement.winOdd_v1 or * winOdd_v2 較好
-        handicap.bets = handicap.ori_bets * settlement.win;
-        // 當過盤結果為 0.5 時
-      } else if (result === settlement.winHalfOdd) {
-        handicap.end = settlement.win;
-        handicap.bets = handicap.ori_bets * settlement.winHalfOdd;
-        // 當過盤結果為 0 時
-      } else if (result === settlement.fairOdd) {
-        handicap.end = settlement.fair;
-        handicap.bets = handicap.ori_bets * settlement.fairOdd;
-        // 當過盤結果為 -0.5 時
-      } else if (result === settlement.lossHalfOdd) {
-        handicap.end = settlement.loss;
-        handicap.bets = handicap.ori_bets * settlement.lossHalfOdd;
-        // 當過盤結果為 -1 時
-      } else if (result === settlement.lossOdd) {
-        handicap.end = settlement.loss;
-        handicap.bets = handicap.ori_bets * settlement.lossOdd;
-      } else {
-        handicap.end = null;
-        handicap.bets = null;
-      }
+    if (option) { // 當有下注
+      if (result === settlement.unsettlement) { handicap.end = null; handicap.bets = null; return; } // 未結算
+
+      // 先計算勝負注數，再補上 .end 註記(不算、勝、負)
+      handicap.bets = handicap.ori_bets * result;
+      if (result === settlement.fairOdd) { handicap.end = settlement.fair; return; } // 不算
+      if (result > 0) { handicap.end = settlement.win; return; } // 勝注
+      if (result < 0) { handicap.end = settlement.loss; return; } // 負注
     }
+
+    // 當有下注讓分時
+    // if (ele[`${handicapType}_option`]) {
+    //   const handicap = data[handicapType];
+    //   const result = ele[`${handicapType}_result_flag`];
+    //   // 當過盤結果為 0.95 時
+    //   if (result === settlement.winOdd_v1 || result === settlement.winOdd_v2) {
+    //     handicap.end = settlement.win;
+    //     // TODO * settlement.winOdd_v1 or * winOdd_v2 較好
+    //     handicap.bets = handicap.ori_bets * settlement.win;
+    //     // 當過盤結果為 0.5 時
+    //   } else if (result === settlement.winHalfOdd) {
+    //     handicap.end = settlement.win;
+    //     handicap.bets = handicap.ori_bets * settlement.winHalfOdd;
+    //     // 當過盤結果為 0 時
+    //   } else if (result === settlement.fairOdd) {
+    //     handicap.end = settlement.fair;
+    //     handicap.bets = handicap.ori_bets * settlement.fairOdd;
+    //     // 當過盤結果為 -0.5 時
+    //   } else if (result === settlement.lossHalfOdd) {
+    //     handicap.end = settlement.loss;
+    //     handicap.bets = handicap.ori_bets * settlement.lossHalfOdd;
+    //     // 當過盤結果為 -1 時
+    //   } else if (result === settlement.lossOdd) {
+    //     handicap.end = settlement.loss;
+    //     handicap.bets = handicap.ori_bets * settlement.lossOdd;
+    //   } else {
+    //     handicap.end = null;
+    //     handicap.bets = null;
+    //   }
+    // }
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 module.exports = predictionResult;

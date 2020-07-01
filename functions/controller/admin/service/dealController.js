@@ -66,7 +66,7 @@ module.exports = controller;
  * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
  * @apiParam {Integer} [article_id] 文章ID
  * @apiParam {Integer} [report_id] 留言ID
- * @apiParam {String} type 文章還是留言[`article`, `reply`]
+ * @apiParam {String} type 文章還是留言[`article`, `reply`, `user`, `message`]
  * @apiParam {Integer} status 處理狀態[`1`待處理,`2`處理中,`3`擱置中,`9`已處理]
  * @apiParam {Integer} article_status 文章狀蓋[`1`正常,`2`(文章)鎖定回覆,`3`(文章)不顯示在文章列表,`-1`使用者刪除,`-2`管理員刪除]
  * @apiParam {String} reply 客服意見

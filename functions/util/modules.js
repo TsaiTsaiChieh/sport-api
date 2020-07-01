@@ -79,51 +79,83 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
 }
 
 /*
-  date: 2020-07-01 or 20200701
+  sdate: 2020-07-01 or 20200701
+  op: 沒填寫會有預設值
+    num: 正負數值為加減 unit
+    unit: days、weeks 等 以 moment 提供格式為主
 */
-function coreDateInfo(sdate, zone = zone_tw) {
-  sdate = sdate.toString().length === 10 ? sdate * 1000 : sdate;
-  const mdate = moment.tz(sdate, zone);
-  const dateYYYYMMDD = moment.tz(sdate, zone).format('YYYYMMDD');
+function convertDateYMDToGTM0Unix(sdate, op) {
+  let { num, unit, zone } = Object.assign({}, { num: 0, unit: 'days', zone: zone_tw }, op);
+  num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
+  return moment.tz(sdate, zone).add(num, unit).unix();
+}
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+  op: 沒填寫會有預設值
+    format: YYYYMMDD or YYYY-MM-DD 以 moment 提供格式為主
+    num: 正負數值為加減 unit
+    unit: days、weeks 等 以 moment 提供格式為主
+*/
+function convertGTM0UnixToDateYMD(sdateUnix, op) {
+  let { format, num, unit, zone } = Object.assign({}, { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw }, op);
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
+  return moment.tz(sdateUnix, zone).add(num, unit).format(format);
+}
+
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+  日期區間結合 MomentRange 減少錯誤
+*/
+function coreDateInfo(sdateUnix, zone = zone_tw) {
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  const mdate = moment.tz(sdateUnix, zone);
+  const dateYYYYMMDD = mdate.format('YYYYMMDD');
   const dateBeginUnix = moment.tz(dateYYYYMMDD, zone).unix();
   const dateEndUnix = moment.tz(dateYYYYMMDD, zone).add(1, 'days').unix() - 1;
-
-  const yesterday = moment.tz(sdate, zone).subtract(1, 'days');
-  const yesterdayYYYYMMDD = yesterday.format('YYYYMMDD');
-  const yesterdayBeginUnix = moment.tz(yesterdayYYYYMMDD, zone).unix();
-  const yesterdayEndUnix = moment.tz(yesterdayYYYYMMDD, zone).add(1, 'days').unix() - 1;
-
-  const tomorrow = moment.tz(sdate, zone).add(1, 'days');
-  const tomorrowYYYYMMDD = tomorrow.format('YYYYMMDD');
-  const tomorrowBeginUnix = moment.tz(tomorrowYYYYMMDD, zone).unix();
-  const tomorrowEndUnix = moment.tz(tomorrowYYYYMMDD, zone).add(1, 'days').unix() - 1;
 
   return {
     mdate: mdate,
     dateYYYYMMDD: dateYYYYMMDD,
     dateBeginUnix: dateBeginUnix,
-    dateEndUnix: dateEndUnix,
-    yesterday: yesterday,
-    yesterdayYYYYMMDD: yesterdayYYYYMMDD,
-    yesterdayBeginUnix: yesterdayBeginUnix,
-    yesterdayEndUnix: yesterdayEndUnix,
-    tomorrow: tomorrow,
-    tomorrowYYYYMMDD: tomorrowYYYYMMDD,
-    tomorrowBeginUnix: tomorrowBeginUnix,
-    tomorrowEndUnix: tomorrowEndUnix
+    dateEndUnix: dateEndUnix
   };
 }
 /*
-  date: 2020-07-01 or 20200701
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
 */
-function dateInfo(sdate, zone = zone_tw) {
-  return coreDateInfo(moment.tz(sdate, zone));
+function date3Info(sdateUnix, zone = zone_tw) {
+  sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
+  const sdateInfo = coreDateInfo(sdateUnix, zone);
+  const yesterdayInfo = coreDateInfo(moment.tz(sdateUnix, zone).subtract(1, 'days').unix(), zone);
+  const tomorrowInfo = coreDateInfo(moment.tz(sdateUnix, zone).add(1, 'days').unix(), zone);
+
+  return {
+    mdate: sdateInfo.mdate,
+    dateYYYYMMDD: sdateInfo.dateYYYYMMDD,
+    dateBeginUnix: sdateInfo.dateBeginUnix,
+    dateEndUnix: sdateInfo.dateEndUnix,
+    myesterday: yesterdayInfo.mdate,
+    yesterdayYYYYMMDD: yesterdayInfo.dateYYYYMMDD,
+    yesterdayBeginUnix: yesterdayInfo.dateBeginUnix,
+    yesterdayEndUnix: yesterdayInfo.dateEndUnix,
+    mtomorrow: tomorrowInfo.mdate,
+    tomorrowYYYYMMDD: tomorrowInfo.dateYYYYMMDD,
+    tomorrowBeginUnix: tomorrowInfo.dateBeginUnix,
+    tomorrowEndUnix: tomorrowInfo.dateEndUnix
+  };
 }
 /*
-  dateUnix: Date.now() or unix()
+  sdate: 2020-07-01 or 20200701
 */
-function dateUnixInfo(dateUnix, zone = zone_tw) {
-  return coreDateInfo(dateUnix, zone);
+function date3YMDInfo(sdate, zone = zone_tw) {
+  return date3Info(moment.tz(sdate, zone)); // 有 unix() 也可以  moment.tz(sdate, zone).unix()
+}
+/*
+  sdateUnix: Date.now() or unix() or moment 型態 長度 33
+*/
+function date3UnixInfo(sdateUnix, zone = zone_tw) {
+  return date3Info(sdateUnix, zone);
 }
 
 function initFirebase() {
@@ -685,376 +717,6 @@ const mergeDeep = (target, source) => {
   };
 };
 
-// 取小數位
-// point = Math.abs(num) - parseInt(Math.abs(num));
-/*
-{
-  homePoints:
-  awayPoints:
-  spreadHandicap:
-  spreadHomeOdd:
-  spreadAwayOdd:
-}
-*/
-function settleSpread(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.spreadHandicap;
-  const homeOdd = data.spreadHomeOdd;
-  const awayOdd = data.spreadAwayOdd;
-
-  // 平盤有兩情況
-  // fair 要計算注數，會分輸贏
-  // fair2 平盤 不要計算注數
-  // return handicap
-  //   ? (homePoints - handicap) === awayPoints
-  //     ? (homeOdd !== awayOdd)
-  //       ? (homeOdd > awayOdd) ? 'fair|home' : 'fair|away'
-  //       : 'fair2'
-  //     : (homePoints - handicap) > awayPoints ? 'home' : 'away'
-  //   : '';
-  return homePoints - handicap === awayPoints
-    ? homeOdd !== awayOdd
-      ? homeOdd > awayOdd
-        ? 'fair|home'
-        : 'fair|away'
-      : 'fair2'
-    : homePoints - handicap > awayPoints
-      ? 'home'
-      : 'away';
-}
-
-// point 用來取得 handicap 的 小數位數值
-// 整數、0.5 為一般處理
-// 0.25 需要另外判斷
-// 0.75 需要另外判斷
-function settleSpreadSoccer(data) {
-  const sp_25 = [0.25];
-  // const sp_5 = [0.5];
-  const sp_75 = [0.75];
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = Math.abs(data.spreadHandicap);
-  const point = handicap - parseInt(handicap);
-  const result = homePoints - awayPoints - handicap;
-
-  // 整數 和局
-  if (result === 0) return 'fair2';
-
-  if (sp_25.includes(point)) {
-    return result === -0.25 ? 'fair|away' : result > -0.25 ? 'home' : 'away';
-  }
-
-  if (sp_75.includes(point)) {
-    return result === 0.25 ? 'fair|home' : result > 0.25 ? 'home' : 'away';
-  }
-
-  // 整數 和 0.5
-  return result > 0 ? 'home' : 'away';
-}
-
-/*
-{
-  homePoints:
-  awayPoints:
-  totalsHandicap:
-  totalsOverOdd:
-  totalsUnderOdd:
-}
-*/
-function settleTotals(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.totalsHandicap;
-  const overOdd = data.totalsOverOdd;
-  const underOdd = data.totalsUnderOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數，會分輸贏
-  // fair2 平盤 不要計算注數
-  // return handicap
-  //   ? (homePoints + awayPoints) === handicap
-  //     ? (overOdd !== underOdd)
-  //       ? (overOdd > underOdd) ? 'fair|over' : 'fair|under'
-  //       : 'fair2'
-  //     : (homePoints + awayPoints) > handicap ? 'over' : 'under'
-  //   : '';
-  return homePoints + awayPoints === handicap
-    ? overOdd !== underOdd
-      ? overOdd > underOdd
-        ? 'fair|over'
-        : 'fair|under'
-      : 'fair2'
-    : homePoints + awayPoints > handicap
-      ? 'over'
-      : 'under';
-}
-
-// point 用來取得 handicap 的 小數位數值
-// 整數、0.5 為一般處理
-// 0.25 需要另外判斷
-// 0.75 需要另外判斷
-function settleTotalsSoccer(data) {
-  const sp_25 = [0.25];
-  // const sp_5 = [0.5];
-  const sp_75 = [0.75];
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = Math.abs(data.totalsHandicap);
-  const point = handicap - parseInt(handicap);
-  const result = homePoints + awayPoints - handicap;
-
-  // 整數 和局
-  if (result === 0) return 'fair2';
-
-  if (sp_25.includes(point)) {
-    return result === -0.25 ? 'fair|under' : result > -0.25 ? 'over' : 'under';
-  }
-
-  if (sp_75.includes(point)) {
-    return result === 0.25 ? 'fair|over' : result > 0.25 ? 'over' : 'under';
-  }
-
-  // 整數 和 0.5
-  return result > 0 ? 'over' : 'under';
-}
-
-function predictionsResultFlag(option, settelResult) {
-  // 先處理 fair 平盤情況 'fair|home', 'fair|away', 'fair|over', 'fair|under'
-  if (
-    ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settelResult)
-  ) {
-    const settleOption = settelResult.split('|')[1];
-    return settleOption === option ? 0.5 : -0.5;
-  }
-
-  // -2 未結算，-1 輸，0 不算，1 贏，0.5 平 (一半一半)
-  return settelResult === 'fair2' ? 0 : settelResult === option ? 1 : -1;
-}
-
-/* 輸入資料格式
-  [
-    {
-      uid: '3IB0w6G4V8QUM2Ti3iCIfX4Viux1',
-      league_id: 3939,
-      spread_bets: null,
-      totals_bets: 1,
-      spread_result_flag: -2,
-      totals_result_flag: -1
-    },
-    {
-      uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
-      league_id: 3939,
-      spread_bets: 3,
-      totals_bets: 3,
-      spread_result_flag: -1,
-      totals_result_flag: 1     // 0.95
-    },
-    {
-      uid: '2WMRgHyUwvTLyHpLoANk7gWADZn1',
-      league_id: 3939,
-      spread_bets: 1,
-      totals_bets: 2,
-      spread_result_flag: 1,    // 0.95,
-      totals_result_flag: -1
-    }
-  ]
-*/
-function predictionsWinList(data) {
-  const correct = [1, 0.5]; // 0.95 // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
-  const fault = [-1, -0.5]; // // 以後可能 >0 贏  <0 輸  賠率不同情況下，計算會含在 >0 <0  裡面
-  const result = [];
-  // const totalPredictCounts = data.length;
-
-  // 先以 uid 分類，再用 league_id 分類
-  const rePredictMatchInfo = groupBy(data, 'uid');
-
-  rePredictMatchInfo.forEach(function(uids) {
-    const reLeagues = groupBy(uids, 'league_id');
-
-    reLeagues.forEach(function(data) {
-      // 勝率 winRate
-      const predictSpreadCorrectCounts = data.reduce(
-        (acc, cur) => (correct.includes(cur.spread_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictTotalsCorrectCounts = data.reduce(
-        (acc, cur) => (correct.includes(cur.totals_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictCorrectCounts =
-        predictSpreadCorrectCounts + predictTotalsCorrectCounts;
-
-      const predictSpreadFaultCounts = data.reduce(
-        (acc, cur) => (fault.includes(cur.spread_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictTotalsFaultCounts = data.reduce(
-        (acc, cur) => (fault.includes(cur.totals_result_flag) ? ++acc : acc),
-        0
-      );
-      const predictFaultCounts = NP.plus(
-        predictSpreadFaultCounts,
-        predictTotalsFaultCounts
-      );
-
-      // 避免分母是0 平盤無效
-      const spreadWinRate =
-        NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts) === 0
-          ? 0
-          : NP.divide(
-            predictSpreadCorrectCounts,
-            NP.plus(predictSpreadCorrectCounts, predictSpreadFaultCounts)
-          );
-      const totalsWinRate =
-        NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts) === 0
-          ? 0
-          : NP.divide(
-            predictTotalsCorrectCounts,
-            NP.plus(predictTotalsCorrectCounts, predictTotalsFaultCounts)
-          );
-      const winRate =
-        NP.plus(predictCorrectCounts, predictFaultCounts) === 0
-          ? 0
-          : NP.divide(
-            predictCorrectCounts,
-            NP.plus(predictCorrectCounts, predictFaultCounts)
-          );
-
-      // 勝注
-      const predictSpreadCorrectBets = data.reduce(
-        (acc, cur) =>
-          correct.includes(cur.spread_result_flag)
-            ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
-            : acc,
-        0
-      );
-      const predictTotalsCorrectBets = data.reduce(
-        (acc, cur) =>
-          correct.includes(cur.totals_result_flag)
-            ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
-            : acc,
-        0
-      );
-      const predictCorrectBets = NP.plus(
-        predictSpreadCorrectBets,
-        predictTotalsCorrectBets
-      );
-
-      const predictSpreadFaultBets = data.reduce(
-        (acc, cur) =>
-          fault.includes(cur.spread_result_flag)
-            ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
-            : acc,
-        0
-      );
-      const predictTotalsFaultBets = data.reduce(
-        (acc, cur) =>
-          fault.includes(cur.totals_result_flag)
-            ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
-            : acc,
-        0
-      );
-      const predictFaultBets = NP.plus(
-        predictSpreadFaultBets,
-        predictTotalsFaultBets
-      );
-
-      const spreadWinBets = NP.plus(
-        predictSpreadCorrectBets,
-        predictSpreadFaultBets
-      );
-      const totalsWinBets = NP.plus(
-        predictTotalsCorrectBets,
-        predictTotalsFaultBets
-      );
-      const winBets = NP.plus(predictCorrectBets, predictFaultBets);
-
-      // 注數計算
-
-      result.push({
-        uid: data[0].uid,
-        league_id: data[0].league_id,
-        win_rate: winRate,
-        win_bets: winBets,
-        matches_count: data.length,
-        correct_counts: predictCorrectCounts,
-        fault_counts: predictFaultCounts,
-        spread_correct_counts: predictSpreadCorrectCounts,
-        totals_correct_counts: predictTotalsCorrectCounts,
-        spread_fault_counts: predictSpreadFaultCounts,
-        totals_fault_counts: predictTotalsFaultCounts,
-        spread_win_rate: spreadWinRate,
-        totals_win_rate: totalsWinRate,
-        spread_correct_bets: predictSpreadCorrectBets,
-        totals_correct_bets: predictTotalsCorrectBets,
-        spread_fault_bets: predictSpreadFaultBets,
-        totals_fault_bets: predictTotalsFaultBets,
-        spread_win_bets: spreadWinBets,
-        totals_win_bets: totalsWinBets
-      });
-
-      // console.log('\n');
-      // console.log('%o totalPredictCounts: %f  predictCorrectCounts: %f  predictFaultCounts: %f',
-      //   data[0].uid, totalPredictCounts, predictCorrectCounts, predictFaultCounts);
-      // console.log('winRate: %f', winRate * 100);
-
-      // console.log('%o predictCorrectBets: %f  predictFaultBets: %f ',
-      //   data[0].uid, predictCorrectBets, predictFaultBets);
-      // console.log('winBets: %0.2f', winBets);
-
-      // console.log('\n');
-      // console.log('re: ', data);
-    });
-  });
-  return result;
-}
-
-// 結算退款 搞幣紅利 settleRefundCoinDividend
-// 輸入：price, sub_price, coin, dividend
-// 輸出退款：coin_real, dividend_real, coin, dividend
-function settleRefundCoinDividend(price, sub_price, coin, dividend) {
-  NP.enableBoundaryChecking(false);
-  const refundMoney = 90; // NP.minus(price, sub_price);
-  const r_coin_real = NP.round(NP.divide(NP.times(coin, refundMoney), price), 2);
-  const r_dividend_real = NP.minus(refundMoney, r_coin_real);
-  const r_coin = Math.ceil(r_coin_real);
-  const r_dividend = NP.minus(refundMoney, r_coin);
-  return { coin_real: r_coin_real, dividend_real: r_dividend_real, coin: r_coin, dividend: r_dividend };
-}
-
-// 結算 搞錠 settleIngot
-// 輸入：price, sub_price
-// 輸出：money_real, ingot_real, money, ingot
-function settleIngot(price, sub_price) {
-  NP.enableBoundaryChecking(false);
-  // const refundMoney = 90; // NP.minus(price, sub_price);
-  const r_money_real = NP.round(NP.divide(price, 2), 2);
-  const r_ingot_real = NP.minus(price, r_money_real);
-  const r_money = Math.ceil(r_money_real);
-  const r_ingot = NP.minus(price, r_money);
-  return { money_real: r_money_real, ingot_real: r_ingot_real, money: r_money, ingot: r_ingot };
-}
-
-// 結算 退款搞錠 settleRefundIngot
-// 輸入：price, sub_price
-// 輸出退款：money_real, ingot_real, money, ingot
-function settleRefundIngot(price, sub_price) {
-  NP.enableBoundaryChecking(false);
-  const refundMoney = NP.minus(price, 90);
-  const r_money_real = NP.round(NP.divide(refundMoney, 2), 2);
-  const r_ingot_real = NP.minus(refundMoney, r_money_real);
-  const r_money = Math.ceil(r_money_real);
-  const r_ingot = NP.minus(refundMoney, r_money);
-  return { money_real: r_money_real, ingot_real: r_ingot_real, money: r_money, ingot: r_ingot };
-}
-
 // 一般 NBA MLB
 // home_alias = 'CHA'
 //
@@ -1161,8 +823,11 @@ module.exports = {
   UTF8,
   convertTimezone,
   convertTimezoneFormat,
-  dateInfo,
-  dateUnixInfo,
+  convertDateYMDToGTM0Unix,
+  convertGTM0UnixToDateYMD,
+  coreDateInfo,
+  date3YMDInfo,
+  date3UnixInfo,
   leagueDecoder,
   acceptNumberAndLetter,
   httpStatus,
@@ -1170,15 +835,6 @@ module.exports = {
   groupsByOrdersLimit,
   fieldSorter,
   mergeDeep,
-  settleSpread,
-  settleSpreadSoccer,
-  settleTotals,
-  settleTotalsSoccer,
-  predictionsResultFlag,
-  predictionsWinList,
-  settleRefundCoinDividend,
-  settleIngot,
-  settleRefundIngot,
   sliceTeamAndPlayer,
   acceptLeague,
   MATCH_STATUS,

@@ -41,3 +41,14 @@ async function controller(req, res) {
     });
 }
 module.exports = controller;
+/**
+ * @api {POST} /admin/home/delHomeBanner/ delHomeBanner
+ * @apiName delHomeBanner
+ * @apiGroup Admin
+ * @apiDescription 主管讀取操作記錄
+ * @apiPermission admin
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {String} page 圖片ID
+ * @apiParam {String} [api_name] 哪一支API
+ * @apiParam {String} [name] 客服顯示名稱
+ */

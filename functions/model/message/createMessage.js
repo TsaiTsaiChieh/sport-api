@@ -36,6 +36,7 @@ function createMessage(args) {
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
 
       /* get user according token */
+      // user部分讀mysql 訊息仍然放在firebase rtdb
       const mysql_user = await getUserInfo(args.token.uid);
       // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       /* step1: check if user exists */
@@ -93,7 +94,7 @@ function createMessage(args) {
         .doc();
       const messageId = messageDoc.id;
       // const user = messageModule.repackageUserData(userSnapshot.data()); //舊的
-      const user = {
+      const user = { // 建立要放在firebase rtdb的結構
         uid: mysql_user.uid,
         displayName: mysql_user.display_name,
         avatar: mysql_user.avatar,
