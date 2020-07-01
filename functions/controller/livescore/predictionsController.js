@@ -14,7 +14,7 @@ async function predictions(req, res) {
   };
 
   const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus).json(modules.ajv.errors);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
 
   // append required parameter to model
   const args = {
