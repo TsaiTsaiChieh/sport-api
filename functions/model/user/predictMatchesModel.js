@@ -227,10 +227,11 @@ function isGodSellConsistent(args, i, filter) {
 function sendPrediction(args, filter) {
   return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
-    if (!neededResult) {
+    if (!neededResult) { 
       return reject(new AppError.UserPredictFailed({ failed: filter.failed }));
     } else if (neededResult) {
       await insertDB(args, filter.needed);
+      await createNewsDB(args, filter.needed);
       return resolve(repackageReturnData(filter));
     }
   });
@@ -272,6 +273,35 @@ async function insertDB(args, needed) {
         }
       }
       return resolve();
+    } catch (err) {
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+async function createNewsDB(insertData, needed) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      // console.log(insertData);
+      insertData.uid = insertData.token.uid;
+      /*讀取售牌金額*/
+      const date = new Date();
+      const period = modules.getTitlesPeriod(date).period;
+      // console.log(period);return;
+      const price_data = await db.sequelize.query(`
+         SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
+      `,
+      {
+        replacements: { uid: insertData.token.uid, period:period},
+        type: db.sequelize.QueryTypes.SELECT
+      })
+
+      insertData.title = '【' + insertData.league + '】售價：$' + price_data[0].price;
+      insertData.scheduled = modules.moment().unix();
+      insertData.sort = 2;//售牌
+      // console.log(insertData);
+      await db.sequelize.models.user__new.create(insertData);
+      return resolve({'news_status':'success'});
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }

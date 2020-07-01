@@ -1608,6 +1608,9 @@ const News = sequelize.define(
     uid: {
       type: Sequelize.STRING
     },
+    sort: {
+      type: Sequelize.INTEGER
+    },
     title: {
       type: Sequelize.STRING
     },

@@ -1,4 +1,5 @@
 const db = require('../../util/dbUtil');
+const { moment } = require('../../util/modules');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
 function dbCreate(insertData) {
@@ -11,6 +12,21 @@ function dbCreate(insertData) {
     } catch (error) {
       console.error(error);
       reject('create article failed');
+    }
+  });
+}
+
+function dbNewsCreate(insertData){
+  return new Promise(async function(resolve, reject) {
+    try {
+      insertData.scheduled = moment().unix();
+      insertData.title = '【' + insertData.league + '】' + insertData.title
+      insertData.sort = 1;//發文
+      await db.sequelize.models.user__new.create(insertData);
+      resolve({'news_status':'success'});
+    } catch (error) {
+      console.error(error);
+      reject('create news failed');
     }
   });
 }
@@ -57,7 +73,8 @@ async function createTopic(args) {
       });
 
       const article = await dbCreate(insertData);
-      resolve({ code: 200, article_id: article });
+      const news    = await dbNewsCreate(insertData);
+      resolve({ code: 200, article_id: article, news_id:news });
     } catch (err) {
       console.error(err);
       reject({ code: 500, error: err });
