@@ -1,5 +1,5 @@
-const modules = require('../../util/modules');
-const model = require('../../model/livescore/predictionsModel');
+git const modules = require('../../util/modules');
+const model = require('../../model/livescore/myPredictionsModel');
 
 async function predictions(req, res) {
   const schema = {
