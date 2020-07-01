@@ -42,6 +42,6 @@ router.post(
 router.get(
   '/my_predictions',
   verification.token_v2,
-  require('../controller/livescore/predictionsController')
+  require('../controller/livescore/myPredictionsController')
 );
 module.exports = router;
