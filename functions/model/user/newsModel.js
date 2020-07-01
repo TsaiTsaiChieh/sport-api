@@ -69,7 +69,7 @@ function newsModel(method, args, uid) {
         );
         console.log(favorite_user);
         const uids = [];
-        favorite_user.forEach(function(user){
+        favorite_user.forEach(function(user) {
           uids.push(user.god_uid);
         });
         // console.log(uids.join());
@@ -88,7 +88,7 @@ function newsModel(method, args, uid) {
             LIMIT :start_user, :limit_user
           `,
           {
-            logging:true,
+            logging: true,
             replacements: { uids: uids, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
             type: db.sequelize.QueryTypes.SELECT
           }

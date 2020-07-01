@@ -28,7 +28,7 @@ function favoritePlayerModel(args) {
            AND uf.createdAt BETWEEN :begin and :end
          `,
         {
-          logging:true,
+          logging: true,
           replacements: { begin: begin, end: end, uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         });

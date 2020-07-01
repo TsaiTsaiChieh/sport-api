@@ -11,7 +11,7 @@ async function transferModel(method, args, uid) {
         value: 1,
         unit: 'days'
       });
-     
+
       const total = db.sequelize.query(
         `
         SELECT * FROM(
