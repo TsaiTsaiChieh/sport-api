@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const postGodLeagueRankReceiveModel = require('../../model/user/postGodLeagueRankReceiveModel');
 
 async function postGodLeagueRankReceive(req, res) {
@@ -12,7 +12,7 @@ async function postGodLeagueRankReceive(req, res) {
           allOf: [
             {
               type: 'string',
-              enum: ['NBA', 'MLB', 'eSoccer', 'KBO'] // 目前測試資料和 modules.acceptLeague 不一致
+              enum: acceptLeague
             }
           ]
         }
@@ -30,8 +30,8 @@ async function postGodLeagueRankReceive(req, res) {
 
     res.json(await postGodLeagueRankReceiveModel(req.body));
   } catch (err) {
-    console.error(err);
-    res.status(err.code).json(err.err);
+    console.error('[postGodLeagueRankReceiveController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

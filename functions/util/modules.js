@@ -183,13 +183,6 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
-/* redis 設定-START */
-var redis = {
-  ip: '10.106.218.244',
-  port: '6379'
-};
-/* redis 設定-END */
-
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -389,40 +382,41 @@ function leagueCodebook(league) {
 }
 
 function leagueDecoder(leagueID) {
+  leagueID = Number.parseInt(leagueID);
   switch (leagueID) {
-    case '2274' || 2274:
+    case 2274:
       return 'NBA';
-    case '8251' || 8251:
+    case 8251:
       return 'SBL';
-    case '244' || 244:
+    case 244:
       return 'WNBA';
-    case '1714' || 1714:
+    case 1714:
       return 'NBL';
-    case '2319' || 2319:
+    case 2319:
       return 'CBA';
-    case '2148' || 2148:
+    case 2148:
       return 'KBL';
-    case '1298' || 1298:
+    case 1298:
       return 'BJL';
-    case '3939' || 3939:
+    case 3939:
       return 'MLB';
-    case '347' || 347:
+    case 347:
       return 'NPB';
-    case '11235' || 11235:
+    case 11235:
       return 'CPBL';
-    case '349' || 349:
+    case 349:
       return 'KBO';
-    case '2759' || 2759:
+    case 2759:
       return 'ABL';
-    case '4412' || 4412:
+    case 4412:
       return 'LMB';
-    case '1926' || 1926:
+    case 1926:
       return 'NHL';
-    case '8' || 8:
+    case 8:
       return 'Soccer';
-    case '22000' || 22000:
+    case 22000:
       return 'eSoccer';
-    case '23000' || 23000:
+    case 23000:
       return 'eGame';
     default:
       throw new AppErrors.UnknownLeague();
@@ -521,23 +515,20 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
 
-  const periodBeginDate = moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format);
-  const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
-  const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
-
-  const periodEndDate = moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format);
-  const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
-  const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, { num: 2, unit: 'weeks' });
+  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, { num: 2, unit: 'weeks' });
+  const periodBeginDate = coreDateInfo(periodBeginDateUnix);
+  const periodEndDate = coreDateInfo(periodEndDateUnix);
 
   return {
     period: t.period + 1,
-    date: periodBeginDate,
-    end: periodEndDate,
+    date: periodBeginDate.mdate.format(format),
+    end: periodEndDate.mdate.format(format),
     weekPeriod: t.weekPeriod,
-    periodBeginDateBeginUnix: periodBeginDateBeginUnix,
-    periodBeginDateEndUnix: periodBeginDateEndUnix,
-    periodEndDateBeginUnix: periodEndDateBeginUnix,
-    periodEndDateEndUnix: periodEndDateEndUnix,
+    periodBeginDateBeginUnix: periodBeginDate.dateBeginUnix,
+    periodBeginDateEndUnix: periodBeginDate.dateEndUnix,
+    periodEndDateBeginUnix: periodEndDate.dateBeginUnix,
+    periodEndDateEndUnix: periodEndDate.dateEndUnix,
     inputDateWeekOfyear: t.inputDateWeekOfyear,
     inputDateDayOfYear: t.inputDateDayOfYear
   };
@@ -784,7 +775,6 @@ function validateProperty(data, propertyName) {
 }
 
 module.exports = {
-  redis,
   express,
   firebaseAdmin,
   firebase,

@@ -24,8 +24,8 @@ async function settleGodTitle(req, res) {
 
     res.json(await settleGodTitleModel(req.body));
   } catch (err) {
-    console.error(err);
-    res.status(err.code).json(err.err);
+    console.error('[settleGodTitleController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

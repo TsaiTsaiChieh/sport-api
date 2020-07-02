@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const winRateListsModel = require('../../model/rank/winRateListsModel');
 
 async function winRateLists(req, res) {
@@ -12,7 +12,7 @@ async function winRateLists(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB']
+        enum: acceptLeague
       }
     }
   };
@@ -25,7 +25,8 @@ async function winRateLists(req, res) {
   try {
     res.json(await winRateListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[winRateListsController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

@@ -70,6 +70,8 @@ async function winBetsLists() {
       throw errs.dbErrsMsg('404', '14030');
     }
 
+    if (leagueWinBetsListsQuery === undefined || leagueWinBetsListsQuery.length <= 0) return { win_bets_lists: winBetsLists }; // 如果沒有找到資料回傳 []
+
     leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinBetsLists.push(repackage(data));
     });
