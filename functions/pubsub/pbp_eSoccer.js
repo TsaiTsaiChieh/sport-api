@@ -7,8 +7,8 @@ const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
   // 14 秒一次
   const perStep = 14000;
-  // 一分鐘4次
-  const timesPerLoop = 5;
+  // 一分鐘2次
+  const timesPerLoop = 3;
   const betsID = parameter.betsID;
   let realtimeData;
   if (parameter.realtimeData) {
