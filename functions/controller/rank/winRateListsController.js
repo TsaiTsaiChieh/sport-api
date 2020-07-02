@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const winRateListsModel = require('../../model/rank/winRateListsModel');
 
 async function winRateLists(req, res) {
@@ -12,7 +12,7 @@ async function winRateLists(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB']
+        enum: acceptLeague
       }
     }
   };

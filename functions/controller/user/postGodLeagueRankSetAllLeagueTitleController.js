@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const postGodLeagueRankSetAllLeagueTitleModel = require('../../model/user/postGodLeagueRankSetAllLeagueTitleModel');
 
 async function postGodLeagueRankSetAllLeagueTitle(req, res) {
@@ -14,7 +14,7 @@ async function postGodLeagueRankSetAllLeagueTitle(req, res) {
           properties: {
             league: {
               type: 'string',
-              enum: ['NBA', 'MLB', 'eSoccer', 'KBO']
+              enum: acceptLeague
             },
             default_title: {
               type: 'integer',

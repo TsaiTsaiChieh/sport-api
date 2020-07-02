@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const postGodLeagueRankReceiveModel = require('../../model/user/postGodLeagueRankReceiveModel');
 
 async function postGodLeagueRankReceive(req, res) {
@@ -12,7 +12,7 @@ async function postGodLeagueRankReceive(req, res) {
           allOf: [
             {
               type: 'string',
-              enum: ['NBA', 'MLB', 'eSoccer', 'KBO'] // 目前測試資料和 modules.acceptLeague 不一致
+              enum: acceptLeague
             }
           ]
         }
