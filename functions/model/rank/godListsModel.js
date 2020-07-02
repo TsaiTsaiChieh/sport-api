@@ -57,7 +57,7 @@ async function godlists(args) {
     console.error('Error 2. in rank/godListsModel by YuHsien', err);
     throw errs.dbErrsMsg('404', '13810');
   }
-  if (godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
   // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
   godListsQuery.sort(fieldSorter(['order'])); // 升 小->大

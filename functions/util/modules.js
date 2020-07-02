@@ -183,13 +183,6 @@ const bucket = firebaseAdmin
 const firestore = firebaseAdmin.firestore();
 const database = firebaseAdmin.database();
 
-/* redis 設定-START */
-var redis = {
-  ip: '10.106.218.244',
-  port: '6379'
-};
-/* redis 設定-END */
-
 function getSnapshot(collection, id) {
   return firestore.collection(collection).doc(id).get();
 }
@@ -522,23 +515,20 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
 
-  const periodBeginDate = moment(t.date).utcOffset(UTF8).add(2, 'weeks').format(format);
-  const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
-  const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
-
-  const periodEndDate = moment(t.end).utcOffset(UTF8).add(2, 'weeks').format(format);
-  const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
-  const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, { num: 2, unit: 'weeks' });
+  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, { num: 2, unit: 'weeks' });
+  const periodBeginDate = coreDateInfo(periodBeginDateUnix);
+  const periodEndDate = coreDateInfo(periodEndDateUnix);
 
   return {
     period: t.period + 1,
-    date: periodBeginDate,
-    end: periodEndDate,
+    date: periodBeginDate.mdate.format(format),
+    end: periodEndDate.mdate.format(format),
     weekPeriod: t.weekPeriod,
-    periodBeginDateBeginUnix: periodBeginDateBeginUnix,
-    periodBeginDateEndUnix: periodBeginDateEndUnix,
-    periodEndDateBeginUnix: periodEndDateBeginUnix,
-    periodEndDateEndUnix: periodEndDateEndUnix,
+    periodBeginDateBeginUnix: periodBeginDate.dateBeginUnix,
+    periodBeginDateEndUnix: periodBeginDate.dateEndUnix,
+    periodEndDateBeginUnix: periodEndDate.dateBeginUnix,
+    periodEndDateEndUnix: periodEndDate.dateEndUnix,
     inputDateWeekOfyear: t.inputDateWeekOfyear,
     inputDateDayOfYear: t.inputDateDayOfYear
   };
@@ -785,7 +775,6 @@ function validateProperty(data, propertyName) {
 }
 
 module.exports = {
-  redis,
   express,
   firebaseAdmin,
   firebase,

@@ -65,7 +65,7 @@ async function predictInfo(args) {
   }
 
   // 使用者 一開始尚未預測
-  if (predictionsInfoDocs.length === 0) {
+  if (predictionsInfoDocs === undefined || predictionsInfoDocs.length === 0) {
     return predictionsInfoList; // 回傳 空Array
   }
 
