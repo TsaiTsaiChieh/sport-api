@@ -2,6 +2,8 @@ const modules = require('../../util/modules');
 const model = require('../../model/livescore/myPredictionsModel');
 
 async function predictions(req, res) {
+  const now = new Date();
+  const today = modules.convertTimezoneFormat(Math.floor(now / 1000));
   const schema = {
     type: 'object',
     required: ['league'],
@@ -19,7 +21,9 @@ async function predictions(req, res) {
   // append required parameter to model
   const args = {
     uid: req.token.uid,
-    league: req.query.league
+    league: req.query.league,
+    now,
+    today
   };
 
   try {
