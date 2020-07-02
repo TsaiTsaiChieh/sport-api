@@ -52,7 +52,6 @@ function getUserTodayPredictionsInformation(args) {
 function repackageData(predictions) {
   try {
     const data = {
-      sell: -1,
       scheduled: [],
       inplay: [],
       end: []
@@ -65,7 +64,7 @@ function repackageData(predictions) {
           scheduled: ele.scheduled,
           scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
           status: ele.status,
-          league: ele.league,
+          league: ele.league_id,
           ori_league: ele.name_ch,
           home: {
             id: ele.home_id,
@@ -73,7 +72,8 @@ function repackageData(predictions) {
             alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
             alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
             player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
-            image_id: ele.home_image_id
+            image_id: ele.home_image_id,
+            points: ele.home_points || ele.home_points === 0 ? ele.home_points : null
           },
           away: {
             id: ele.away_id,
@@ -81,7 +81,8 @@ function repackageData(predictions) {
             alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
             alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
             player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
-            image_id: ele.away_image_id
+            image_id: ele.away_image_id,
+            points: ele.away_points || ele.away_points === 0 ? ele.away_points : null
           },
           spread: {
             id: ele.spread_id,
