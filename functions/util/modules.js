@@ -389,40 +389,41 @@ function leagueCodebook(league) {
 }
 
 function leagueDecoder(leagueID) {
+  leagueID = Number.parseInt(leagueID);
   switch (leagueID) {
-    case '2274' || 2274:
+    case 2274:
       return 'NBA';
-    case '8251' || 8251:
+    case 8251:
       return 'SBL';
-    case '244' || 244:
+    case 244:
       return 'WNBA';
-    case '1714' || 1714:
+    case 1714:
       return 'NBL';
-    case '2319' || 2319:
+    case 2319:
       return 'CBA';
-    case '2148' || 2148:
+    case 2148:
       return 'KBL';
-    case '1298' || 1298:
+    case 1298:
       return 'BJL';
-    case '3939' || 3939:
+    case 3939:
       return 'MLB';
-    case '347' || 347:
+    case 347:
       return 'NPB';
-    case '11235' || 11235:
+    case 11235:
       return 'CPBL';
-    case '349' || 349:
+    case 349:
       return 'KBO';
-    case '2759' || 2759:
+    case 2759:
       return 'ABL';
-    case '4412' || 4412:
+    case 4412:
       return 'LMB';
-    case '1926' || 1926:
+    case 1926:
       return 'NHL';
-    case '8' || 8:
+    case 8:
       return 'Soccer';
-    case '22000' || 22000:
+    case 22000:
       return 'eSoccer';
-    case '23000' || 23000:
+    case 23000:
       return 'eGame';
     default:
       throw new AppErrors.UnknownLeague();
