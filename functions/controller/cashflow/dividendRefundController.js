@@ -4,7 +4,8 @@ async function dividendRefundController(req, res) {
   try {
     res.json(await dividendRefundModel(req));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[dividendRefundController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

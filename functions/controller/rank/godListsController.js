@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const godListsModel = require('../../model/rank/godListsModel');
 
 async function godlists(req, res) {
@@ -8,7 +8,7 @@ async function godlists(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB', 'Soccer', 'eSoccer']
+        enum: acceptLeague
       }
     }
   };
@@ -21,7 +21,8 @@ async function godlists(req, res) {
   try {
     res.json(await godListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[godListsController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

@@ -112,6 +112,7 @@ app.use('/sport', require('./routers/sport'));
 app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
 app.use('/topics', require('./routers/topics'));
+app.use('/general', require('./routers/general'));
 app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));

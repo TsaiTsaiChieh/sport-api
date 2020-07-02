@@ -20,7 +20,8 @@ async function searchUser(req, res) {
     }
     res.json(await searchUserModel(args.display_name));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[searchUserController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 module.exports = searchUser;

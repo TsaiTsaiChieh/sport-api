@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const postGodLeagueRankSetAllLeagueTitleModel = require('../../model/user/postGodLeagueRankSetAllLeagueTitleModel');
 
 async function postGodLeagueRankSetAllLeagueTitle(req, res) {
@@ -14,7 +14,7 @@ async function postGodLeagueRankSetAllLeagueTitle(req, res) {
           properties: {
             league: {
               type: 'string',
-              enum: ['NBA', 'MLB', 'eSoccer', 'KBO']
+              enum: acceptLeague
             },
             default_title: {
               type: 'integer',
@@ -36,8 +36,8 @@ async function postGodLeagueRankSetAllLeagueTitle(req, res) {
 
     res.json(await postGodLeagueRankSetAllLeagueTitleModel(req.body));
   } catch (err) {
-    console.error(err);
-    res.status(err.code).json(err.err);
+    console.error('[postGodLeagueRankSetAllLeagueTitleController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 
