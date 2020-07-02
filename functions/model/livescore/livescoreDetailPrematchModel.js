@@ -97,9 +97,9 @@ async function repackage(args, match) {
         },
         home: {
           team_name:
-            ele.home_name.indexOf('(') > 0
-              ? ele.home_name.split('(')[0].trim()
-              : ele.home_name,
+            ele.home_alias_ch.indexOf('(') > 0
+              ? ele.home_alias_ch.split('(')[0].trim()
+              : ele.home_alias_ch,
           player_name:
             ele.home_name.indexOf('(') > 0
               ? ele.home_name.split('(')[1].replace(')', '').trim()
@@ -111,9 +111,9 @@ async function repackage(args, match) {
         },
         away: {
           team_name:
-            ele.away_name.indexOf('(') > 0
-              ? ele.away_name.split('(')[0].trim()
-              : ele.away_name,
+            ele.away_alias_ch.indexOf('(') > 0
+              ? ele.away_alias_ch.split('(')[0].trim()
+              : ele.away_alias_ch,
           player_name:
             ele.away_name.indexOf('(') > 0
               ? ele.away_name.split('(')[1].replace(')', '').trim()

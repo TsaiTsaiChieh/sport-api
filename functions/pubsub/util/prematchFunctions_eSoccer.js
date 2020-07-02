@@ -210,7 +210,10 @@ function translate(team, leagueID) {
     'Everton',
     'Wolverhampton',
     'C. Palace',
-    'Chelsea'
+    'Chelsea',
+    'Dynamo Kiev',
+    'Lokomotiv',
+    'Inter'
   ];
   const eSB8tran = [
     '巴黎聖日耳曼',
@@ -256,7 +259,10 @@ function translate(team, leagueID) {
     '艾佛頓',
     '狼隊',
     '水晶宮',
-    '切爾西'
+    '切爾西',
+    '基輔迪納摩',
+    '莫斯科火車頭',
+    '國際米蘭'
   ];
   const eLiga12ori = [
     'Club America',
