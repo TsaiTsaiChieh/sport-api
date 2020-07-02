@@ -9,7 +9,7 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken, zone_tw, statscoreToken } = envValues;
+const { sportRadarKeys, betsToken, zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -21,7 +21,7 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
-const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
+const acceptLeague = ['NBA', 'eSoccer', 'KBO', 'NPB', 'CPBL', 'Soccer'];
 // const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const to = require('await-to-js').default;
@@ -842,6 +842,5 @@ module.exports = {
   to,
   godUserPriceTable,
   validateProperty,
-  NP,
-  statscoreToken
+  NP
 };
