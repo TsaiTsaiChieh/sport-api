@@ -53,7 +53,7 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: -3,
+      value: 1,
       unit: 'days'
     });
     const now = modules.convertTimezoneFormat(unix);
@@ -63,7 +63,7 @@ async function query_event(league) {
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
 					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
-						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${tomorrow}') AND UNIX_TIMESTAMP('${now}')
+						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
 						AND game.league_id = '${league}'
 			 )`,
         {

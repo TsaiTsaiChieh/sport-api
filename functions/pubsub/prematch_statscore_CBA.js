@@ -2,24 +2,23 @@ const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5476'; // NPB
-const leagueID = '347';
-const league = 'NPB';
-
-async function prematch_statscore_NPB() {
+const competitionID = '133'; // CBA
+const leagueID = '2319';
+const league = 'CBA';
+async function prematch_statscore_CBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
       const date2 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: 2,
+        value: -1,
         unit: 'days'
       });
       const date1 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: -1,
+        value: -2,
         unit: 'days'
       });
       const token = await queryForToken();
@@ -34,6 +33,7 @@ async function prematch_statscore_NPB() {
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
           .length;
+      // eventLength
       for (let i = 0; i < eventLength; i++) {
         const eventID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
@@ -50,6 +50,7 @@ async function prematch_statscore_NPB() {
         let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[1].name;
+
         homeTeamName = teamTrans(homeTeamName);
         awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
@@ -66,9 +67,7 @@ async function prematch_statscore_NPB() {
           }
         }
       }
-      // await modules.database
-      //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-      //  .set('scheduled');
+
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -90,49 +89,69 @@ async function axiosForURL(URL) {
     }
   });
 }
+
 function teamTrans(team) {
   switch (team) {
-    case 'Yomiuri Giants': {
-      return 'Yomiuri Giants';
+    case 'Bayi Rockets': {
+      return 'Bayi Nanchang Rockets';
     }
-    case 'Tokyo Yakult Swallows': {
-      return 'Yakult Swallows';
+    case 'Beijing Royal Fighters': {
+      return 'Beijing Royal Fighters';
     }
-    case 'Yokohama DeNA BayStars': {
-      return 'Yokohama Bay Stars';
+    case 'Shougang Beijing Ducks': {
+      return 'Beijing Ducks';
     }
-    case 'Chunichi Dragons': {
-      return 'Chunichi Dragons';
+    case 'Fujian SBS Xunxing Sturgeons': {
+      return 'Fujian Sturgeons';
     }
-    case 'Hanshin Tigers': {
-      return 'Hanshin Tigers';
+    case 'Guangdong Hongyuan Southern Tigers': {
+      return 'Guangdong Southern Tigers';
     }
-    case 'Hiroshima Toyo Carp': {
-      return 'Hiroshima Carp';
+    case 'Jilin Tonggang Northeast Tigers': {
+      return 'Jilin Northeast Tigers';
     }
-    case 'Hokkaido Nippon-Ham Fighters': {
-      return 'Nippon Ham Fighters';
+    case 'Liaoning Flying Leopards': {
+      return 'Liaoning Dinosaurs';
     }
-    case 'Tohoku Rakuten Golden Eagles': {
-      return 'Rakuten Eagles';
+    case 'Nanjing Tongxi Monkey King': {
+      return 'NanJing TongXi DaSheng';
     }
-    case 'Saitama Seibu Lions': {
-      return 'Seibu Lions';
+    case 'Qingdao DoubleStar Eagles': {
+      return 'Qingdao Double Star Eagle';
     }
-    case 'Chiba Lotte Marines': {
-      return 'Lotte Marines';
+    case 'Shandong Heroes': {
+      return 'Shangdong Golden Stars';
     }
-    case 'Orix Buffaloes': {
-      return 'Orix Buffaloes';
+    case 'Shanghai Bilibili Sharks': {
+      return 'Shanghai Sharks';
     }
-    case 'Fukuoka SoftBank Hawks': {
-      return 'Softbank Hawks';
+    case 'Shenzhen Aviators': {
+      return 'Shenzhen Aviators';
+    }
+    case 'Guangzhou Long-Lions': {
+      return 'Guangzhou Long-Lions';
+    }
+    case 'Sichuan Jinqiang Blue Whales': {
+      return 'Sichuan Whales';
+    }
+    case 'Tianjin Ronggang Gold Lions': {
+      return 'Tianjin Pioneers';
+    }
+    case 'Xinjiang Guanghui Flying Tigers': {
+      return 'Xinjiang Flying Tigers';
+    }
+    case 'Zhejiang Chouzhou Bank Golden Bulls': {
+      return 'Zhejiang Golden Bulls';
+    }
+    case 'Zhejiang Guangsha Lions': {
+      return 'Zhejiang Lions';
     }
     default: {
       return team;
     }
   }
 }
+
 async function queryForToken() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -180,4 +199,4 @@ async function queryForMatches(date1, date2) {
     }
   });
 }
-module.exports = prematch_statscore_NPB;
+module.exports = prematch_statscore_CBA;

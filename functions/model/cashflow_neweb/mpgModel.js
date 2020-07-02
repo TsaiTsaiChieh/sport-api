@@ -2,9 +2,16 @@ const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
 const neweb_config = require('../../config/cashflow/neweb_config');
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-async function mpgModel(exchange) {
-  exchange.coin = 50;
-  createTicket(exchange);
+async function mpgModel(res) {
+  // console.log
+  const exchange = res.body;
+  const uid = res.token.uid;
+  // console.log(uid);return;
+  exchange.coin = 30;
+  exchange.dividend = 2;
+  // uid = '2WMRgHyUwvTLyHpLoANk7gWADZn1';
+  // console.log(exchange);console.log(uid);return;
+
   return new Promise(async function(resolve, reject) {
     try {
       /* 商品名稱 */
@@ -23,14 +30,16 @@ async function mpgModel(exchange) {
       const expire_date = modules.moment(new Date()).add(ATM_ExpireDate, 'days').format('YYYY-MM-DD');
       const serial_number = modules.moment(new Date()).format('YYYYMMDDHHMMSS');
       // const serial_number_unix = modules.moment(new Date()).unix();
+      exchange.merchant_order_no = neweb_sdk.getOrderNo();
 
+      createTicket(exchange, uid);
       const trade_info_arr = {
         MerchantID: MerchantID,
         serial_number: serial_number,
         RespondType: 'JSON',
         TimeStamp: 1485232229,
         Version: VER,
-        MerchantOrderNo: neweb_sdk.getOrderNo(),
+        MerchantOrderNo: exchange.merchant_order_no,
         Amt: NTD,
         ItemDesc: Order_Title,
         ReturnURL: neweb_config.ReturnURL, // 支付完成 返回商店網址
@@ -50,21 +59,30 @@ async function mpgModel(exchange) {
     }
   });
 }
-async function createTicket(exchange) {
+async function createTicket(exchange, uid) {
   /* 寫入交易資料，未付款(status=0) */
-  const ret = JSON.stringify(exchange.coin);
-  //  console.log(exchange);return;
-  const insert = await db.sequelize.query(
+  //  const serial_number = uid + '_' + modules.moment().format('YYYYMMDDHHMMSS');
+  const scheduled = modules.moment().unix();
+  await db.sequelize.query(
     `
-    INSERT INTO cashflow_deposits (uid, money, money_real, coin, coin_real, dividend, dividend_real, serial_number) VALUES ('33333', 3, 3, 3, 3, 1, 1, :ret)
+    INSERT INTO cashflow_deposits (uid, money, money_real, coin, coin_real, dividend, dividend_real, serial_number, scheduled) VALUES (:uid, :money, :money_real, :coin, :coin_real, :dividend, :dividend_real, :serial_number, :scheduled)
     `,
     {
+      logging: true,
       replacements: {
-        ret: ret
+        uid: uid,
+        money: exchange.coin,
+        money_real: exchange.coin,
+        coin: exchange.coin,
+        coin_real: exchange.coin,
+        dividend: exchange.dividend,
+        dividend_real: exchange.dividend,
+        serial_number: exchange.merchant_order_no,
+        scheduled: scheduled
       },
       type: db.sequelize.QueryTypes.INSERT
     }
   );
-  resolve(insert);
+  // resolve(insert);
 }
 module.exports = mpgModel;

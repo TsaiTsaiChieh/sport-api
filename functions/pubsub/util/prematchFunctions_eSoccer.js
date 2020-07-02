@@ -4,6 +4,8 @@ const AppErrors = require('../../util/AppErrors');
 const leagueUniteID = '22000';
 const sportID = 1;
 const leagueArray = [22614, 22808, 22764, 22537, 22724];
+const league = 'eSoccer';
+const sport = 'esports';
 const Match = db.Match;
 const MatchTeam = db.Team;
 module.exports.eSoccer = {};
@@ -63,12 +65,12 @@ module.exports.eSoccer.upcoming = async function(date) {
           console.log(leagueID + 'has no upcoming event now');
         }
       }
-      console.log('esport scheduled success');
+      console.log(`${league} scheduled success`);
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.PrematchEsoccerError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_${league} by DY`
         )
       );
     }
@@ -81,7 +83,7 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -91,13 +93,13 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`esports/eSoccer/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at prematchFunctions_ESoccer by DY`
+          `${err} at prematchFunctions_${league} by DY`
         )
       );
     }
@@ -124,7 +126,7 @@ async function write2MysqlOfMatch(ele) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -158,7 +160,7 @@ async function write2MysqlOfMatchTeam(ele, leagueID) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_ESoccer by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
@@ -193,6 +195,7 @@ function translate(team, leagueID) {
     'Germany',
     'Bayern',
     'Spartak Moscow',
+    'Bayer Leverkusen',
     'Leverkusen',
     'Inter Milan',
     'Brazil',
@@ -202,7 +205,12 @@ function translate(team, leagueID) {
     'Sevilla',
     'Atletico Madrid',
     'RB Leipzig',
-    'England'
+    'England',
+    'West Ham',
+    'Everton',
+    'Wolverhampton',
+    'C. Palace',
+    'Chelsea'
   ];
   const eSB8tran = [
     '巴黎聖日耳曼',
@@ -234,6 +242,7 @@ function translate(team, leagueID) {
     '拜仁慕尼黑',
     '莫斯科斯巴達克',
     '拜耳樂沃庫森',
+    '拜耳樂沃庫森',
     '國際米蘭',
     '巴西',
     '法國',
@@ -242,7 +251,12 @@ function translate(team, leagueID) {
     '塞維利亞',
     '馬德里競技',
     'RB萊比錫',
-    '英格蘭'
+    '英格蘭',
+    '西漢姆',
+    '艾佛頓',
+    '狼隊',
+    '水晶宮',
+    '切爾西'
   ];
   const eLiga12ori = [
     'Club America',
@@ -423,7 +437,7 @@ function translate(team, leagueID) {
     '佛斯 (FRZ)',
     '迪蒙切洛 (DNK)',
     '甘比特 (GMB)',
-    '閒置電視 (INA)',
+    'Inactivetv (INA)',
     '西海岸 (WCU)',
     '帕怕克里奇 (ROB)'
   ];
@@ -477,7 +491,8 @@ function translate(team, leagueID) {
     'Vecchia',
     'AgussGM (SPQR)',
     'AguusGM',
-    'Chocooz (SPQR)'
+    'Chocooz (SPQR)',
+    'Gloriousmuka'
   ];
   const ePlayer12tran = [
     '克林格 (R10)',
@@ -529,7 +544,8 @@ function translate(team, leagueID) {
     '韋基亞',
     'AgussGM (SPQR)',
     'AguusGM',
-    '賈古斯 (SPQR)'
+    '賈古斯 (SPQR)',
+    '葛羅瑞斯穆卡'
   ];
   let ori = [];
   let tran = [];

@@ -1627,6 +1627,9 @@ const News = sequelize.define(
     uid: {
       type: Sequelize.STRING
     },
+    sort: {
+      type: Sequelize.INTEGER
+    },
     title: {
       type: Sequelize.STRING
     },
@@ -1847,7 +1850,16 @@ const CashflowDeposit = sequelize.define(
     status: {
       type: Sequelize.STRING
     },
+    order_status: {
+      type: Sequelize.STRING
+    },
     merchant_id: {
+      type: Sequelize.STRING
+    },
+    payment_type: {
+      type: Sequelize.STRING
+    },
+    payment_store: {
       type: Sequelize.STRING
     },
     trade_info: {

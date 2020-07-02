@@ -624,7 +624,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         )
       );
     }
-    for (let count = 3; count < 26; count++) {
+    for (let count = 6; count < 15; count++) {
       try {
         if (
           data.api.data.competition.season.stage.group.event.participants[0]
@@ -632,13 +632,13 @@ async function writeRealtime(betsID, realtimeData, data) {
         ) {
           await modules.database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/home/Innings${
-                count - 2
+              `${sport}/${league}/${betsID}/Summary/info/home/period${
+                count - 5
               }`
             )
             .set({
               scoring: {
-                runs:
+                points:
                   data.api.data.competition.season.stage.group.event
                     .participants[0].results[count].value
               }
@@ -650,13 +650,13 @@ async function writeRealtime(betsID, realtimeData, data) {
         ) {
           await modules.database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/away/Innings${
-                count - 2
+              `${sport}/${league}/${betsID}/Summary/info/away/period${
+                count - 5
               }`
             )
             .set({
               scoring: {
-                runs:
+                points:
                   data.api.data.competition.season.stage.group.event
                     .participants[1].results[count].value
               }
@@ -691,12 +691,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         eventNow = eventNow + 1;
         continue;
       }
-      inningNow = changeInning(
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].event_status_name,
-        inningNow
-      );
+
       eventNow = eventNow + 1;
 
       const half =
@@ -730,12 +725,30 @@ async function writeRealtime(betsID, realtimeData, data) {
               ? '0'
               : '1';
 
-      if (half !== halfNow && half !== 'common') {
+      if (
+        inningNow !==
+        changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        )
+      ) {
         eventOrderNow = 0;
-      } else if (half === 'common') {
-        eventOrderNow = 0;
+        inningNow = changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        );
       } else {
         eventOrderNow = eventOrderNow + 1;
+        inningNow = changeInning(
+          data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].event_status_name,
+          inningNow
+        );
       }
       try {
         if (half === 'common') {
