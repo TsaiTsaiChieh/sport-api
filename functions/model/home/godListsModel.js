@@ -53,7 +53,7 @@ async function godlists() {
 
   //  and titles.uid = prediction.uid
 
-  if (godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
   godListsQuery.sort(fieldSorter(['order']));// 進行 order 排序，將來後台可能指定順序
 

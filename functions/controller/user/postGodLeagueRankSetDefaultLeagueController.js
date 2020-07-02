@@ -22,8 +22,8 @@ async function postGodLeagueRankSetDefaultLeague(req, res) {
 
     res.json(await postGodLeagueRankSetDefaultLeagueModel(req.body));
   } catch (err) {
-    console.error(err);
-    res.status(err.code).json(err.err);
+    console.error('[postGodLeagueRankSetDefaultLeagueController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

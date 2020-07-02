@@ -4,7 +4,8 @@ async function dividendExpireController(req, res) {
   try {
     res.json(await dividendExpireModel(req));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[dividendExpireController]', err);
+    res.status(err.code).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 
