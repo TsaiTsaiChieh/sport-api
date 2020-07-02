@@ -9,7 +9,7 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken, zone_tw, statscoreToken } = envValues;
+const { sportRadarKeys, betsToken, zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -841,6 +841,5 @@ module.exports = {
   to,
   godUserPriceTable,
   validateProperty,
-  NP,
-  statscoreToken
+  NP
 };
