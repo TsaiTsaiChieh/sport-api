@@ -12,13 +12,13 @@ async function prematch_statscore_CBA() {
       const date2 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: -1,
+        value: 2,
         unit: 'days'
       });
       const date1 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: -2,
+        value: -1,
         unit: 'days'
       });
       const token = await queryForToken();
@@ -145,6 +145,9 @@ function teamTrans(team) {
     }
     case 'Zhejiang Guangsha Lions': {
       return 'Zhejiang Lions';
+    }
+    case 'Jiangsu Dragons Kentier': {
+      return 'Jiangsu Dragons';
     }
     default: {
       return team;
