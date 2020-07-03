@@ -2234,7 +2234,7 @@ const PurchaseList = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ['list_id', 'coin','dividend']
+        fields: ['list_id', 'coin', 'dividend']
       }
     ]
   }
