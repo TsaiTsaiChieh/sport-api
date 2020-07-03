@@ -37,7 +37,8 @@ function getMatchesWithDate(args) {
                 game.home_name, game.home_alias_ch, game.home_alias, game.home_image_id, 
                 game.away_name, game.away_alias_ch, game.away_alias, game.away_image_id, 
                 spread.handicap AS spread_handicap, spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw,
-                totals.handicap AS totals_handicap, totals.over_tw AS totals_over_tw
+                totals.handicap AS totals_handicap, totals.over_tw AS totals_over_tw,
+                league.name_ch, league.ori_league_id
           FROM
               (
                 SELECT game.*,
@@ -55,6 +56,7 @@ function getMatchesWithDate(args) {
               ) AS game
      LEFT JOIN match__spreads AS spread ON (game.bets_id = spread.match_id AND game.spread_id = spread.spread_id)
      LEFT JOIN match__totals AS totals ON (game.bets_id = totals.match_id AND game.totals_id = totals.totals_id)
+    INNER JOIN match__leagues AS league ON game.league_id = league.league_id
       ORDER BY game.scheduled`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -116,9 +118,11 @@ function repackageMatches(results, args, godPredictions) {
     const temp = {
       id: ele.id,
       scheduled: ele.scheduled,
-      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A h:mm' }),
+      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
       status: ele.status,
       league: args.league,
+      league_ch: ele.name_ch,
+      ori_league_id: ele.ori_league_id,
       home: {
         id: ele.home_id,
         team_name: ele.home_alias,
