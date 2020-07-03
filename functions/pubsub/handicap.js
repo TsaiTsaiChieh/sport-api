@@ -392,128 +392,129 @@ function spreadCalculator(handicapObj, sport) {
               }
 
               // here
-
-              if (tempHandicap === 'PK') {
-                handicapObj.handicap = 0;
-                handicapObj.rate = 0;
-                handicapObj.home_tw = 'PK';
-                handicapObj.away_tw = null;
-              }
-              if (handicapObj.handicap >= 0) {
-                // 原本的盤口>=0 主讓客
-                if (tempHandicap[0] === '-') {
-                  // 盤口變號 變成客讓主
-                  tempHandicap = tempHandicap.replace('-', '');
-                  if (tempHandicap.indexOf('-') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('-')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(
-                      `-${tempHandicap.split('-')[1]}`
-                    );
-                  } else if (tempHandicap.indexOf('+') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('+')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                  } else if (tempHandicap.indexOf('平') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('平')[0]}`
-                    );
-                    handicapObj.rate = 0;
-                  } else if (tempHandicap.indexOf('輸') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('輸')[0]}`
-                    );
-                    handicapObj.rate = -100;
-                  }
-                  handicapObj.home_tw = null;
-                  handicapObj.away_tw = tempHandicap;
-                } else {
-                  // 不用變號
-                  if (tempHandicap.indexOf('-') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      tempHandicap.split('-')[0]
-                    );
-                    handicapObj.rate = parseFloat(
-                      `-${tempHandicap.split('-')[1]}`
-                    );
-                  } else if (tempHandicap.indexOf('+') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      tempHandicap.split('+')[0]
-                    );
-                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                  } else if (tempHandicap.indexOf('平') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      tempHandicap.split('平')[0]
-                    );
-                    handicapObj.rate = 0;
-                  } else if (tempHandicap.indexOf('輸') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      tempHandicap.split('輸')[0]
-                    );
-                    handicapObj.rate = -100;
-                  }
-                  handicapObj.home_tw = tempHandicap;
+              if (tempHandicap !== undefined && !tempHandicap) {
+                if (tempHandicap === 'PK') {
+                  handicapObj.handicap = 0;
+                  handicapObj.rate = 0;
+                  handicapObj.home_tw = 'PK';
                   handicapObj.away_tw = null;
                 }
-              } else {
-                // 原本的盤口<0 客讓主
-                if (tempHandicap[0] === '-') {
-                  // 變號 變成主讓客
-                  tempHandicap = tempHandicap.replace('-', '');
-                  if (tempHandicap.indexOf('-') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `${tempHandicap.split('-')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(
-                      `-${tempHandicap.split('-')[1]}`
-                    );
-                  } else if (tempHandicap.indexOf('+') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `${tempHandicap.split('+')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                  } else if (tempHandicap.indexOf('平') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `${tempHandicap.split('平')[0]}`
-                    );
-                    handicapObj.rate = 0;
-                  } else if (tempHandicap.indexOf('輸') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `${tempHandicap.split('輸')[0]}`
-                    );
-                    handicapObj.rate = -100;
+                if (handicapObj.handicap >= 0) {
+                  // 原本的盤口>=0 主讓客
+                  if (tempHandicap[0] === '-') {
+                    // 盤口變號 變成客讓主
+                    tempHandicap = tempHandicap.replace('-', '');
+                    if (tempHandicap.indexOf('-') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('-')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(
+                        `-${tempHandicap.split('-')[1]}`
+                      );
+                    } else if (tempHandicap.indexOf('+') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('+')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                    } else if (tempHandicap.indexOf('平') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('平')[0]}`
+                      );
+                      handicapObj.rate = 0;
+                    } else if (tempHandicap.indexOf('輸') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('輸')[0]}`
+                      );
+                      handicapObj.rate = -100;
+                    }
+                    handicapObj.home_tw = null;
+                    handicapObj.away_tw = tempHandicap;
+                  } else {
+                    // 不用變號
+                    if (tempHandicap.indexOf('-') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        tempHandicap.split('-')[0]
+                      );
+                      handicapObj.rate = parseFloat(
+                        `-${tempHandicap.split('-')[1]}`
+                      );
+                    } else if (tempHandicap.indexOf('+') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        tempHandicap.split('+')[0]
+                      );
+                      handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                    } else if (tempHandicap.indexOf('平') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        tempHandicap.split('平')[0]
+                      );
+                      handicapObj.rate = 0;
+                    } else if (tempHandicap.indexOf('輸') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        tempHandicap.split('輸')[0]
+                      );
+                      handicapObj.rate = -100;
+                    }
+                    handicapObj.home_tw = tempHandicap;
+                    handicapObj.away_tw = null;
                   }
-                  handicapObj.home_tw = tempHandicap;
-                  handicapObj.away_tw = null;
                 } else {
-                  // 不用變號
-                  if (tempHandicap.indexOf('-') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('-')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(
-                      `-${tempHandicap.split('-')[1]}`
-                    );
-                  } else if (tempHandicap.indexOf('+') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('+')[0]}`
-                    );
-                    handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
-                  } else if (tempHandicap.indexOf('平') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('平')[0]}`
-                    );
-                    handicapObj.rate = 0;
-                  } else if (tempHandicap.indexOf('輸') !== -1) {
-                    handicapObj.handicap = parseFloat(
-                      `-${tempHandicap.split('輸')[0]}`
-                    );
-                    handicapObj.rate = -100;
+                  // 原本的盤口<0 客讓主
+                  if (tempHandicap[0] === '-') {
+                    // 變號 變成主讓客
+                    tempHandicap = tempHandicap.replace('-', '');
+                    if (tempHandicap.indexOf('-') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `${tempHandicap.split('-')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(
+                        `-${tempHandicap.split('-')[1]}`
+                      );
+                    } else if (tempHandicap.indexOf('+') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `${tempHandicap.split('+')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                    } else if (tempHandicap.indexOf('平') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `${tempHandicap.split('平')[0]}`
+                      );
+                      handicapObj.rate = 0;
+                    } else if (tempHandicap.indexOf('輸') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `${tempHandicap.split('輸')[0]}`
+                      );
+                      handicapObj.rate = -100;
+                    }
+                    handicapObj.home_tw = tempHandicap;
+                    handicapObj.away_tw = null;
+                  } else {
+                    // 不用變號
+                    if (tempHandicap.indexOf('-') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('-')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(
+                        `-${tempHandicap.split('-')[1]}`
+                      );
+                    } else if (tempHandicap.indexOf('+') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('+')[0]}`
+                      );
+                      handicapObj.rate = parseFloat(tempHandicap.split('+')[1]);
+                    } else if (tempHandicap.indexOf('平') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('平')[0]}`
+                      );
+                      handicapObj.rate = 0;
+                    } else if (tempHandicap.indexOf('輸') !== -1) {
+                      handicapObj.handicap = parseFloat(
+                        `-${tempHandicap.split('輸')[0]}`
+                      );
+                      handicapObj.rate = -100;
+                    }
+                    handicapObj.home_tw = null;
+                    handicapObj.away_tw = tempHandicap;
                   }
-                  handicapObj.home_tw = null;
-                  handicapObj.away_tw = tempHandicap;
                 }
               }
             }
@@ -817,8 +818,10 @@ function modifyHandicap(handicap, upOrDown, unit) {
     unit = unit - 1;
   }
 
-  const tempHandicap = calculateArray[unit];
-
+  let tempHandicap = calculateArray[unit];
+  if (tempHandicap === undefined) {
+    tempHandicap = handicap;
+  }
   return tempHandicap;
 }
 module.exports = handicap;

@@ -184,7 +184,7 @@ exports.pbp_abnormal = functions
   .onRun(require('./pubsub/checkmatch_abnormal'));
 
 exports.auth_statscore = functions.pubsub
-  .schedule('0 0 * * *')
+  .schedule('50 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
 exports.prematch_statscore_KBO = functions.pubsub

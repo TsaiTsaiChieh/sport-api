@@ -309,6 +309,97 @@ async function initRealtime(betsID, data) {
       );
     }
     // here 隊員名稱 須以betsapi 輔助
+    if (
+      data.api.data.competition.season.stage.group.event.participants[0].lineups
+        .length > 0
+    ) {
+      const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
+        function(a, b) {
+          return a.id > b.id ? 1 : -1;
+        }
+      );
+      const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
+        function(a, b) {
+          return a.id > b.id ? 1 : -1;
+        }
+      );
+      for (
+        let playercount = 0;
+        playercount < homeLineup.length;
+        playercount++
+      ) {
+        try {
+          await modules.database
+            .ref(
+              `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
+                playercount + 1
+              }`
+            )
+            .set({
+              points: 0,
+              rebounds: 0,
+              assists: 0,
+              minutes: 0,
+              name: homeLineup[playercount].participant_name,
+              jersey_number: homeLineup[playercount].shirt_nr,
+              order: playercount + 1,
+              id: homeLineup[playercount].id
+              // start: 0
+            });
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP on ${betsID} by DY`
+            )
+          );
+        }
+      }
+      for (
+        let playercount = 0;
+        playercount < awayLineup.length;
+        playercount++
+      ) {
+        try {
+          await modules.database
+            .ref(
+              `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
+                playercount + 1
+              }`
+            )
+            .set({
+              points: 0,
+              rebounds: 0,
+              assists: 0,
+              minutes: 0,
+              name: awayLineup[playercount].participant_name,
+              jersey_number: awayLineup[playercount].shirt_nr,
+              order: playercount + 1,
+              id: awayLineup[playercount].id
+              // start: 0
+            });
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP on ${betsID} by DY`
+            )
+          );
+        }
+      }
+      await modules.database
+        .ref(
+          `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup0`
+        )
+        .set({
+          name: homeLineup[homeLineup.length].participant_name
+        });
+      await modules.database
+        .ref(
+          `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup0`
+        )
+        .set({
+          name: awayLineup[awayLineup.length].participant_name
+        });
+    }
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
@@ -503,15 +594,19 @@ async function writeRealtime(betsID, realtimeData, data) {
             .set({
               // 待翻譯
               description:
-                data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].participant_name +
+                teamTrans(
+                  data.api.data.competition.season.stage.group.event
+                    .events_incidents[eventCount].participant_id
+                ) +
                 ' ' +
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name,
               description_ch: translateNormal(
                 realtimeData,
-                data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].participant_name,
+                teamTrans(
+                  data.api.data.competition.season.stage.group.event
+                    .events_incidents[eventCount].participant_id
+                ),
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
@@ -572,6 +667,68 @@ async function writeBacktoReal(betsID) {
   });
 }
 
+function teamTrans(id) {
+  switch (id) {
+    case '1938': {
+      return '浙江稠洲銀行';
+    }
+    case '1946': {
+      return '浙江廣廈控股';
+    }
+    case '1942': {
+      return '深圳馬可波羅';
+    }
+    case '2485': {
+      return '四川金強';
+    }
+    case '1939': {
+      return '天津先行者';
+    }
+    case '1937': {
+      return '新疆伊力特';
+    }
+    case '1943': {
+      return '時代中國廣州';
+    }
+    case '1948': {
+      return '九台農商銀行';
+    }
+    case '1949': {
+      return '遼寧本鋼';
+    }
+    case '2703': {
+      return '南京同曦宙光';
+    }
+    case '1950': {
+      return '青島國信雙星';
+    }
+    case '1951': {
+      return '山東西王';
+    }
+    case '1952': {
+      return '上海久事';
+    }
+    case '2704': {
+      return '北京紫禁勇士';
+    }
+    case '1941': {
+      return '北京首鋼';
+    }
+    case '1944': {
+      return '福建豹發力';
+    }
+    case '1945': {
+      return '廣東東莞銀行';
+    }
+    case '1940': {
+      return '八一南昌';
+    }
+    default: {
+      return id;
+    }
+  }
+}
+
 function translateCommon(event) {
   switch (event) {
     case '1st quarter started': {
@@ -628,7 +785,7 @@ function translateCommon(event) {
   }
 }
 
-function translateNormal(realtimeData, name, event) {
+function translateNormal(name, event) {
   let out;
   let string_ch;
 
