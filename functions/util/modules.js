@@ -7,9 +7,9 @@ const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const Ajv = require('ajv');
-const ajv = new Ajv({allErrors: true, useDefaults: true});
+const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const {sportRadarKeys, betsToken, zone_tw} = envValues;
+const { sportRadarKeys, betsToken, zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -23,7 +23,7 @@ const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
 const acceptLeague = ['NBA', 'eSoccer', 'KBO', 'NPB', 'CPBL', 'Soccer'];
 // const errs = require('./errorCode');
-const MATCH_STATUS = {SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1};
+const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
@@ -85,9 +85,9 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertDateYMDToGTM0Unix(sdate, op) {
-  let {num, unit, zone} = Object.assign(
+  let { num, unit, zone } = Object.assign(
     {},
-    {num: 0, unit: 'days', zone: zone_tw},
+    { num: 0, unit: 'days', zone: zone_tw },
     op
   );
   num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
@@ -101,9 +101,9 @@ function convertDateYMDToGTM0Unix(sdate, op) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertGTM0UnixToDateYMD(sdateUnix, op) {
-  let {format, num, unit, zone} = Object.assign(
+  let { format, num, unit, zone } = Object.assign(
     {},
-    {format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw},
+    { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw },
     op
   );
   sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
@@ -209,7 +209,7 @@ function addDataInCollection(collection, data) {
   return firestore.collection(collection).add(data);
 }
 function addDataInCollectionWithId(collection, id, data) {
-  return firestore.collection(collection).doc(id).set(data, {merge: true});
+  return firestore.collection(collection).doc(id).set(data, { merge: true });
 }
 function createError(code, error) {
   const err = {};
@@ -249,8 +249,8 @@ function dateFormat(date) {
 async function cloneFirestore(name, clonedName) {
   const snapshot = await firestore.collection(name).get();
   const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function (doc) {
-    clonedDb.doc(doc.data().bets_id).set(doc.data(), {merge: true});
+  snapshot.docs.map(function(doc) {
+    clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
   });
 }
 function firebaseTimestamp(milliseconds) {
@@ -582,19 +582,19 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
 function getTitles(titles, num = 1) {
   switch (num) {
     case 1:
-      return {1: titles.continue};
+      return { 1: titles.continue };
     case 2:
       return {
         2: [titles.predict_rate1, titles.predict_rate2, titles.predict_rate3]
       };
     case 3:
-      return {3: [titles.predict_rate1, titles.predict_rate3]};
+      return { 3: [titles.predict_rate1, titles.predict_rate3] };
     case 4:
-      return {4: titles.win_bets_continue};
+      return { 4: titles.win_bets_continue };
     case 5:
-      return {5: [titles.matches_rate1, titles.matches_rate2]};
+      return { 5: [titles.matches_rate1, titles.matches_rate2] };
     case 6:
-      return {6: titles.matches_continue};
+      return { 6: titles.matches_continue };
   }
 }
 
@@ -647,7 +647,7 @@ function groupBy(arr, prop) {
 //   { uid: 'Xw4dOKa4mWh3Kvlx35mPtAOX2P52', league_id: '2274', lists: [ {...}, ... ]}
 function groupsByOrdersLimit(array, prop, order, limit = -1) {
   const groups = {};
-  array.forEach(function (o) {
+  array.forEach(function(o) {
     // 組出 prop 的 json 字串 做為 groups key 值
     var group = JSON.stringify(
       prop.map((m) => {
@@ -664,7 +664,7 @@ function groupsByOrdersLimit(array, prop, order, limit = -1) {
     o = o.slice(0, limit); // 取幾筆
   }
 
-  return Object.keys(groups).map(function (group) {
+  return Object.keys(groups).map(function(group) {
     const res = {};
     const t = JSON.parse(group); // 把 json 字串 轉回 object
     for (const [key, value] of Object.entries(t)) {
@@ -734,7 +734,7 @@ const mergeDeep = (target, source) => {
         ? mergeDeep(target[prop], source[prop])
         : source[prop]
     }))
-    .reduce((a, b) => ({...a, ...b}), {});
+    .reduce((a, b) => ({ ...a, ...b }), {});
 
   return {
     ...target,
