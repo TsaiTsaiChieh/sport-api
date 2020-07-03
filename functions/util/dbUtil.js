@@ -1207,6 +1207,11 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
+    imgurl: {
+      // 縮圖(只存第一張)
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0,
