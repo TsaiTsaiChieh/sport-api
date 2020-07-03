@@ -3,11 +3,10 @@ const model = require('../../model/history/getSeasonDateModel');
 
 async function getSeasonDate(req, res) {
   const schema = {
-    required: ['league'],
+    required: ['eventID'],
     properties: {
-      league: {
-        type: 'string',
-        enum: modules.acceptLeague
+      eventID: {
+        type: 'string'
       }
     }
   };

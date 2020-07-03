@@ -85,7 +85,11 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertDateYMDToGTM0Unix(sdate, op) {
-  let { num, unit, zone } = Object.assign({}, { num: 0, unit: 'days', zone: zone_tw }, op);
+  let { num, unit, zone } = Object.assign(
+    {},
+    { num: 0, unit: 'days', zone: zone_tw },
+    op
+  );
   num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
   return moment.tz(sdate, zone).add(num, unit).unix();
 }
@@ -97,7 +101,11 @@ function convertDateYMDToGTM0Unix(sdate, op) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertGTM0UnixToDateYMD(sdateUnix, op) {
-  let { format, num, unit, zone } = Object.assign({}, { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw }, op);
+  let { format, num, unit, zone } = Object.assign(
+    {},
+    { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw },
+    op
+  );
   sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
   num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
   return moment.tz(sdateUnix, zone).add(num, unit).format(format);
@@ -127,8 +135,14 @@ function coreDateInfo(sdateUnix, zone = zone_tw) {
 function date3Info(sdateUnix, zone = zone_tw) {
   sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
   const sdateInfo = coreDateInfo(sdateUnix, zone);
-  const yesterdayInfo = coreDateInfo(moment.tz(sdateUnix, zone).subtract(1, 'days').unix(), zone);
-  const tomorrowInfo = coreDateInfo(moment.tz(sdateUnix, zone).add(1, 'days').unix(), zone);
+  const yesterdayInfo = coreDateInfo(
+    moment.tz(sdateUnix, zone).subtract(1, 'days').unix(),
+    zone
+  );
+  const tomorrowInfo = coreDateInfo(
+    moment.tz(sdateUnix, zone).add(1, 'days').unix(),
+    zone
+  );
 
   return {
     mdate: sdateInfo.mdate,
@@ -261,6 +275,14 @@ function league2Sport(league) {
         sport: 'soccer'
       };
     case 'KBO':
+      return {
+        sport: 'baseball'
+      };
+    case 'CPBL':
+      return {
+        sport: 'baseball'
+      };
+    case 'NPB':
       return {
         sport: 'baseball'
       };
@@ -476,16 +498,22 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
         .utcOffset(UTF8)
         .add(i * 2 - 2, 'weeks')
         .format(format);
-      const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
-      const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+      const periodBeginDateBeginUnix = moment
+        .tz(periodBeginDate, format, zone_tw)
+        .unix();
+      const periodBeginDateEndUnix =
+        moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
 
       const periodEndDate = moment(specificDate) // 該期結束計算的日期
         .utcOffset(UTF8)
         .add(i * 2, 'weeks')
         .subtract(1, 'days')
         .format(format);
-      const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
-      const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+      const periodEndDateBeginUnix = moment
+        .tz(periodEndDate, format, zone_tw)
+        .unix();
+      const periodEndDateEndUnix =
+        moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
 
       const nowWeekOfyear = moment.tz(date, zone_tw).week();
       const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
@@ -515,8 +543,14 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
 
-  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, { num: 2, unit: 'weeks' });
-  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, { num: 2, unit: 'weeks' });
+  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, {
+    num: 2,
+    unit: 'weeks'
+  });
+  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, {
+    num: 2,
+    unit: 'weeks'
+  });
   const periodBeginDate = coreDateInfo(periodBeginDateUnix);
   const periodEndDate = coreDateInfo(periodEndDateUnix);
 
