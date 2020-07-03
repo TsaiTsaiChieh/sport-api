@@ -2202,6 +2202,40 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
+
+const PurchaseList = sequelize.define(
+  'cashflow_purchase_list',
+  {
+    list_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['list_id', 'coin', 'dividend']
+      }
+    ]
+  }
+);
 const Token = sequelize.define(
   'token',
   {
@@ -2298,6 +2332,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  PurchaseList,
   Token,
   AdminLogging
 };
