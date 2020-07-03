@@ -77,7 +77,7 @@ function newsModel(method, args, uid) {
         /* 使用者訊息資料 */
         const user = await db.sequelize.query(
           `
-          SELECT un.news_id, un.uid, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
+          SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
             FROM user__news un, users u
           WHERE un.scheduled BETWEEN :begin and :end
             AND u.uid = un.uid
