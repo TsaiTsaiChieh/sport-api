@@ -20,6 +20,34 @@ Cache.set = async function(key, value) {
   if (err) {console.error('[REDIS][Cache.set]', err); }
 };
 
+// Special Delete
+const deleteScript = `
+  local all_keys = {};
+  local keys = {};
+  local done = false;
+  local cursor = "0"
+  repeat
+      local result = redis.call("SCAN", cursor, "match", KEYS[1], "count", KEYS[2])
+      cursor = result[1];
+      keys = result[2];
+      for i, key in ipairs(keys) do
+          all_keys[#all_keys+1] = key;
+      end
+      if cursor == "0" then
+          done = true;
+      end
+  until done
+  for i, key in ipairs(all_keys) do
+      redis.call("DEL", key);
+  end
+  return true;
+`;
+
+redis.defineCommand('specialDel', {
+  numberOfKeys: 2,
+  lua: deleteScript
+});
+
 // 底下是使用 npm redis 的版本 不支援 promise
 // redisClient
 // redisClient.set("hello", "world"), function(err) { console.error(err); });
