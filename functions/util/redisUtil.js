@@ -1,4 +1,4 @@
-const { to } = require('./modules');
+const to = require('await-to-js').default;
 const { redisConfig } = require('../config/redisConfig');
 const Redis = require('ioredis');
 const redis = new Redis(redisConfig.REDISPORT, redisConfig.REDISHOST, {
