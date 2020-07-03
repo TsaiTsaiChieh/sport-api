@@ -1,10 +1,11 @@
 const { getTitlesPeriod, leagueCodebook, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { CacheQuery } = require('../../util/redisUtil');
 
 async function winRateLists() {
   // 取得 首頁預設值
-  const listLeague = await db.Home_List.findOne({ where: { id: 1 } });
+  const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });
   const defaultLeague = listLeague.god_list;
   const defaultLeagueID = leagueCodebook(defaultLeague).id;
 
@@ -24,7 +25,9 @@ async function winRateLists() {
     const order = 'this_month_win_rate';
     const limit = 10;
     const period = getTitlesPeriod(new Date()).period;
-    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(`
+
+    const redisKey = ['home', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
+    const [err, leagueWinRateListsQuery] = await to(CacheQuery(db.sequelize, `
           select winlist.*, titles.rank_id
                  
             from (
@@ -65,7 +68,7 @@ async function winRateLists() {
         period: period
       },
       type: db.sequelize.QueryTypes.SELECT
-    }));
+    }, redisKey));
     if (err) {
       console.error('Error 2. in home/winRateListsModel by YuHsien', err);
       throw errs.dbErrsMsg('404', '14040');

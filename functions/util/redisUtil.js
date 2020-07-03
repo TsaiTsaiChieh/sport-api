@@ -48,6 +48,17 @@ redis.defineCommand('specialDel', {
   lua: deleteScript
 });
 
+async function CacheQuery(sequelize, sql, params, redisKey) {
+  const cacheData = await Cache.get(redisKey);
+  if (cacheData) return cacheData; // not empty return cache data
+
+  const [err, lists] = await to(sequelize.query(sql, params));
+  if (err) throw err;
+
+  if (lists) await Cache.set(redisKey, lists); // not empty set cache data
+  return lists;
+}
+
 // 底下是使用 npm redis 的版本 不支援 promise
 // redisClient
 // redisClient.set("hello", "world"), function(err) { console.error(err); });
@@ -88,7 +99,8 @@ redis.defineCommand('specialDel', {
 
 const redisUtil = {
   redis,
-  Cache
+  Cache,
+  CacheQuery
   // redisClient,
   // redisGet,
   // redisSet,
