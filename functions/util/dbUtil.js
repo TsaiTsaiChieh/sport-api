@@ -22,7 +22,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
 Sequelize.Model.findOneCache = async function() {
   let redisKey;
   for (const parms of Object.values(arguments)) {
-    if (parms.where) redisKey = [this.name, JSON.stringify(parms.where)].join(':');
+    if (parms.where) {redisKey = [this.name, JSON.stringify(parms.where)].join(':');}
   }
   const cacheValue = await Cache.get(redisKey);
   if (cacheValue) return JSON.parse(cacheValue);
@@ -2306,11 +2306,18 @@ const AdminLogging = sequelize.define(
     }
   },
   {
-    indexes: [{
-      fields: ['uid', 'name']
-    }]
+    indexes: [
+      {
+        fields: ['uid', 'name']
+      }
+    ]
   }
 );
+const Player = sequelize.define('player', {
+  uid: {
+    type: Sequelize.STRING
+  }
+});
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2357,7 +2364,8 @@ const dbUtil = {
   CashflowDonate,
   PurchaseList,
   Token,
-  AdminLogging
+  AdminLogging,
+  Player
 };
 
 module.exports = dbUtil;

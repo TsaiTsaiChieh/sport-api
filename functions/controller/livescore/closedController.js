@@ -37,7 +37,7 @@ async function livescoreClosed(req, res) {
 }
 module.exports = livescoreClosed;
 /**
- * @api {GET} /livescore/closed Get Livescore of closed event 
+ * @api {GET} /livescore/closed Get Livescore of closed event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
  * @apiName livescore information closed

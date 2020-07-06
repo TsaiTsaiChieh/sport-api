@@ -36,7 +36,7 @@ async function livescoreAll(req, res) {
 }
 module.exports = livescoreAll;
 /**
- * @api {GET} /livescore/all Get Livescore of all event 
+ * @api {GET} /livescore/all Get Livescore of all event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
  * @apiName livescore information all

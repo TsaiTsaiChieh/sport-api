@@ -9,7 +9,7 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken, zone_tw } = envValues;
+const { zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -823,14 +823,12 @@ module.exports = {
   moment,
   axios,
   db,
-  betsToken,
   path,
   os,
   fs,
   https,
   dateFormat,
   cloneFirestore,
-  sportRadarKeys,
   firebaseTimestamp,
   firestoreService,
   league2Sport,
