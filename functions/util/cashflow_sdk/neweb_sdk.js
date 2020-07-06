@@ -20,7 +20,7 @@ function create_mpg_aes_encrypt(parameter = '', key = '', iv = '') {
 function create_mpg_aes_decrypt(encryptedBase64Str, key, iv) {
   const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedBase64Str);
   encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-  
+
   const decryptedData = CryptoJS.AES.decrypt(encryptedBase64Str, CryptoJS.enc.Utf8.parse(key), {
     iv: CryptoJS.enc.Utf8.parse(iv), // 解析IV
     padding: CryptoJS.pad.Pkcs7,
@@ -66,7 +66,7 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
 /* 取得訂單編號 */
 function get_order_no() {
   /* 需加入預設時區 */
-  const serial_number = moment().format('YYYYMMDDHHMMSS');//訂單格式
+  const serial_number = moment().format('YYYYMMDDHHMMSS');// 訂單格式
   return serial_number;
 }
 

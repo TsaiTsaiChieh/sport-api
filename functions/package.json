@@ -39,7 +39,7 @@
     "helmet": "3.21.2",
     "http-build-query": "0.7.0",
     "http-status": "1.4.2",
-    "ioredis": "^4.17.3",
+    "ioredis": "4.17.3",
     "js-sha256": "0.9.0",
     "jsonwebtoken": "8.5.1",
     "line-login": "1.0.14",

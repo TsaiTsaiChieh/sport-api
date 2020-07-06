@@ -3,28 +3,29 @@ const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
 const neweb_config = require('../../config/cashflow/neweb_config');
 // const invoice_model = require('../../config/invoice_ezpay/mpg_model');
 async function mpgNotifyModel(res) {
-  const update = await updateOrder(res); //更新訂單狀態
-  if(update.status){
-    await invoice_model.mpgModel(update.rdata);
+  const update = await updateOrder(res); // 更新訂單狀態
+  if (update.status) {
+    console.log('invoice pending');
+    // await invoice_model.mpgModel(update.rdata);
   }
 }
 
 async function updateOrder(res) {
-  const exchange = res.body;                      //request data
-  const setting = neweb_config.setting.test;           //讀取設定檔(測試/正式)
+  const exchange = res.body; // request data
+  const setting = neweb_config.setting.test; // 讀取設定檔(測試/正式)
 
   /* 金流基本參數 */
-  const HashKey = setting.hash_key;     //hash key
-  const HashIV = setting.hash_iv;       //hash iv
+  const HashKey = setting.hash_key; // hash key
+  const HashIV = setting.hash_iv; // hash iv
 
-  const return_data = await neweb_sdk.create_mpg_aes_decrypt(exchange.TradeInfo, HashKey, HashIV); //解密繳款成功回傳資料
+  const return_data = await neweb_sdk.create_mpg_aes_decrypt(exchange.TradeInfo, HashKey, HashIV); // 解密繳款成功回傳資料
   const rdata = JSON.parse(return_data);
 
   const merchant_order_no = rdata.Result.MerchantOrderNo;
   if (exchange.Status === 'SUCCESS') {
-    exchange.order_status = 1;//訂單成功狀態改為1
+    exchange.order_status = 1;// 訂單成功狀態改為1
   } else {
-    exchange.order_status = 0;//訂單失敗狀態改為0
+    exchange.order_status = 0;// 訂單失敗狀態改為0
   }
 
   await db.CashflowDeposit.update({
@@ -56,9 +57,9 @@ async function updateOrder(res) {
   }
 
   const rtns = {
-    'status':exchange.order_stutus,
-    'rdata':rdata
-  }
+    status: exchange.order_stutus,
+    rdata: rdata
+  };
   return rtns;
 }
 module.exports = mpgNotifyModel;
