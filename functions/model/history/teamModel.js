@@ -54,7 +54,12 @@ async function repackage(teams) {
       };
       data.push(temp);
     }
-    return data;
+    const result = await data.sort(
+      function(a, b) {
+        return a.name_ch > b.name_ch ? 1 : -1;
+      }
+    );
+    return result;
   } catch (err) {
     console.error(`${err.stack} by DY`);
     throw new AppErrors.RepackageError(`${err.stack} by DY`);

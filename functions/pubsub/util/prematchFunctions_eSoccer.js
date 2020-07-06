@@ -174,12 +174,14 @@ function translate(team, leagueID) {
     'Man Utd',
     "M'Gladbach",
     "Borussia M'gladbach",
+    "B M'gladbach",
     'Tottenham',
     'Real Madrid',
     'Portugal',
     'Spain',
     'Napoli',
     'CSKA Moscow',
+    'Borussia Dortmund',
     'Dortmund',
     'Barcelona',
     'Valencia',
@@ -194,6 +196,7 @@ function translate(team, leagueID) {
     'AC Milan',
     'Germany',
     'Bayern',
+    'Spartak',
     'Spartak Moscow',
     'Bayer Leverkusen',
     'Leverkusen',
@@ -205,6 +208,7 @@ function translate(team, leagueID) {
     'Sevilla',
     'Atletico Madrid',
     'RB Leipzig',
+    'Leipzig',
     'England',
     'West Ham',
     'Everton',
@@ -213,7 +217,18 @@ function translate(team, leagueID) {
     'Chelsea',
     'Dynamo Kiev',
     'Lokomotiv',
-    'Inter'
+    'Inter',
+    'Atl Madrid',
+    'Loko Moscow',
+    'Man United',
+    'CSKA',
+    'Shakhtar',
+    'S. Donetsk',
+    'Leicester',
+    'L. Moscow',
+    'Crystal Palace',
+    'Dyn Kyiv',
+    'Wolves'
   ];
   const eSB8tran = [
     '巴黎聖日耳曼',
@@ -223,12 +238,14 @@ function translate(team, leagueID) {
     '曼徹斯特聯',
     '門興格拉德巴赫',
     '門興格拉德巴赫',
+    '門興格拉德巴赫',
     '托特納姆',
     '皇家馬德里',
     '葡萄牙',
     '西班牙',
     '那不勒斯',
     '莫斯科中央陸軍',
+    '白俄羅斯多蒙特',
     '多蒙特',
     '巴塞隆納',
     '巴倫西亞',
@@ -243,6 +260,7 @@ function translate(team, leagueID) {
     'AC 米蘭',
     '德國',
     '拜仁慕尼黑',
+    '斯巴達克',
     '莫斯科斯巴達克',
     '拜耳樂沃庫森',
     '拜耳樂沃庫森',
@@ -254,6 +272,7 @@ function translate(team, leagueID) {
     '塞維利亞',
     '馬德里競技',
     'RB萊比錫',
+    '萊比錫',
     '英格蘭',
     '西漢姆',
     '艾佛頓',
@@ -262,7 +281,18 @@ function translate(team, leagueID) {
     '切爾西',
     '基輔迪納摩',
     '莫斯科火車頭',
-    '國際米蘭'
+    '國際米蘭',
+    '馬德里競技',
+    '莫斯科火車頭',
+    '曼徹斯特聯',
+    '莫斯科中央陸軍',
+    '沙赫塔爾',
+    '頓內次克礦工',
+    '萊斯特',
+    '莫斯科',
+    '水晶宮',
+    '基輔迪納摩',
+    '狼隊'
   ];
   const eLiga12ori = [
     'Club America',
@@ -355,7 +385,9 @@ function translate(team, leagueID) {
     'La Favela',
     'Hacha Y Tiza FC',
     'Sportivo Rustico',
-    'IASA'
+    'IASA',
+    'Central Espanol',
+    'Villa Espanola'
   ];
   const eFUFV12tran = [
     '達奴比奧',
@@ -407,7 +439,9 @@ function translate(team, leagueID) {
     '法米拉',
     '哈查蒂札',
     '魯斯蒂科',
-    'IASA'
+    'IASA',
+    '中央足球',
+    '維拉艾斯潘諾拉社會'
   ];
   const ePro12ori = [
     'Pele Warriors (PWR)',
@@ -498,7 +532,30 @@ function translate(team, leagueID) {
     'AgussGM (SPQR)',
     'AguusGM',
     'Chocooz (SPQR)',
-    'Gloriousmuka'
+    'Gloriousmuka',
+    'Patryck',
+    'LuisGuilherme',
+    'Luigi',
+    'Marangoni',
+    'Theus',
+    'Vitor',
+    'Gabriel',
+    'Rampazzo',
+    'Leo',
+    'Vols',
+    'MVA Fineto',
+    'Bezerra',
+    'Dijan',
+    'Destroyer',
+    'Eduardo',
+    'Gustavo',
+    'Soledade',
+    'Soares',
+    'Fifaria',
+    'Gios',
+    'Peppeu',
+    'Felipe Barreto',
+    'Arthursep'
   ];
   const ePlayer12tran = [
     '克林格 (R10)',
@@ -551,7 +608,30 @@ function translate(team, leagueID) {
     'AgussGM (SPQR)',
     'AguusGM',
     '賈古斯 (SPQR)',
-    '葛羅瑞斯穆卡'
+    '葛羅瑞斯穆卡',
+    '帕特里克',
+    '路易斯·吉爾赫姆',
+    '路易吉',
+    '馬蘭戈尼',
+    '美國',
+    '維特爾',
+    '加布里埃爾',
+    '蘭帕佐',
+    '里歐',
+    '田納西州志願者',
+    'MVA 芬托',
+    '比利哈',
+    '迪揚',
+    '驅逐艦',
+    '愛德華多',
+    '古斯塔沃',
+    '索萊達德',
+    '蘇亞雷斯',
+    '菲發瑞亞',
+    '喬斯',
+    '沛普',
+    '費利佩·巴雷托',
+    '阿瑟瑟普'
   ];
   let ori = [];
   let tran = [];

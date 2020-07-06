@@ -101,8 +101,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.away.name),
-          away_id: changeTeam(ele.home.name),
+          home_id: changeTeam(ele.home.name),
+          away_id: changeTeam(ele.away.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -121,7 +121,68 @@ async function write2MysqlOfMatch(ele, change) {
 
 function changeTeam(team) {
   switch (team) {
-    case '': {}
+    case 'Zhejiang Golden Bulls': {
+      return '60581';
+    }
+    case 'Zhejiang Lions': {
+      return '61320';
+    }
+    case 'Zhejiang Guangsha Lions': {
+      return '61320';
+    }
+    case 'Shenzhen Aviators': {
+      return '302085';
+    }
+    case 'Sichuan Blue Whales': {
+      return '193556';
+    }
+    case 'Tianjin Pioneers': {
+      return '313609';
+    }
+    case 'Xinjiang Flying Tigers': {
+      return '193558';
+    }
+    case 'Guangzhou Long-Lions': {
+      return '193603';
+    }
+    case 'Jilin Northeast Tigers': {
+      return '193557';
+    }
+    case 'Liaoning Flying Leopards': {
+      return '193605';
+    }
+    case 'Nanjing Monkey King': {
+      return '193555';
+    }
+    case 'Qingdao Eagles': {
+      return '193607';
+    }
+    case 'Shandong Heroes': {
+      return '311528';
+    }
+    case 'Shanghai Sharks': {
+      return '49165';
+    }
+    case 'Beijing Royal Fighters': {
+      return '310542';
+    }
+    case 'Beijing Ducks': {
+      return '60583';
+    }
+    case 'Fujian Sturgeons': {
+      return '193551';
+    }
+    case 'Guangdong Southern Tigers': {
+      return '193606';
+    }
+    case 'Bayi Rockets': {
+      return '193550';
+    }
+    case 'Jiangsu Dragons': {
+      return '8924';
+    }
+    default: {
+      return team;
+    }
   }
-  return team;
 }
