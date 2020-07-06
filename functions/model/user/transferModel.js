@@ -54,8 +54,7 @@ async function transferModel(method, args, uid) {
          SELECT cd.ingot, 0 AS coin, 0 AS dividend, "玩家打賞此篇文章" as title, "donating_dividend" as en_title, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
            FROM cashflow_donates cd, topic__articles ta
           WHERE cd.article_id = ta.article_id
-            AND cd.uid = :uid
-            AND cd.status=0       
+            AND cd.uid = :uid     
             AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, cd.coin, cd.dividend, "打賞此篇文章" as title, "donated" as en_title, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
