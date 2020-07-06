@@ -56,7 +56,7 @@ function getMatchesWithDate(args) {
               ) AS game
      LEFT JOIN match__spreads AS spread ON (game.bets_id = spread.match_id AND game.spread_id = spread.spread_id)
      LEFT JOIN match__totals AS totals ON (game.bets_id = totals.match_id AND game.totals_id = totals.totals_id)
-    INNER JOIN match__leagues AS league ON game.league_id = league.league_id
+    INNER JOIN match__leagues AS league ON game.ori_league_id = league.ori_league_id
       ORDER BY game.scheduled`,
         {
           type: db.sequelize.QueryTypes.SELECT
