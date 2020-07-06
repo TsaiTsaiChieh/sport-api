@@ -161,4 +161,11 @@ router.post(
   require('../controller/admin/setClaimController')
 );
 
+router.post(
+  '/redisdel',
+  verification.token,
+  verification.admin,
+  require('../controller/admin/redisDelController')
+);
+
 module.exports = router;
