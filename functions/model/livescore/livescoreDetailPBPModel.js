@@ -89,16 +89,22 @@ async function repackage(args, match) {
         id: ele.id,
         status: ele.status,
         sport: modules.league2Sport(args.league).sport,
-        league: ele.league_name_ch,
-        ori_league: args.league,
-        scheduled: ele.scheduled * 1000,
-        newest_spread: {
-          handicap: ele.spread_handicap ? ele.spread_handicap : null,
+        league: args.league,
+        ori_league: ele.league_name_ch,
+        scheduled: ele.scheduled,
+        spread: {
+          handicap:
+            ele.spread_handicap || ele.spread_handicap === 0
+              ? ele.spread_handicap
+              : null,
           home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
           away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
         },
-        newest_totals: {
-          handicap: ele.total_handicap ? ele.total_handicap : null,
+        totals: {
+          handicap:
+            ele.total_handicap || ele.total_handicap === 0
+              ? ele.total_handicap
+              : null,
           over_tw: ele.total_over_tw ? ele.total_over_tw : null
         },
         home: {
@@ -112,7 +118,10 @@ async function repackage(args, match) {
               : null,
           name: ele.home_name,
           alias: ele.home_alias,
-          alias_ch: ele.home_alias_ch,
+          alias_ch:
+            ele.home_alias_ch.indexOf('(') > 0
+              ? ele.home_alias_ch.split('(')[0].trim()
+              : ele.home_alias_ch,
           image_id: ele.home_image_id
         },
         away: {
@@ -126,7 +135,10 @@ async function repackage(args, match) {
               : null,
           name: ele.away_name,
           alias: ele.away_alias,
-          alias_ch: ele.away_alias_ch,
+          alias_ch:
+            ele.away_alias_ch.indexOf('(') > 0
+              ? ele.away_alias_ch.split('(')[0].trim()
+              : ele.away_alias_ch,
           image_id: ele.away_image_id
         }
       };
