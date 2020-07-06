@@ -33,8 +33,7 @@ async function createTopic(req, res) {
       },
       imgurl: {
         type: 'string',
-        maxLength: 255,
-        format: 'url'
+        maxLength: 255
       }
     }
   };
