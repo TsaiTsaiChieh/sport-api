@@ -27,6 +27,7 @@ const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 }
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
+const cheerio = require('cheerio');
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -865,5 +866,6 @@ module.exports = {
   to,
   godUserPriceTable,
   validateProperty,
-  NP
+  NP,
+  cheerio
 };

@@ -436,6 +436,16 @@ class PredictionHistoryModelError extends ExtendableError {
   }
 }
 
+class CrawlersError extends ExtendableError {
+  constructor(
+    message = '爬蟲發生異常',
+    status = 1522,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -475,5 +485,6 @@ module.exports = {
   CreateUserBuysTableRollback,
   UpdateUserCoinORDividendRollback,
   CreateCashflowBuyRollback,
-  PredictionHistoryModelError
+  PredictionHistoryModelError,
+  CrawlersError
 };
