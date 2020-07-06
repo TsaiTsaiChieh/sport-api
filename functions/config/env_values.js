@@ -20,6 +20,7 @@
 // ***以上正式站***
 
 // 測試版 sportslottery-test-adminsdk
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
 exports.apiURL = 'https://api-getsports.web.app/';
 exports.productURL = 'https://api-dosports.web.app/';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
@@ -33,10 +34,12 @@ exports.firebaseConfig = {
   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
   measurementId: 'G-WRP22SQG9M'
 };
+
 exports.redisConfig = {
-  REDISHOST: process.env.REDISHOST || 'localhost' || '10.128.16.3',
+  REDISHOST: process.env.REDISHOST || isEmulator ? 'localhost' : '10.128.16.3',
   REDISPORT: process.env.REDISPORT || 6379
 };
+
 exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
 // 以上測式站
 

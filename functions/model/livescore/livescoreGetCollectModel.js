@@ -27,40 +27,12 @@ function queryAllCollection(args) {
 
       const queries = await db.sequelize.query(
         `(
-            SELECT collections.bets_id AS id, collections.scheduled,
-                  home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id,
-                  spread.home_tw AS spread_home_tw , spread.away_tw AS spread_away_tw
-            FROM user__collections AS collections,
-                 matches AS game,
-                 match__teams AS home,
-                 match__teams AS away,
-                 match__spreads AS spread
-            WHERE collections.uid = :uid
-              AND collections.bets_id = game.bets_id 
-              AND collections.league_id = :leagueID
-              AND collections.scheduled BETWEEN :begin AND :end
-              AND game.home_id = home.team_id
-              AND game.away_id = away.team_id
-              AND game.spread_id = spread.spread_id
-          )
-         UNION 
-         (
-            SELECT collections.bets_id AS id, collections.scheduled,
-            home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
-                   NULL AS spread_home_tw, NULL AS spread_away_tw 
-              FROM user__collections AS collections,
-                   matches AS game,
-                   match__teams AS home,
-                   match__teams AS away,
-                   match__spreads AS spread
+            SELECT collections.bets_id AS id
+              FROM user__collections AS collections
              WHERE collections.uid = :uid
-             AND collections.bets_id = game.bets_id 
-             AND collections.league_id = :leagueID
-             AND collections.scheduled BETWEEN :begin AND :end  
-             AND game.home_id = home.team_id
-             AND game.away_id = away.team_id
-             AND game.spread_id IS NULL
-         )
+               AND collections.league_id = :leagueID
+               AND collections.scheduled BETWEEN :begin AND :end
+          )
            `,
         {
           replacements: {
@@ -80,5 +52,4 @@ function queryAllCollection(args) {
   });
 }
 
-// async function repackage(args, allCollections) {}
 module.exports = livescore;

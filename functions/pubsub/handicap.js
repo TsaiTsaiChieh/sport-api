@@ -392,7 +392,7 @@ function spreadCalculator(handicapObj, sport) {
               }
 
               // here
-              if (tempHandicap !== undefined && !tempHandicap) {
+              if (tempHandicap !== undefined) {
                 if (tempHandicap === 'PK') {
                   handicapObj.handicap = 0;
                   handicapObj.rate = 0;
@@ -815,10 +815,13 @@ function modifyHandicap(handicap, upOrDown, unit) {
         calculateArray.push(item)
       );
     }
-    unit = unit - 1;
+    if (unit !== 0) {
+      unit = unit - 1;
+    }
   }
 
   let tempHandicap = calculateArray[unit];
+
   if (tempHandicap === undefined) {
     tempHandicap = handicap;
   }
