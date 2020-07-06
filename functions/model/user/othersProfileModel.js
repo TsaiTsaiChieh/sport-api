@@ -65,7 +65,6 @@ function getUserFollowLeague(userUid, othersUid) {
 }
 
 function repackageReturnData(args, others, followLeague) {
-  console.log(others);
   let othersTitleLength = false;
   if (others.otherUserTitle) othersTitleLength = others.otherUserTitle.length !== 0;
 
