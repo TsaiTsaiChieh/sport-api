@@ -66,6 +66,7 @@ function repackageData(predictions) {
           status: ele.status,
           league: ele.league_id,
           ori_league: ele.name_ch,
+          sport: modules.leagueDecoder(ele.league_id),
           home: {
             id: ele.home_id,
             team_name: ele.home_alias,
