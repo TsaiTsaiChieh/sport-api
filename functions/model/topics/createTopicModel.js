@@ -16,12 +16,13 @@ function dbCreate(insertData) {
   });
 }
 
-function dbNewsCreate(insertData) {
+function dbNewsCreate(insertData, article) {
   return new Promise(async function(resolve, reject) {
     try {
       insertData.scheduled = moment().unix();
       insertData.title = '【' + insertData.league + '】' + insertData.title;
       insertData.sort = 1;// 發文
+      insertData.sort_id = article;
       await db.sequelize.models.user__new.create(insertData);
       resolve({ news_status: 'success' });
     } catch (error) {
@@ -49,6 +50,8 @@ async function createTopic(args) {
         title: args.title
       };
 
+      if (args.imgurl) insertData.imgurl = args.imgurl;
+
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {
         allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
@@ -73,7 +76,7 @@ async function createTopic(args) {
       });
 
       const article = await dbCreate(insertData);
-      const news = await dbNewsCreate(insertData);
+      const news = await dbNewsCreate(insertData, article);
       resolve({ code: 200, article_id: article, news_id: news });
     } catch (err) {
       console.error(err);

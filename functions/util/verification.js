@@ -119,7 +119,7 @@ async function token(req, res, next) {
 async function token_v2(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
-    if (!bearerHeader) res.sendStatus(UNAUTHORIZED);
+    if (!bearerHeader) return res.sendStatus(UNAUTHORIZED);
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];

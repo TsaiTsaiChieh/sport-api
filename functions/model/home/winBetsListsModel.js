@@ -1,10 +1,11 @@
 const { getTitlesPeriod, leagueCodebook, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists() {
   // 取得 首頁預設值
-  const listLeague = await db.Home_List.findOne({ where: { id: 1 } });
+  const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });
   const defaultLeague = listLeague.god_list;
   const defaultLeagueID = leagueCodebook(defaultLeague).id;
 
@@ -24,7 +25,9 @@ async function winBetsLists() {
     const order = 'this_month_win_bets';
     const limit = 10;
     const period = getTitlesPeriod(new Date()).period;
-    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(`
+
+    const redisKey = ['home', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
+    const [err, leagueWinBetsListsQuery] = await to(CacheQuery(db.sequelize, `
           select winlist.*, titles.rank_id
             from (
                    select winlist.*, users.avatar, users.display_name
@@ -64,7 +67,7 @@ async function winBetsLists() {
         period: period
       },
       type: db.sequelize.QueryTypes.SELECT
-    }));
+    }, redisKey));
     if (err) {
       console.error('Error in  home/WinBetsListsModel by YuHsien:  %o', err);
       throw errs.dbErrsMsg('404', '14030');
