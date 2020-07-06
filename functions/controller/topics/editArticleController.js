@@ -57,9 +57,8 @@ async function editArticle(req, res) {
     return;
   }
   req.body.token = req.token;
-  const args = req.body;
 
-  topicModel(args)
+  topicModel(req.body)
     .then(function(body) {
       res.json(body);
     })
