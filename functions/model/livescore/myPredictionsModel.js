@@ -9,7 +9,7 @@ function myPredictions(args) {
       args.begin = modules.convertTimezone(args.today);
       args.end = modules.convertTimezone(args.today, { op: 'add', value: 1, unit: 'days' }) - 1;
       const predictions = await getUserTodayPredictionsInformation(args);
-      return resolve(repackageData(predictions));
+      return resolve(repackageData(args, predictions));
     } catch (err) {
       console.log(err);
       return reject({ code: err.code, error: err });
@@ -49,7 +49,7 @@ function getUserTodayPredictionsInformation(args) {
   });
 }
 
-function repackageData(predictions) {
+function repackageData(args, predictions) {
   try {
     const data = {
       scheduled: [],
@@ -64,8 +64,10 @@ function repackageData(predictions) {
           scheduled: ele.scheduled,
           scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
           status: ele.status,
-          league: ele.league_id,
+          league_id: ele.league_id,
+          league: modules.leagueDecoder(ele.league_id),
           ori_league: ele.name_ch,
+          sport: modules.league2Sport(args.league).sport,
           home: {
             id: ele.home_id,
             team_name: ele.home_alias,
