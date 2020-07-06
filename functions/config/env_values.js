@@ -13,7 +13,7 @@
 //   measurementId: 'G-KJ81TH7PPS'
 // };
 // exports.redisConfig = {
-//   REDISHOST: process.env.REDISHOST || '10.107.72.19',
+//   REDISHOST: process.env.REDISHOST || '10.170.59.179',
 //   REDISPORT: process.env.REDISPORT || 6379
 // };
 // exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
