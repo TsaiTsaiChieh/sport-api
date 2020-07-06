@@ -28,10 +28,18 @@ async function createTopic(req, res) {
         maxLength: 50
       },
       content: {
-        type: 'string'
+        type: 'string',
+        maxLength: 20000
+      },
+      imgurl: {
+        type: 'string',
+        maxLength: 255,
+        format: 'url'
       }
     }
   };
+
+  if (req.body.category === 3) schema.content.minLength = 50;
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -44,9 +52,8 @@ async function createTopic(req, res) {
     return;
   }
   req.body.token = req.token;
-  const args = req.body;
 
-  topicModel(args)
+  topicModel(req.body)
     .then(function(body) {
       res.json(body);
     })

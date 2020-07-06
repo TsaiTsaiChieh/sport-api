@@ -50,6 +50,8 @@ async function createTopic(args) {
         title: args.title
       };
 
+      if (args.imgurl) insertData.imgurl = args.imgurl;
+
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, {
         allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
