@@ -1,6 +1,7 @@
 const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists(args) {
   const range = args.range;
@@ -18,8 +19,9 @@ async function winBetsLists(args) {
   for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
     const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
+    const redisKey = ['rank', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
     // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(`
+    const [err, leagueWinBetsListsQuery] = await to(CacheQuery(db.sequelize, `
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -75,7 +77,7 @@ async function winBetsLists(args) {
       },
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT
-    }));
+    }, redisKey));
     if (err) {
       console.error('Error 2. in rank/winBetsListsModel by YuHsien', err);
       throw errs.dbErrsMsg('404', '13910');
