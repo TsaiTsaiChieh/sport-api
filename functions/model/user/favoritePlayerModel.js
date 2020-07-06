@@ -25,7 +25,7 @@ function favoritePlayerModel(args) {
          INNER JOIN view__leagues vl ON vl.name = uf.league
           LEFT JOIN users__win__lists uwl ON uwl.uid = uf.god_uid AND uwl.league_id = vl.league_id
          WHERE uf.uid = :uid
-           AND uf.createdAt BETWEEN :begin and :end
+          
          `,
         {
           logging: true,
