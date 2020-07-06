@@ -39,8 +39,7 @@ async function editArticle(req, res) {
       },
       imgurl: {
         type: 'string',
-        maxLength: 255,
-        format: 'url'
+        maxLength: 255
       }
     }
   };
