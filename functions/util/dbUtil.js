@@ -1,7 +1,7 @@
-const { Sequelize } = require('sequelize');
+const {Sequelize} = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
-const { Cache } = require('./redisUtil');
+const {Cache} = require('./redisUtil');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -19,10 +19,12 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
 });
 
 // 特製 findOne 結合 Redis Cache redisKey 使用 where parms 參數
-Sequelize.Model.findOneCache = async function() {
+Sequelize.Model.findOneCache = async function () {
   let redisKey;
   for (const parms of Object.values(arguments)) {
-    if (parms.where) {redisKey = [this.name, JSON.stringify(parms.where)].join(':');}
+    if (parms.where) {
+      redisKey = [this.name, JSON.stringify(parms.where)].join(':');
+    }
   }
   const cacheValue = await Cache.get(redisKey);
   if (cacheValue) return JSON.parse(cacheValue);
@@ -259,10 +261,10 @@ const Title = sequelize.define(
   },
   {
     indexes: [
-      { fields: ['uid'] },
-      { fields: ['period'] },
-      { fields: ['period_date'] },
-      { fields: ['league_id'] }
+      {fields: ['uid']},
+      {fields: ['period']},
+      {fields: ['period_date']},
+      {fields: ['league_id']}
     ]
   }
 );
@@ -644,7 +646,7 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
-      { fields: ['scheduled', 'flag_prematch', 'status'] },
+      {fields: ['scheduled', 'flag_prematch', 'status']},
       {
         fields: ['status', 'spread_id']
       },
@@ -2313,11 +2315,42 @@ const AdminLogging = sequelize.define(
     ]
   }
 );
-const Player = sequelize.define('player', {
-  uid: {
-    type: Sequelize.STRING
+const Player = sequelize.define(
+  'player',
+  {
+    player_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    sport_id: {
+      type: Sequelize.STRING
+    },
+    team_id: {
+      type: Sequelize.STRING
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    name_ch: {
+      type: Sequelize.STRING
+    },
+    team_history: {
+      type: Sequelize.TEXT
+    },
+    information: {
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['team_id', 'name']
+      }
+    ]
   }
-});
+);
 const dbUtil = {
   sequelize,
   Sequelize,
