@@ -34,7 +34,7 @@ module.exports = postCollect;
  * @api {POST} /livescore/postCollect Post the information of event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Create the collect event.
- * @apiName livescore delete collect
+ * @apiName livescore post collect
  * @apiGroup Livescore
  *
  * @apiParam {String} eventID the event want to delete, the value are: ```2114519```

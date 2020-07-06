@@ -40,10 +40,10 @@ async function livescoreInProgress(req, res) {
 }
 module.exports = livescoreInProgress;
 /**
- * @api {GET} /livescore/inprogress Get Livescore of inprogress event by DY
+ * @api {GET} /livescore/inprogress Get Livescore of inprogress event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
- * @apiName livescore information all
+ * @apiName livescore information inprogress
  * @apiGroup Livescore
  *
  * @apiParam {String} league league name, the value enum are: ```eSoccer```

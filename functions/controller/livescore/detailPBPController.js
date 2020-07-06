@@ -31,7 +31,7 @@ module.exports = livescore;
  * @api {GET} /livescore/detail/pbp Get the pbp of event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] prematch information of event
- * @apiName livescore detail/prematch
+ * @apiName livescore detail/pbp
  * @apiGroup Livescore
  *
  * @apiParam {String} league league name, the value are: ```eSoccer```

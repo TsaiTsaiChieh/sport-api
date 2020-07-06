@@ -41,10 +41,10 @@ async function livescoreSchduled(req, res) {
 }
 module.exports = livescoreSchduled;
 /**
- * @api {GET} /livescore/all Get Livescore of scheduled event by DY
+ * @api {GET} /livescore/all Get Livescore of scheduled event 
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Get information of livescore in livescore page.
- * @apiName livescore information all
+ * @apiName livescore information scheduled
  * @apiGroup Livescore
  *
  * @apiParam {String} league league name, the value enum are: ```eSoccer```
