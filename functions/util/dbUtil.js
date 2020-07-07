@@ -2483,7 +2483,7 @@ const UserMission = sequelize.define(
       type: Sequelize.INTEGER
     },
     status: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       defaultValue: 0
     },
     date_timestamp: {
