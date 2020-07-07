@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const { redis } = require('../../util/redisUtil');
 
 async function redisDel(req, res) {
