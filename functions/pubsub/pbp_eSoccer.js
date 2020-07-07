@@ -9,7 +9,7 @@ async function ESoccerpbpInplay(parameter) {
   // 14 秒一次
   const perStep = 14000;
   // 一分鐘2次
-  const timesPerLoop = 3;
+  const timesPerLoop = 2;
   const betsID = parameter.betsID;
   let realtimeData;
   if (parameter.realtimeData) {

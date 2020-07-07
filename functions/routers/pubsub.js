@@ -8,7 +8,7 @@ router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/handicap_esport', require('../pubsub/handicap_esport'));
-// router.get('/dy', require('../pubsub/dy'));
+ router.get('/dy', require('../pubsub/dy'));
 
 router.get(
   '/settlement',
@@ -59,4 +59,5 @@ router.get('/forpastevent', require('../pubsub/forpastevent'));
 
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
+router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 module.exports = router;
