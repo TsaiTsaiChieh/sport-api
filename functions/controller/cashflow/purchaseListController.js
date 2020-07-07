@@ -4,7 +4,7 @@ async function purchaseListController(req, res) {
   try {
     res.json(await purchaseListModel(req));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 

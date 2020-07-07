@@ -54,15 +54,11 @@ function setMoney(uid, donate_uid, type, cost) {
     }
     const plus = await db.sequelize.models.user.findOne({
       where: { uid: donate_uid },
-      attributes: ['coin', 'dividend'],
+      attributes: ['ingot'],
       raw: true
     });
     if (plus) {
-      if (type === 1) { // coin
-        await db.sequelize.models.user.update({ coin: (plus.coin + (cost / 2)) }, { where: { uid: donate_uid } });
-      } else if (type === 0) { // dividend
-        await db.sequelize.models.user.update({ dividend: (plus.dividend + (cost / 2)) }, { where: { uid: donate_uid } });
-      }
+      await db.sequelize.models.user.update({ ingot: (plus.ingot + (cost / 2)) }, { where: { uid: donate_uid } });
     } else {
       reject();
     }
