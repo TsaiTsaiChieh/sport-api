@@ -2479,13 +2479,23 @@ const UserMission = sequelize.define(
     deposit_god_id: {
       type: Sequelize.INTEGER
     },
-    deposit_gdeposit_id: {
+    deposit_deposit_id: {
       type: Sequelize.INTEGER
     },
     status: {
       type: Sequelize.STRING,
       defaultValue: 0
+    },
+    date_timestamp: {
+      type: Sequelize.INTEGER
     }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid', 'mission_item_id', 'deposit_god_id', 'deposit_gdeposit_id']
+      }
+    ]
   }
 );
 
