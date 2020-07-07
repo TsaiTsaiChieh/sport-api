@@ -1,3 +1,4 @@
+const { Sequelize } = require('sequelize');
 const to = require('await-to-js').default;
 const { redisConfig } = require('../config/env_values');
 const Redis = require('ioredis');
@@ -58,6 +59,22 @@ async function CacheQuery(sequelize, sql, params, redisKey) {
   if (lists) await Cache.set(redisKey, lists); // not empty set cache data
   return lists;
 }
+
+// 特製 findOne 結合 Redis Cache redisKey 使用 where parms 參數
+Sequelize.Model.findOneCache = async function() {
+  let redisKey;
+  for (const parms of Object.values(arguments)) {
+    if (parms.where) {
+      redisKey = [this.name, JSON.stringify(parms.where)].join(':');
+    }
+  }
+  const cacheValue = await Cache.get(redisKey);
+  if (cacheValue) return JSON.parse(cacheValue);
+
+  const result = await Sequelize.Model.findOne.apply(this, arguments);
+  Cache.set(redisKey, JSON.stringify(result));
+  return result;
+};
 
 // 底下是使用 npm redis 的版本 不支援 promise
 // redisClient
