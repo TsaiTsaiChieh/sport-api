@@ -280,7 +280,7 @@ async function doPBP(parameter) {
                 } catch (err) {
                   return reject(
                     new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP of status on ${betsID} by DY`
+                      `${err} at doPBP of status on ${betsID} by DY(inprogress)`
                     )
                   );
                 }
@@ -292,7 +292,7 @@ async function doPBP(parameter) {
                 } catch (err) {
                   return reject(
                     new AppErrors.MysqlError(
-                      `${err} at doPBP of status on ${betsID} by DY`
+                      `${err.stack} at doPBP of status on ${betsID} by DY(inprogress)`
                     )
                   );
                 }
@@ -334,7 +334,7 @@ async function doPBP(parameter) {
             } catch (err) {
               return reject(
                 new AppErrors.MysqlError(
-                  `${err} at doPBP of status on ${betsID} by DY`
+                  `${err} at doPBP of status on ${betsID} by DY(abnormal)`
                 )
               );
             }
