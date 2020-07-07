@@ -665,6 +665,9 @@ function spreadCalculator(handicapObj, sport) {
 }
 
 function totalsCalculator(handicapObj, sport) {
+  handicapObj.handicap = parseFloat(handicapObj.handicap);
+  handicapObj.over_odd = parseFloat(handicapObj.over_od);
+  handicapObj.under_odd = parseFloat(handicapObj.under_od);
   if (handicapObj.handicap) {
     if (sport === 17 || sport === 18) {
       // 籃球或冰球
@@ -680,6 +683,7 @@ function totalsCalculator(handicapObj, sport) {
     }
     if (sport === 16) {
       // 棒球
+
       if (handicapObj.handicap % 1 === 0) {
         // 整數
         if (handicapObj.over_odd !== handicapObj.under_odd) {
@@ -689,7 +693,7 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.over_tw = `${handicapObj.handicap}+50`;
             handicapObj.rate = 50;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${handicapObj.handicap}-50`;
             handicapObj.rate = -50;
           }
@@ -707,7 +711,7 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}+50`;
             handicapObj.rate = 50;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-50`;
             handicapObj.rate = -50;
           }
@@ -787,7 +791,9 @@ function normalTable(handicap, upOrDown) {
   }
 }
 function modifyHandicap(handicap, upOrDown, unit) {
-  const specificTable = ['1+50', 'PK', '-1+50', '-1輸'];
+  // const specificTable = ['1+50', 'PK', '-1+50', '-1輸']; //  ver.1 邏輯
+  const specificTable = ['1+50', 'PK', 'PK', 'PK']; //   ver.2 邏輯
+  const pkTable = ['PK', 'PK', 'PK', 'PK'];
   let handicapNow;
   const unitArray = Math.ceil(unit / 4) + 1; // 總共需要幾個unit組合
   const calculateArray = [];
@@ -799,6 +805,8 @@ function modifyHandicap(handicap, upOrDown, unit) {
       if (handicapNow === 0) {
         // 加特殊情況
         specificTable.forEach((item) => calculateArray.push(item));
+      } else if (handicapNow < 0) {
+        pkTable.forEach((item) => calculateArray.push(item));
       } else {
         // 加一般陣列
         normalTable(handicapNow, upOrDown).forEach((item) =>
