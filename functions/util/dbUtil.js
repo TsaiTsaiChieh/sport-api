@@ -1,7 +1,6 @@
 const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
-const { Cache } = require('./redisUtil');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -17,22 +16,6 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   logging: false, // disable logging; default: console.log
   timezone: mysql.setting.timezone // for writing to database
 });
-
-// 特製 findOne 結合 Redis Cache redisKey 使用 where parms 參數
-Sequelize.Model.findOneCache = async function() {
-  let redisKey;
-  for (const parms of Object.values(arguments)) {
-    if (parms.where) {
-      redisKey = [this.name, JSON.stringify(parms.where)].join(':');
-    }
-  }
-  const cacheValue = await Cache.get(redisKey);
-  if (cacheValue) return JSON.parse(cacheValue);
-
-  const result = await Sequelize.Model.findOne.apply(this, arguments);
-  Cache.set(redisKey, JSON.stringify(result));
-  return result;
-};
 
 /*
  * Define schema
