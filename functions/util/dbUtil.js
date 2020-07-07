@@ -2471,7 +2471,7 @@ const UserMission = sequelize.define(
   'user__mission',
   {
     uid: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     mission_item_id: {
       type: Sequelize.INTEGER
