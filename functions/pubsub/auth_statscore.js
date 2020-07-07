@@ -28,9 +28,7 @@ async function axiosForURL(URL) {
       const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
-      return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
-      );
+      return reject(new AppErrors.AxiosError(`${err} at auth_statscore by DY`));
     }
   });
 }

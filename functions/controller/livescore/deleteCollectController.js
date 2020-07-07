@@ -32,21 +32,16 @@ async function deleteCollect(req, res) {
 
 module.exports = deleteCollect;
 /**
- * @api {POST} /livescore/livescore/deleteCollect Post the information of event
+ * @api {POST} /livescore/deleteCollect Post the information of event
  * @apiVersion 1.0.0
  * @apiDescription [Test version] Delete the collect event.
  * @apiName livescore delete collect
  * @apiGroup Livescore
  *
- * @apiParam {String} sport sport name, the value are: ```basketball```
- * @apiParam {String} league league name, the value are: ```NBA```
- * @apiParam {String} UID ID of user, the value are: ```DLRnd5igRmakC0VrLxz5Ph443Qj1```
  * @apiParam {String} eventID the event want to delete, the value are: ```2114519```
  *
  * @apiParamExample {JSON} Request-Query
  {
-   'league' : 'NBA'
-   'UID' : 'DLRnd5igRmakC0VrLxz5Ph443Qj1'
    'eventID' : '2114519'
  }
 

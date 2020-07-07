@@ -26,7 +26,6 @@ function dbFind(page) {
         });
       }
       const topics = resultFirst;
-      console.log(page);
 
       if (page !== null) {
         countPerPage = 10;
@@ -34,7 +33,7 @@ function dbFind(page) {
         countPerPage = 3;
         page = 0;
       }
-      console.log(countPerPage);
+      // console.log(countPerPage);
 
       const resultData = await db.sequelize.models.topic__article.findAndCountAll({
         where: {

@@ -46,7 +46,7 @@ function newsModel(method, args, uid) {
              AND un.active=1
              AND (un.uid IS NULL OR un.uid=:uid)
            ORDER BY un.scheduled DESC
-       LIMIT :start_system, :limit_system
+           LIMIT :start_system, :limit_system
           `,
           {
             logging: true,
@@ -55,21 +55,41 @@ function newsModel(method, args, uid) {
           }
         );
 
+        /* 讀取最愛玩家資料 */
+        const favorite_user = await db.sequelize.query(
+        `
+          SELECT god_uid
+            FROM user__favoriteplayers
+           WHERE uid = :uid
+        `,
+        {
+          replacements: { uid: uid },
+          type: db.sequelize.QueryTypes.SELECT
+        }
+        );
+        console.log(favorite_user);
+        const uids = [];
+        favorite_user.forEach(function(user) {
+          uids.push(user.god_uid);
+        });
+        // console.log(uids.join());
+        // console.log(favorite_user);return;
         /* 使用者訊息資料 */
         const user = await db.sequelize.query(
           `
-          SELECT un.news_id, un.uid, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
+          SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
             FROM user__news un, users u
-          WHERE un.scheduled BETWEEN $begin and $end
+          WHERE un.scheduled BETWEEN :begin and :end
             AND u.uid = un.uid
             AND un.status=0
             AND un.active=1
-            AND un.uid = $uid
+            AND un.uid in ( :uids)
           ORDER BY un.scheduled DESC
-            LIMIT $start_user, $limit_user
+            LIMIT :start_user, :limit_user
           `,
           {
-            bind: { uid: uid, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
+            logging: true,
+            replacements: { uids: uids, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

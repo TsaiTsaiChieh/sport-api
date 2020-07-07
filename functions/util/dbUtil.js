@@ -22,7 +22,9 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
 Sequelize.Model.findOneCache = async function() {
   let redisKey;
   for (const parms of Object.values(arguments)) {
-    if (parms.where) redisKey = [this.name, JSON.stringify(parms.where)].join(':');
+    if (parms.where) {
+      redisKey = [this.name, JSON.stringify(parms.where)].join(':');
+    }
   }
   const cacheValue = await Cache.get(redisKey);
   if (cacheValue) return JSON.parse(cacheValue);
@@ -1222,6 +1224,11 @@ const Topic_Article = sequelize.define(
       type: Sequelize.TEXT,
       allowNull: false
     },
+    imgurl: {
+      // 縮圖(只存第一張)
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     view_count: {
       type: Sequelize.INTEGER,
       defaultValue: 0,
@@ -1642,6 +1649,12 @@ const News = sequelize.define(
     uid: {
       type: Sequelize.STRING
     },
+    sort: {
+      type: Sequelize.INTEGER
+    },
+    sort_id: {
+      type: Sequelize.INTEGER
+    },
     title: {
       type: Sequelize.STRING
     },
@@ -1862,7 +1875,16 @@ const CashflowDeposit = sequelize.define(
     status: {
       type: Sequelize.STRING
     },
+    order_status: {
+      type: Sequelize.STRING
+    },
     merchant_id: {
+      type: Sequelize.STRING
+    },
+    payment_type: {
+      type: Sequelize.STRING
+    },
+    payment_store: {
       type: Sequelize.STRING
     },
     trade_info: {
@@ -2206,6 +2228,39 @@ const CashflowDonate = sequelize.define(
   }
 );
 
+const PurchaseList = sequelize.define(
+  'cashflow_purchase_list',
+  {
+    list_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    coin: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    dividend: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['list_id', 'coin', 'dividend']
+      }
+    ]
+  }
+);
 const Token = sequelize.define(
   'token',
   {
@@ -2244,7 +2299,7 @@ const AdminLogging = sequelize.define(
       type: Sequelize.STRING
     },
     post_content: {
-      type: Sequelize.STRING
+      type: Sequelize.TEXT
     },
     ip: {
       type: Sequelize.STRING
@@ -2254,9 +2309,47 @@ const AdminLogging = sequelize.define(
     }
   },
   {
-    indexes: [{
-      fields: ['uid', 'name']
-    }]
+    indexes: [
+      {
+        fields: ['uid', 'name']
+      }
+    ]
+  }
+);
+const Player = sequelize.define(
+  'player',
+  {
+    player_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    sport_id: {
+      type: Sequelize.STRING
+    },
+    team_id: {
+      type: Sequelize.STRING
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    name_ch: {
+      type: Sequelize.STRING
+    },
+    team_history: {
+      type: Sequelize.TEXT
+    },
+    information: {
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['team_id', 'name']
+      }
+    ]
   }
 );
 
@@ -2457,8 +2550,10 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  PurchaseList,
   Token,
   AdminLogging,
+  Player,
   Mission,
   MissionItem,
   MissionGod,

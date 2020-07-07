@@ -65,7 +65,8 @@ function getUserFollowLeague(userUid, othersUid) {
 }
 
 function repackageReturnData(args, others, followLeague) {
-  const othersTitleLength = others.otherUserTitle.length !== 0;
+  let othersTitleLength = false;
+  if (others.otherUserTitle) othersTitleLength = others.otherUserTitle.length !== 0;
 
   try {
     if (followLeague.length) followLeague = repackageLeagueData(followLeague);
@@ -87,7 +88,7 @@ function repackageReturnData(args, others, followLeague) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 
@@ -100,7 +101,7 @@ function repackageLeagueData(data) {
     return league;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 

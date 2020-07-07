@@ -1,16 +1,18 @@
 const modules = require('../util/modules');
+const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
-
+const pastDays = 14; // 兩週算一次 所以兩週以前的賽事就算還是 -1 也沒關係
+const pastTime = Math.floor(Date.now()) - 86400 * 1000 * pastDays;
 function queryMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
-          SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id       
+          SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
            WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
         )`,
@@ -32,9 +34,16 @@ async function checkmatch_abnormal() {
       const totalData = await queryMatches();
 
       for (let j = 0; j < totalData.length; j++) {
+        if (totalData[j].scheduled * 1000 < pastTime) {
+          await db.Match.upsert({
+            bets_id: totalData[j].bets_id,
+            status: 0
+          });
+          continue;
+        }
         const betsID = totalData[j].bets_id;
         const leagueID = totalData[j].league_id;
-        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
+        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
         const parameterPBP = {
           betsID: betsID,
           pbpURL: pbpURL,

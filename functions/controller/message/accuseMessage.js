@@ -11,8 +11,7 @@ async function getUserInfo(uid) {
           'avatar',
           'display_name',
           'signature',
-          'default_title',
-          'block_message'
+          'default_title'
         ],
         where: {
           uid: uid

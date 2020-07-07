@@ -27,4 +27,10 @@ router.post(
   '/ingot_transfer',
   require('../controller/cashflow/ingotTransferController')
 );
+
+/* 購買搞錠列表 */
+router.get(
+  '/purchase_list',
+  require('../controller/cashflow/purchaseListController')
+);
 module.exports = router;

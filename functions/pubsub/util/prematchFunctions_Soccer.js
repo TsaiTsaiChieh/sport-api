@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const leagueUniteID = '8';
@@ -18,6 +19,8 @@ const leagueArray = [
   1040,
   13341
 ];
+const league = 'Soccer';
+const sport = 'Soccer';
 const Match = db.Match;
 module.exports.Soccer = {};
 module.exports.Soccer.upcoming = async function(date) {
@@ -25,7 +28,7 @@ module.exports.Soccer.upcoming = async function(date) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
-        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
         const data = await axiosForURL(URL);
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {
@@ -63,7 +66,7 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`Soccer/Soccer/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {

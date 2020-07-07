@@ -9,6 +9,10 @@ function favoritePlayerModel(args) {
       const uid = args.token.uid;
 
       if (args.method === 'POST') {
+        /* 取前一個月時間 */
+        const end = modules.moment().format('YYYY-MM-DD');
+        const begin = modules.moment().subtract(1, 'week').format('YYYY-MM-DD');
+        // console.log(begin);
         favorite_player = await db.sequelize.query(
         `
         SELECT uf.god_uid as god_uid, 
@@ -16,14 +20,16 @@ function favoritePlayerModel(args) {
                         u.display_name, 
                         vl.name,
                         vl.league_id
-        FROM user__favoriteplayers uf
-        INNER JOIN users u ON uf.god_uid = u.uid
-        INNER JOIN view__leagues vl ON vl.name = uf.league
-        LEFT JOIN users__win__lists uwl ON uwl.uid = uf.god_uid AND uwl.league_id = vl.league_id
-          WHERE uf.uid = $uid
+          FROM user__favoriteplayers uf
+         INNER JOIN users u ON uf.god_uid = u.uid
+         INNER JOIN view__leagues vl ON vl.name = uf.league
+          LEFT JOIN users__win__lists uwl ON uwl.uid = uf.god_uid AND uwl.league_id = vl.league_id
+         WHERE uf.uid = :uid
+          
          `,
         {
-          bind: { uid: uid },
+          logging: true,
+          replacements: { begin: begin, end: end, uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         });
 

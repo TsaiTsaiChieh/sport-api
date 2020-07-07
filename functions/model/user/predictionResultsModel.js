@@ -1,3 +1,4 @@
+
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
@@ -69,8 +70,9 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                     AND prediction.bets_id = matches.bets_id 
                     AND matches.home_id = home.team_id 
                     AND matches.away_id = away.team_id 
-                    AND prediction.uid = '${args.token.uid}'
+                    AND prediction.uid = '${args.uid}'
                     AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
+                    AND matches.status = ${modules.MATCH_STATUS.END}
                     AND (spread_result_flag != ${settlement.unsettlement} OR totals_result_flag != ${settlement.unsettlement})
                 ) 
              AS prediction
@@ -153,7 +155,7 @@ function repackageMatch(ele) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 
@@ -201,7 +203,7 @@ function repackageHandicap(option, handicap, result) {
     // }
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   }
 }
 module.exports = predictionResult;

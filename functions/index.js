@@ -112,12 +112,14 @@ app.use('/sport', require('./routers/sport'));
 app.use('/pubsub', require('./routers/pubsub'));
 app.use('/home', require('./routers/home'));
 app.use('/topics', require('./routers/topics'));
+app.use('/general', require('./routers/general'));
 app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
 // app.use('/cashflow_gash', require('./routers/cashflow_gash'));//金流介接(gash)
-app.use('/cashflow_neweb', require('./routers/cashflow_neweb'));// 金流介接(藍新)
+app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接(藍新)
+// app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票介接(ezpay)
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
   res.status(200).json({ test: 'awake0528v01' });
@@ -128,6 +130,11 @@ exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
 // admin cloud function
 exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
+// 此排程再購買API後必須停掉
+exports.forpastevent = functions.pubsub
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
@@ -178,7 +185,7 @@ exports.pbp_abnormal = functions
   .onRun(require('./pubsub/checkmatch_abnormal'));
 
 exports.auth_statscore = functions.pubsub
-  .schedule('0 0 * * *')
+  .schedule('50 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
 exports.prematch_statscore_KBO = functions.pubsub

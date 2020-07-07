@@ -9,7 +9,7 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { sportRadarKeys, betsToken, zone_tw, statscoreToken } = envValues;
+const { zone_tw } = envValues;
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -21,12 +21,13 @@ const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
 const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
-const acceptLeague = ['NBA', 'eSoccer', 'KBO'];
+const acceptLeague = ['NBA', 'eSoccer', 'KBO', 'NPB', 'CPBL', 'Soccer'];
 // const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
+const cheerio = require('cheerio');
 
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
@@ -85,7 +86,11 @@ function convertTimezoneFormat(unix, operation, zone = zone_tw) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertDateYMDToGTM0Unix(sdate, op) {
-  let { num, unit, zone } = Object.assign({}, { num: 0, unit: 'days', zone: zone_tw }, op);
+  let { num, unit, zone } = Object.assign(
+    {},
+    { num: 0, unit: 'days', zone: zone_tw },
+    op
+  );
   num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
   return moment.tz(sdate, zone).add(num, unit).unix();
 }
@@ -97,7 +102,11 @@ function convertDateYMDToGTM0Unix(sdate, op) {
     unit: days、weeks 等 以 moment 提供格式為主
 */
 function convertGTM0UnixToDateYMD(sdateUnix, op) {
-  let { format, num, unit, zone } = Object.assign({}, { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw }, op);
+  let { format, num, unit, zone } = Object.assign(
+    {},
+    { format: 'YYYYMMDD', num: 0, unit: 'days', zone: zone_tw },
+    op
+  );
   sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
   num = !isNaN(parseFloat(num)) && isFinite(num) ? num : 0; // 數字否，不是給0
   return moment.tz(sdateUnix, zone).add(num, unit).format(format);
@@ -127,8 +136,14 @@ function coreDateInfo(sdateUnix, zone = zone_tw) {
 function date3Info(sdateUnix, zone = zone_tw) {
   sdateUnix = sdateUnix.toString().length === 10 ? sdateUnix * 1000 : sdateUnix;
   const sdateInfo = coreDateInfo(sdateUnix, zone);
-  const yesterdayInfo = coreDateInfo(moment.tz(sdateUnix, zone).subtract(1, 'days').unix(), zone);
-  const tomorrowInfo = coreDateInfo(moment.tz(sdateUnix, zone).add(1, 'days').unix(), zone);
+  const yesterdayInfo = coreDateInfo(
+    moment.tz(sdateUnix, zone).subtract(1, 'days').unix(),
+    zone
+  );
+  const tomorrowInfo = coreDateInfo(
+    moment.tz(sdateUnix, zone).add(1, 'days').unix(),
+    zone
+  );
 
   return {
     mdate: sdateInfo.mdate,
@@ -264,6 +279,14 @@ function league2Sport(league) {
       return {
         sport: 'baseball'
       };
+    case 'CPBL':
+      return {
+        sport: 'baseball'
+      };
+    case 'NPB':
+      return {
+        sport: 'baseball'
+      };
     case 'eSoccer':
       return {
         sport: 'esports'
@@ -382,40 +405,41 @@ function leagueCodebook(league) {
 }
 
 function leagueDecoder(leagueID) {
+  leagueID = Number.parseInt(leagueID);
   switch (leagueID) {
-    case '2274' || 2274:
+    case 2274:
       return 'NBA';
-    case '8251' || 8251:
+    case 8251:
       return 'SBL';
-    case '244' || 244:
+    case 244:
       return 'WNBA';
-    case '1714' || 1714:
+    case 1714:
       return 'NBL';
-    case '2319' || 2319:
+    case 2319:
       return 'CBA';
-    case '2148' || 2148:
+    case 2148:
       return 'KBL';
-    case '1298' || 1298:
+    case 1298:
       return 'BJL';
-    case '3939' || 3939:
+    case 3939:
       return 'MLB';
-    case '347' || 347:
+    case 347:
       return 'NPB';
-    case '11235' || 11235:
+    case 11235:
       return 'CPBL';
-    case '349' || 349:
+    case 349:
       return 'KBO';
-    case '2759' || 2759:
+    case 2759:
       return 'ABL';
-    case '4412' || 4412:
+    case 4412:
       return 'LMB';
-    case '1926' || 1926:
+    case 1926:
       return 'NHL';
-    case '8' || 8:
+    case 8:
       return 'Soccer';
-    case '22000' || 22000:
+    case 22000:
       return 'eSoccer';
-    case '23000' || 23000:
+    case 23000:
       return 'eGame';
     default:
       throw new AppErrors.UnknownLeague();
@@ -475,16 +499,22 @@ function getTitlesPeriod(date, format = 'YYYYMMDD') {
         .utcOffset(UTF8)
         .add(i * 2 - 2, 'weeks')
         .format(format);
-      const periodBeginDateBeginUnix = moment.tz(periodBeginDate, format, zone_tw).unix();
-      const periodBeginDateEndUnix = moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
+      const periodBeginDateBeginUnix = moment
+        .tz(periodBeginDate, format, zone_tw)
+        .unix();
+      const periodBeginDateEndUnix =
+        moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
 
       const periodEndDate = moment(specificDate) // 該期結束計算的日期
         .utcOffset(UTF8)
         .add(i * 2, 'weeks')
         .subtract(1, 'days')
         .format(format);
-      const periodEndDateBeginUnix = moment.tz(periodEndDate, format, zone_tw).unix();
-      const periodEndDateEndUnix = moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
+      const periodEndDateBeginUnix = moment
+        .tz(periodEndDate, format, zone_tw)
+        .unix();
+      const periodEndDateEndUnix =
+        moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
 
       const nowWeekOfyear = moment.tz(date, zone_tw).week();
       const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
@@ -514,8 +544,14 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
   const t = getTitlesPeriod(sdate, format);
   if (t === 0) return 0;
 
-  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, { num: 2, unit: 'weeks' });
-  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, { num: 2, unit: 'weeks' });
+  const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, {
+    num: 2,
+    unit: 'weeks'
+  });
+  const periodEndDateUnix = convertDateYMDToGTM0Unix(t.end, {
+    num: 2,
+    unit: 'weeks'
+  });
   const periodBeginDate = coreDateInfo(periodBeginDateUnix);
   const periodEndDate = coreDateInfo(periodEndDateUnix);
 
@@ -788,14 +824,12 @@ module.exports = {
   moment,
   axios,
   db,
-  betsToken,
   path,
   os,
   fs,
   https,
   dateFormat,
   cloneFirestore,
-  sportRadarKeys,
   firebaseTimestamp,
   firestoreService,
   league2Sport,
@@ -831,5 +865,5 @@ module.exports = {
   godUserPriceTable,
   validateProperty,
   NP,
-  statscoreToken
+  cheerio
 };

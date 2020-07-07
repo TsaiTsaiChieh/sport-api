@@ -1,15 +1,18 @@
 const modules = require('../../util/modules');
+const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const Match = db.Match;
 const leagueUniteID = '11235';
 const sportID = 16;
+const league = 'CPBL';
+const sport = 'baseball';
 module.exports.CPBL = {};
 module.exports.CPBL.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
       const leagueID = 11235;
-      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
@@ -21,7 +24,7 @@ module.exports.CPBL.upcoming = async function(date) {
       } else {
         console.log(leagueID + 'has no upcoming event now');
       }
-      console.log('CPBL scheduled success');
+      console.log(`${league} scheduled success`);
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -37,13 +40,13 @@ async function axiosForURL(URL) {
       return resolve(data);
     } catch (err) {
       return reject(
-        new AppErrors.AxiosError(`${err} at prematchFunctions_KBO by DY`)
+        new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });
 }
 async function checkTheHandicap(ele) {
-  const URL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}&odds_market=2,3`;
+  const URL = `https://api.betsapi.com/v2/event/odds?token=${envValues.betsToken}&event_id=${ele.id}&odds_market=2,3`;
   const data = await axiosForURL(URL);
   let changeFlag = 0;
   if (data.results.odds) {
@@ -61,13 +64,13 @@ async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.database
-        .ref(`baseball/CPBL/${ele.id}/Summary/status`)
+        .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at prematchFunctions_KBO by DY`
+          `${err} at prematchFunctions_${league} by DY`
         )
       );
     }
@@ -111,7 +114,7 @@ async function write2MysqlOfMatch(ele, change) {
       return resolve('ok');
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at prematchFunctions_KBO by DY`)
+        new AppErrors.MysqlError(`${err} at prematchFunctions_${league} by DY`)
       );
     }
   });

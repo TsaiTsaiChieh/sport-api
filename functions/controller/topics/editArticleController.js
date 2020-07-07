@@ -36,9 +36,15 @@ async function editArticle(req, res) {
       },
       content: {
         type: 'string'
+      },
+      imgurl: {
+        type: 'string',
+        maxLength: 255
       }
     }
   };
+
+  if (req.body.category === 3) schema.content.minLength = 50;
 
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
@@ -51,9 +57,8 @@ async function editArticle(req, res) {
     return;
   }
   req.body.token = req.token;
-  const args = req.body;
 
-  topicModel(args)
+  topicModel(req.body)
     .then(function(body) {
       res.json(body);
     })
