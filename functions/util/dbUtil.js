@@ -537,6 +537,9 @@ const Team = sequelize.define(
     },
     information: {
       type: Sequelize.TEXT
+    },
+    baseball_stats: {
+      type: Sequelize.TEXT
     }
   },
   {
