@@ -1,6 +1,7 @@
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
+const { replyTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -48,13 +49,7 @@ async function createReply(args) {
       };
 
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'a'],
-        allowedAttributes: {
-          a: ['href']
-        },
-        allowedSchemes: ['http', 'https']
-      });
+      insertData.content = sanitizeHtml(args.content, replyTopicAllowed);
 
       await dbCreate(insertData);
       resolve({ code: 200 });

@@ -1,7 +1,6 @@
 const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
-const { Cache } = require('./redisUtil');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -17,22 +16,6 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   logging: false, // disable logging; default: console.log
   timezone: mysql.setting.timezone // for writing to database
 });
-
-// 特製 findOne 結合 Redis Cache redisKey 使用 where parms 參數
-Sequelize.Model.findOneCache = async function() {
-  let redisKey;
-  for (const parms of Object.values(arguments)) {
-    if (parms.where) {
-      redisKey = [this.name, JSON.stringify(parms.where)].join(':');
-    }
-  }
-  const cacheValue = await Cache.get(redisKey);
-  if (cacheValue) return JSON.parse(cacheValue);
-
-  const result = await Sequelize.Model.findOne.apply(this, arguments);
-  Cache.set(redisKey, JSON.stringify(result));
-  return result;
-};
 
 /*
  * Define schema
@@ -2282,6 +2265,7 @@ const Token = sequelize.define(
     ]
   }
 );
+
 const AdminLogging = sequelize.define(
   'admin__logging',
   {
@@ -2351,6 +2335,160 @@ const Player = sequelize.define(
     ]
   }
 );
+
+/*
+  搞任務
+*/
+// 任務
+const Mission = sequelize.define(
+  'mission',
+  {
+    mission_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    desc: {
+      type: Sequelize.TEXT
+    },
+    type: {
+      type: Sequelize.INTEGER
+    },
+    activity_type: {
+      type: Sequelize.STRING
+    },
+    start_date: {
+      type: Sequelize.INTEGER
+    },
+    end_date: {
+      type: Sequelize.INTEGER
+    },
+    finish_nums: {
+      type: Sequelize.INTEGER
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['type', 'start_date', 'end_date', 'status']
+      }
+    ]
+  }
+);
+
+const MissionItem = sequelize.define(
+  'mission_item',
+  {
+    mission_item_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    target: {
+      type: Sequelize.STRING
+    },
+    reward_class: {
+      type: Sequelize.INTEGER
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    reward_num: {
+      type: Sequelize.INTEGER
+    },
+    reward_class_num: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const MissionGod = sequelize.define(
+  'mission_god',
+  {
+    mission_god_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    diamond_reward: {
+      type: Sequelize.INTEGER
+    },
+    gold_reward: {
+      type: Sequelize.INTEGER
+    },
+    sliver_reward: {
+      type: Sequelize.INTEGER
+    },
+    copper_reward: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const MissionDeposit = sequelize.define(
+  'mission_deposit',
+  {
+    mission_deposit_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    deposit_list_id: {
+      type: Sequelize.INTEGER
+    },
+    lottery: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const UserMission = sequelize.define(
+  'user__mission',
+  {
+    uid: {
+      type: Sequelize.INTEGER
+    },
+    mission_item_id: {
+      type: Sequelize.INTEGER
+    },
+    deposit_god_id: {
+      type: Sequelize.INTEGER
+    },
+    deposit_gdeposit_id: {
+      type: Sequelize.INTEGER
+    },
+    status: {
+      type: Sequelize.STRING,
+      defaultValue: 0
+    }
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2398,7 +2536,12 @@ const dbUtil = {
   PurchaseList,
   Token,
   AdminLogging,
-  Player
+  Player,
+  Mission,
+  MissionItem,
+  MissionGod,
+  MissionDeposit,
+  UserMission
 };
 
 module.exports = dbUtil;
