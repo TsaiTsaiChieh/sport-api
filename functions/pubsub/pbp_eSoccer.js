@@ -3,7 +3,7 @@ const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
-
+let keepPBP = 1;
 const Match = db.Match;
 async function ESoccerpbpInplay(parameter) {
   // 14 秒一次
@@ -18,7 +18,7 @@ async function ESoccerpbpInplay(parameter) {
     realtimeData = null;
   }
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -36,9 +36,9 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const {data} = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));
@@ -46,7 +46,7 @@ async function axiosForURL(URL) {
   });
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     let data;
@@ -81,7 +81,7 @@ async function ESoccerpbpHistory(parameter) {
       awayScores = data.results[0].ss.split('-')[1];
     }
     if (!data.results[0].timer) {
-      data.results[0].timer = { tm: 'xx', ts: 'xx' };
+      data.results[0].timer = {tm: 'xx', ts: 'xx'};
     }
 
     if (!data.results[0].stats) {
@@ -163,7 +163,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -204,6 +204,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            keepPBP = 0;
           }
           if (data.results[0].time_status === '4') {
             try {
@@ -229,6 +230,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            keepPBP = 0;
           }
 
           if (data.results[0].time_status === '3') {
@@ -269,6 +271,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            keepPBP = 0;
           }
           if (data.results[0].time_status === '1') {
             if (realtimeData !== null) {
@@ -313,6 +316,7 @@ async function doPBP(parameter) {
                 }
               }
             }
+            keepPBP = 1;
           }
           if (data.results[0].time_status === '0') {
             try {
@@ -338,105 +342,108 @@ async function doPBP(parameter) {
                 )
               );
             }
+            keepPBP = 0;
           }
-          let homeScores = 'no data';
-          let awayScores = 'no data';
+          if (keepPBP === 1) {
+            let homeScores = 'no data';
+            let awayScores = 'no data';
 
-          if (!data.results[0].timer) {
-            data.results[0].timer = { tm: 'xx', ts: 'xx' };
-          }
-          if (!data.results[0].ss || data.results[0].ss === null) {
-            data.results[0].ss = 'no data';
-          } else {
-            homeScores = data.results[0].ss.split('-')[0];
-            awayScores = data.results[0].ss.split('-')[1];
-          }
-          if (!data.results[0].stats) {
-            data.results[0].stats = {};
-          }
-          if (!data.results[0].stats.attacks) {
-            data.results[0].stats.attacks = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.ball_safe) {
-            data.results[0].stats.ball_safe = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.corners) {
-            data.results[0].stats.corners = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.dangerous_attacks) {
-            data.results[0].stats.dangerous_attacks = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.goals) {
-            data.results[0].stats.goals = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.off_target) {
-            data.results[0].stats.off_target = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.on_target) {
-            data.results[0].stats.on_target = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.yellowcards) {
-            data.results[0].stats.yellowcards = ['no data', 'no data'];
-          }
-          if (!data.results[0].stats.redcards) {
-            data.results[0].stats.redcards = ['no data', 'no data'];
-          }
-
-          try {
-            await modules.database
-              .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
-              .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP of now_clock on ${betsID} by DY`
-              )
-            );
-          }
-
-          try {
-            if (data.results[0].ss !== 'no data') {
-              await modules.database
-                .ref(`esports/eSoccer/${betsID}/Summary/info`)
-                .set({
-                  home: {
-                    name: data.results[0].home.name,
-                    Total: {
-                      points: homeScores,
-                      attacks: data.results[0].stats.attacks[0],
-                      ball_safe: data.results[0].stats.ball_safe[0],
-                      corners: data.results[0].stats.corners[0],
-                      dangerous_attacks:
-                        data.results[0].stats.dangerous_attacks[0],
-                      off_target: data.results[0].stats.off_target[0],
-                      on_target: data.results[0].stats.on_target[0],
-                      yellowcards: data.results[0].stats.yellowcards[0],
-                      redcards: data.results[0].stats.redcards[0]
-                    }
-                  },
-                  away: {
-                    name: data.results[0].away.name,
-                    Total: {
-                      points: awayScores,
-                      attacks: data.results[0].stats.attacks[1],
-                      ball_safe: data.results[0].stats.ball_safe[1],
-                      corners: data.results[0].stats.corners[1],
-                      dangerous_attacks:
-                        data.results[0].stats.dangerous_attacks[1],
-                      off_target: data.results[0].stats.off_target[1],
-                      on_target: data.results[0].stats.on_target[1],
-                      yellowcards: data.results[0].stats.yellowcards[1],
-                      redcards: data.results[0].stats.redcards[1]
-                    }
-                  }
-                });
+            if (!data.results[0].timer) {
+              data.results[0].timer = {tm: 'xx', ts: 'xx'};
             }
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP of info on ${betsID} by DY`
-              )
-            );
+            if (!data.results[0].ss || data.results[0].ss === null) {
+              data.results[0].ss = 'no data';
+            } else {
+              homeScores = data.results[0].ss.split('-')[0];
+              awayScores = data.results[0].ss.split('-')[1];
+            }
+            if (!data.results[0].stats) {
+              data.results[0].stats = {};
+            }
+            if (!data.results[0].stats.attacks) {
+              data.results[0].stats.attacks = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.ball_safe) {
+              data.results[0].stats.ball_safe = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.corners) {
+              data.results[0].stats.corners = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.dangerous_attacks) {
+              data.results[0].stats.dangerous_attacks = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.goals) {
+              data.results[0].stats.goals = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.off_target) {
+              data.results[0].stats.off_target = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.on_target) {
+              data.results[0].stats.on_target = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.yellowcards) {
+              data.results[0].stats.yellowcards = ['no data', 'no data'];
+            }
+            if (!data.results[0].stats.redcards) {
+              data.results[0].stats.redcards = ['no data', 'no data'];
+            }
+
+            try {
+              await modules.database
+                .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
+                .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP of now_clock on ${betsID} by DY`
+                )
+              );
+            }
+
+            try {
+              if (data.results[0].ss !== 'no data') {
+                await modules.database
+                  .ref(`esports/eSoccer/${betsID}/Summary/info`)
+                  .set({
+                    home: {
+                      name: data.results[0].home.name,
+                      Total: {
+                        points: homeScores,
+                        attacks: data.results[0].stats.attacks[0],
+                        ball_safe: data.results[0].stats.ball_safe[0],
+                        corners: data.results[0].stats.corners[0],
+                        dangerous_attacks:
+                          data.results[0].stats.dangerous_attacks[0],
+                        off_target: data.results[0].stats.off_target[0],
+                        on_target: data.results[0].stats.on_target[0],
+                        yellowcards: data.results[0].stats.yellowcards[0],
+                        redcards: data.results[0].stats.redcards[0]
+                      }
+                    },
+                    away: {
+                      name: data.results[0].away.name,
+                      Total: {
+                        points: awayScores,
+                        attacks: data.results[0].stats.attacks[1],
+                        ball_safe: data.results[0].stats.ball_safe[1],
+                        corners: data.results[0].stats.corners[1],
+                        dangerous_attacks:
+                          data.results[0].stats.dangerous_attacks[1],
+                        off_target: data.results[0].stats.off_target[1],
+                        on_target: data.results[0].stats.on_target[1],
+                        yellowcards: data.results[0].stats.yellowcards[1],
+                        redcards: data.results[0].stats.redcards[1]
+                      }
+                    }
+                  });
+              }
+            } catch (err) {
+              return reject(
+                new AppErrors.FirebaseRealtimeError(
+                  `${err} at doPBP of info on ${betsID} by DY`
+                )
+              );
+            }
           }
         }
       }
@@ -469,4 +476,4 @@ async function doPBP(parameter) {
     return resolve('ok');
   });
 }
-module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };
+module.exports = {ESoccerpbpInplay, ESoccerpbpHistory};

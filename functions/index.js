@@ -79,7 +79,7 @@ const whitelist = [
 const localOrigin = 'http://172.16.21';
 
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
@@ -122,7 +122,7 @@ app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接
 // app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票介接(ezpay)
 // keep firebase cloud function :API awake
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json({ test: 'awake0528v01' });
+  res.status(200).json({test: 'awake0528v01'});
 });
 
 // API cloud function
@@ -132,7 +132,7 @@ exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
 // 此排程再購買API後必須停掉
 exports.forpastevent = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('* */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程

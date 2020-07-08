@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const {Sequelize} = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
 
@@ -244,10 +244,10 @@ const Title = sequelize.define(
   },
   {
     indexes: [
-      { fields: ['uid'] },
-      { fields: ['period'] },
-      { fields: ['period_date'] },
-      { fields: ['league_id'] }
+      {fields: ['uid']},
+      {fields: ['period']},
+      {fields: ['period_date']},
+      {fields: ['league_id']}
     ]
   }
 );
@@ -522,6 +522,9 @@ const Team = sequelize.define(
     },
     information: {
       type: Sequelize.TEXT
+    },
+    baseball_stats: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -629,7 +632,7 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
-      { fields: ['scheduled', 'flag_prematch', 'status'] },
+      {fields: ['scheduled', 'flag_prematch', 'status']},
       {
         fields: ['status', 'spread_id']
       },
@@ -2314,6 +2317,9 @@ const Player = sequelize.define(
     team_id: {
       type: Sequelize.STRING
     },
+    ori_name: {
+      type: Sequelize.STRING
+    },
     name: {
       type: Sequelize.STRING
     },
@@ -2383,111 +2389,99 @@ const Mission = sequelize.define(
   }
 );
 
-const MissionItem = sequelize.define(
-  'mission_item',
-  {
-    mission_item_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    mission_id: {
-      type: Sequelize.INTEGER
-    },
-    target: {
-      type: Sequelize.STRING
-    },
-    reward_class: {
-      type: Sequelize.INTEGER
-    },
-    reward_type: {
-      type: Sequelize.STRING
-    },
-    reward_num: {
-      type: Sequelize.INTEGER
-    },
-    reward_class_num: {
-      type: Sequelize.INTEGER
-    }
+const MissionItem = sequelize.define('mission_item', {
+  mission_item_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  mission_id: {
+    type: Sequelize.INTEGER
+  },
+  target: {
+    type: Sequelize.STRING
+  },
+  reward_class: {
+    type: Sequelize.INTEGER
+  },
+  reward_type: {
+    type: Sequelize.STRING
+  },
+  reward_num: {
+    type: Sequelize.INTEGER
+  },
+  reward_class_num: {
+    type: Sequelize.INTEGER
   }
-);
+});
 
-const MissionGod = sequelize.define(
-  'mission_god',
-  {
-    mission_god_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    mission_id: {
-      type: Sequelize.INTEGER
-    },
-    reward_type: {
-      type: Sequelize.STRING
-    },
-    diamond_reward: {
-      type: Sequelize.INTEGER
-    },
-    gold_reward: {
-      type: Sequelize.INTEGER
-    },
-    sliver_reward: {
-      type: Sequelize.INTEGER
-    },
-    copper_reward: {
-      type: Sequelize.INTEGER
-    }
+const MissionGod = sequelize.define('mission_god', {
+  mission_god_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  mission_id: {
+    type: Sequelize.INTEGER
+  },
+  reward_type: {
+    type: Sequelize.STRING
+  },
+  diamond_reward: {
+    type: Sequelize.INTEGER
+  },
+  gold_reward: {
+    type: Sequelize.INTEGER
+  },
+  sliver_reward: {
+    type: Sequelize.INTEGER
+  },
+  copper_reward: {
+    type: Sequelize.INTEGER
   }
-);
+});
 
-const MissionDeposit = sequelize.define(
-  'mission_deposit',
-  {
-    mission_deposit_id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    mission_id: {
-      type: Sequelize.INTEGER
-    },
-    deposit_list_id: {
-      type: Sequelize.INTEGER
-    },
-    lottery: {
-      type: Sequelize.INTEGER
-    },
-    ingot: {
-      type: Sequelize.INTEGER
-    },
-    coin: {
-      type: Sequelize.INTEGER
-    }
+const MissionDeposit = sequelize.define('mission_deposit', {
+  mission_deposit_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  mission_id: {
+    type: Sequelize.INTEGER
+  },
+  deposit_list_id: {
+    type: Sequelize.INTEGER
+  },
+  lottery: {
+    type: Sequelize.INTEGER
+  },
+  ingot: {
+    type: Sequelize.INTEGER
+  },
+  coin: {
+    type: Sequelize.INTEGER
   }
-);
+});
 
-const UserMission = sequelize.define(
-  'user__mission',
-  {
-    uid: {
-      type: Sequelize.INTEGER
-    },
-    mission_item_id: {
-      type: Sequelize.INTEGER
-    },
-    deposit_god_id: {
-      type: Sequelize.INTEGER
-    },
-    deposit_gdeposit_id: {
-      type: Sequelize.INTEGER
-    },
-    status: {
-      type: Sequelize.STRING,
-      defaultValue: 0
-    }
+const UserMission = sequelize.define('user__mission', {
+  uid: {
+    type: Sequelize.INTEGER
+  },
+  mission_item_id: {
+    type: Sequelize.INTEGER
+  },
+  deposit_god_id: {
+    type: Sequelize.INTEGER
+  },
+  deposit_gdeposit_id: {
+    type: Sequelize.INTEGER
+  },
+  status: {
+    type: Sequelize.STRING,
+    defaultValue: 0
   }
-);
+});
 
 const dbUtil = {
   sequelize,
