@@ -2366,7 +2366,7 @@ const Mission = sequelize.define(
     end_date: {
       type: Sequelize.INTEGER
     },
-    finish_nums: {
+    need_finish_nums: {
       type: Sequelize.INTEGER
     },
     status: {
