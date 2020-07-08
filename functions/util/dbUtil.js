@@ -2210,7 +2210,52 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
-
+// const CashflowMission = sequelize.define(
+//   'cashflow_mission',
+//   {
+//     cashflow_mission_id: {
+//       type: Sequelize.INTEGER,
+//       autoIncrement: true,
+//       primaryKey: true
+//     },
+//     uid:{
+//       type: Sequelize.STRING
+//     },
+//     mission_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     mission_item_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     ingot: {
+//       type: Sequelize.INTEGER
+//     },
+//     coin: {
+//       type: Sequelize.INTEGER
+//     },
+//     dividend: {
+//       type: Sequelize.INTEGER
+//     },
+//     bonus_ticket: {
+//       type: Sequelize.INTEGER
+//     },
+//     createdAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     },
+//     updatedAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     }
+//   },
+//   {
+//     indexes: [
+//       {
+//         fields: ['cashflow_mission_id', 'uid']
+//       }
+//     ]
+//   }
+// );
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2533,6 +2578,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  CashflowMission,
   PurchaseList,
   Token,
   AdminLogging,
