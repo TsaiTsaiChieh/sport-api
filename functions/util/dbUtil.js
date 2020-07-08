@@ -2476,10 +2476,10 @@ const UserMission = sequelize.define(
     mission_item_id: {
       type: Sequelize.INTEGER
     },
-    deposit_god_id: {
+    mission_god_id: {
       type: Sequelize.INTEGER
     },
-    deposit_deposit_id: {
+    mission_deposit_id: {
       type: Sequelize.INTEGER
     },
     status: {
@@ -2493,7 +2493,7 @@ const UserMission = sequelize.define(
   {
     indexes: [
       {
-        fields: ['uid', 'mission_item_id', 'deposit_god_id', 'deposit_gdeposit_id']
+        fields: ['uid', 'mission_item_id', 'mission_god_id', 'mission_deposit_id', 'date_timestamp']
       }
     ]
   }
