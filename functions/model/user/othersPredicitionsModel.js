@@ -204,8 +204,8 @@ function getPaidType(info) {
 }
 
 function checkBuyGodPredictions(uid, buyId) {
-  if (uid === null) return false; // 代表未登入，回傳 未付費
-  if (buyId === null) return false; // 代表登入 未購買，回傳 未付費
+  if (!uid) return false; // 代表未登入，回傳 未付費
+  if (!buyId) return false; // 代表登入 未購買，回傳 未付費
   return true; // 已付費
 }
 
@@ -254,7 +254,7 @@ function repackage(ele, paidType) {
     totals: {}
   };
 
-  if (!(ele.spread_id == null)) { // 有讓分資料
+  if (ele.spread_id) { // 有讓分資料
     data.spread = {
       predict: (paidType === 'unpaid') ? '' : ele.spread_option,
       spread_id: ele.spread_id,
@@ -266,7 +266,7 @@ function repackage(ele, paidType) {
     };
   }
 
-  if (!(ele.totals_id == null)) { // 有大小資料
+  if (ele.totals_id) { // 有大小資料
     data.totals = {
       predict: (paidType === 'unpaid') ? '' : ele.totals_option,
       totals_id: ele.totals_id,

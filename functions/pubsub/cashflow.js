@@ -141,7 +141,7 @@ async function god(req, res) {
     // win_bets > 0 和 =< 0 兩種情況需要分別處理 正常情況 和 退款情況
     for (const data of Object.values(godSellDeckListSettle)) {
       log(`[搞錠] ${data.uid}  ${data.league_id} ${yesterdayYYYYMMDDUnix} ${data.matches_date} 注數：${data.win_bets}`);
-      if (data.win_bets === undefined || data.win_bets === null) continue;
+      if (!data.win_bets) continue;
 
       let createInfo = {
         buy_id: data.buy_id,

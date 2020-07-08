@@ -112,7 +112,7 @@ function repackage(ele) {
     totals: {}
   };
 
-  if (!(ele.spread_id == null)) { // 有讓分資料
+  if (ele.spread_id) { // 有讓分資料
     data.spread = {
       predict: ele.spread_option,
       spread_id: ele.spread_id,
@@ -124,7 +124,7 @@ function repackage(ele) {
     };
   }
 
-  if (!(ele.totals_id == null)) { // 有大小資料
+  if (ele.totals_id) { // 有大小資料
     data.totals = {
       predict: ele.totals_option,
       totals_id: ele.totals_id,
