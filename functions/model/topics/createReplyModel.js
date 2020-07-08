@@ -1,8 +1,7 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
+const { replyTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -24,16 +23,17 @@ async function createReply(args) {
         reject({ code: 403, error: 'token expired' });
         return;
       }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-      const topicInfo = await func.getTopicInfo(args.article_id);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 403, error: 'user verify failed' });
+      if (!await func.chkUserBlocking(args.token.uid)) {
+        reject({ code: 403, error: 'user is blocking' });
         return;
       }
 
-      if (topicInfo.length === 0) {
+      const topicInfo = await func.getTopicInfo(args.article_id);
+      if (topicInfo === null) {
+        reject({ code: 404, error: 'topic not found' });
+        return;
+      }
+      if (topicInfo.status !== 1 && topicInfo.status !== 3) {
         reject({ code: 404, error: 'topic not found' });
         return;
       }
@@ -49,15 +49,9 @@ async function createReply(args) {
       };
 
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'a'],
-        allowedAttributes: {
-          a: ['href']
-        },
-        allowedSchemes: ['http', 'https']
-      });
+      insertData.content = sanitizeHtml(args.content, replyTopicAllowed);
 
-      const article = await dbCreate(insertData);
+      await dbCreate(insertData);
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);

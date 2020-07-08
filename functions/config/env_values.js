@@ -1,33 +1,28 @@
-exports.indexURL = 'https://chat-api.doinfo.cc/';
-// exports.productURL = 'https://chat.doinfo.cc/';
-exports.productURL = 'https://dosports.web.app/';
-exports.release = false;
-// 正式版 sport19y0715-dev
-// exports.domain = '.doinfo.cc';
-// exports.projectId = 'sport19y0715';
-// exports.cert = require('../auth/sport19y0715-dev.json');
+// 正式站 getsports-gsi
+// exports.apiURL = 'https://api-getsports.web.app/';
+// exports.productURL = 'https://getsport.cc/';
+// exports.cert = require('../auth/getsports-gsi-firebase-adminsdk.json');
 // exports.firebaseConfig = {
-//   apiKey: 'AIzaSyB31V6WewUi-iY12231Ixahquf68uGaoCo',
-//   authDomain: 'sport19y0715.firebaseapp.com',
-//   databaseURL: 'https://sport19y0715.firebaseio.com',
-//   projectId: 'sport19y0715',
-//   storageBucket: 'sport19y0715.appspot.com',
-//   messagingSenderId: '179049951227',
-//   appId: '1:179049951227:web:15b2ae874d653216'
+//   apiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo',
+//   authDomain: 'getsports-gsi.firebaseapp.com',
+//   databaseURL: 'https://getsports-gsi.firebaseio.com',
+//   projectId: 'getsports-gsi',
+//   storageBucket: 'getsports-gsi.appspot.com',
+//   messagingSenderId: '605990362975',
+//   appId: '1:605990362975:web:6ce4a3172117dfc36ea0ea',
+//   measurementId: 'G-KJ81TH7PPS'
 // };
-// exports.cookieOptions = {
-//   maxAge: 60 * 60 * 24 * 7 * 1000,
-//   httpOnly: true,
-//   sameSite: 'none',
-//   secure:true,
-//   domain: '.doinfo.cc'
-//   // domain: 'http://localhost:8080'
+// exports.redisConfig = {
+//   REDISHOST: process.env.REDISHOST || '10.170.59.179',
+//   REDISPORT: process.env.REDISPORT || 6379
 // };
+// exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
+// ***以上正式站***
 
 // 測試版 sportslottery-test-adminsdk
-exports.domain = '.web.app';
-// exports.domain = 'localhost'; // by Tsai-Chieh，其他人可以不要打開這個註解
-exports.projectId = 'sportslottery-test';
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
+exports.apiURL = 'https://api-getsports.web.app/';
+exports.productURL = 'https://api-dosports.web.app/';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
   apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
@@ -39,6 +34,15 @@ exports.firebaseConfig = {
   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
   measurementId: 'G-WRP22SQG9M'
 };
+
+exports.redisConfig = {
+  REDISHOST: process.env.REDISHOST || isEmulator ? 'localhost' : '10.128.16.3',
+  REDISPORT: process.env.REDISPORT || 6379
+};
+
+exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
+// 以上測式站
+
 exports.cookieOptions = {
   maxAge: 60 * 60 * 24 * 7 * 1000,
   sameSite: 'None',
@@ -50,10 +54,10 @@ exports.lineConfig = {
   profileURL: 'https://api.line.me/v2/profile',
   tokenURL: 'https://api.line.me/oauth2/v2.1/token',
   verifyURL: 'https://api.line.me/oauth2/v2.1/verify',
-  channelID: '1576253248',
-  channelSecret: 'e4a91d4e33e26967fa6c267292bd06ec',
-  callbackURL: this.indexURL + 'auth/lineLoginHandler'
+  channelID: '1654287441',
+  channelSecret: '3ae318ddf60243d9e932c6a7918b80f4',
+  callbackURL: this.apiURL + 'auth/lineLoginHandler'
 };
-exports.betsToken = require('../auth/betsToken.json').token;
+exports.betsToken = '35388-8IqMa0NK19LJVY';
 exports.sportRadarKeys = require('../auth/sportRadarKeys.json');
 exports.zone_tw = 'Asia/Taipei';

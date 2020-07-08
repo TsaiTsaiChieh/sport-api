@@ -1,20 +1,22 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
 
-function dbFind(aid) {
+function dbFind(article_id) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.models.topic__article.findOne({
         where: {
           status: 1,
-          article_id: aid
+          article_id: article_id
         }
       });
-      const view_count = result.view_count + 1;
-      result.update({ view_count: view_count });
-      resolve(result);
+      if (result) {
+        const view_count = result.view_count + 1;
+        result.update({ view_count: view_count }, { silent: true }); // silent:true 不然會動到updateAt
+        resolve(result);
+      } else {
+        resolve(false);
+      }
     } catch (error) {
       console.error(error);
       reject('get topics failed');
@@ -24,7 +26,7 @@ function dbFind(aid) {
 function chkGodFavorite(uid, god_uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.user__favoritegod.count({
+      const result = await db.sequelize.models.user__favoriteplayer.count({
         where: {
           uid: uid,
           god_uid: god_uid
@@ -34,7 +36,7 @@ function chkGodFavorite(uid, god_uid) {
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(false);
     }
   });
 }
@@ -51,7 +53,40 @@ function chkArticleFavorite(uid, article_id) {
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve(false);
+    }
+  });
+}
+function chkArticleDonated(uid, article_id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__donate.count({
+        where: {
+          uid: uid,
+          article_id: article_id
+        },
+        raw: true
+      });
+      resolve(result !== 0);
+    } catch (error) {
+      console.error(error);
+      resolve(false);
+    }
+  });
+}
+function getDonatedCount(article_id) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__donate.count({
+        where: {
+          article_id: article_id
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      resolve(0);
     }
   });
 }
@@ -80,12 +115,15 @@ async function getArticle(args) {
       article.user_info = userInfo[0];
       article.like_count = likeCount.length > 0 ? likeCount[0].count : 0;
       article.reply_count = replyCount.length > 0 ? replyCount[0].count : 0;
+      article.donate_count = await getDonatedCount(args.aid);
       const uid = (args.token !== null) ? args.token.uid : null;
       article.is_liked = false;
+      article.is_donated = false;
       article.is_favoGod = false;
       article.is_favoArticle = false;
       if (uid) {
         article.is_liked = await func.getIsUserLikeTopic(uid, args.aid);
+        article.is_donated = await chkArticleDonated(uid, args.aid);
         article.is_favoGod = await chkGodFavorite(uid, article.user_info.uid);
         article.is_favoArticle = await chkArticleFavorite(uid, args.aid);
       }

@@ -1,7 +1,6 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
+const { replyTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -32,13 +31,7 @@ async function contactService(args) {
       };
 
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'a'],
-        allowedAttributes: {
-          a: ['href']
-        },
-        allowedSchemes: ['http', 'https']
-      });
+      insertData.content = sanitizeHtml(args.content, replyTopicAllowed);
 
       await dbCreate(insertData);
       resolve({ code: 200 });

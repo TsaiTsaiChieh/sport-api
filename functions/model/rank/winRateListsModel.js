@@ -1,29 +1,31 @@
-const modules = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { CacheQuery } = require('../../util/redisUtil');
 
-function winRateLists(args) {
-  return new Promise(async function(resolve, reject) {
-    const range = args.range;
-    const league = args.league;
-    const period = modules.getTitlesPeriod(new Date()).period;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'add', value: 1, unit: 'days' }) - 1;
+async function winRateLists(args) {
+  const range = args.range;
+  const league = args.league;
+  const league_id = leagueCodebook(league).id;
+  const period = getTitlesPeriod(new Date()).period;
+  const nowInfo = coreDateInfo(new Date());
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
-    // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
-    // let winRateLists = {
-    //   NBA: [],
-    //   MLB: []
-    // }
-    const winRateLists = {};
-    winRateLists[league] = []; // 像上面的範例
+  // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
+  // let winRateLists = {
+  //   NBA: [],
+  //   MLB: []
+  // }
+  const winRateLists = {};
+  winRateLists[league] = []; // 像上面的範例
 
-    try {
-      for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
-        const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
+  // eslint-disable-next-line no-unused-vars
+  for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
+    const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
-        const leagueWinRateListsQuery = await db.sequelize.query(`
+    const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
+    const [err, leagueWinRateListsQuery] = await to(CacheQuery(db.sequelize, `
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -36,7 +38,7 @@ function winRateLists(args) {
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
             from (
-                  select winlist.*, users.avatar, users.display_name
+                  select winlist.*, users.avatar, users.display_name, users.status
                     from (
                             select uid, users__win__lists.league_id, 
                                    last_month_win_bets, last_month_win_rate, 
@@ -45,13 +47,8 @@ function winRateLists(args) {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate
-                              from users__win__lists,
-                                   ( 
-                                     select league_id 
-                                       from match__leagues
-                                       where name = :league
-                                   ) leagues
-                             where users__win__lists.league_id = leagues.league_id
+                              from users__win__lists
+                             where users__win__lists.league_id = :league_id
                              order by ${rangeWinRateCodebook(range)} desc
                              limit 30
                           ) winlist,
@@ -65,6 +62,7 @@ function winRateLists(args) {
             left join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
+             and titles.period = :period
             left join 
                  (
                    select uid, max(sell) sell
@@ -73,33 +71,32 @@ function winRateLists(args) {
                     group by uid
                  ) prediction
               on titles.uid = prediction.uid
-           where titles.period = :period
            order by ${rangeWinRateCodebook(range)} desc
         `, {
-          replacements: {
-            league: league,
-            period: period,
-            begin: begin,
-            end: end
-          },
-          limit: 30,
-          type: db.sequelize.QueryTypes.SELECT
-        });
-
-        leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
-          leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
-        });
-
-        winRateLists[key] = leagueWinRateLists;
-      }
-    } catch (err) {
-      console.log('Error in  rank/godlists by YuHsien:  %o', err);
-      return reject(errs.errsMsg('500', '500', err));
+      replacements: {
+        league_id: league_id,
+        period: period,
+        begin: beginUnix,
+        end: endUnix
+      },
+      limit: 30,
+      type: db.sequelize.QueryTypes.SELECT
+    }, redisKey));
+    if (err) {
+      console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
+      throw errs.dbErrsMsg('404', '14010');
     }
 
-    // resolve({ win_rate_lists: winRateLists });
-    resolve({ userlists: winRateLists[league] });
-  });
+    if (leagueWinRateListsQuery === undefined || leagueWinRateListsQuery.length <= 0) return { userlists: winRateLists }; // 如果沒有找到資料回傳 []
+
+    leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
+      leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));
+    });
+
+    winRateLists[key] = leagueWinRateLists;
+  }
+
+  return { userlists: winRateLists[league] };
 }
 
 function repackage(ele, rangstr) {
@@ -107,7 +104,8 @@ function repackage(ele, rangstr) {
     // win_rate: ele.win_rate,
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name
+    display_name: ele.display_name,
+    status: ele.status
   };
 
   data.win_rate = ele[rangstr];

@@ -17,12 +17,8 @@ async function contactService(req, res) {
       },
       images: {
         type: 'array',
-        maxItems: 3,
-        items: [
-          { type: 'string' },
-          { type: 'string' },
-          { type: 'string' }
-        ]
+        maxItems: 12,
+        items: { type: 'string' }
       }
     }
   };

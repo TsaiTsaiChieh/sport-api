@@ -12,8 +12,8 @@ function deletePredictions(args) {
     try {
       await isNormalUser(args);
       const filter = await checkMatches(args);
-      await updateFromDB(args, filter);
-      await deleteDB();
+      await updatePredictions(args, filter);
+      await deletePredictionsWhichAreNull(args.token.uid, args.league);
       return resolve(returnData(filter));
     } catch (err) {
       return reject(err);
@@ -86,9 +86,7 @@ function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      console.log(err);
-
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -116,9 +114,9 @@ function isHandicapExist(args, i, filter) {
       const result = await db.sequelize.query(
         `SELECT * 
            FROM user__predictions
-          WHERE uid = "${args.token.uid}"
+          WHERE uid = '${args.token.uid}'
             AND bets_id = :id
-            AND ${handicapType}_id = "${handicapId}"
+            AND ${handicapType}_id = '${handicapId}'
             AND sell = ${NORMAL_USER_SELL}
             AND league_id = ${modules.leagueCodebook(args.league).id}`,
         {
@@ -129,29 +127,21 @@ function isHandicapExist(args, i, filter) {
 
       if (!result.length) {
         const error = {
-          code: 404,
+          code: modules.NOT_FOUND,
           error: `${handicapType} id: ${handicapId} in ${args.league} not found`
         };
         filterProcessor(filter, i, error);
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 // 轉換要查詢哪種盤口種類
 function handicapProcessor(ele) {
-  let handicapType = '';
-  let handicapId;
-
-  if (ele.spread) {
-    handicapType = 'spread';
-    handicapId = ele.spread;
-  } else if (ele.totals) {
-    handicapType = 'totals';
-    handicapId = ele.totals;
-  }
+  const handicapType = ele.spread ? 'spread' : 'totals';
+  const handicapId = ele.spread ? ele.spread : ele.totals;
   return { handicapType, handicapId };
 }
 // 將無效的賽事 id 和盤口 id 推到 failed，也清空原本在 needed 的位置
@@ -164,7 +154,7 @@ function filterProcessor(filter, i, error) {
   filter.failed.push(ele);
 }
 
-function updateFromDB(args, filter) {
+function updatePredictions(args, filter) {
   return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < filter.needed.length; i++) {
@@ -174,9 +164,9 @@ function updateFromDB(args, filter) {
           const result = await db.sequelize.query(
             `UPDATE user__predictions
               SET ${handicapType}_id = NULL, ${handicapType}_bets = NULL, ${handicapType}_option = NULL
-            WHERE ${handicapType}_id = "${handicapId}"
+            WHERE ${handicapType}_id = '${handicapId}'
               AND bets_id = :id
-              AND uid = "${args.token.uid}"`,
+              AND uid = '${args.token.uid}'`,
             {
               type: db.sequelize.QueryTypes.UPDATE,
               replacements: { id: ele.id }
@@ -185,7 +175,7 @@ function updateFromDB(args, filter) {
           // result = [undefined, 1] 代表有更新成功；反之 [undefined, 0]
           if (!result[1]) {
             const error = {
-              code: 404,
+              code: modules.httpStatus.ACCEPTED, // 請求接受並處理但可能失敗
               error: `${handicapType} id: ${handicapId} in ${args.league} update failed`
             };
             filterProcessor(filter, i, error);
@@ -194,23 +184,30 @@ function updateFromDB(args, filter) {
       }
       return resolve(filter);
     } catch (err) {
-      console.log(err);
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 // 偵測一般玩家讓分和大小分的下注單是否都為空，若是的話需刪除
-function deleteDB() {
+function deletePredictionsWhichAreNull(uid, league) {
   return new Promise(async function(resolve, reject) {
     try {
+      // index is range, taking 170ms
       await db.sequelize.query(
         `DELETE 
-          FROM user__predictions 
-         WHERE CONCAT(spread_id, totals_id) IS NULL`
+           FROM user__predictions
+          WHERE uid = :uid
+            AND spread_id IS NULL
+            AND totals_id IS NULL
+            AND league_id = :league_id`,
+        {
+          type: db.sequelize.QueryTypes.DELETE,
+          replacements: { uid, league_id: modules.leagueCodebook(league).id, raw: true }
+        }
       );
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }

@@ -6,7 +6,7 @@ async function likeReply(req, res) {
     type: 'object',
     required: ['reply_id', 'like'],
     properties: {
-      article_id: {
+      reply_id: {
         type: 'integer',
         maximum: 9999999,
         minimum: 0
@@ -19,7 +19,11 @@ async function likeReply(req, res) {
   const valid = modules.ajv.validate(schema, req.body);
   if (!valid) {
     console.log(modules.ajv.errors);
-    res.status(400).send('schema not acceptable');
+    const ajv_errs = [];
+    for (let i = 0; i < modules.ajv.errors.length; i++) {
+      ajv_errs.push('path: \'' + modules.ajv.errors[i].dataPath + '\': ' + modules.ajv.errors[i].message);
+    }
+    res.status(400).json({ code: 400, error: 'schema not acceptable', message: ajv_errs });
     return;
   }
   req.body.token = req.token;
@@ -35,3 +39,44 @@ async function likeReply(req, res) {
 }
 
 module.exports = likeReply;
+/**
+ * @api {GET} /topics/likeReply/ likeReply
+ * @apiName likeReply
+ * @apiGroup Topics
+ * @apiDescription 按讚留言
+ * @apiPermission login user with completed data
+ * @apiHeader (Bearer) {String}     Bearer token generate from firebase Admin SDK
+ * @apiParam {Integer} reply_id     留言ID
+ * @apiParam {Boolean} like         `true`按讚, `false`收回讚
+ * @apiParamExample {JSON} Request-Example
+ * {
+ *   "reply_id": 124,
+ *   "like": true
+ * }
+ * @apiSuccess {JSON} result Response
+ * @apiSuccessExample {JSON} Success-Response
+ * {
+ *   "code": 200
+ * }
+ * @apiErrorExample {JSON} (400-Response) Schema Error
+ * HTTP/1.1 400 Bad Request
+ * {
+ *   "code": 400,
+ *   "error": "schema not acceptable",
+ *   "message": [
+ *     "ajv error message"
+ *   ]
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": "this article has been liked"
+ * }
+ * @apiErrorExample {JSON} (500-Response)
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "code": 500,
+ *   "error": {}
+ * }
+ */

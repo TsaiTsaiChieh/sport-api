@@ -1,7 +1,6 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
+const { createTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbFind(aid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -43,13 +42,6 @@ async function createTopic(args) {
         reject({ code: 403, error: 'token expired' });
         return;
       }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
-        return;
-      }
 
       // 撈原文
       let orig_article;
@@ -60,6 +52,10 @@ async function createTopic(args) {
           return;
         }
         orig_article = article[0]; // 原文
+        if (orig_article.status !== 1 && orig_article.status !== 3) {
+          reject({ code: 404, error: 'topic not found' });
+          return;
+        }
       } catch (err) {
         console.error(err);
         reject({ code: 500, error: err });
@@ -72,33 +68,15 @@ async function createTopic(args) {
       }
       // console.log(orig_article);
       const insertData = {
-        type: args.type,
+        league: args.league,
         category: args.category,
         title: args.title
       };
 
+      if (args.imgurl) insertData.imgurl = args.imgurl;
+
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
-        allowedAttributes: {
-          div: ['style'],
-          span: ['style'],
-          strike: ['style'],
-          b: ['style'],
-          a: ['href'],
-          img: ['src'],
-          font: ['size', 'color']
-        },
-        allowedSchemes: ['http', 'https'],
-        allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],
-        allowedStyles: {
-          '*': {
-            color: [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-            'text-align': [/^left$/, /^right$/, /^center$/],
-            'font-size': [/^\d+(?:px|em|%)$/]
-          }
-        }
-      });
+      insertData.content = sanitizeHtml(args.content, createTopicAllowed);
 
       await dbEdit(args.article_id, insertData);
       resolve({ code: 200 });

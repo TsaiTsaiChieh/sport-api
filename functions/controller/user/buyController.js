@@ -3,9 +3,11 @@ const buyModel = require('../../model/user/buyModel');
 
 async function buy(req, res) {
   try {
-    res.json(await buyModel(req.params.uid));
+    req.args = req.body;
+    res.json(await buyModel(req.args, req.token.uid));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[buyController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 module.exports = buy;

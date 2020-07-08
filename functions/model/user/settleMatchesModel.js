@@ -1,51 +1,48 @@
-const modules = require('../../util/modules');
+const { leagueDecoder } = require('../../util/modules');
+const {
+  settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
+  predictionsResultFlag
+} = require('../../util/settleModules');
+const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const to = require('await-to-js').default;
 
-function settleMatches(args) {
-  return new Promise(async function(resolve, reject) {
-    // 1. 管理者才能進行 API 呼叫
-    // 2. 該場賽事結算
-    // 3. 該場賽事-使用者有下預測單結算
+// const d = require('debug')('user:settleMatchesModel'); // firebase 升級後廢掉了
+const util = require('util');
+function d(...args) {
+  if (typeof (console) !== 'undefined') {
+    console.log('[user settleMatchesModel]', util.format(...args));
+  }
+}
 
-    const userUid = args.token.uid;
-    const bets_id = args.bets_id;
+async function settleMatchesModel(args) {
+  // 1. 管理者才能進行 API 呼叫
+  // 2. 該場賽事結算
+  // 3. 該場賽事-使用者有下預測單結算
+  // !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
 
-    const result = {};
+  const userUid = args.token.uid;
+  const bets_id = args.bets_id;
 
-    const s1 = new Date().getTime();
-    // 1.
-    try {
-      const memberInfo = await db.User.findOne({ where: { uid: userUid } });
+  const result = {};
 
-      if (memberInfo === null) {
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1301')); // ${userUid}
-      }
+  const s1 = new Date().getTime();
+  // 1.
+  // !!!! 記得改成 9
+  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130810');
+  if (checkResult.code) throw checkResult;
 
-      // !!!! 記得改成 9
-      if (!([1, 2].includes(memberInfo.status))) { // 不是 管理者
-        // console.error('Error 1. in user/predictonInfoModell by YuHsien');
-        return reject(errs.errsMsg('404', '1308'));
-      }
+  const s2 = new Date().getTime();
+  // 2.
 
-      // 改用 modules.userStatusCodebook 這支程式建議 要寫死，不要有 Default 值，因為一般使用者也有一堆權限
-      console.log('memberInfo status of statusSwitch: %o', modules.userStatusCodebook(memberInfo.status));
-    } catch (err) {
-      console.error('Error 1. in user/settleMatchesModel by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
-
-    const s2 = new Date().getTime();
-    // 2.
-    try {
-      // flag_permatch 1 才為有效賽事
-      // status 0 比賽結束
-      // home_points、away_points 最終得分 需要有值 (不可null，不可空白)
-      const matchInfo = await db.sequelize.query(`
-        select bets_id, home_id, away_id, home_points, away_points,
-               spread.handicap spread_handicap, home_odd, away_odd,
-               totals.handicap totals_handicap, over_odd, under_odd
+  // flag_permatch 1 才為有效賽事
+  // status 0 比賽結束
+  // home_points、away_points 最終得分 需要有值 (不可null，必需 >= 0) 比賽有可能 0:0
+  const matchInfo = await db.sequelize.query(`
+        select bets_id, matches.league_id, home_id, away_id, home_points, away_points,
+               spread.handicap spread_handicap, spread.rate spread_rate, home_odd, away_odd,
+               totals.handicap totals_handicap, totals.rate totals_rate, over_odd, under_odd
           from matches
           left join match__spreads spread
             on matches.spread_id = spread.spread_id
@@ -54,69 +51,73 @@ function settleMatches(args) {
          where bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
-        replacements: {
+    replacements: {
+      bets_id: bets_id
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  if (matchInfo.length !== 1) throw errs.errsMsg('404', '13101', { custMsg: `該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!` });
+
+  // const mapResult = matchInfo.map(async function(data) {
+  for (const data of matchInfo) {
+    const league = leagueDecoder(data.league_id);
+    const countData = {
+      homePoints: data.home_points,
+      awayPoints: data.away_points,
+      spreadHandicap: data.spread_handicap,
+      spreadRate: data.spread_rate,
+      spreadHomeOdd: data.home_odd,
+      spreadAwayOdd: data.away_odd,
+      totalsHandicap: data.totals_handicap,
+      totalRate: data.totals_rate,
+      totalsOverOdd: data.over_odd,
+      totalsUnderOdd: data.under_odd
+    };
+
+    // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
+    // eSoccer Soccer 足球 計算方式和其他不同 (不用於 籃球、冰球、棒球等等)
+    const settleSpreadResult = (data.spread_handicap == null) ? null
+      : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
+    if (settleSpreadResult === '') throw errs.errsMsg('404', '13111'); // 賽事結算讓分 結果不應該為空白
+
+    const settleTotalsResult = (data.totals_handicap == null) ? null
+      : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
+    if (settleTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
+
+    d(bets_id, settleSpreadResult, settleTotalsResult);
+
+    // 回寫結果
+    if (settleSpreadResult !== null || settleTotalsResult !== null) {
+      const [err, r] = await to(db.Match.update({
+        spread_result: settleSpreadResult,
+        totals_result: settleTotalsResult
+      }, {
+        where: {
           bets_id: bets_id
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
-
-      if (matchInfo.length === 0 || matchInfo.length > 1) {return resolve(`該比賽 ${bets_id} 無相關資料，可能原因 多筆、無效比賽、未完賽、最終得分未寫入資料!`);}
-
-      const mapResult = matchInfo.map(async function(data) {
-        const countData = {
-          homePoints: data.home_points,
-          awayPoints: data.away_points,
-          spreadHandicap: data.spread_handicap,
-          spreadHomeOdd: data.home_odd,
-          spreadAwayOdd: data.away_odd,
-          totalsHandicap: data.totals_handicap,
-          totalsOverOdd: data.over_odd,
-          totalsUnderOdd: data.under_odd
-        };
-
-        // null 代表 沒有handicap
-        const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1311')); // 賽事結算讓分 結果不應該為空白
-
-        const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1312')); // 賽事結算大小 結果不應該為空白
-
-        // 回寫結果
-        try {
-          const r = await db.Match.update({
-            spread_result: settelSpreadResult,
-            totals_result: settelTotalsResult
-          }, {
-            where: {
-              bets_id: bets_id
-            }
-          });
-
-          if (r !== 1) return reject(errs.errsMsg('404', '1310')); // 更新筆數異常
-
-          result[bets_id] = { status: 1, msg: '賽事結算成功！' };
-        } catch (err) {
-          return reject(errs.errsMsg('404', '1309'));
         }
-      });
+      }));
 
-      await Promise.all(mapResult);
-    } catch (err) {
-      console.error('Error 2. in user/settleMatchesModel by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });}
+      if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
     }
 
-    const s3 = new Date().getTime();
-    // 3.
-    try {
-      const predictMatchInfo = await db.sequelize.query(`
-        select prediction.id, prediction.uid, prediction.spread_option, prediction.totals_option,
+    result[bets_id] = { status: 1, msg: '賽事結算成功！' };
+  };
+  // });
+
+  // await Promise.all(mapResult);
+
+  const s3 = new Date().getTime();
+  // 3.
+  const predictMatchInfo = await db.sequelize.query(`
+        select prediction.id, prediction.league_id, prediction.uid, prediction.spread_option, prediction.totals_option,
                matches.bets_id, home_id, away_id, home_points, away_points,
-               spread.spread_id, spread.handicap spread_handicap, home_odd, away_odd,
-               totals.totals_id, totals.handicap totals_handicap, over_odd, under_odd
+               spread.spread_id, spread.handicap spread_handicap, spread.rate spread_rate, home_odd, away_odd,
+               totals.totals_id, totals.handicap totals_handicap, totals.rate totals_rate, over_odd, under_odd
           from user__predictions prediction
          inner join matches
             on prediction.bets_id = matches.bets_id
@@ -127,117 +128,67 @@ function settleMatches(args) {
          where matches.bets_id = :bets_id
            and flag_prematch = 1
            and status = 0
-           and (home_points is not null and home_points != '')
-           and (away_points is not null and away_points != '')
+           and (home_points is not null and home_points >= 0)
+           and (away_points is not null and away_points >= 0)
       `, {
-        replacements: {
-          bets_id: bets_id
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
-
-      const mapResult2 = predictMatchInfo.map(async function(data) {
-        const countData = {
-          homePoints: data.home_points,
-          awayPoints: data.away_points,
-          spreadHandicap: data.spread_handicap,
-          spreadHomeOdd: data.home_odd,
-          spreadAwayOdd: data.away_odd,
-          totalsHandicap: data.totals_handicap,
-          totalsOverOdd: data.over_odd,
-          totalsUnderOdd: data.under_odd
-        };
-
-        // null 代表 沒有handicap
-        const settelSpreadResult = (data.spread_handicap == null) ? null : settleSpread(countData);
-        if (settelSpreadResult === '') return reject(errs.errsMsg('404', '1315')); // 賽事結算讓分 結果不應該為空白
-
-        const settelTotalsResult = (data.totals_handicap == null) ? null : settleTotals(countData);
-        if (settelTotalsResult === '') return reject(errs.errsMsg('404', '1316')); // 賽事結算大小 結果不應該為空白
-
-        // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-        const spreadResultFlag = (data.spread_handicap == null) ? -2 : resultFlag(data.spread_option, settelSpreadResult);
-        const totalsResultFlag = (data.totals_handicap == null) ? -2 : resultFlag(data.totals_option, settelTotalsResult);
-
-        // 回寫結果
-        try {
-          const r = await db.Prediction.update({
-            spread_result: settelSpreadResult,
-            totals_result: settelTotalsResult,
-            spread_result_flag: spreadResultFlag,
-            totals_result_flag: totalsResultFlag
-          }, {
-            where: {
-              id: data.id
-            }
-          });
-
-          if (r !== 1) return reject(errs.errsMsg('404', '1314')); // 更新筆數異常
-
-          result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
-        } catch (err) {
-          return reject(errs.errsMsg('404', '1313'));
-        }
-      });
-
-      await Promise.all(mapResult2);
-    } catch (err) {
-      console.error('Error 3. in user/settleMatchesModel by YuHsien', err);
-      return reject(errs.errsMsg('500', '500', err));
-    }
-
-    const e = new Date().getTime();
-    console.log('1. ', s2 - s1);
-    console.log('2. ', s3 - s2);
-    console.log('3. ', e - s3);
-    return resolve(result);
+    replacements: {
+      bets_id: bets_id
+    },
+    type: db.sequelize.QueryTypes.SELECT
   });
+
+  // const mapResult2 = predictMatchInfo.map(async function(data) {
+  for (const data of predictMatchInfo) {
+    const league = leagueDecoder(data.league_id);
+    const countData = {
+      homePoints: data.home_points,
+      awayPoints: data.away_points,
+      spreadHandicap: data.spread_handicap,
+      spreadRate: data.spread_rate,
+      spreadHomeOdd: data.home_odd,
+      spreadAwayOdd: data.away_odd,
+      totalsHandicap: data.totals_handicap,
+      totalRate: data.totals_rate,
+      totalsOverOdd: data.over_odd,
+      totalsUnderOdd: data.under_odd
+    };
+
+    // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
+    const settleSpreadResult = (data.spread_handicap == null) ? null
+      : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
+    if (settleSpreadResult === '') throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為空白
+
+    const settleTotalsResult = (data.totals_handicap == null) ? null
+      : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
+    if (settleTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
+
+    // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult);
+    d(bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag);
+    // 回寫結果
+    const [err, r] = await to(db.Prediction.update({
+      spread_result: settleSpreadResult,
+      totals_result: settleTotalsResult,
+      spread_result_flag: spreadResultFlag,
+      totals_result_flag: totalsResultFlag
+    }, {
+      where: {
+        id: data.id
+      }
+    }));
+    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13213', { addMsg: err.parent.code });}
+    if (r[0] !== 1) throw errs.errsMsg('404', '13214'); // 更新筆數異常
+
+    result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
+  };
+  // });
+
+  // await Promise.all(mapResult2);
+
+  const e = new Date().getTime();
+  console.log('\n settleMatchesModel 1# %o ms   2# %o ms   3#ß %o ms', s2 - s1, s3 - s2, e - s3);
+  return result;
 }
 
-function settleSpread(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.spreadHandicap;
-  const homeOdd = data.homeOdd;
-  const awayOdd = data.awayOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints - handicap) === awayPoints
-      ? (homeOdd !== awayOdd) ? 'fair' : 'fair2'
-      : (homePoints - handicap) > awayPoints ? 'home' : 'away'
-    : '';
-}
-
-function settleTotals(data) {
-  // handciap: 正:主讓客  負:客讓主
-  const homePoints = data.homePoints;
-  const awayPoints = data.awayPoints;
-
-  const handicap = data.totalsHandicap;
-  const overOdd = data.overOdd;
-  const underOdd = data.underOdd;
-
-  // 平盤有兩情況
-  // fair 平盤 要計算注數
-  // fair2 平盤 不要計算注數
-  return handicap
-    ? (homePoints + awayPoints) === handicap
-      ? (overOdd !== underOdd) ? 'fair' : 'fair2'
-      : (homePoints + awayPoints) > handicap ? 'over' : 'under'
-    : '';
-}
-
-function resultFlag(option, settelResult) {
-  // -2 未結算，-1 輸，0 不算，1 贏，2 平 (一半一半)
-  return settelResult === 'fair2'
-    ? 0 : settelResult === 'fair'
-      ? 2 : settelResult === option
-        ? 1 : -1;
-}
-
-module.exports = settleMatches;
+module.exports = settleMatchesModel;

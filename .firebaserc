@@ -1,6 +1,6 @@
 {
   "projects": {
-    "test": "sportslottery-test",
-    "product": "sport19y0715"
+    "default": "sportslottery-test",
+    "product": "getsports-gsi"
   }
 }

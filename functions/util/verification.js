@@ -1,21 +1,51 @@
-/* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
+const ADMIN_USER = 9;
+const MANAGER_USER = 8;
+const SERVICE_USER = 7;
+const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = modules.httpStatus;
+
 async function admin(req, res, next) {
   try {
-    const userSnapshot = await modules.getSnapshot('users', req.token.uid);
-    const user = userSnapshot.data();
-    if (user.status >= 9) {
+    const result = await db.sequelize.models.user.findOne({
+      where: {
+        uid: req.token.uid
+      },
+      raw: true
+    });
+    if (result.status >= ADMIN_USER) {
       req.admin = true;
       req.adminUid = req.token.uid;
       return next();
     } else {
-      return res.status(401).json({ code: 401, error: 'Unauthorized admin' });
+      return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: 'Unauthorized admin' });
     }
   } catch (err) {
-    res.status(401).json({ code: 401, error: 'Unauthorized admin' });
+    res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: 'check admin error' });
+  }
+}
+async function adminlog(req, res, next) {
+  try {
+    const user = await db.sequelize.models.user.findOne({
+      where: {
+        uid: req.token.uid
+      },
+      raw: true
+    });
+    // await db.sequelize.models.admin__logging.sync({ alter: true });
+    await db.sequelize.models.admin__logging.create({
+      uid: req.token.uid,
+      name: user.display_name,
+      api_name: req.route.path,
+      post_content: JSON.stringify(req.body),
+      ip: req.headers['x-forwarded-for'] || req.headers['x-forwarded-host'] || req.headers['fastly-client-ip'] || req.connection.remoteAddress,
+      ua: req.get('User-Agent')
+    });
+    return next();
+  } catch (err) {
+    res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: err });
   }
 }
 
@@ -37,11 +67,11 @@ async function confirmLogin(req, res, next) {
     }
   } catch (err) {
     console.error('Error in util/verification confirmLogin functions', err);
-    return res.status(500).json({ code: 500, error: err });
+    return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: err });
   }
   return next();
 }
-async function confirmLogin_v2(req, res, next) {
+async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則取得 token，mysql 版本
   try {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
@@ -56,8 +86,8 @@ async function confirmLogin_v2(req, res, next) {
       // do nothing
     }
   } catch (err) {
-    console.error('Error in util/verification confirmLogin functions', err);
-    return res.status(500).json({ code: 500, error: err });
+    console.error('Error in util/verification confirmLogin_v2 functions', err);
+    return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: err });
   }
   return next();
 }
@@ -77,11 +107,11 @@ async function token(req, res, next) {
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
-      return res.sendStatus(401);
+      return res.sendStatus(UNAUTHORIZED);
     }
   } catch (err) {
     console.error('Error in util/verification token functions', err);
-    return res.sendStatus(401);
+    return res.sendStatus(UNAUTHORIZED);
   }
   next();
 }
@@ -89,7 +119,7 @@ async function token(req, res, next) {
 async function token_v2(req, res, next) {
   try {
     const bearerHeader = req.headers.authorization;
-    if (!bearerHeader) res.sendStatus(401);
+    if (!bearerHeader) return res.sendStatus(UNAUTHORIZED);
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
@@ -101,12 +131,12 @@ async function token_v2(req, res, next) {
     }
   } catch (err) {
     console.error('Error in util/verification token_v2 functions', err);
-    return res.sendStatus(401);
+    return res.sendStatus(UNAUTHORIZED);
   }
   return next();
 }
 
-async function getToken(req, res, next) { // 只取得token 未登入不擋
+async function getToken(req, res, next) { // 只取得 token 未登入不擋，舊版本 (純 firebase 版本)
   try {
     const bearerHeader = req.headers.authorization;
 
@@ -136,24 +166,34 @@ async function getRoleAndTitles(uid) {
     where: { uid },
     attributes: ['status']
   });
-  if (userResults.status === NORMAL_USER) {
-    // req.token.customClaims = { role: NORMAL_USER, titles: [] };
-    return { role: NORMAL_USER, titles: [] };
-  } else if (userResults.status === GOD_USER) {
-    const titlesResult = await db.Title.findAll({
-      where: {
-        uid,
-        period: modules.getTitlesPeriod(new Date()).period
-      },
-      attributes: ['league_id']
-    });
-    const titles = [];
-    for (let i = 0; i < titlesResult.length; i++) {
-      titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+  switch (userResults.status) {
+    case NORMAL_USER:
+      return { role: NORMAL_USER, titles: [] };
+    case GOD_USER:
+    {
+      const titlesResult = await db.Title.findAll({
+        where: {
+          uid,
+          period: modules.getTitlesPeriod(new Date()).period
+        },
+        attributes: ['league_id']
+      });
+      const titles = [];
+      for (let i = 0; i < titlesResult.length; i++) {
+        titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+      }
+      // req.token.customClaims = { role: GOD_USER, titles };
+      return { role: GOD_USER, titles };
     }
-    // req.token.customClaims = { role: GOD_USER, titles };
-    return { role: GOD_USER, titles };
+    case SERVICE_USER:
+      return { role: SERVICE_USER, titles: ['客服人員'] };
+    case MANAGER_USER:
+      return { role: MANAGER_USER, titles: ['客服主管'] };
+    case ADMIN_USER:
+      return { role: ADMIN_USER, titles: ['Admin'] };
+    default:
+      return { role: NORMAL_USER, titles: [] };
   }
 }
 
-module.exports = { token, token_v2, getToken, admin, confirmLogin, confirmLogin_v2 };
+module.exports = { token, token_v2, getToken, admin, adminlog, confirmLogin, confirmLogin_v2 };

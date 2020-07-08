@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { ajv, acceptLeague } = require('../../util/modules');
 const winRateListsModel = require('../../model/rank/winRateListsModel');
 
 async function winRateLists(req, res) {
@@ -12,20 +12,21 @@ async function winRateLists(req, res) {
       },
       league: {
         type: 'string',
-        enum: ['NBA', 'MLB']
+        enum: acceptLeague
       }
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
 
   try {
     res.json(await winRateListsModel(req.query));
   } catch (err) {
-    res.status(err.code).json(err.err);
+    console.error('[winRateListsController]', err);
+    res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 
@@ -116,7 +117,7 @@ module.exports = winRateLists;
         "last_week",
         "this_month",
         "last_month",
-        "this_session"
+        "this_season"
       ]
     },
     "message": "should be equal to one of the allowed values"

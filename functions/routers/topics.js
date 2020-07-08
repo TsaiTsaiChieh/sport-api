@@ -8,6 +8,11 @@ router.get('/', function(req, res) {
 });
 
 router.get(
+  '/types/',
+  verification.getToken,
+  require('../controller/topics/getTypesController')
+);
+router.get(
   '/article/:aid',
   verification.getToken,
   require('../controller/topics/getArticleController')
@@ -16,6 +21,10 @@ router.get(
   '/replies/:aid/:page',
   verification.getToken,
   require('../controller/topics/getRepliesController')
+);
+router.get(
+  '/reply/:rid',
+  require('../controller/topics/getReplyController')
 );
 router.post(
   '/',
@@ -55,6 +64,16 @@ router.post(
   '/favoriteArticle',
   verification.token,
   require('../controller/topics/favoriteArticleController')
+);
+router.get(
+  '/getFavoriteArticle/:page',
+  verification.token,
+  require('../controller/topics/getFavoriteArticleController')
+);
+router.post(
+  '/donate',
+  verification.token,
+  require('../controller/topics/donateController')
 );
 
 module.exports = router;

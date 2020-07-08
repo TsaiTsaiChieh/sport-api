@@ -6,7 +6,7 @@ function deleteTitle(args) {
     try {
       const now = new Date();
       // check if user exists
-      const user = await dbEngine.findUser(args.uid);
+      await dbEngine.findUser(args.uid);
       const period = modules.getTitlesPeriod(now).period;
       const titlesObj = await getTitleFromUsersTitlesCollection(
         args.uid,

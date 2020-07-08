@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(article_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
@@ -37,7 +35,7 @@ function checkLiked(uid, article_id) {
 function like(uid, article_id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.create({ uid: uid, article_id: article_id });
+      await db.sequelize.models.topic__like.create({ uid: uid, article_id: article_id });
       // console.log('like success');
       resolve();
     } catch (error) {
@@ -49,7 +47,7 @@ function like(uid, article_id) {
 function unlike(uid, article_id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__like.destroy({
+      await db.sequelize.models.topic__like.destroy({
         where: {
           uid: uid,
           article_id: article_id
@@ -65,18 +63,33 @@ function unlike(uid, article_id) {
     }
   });
 }
+function countLikes(article_id) {
+  return new Promise(async function(resolve, reject) {
+    const result = await db.sequelize.models.topic__like.count({
+      where: {
+        article_id: article_id
+      },
+      raw: true
+    });
+    const article = await db.sequelize.models.topic__article.findOne({
+      where: {
+        article_id: article_id
+      }
+    });
+    if (article) {
+      article.update({ like_count: result });
+      resolve();
+    } else {
+      resolve('re count like failed');
+    }
+  });
+}
+
 async function likeArticle(args) {
   return new Promise(async function(resolve, reject) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
-        return;
-      }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
         return;
       }
 
@@ -100,6 +113,9 @@ async function likeArticle(args) {
       } else {
         await unlike(uid, args.article_id);
       }
+
+      await countLikes(args.article_id);
+
       resolve({ code: 200 });
     } catch (err) {
       console.error(err);

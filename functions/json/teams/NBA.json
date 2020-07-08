@@ -232,5 +232,41 @@
     "alias": "DEN",
     "name_ch": "丹佛金塊",
     "image_id": "3417"
+  },
+  {
+    "radar_id": "583eccfa-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "56280",
+    "alias_ch": "塞爾提克",
+    "name": "Boston Celtics",
+    "alias": "BOS",
+    "name_ch": "波士頓塞爾提克",
+    "image_id": "3422"
+  },
+  {
+    "radar_id": "583ecda6-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "53768",
+    "alias_ch": "暴龍",
+    "name": "Toronto Raptors",
+    "alias": "TOR",
+    "name_ch": "多倫多暴龍",
+    "image_id": "3433"
+  },
+  {
+    "radar_id": "583ec7cd-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "54763",
+    "alias_ch": "溜馬",
+    "name": "Indiana Pacers",
+    "alias": "IND",
+    "name_ch": "印第安那溜馬",
+    "image_id": "3419"
+  },
+  {
+    "radar_id": "583ec8d4-fb46-11e1-82cb-f4ce4684ea4c",
+    "team_id": "53953",
+    "alias_ch": "巫師",
+    "name": "Washington Wizards",
+    "alias": "WAS",
+    "name_ch": "華盛頓巫師",
+    "image_id": "3431"
   }
 ]

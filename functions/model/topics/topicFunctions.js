@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const Op = require('sequelize').Op;
 
@@ -11,6 +9,7 @@ module.exports.getUserInfo = async function(users) {
           'uid',
           'status',
           'avatar',
+          'name',
           'display_name',
           'signature'
         ],
@@ -32,7 +31,7 @@ module.exports.getTopicInfo = async function(aid) {
   return new Promise(async function(resolve, reject) {
     try {
       // console.log('function: get topic info by aid:' + aid);
-      const result = await db.sequelize.models.topic__article.findAll({
+      const result = await db.sequelize.models.topic__article.findOne({
         where: {
           article_id: aid,
           status: 1
@@ -67,7 +66,7 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -92,7 +91,7 @@ module.exports.getTopicLikeCount = async function(articles) { // 傳入array aid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -116,7 +115,7 @@ module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
     }
   });
 };
@@ -136,7 +135,27 @@ module.exports.getReplyContent = async function(replies) { // 傳入array rid
       resolve(result);
     } catch (error) {
       console.error(error);
-      reject(error);
+      resolve({});
+    }
+  });
+};
+module.exports.getArticlesContent = async function(aids) { // 傳入array rid
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.topic__article.findAll({
+        where: {
+          article_id: {
+            status: 1,
+            [Op.or]: aids
+          }
+        },
+        group: 'article_id',
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      resolve({});
     }
   });
 };
@@ -153,7 +172,7 @@ module.exports.getIsUserLikeTopic = async function(uid, article_id) { // 取得�
       resolve(result !== 0);
     } catch (error) {
       console.error(error);
-      reject(error);
+      reject(false);
     }
   });
 };
@@ -177,6 +196,33 @@ module.exports.getIsUserLikeReply = async function(uid, replies) { // 取得自�
         raw: true
       });
       resolve(result);
+    } catch (error) {
+      console.error(error);
+      resolve({});
+    }
+  });
+};
+module.exports.chkUserBlocking = async function(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      let block_ts;
+      if (result.block_message && result.block_message !== null && result.block_message !== '') {
+        const block_date = new Date(result.block_message);
+        block_ts = block_date.getTime();
+      } else {
+        block_ts = 0;
+      }
+      if (Date.now() < block_ts) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
     } catch (error) {
       console.error(error);
       reject(error);

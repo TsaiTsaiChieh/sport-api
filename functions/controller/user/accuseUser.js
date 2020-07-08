@@ -1,5 +1,41 @@
 const modules = require('../../util/modules');
-const admin = modules.firebaseAdmin;
+// const admin = modules.firebaseAdmin;
+const db = require('../../util/dbUtil');
+async function getUserInfo(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status',
+          'avatar',
+          'display_name',
+          'signature',
+          'default_title'
+        ],
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+function dbCreate(insertData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      // await db.sequelize.models.service__reporttopic.sync({ alter: true }); //有新增欄位時才用
+      await db.sequelize.models.service__reporttopic.create(insertData);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 /**
  * @api {post} /user/accuse Accuse user
@@ -50,29 +86,40 @@ async function accuseUser(req, res) {
     const valid = modules.ajv.validate(schema, args);
     if (!valid) return res.status(400).json(modules.ajv.errors);
     // if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
-    const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
-    if (!accuserSnapshot.exists) return res.status(400).send();
-    const accuser = await accuserSnapshot.data();
+    // const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
+    const mysql_user = await getUserInfo(args.defendant);
+    if (!mysql_user) return res.status(400).json('user not dound');
+    const accuser = mysql_user; // await accuserSnapshot.data();
+    console.log(accuser);
     if (accuser.status < 1) return res.status(400).send();
-    if (accuser.uid === args.defendant) return res.status(400).send();
-    const accuseCredit = accuser.accuseCredit ? accuser.accuseCredit : 0;
-    const nowTimeStamp = admin.firestore.Timestamp.now();
-    const event = {};
-    event[accuser.uid] = {
-      accuser: accuser.uid,
-      createTime: nowTimeStamp,
-      credit: accuseCredit,
-      evidence: args.evidence,
-      reason: args.reason,
-      status: 0
+    if (accuser.uid === req.token.uid) return res.status(400).send();
+    // const accuseCredit = accuser.accuse_credit ? accuser.accuse_credit : 0;
+    // const nowTimeStamp = admin.firestore.Timestamp.now();
+    // const event = {};
+    // event[accuser.uid] = {
+    //   accuser: accuser.uid,
+    //   createTime: nowTimeStamp,
+    //   credit: accuseCredit,
+    //   evidence: args.evidence,
+    //   reason: args.reason,
+    //   status: 0
+    // };
+    // modules.firestore.collection('accuse_users').doc(args.defendant).set(event, { merge: true }).then(ref => {
+    //   console.log('Added document with ID: ', ref);
+    //   return res.status(200).json({ success: true, result: ref });
+    // }).catch(e => {
+    //   console.log('Added document with error: ', e);
+    //   return res.status(500).json({ success: false, message: 'update failed' });
+    // });
+    const insertData = {
+      uid: req.token.uid,
+      type: 'user',
+      article_id: accuser.uid,
+      content: JSON.stringify({ reason: args.reason, image: args.evidence })
     };
-    modules.firestore.collection('accuse_users').doc(args.defendant).set(event, { merge: true }).then(ref => {
-      console.log('Added document with ID: ', ref);
-      return res.status(200).json({ success: true, result: ref });
-    }).catch(e => {
-      console.log('Added document with error: ', e);
-      return res.status(500).json({ success: false, message: 'update failed' });
-    });
+
+    await dbCreate(insertData);
+    return res.status(200).json({ success: true });
   } catch (e) {
     console.log(e);
     return res.status(500).json({ success: false });

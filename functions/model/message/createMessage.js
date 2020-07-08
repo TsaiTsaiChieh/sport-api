@@ -2,8 +2,33 @@
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable prefer-arrow-callback */
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 const messageModule = require('../../util/messageModule');
-
+async function getUserInfo(uid) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status',
+          'avatar',
+          'display_name',
+          'signature',
+          'default_title',
+          'block_message'
+        ],
+        where: {
+          uid: uid
+        },
+        raw: true
+      });
+      resolve(result);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
 function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -11,17 +36,27 @@ function createMessage(args) {
       insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
 
       /* get user according token */
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
+      // user部分讀mysql 訊息仍然放在firebase rtdb
+      const mysql_user = await getUserInfo(args.token.uid);
+      // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       /* step1: check if user exists */
-      if (!userSnapshot.exists) {
+      if (!mysql_user) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
       /* step2: check user block message time */
-      if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
-        reject({ code: 403, error: 'user had been muted' });
-        return;
+      if (mysql_user.block_message && mysql_user.block_message !== null && mysql_user.block_message !== '') {
+        const block_date = new Date(mysql_user.block_message);
+        const block_ts = block_date.getTime();
+        if (Date.now() < block_ts) {
+          reject({ code: 403, error: 'user had been muted' });
+          return;
+        }
       }
+      // if (userSnapshot.data().blockMessage._seconds * 1000 > new Date()) {
+      //   reject({ code: 403, error: 'user had been muted' });
+      //   return;
+      // }
       /* step3: get reply message info (future can be written as function) */
       if (args.reply) {
         const messageSnapshot = await modules.getSnapshot(
@@ -58,7 +93,14 @@ function createMessage(args) {
         .collection(`chat_${args.message.channelId}`)
         .doc();
       const messageId = messageDoc.id;
-      const user = messageModule.repackageUserData(userSnapshot.data());
+      // const user = messageModule.repackageUserData(userSnapshot.data()); //舊的
+      const user = { // 建立要放在firebase rtdb的結構
+        uid: mysql_user.uid,
+        displayName: mysql_user.display_name,
+        avatar: mysql_user.avatar,
+        status: mysql_user.status,
+        defaultTitle: {}
+      };
 
       insertData.message = {
         channelId: args.message.channelId,

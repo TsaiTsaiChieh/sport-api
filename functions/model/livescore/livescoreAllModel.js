@@ -1,108 +1,174 @@
 const modules = require('../../util/modules');
-async function livescore(args) {
+const db = require('../../util/dbUtil');
+const AppErrors = require('../../util/AppErrors');
+
+async function livescoreAll(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(args.sport, args.league, args.time);
-
+      const allMatches = await queryAllMatches(args);
+      const result = await repackage(args, allMatches);
       resolve(result);
     } catch (err) {
-      console.error('Error in sport/livescoreModel by DY', err);
-      reject({ code: 500, error: err });
+      reject(err);
     }
   });
 }
-async function reResult(sport, league, time) {
-  const result = await repackage(sport, league, time);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, time) {
-  const leagueName = `pagetest_${league}`;
-  const query = await modules.firestore
-    .collection(leagueName)
-    .orderBy('scheduled', 'desc')
-    .get();
-
-  const eventData = [];
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-
-  let dateNow = new Date(time).toLocaleString('zh-TW', {
-    timeZone: 'Asia/Taipei'
-  });
-  dateNow = dateNow.split(' ')[0];
-
-  let scheduled;
-  const eventToday = [];
-
-  for (let i = 0; i < eventData.length; i++) {
-    scheduled = new Date(eventData[i].scheduled * 1000).toLocaleString(
-      'zh-TW',
-      { timeZone: 'Asia/Taipei' }
-    );
-    scheduled = scheduled.split(' ')[0];
-    let newestSpread;
-    if (eventData[i].newest_spread) {
-      newestSpread = eventData[i].newest_spread;
-    } else {
-      newestSpread = {
-        handicap: 'no data',
-        home_tw: 'no data',
-        away_tw: 'no data'
-      };
-    }
-    let newestTotal;
-    if (eventData[i].newest_total) {
-      newestTotal = eventData[i].newest_total;
-    } else {
-      newestTotal = {
-        handicap: 'no data',
-        over_tw: 'no data'
-      };
-    }
-    if (league === 'eSoccer') {
-      league = eventData[i].league.name;
-    }
-    if (scheduled === dateNow) {
-      eventToday.push({
-        sport: sport,
-        league: eventData[i].league.name_ch,
-        ori_league: eventData[i].league.name,
-        scheduled: eventData[i].scheduled * 1000,
-
-        home: {
-          team_name: eventData[i].home.team_name,
-          player_name: eventData[i].home.player_name,
-          name: eventData[i].home.name,
-          name_ch: eventData[i].home.name_ch,
-          alias: eventData[i].home.alias,
-          alias_ch: eventData[i].home.alias_ch,
-          image_id: eventData[i].home.image_id
-        },
-        away: {
-          team_name: eventData[i].away.team_name,
-          player_name: eventData[i].away.player_name,
-          name: eventData[i].away.name,
-          name_ch: eventData[i].away.name_ch,
-          alias: eventData[i].away.alias,
-          alias_ch: eventData[i].away.alias_ch,
-          image_id: eventData[i].away.image_id
-        },
-        // newest_spread normal
-        newest_spread: {
-          handicap: newestSpread.handicap,
-          home_tw: newestSpread.home_tw,
-          away_tw: newestSpread.away_tw
-        },
-        flag: {
-          status: eventData[i].flag.status
-        },
-        bets_id: eventData[i].bets_id
+function queryAllMatches(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const begin = modules.convertTimezone(args.date);
+      const end = modules.convertTimezone(args.date, {
+        op: 'add',
+        value: 1,
+        unit: 'days'
       });
-    }
-  }
 
-  return eventToday;
+      const queries = await db.sequelize.query(
+        // take 169 ms
+        `(
+             SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS handicap,
+                    league.name_ch AS league_name_ch
+               FROM matches AS game,
+                    match__teams AS home,
+                    match__teams AS away,
+                    match__spreads AS spread,
+                    match__leagues AS league
+              WHERE game.league_id = :leagueID
+                AND game.home_id = home.team_id
+                AND game.away_id = away.team_id
+                AND game.spread_id = spread.spread_id
+                AND game.scheduled*1000 BETWEEN :begin AND :end
+                AND game.ori_league_id = league.ori_league_id
+           )
+           UNION(
+             SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS handicap,
+                    league.name_ch AS league_name_ch
+               FROM matches AS game,
+                    match__teams AS home,
+                    match__teams AS away,
+                    match__leagues AS league
+              WHERE game.league_id = :leagueID
+                AND game.home_id = home.team_id
+                AND game.away_id = away.team_id
+                AND game.spread_id IS NULL
+                AND game.scheduled*1000 BETWEEN :begin AND :end
+                AND game.ori_league_id = league.ori_league_id
+           )
+           ORDER BY scheduled
+           `,
+        {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            begin: begin * 1000,
+            end: end * 1000 - 1
+          },
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
+
+      return resolve(queries);
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
+    }
+  });
 }
-module.exports = livescore;
+
+async function repackage(args, matches) {
+  try {
+    const data = [];
+    for (let i = 0; i < matches.length; i++) {
+      const ele = matches[i];
+      let temp;
+      if (args.league === 'eSoccer') {
+        temp = {
+          id: ele.id,
+          status: ele.status,
+          sport: modules.league2Sport(args.league).sport,
+          league: args.league,
+          ori_league: ele.league_name_ch,
+          scheduled: ele.scheduled,
+          spread: {
+            handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
+            home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+          },
+          home: {
+            team_name:
+              ele.home_alias_ch.indexOf('(') > 0
+                ? ele.home_alias_ch.split('(')[0].trim()
+                : ele.home_alias_ch,
+            player_name:
+              ele.home_name.indexOf('(') > 0
+                ? ele.home_name.split('(')[1].replace(')', '').trim()
+                : null,
+            name: ele.home_name,
+            alias: ele.home_alias,
+            alias_ch:
+              ele.home_alias_ch.indexOf('(') > 0
+                ? ele.home_alias_ch.split('(')[0].trim()
+                : ele.home_alias_ch,
+            image_id: ele.home_image_id
+          },
+          away: {
+            team_name:
+              ele.away_alias_ch.indexOf('(') > 0
+                ? ele.away_alias_ch.split('(')[0].trim()
+                : ele.away_alias_ch,
+            player_name:
+              ele.away_name.indexOf('(') > 0
+                ? ele.away_name.split('(')[1].replace(')', '').trim()
+                : null,
+            name: ele.away_name,
+            alias: ele.away_alias,
+            alias_ch:
+              ele.away_alias_ch.indexOf('(') > 0
+                ? ele.away_alias_ch.split('(')[0].trim()
+                : ele.away_alias_ch,
+            image_id: ele.away_image_id
+          }
+        };
+      } else {
+        temp = {
+          id: ele.id,
+          status: ele.status,
+          sport: modules.league2Sport(args.league).sport,
+          league: args.league,
+          ori_league: ele.league_name_ch,
+          scheduled: ele.scheduled,
+          spread: {
+            handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
+            home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+          },
+          home: {
+            team_name: ele.home_alias_ch,
+            player_name: null,
+            name: ele.home_name,
+            alias: ele.home_alias,
+            alias_ch: ele.home_alias_ch,
+            image_id: ele.home_image_id
+          },
+          away: {
+            team_name: ele.away_alias_ch,
+            player_name: null,
+            name: ele.away_name,
+            alias: ele.away_alias,
+            alias_ch: ele.away_alias_ch,
+            image_id: ele.away_image_id
+          }
+        };
+      }
+      data.push(temp);
+    }
+    return data;
+  } catch (err) {
+    console.error(`${err.stack} by DY`);
+    throw new AppErrors.RepackageError(`${err.stack} by DY`);
+  }
+}
+module.exports = livescoreAll;

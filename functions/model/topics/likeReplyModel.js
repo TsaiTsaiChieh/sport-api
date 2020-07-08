@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(reply_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
@@ -49,7 +47,7 @@ function like(uid, reply_id) {
 function unlike(uid, reply_id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await db.sequelize.models.topic__replylike.destroy({
+      await db.sequelize.models.topic__replylike.destroy({
         where: {
           uid: uid,
           reply_id: reply_id
@@ -70,13 +68,6 @@ async function likeReply(args) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
-        return;
-      }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
         return;
       }
 

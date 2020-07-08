@@ -1,46 +1,55 @@
 const modules = require('../../util/modules');
+const db = require('../../util/dbUtil');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await reResult(
-        args.sport,
-        args.league,
-        args.UID,
-        args.time
-      );
+      const allCollections = await queryAllCollection(args);
+      // const result = await repackage(args, allCollections);
 
-      resolve(result);
+      resolve(allCollections);
     } catch (err) {
       console.error('Error in livescore/livescoreCollectModel by DY', err);
       reject({ code: 500, error: err });
     }
   });
 }
-async function reResult(sport, league, UID, time) {
-  const result = await repackage(sport, league, UID, time);
 
-  return await Promise.all(result);
-}
-async function repackage(sport, league, UID, time) {
-  const leagueName = `pagetest_${league}_member`;
-  const eventData = [];
+function queryAllCollection(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const begin = modules.convertTimezone(args.date);
+      const end =
+        modules.convertTimezone(args.date, {
+          op: 'add',
+          value: 1,
+          unit: 'days'
+        }) - 1;
 
-  const query = await modules.firestore
-    .collection(leagueName)
-    .where('profile.uid', '==', UID)
-    .get();
+      const queries = await db.sequelize.query(
+        `(
+            SELECT collections.bets_id AS id
+              FROM user__collections AS collections
+             WHERE collections.uid = :uid
+               AND collections.league_id = :leagueID
+               AND collections.scheduled BETWEEN :begin AND :end
+          )
+           `,
+        {
+          replacements: {
+            leagueID: modules.leagueCodebook(args.league).id,
+            uid: args.token.uid,
+            begin: begin,
+            end: end
+          },
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
 
-  query.forEach((doc) => {
-    eventData.push(doc.data());
-  });
-  const out = [];
-
-  for (let i = 0; i < Object.keys(eventData[0]).length - 1; i++) {
-    if (time === eventData[0][Object.keys(eventData[0])[i]].scheduled) {
-      out.push(eventData[0][Object.keys(eventData[0])[i]]);
+      return resolve(await Promise.all(queries));
+    } catch (err) {
+      return reject(`${err.stack} by DY`);
     }
-  }
-
-  return out;
+  });
 }
+
 module.exports = livescore;

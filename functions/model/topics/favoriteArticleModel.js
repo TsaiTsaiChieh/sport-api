@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 function dbFind(article_id) { // 確認文章存在
   return new Promise(async function(resolve, reject) {
@@ -70,13 +68,6 @@ async function likeArticle(args) {
     try {
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
-        return;
-      }
-      const userSnapshot = await modules.getSnapshot('users', args.token.uid);
-
-      // console.log('verify firebase user');
-      if (!userSnapshot.exists) {
-        reject({ code: 404, error: 'user not found' });
         return;
       }
 

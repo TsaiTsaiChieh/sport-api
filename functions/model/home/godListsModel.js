@@ -1,79 +1,69 @@
-const modules = require('../../util/modules');
+const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { CacheQuery } = require('../../util/redisUtil');
 
-function godlists(args) {
-  return new Promise(async function(resolve, reject) {
-    const godLists = [];
-    const period = modules.getTitlesPeriod(new Date()).period;
-    const begin = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'));
-    const end = modules.convertTimezone(modules.moment().utcOffset(8).format('YYYY-MM-DD'),
-      { op: 'add', value: 1, unit: 'days' }) - 1;
+async function godlists() {
+  const godLists = [];
+  const period = getTitlesPeriod(new Date()).period;
+  const nowInfo = coreDateInfo(new Date());
+  const beginUnix = nowInfo.dateBeginUnix;
+  const endUnix = nowInfo.dateEndUnix;
 
-    try {
-      // 取得 首頁預設值
-      const defaultValues = await modules.firestore.collection('doSports_settings').doc('home_gods').get()
-        .then(function(data) {
-          return data.data();
-        });
+  // 取得 首頁預設值
+  const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });
+  const defaultLeague = listLeague.god_list;
+  const league_id = leagueCodebook(defaultLeague).id;
 
-      // 依 聯盟 取出是 大神資料 且 有販售
-      // 將來有排序條件，可以orderBy，但會和下面的order衝突
-      const godListsQuery = await db.sequelize.query(`
-        select titles.uid, users.avatar, users.display_name,
-               titles.rank_id, titles.default_title, titles.win_rate, titles.continue,
-               titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
-               titles.matches_rate1, titles.matches_rate2, titles.matches_continue
-          from titles,
-               ( 
-                 select league_id 
-                   from match__leagues
-                  where name = :league
-               ) leagues,
-               (
-                 select * 
-                   from users
-                  where status = 2
-               ) users
-         where titles.league_id = leagues.league_id
-           and titles.uid = users.uid
-           and titles.period = :period
-      `, {
-        replacements: {
-          league: defaultValues.league,
-          period: period,
-          begin: begin,
-          end: end
-        },
-        type: db.sequelize.QueryTypes.SELECT
-      });
-      // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
-      //      ,
-      //  (
-      //    select *
-      //      from user__predictions
-      //     where match_scheduled between :begin and :end
-      //  ) prediction
+  const redisKey = ['home', 'godLists', 'titles', league_id, period].join(':');
+  // 依 聯盟 取出是 大神資料 且 有販售
+  // 將來有排序條件，可以orderBy，但會和下面的order衝突
+  const [err, godListsQuery] = await to(CacheQuery(db.sequelize, `
+    select titles.uid, users.avatar, users.display_name,
+          titles.rank_id, titles.default_title, titles.win_rate, titles.continue,
+          titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
+          titles.matches_rate1, titles.matches_rate2, titles.matches_continue
+      from titles,
+          (
+            select * 
+              from users
+              where status = 2
+          ) users
+    where titles.uid = users.uid
+      and titles.league_id = :league_id
+      and titles.period = :period
+  `, {
+    replacements: {
+      league_id: league_id,
+      period: period,
+      begin: beginUnix,
+      end: endUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  }, redisKey));
+  if (err) {
+    console.error('Error in  home/godlists by YuHsien:  %o', err);
+    throw errs.dbErrsMsg('404', '14020');
+  }
 
-      //  and titles.uid = prediction.uid
+  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
-      if (godListsQuery.length <= 0) return resolve({ godlists: godLists }); // 如果沒有找到資料回傳 []
+  // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
+  //      ,
+  //  (
+  //    select *
+  //      from user__predictions
+  //     where match_scheduled between :begin and :end
+  //  ) prediction
 
-      godListsQuery.sort(function compare(a, b) { // 進行 order 排序，將來後台可能指定順序
-        return a.order > b.order; // 升 小->大
-      });
+  //  and titles.uid = prediction.uid
 
-      // 鑽 金 銀 銅 隨機選一個
-      arrRandom(defaultValues.league, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
+  godListsQuery.sort(fieldSorter(['order']));// 進行 order 排序，將來後台可能指定順序
 
-      await Promise.all(godLists);
-    } catch (err) {
-      console.log('Error in  home/godlists by YuHsien:  %o', err);
-      return reject(errs.errsMsg('500', '500', err.message));
-    }
+  // 鑽 金 銀 銅 隨機選一個
+  arrRandom(defaultLeague, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
 
-    return resolve({ godlists: godLists });
-  });
+  return { godlists: godLists };
 }
 
 function getRandom(x) {
@@ -114,7 +104,7 @@ function repackage(league, ele) { // 實際資料輸出格式
     league_win_lists: {},
     uid: ele.uid,
     avatar: ele.avatar,
-    displayname: ele.display_name
+    display_name: ele.display_name
   };
 
   // 大神聯盟戰績表

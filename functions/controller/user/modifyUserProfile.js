@@ -19,38 +19,39 @@ async function modifyUserProfile(req, res) {
     });
   const userStatus = userSnapshot != null ? userSnapshot.status : 0;
   const data = {};
-  const nowTimeStamp = await admin.firestore.Timestamp.now();
+  const nowTimeStamp = modules.moment().unix();
   const args = {};
-  data.displayName = req.body.displayName;
+  data.display_name = req.body.display_name;
   data.name = req.body.name;
+  data.country_code = req.body.country_code;
   data.phone = req.body.phone;
   data.email = req.body.email;
   data.birthday = req.body.birthday;
-  // console.log(modules.zone);
   data.birthday_tw = modules.moment.tz(args.birthday, modules.zone).format('YYYY-MM-DD HH:mm:ss');
-
   data.uid = uid;
   switch (userStatus) {
     case 0: // 新會員
     {
       const schema = {
         type: 'object',
-        required: ['displayName', 'name', 'phone', 'email', 'birthday'],
+        required: ['display_name', 'name', 'phone', 'email', 'birthday'],
         properties: {
-          displayName: { type: 'string', minLength: 2, maxLength: 15 },
+          display_name: { type: 'string', minLength: 2, maxLength: 15 },
           name: { type: 'string', minLength: 2, maxLength: 10 },
-          phone: { type: 'string', minLength: 10, maxLength: 15 },
+          country_code: { type: 'string', minLength: 2, maxLength: 4 },
+          phone: { type: 'string', minLength: 9, maxLength: 10 },
           email: { type: 'string', format: 'email' },
           birthday: { type: 'integer' },
           avatar: { type: 'string', format: 'url' },
-          signature: { type: 'string', maxLength: 50 }
+          signature: { type: 'string', maxLength: 20 }
         }
       };
       const valid = modules.ajv.validate(schema, data);
-      console.log(modules.ajv.errors);
+
       // if (!valid) return res.status(400).json(modules.ajv.errors);
       if (!valid) {
         res.status(400).json(modules.ajv.errors);
+        return;
       }
 
       // const uniqueNameSnapshot = await modules.firestore
@@ -103,8 +104,7 @@ async function modifyUserProfile(req, res) {
       data.status = 1;
       data.signature = '';
 
-      data.block_message = modules.convertTimezone(nowTimeStamp);
-      data.block_message_tw = modules.moment.tz(data.block_message, modules.zone).format('YYYY-MM-DD HH:mm:ss');
+      // data.block_message = modules.moment.tz(data.block_message, modules.zone).format('YYYY-MM-DD HH:mm:ss');
       // data.createsTime = nowTimeStamp;
       // data.denys = [];
       data.coin = 0; // 搞幣
@@ -118,7 +118,7 @@ async function modifyUserProfile(req, res) {
       admin.auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
-        displayName: req.body.displayName
+        display_name: req.body.display_name
       });
       admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
@@ -149,9 +149,10 @@ async function modifyUserProfile(req, res) {
   // if (req.body.email) data.email = req.body.email;
   // if (req.body.phone) data.phone = req.body.phone;
   if (req.body.signature) data.signature = req.body.signature;
-  if (req.body.title) data.defaultTitle = req.body.title;
+  // if (req.body.title) data.defaultTitle = req.body.title;//移到另外API
   data.updateTime = nowTimeStamp;
   const resultJson = {};
+
   // const refCode = req.body.refCode;
   // const userReferrer = userSnapshot.exists ? userSnapshot.referrer : undefined;
   // if (refCode && !userReferrer && refCode !== uid) {
@@ -178,9 +179,19 @@ async function modifyUserProfile(req, res) {
   //   }
   // }
   // console.log(data); return;
-  data.display_name = data.displayName;
+  // const display_name_unique = await db.User.findOne({
+  //   where: {
+  //     display_name: data.display_name
+  //   },
+  //   attributes: ['uid'],
+  //   raw: true
+  // });
+
+  // if(display_name_unique!=null){
+  //   reject({'error':'error'});
+  // }
   console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
-  const add_users = await db.User.upsert(data)
+  await db.User.upsert(data)
     .then(async(ref) => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;

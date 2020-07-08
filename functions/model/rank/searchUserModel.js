@@ -1,4 +1,3 @@
-const modules = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -12,10 +11,11 @@ function searchUser(args) {
       SELECT uid, display_name 
         FROM users 
        WHERE display_name 
-        LIKE '%${display_name}%' 
-       LIMIT ${limit}
+        LIKE '%${display_name}%'
+       LIMIT $limit
        `,
       {
+        bind: { limit: limit },
         type: db.sequelize.QueryTypes.SELECT
       });
 
