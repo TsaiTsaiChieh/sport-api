@@ -1,5 +1,6 @@
 const db = require('../../util/dbUtil');
 const sanitizeHtml = require('sanitize-html');
+const { createTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbFind(aid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -75,27 +76,7 @@ async function createTopic(args) {
       if (args.imgurl) insertData.imgurl = args.imgurl;
 
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-        allowedAttributes: {
-          div: ['style'],
-          span: ['style'],
-          strike: ['style'],
-          b: ['style'],
-          a: ['href'],
-          img: ['src', 'alt'],
-          font: ['size', 'color'] // h1~h6
-        },
-        allowedSchemes: ['http', 'https'],
-        allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],
-        allowedStyles: {
-          '*': {
-            color: [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-            'text-align': [/^left$/, /^right$/, /^center$/],
-            'font-size': [/^\d+(?:px|em|%)$/]
-          }
-        }
-      });
+      insertData.content = sanitizeHtml(args.content, createTopicAllowed);
 
       await dbEdit(args.article_id, insertData);
       resolve({ code: 200 });
