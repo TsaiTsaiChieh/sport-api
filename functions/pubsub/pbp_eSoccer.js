@@ -389,7 +389,7 @@ async function doPBP(parameter) {
             }
 
             try {
-							let timer = timeFormat(data.results[0].timer.tm,data.results[0].timer.ts)
+              const timer = timeFormat(data.results[0].timer.tm, data.results[0].timer.ts);
               await modules.database
                 .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
                 .set(timer);
@@ -478,11 +478,11 @@ async function doPBP(parameter) {
   });
 }
 
-function timeFormat(tm,ts){
-	if(ts>=0&&ts<=9){
-		ts = `0${ts}`
-	}
-	return `${tm}:${ts}`
+function timeFormat(tm, ts) {
+  if (ts >= 0 && ts <= 9) {
+    ts = `0${ts}`;
+  }
+  return `${tm}:${ts}`;
 }
 
 module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };

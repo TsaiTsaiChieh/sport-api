@@ -5,17 +5,71 @@ const CPBL_URL = 'http://www.cpbl.com.tw';
 const totalTeam = 4;
 const league = '11235';
 const sport = '16';
+const perStep = 1000; // 每秒抓一項資訊
+const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 async function prematch_CPBL(req, res) {
   let URL;
-  // 取得各隊伍的資訊
-  URL = `${CPBL_URL}/standing/season.html`;
-  await getTeamsStandings(URL);
-  // 取得球員資訊
-  URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=1&syear=2020#`;
-  await getPlayersStandings(URL); // 中信兄弟 選手打擊
-  console.log('prematch_CPBL  OK');
+  let countForStatus2 = 0;
+  const timerForStatus2 = setInterval(async function() {
+    countForStatus2 = countForStatus2 + 1;
+    if (countForStatus2 > timesPerLoop) {
+      console.log('craw CPBL success');
+      clearInterval(timerForStatus2);
+    } else {
+      switch (countForStatus2) {
+        case 1: {
+          // 取得各隊伍的資訊
+          URL = `${CPBL_URL}/standing/season.html`;
+          await getTeamsStandings(URL);
+          break;
+        }
+        // 取得球員資訊
+        case 2: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
+          await getHittersStandings(URL); // 中信兄弟 選手打擊
+          break;
+        }
+        case 3: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=L01&gameno=01`;
+          await getHittersStandings(URL); // 統一獅 選手打擊
+          break;
+        }
+        case 4: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=AJL011&gameno=01`;
+          await getHittersStandings(URL); // 樂天猴 選手打擊
+          break;
+        }
+        case 5: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=B04&gameno=01`;
+          await getHittersStandings(URL); // 富邦 選手打擊
+          break;
+        }     
+        case 6: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 中信兄弟 選手投手
+          break;
+        }
+        case 7: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=L01&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 統一獅 選手投手
+          break;
+        }
+        case 8: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=AJL011&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 樂天猴 選手投手
+          break;
+        }
+        case 9: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=B04&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 富邦 選手投手
+          break;
+        }
+      }
+    }
+  }, perStep);
 }
-function getPlayersStandings(URL) {
+
+function getPitchersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       const { data } = await modules.axios.get(URL);
@@ -47,7 +101,7 @@ function getPlayersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      await upsertMysqlPlayer(result, totalPlayer);
+      await upsertMysqlPitcher(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -55,8 +109,7 @@ function getPlayersStandings(URL) {
     resolve('ok');
   });
 }
-
-async function upsertMysqlPlayer(result, totalPlayer) {
+async function upsertMysqlPitcher(result, totalPlayer) {
   const teamID = mapTeam(result[33]);
   const start = 31;
   const offset = 32; // 一循環
@@ -68,35 +121,127 @@ async function upsertMysqlPlayer(result, totalPlayer) {
       team_id: teamID,
       ori_name: result[start + 1 + i * offset],
       information: JSON.stringify({
-        G: result[start + 3 + i * offset],
-        PA: result[start + 4 + i * offset],
-        AB: result[start + 5 + i * offset],
-        RBI: result[start + 6 + i * offset],
-        R: result[start + 7 + i * offset],
-        H: result[start + 8 + i * offset],
-        oneB: result[start + 9 + i * offset],
-        twoB: result[start + 10 + i * offset],
-        threeB: result[start + 11 + i * offset],
-        HR: result[start + 12 + i * offset],
-        TB: result[start + 13 + i * offset],
-        SO: result[start + 14 + i * offset],
-        SB: result[start + 15 + i * offset],
-        OBP: result[start + 16 + i * offset],
-        SLG: result[start + 17 + i * offset],
-        AVG: result[start + 18 + i * offset],
-        GIDP: result[start + 19 + i * offset],
-        SAC: result[start + 20 + i * offset],
-        SF: result[start + 21 + i * offset],
-        BB: result[start + 22 + i * offset],
-        IBB: result[start + 23 + i * offset],
-        HBP: result[start + 24 + i * offset],
-        CS: result[start + 25 + i * offset],
-        GO: result[start + 26 + i * offset],
-        AO: result[start + 27 + i * offset],
-        GF: result[start + 28 + i * offset],
-        SBprecent: result[start + 29 + i * offset],
-        TA: result[start + 30 + i * offset],
-        SSA: result[start + 31 + i * offset]
+        season_2020: {
+          G: result[start + 3 + i * offset],
+          GS: result[start + 4 + i * offset],
+          GR: result[start + 5 + i * offset],
+          CG: result[start + 6 + i * offset],
+          SHO: result[start + 7 + i * offset],
+          NBB: result[start + 8 + i * offset],
+          W: result[start + 9 + i * offset],
+          L: result[start + 10 + i * offset],
+          SV: result[start + 11 + i * offset],
+          BS: result[start + 12 + i * offset],
+          HLD: result[start + 13 + i * offset],
+          IP: result[start + 14 + i * offset],
+          WHIP: result[start + 15 + i * offset],
+          ERA: result[start + 16 + i * offset],
+          BF: result[start + 17 + i * offset],
+          NP: result[start + 18 + i * offset],
+          H: result[start + 19 + i * offset],
+          HR: result[start + 20 + i * offset],
+          BB: result[start + 21 + i * offset],
+          IBB: result[start + 22 + i * offset],
+          HBP: result[start + 23 + i * offset],
+          SO: result[start + 24 + i * offset],
+          WP: result[start + 25 + i * offset],
+          BK: result[start + 26 + i * offset],
+          R: result[start + 27 + i * offset],
+          ER: result[start + 28 + i * offset],
+          GO: result[start + 29 + i * offset],
+          AO: result[start + 30 + i * offset],
+          GF: result[start + 31 + i * offset]
+        }
+      })
+    });
+  }
+
+  return 'aa';
+}
+function getHittersStandings(URL) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { data } = await modules.axios.get(URL);
+      const $ = modules.cheerio.load(data);
+      let number = $('td').text();
+      number = number.replace(/\r/g, '');
+      number = number.replace(/\n/g, '');
+      number = number.replace(/\t/g, ' ');
+      number = number.split(' ');
+      let result = [];
+      for (let i = 0; i < number.length; i++) {
+        if (number[i] === '') {
+          continue;
+        } else {
+          result.push(number[i].trim());
+        }
+      }
+      const totalPlayer = result.length - 1;
+      let title = $('tr').text();
+      title = title.replace(/\r/g, '');
+      title = title.replace(/\n/g, '');
+      title = title.replace(/\t/g, ' ');
+      title = title.split(' ');
+      result = [];
+      for (let i = 0; i < title.length; i++) {
+        if (title[i] === '') {
+          continue;
+        } else {
+          result.push(title[i].trim());
+        }
+      }
+      await upsertMysqlHitter(result, totalPlayer);
+    } catch (err) {
+      console.error(err, '=-----');
+      return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
+    }
+    resolve('ok');
+  });
+}
+
+async function upsertMysqlHitter(result, totalPlayer) {
+  const teamID = mapTeam(result[33]);
+  const start = 31;
+  const offset = 32; // 一循環
+  for (let i = 0; i < totalPlayer; i++) {
+    await db.Player.upsert({
+      player_id: result[start + i * offset],
+      league_id: league,
+      sport_id: sport,
+      team_id: teamID,
+      ori_name: result[start + 1 + i * offset],
+      information: JSON.stringify({
+        season_2020: {
+          G: result[start + 3 + i * offset],
+          PA: result[start + 4 + i * offset],
+          AB: result[start + 5 + i * offset],
+          RBI: result[start + 6 + i * offset],
+          R: result[start + 7 + i * offset],
+          H: result[start + 8 + i * offset],
+          oneB: result[start + 9 + i * offset],
+          twoB: result[start + 10 + i * offset],
+          threeB: result[start + 11 + i * offset],
+          HR: result[start + 12 + i * offset],
+          TB: result[start + 13 + i * offset],
+          SO: result[start + 14 + i * offset],
+          SB: result[start + 15 + i * offset],
+          OBP: result[start + 16 + i * offset],
+          SLG: result[start + 17 + i * offset],
+          AVG: result[start + 18 + i * offset],
+          GIDP: result[start + 19 + i * offset],
+          SAC: result[start + 20 + i * offset],
+          SF: result[start + 21 + i * offset],
+          BB: result[start + 22 + i * offset],
+          IBB: result[start + 23 + i * offset],
+          HBP: result[start + 24 + i * offset],
+          CS: result[start + 25 + i * offset],
+          GO: result[start + 26 + i * offset],
+          AO: result[start + 27 + i * offset],
+          GF: result[start + 28 + i * offset],
+          SBprecent: result[start + 29 + i * offset],
+          TA: result[start + 30 + i * offset],
+          SSA: result[start + 31 + i * offset]
+        }
       })
     });
   }
@@ -126,9 +271,6 @@ function getTeamsStandings(URL) {
         await upsertMysqlTeam(i, result);
       }
 
-      // for (let i = 0; i < result.length; i++) {
-      //  console.log(i + '  ' + result[i]);
-      // }
       console.log('CPBL crawler success');
       resolve('ok');
     } catch (err) {
@@ -158,7 +300,7 @@ function mapTeam(name) {
 function change2English(STRK) {
   if (STRK[0] === '勝') {
     return STRK.split('勝')[1] + 'W';
-  } else if (STRK[0] === '勝') {
+  } else if (STRK[0] === '敗') {
     return STRK.split('敗')[1] + 'L';
   } else {
     return STRK;
@@ -167,10 +309,10 @@ function change2English(STRK) {
 
 async function upsertMysqlTeam(teamNumber, result) {
   const teamID = mapTeam(result[7 + teamNumber]);
-  const team1 = mapTeam(result[7 + teamNumber]);
-  const team2 = mapTeam(result[7 + teamNumber + 1]);
-  const team3 = mapTeam(result[7 + teamNumber + 2]);
-  const team4 = mapTeam(result[7 + teamNumber + 3]);
+  const team1 = mapTeam(result[8]);
+  const team2 = mapTeam(result[9]);
+  const team3 = mapTeam(result[10]);
+  const team4 = mapTeam(result[11]);
   if (teamNumber === 1) {
     const index = 17;
     const offsetPitch = 74;
@@ -178,9 +320,9 @@ async function upsertMysqlTeam(teamNumber, result) {
     await db.Team.upsert({
       team_id: teamID,
       baseball_stats: JSON.stringify({
-        season_2020: [
-          {
-            // 團隊對戰戰績
+        season_2020: {
+          // 團隊對戰戰績
+          team_base: {
             G: result[index + 1],
             Win: result[index + 2].split('-')[0],
             Fair: result[index + 2].split('-')[1],
@@ -196,8 +338,8 @@ async function upsertMysqlTeam(teamNumber, result) {
             STRK: change2English(result[index + 11]),
             L10: result[index + 12]
           },
-          {
-            // 團隊投球成績
+          // 團隊投球成績
+          team_pitch: {
             G: result[index + offsetPitch],
             BF: result[index + offsetPitch + 1],
             NP: result[index + offsetPitch + 2],
@@ -212,8 +354,8 @@ async function upsertMysqlTeam(teamNumber, result) {
             WHIP: result[index + offsetPitch + 11],
             ERA: result[index + offsetPitch + 12]
           },
-          {
-            // 團隊打擊成績
+          // 團隊打擊成績
+          team_hit: {
             G: result[index + offsetBit],
             AB: result[index + offsetBit + 1],
             R: result[index + offsetBit + 2],
@@ -228,7 +370,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             SLG: result[index + offsetBit + 11],
             AVG: result[index + offsetBit + 12]
           }
-        ]
+        }
       })
     });
   } else {
@@ -238,8 +380,9 @@ async function upsertMysqlTeam(teamNumber, result) {
     await db.Team.upsert({
       team_id: teamID,
       baseball_stats: JSON.stringify({
-        season_2020: [
-          {
+        season_2020: {
+          // 團隊基本
+          team_base: {
             G: result[index + 1],
             Win: result[index + 2].split('-')[0],
             Draw: result[index + 2].split('-')[1],
@@ -255,9 +398,8 @@ async function upsertMysqlTeam(teamNumber, result) {
             STRK: change2English(result[index + 12]),
             L10: result[index + 13]
           },
-          {
-            // 團隊投球成績
-            G: result[index + offsetPitch],
+          // 團隊投球成績
+          team_pitch: {
             BF: result[index + offsetPitch + 1],
             NP: result[index + offsetPitch + 2],
             H: result[index + offsetPitch + 3],
@@ -271,9 +413,8 @@ async function upsertMysqlTeam(teamNumber, result) {
             WHIP: result[index + offsetPitch + 11],
             ERA: result[index + offsetPitch + 12]
           },
-          {
-            // 團隊打擊成績
-            G: result[index + offsetBit],
+          // 團隊打擊成績
+          team_hit: {
             AB: result[index + offsetBit + 1],
             R: result[index + offsetBit + 2],
             RBI: result[index + offsetBit + 3],
@@ -287,7 +428,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             SLG: result[index + offsetBit + 11],
             AVG: result[index + offsetBit + 12]
           }
-        ]
+        }
       })
     });
   }
