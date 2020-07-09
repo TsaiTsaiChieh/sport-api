@@ -1,5 +1,6 @@
 // from https://docs.google.com/document/d/1eLni15nSnqND1-o5nBo1YOy3jT8QnuclzVNDxshewSc/edit#
 const modules = require('../util/modules');
+const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
@@ -82,7 +83,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
       for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
 
-        const URL = `${oddsURL}?token=${modules.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
+        const URL = `${oddsURL}?token=${envValues.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
         const data = await axiosForURL(URL);
         let spread_odds = [];
         let totals_odds = [];

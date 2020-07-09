@@ -1,7 +1,6 @@
 const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
-const { Cache } = require('./redisUtil');
 
 const db_name = mysql.setting.db_name.dev;
 const db_user = mysql.setting.db_user;
@@ -17,20 +16,6 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   logging: false, // disable logging; default: console.log
   timezone: mysql.setting.timezone // for writing to database
 });
-
-// 特製 findOne 結合 Redis Cache redisKey 使用 where parms 參數
-Sequelize.Model.findOneCache = async function() {
-  let redisKey;
-  for (const parms of Object.values(arguments)) {
-    if (parms.where) redisKey = [this.name, JSON.stringify(parms.where)].join(':');
-  }
-  const cacheValue = await Cache.get(redisKey);
-  if (cacheValue) return JSON.parse(cacheValue);
-
-  const result = await Sequelize.Model.findOne.apply(this, arguments);
-  Cache.set(redisKey, JSON.stringify(result));
-  return result;
-};
 
 /*
  * Define schema
@@ -1656,6 +1641,9 @@ const News = sequelize.define(
     sort_id: {
       type: Sequelize.INTEGER
     },
+    league: {
+      type: Sequelize.STRING
+    },
     title: {
       type: Sequelize.STRING
     },
@@ -2228,7 +2216,52 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
-
+// const CashflowMission = sequelize.define(
+//   'cashflow_mission',
+//   {
+//     cashflow_mission_id: {
+//       type: Sequelize.INTEGER,
+//       autoIncrement: true,
+//       primaryKey: true
+//     },
+//     uid:{
+//       type: Sequelize.STRING
+//     },
+//     mission_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     mission_item_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     ingot: {
+//       type: Sequelize.INTEGER
+//     },
+//     coin: {
+//       type: Sequelize.INTEGER
+//     },
+//     dividend: {
+//       type: Sequelize.INTEGER
+//     },
+//     bonus_ticket: {
+//       type: Sequelize.INTEGER
+//     },
+//     createdAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     },
+//     updatedAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     }
+//   },
+//   {
+//     indexes: [
+//       {
+//         fields: ['cashflow_mission_id', 'uid']
+//       }
+//     ]
+//   }
+// );
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2283,6 +2316,7 @@ const Token = sequelize.define(
     ]
   }
 );
+
 const AdminLogging = sequelize.define(
   'admin__logging',
   {
@@ -2309,11 +2343,213 @@ const AdminLogging = sequelize.define(
     }
   },
   {
-    indexes: [{
-      fields: ['uid', 'name']
-    }]
+    indexes: [
+      {
+        fields: ['uid', 'name']
+      }
+    ]
   }
 );
+const Player = sequelize.define(
+  'player',
+  {
+    player_id: {
+      type: Sequelize.STRING
+    },
+    league_id: {
+      type: Sequelize.STRING
+    },
+    sport_id: {
+      type: Sequelize.STRING
+    },
+    team_id: {
+      type: Sequelize.STRING
+    },
+    name: {
+      type: Sequelize.STRING
+    },
+    name_ch: {
+      type: Sequelize.STRING
+    },
+    team_history: {
+      type: Sequelize.TEXT
+    },
+    information: {
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['team_id', 'name']
+      }
+    ]
+  }
+);
+
+/*
+  搞任務
+*/
+// 任務
+const Mission = sequelize.define(
+  'mission',
+  {
+    mission_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    desc: {
+      type: Sequelize.TEXT
+    },
+    type: {
+      type: Sequelize.INTEGER
+    },
+    activity_type: {
+      type: Sequelize.STRING
+    },
+    start_date: {
+      type: Sequelize.INTEGER
+    },
+    end_date: {
+      type: Sequelize.INTEGER
+    },
+    need_finish_nums: {
+      type: Sequelize.INTEGER
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['type', 'start_date', 'end_date', 'status']
+      }
+    ]
+  }
+);
+
+const MissionItem = sequelize.define(
+  'mission_item',
+  {
+    mission_item_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    target: {
+      type: Sequelize.STRING
+    },
+    reward_class: {
+      type: Sequelize.INTEGER
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    reward_num: {
+      type: Sequelize.INTEGER
+    },
+    reward_class_num: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const MissionGod = sequelize.define(
+  'mission_god',
+  {
+    mission_god_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    diamond_reward: {
+      type: Sequelize.INTEGER
+    },
+    gold_reward: {
+      type: Sequelize.INTEGER
+    },
+    sliver_reward: {
+      type: Sequelize.INTEGER
+    },
+    copper_reward: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const MissionDeposit = sequelize.define(
+  'mission_deposit',
+  {
+    mission_deposit_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    deposit_list_id: {
+      type: Sequelize.INTEGER
+    },
+    lottery: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+const UserMission = sequelize.define(
+  'user__mission',
+  {
+    uid: {
+      type: Sequelize.STRING
+    },
+    mission_item_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_god_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_deposit_id: {
+      type: Sequelize.INTEGER
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    date_timestamp: {
+      type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid', 'mission_item_id', 'mission_god_id', 'mission_deposit_id', 'date_timestamp']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2358,9 +2594,16 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  // CashflowMission,
   PurchaseList,
   Token,
-  AdminLogging
+  AdminLogging,
+  Player,
+  Mission,
+  MissionItem,
+  MissionGod,
+  MissionDeposit,
+  UserMission
 };
 
 module.exports = dbUtil;

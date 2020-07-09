@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
@@ -42,7 +43,7 @@ async function checkmatch_abnormal() {
         }
         const betsID = totalData[j].bets_id;
         const leagueID = totalData[j].league_id;
-        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
+        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
         const parameterPBP = {
           betsID: betsID,
           pbpURL: pbpURL,

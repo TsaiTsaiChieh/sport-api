@@ -74,12 +74,12 @@ exports.getUserProfile = async function(userId) {
       returnJson.status = 0;
       returnJson.success = true;
     } else {
-      console.log('document found!', userRecord.createTime);
+      // console.log('document found!', userRecord.createTime);
       returnJson.data = userRecord;
       returnJson.status = returnJson.data.status;
       returnJson.success = true;
     }
-    console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
+    // console.log('getFirestoreUser : ', userIdStr, '\n', (JSON.stringify(returnJson, null, '\t')));
     return returnJson;
   }).catch(err => {
     console.warn('firebaseGetUserData', err);

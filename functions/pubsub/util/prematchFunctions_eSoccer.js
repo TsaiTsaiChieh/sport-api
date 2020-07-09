@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const leagueUniteID = '22000';
@@ -14,7 +15,7 @@ module.exports.eSoccer.upcoming = async function(date) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
-        let URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=1`;
+        let URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}&page=1`;
         let data = await axiosForURL(URL);
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {
@@ -30,7 +31,7 @@ module.exports.eSoccer.upcoming = async function(date) {
             await write2MysqlOfMatchTeam(ele, leagueID);
           }
           if (data.pager.total > 50) {
-            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=2`;
+            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}&page=2`;
             data = await axiosForURL(URL);
             for (let k = 0; k < data.results.length; k++) {
               const ele = data.results[k];
@@ -46,7 +47,7 @@ module.exports.eSoccer.upcoming = async function(date) {
             }
           }
           if (data.pager.total > 100) {
-            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}&page=3`;
+            URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}&page=3`;
             data = await axiosForURL(URL);
             for (let l = 0; l < data.results.length; l++) {
               const ele = data.results[l];

@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const leagueUniteID = '8';
@@ -27,7 +28,7 @@ module.exports.Soccer.upcoming = async function(date) {
     try {
       for (let i = 0; i < leagueArray.length; i++) {
         const leagueID = leagueArray[i];
-        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+        const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
         const data = await axiosForURL(URL);
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {

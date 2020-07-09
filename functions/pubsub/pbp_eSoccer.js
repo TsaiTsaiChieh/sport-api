@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
@@ -18,7 +19,7 @@ async function ESoccerpbpInplay(parameter) {
   }
   let countForStatus2 = 0;
   const timerForStatus2 = setInterval(async function() {
-    const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
+    const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL,
@@ -47,7 +48,7 @@ async function axiosForURL(URL) {
 async function ESoccerpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
-    const pbpURL = `https://api.betsapi.com/v1/event/view?token=${modules.betsToken}&event_id=${betsID}`;
+    const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     let data;
     try {
       data = await axiosForURL(pbpURL);
@@ -279,7 +280,7 @@ async function doPBP(parameter) {
                 } catch (err) {
                   return reject(
                     new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP of status on ${betsID} by DY`
+                      `${err} at doPBP of status on ${betsID} by DY(inprogress)`
                     )
                   );
                 }
@@ -291,7 +292,7 @@ async function doPBP(parameter) {
                 } catch (err) {
                   return reject(
                     new AppErrors.MysqlError(
-                      `${err} at doPBP of status on ${betsID} by DY`
+                      `${err.stack} at doPBP of status on ${betsID} by DY(inprogress)`
                     )
                   );
                 }
@@ -333,7 +334,7 @@ async function doPBP(parameter) {
             } catch (err) {
               return reject(
                 new AppErrors.MysqlError(
-                  `${err} at doPBP of status on ${betsID} by DY`
+                  `${err} at doPBP of status on ${betsID} by DY(abnormal)`
                 )
               );
             }

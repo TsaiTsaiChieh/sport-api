@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const Match = db.Match;
@@ -12,7 +13,7 @@ module.exports.KBO.upcoming = async function(date) {
     try {
       const leagueID = 349;
 
-      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${modules.betsToken}&league_id=${leagueID}&day=${date}`;
+      const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
@@ -46,7 +47,7 @@ async function axiosForURL(URL) {
   });
 }
 async function checkTheHandicap(ele) {
-  const URL = `https://api.betsapi.com/v2/event/odds?token=${modules.betsToken}&event_id=${ele.id}&odds_market=2,3`;
+  const URL = `https://api.betsapi.com/v2/event/odds?token=${envValues.betsToken}&event_id=${ele.id}&odds_market=2,3`;
   const data = await axiosForURL(URL);
   let changeFlag = 0;
   if (data.results.odds) {

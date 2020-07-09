@@ -2,6 +2,7 @@ const db = require('../../util/dbUtil');
 const { moment } = require('../../util/modules');
 const func = require('./topicFunctions');
 const sanitizeHtml = require('sanitize-html');
+const { createTopicAllowed } = require('../../config/sanitizeHtmlConfig');
 function dbCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -20,7 +21,6 @@ function dbNewsCreate(insertData, article) {
   return new Promise(async function(resolve, reject) {
     try {
       insertData.scheduled = moment().unix();
-      insertData.title = '【' + insertData.league + '】' + insertData.title;
       insertData.sort = 1;// 發文
       insertData.sort_id = article;
       await db.sequelize.models.user__new.create(insertData);
@@ -53,27 +53,7 @@ async function createTopic(args) {
       if (args.imgurl) insertData.imgurl = args.imgurl;
 
       // 過濾html tags
-      insertData.content = sanitizeHtml(args.content, {
-        allowedTags: ['br', 'b', 'i', 'u', 'a', 'img', 'strike', 'div', 'span', 'font', 'ul', 'ol', 'li'],
-        allowedAttributes: {
-          div: ['style'],
-          span: ['style'],
-          strike: ['style'],
-          b: ['style'],
-          a: ['href'],
-          img: ['src', 'alt'],
-          font: ['size', 'color']
-        },
-        allowedSchemes: ['http', 'https'],
-        allowedSchemesAppliedToAttributes: ['href', 'src', 'style'],
-        allowedStyles: {
-          '*': {
-            color: [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-            'text-align': [/^left$/, /^right$/, /^center$/],
-            'font-size': [/^\d+(?:px|em|%)$/]
-          }
-        }
-      });
+      insertData.content = sanitizeHtml(args.content, createTopicAllowed);
 
       const article = await dbCreate(insertData);
       const news = await dbNewsCreate(insertData, article);

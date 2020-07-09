@@ -15,6 +15,7 @@ async function buyModel(args, uid) {
     buyList.push({
       date: ele.matches_date,
       god: {
+        god_uid: ele.info.uid,
         god_name: ele.info.display_name,
         avatar: ele.info.avatar
       },

@@ -148,7 +148,7 @@ async function repackage(args, match) {
         league: args.league,
         ori_league: ele.league_name_ch,
         scheduled: ele.scheduled,
-        newest_spread: {
+        spread: {
           handicap:
             ele.spread_handicap || ele.spread_handicap === 0
               ? ele.spread_handicap
@@ -156,7 +156,7 @@ async function repackage(args, match) {
           home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
           away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
         },
-        newest_totals: {
+        totals: {
           handicap:
             ele.total_handicap || ele.total_handicap === 0
               ? ele.total_handicap
