@@ -14,7 +14,7 @@ async function prematch_KBO() {
     const teamData = await getTeamsStandings();
     await insertToTeamDB(teamData);
   } catch (err) {
-
+    return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
   }
 }
 
