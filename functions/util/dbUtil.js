@@ -1638,6 +1638,9 @@ const News = sequelize.define(
     sort_id: {
       type: Sequelize.INTEGER
     },
+    league: {
+      type: Sequelize.STRING
+    },
     title: {
       type: Sequelize.STRING
     },
@@ -2578,7 +2581,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
-  CashflowMission,
+  // CashflowMission,
   PurchaseList,
   Token,
   AdminLogging,
