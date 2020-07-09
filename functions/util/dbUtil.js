@@ -2414,7 +2414,7 @@ const Mission = sequelize.define(
     end_date: {
       type: Sequelize.INTEGER
     },
-    finish_nums: {
+    need_finish_nums: {
       type: Sequelize.INTEGER
     },
     status: {
@@ -2519,21 +2519,31 @@ const UserMission = sequelize.define(
   'user__mission',
   {
     uid: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     mission_item_id: {
       type: Sequelize.INTEGER
     },
-    deposit_god_id: {
+    mission_god_id: {
       type: Sequelize.INTEGER
     },
-    deposit_gdeposit_id: {
+    mission_deposit_id: {
       type: Sequelize.INTEGER
     },
     status: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       defaultValue: 0
+    },
+    date_timestamp: {
+      type: Sequelize.INTEGER
     }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid', 'mission_item_id', 'mission_god_id', 'mission_deposit_id', 'date_timestamp']
+      }
+    ]
   }
 );
 
