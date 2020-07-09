@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const morgan = require('morgan');
 
 const app = express();
 app.disable('x-powered-by');
@@ -79,7 +80,7 @@ const whitelist = [
 const localOrigin = 'http://172.16.21';
 
 const corsOptions = {
-  origin: function(origin, callback) {
+  function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
@@ -98,6 +99,8 @@ const runtimeOpts = {
 
 app.use(cors(corsOptions));
 adminapp.use(cors(corsOptions));
+
+app.use(morgan('tiny'));
 
 app.use(express.json());
 adminapp.use(express.json());

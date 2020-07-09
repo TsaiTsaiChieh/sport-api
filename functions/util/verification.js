@@ -80,6 +80,7 @@ async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則�
       const decodedIdToken = await modules.firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
+      console.log('UID : ',decodedIdToken.uid);
       req.token = decodedIdToken;
       req.token.customClaims = await getRoleAndTitles(decodedIdToken.uid);
     } else {
@@ -103,6 +104,7 @@ async function token(req, res, next) {
       const decodedIdToken = await modules.firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
+      console.log('UID : ',decodedIdToken.uid);
       req.token = await modules.firebaseAdmin
         .auth()
         .getUser(decodedIdToken.uid);
@@ -127,6 +129,7 @@ async function token_v2(req, res, next) {
         .auth()
         .verifySessionCookie(bearerToken, true);
       req.token = decodedIdToken;
+      console.log('UID : ',decodedIdToken.uid);
       req.token.customClaims = await getRoleAndTitles(decodedIdToken.uid);
     }
   } catch (err) {
@@ -147,6 +150,7 @@ async function getToken(req, res, next) { // 只取得 token 未登入不擋，�
       const decodedIdToken = await modules.firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
+      console.log('UID : ',decodedIdToken.uid);
       req.token = await modules.firebaseAdmin
         .auth()
         .getUser(decodedIdToken.uid);
