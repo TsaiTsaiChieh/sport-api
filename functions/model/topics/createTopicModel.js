@@ -21,7 +21,6 @@ function dbNewsCreate(insertData, article) {
   return new Promise(async function(resolve, reject) {
     try {
       insertData.scheduled = moment().unix();
-      insertData.title = '【' + insertData.league + '】' + insertData.title;
       insertData.sort = 1;// 發文
       insertData.sort_id = article;
       await db.sequelize.models.user__new.create(insertData);

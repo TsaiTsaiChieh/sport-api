@@ -63,6 +63,30 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
 
   return szHtml;
 }
+
+function InvoiceGenerator(URL = '', MerchantID = '', PostData = '', VER = '') {
+  let szHtml = '<!doctype html>';
+  szHtml += '<html>';
+  szHtml += '<head>';
+  szHtml += '<meta charset="utf-8">';
+  szHtml += '</head>';
+  szHtml += '<body>';
+  szHtml += '<form name="invoice" id="invoice" method="post" action="' + URL + '" style="display:none;">';
+  szHtml += '<input type="text" name="MerchantID_" value="' + MerchantID + '" type="hidden">';
+  szHtml += '<input type="text" name="PostData_" value="' + PostData + '"   type="hidden">';
+  // szHtml += '<input type="text" name="TradeSha" value="' + SHA256 + '" type="hidden">';
+  szHtml += '<input type="text" name="Version"  value="' + VER + '" type="hidden">';
+  szHtml += '</form>';
+  szHtml += '<script type="text/javascript">';
+  szHtml += 'document.getElementById("invoice").submit();';
+  szHtml += '</script>';
+  szHtml += '</body>';
+  szHtml += '</html>';
+  // console.log(szHtml);return;
+
+  return szHtml;
+}
+
 /* 取得訂單編號 */
 function get_order_no() {
   /* 需加入預設時區 */
@@ -76,5 +100,6 @@ module.exports = {
   create_mpg_aes_decrypt,
   SHA_str,
   SHA256,
-  CheckOut
+  CheckOut,
+  InvoiceGenerator
 };
