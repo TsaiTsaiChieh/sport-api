@@ -124,17 +124,17 @@ async function modifyUserProfile(req, res) {
       break;
     }
     case 1: // 一般會員
-      console.log('normal user');
+      // console.log('normal user');
       break;
     case 2: // 大神
-      console.log('godlike user');
+      // console.log('godlike user');
       break;
     case -1: // 鎖帳號會員
-      console.log('blocked user');
+      // console.log('blocked user');
       res.status(400).json({ success: false, message: 'blocked user' });
       break;
     case 9: // 管理員
-      console.log('manager user');
+      // console.log('manager user');
       break;
     default:
       return res.status(401).json({ success: false, message: 'user status error' });
@@ -190,13 +190,13 @@ async function modifyUserProfile(req, res) {
   // if(display_name_unique!=null){
   //   reject({'error':'error'});
   // }
-  console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
+  // console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
   await db.User.upsert(data)
     .then(async(ref) => {
       const userResult = await userUtils.getUserProfile(uid);
       resultJson.data = userResult;
       resultJson.success = true;
-      console.log('Added document with ID: ', ref);
+      // console.log('Added document with ID: ', ref);
       res.status(200).json(resultJson);
     })
     .catch((e) => {
