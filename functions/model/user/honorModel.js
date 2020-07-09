@@ -29,25 +29,8 @@ function honorModel(req) {
                     uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
                     uwl.this_month_win_bets,
-                    (
-                      SELECT SUM(correct_counts+fault_counts) as lose
-                        FROM users__win__lists__histories
-                       WHERE uid = $uid
-                         AND league_id = $league_id
-                     
-                         AND period = $current_period
-                         AND month = $currentMonth
-                         AND season = $currentSeason
-                    ) first_week_win_handicap,
-                    (
-                      SELECT SUM(correct_counts+fault_counts) as lose
-                        FROM users__win__lists__histories
-                       WHERE uid = $uid
-                         AND league_id = $league_id
-                         AND period = $current_period
-                         AND month = $currentMonth
-                         AND season = $currentSeason
-                    ) this_period_win_handicap,
+                    this_week1_of_period_correct_counts,
+                    this_period_correct_counts,
                     (
                       SELECT COUNT(*) 
                         FROM users__win__lists l1 

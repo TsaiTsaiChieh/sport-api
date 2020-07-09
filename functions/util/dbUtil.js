@@ -1641,6 +1641,9 @@ const News = sequelize.define(
     sort_id: {
       type: Sequelize.INTEGER
     },
+    league: {
+      type: Sequelize.STRING
+    },
     title: {
       type: Sequelize.STRING
     },
@@ -2213,7 +2216,52 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
-
+// const CashflowMission = sequelize.define(
+//   'cashflow_mission',
+//   {
+//     cashflow_mission_id: {
+//       type: Sequelize.INTEGER,
+//       autoIncrement: true,
+//       primaryKey: true
+//     },
+//     uid:{
+//       type: Sequelize.STRING
+//     },
+//     mission_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     mission_item_id: {
+//       type: Sequelize.INTEGER
+//     },
+//     ingot: {
+//       type: Sequelize.INTEGER
+//     },
+//     coin: {
+//       type: Sequelize.INTEGER
+//     },
+//     dividend: {
+//       type: Sequelize.INTEGER
+//     },
+//     bonus_ticket: {
+//       type: Sequelize.INTEGER
+//     },
+//     createdAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     },
+//     updatedAt: {
+//       type: Sequelize.DATE(3),
+//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+//     }
+//   },
+//   {
+//     indexes: [
+//       {
+//         fields: ['cashflow_mission_id', 'uid']
+//       }
+//     ]
+//   }
+// );
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2372,7 +2420,7 @@ const Mission = sequelize.define(
     end_date: {
       type: Sequelize.INTEGER
     },
-    finish_nums: {
+    need_finish_nums: {
       type: Sequelize.INTEGER
     },
     status: {
@@ -2464,24 +2512,37 @@ const MissionDeposit = sequelize.define('mission_deposit', {
   }
 });
 
-const UserMission = sequelize.define('user__mission', {
-  uid: {
-    type: Sequelize.INTEGER
+const UserMission = sequelize.define(
+  'user__mission',
+  {
+    uid: {
+      type: Sequelize.STRING
+    },
+    mission_item_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_god_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_deposit_id: {
+      type: Sequelize.INTEGER
+    },
+    status: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    date_timestamp: {
+      type: Sequelize.INTEGER
+    }
   },
-  mission_item_id: {
-    type: Sequelize.INTEGER
-  },
-  deposit_god_id: {
-    type: Sequelize.INTEGER
-  },
-  deposit_gdeposit_id: {
-    type: Sequelize.INTEGER
-  },
-  status: {
-    type: Sequelize.STRING,
-    defaultValue: 0
+  {
+    indexes: [
+      {
+        fields: ['uid', 'mission_item_id', 'mission_god_id', 'mission_deposit_id', 'date_timestamp']
+      }
+    ]
   }
-});
+);
 
 const dbUtil = {
   sequelize,
@@ -2527,6 +2588,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  // CashflowMission,
   PurchaseList,
   Token,
   AdminLogging,
