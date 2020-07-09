@@ -389,9 +389,10 @@ async function doPBP(parameter) {
             }
 
             try {
+							let timer = timeFormat(data.results[0].timer.tm,data.results[0].timer.ts)
               await modules.database
                 .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
-                .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
+                .set(timer);
             } catch (err) {
               return reject(
                 new AppErrors.FirebaseRealtimeError(
@@ -476,4 +477,12 @@ async function doPBP(parameter) {
     return resolve('ok');
   });
 }
+
+function timeFormat(tm,ts){
+	if(ts>=0&&ts<=9){
+		ts = `0${ts}`
+	}
+	return `${tm}:${ts}`
+}
+
 module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };
