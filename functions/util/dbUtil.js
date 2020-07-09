@@ -2224,7 +2224,7 @@ const CashflowMission = sequelize.define(
       autoIncrement: true,
       primaryKey: true
     },
-    uid:{
+    uid: {
       type: Sequelize.STRING
     },
     mission_id: {
