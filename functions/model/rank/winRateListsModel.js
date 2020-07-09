@@ -24,8 +24,10 @@ async function winRateLists(args) {
   for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
     const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
-    const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
-    const [err, leagueWinRateListsQuery] = await to(CacheQuery(db.sequelize, `
+    // 當賣牌時，快取會無法跟上更新
+    // const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
+
+    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(db.sequelize, `
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
