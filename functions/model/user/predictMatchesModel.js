@@ -299,7 +299,7 @@ async function createNewsDB(insertData, needed) {
         price = price_data[0].price;
       }
 
-      insertData.title = '【' + insertData.league + '】售價：$' + price;
+      insertData.title = price;
       insertData.scheduled = modules.moment().unix();
       insertData.sort = 2;// 售牌
       await db.sequelize.models.user__new.create(insertData);
