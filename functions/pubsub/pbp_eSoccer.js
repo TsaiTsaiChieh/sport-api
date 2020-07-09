@@ -18,7 +18,7 @@ async function ESoccerpbpInplay(parameter) {
     realtimeData = null;
   }
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -36,9 +36,9 @@ async function ESoccerpbpInplay(parameter) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));
@@ -46,7 +46,7 @@ async function axiosForURL(URL) {
   });
 }
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     let data;
@@ -81,7 +81,7 @@ async function ESoccerpbpHistory(parameter) {
       awayScores = data.results[0].ss.split('-')[1];
     }
     if (!data.results[0].timer) {
-      data.results[0].timer = {tm: 'xx', ts: 'xx'};
+      data.results[0].timer = { tm: 'xx', ts: 'xx' };
     }
 
     if (!data.results[0].stats) {
@@ -163,7 +163,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -349,7 +349,7 @@ async function doPBP(parameter) {
             let awayScores = 'no data';
 
             if (!data.results[0].timer) {
-              data.results[0].timer = {tm: 'xx', ts: 'xx'};
+              data.results[0].timer = { tm: 'xx', ts: 'xx' };
             }
             if (!data.results[0].ss || data.results[0].ss === null) {
               data.results[0].ss = 'no data';
@@ -476,4 +476,4 @@ async function doPBP(parameter) {
     return resolve('ok');
   });
 }
-module.exports = {ESoccerpbpInplay, ESoccerpbpHistory};
+module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };

@@ -125,6 +125,9 @@ function changeTeam(team) {
     case 'Zhejiang Golden Bulls': {
       return '60581';
     }
+    case 'Zhejiang Chouzhou Bank': {
+      return '60581';
+    }
     case 'Zhejiang Lions': {
       return '61320';
     }
@@ -181,6 +184,9 @@ function changeTeam(team) {
     }
     case 'Jiangsu Dragons': {
       return '8924';
+    }
+    case 'Shanxi Loongs': {
+      return '311032';
     }
     default: {
       return team;

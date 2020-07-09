@@ -4,7 +4,7 @@ const AppErrors = require('../util/AppErrors');
 const envValues = require('../config/env_values');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 async function forpastevent() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const unix = Date.now() / 1000;
       const date = modules.convertTimezoneFormat(unix, {
@@ -19,7 +19,7 @@ async function forpastevent() {
       // call the betsAPI
       for (let i = 0; i < ele.length; i++) {
         let data;
-        let pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${ele[i].bets_id}`;
+        const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${ele[i].bets_id}`;
         try {
           data = await axiosForURL(pbpURL);
         } catch (err) {
@@ -31,8 +31,8 @@ async function forpastevent() {
         }
         if (data.results[0]) {
           if (data.results[0].ss) {
-            let homeScores = data.results[0].ss.split('-')[0];
-            let awayScores = data.results[0].ss.split('-')[1];
+            const homeScores = data.results[0].ss.split('-')[0];
+            const awayScores = data.results[0].ss.split('-')[1];
             try {
               await db.Match.upsert({
                 bets_id: ele[i].bets_id,
@@ -73,7 +73,7 @@ async function forpastevent() {
 }
 
 async function queryForMatches(date) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -95,9 +95,9 @@ async function queryForMatches(date) {
   });
 }
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));

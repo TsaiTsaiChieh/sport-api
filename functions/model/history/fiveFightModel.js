@@ -3,7 +3,7 @@ const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
 async function fiveFight(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const events = await queryFiveFightEvent(args);
       const predictions = await queryRate(events);
@@ -16,7 +16,7 @@ async function fiveFight(args) {
 }
 
 async function queryRate(events) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const matchArray = [];
     for (let i = 0; i < events.length; i++) {
       matchArray.push(events[i].id);
@@ -27,7 +27,7 @@ async function queryRate(events) {
           `SELECT bets_id, spread_option, totals_option
         FROM user__predictions AS prediction
         WHERE bets_id IN (${matchArray})`,
-          {type: db.sequelize.QueryTypes.SELECT}
+          { type: db.sequelize.QueryTypes.SELECT }
         );
 
         return resolve(queriesForRate);
@@ -41,7 +41,7 @@ async function queryRate(events) {
 }
 
 function queryFiveFightEvent(args) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -266,8 +266,8 @@ async function repackage(args, events, predictions) {
 function calculatePredictionRate(prediction) {
   const result = {
     id: '',
-    spread: {home: 0, away: 0, home_rate: 0, away_rate: 0},
-    totals: {under: 0, over: 0, under_rate: 0, over_rate: 0}
+    spread: { home: 0, away: 0, home_rate: 0, away_rate: 0 },
+    totals: { under: 0, over: 0, under_rate: 0, over_rate: 0 }
   };
 
   for (let i = 0; i < prediction.length; i++) {
@@ -279,7 +279,7 @@ function calculatePredictionRate(prediction) {
   }
   // console.log(result);
 
-  const {spread, totals} = result;
+  const { spread, totals } = result;
   // 避免分母為零
   const spreadDeno = spread.home + spread.away ? spread.home + spread.away : 1;
   const totalsDeno =

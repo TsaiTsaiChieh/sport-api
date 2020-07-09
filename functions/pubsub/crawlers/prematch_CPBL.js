@@ -7,18 +7,18 @@ const league = '11235';
 const sport = '16';
 async function prematch_CPBL(req, res) {
   let URL;
-  //取得各隊伍的資訊
+  // 取得各隊伍的資訊
   URL = `${CPBL_URL}/standing/season.html`;
-  //await getTeamsStandings(URL);
-  //取得球員資訊
+  await getTeamsStandings(URL);
+  // 取得球員資訊
   URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=1&syear=2020#`;
   await getPlayersStandings(URL); // 中信兄弟 選手打擊
   console.log('prematch_CPBL  OK');
 }
 function getPlayersStandings(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios.get(URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
@@ -33,7 +33,7 @@ function getPlayersStandings(URL) {
           result.push(number[i].trim());
         }
       }
-      let totalPlayer = result.length - 1;
+      const totalPlayer = result.length - 1;
       let title = $('tr').text();
       title = title.replace(/\r/g, '');
       title = title.replace(/\n/g, '');
@@ -57,9 +57,9 @@ function getPlayersStandings(URL) {
 }
 
 async function upsertMysqlPlayer(result, totalPlayer) {
-  let teamID = mapTeam(result[33]);
-  let start = 31;
-  let offset = 32; // 一循環
+  const teamID = mapTeam(result[33]);
+  const start = 31;
+  const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
     await db.Player.upsert({
       player_id: result[start + i * offset],
@@ -102,10 +102,10 @@ async function upsertMysqlPlayer(result, totalPlayer) {
   }
 }
 function getTeamsStandings(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // 球隊的季戰績
-      const {data} = await modules.axios.get(URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
       let titles = $('.gap_b20').text();
       titles = titles.replace(/\r/g, '');
@@ -113,7 +113,7 @@ function getTeamsStandings(URL) {
       titles = titles.replace(/\t/g, ' ');
 
       titles = titles.split(' ');
-      let result = [];
+      const result = [];
       for (let i = 0; i < titles.length; i++) {
         if (titles[i] === '') {
           continue;
@@ -126,9 +126,9 @@ function getTeamsStandings(URL) {
         await upsertMysqlTeam(i, result);
       }
 
-      //for (let i = 0; i < result.length; i++) {
+      // for (let i = 0; i < result.length; i++) {
       //  console.log(i + '  ' + result[i]);
-      //}
+      // }
       console.log('CPBL crawler success');
       resolve('ok');
     } catch (err) {
@@ -166,21 +166,21 @@ function change2English(STRK) {
 }
 
 async function upsertMysqlTeam(teamNumber, result) {
-  let teamID = mapTeam(result[7 + teamNumber]);
-  let team1 = mapTeam(result[7 + teamNumber]);
-  let team2 = mapTeam(result[7 + teamNumber + 1]);
-  let team3 = mapTeam(result[7 + teamNumber + 2]);
-  let team4 = mapTeam(result[7 + teamNumber + 3]);
+  const teamID = mapTeam(result[7 + teamNumber]);
+  const team1 = mapTeam(result[7 + teamNumber]);
+  const team2 = mapTeam(result[7 + teamNumber + 1]);
+  const team3 = mapTeam(result[7 + teamNumber + 2]);
+  const team4 = mapTeam(result[7 + teamNumber + 3]);
   if (teamNumber === 1) {
-    let index = 17;
-    let offsetPitch = 74;
-    let offsetBit = 145;
+    const index = 17;
+    const offsetPitch = 74;
+    const offsetBit = 145;
     await db.Team.upsert({
       team_id: teamID,
       baseball_stats: JSON.stringify({
         season_2020: [
           {
-            //團隊對戰戰績
+            // 團隊對戰戰績
             G: result[index + 1],
             Win: result[index + 2].split('-')[0],
             Fair: result[index + 2].split('-')[1],
@@ -197,7 +197,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             L10: result[index + 12]
           },
           {
-            //團隊投球成績
+            // 團隊投球成績
             G: result[index + offsetPitch],
             BF: result[index + offsetPitch + 1],
             NP: result[index + offsetPitch + 2],
@@ -213,7 +213,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             ERA: result[index + offsetPitch + 12]
           },
           {
-            //團隊打擊成績
+            // 團隊打擊成績
             G: result[index + offsetBit],
             AB: result[index + offsetBit + 1],
             R: result[index + offsetBit + 2],
@@ -232,9 +232,9 @@ async function upsertMysqlTeam(teamNumber, result) {
       })
     });
   } else {
-    let index = teamNumber * 15 + 1;
-    let offsetPitch = 76 - teamNumber;
-    let offsetBit = 147 - teamNumber;
+    const index = teamNumber * 15 + 1;
+    const offsetPitch = 76 - teamNumber;
+    const offsetBit = 147 - teamNumber;
     await db.Team.upsert({
       team_id: teamID,
       baseball_stats: JSON.stringify({
@@ -256,7 +256,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             L10: result[index + 13]
           },
           {
-            //團隊投球成績
+            // 團隊投球成績
             G: result[index + offsetPitch],
             BF: result[index + offsetPitch + 1],
             NP: result[index + offsetPitch + 2],
@@ -272,7 +272,7 @@ async function upsertMysqlTeam(teamNumber, result) {
             ERA: result[index + offsetPitch + 12]
           },
           {
-            //團隊打擊成績
+            // 團隊打擊成績
             G: result[index + offsetBit],
             AB: result[index + offsetBit + 1],
             R: result[index + offsetBit + 2],
@@ -294,209 +294,209 @@ async function upsertMysqlTeam(teamNumber, result) {
 }
 module.exports = prematch_CPBL;
 // 對戰成績
-//console.log(result[17]); //接下來的數據是屬於哪一隊 team1
-//console.log(result[18]); //總場數
-//console.log(result[19]); //W-T-L
-//console.log(result[20]); //PCT 勝率
-//console.log(result[21]); //勝差
-//console.log(result[23]); //對上下一隊的戰績
-//console.log(result[24]); //對上下下一隊的戰績
-//console.log(result[25]); //對上下下下一隊的戰績
-//console.log(result[26]); //在主隊勝率
-//console.log(result[27]); //在客隊勝率
-//console.log(result[28]); // 連勝/連敗
-//console.log(result[29]); //近十場
+// console.log(result[17]); //接下來的數據是屬於哪一隊 team1
+// console.log(result[18]); //總場數
+// console.log(result[19]); //W-T-L
+// console.log(result[20]); //PCT 勝率
+// console.log(result[21]); //勝差
+// console.log(result[23]); //對上下一隊的戰績
+// console.log(result[24]); //對上下下一隊的戰績
+// console.log(result[25]); //對上下下下一隊的戰績
+// console.log(result[26]); //在主隊勝率
+// console.log(result[27]); //在客隊勝率
+// console.log(result[28]); // 連勝/連敗
+// console.log(result[29]); //近十場
 
-//console.log(result[31]); // 接下來的數據屬於哪一隊
-//console.log(result[32]); //總場數
-//console.log(result[33]); //W-T-L
-//console.log(result[34]); //PCT 勝率
-//console.log(result[35]); //勝差
-//console.log(result[37]); //對上下一隊的戰績
-//console.log(result[39]); //對上下下一隊的戰績
-//console.log(result[40]); //對上下下下一隊的戰績
-//console.log(result[41]); //在主隊勝率
-//console.log(result[42]); //在客隊勝率
-//console.log(result[43]); // 連勝/連敗
-//console.log(result[44]); //近十場
+// console.log(result[31]); // 接下來的數據屬於哪一隊
+// console.log(result[32]); //總場數
+// console.log(result[33]); //W-T-L
+// console.log(result[34]); //PCT 勝率
+// console.log(result[35]); //勝差
+// console.log(result[37]); //對上下一隊的戰績
+// console.log(result[39]); //對上下下一隊的戰績
+// console.log(result[40]); //對上下下下一隊的戰績
+// console.log(result[41]); //在主隊勝率
+// console.log(result[42]); //在客隊勝率
+// console.log(result[43]); // 連勝/連敗
+// console.log(result[44]); //近十場
 
-//console.log(result[46]); // 接下來的數據屬於哪一隊
-//console.log(result[47]); //總場數
-//console.log(result[48]); //W-T-L
-//console.log(result[49]); //PCT 勝率
-//console.log(result[50]); //勝差
-//console.log(result[52]); //對上下一隊的戰績
-//console.log(result[53]); //對上下下一隊的戰績
-//console.log(result[55]); //對上下下下一隊的戰績
-//console.log(result[56]); //在主隊勝率
-//console.log(result[57]); //在客隊勝率
-//console.log(result[58]); // 連勝/連敗
-//console.log(result[59]); //近十場
+// console.log(result[46]); // 接下來的數據屬於哪一隊
+// console.log(result[47]); //總場數
+// console.log(result[48]); //W-T-L
+// console.log(result[49]); //PCT 勝率
+// console.log(result[50]); //勝差
+// console.log(result[52]); //對上下一隊的戰績
+// console.log(result[53]); //對上下下一隊的戰績
+// console.log(result[55]); //對上下下下一隊的戰績
+// console.log(result[56]); //在主隊勝率
+// console.log(result[57]); //在客隊勝率
+// console.log(result[58]); // 連勝/連敗
+// console.log(result[59]); //近十場
 
-//console.log(result[61]); // 接下來的數據屬於哪一隊
-//console.log(result[62]); //總場數
-//console.log(result[63]); //W-T-L
-//console.log(result[64]); //PCT 勝率
-//console.log(result[65]); //勝差
-//console.log(result[67]); //對上下一隊的戰績
-//console.log(result[68]); //對上下下一隊的戰績
-//console.log(result[69]); //對上下下下一隊的戰績
-//console.log(result[71]); //在主隊勝率
-//console.log(result[72]); //在客隊勝率
-//console.log(result[73]); // 連勝/連敗
-//console.log(result[74]); //近十場
-//--------------投球成績
-//console.log(result[90]); // 接下來的數據屬於哪一隊
-//console.log(result[91]); //G
-//console.log(result[92]); //BF
-//console.log(result[93]); //NP
-//console.log(result[94]); //H
-//console.log(result[95]); //HR
-//console.log(result[96]); //BB
-//console.log(result[97]); //SO
-//console.log(result[98]); //WP
-//console.log(result[99]); //BK
-//console.log(result[100]); //R
-//console.log(result[101]); //ER
-//console.log(result[102]); //WHIP
-//console.log(result[103]); //ERA
+// console.log(result[61]); // 接下來的數據屬於哪一隊
+// console.log(result[62]); //總場數
+// console.log(result[63]); //W-T-L
+// console.log(result[64]); //PCT 勝率
+// console.log(result[65]); //勝差
+// console.log(result[67]); //對上下一隊的戰績
+// console.log(result[68]); //對上下下一隊的戰績
+// console.log(result[69]); //對上下下下一隊的戰績
+// console.log(result[71]); //在主隊勝率
+// console.log(result[72]); //在客隊勝率
+// console.log(result[73]); // 連勝/連敗
+// console.log(result[74]); //近十場
+// --------------投球成績
+// console.log(result[90]); // 接下來的數據屬於哪一隊
+// console.log(result[91]); //G
+// console.log(result[92]); //BF
+// console.log(result[93]); //NP
+// console.log(result[94]); //H
+// console.log(result[95]); //HR
+// console.log(result[96]); //BB
+// console.log(result[97]); //SO
+// console.log(result[98]); //WP
+// console.log(result[99]); //BK
+// console.log(result[100]); //R
+// console.log(result[101]); //ER
+// console.log(result[102]); //WHIP
+// console.log(result[103]); //ERA
 
-//console.log(result[104]); // 接下來的數據屬於哪一隊
-//console.log(result[105]); //G
-//console.log(result[106]); //BF
-//console.log(result[107]); //NP
-//console.log(result[108]); //H
-//console.log(result[109]); //HR
-//console.log(result[110]); //BB
-//console.log(result[111]); //SO
-//console.log(result[112]); //WP
-//console.log(result[113]); //BK
-//console.log(result[114]); //R
-//console.log(result[115]); //ER
-//console.log(result[116]); //WHIP
-//console.log(result[117]); //ERA
+// console.log(result[104]); // 接下來的數據屬於哪一隊
+// console.log(result[105]); //G
+// console.log(result[106]); //BF
+// console.log(result[107]); //NP
+// console.log(result[108]); //H
+// console.log(result[109]); //HR
+// console.log(result[110]); //BB
+// console.log(result[111]); //SO
+// console.log(result[112]); //WP
+// console.log(result[113]); //BK
+// console.log(result[114]); //R
+// console.log(result[115]); //ER
+// console.log(result[116]); //WHIP
+// console.log(result[117]); //ERA
 
-//console.log(result[118]); // 接下來的數據屬於哪一隊
-//console.log(result[119]); //G
-//console.log(result[120]); //BF
-//console.log(result[121]); //NP
-//console.log(result[122]); //H
-//console.log(result[123]); //HR
-//console.log(result[124]); //BB
-//console.log(result[125]); //SO
-//console.log(result[126]); //WP
-//console.log(result[127]); //BK
-//console.log(result[128]); //R
-//console.log(result[129]); //ER
-//console.log(result[130]); //WHIP
-//console.log(result[131]); //ERA
+// console.log(result[118]); // 接下來的數據屬於哪一隊
+// console.log(result[119]); //G
+// console.log(result[120]); //BF
+// console.log(result[121]); //NP
+// console.log(result[122]); //H
+// console.log(result[123]); //HR
+// console.log(result[124]); //BB
+// console.log(result[125]); //SO
+// console.log(result[126]); //WP
+// console.log(result[127]); //BK
+// console.log(result[128]); //R
+// console.log(result[129]); //ER
+// console.log(result[130]); //WHIP
+// console.log(result[131]); //ERA
 
-//console.log(result[132]); // 接下來的數據屬於哪一隊
-//console.log(result[133]); //G
-//console.log(result[134]); //BF
-//console.log(result[135]); //NP
-//console.log(result[136]); //H
-//console.log(result[137]); //HR
-//console.log(result[138]); //BB
-//console.log(result[139]); //SO
-//console.log(result[140]); //WP
-//console.log(result[141]); //BK
-//console.log(result[142]); //R
-//console.log(result[143]); //ER
-//console.log(result[144]); //WHIP
-//console.log(result[145]); //ERA
+// console.log(result[132]); // 接下來的數據屬於哪一隊
+// console.log(result[133]); //G
+// console.log(result[134]); //BF
+// console.log(result[135]); //NP
+// console.log(result[136]); //H
+// console.log(result[137]); //HR
+// console.log(result[138]); //BB
+// console.log(result[139]); //SO
+// console.log(result[140]); //WP
+// console.log(result[141]); //BK
+// console.log(result[142]); //R
+// console.log(result[143]); //ER
+// console.log(result[144]); //WHIP
+// console.log(result[145]); //ERA
 
-////--------------打擊成績
-//console.log(result[161]); // 接下來的數據屬於哪一隊
-//console.log(result[162]); //G
-//console.log(result[163]); //AB
-//console.log(result[164]); //R
-//console.log(result[165]); //RBI
-//console.log(result[166]); //H
-//console.log(result[167]); //HR
-//console.log(result[168]); //TB
-//console.log(result[169]); //SO
-//console.log(result[170]); //BB
-//console.log(result[171]); //SB
-//console.log(result[172]); //OBP
-//console.log(result[173]); //SLG
-//console.log(result[174]); //AVG
+/// /--------------打擊成績
+// console.log(result[161]); // 接下來的數據屬於哪一隊
+// console.log(result[162]); //G
+// console.log(result[163]); //AB
+// console.log(result[164]); //R
+// console.log(result[165]); //RBI
+// console.log(result[166]); //H
+// console.log(result[167]); //HR
+// console.log(result[168]); //TB
+// console.log(result[169]); //SO
+// console.log(result[170]); //BB
+// console.log(result[171]); //SB
+// console.log(result[172]); //OBP
+// console.log(result[173]); //SLG
+// console.log(result[174]); //AVG
 
-//console.log(result[175]); // 接下來的數據屬於哪一隊
-//console.log(result[176]); //G
-//console.log(result[177]); //AB
-//console.log(result[178]); //R
-//console.log(result[179]); //RBI
-//console.log(result[180]); //H
-//console.log(result[181]); //HR
-//console.log(result[182]); //TB
-//console.log(result[183]); //SO
-//console.log(result[184]); //BB
-//console.log(result[185]); //SB
-//console.log(result[186]); //OBP
-//console.log(result[187]); //SLG
-//console.log(result[188]); //AVG
+// console.log(result[175]); // 接下來的數據屬於哪一隊
+// console.log(result[176]); //G
+// console.log(result[177]); //AB
+// console.log(result[178]); //R
+// console.log(result[179]); //RBI
+// console.log(result[180]); //H
+// console.log(result[181]); //HR
+// console.log(result[182]); //TB
+// console.log(result[183]); //SO
+// console.log(result[184]); //BB
+// console.log(result[185]); //SB
+// console.log(result[186]); //OBP
+// console.log(result[187]); //SLG
+// console.log(result[188]); //AVG
 
-//console.log(result[189]); // 接下來的數據屬於哪一隊
-//console.log(result[190]); //G
-//console.log(result[191]); //AB
-//console.log(result[192]); //R
-//console.log(result[193]); //RBI
-//console.log(result[194]); //H
-//console.log(result[195]); //HR
-//console.log(result[196]); //TB
-//console.log(result[197]); //SO
-//console.log(result[198]); //BB
-//console.log(result[199]); //SB
-//console.log(result[200]); //OBP
-//console.log(result[201]); //SLG
-//console.log(result[202]); //AVG
+// console.log(result[189]); // 接下來的數據屬於哪一隊
+// console.log(result[190]); //G
+// console.log(result[191]); //AB
+// console.log(result[192]); //R
+// console.log(result[193]); //RBI
+// console.log(result[194]); //H
+// console.log(result[195]); //HR
+// console.log(result[196]); //TB
+// console.log(result[197]); //SO
+// console.log(result[198]); //BB
+// console.log(result[199]); //SB
+// console.log(result[200]); //OBP
+// console.log(result[201]); //SLG
+// console.log(result[202]); //AVG
 
-//console.log(result[203]); // 接下來的數據屬於哪一隊
-//console.log(result[204]); //G
-//console.log(result[205]); //AB
-//console.log(result[206]); //R
-//console.log(result[207]); //RBI
-//console.log(result[208]); //H
-//console.log(result[209]); //HR
-//console.log(result[210]); //TB
-//console.log(result[211]); //SO
-//console.log(result[212]); //BB
-//console.log(result[213]); //SB
-//console.log(result[214]); //OBP
-//console.log(result[215]); //SLG
-//console.log(result[216]); //AVG
+// console.log(result[203]); // 接下來的數據屬於哪一隊
+// console.log(result[204]); //G
+// console.log(result[205]); //AB
+// console.log(result[206]); //R
+// console.log(result[207]); //RBI
+// console.log(result[208]); //H
+// console.log(result[209]); //HR
+// console.log(result[210]); //TB
+// console.log(result[211]); //SO
+// console.log(result[212]); //BB
+// console.log(result[213]); //SB
+// console.log(result[214]); //OBP
+// console.log(result[215]); //SLG
+// console.log(result[216]); //AVG
 
-//打擊球員資訊
-//31 背號  63下一位  95下一位
-//32 姓名
-//33 隊名
-//34 G
-//35 PA
-//36 AB
-//37 RBI
-//38 R
-//39 H
-//40 1B
-//41 2B
-//42 3B
-//43 HR
-//44 TB
-//45 SO
-//46 SB
-//47 OBP
-//48 SLG
-//49 AVG
-//50 GIDP
-//51 SAC
-//52 SF
-//53 BB
-//54 IBB
-//55 HBP
-//56 CS
-//57 GO
-//58 AO
-//59 G/F
-//60 SB%
-//61 TA
-//62 SSA
+// 打擊球員資訊
+// 31 背號  63下一位  95下一位
+// 32 姓名
+// 33 隊名
+// 34 G
+// 35 PA
+// 36 AB
+// 37 RBI
+// 38 R
+// 39 H
+// 40 1B
+// 41 2B
+// 42 3B
+// 43 HR
+// 44 TB
+// 45 SO
+// 46 SB
+// 47 OBP
+// 48 SLG
+// 49 AVG
+// 50 GIDP
+// 51 SAC
+// 52 SF
+// 53 BB
+// 54 IBB
+// 55 HBP
+// 56 CS
+// 57 GO
+// 58 AO
+// 59 G/F
+// 60 SB%
+// 61 TA
+// 62 SSA
