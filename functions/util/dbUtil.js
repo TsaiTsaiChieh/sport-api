@@ -1,4 +1,4 @@
-const {Sequelize} = require('sequelize');
+const { Sequelize } = require('sequelize');
 const Op = Sequelize.Op;
 const mysql = require('../config/mysql-setting');
 
@@ -244,10 +244,10 @@ const Title = sequelize.define(
   },
   {
     indexes: [
-      {fields: ['uid']},
-      {fields: ['period']},
-      {fields: ['period_date']},
-      {fields: ['league_id']}
+      { fields: ['uid'] },
+      { fields: ['period'] },
+      { fields: ['period_date'] },
+      { fields: ['league_id'] }
     ]
   }
 );
@@ -632,7 +632,7 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
-      {fields: ['scheduled', 'flag_prematch', 'status']},
+      { fields: ['scheduled', 'flag_prematch', 'status'] },
       {
         fields: ['status', 'spread_id']
       },

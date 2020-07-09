@@ -33,33 +33,68 @@ async function forpastevent() {
           if (data.results[0].ss) {
             const homeScores = data.results[0].ss.split('-')[0];
             const awayScores = data.results[0].ss.split('-')[1];
-            try {
-              await db.Match.upsert({
-                bets_id: ele[i].bets_id,
-                home_points: homeScores,
-                away_points: awayScores,
-                status: 0
-              });
+            if (
+              ele[i].league_id === '11235' ||
+              ele[i].league_id === '347' ||
+              ele[i].league_id === '349'
+            ) {
               try {
-                await settleMatchesModel({
-                  token: {
-                    uid: '999'
-                  },
-                  bets_id: ele[i].bets_id
+                await db.Match.upsert({
+                  bets_id: ele[i].bets_id,
+                  home_points: awayScores,
+                  away_points: homeScores,
+                  status: 0
                 });
+                try {
+                  await settleMatchesModel({
+                    token: {
+                      uid: '999'
+                    },
+                    bets_id: ele[i].bets_id
+                  });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.MysqlError(
+                      `${err} at forpastevent of yuhsien on ${ele[i].bets_id} by DY`
+                    )
+                  );
+                }
               } catch (err) {
                 return reject(
                   new AppErrors.MysqlError(
-                    `${err} at forpastevent of yuhsien on ${ele[i].bets_id} by DY`
+                    `${err} at forpastevent ${ele[i].bets_id} by DY`
                   )
                 );
               }
-            } catch (err) {
-              return reject(
-                new AppErrors.MysqlError(
-                  `${err} at forpastevent ${ele[i].bets_id} by DY`
-                )
-              );
+            } else {
+              try {
+                await db.Match.upsert({
+                  bets_id: ele[i].bets_id,
+                  home_points: homeScores,
+                  away_points: awayScores,
+                  status: 0
+                });
+                try {
+                  await settleMatchesModel({
+                    token: {
+                      uid: '999'
+                    },
+                    bets_id: ele[i].bets_id
+                  });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.MysqlError(
+                      `${err} at forpastevent of yuhsien on ${ele[i].bets_id} by DY`
+                    )
+                  );
+                }
+              } catch (err) {
+                return reject(
+                  new AppErrors.MysqlError(
+                    `${err} at forpastevent ${ele[i].bets_id} by DY`
+                  )
+                );
+              }
             }
           }
         }
@@ -78,7 +113,7 @@ async function queryForMatches(date) {
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
-					SELECT game.bets_id
+					SELECT game.bets_id, game.league_id
 					  FROM matches AS game
 					 WHERE game.scheduled < '${date}'
 						 AND status = ${modules.MATCH_STATUS.SCHEDULED}
