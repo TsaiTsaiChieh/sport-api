@@ -39,7 +39,7 @@ async function othersPredictions(args) {
   //   2. 已購牌：完整預測內容。有引言、武功祕技
 
   // 要區分 未登入、已登入
-  const userUid = args.token === undefined ? null : args.token.uid; // 需要判斷 有登入的話，判斷有沒有購牌
+  const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，判斷有沒有購牌
 
   const othersUid = args.othersUid;
   const period = getTitlesPeriod(Date.now()).period;

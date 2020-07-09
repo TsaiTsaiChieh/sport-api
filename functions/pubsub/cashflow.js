@@ -79,7 +79,7 @@ async function god(req, res) {
       log('取得 大神預測牌組結算 第  %s筆 buy_id: %s ', index, data.buy_id, data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
 
       // 如果已經取過就不要再取
-      if (godSellDeckListSettle[data.buy_id] !== undefined) continue;
+      if (godSellDeckListSettle[data.buy_id]) continue;
       godSellDeckListSettle[data.buy_id] = data;
 
       // 測試模擬資料;
