@@ -10,12 +10,14 @@ const teamTableFieldCount = teamTableTitles.length;
 // 1. 取得各隊伍的資訊
 // 2. insert match__teams
 async function prematch_KBO() {
-  try {
-    const teamData = await getTeamsStandings();
-    await insertToTeamDB(teamData);
-  } catch (err) {
-    return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
-  }
+  return new Promise(async function(resolve, reject) {
+    try {
+      const teamData = await getTeamsStandings();
+      await insertToTeamDB(teamData);
+    } catch (err) {
+      return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
+    }
+  });
 }
 
 function getTeamsStandings() {
@@ -57,14 +59,14 @@ function decompose_STRK_LAST(tdArray) {
 
   let L10_Array = [];
   for (let i = 0; i < tdArray.length; i++) {
-    for (let j = 0; j < tdArray.length; j = j + 7) {
-      if (i === 6) {
+    for (let j = 0; j < tdArray.length; j = j + teamTableFieldCount) {
+      if (i === teamTableFieldCount - 1) {
         const ele = tdArray[i + j];
         const slashIndex = ele.indexOf('/');
         const STRK = ele.substring(0, slashIndex).trim();
         const L10 = ele.substring(slashIndex + 1, ele.length).trim();
         L10_Array.push(L10);
-        temp.splice(j + 6, 1, STRK);
+        temp.splice(j + teamTableFieldCount - 1, 1, STRK);
       }
     }
   }
