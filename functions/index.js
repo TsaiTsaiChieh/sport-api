@@ -80,7 +80,7 @@ const whitelist = [
 const localOrigin = 'http://172.16.21';
 
 const corsOptions = {
-  function(origin, callback) {
+  origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else if (origin.includes(localOrigin)) {
