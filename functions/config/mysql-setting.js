@@ -23,10 +23,10 @@ const setting = {
   dialect: 'mysql',
   dialectOptions: dialectOptions,
   pool: {
-    max: 50,
-    min: 5, // Minimum number of connection in pool
+    max: 3000,
+    min: 10, // Minimum number of connection in pool
     acquire: 3000, // The maximum time, in milliseconds, that pool will try to get connection before throwing error
-    idle: 30000 // The maximum time, in milliseconds, that a connection can be idle before being released
+    idle: 10000 // The maximum time, in milliseconds, that a connection can be idle before being released
   },
   timezone: '+08:00'
 };
