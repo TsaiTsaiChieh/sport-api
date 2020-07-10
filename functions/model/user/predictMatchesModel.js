@@ -297,12 +297,13 @@ async function createNewsDB(insertData, needed) {
           type: db.sequelize.QueryTypes.SELECT
         });
         price = price_data[0].price;
-      }
+      
 
       insertData.title = price;
       insertData.scheduled = modules.moment().unix();
       insertData.sort = 2;// 售牌
       await db.sequelize.models.user__new.create(insertData);
+      }
       return resolve({ news_status: 'success' });
     } catch (err) {
       return reject(new AppError.MysqlError(`${err.stack} by Henry`));
