@@ -1,7 +1,7 @@
 async function ccardNotifyModel(res) {
   return new Promise(async function(resolve, reject) {
     try {
-      resolve({ status: '200' });
+      resolve('@RRN|PAY_STATUS');
     } catch (err) {
       reject(err);
     }
