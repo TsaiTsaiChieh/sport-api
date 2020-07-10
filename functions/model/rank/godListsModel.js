@@ -1,7 +1,7 @@
 const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { CacheQuery } = require('../../util/redisUtil');
+// const { CacheQuery } = require('../../util/redisUtil');
 
 async function godlists(args) {
   const godLists = {};
@@ -18,7 +18,7 @@ async function godlists(args) {
   // const redisKey = ['rank', 'godLists', 'titles', league_id, period, beginUnix, endUnix].join(':');
 
   // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-  const [err, godListsQuery] = await to(db.sequelize.query(db.sequelize, `
+  const [err, godListsQuery] = await to(db.sequelize.query(`
       select titles.uid, users.avatar, users.display_name, titles.rank_id, 
              CASE prediction.sell
                WHEN 1 THEN 1

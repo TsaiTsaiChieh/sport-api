@@ -1,7 +1,7 @@
 const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { CacheQuery } = require('../../util/redisUtil');
+// const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists(args) {
   const range = args.range;
@@ -11,7 +11,7 @@ async function winBetsLists(args) {
   const nowInfo = coreDateInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = nowInfo.dateEndUnix;
-  console.log('beginUnix endUnix', beginUnix, endUnix);
+
   const winBetsLists = {};
   winBetsLists[league] = [];
 
@@ -23,7 +23,7 @@ async function winBetsLists(args) {
     // const redisKey = ['rank', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
 
     // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(db.sequelize, `
+    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell

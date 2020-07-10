@@ -1,7 +1,7 @@
 const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { CacheQuery } = require('../../util/redisUtil');
+// const { CacheQuery } = require('../../util/redisUtil');
 
 async function winRateLists(args) {
   const range = args.range;
@@ -27,7 +27,7 @@ async function winRateLists(args) {
     // 當賣牌時，快取會無法跟上更新
     // const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
 
-    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(db.sequelize, `
+    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -83,7 +83,7 @@ async function winRateLists(args) {
       },
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT
-    }, redisKey));
+    }));
     if (err) {
       console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
       throw errs.dbErrsMsg('404', '14010');
