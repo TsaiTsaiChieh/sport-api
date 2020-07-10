@@ -2,7 +2,7 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 
-async function transferModel(method, args) {
+async function transferModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       const begin = modules.convertTimezone(args.begin);
