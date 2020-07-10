@@ -522,6 +522,9 @@ const Team = sequelize.define(
     },
     information: {
       type: Sequelize.TEXT
+    },
+    baseball_stats: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -2221,7 +2224,7 @@ const CashflowMission = sequelize.define(
       autoIncrement: true,
       primaryKey: true
     },
-    uid:{
+    uid: {
       type: Sequelize.STRING
     },
     mission_id: {
@@ -2448,6 +2451,9 @@ const MissionItem = sequelize.define(
     mission_id: {
       type: Sequelize.INTEGER
     },
+    func_type: {
+      type: Sequelize.STRING
+    },
     target: {
       type: Sequelize.STRING
     },
@@ -2477,6 +2483,9 @@ const MissionGod = sequelize.define(
     mission_id: {
       type: Sequelize.INTEGER
     },
+    func_type: {
+      type: Sequelize.STRING
+    },
     reward_type: {
       type: Sequelize.STRING
     },
@@ -2505,6 +2514,9 @@ const MissionDeposit = sequelize.define(
     },
     mission_id: {
       type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
     },
     deposit_list_id: {
       type: Sequelize.INTEGER

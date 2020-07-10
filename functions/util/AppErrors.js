@@ -446,6 +446,17 @@ class CrawlersError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class KBOCrawlersError extends ExtendableError {
+  constructor(
+    message = 'KBO 爬蟲賽前排程錯誤',
+    status = 1523,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -486,5 +497,6 @@ module.exports = {
   UpdateUserCoinORDividendRollback,
   CreateCashflowBuyRollback,
   PredictionHistoryModelError,
-  CrawlersError
+  CrawlersError,
+  KBOCrawlersError
 };

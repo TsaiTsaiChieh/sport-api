@@ -173,7 +173,7 @@ async function god(req, res) {
     for (const data of lists) {
       log(data.uid, data.league_id, yesterdayYYYYMMDDUnix, data.date_timestamp, data.win_bets);
 
-      if (data.win_bets === undefined || data.win_bets >= 0) continue;
+      if (!data.win_bets || data.win_bets >= 0) continue;
 
       // 否，把 buy_status 改成 處理中(需區分 一般退款、全額退款)
       const buy_status = data.matches_fail_status === 1 ? -1 : 0; // -1 全額退款，0 一般退款
