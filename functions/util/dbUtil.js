@@ -2245,7 +2245,7 @@ const CashflowMission = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER
     },
-    bonus_ticket: {
+    lottery: {
       type: Sequelize.INTEGER
     },
     createdAt: {
