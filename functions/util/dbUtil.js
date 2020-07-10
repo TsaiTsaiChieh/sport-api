@@ -2216,52 +2216,58 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
-// const CashflowMission = sequelize.define(
-//   'cashflow_mission',
-//   {
-//     cashflow_mission_id: {
-//       type: Sequelize.INTEGER,
-//       autoIncrement: true,
-//       primaryKey: true
-//     },
-//     uid:{
-//       type: Sequelize.STRING
-//     },
-//     mission_id: {
-//       type: Sequelize.INTEGER
-//     },
-//     mission_item_id: {
-//       type: Sequelize.INTEGER
-//     },
-//     ingot: {
-//       type: Sequelize.INTEGER
-//     },
-//     coin: {
-//       type: Sequelize.INTEGER
-//     },
-//     dividend: {
-//       type: Sequelize.INTEGER
-//     },
-//     bonus_ticket: {
-//       type: Sequelize.INTEGER
-//     },
-//     createdAt: {
-//       type: Sequelize.DATE(3),
-//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
-//     },
-//     updatedAt: {
-//       type: Sequelize.DATE(3),
-//       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
-//     }
-//   },
-//   {
-//     indexes: [
-//       {
-//         fields: ['cashflow_mission_id', 'uid']
-//       }
-//     ]
-//   }
-// );
+const CashflowMission = sequelize.define(
+  'cashflow_mission',
+  {
+    cashflow_mission_id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_item_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_god_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_deposit_id: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    },
+    dividend: {
+      type: Sequelize.INTEGER
+    },
+    lottery: {
+      type: Sequelize.INTEGER
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['cashflow_mission_id', 'uid']
+      }
+    ]
+  }
+);
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2437,80 +2443,98 @@ const Mission = sequelize.define(
   }
 );
 
-const MissionItem = sequelize.define('mission_item', {
-  mission_item_id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  mission_id: {
-    type: Sequelize.INTEGER
-  },
-  target: {
-    type: Sequelize.STRING
-  },
-  reward_class: {
-    type: Sequelize.INTEGER
-  },
-  reward_type: {
-    type: Sequelize.STRING
-  },
-  reward_num: {
-    type: Sequelize.INTEGER
-  },
-  reward_class_num: {
-    type: Sequelize.INTEGER
+const MissionItem = sequelize.define(
+  'mission_item',
+  {
+    mission_item_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
+    },
+    target: {
+      type: Sequelize.STRING
+    },
+    reward_class: {
+      type: Sequelize.INTEGER
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    reward_num: {
+      type: Sequelize.INTEGER
+    },
+    reward_class_num: {
+      type: Sequelize.INTEGER
+    }
   }
-});
+);
 
-const MissionGod = sequelize.define('mission_god', {
-  mission_god_id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  mission_id: {
-    type: Sequelize.INTEGER
-  },
-  reward_type: {
-    type: Sequelize.STRING
-  },
-  diamond_reward: {
-    type: Sequelize.INTEGER
-  },
-  gold_reward: {
-    type: Sequelize.INTEGER
-  },
-  sliver_reward: {
-    type: Sequelize.INTEGER
-  },
-  copper_reward: {
-    type: Sequelize.INTEGER
+const MissionGod = sequelize.define(
+  'mission_god',
+  {
+    mission_god_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
+    },
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    diamond_reward: {
+      type: Sequelize.INTEGER
+    },
+    gold_reward: {
+      type: Sequelize.INTEGER
+    },
+    sliver_reward: {
+      type: Sequelize.INTEGER
+    },
+    copper_reward: {
+      type: Sequelize.INTEGER
+    }
   }
-});
+);
 
-const MissionDeposit = sequelize.define('mission_deposit', {
-  mission_deposit_id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  mission_id: {
-    type: Sequelize.INTEGER
-  },
-  deposit_list_id: {
-    type: Sequelize.INTEGER
-  },
-  lottery: {
-    type: Sequelize.INTEGER
-  },
-  ingot: {
-    type: Sequelize.INTEGER
-  },
-  coin: {
-    type: Sequelize.INTEGER
+const MissionDeposit = sequelize.define(
+  'mission_deposit',
+  {
+    mission_deposit_id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
+    },
+    deposit_list_id: {
+      type: Sequelize.INTEGER
+    },
+    lottery: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    }
   }
-});
+);
 
 const UserMission = sequelize.define(
   'user__mission',
@@ -2588,7 +2612,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
-  // CashflowMission,
+  CashflowMission,
   PurchaseList,
   Token,
   AdminLogging,

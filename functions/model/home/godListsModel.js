@@ -46,7 +46,7 @@ async function godlists() {
     throw errs.dbErrsMsg('404', '14020');
   }
 
-  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+  if (!godListsQuery || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
   // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
   //      ,

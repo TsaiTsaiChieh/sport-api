@@ -74,7 +74,7 @@ async function winRateLists() {
       throw errs.dbErrsMsg('404', '14040');
     }
 
-    if (leagueWinRateListsQuery === undefined || leagueWinRateListsQuery.length <= 0) return { win_rate_lists: winRateLists }; // 如果沒有找到資料回傳 []
+    if (!leagueWinRateListsQuery || leagueWinRateListsQuery.length <= 0) return { win_rate_lists: winRateLists }; // 如果沒有找到資料回傳 []
 
     leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinRateLists.push(repackage(data));
