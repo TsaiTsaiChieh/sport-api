@@ -5,7 +5,7 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 let keepPBP = 1;
 const Match = db.Match;
-async function ESoccerpbpInplay(parameter) {
+async function ESoccerpbpInplay(parameter, firestoreData) {
   // 14 秒一次
   const perStep = 14000;
   // 一分鐘2次
@@ -31,7 +31,7 @@ async function ESoccerpbpInplay(parameter) {
       console.log(`${betsID} : checkmatch_ESoccer success`);
       clearInterval(timerForStatus2);
     } else {
-      await doPBP(parameterPBP);
+      await doPBP(parameterPBP, firestoreData);
     }
   }, perStep);
 }
@@ -162,7 +162,7 @@ async function ESoccerpbpHistory(parameter) {
     return resolve('ok');
   });
 }
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
@@ -389,10 +389,20 @@ async function doPBP(parameter) {
             }
 
             try {
-              const timer = timeFormat(data.results[0].timer.tm, data.results[0].timer.ts);
+              const timer = timeFormat(
+                data.results[0].timer.tm,
+                data.results[0].timer.ts
+              );
               await modules.database
                 .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
                 .set(timer);
+              for (let i = 0; i < firestoreData.length; i++) {
+                if (firestoreData[i].bets_id === betsID) {
+                  await modules.database
+                    .ref(`home_livescore/${betsID}/Summary/Now_clock`)
+                    .set(timer);
+                }
+              }
             } catch (err) {
               return reject(
                 new AppErrors.FirebaseRealtimeError(
@@ -437,6 +447,24 @@ async function doPBP(parameter) {
                       }
                     }
                   });
+                for (let i = 0; i < firestoreData.length; i++) {
+                  if (firestoreData[i].bets_id === betsID) {
+                    await modules.database
+                      .ref(`home_livescore/${betsID}/Summary/info`)
+                      .set({
+                        home: {
+                          Total: {
+                            points: homeScores
+                          }
+                        },
+                        away: {
+                          Total: {
+                            points: awayScores
+                          }
+                        }
+                      });
+                  }
+                }
               }
             } catch (err) {
               return reject(

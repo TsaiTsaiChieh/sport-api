@@ -553,13 +553,17 @@ function spreadCalculator(handicapObj, sport) {
             // 相同賠率
             if (handicapObj.handicap >= 0) {
               // 主讓客
-              handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.home_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.away_tw = null;
               handicapObj.rate = -50;
             } else {
               // 客讓主
               handicapObj.home_tw = null;
-              handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.away_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.rate = -50;
             }
           }

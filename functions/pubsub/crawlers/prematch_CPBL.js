@@ -1,12 +1,15 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
-const db = require('../../util/dbUtil');
+// const db = require('../../util/dbUtil');
 const CPBL_URL = 'http://www.cpbl.com.tw';
 const totalTeam = 4;
-const league = '11235';
+const leagueName = 'CPBL';
+const league = modules.leagueCodebook(leagueName);
+const sportName = modules.league2Sport(leagueName).sport;
 const sport = '16';
-const perStep = 1000; // 每秒抓一項資訊
+const perStep = 2000; // 每秒抓一項資訊
 const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
+const season = '2020';
 async function prematch_CPBL(req, res) {
   let URL;
   let countForStatus2 = 0;
@@ -43,7 +46,7 @@ async function prematch_CPBL(req, res) {
           URL = `${CPBL_URL}/web/team_playergrade.php?&team=B04&gameno=01`;
           await getHittersStandings(URL); // 富邦 選手打擊
           break;
-        }     
+        }
         case 6: {
           URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=2&syear=2020`;
           await getPitchersStandings(URL); // 中信兄弟 選手投手
@@ -62,6 +65,9 @@ async function prematch_CPBL(req, res) {
         case 9: {
           URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=B04&year=2020&grade=2&syear=2020`;
           await getPitchersStandings(URL); // 富邦 選手投手
+          break;
+        }
+        default: {
           break;
         }
       }
@@ -101,7 +107,8 @@ function getPitchersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      await upsertMysqlPitcher(result, totalPlayer);
+      // await upsertMysqlPitcher(result, totalPlayer);
+      await upsertFirestorePitcher(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -109,55 +116,53 @@ function getPitchersStandings(URL) {
     resolve('ok');
   });
 }
-async function upsertMysqlPitcher(result, totalPlayer) {
-  const teamID = mapTeam(result[33]);
-  const start = 31;
-  const offset = 32; // 一循環
-  for (let i = 0; i < totalPlayer; i++) {
-    await db.Player.upsert({
-      player_id: result[start + i * offset],
-      league_id: league,
-      sport_id: sport,
-      team_id: teamID,
-      ori_name: result[start + 1 + i * offset],
-      information: JSON.stringify({
-        season_2020: {
-          G: result[start + 3 + i * offset],
-          GS: result[start + 4 + i * offset],
-          GR: result[start + 5 + i * offset],
-          CG: result[start + 6 + i * offset],
-          SHO: result[start + 7 + i * offset],
-          NBB: result[start + 8 + i * offset],
-          W: result[start + 9 + i * offset],
-          L: result[start + 10 + i * offset],
-          SV: result[start + 11 + i * offset],
-          BS: result[start + 12 + i * offset],
-          HLD: result[start + 13 + i * offset],
-          IP: result[start + 14 + i * offset],
-          WHIP: result[start + 15 + i * offset],
-          ERA: result[start + 16 + i * offset],
-          BF: result[start + 17 + i * offset],
-          NP: result[start + 18 + i * offset],
-          H: result[start + 19 + i * offset],
-          HR: result[start + 20 + i * offset],
-          BB: result[start + 21 + i * offset],
-          IBB: result[start + 22 + i * offset],
-          HBP: result[start + 23 + i * offset],
-          SO: result[start + 24 + i * offset],
-          WP: result[start + 25 + i * offset],
-          BK: result[start + 26 + i * offset],
-          R: result[start + 27 + i * offset],
-          ER: result[start + 28 + i * offset],
-          GO: result[start + 29 + i * offset],
-          AO: result[start + 30 + i * offset],
-          GF: result[start + 31 + i * offset]
-        }
-      })
-    });
-  }
-
-  return 'aa';
-}
+// async function upsertMysqlPitcher(result, totalPlayer) {
+//  const teamID = mapTeam(result[33]);
+//  const start = 31;
+//  const offset = 32; // 一循環
+//  for (let i = 0; i < totalPlayer; i++) {
+//    await db.Player.upsert({
+//      player_id: result[start + i * offset],
+//      league_id: league,
+//      sport_id: sport,
+//      team_id: teamID,
+//      ori_name: result[start + 1 + i * offset],
+//      information: JSON.stringify({
+//        season_2020: {
+//          G: result[start + 3 + i * offset],
+//          GS: result[start + 4 + i * offset],
+//          GR: result[start + 5 + i * offset],
+//          CG: result[start + 6 + i * offset],
+//          SHO: result[start + 7 + i * offset],
+//          NBB: result[start + 8 + i * offset],
+//          W: result[start + 9 + i * offset],
+//          L: result[start + 10 + i * offset],
+//          SV: result[start + 11 + i * offset],
+//          BS: result[start + 12 + i * offset],
+//          HLD: result[start + 13 + i * offset],
+//          IP: result[start + 14 + i * offset],
+//          WHIP: result[start + 15 + i * offset],
+//          ERA: result[start + 16 + i * offset],
+//          BF: result[start + 17 + i * offset],
+//          NP: result[start + 18 + i * offset],
+//          H: result[start + 19 + i * offset],
+//          HR: result[start + 20 + i * offset],
+//          BB: result[start + 21 + i * offset],
+//          IBB: result[start + 22 + i * offset],
+//          HBP: result[start + 23 + i * offset],
+//          SO: result[start + 24 + i * offset],
+//          WP: result[start + 25 + i * offset],
+//          BK: result[start + 26 + i * offset],
+//          R: result[start + 27 + i * offset],
+//          ER: result[start + 28 + i * offset],
+//          GO: result[start + 29 + i * offset],
+//          AO: result[start + 30 + i * offset],
+//          GF: result[start + 31 + i * offset]
+//        }
+//      })
+//    });
+//  }
+// }
 function getHittersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -190,7 +195,8 @@ function getHittersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      await upsertMysqlHitter(result, totalPlayer);
+      // await upsertMysqlHitter(result, totalPlayer);
+      await upsertFirestoreHitter(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -199,53 +205,53 @@ function getHittersStandings(URL) {
   });
 }
 
-async function upsertMysqlHitter(result, totalPlayer) {
-  const teamID = mapTeam(result[33]);
-  const start = 31;
-  const offset = 32; // 一循環
-  for (let i = 0; i < totalPlayer; i++) {
-    await db.Player.upsert({
-      player_id: result[start + i * offset],
-      league_id: league,
-      sport_id: sport,
-      team_id: teamID,
-      ori_name: result[start + 1 + i * offset],
-      information: JSON.stringify({
-        season_2020: {
-          G: result[start + 3 + i * offset],
-          PA: result[start + 4 + i * offset],
-          AB: result[start + 5 + i * offset],
-          RBI: result[start + 6 + i * offset],
-          R: result[start + 7 + i * offset],
-          H: result[start + 8 + i * offset],
-          oneB: result[start + 9 + i * offset],
-          twoB: result[start + 10 + i * offset],
-          threeB: result[start + 11 + i * offset],
-          HR: result[start + 12 + i * offset],
-          TB: result[start + 13 + i * offset],
-          SO: result[start + 14 + i * offset],
-          SB: result[start + 15 + i * offset],
-          OBP: result[start + 16 + i * offset],
-          SLG: result[start + 17 + i * offset],
-          AVG: result[start + 18 + i * offset],
-          GIDP: result[start + 19 + i * offset],
-          SAC: result[start + 20 + i * offset],
-          SF: result[start + 21 + i * offset],
-          BB: result[start + 22 + i * offset],
-          IBB: result[start + 23 + i * offset],
-          HBP: result[start + 24 + i * offset],
-          CS: result[start + 25 + i * offset],
-          GO: result[start + 26 + i * offset],
-          AO: result[start + 27 + i * offset],
-          GF: result[start + 28 + i * offset],
-          SBprecent: result[start + 29 + i * offset],
-          TA: result[start + 30 + i * offset],
-          SSA: result[start + 31 + i * offset]
-        }
-      })
-    });
-  }
-}
+// async function upsertMysqlHitter(result, totalPlayer) {
+//  const teamID = mapTeam(result[33]);
+//  const start = 31;
+//  const offset = 32; // 一循環
+//  for (let i = 0; i < totalPlayer; i++) {
+//    await db.Player.upsert({
+//      player_id: result[start + i * offset],
+//      league_id: league,
+//      sport_id: sport,
+//      team_id: teamID,
+//      ori_name: result[start + 1 + i * offset],
+//      information: JSON.stringify({
+//        season_2020: {
+//          G: result[start + 3 + i * offset],
+//          PA: result[start + 4 + i * offset],
+//          AB: result[start + 5 + i * offset],
+//          RBI: result[start + 6 + i * offset],
+//          R: result[start + 7 + i * offset],
+//          H: result[start + 8 + i * offset],
+//          oneB: result[start + 9 + i * offset],
+//          twoB: result[start + 10 + i * offset],
+//          threeB: result[start + 11 + i * offset],
+//          HR: result[start + 12 + i * offset],
+//          TB: result[start + 13 + i * offset],
+//          SO: result[start + 14 + i * offset],
+//          SB: result[start + 15 + i * offset],
+//          OBP: result[start + 16 + i * offset],
+//          SLG: result[start + 17 + i * offset],
+//          AVG: result[start + 18 + i * offset],
+//          GIDP: result[start + 19 + i * offset],
+//          SAC: result[start + 20 + i * offset],
+//          SF: result[start + 21 + i * offset],
+//          BB: result[start + 22 + i * offset],
+//          IBB: result[start + 23 + i * offset],
+//          HBP: result[start + 24 + i * offset],
+//          CS: result[start + 25 + i * offset],
+//          GO: result[start + 26 + i * offset],
+//          AO: result[start + 27 + i * offset],
+//          GF: result[start + 28 + i * offset],
+//          SBprecent: result[start + 29 + i * offset],
+//          TA: result[start + 30 + i * offset],
+//          SSA: result[start + 31 + i * offset]
+//        }
+//      })
+//    });
+//  }
+// }
 function getTeamsStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -268,10 +274,10 @@ function getTeamsStandings(URL) {
       }
 
       for (let i = 1; i <= totalTeam; i++) {
-        await upsertMysqlTeam(i, result);
+        // await upsertMysqlTeam(i, result);
+        await upsertFirestoreTeam(i, result);
       }
 
-      console.log('CPBL crawler success');
       resolve('ok');
     } catch (err) {
       console.error(err, '=-----');
@@ -306,8 +312,7 @@ function change2English(STRK) {
     return STRK;
   }
 }
-
-async function upsertMysqlTeam(teamNumber, result) {
+function upsertFirestoreTeam(teamNumber, result) {
   const teamID = mapTeam(result[7 + teamNumber]);
   const team1 = mapTeam(result[8]);
   const team2 = mapTeam(result[9]);
@@ -317,122 +322,315 @@ async function upsertMysqlTeam(teamNumber, result) {
     const index = 17;
     const offsetPitch = 74;
     const offsetBit = 145;
-    await db.Team.upsert({
-      team_id: teamID,
-      baseball_stats: JSON.stringify({
-        season_2020: {
-          // 團隊對戰戰績
-          team_base: {
-            G: result[index + 1],
-            Win: result[index + 2].split('-')[0],
-            Fair: result[index + 2].split('-')[1],
-            Lose: result[index + 2].split('-')[2],
-            PCT: result[index + 3],
-            GB: result[index + 4],
-            [`${teamID}VS${team1}`]: result[index + 5],
-            [`${teamID}VS${team2}`]: result[index + 6],
-            [`${teamID}VS${team3}`]: result[index + 7],
-            [`${teamID}VS${team4}`]: result[index + 8],
-            at_home: result[index + 9],
-            at_away: result[index + 10],
-            STRK: change2English(result[index + 11]),
-            L10: result[index + 12]
-          },
-          // 團隊投球成績
-          team_pitch: {
-            G: result[index + offsetPitch],
-            BF: result[index + offsetPitch + 1],
-            NP: result[index + offsetPitch + 2],
-            H: result[index + offsetPitch + 3],
-            HR: result[index + offsetPitch + 4],
-            BB: result[index + offsetPitch + 5],
-            SO: result[index + offsetPitch + 6],
-            WP: result[index + offsetPitch + 7],
-            BK: result[index + offsetPitch + 8],
-            R: result[index + offsetPitch + 9],
-            ER: result[index + offsetPitch + 10],
-            WHIP: result[index + offsetPitch + 11],
-            ERA: result[index + offsetPitch + 12]
-          },
-          // 團隊打擊成績
-          team_hit: {
-            G: result[index + offsetBit],
-            AB: result[index + offsetBit + 1],
-            R: result[index + offsetBit + 2],
-            RBI: result[index + offsetBit + 3],
-            H: result[index + offsetBit + 4],
-            HR: result[index + offsetBit + 5],
-            TB: result[index + offsetBit + 6],
-            SO: result[index + offsetBit + 7],
-            BB: result[index + offsetBit + 8],
-            SB: result[index + offsetBit + 9],
-            OBP: result[index + offsetBit + 10],
-            SLG: result[index + offsetBit + 11],
-            AVG: result[index + offsetBit + 12]
+    modules.firestore
+      .collection(`${sportName}_${leagueName}`)
+      .doc(teamID)
+      .set(
+        {
+          team_id: teamID,
+          league_id: league.id,
+          league_name: leagueName,
+          league_name_ch: league.name_ch,
+          sport_id: sport,
+          sport_name: sportName,
+          team: {
+            [`${season}`]: {
+              // 團隊對戰戰績
+              team_base: {
+                G: result[index + 1],
+                Win: result[index + 2].split('-')[0],
+                Fair: result[index + 2].split('-')[1],
+                Lose: result[index + 2].split('-')[2],
+                PCT: result[index + 3],
+                GB: result[index + 4],
+                [`${teamID}VS${team1}`]: result[index + 5],
+                [`${teamID}VS${team2}`]: result[index + 6],
+                [`${teamID}VS${team3}`]: result[index + 7],
+                [`${teamID}VS${team4}`]: result[index + 8],
+                at_home: result[index + 9],
+                at_away: result[index + 10],
+                STRK: change2English(result[index + 11]),
+                L10: result[index + 12]
+              },
+              // 團隊投球成績
+              team_pitch: {
+                G: result[index + offsetPitch],
+                BF: result[index + offsetPitch + 1],
+                NP: result[index + offsetPitch + 2],
+                H: result[index + offsetPitch + 3],
+                HR: result[index + offsetPitch + 4],
+                BB: result[index + offsetPitch + 5],
+                SO: result[index + offsetPitch + 6],
+                WP: result[index + offsetPitch + 7],
+                BK: result[index + offsetPitch + 8],
+                R: result[index + offsetPitch + 9],
+                ER: result[index + offsetPitch + 10],
+                WHIP: result[index + offsetPitch + 11],
+                ERA: result[index + offsetPitch + 12]
+              },
+              // 團隊打擊成績
+              team_hit: {
+                G: result[index + offsetBit],
+                AB: result[index + offsetBit + 1],
+                R: result[index + offsetBit + 2],
+                RBI: result[index + offsetBit + 3],
+                H: result[index + offsetBit + 4],
+                HR: result[index + offsetBit + 5],
+                TB: result[index + offsetBit + 6],
+                SO: result[index + offsetBit + 7],
+                BB: result[index + offsetBit + 8],
+                SB: result[index + offsetBit + 9],
+                OBP: result[index + offsetBit + 10],
+                SLG: result[index + offsetBit + 11],
+                AVG: result[index + offsetBit + 12]
+              }
+            }
           }
-        }
-      })
-    });
-  } else {
-    const index = teamNumber * 15 + 1;
-    const offsetPitch = 76 - teamNumber;
-    const offsetBit = 147 - teamNumber;
-    await db.Team.upsert({
-      team_id: teamID,
-      baseball_stats: JSON.stringify({
-        season_2020: {
-          // 團隊基本
-          team_base: {
-            G: result[index + 1],
-            Win: result[index + 2].split('-')[0],
-            Draw: result[index + 2].split('-')[1],
-            Lose: result[index + 2].split('-')[2],
-            PCT: result[index + 3],
-            GB: result[index + 4],
-            [`${teamID}VS${team1}`]: result[index + 6],
-            [`${teamID}VS${team2}`]: result[index + 7],
-            [`${teamID}VS${team3}`]: result[index + 8],
-            [`${teamID}VS${team4}`]: result[index + 9],
-            at_home: result[index + 10],
-            at_away: result[index + 11],
-            STRK: change2English(result[index + 12]),
-            L10: result[index + 13]
-          },
-          // 團隊投球成績
-          team_pitch: {
-            BF: result[index + offsetPitch + 1],
-            NP: result[index + offsetPitch + 2],
-            H: result[index + offsetPitch + 3],
-            HR: result[index + offsetPitch + 4],
-            BB: result[index + offsetPitch + 5],
-            SO: result[index + offsetPitch + 6],
-            WP: result[index + offsetPitch + 7],
-            BK: result[index + offsetPitch + 8],
-            R: result[index + offsetPitch + 9],
-            ER: result[index + offsetPitch + 10],
-            WHIP: result[index + offsetPitch + 11],
-            ERA: result[index + offsetPitch + 12]
-          },
-          // 團隊打擊成績
-          team_hit: {
-            AB: result[index + offsetBit + 1],
-            R: result[index + offsetBit + 2],
-            RBI: result[index + offsetBit + 3],
-            H: result[index + offsetBit + 4],
-            HR: result[index + offsetBit + 5],
-            TB: result[index + offsetBit + 6],
-            SO: result[index + offsetBit + 7],
-            BB: result[index + offsetBit + 8],
-            SB: result[index + offsetBit + 9],
-            OBP: result[index + offsetBit + 10],
-            SLG: result[index + offsetBit + 11],
-            AVG: result[index + offsetBit + 12]
-          }
-        }
-      })
-    });
+        },
+        { merge: true }
+      );
   }
 }
+function upsertFirestoreHitter(result, totalPlayer) {
+  const teamID = mapTeam(result[33]);
+  const start = 31;
+  const offset = 32; // 一循環
+  for (let i = 0; i < totalPlayer; i++) {
+    modules.firestore
+      .collection(`${sportName}_${leagueName}`)
+      .doc(teamID)
+      .set(
+        {
+          players: {
+            // 背號＋姓名
+            [`${result[start + i * offset]}_${
+              result[start + 1 + i * offset]
+            }`]: {
+              player_id: result[start + i * offset],
+              ori_name: result[start + 1 + i * offset], // 原文
+              name: result[start + 1 + i * offset], // 英文
+              name_ch: result[start + 1 + i * offset], // 中文
+              [`${season}`]: {
+                G: result[start + 3 + i * offset],
+                PA: result[start + 4 + i * offset],
+                AB: result[start + 5 + i * offset],
+                RBI: result[start + 6 + i * offset],
+                R: result[start + 7 + i * offset],
+                H: result[start + 8 + i * offset],
+                oneB: result[start + 9 + i * offset],
+                twoB: result[start + 10 + i * offset],
+                threeB: result[start + 11 + i * offset],
+                HR: result[start + 12 + i * offset],
+                TB: result[start + 13 + i * offset],
+                SO: result[start + 14 + i * offset],
+                SB: result[start + 15 + i * offset],
+                OBP: result[start + 16 + i * offset],
+                SLG: result[start + 17 + i * offset],
+                AVG: result[start + 18 + i * offset],
+                GIDP: result[start + 19 + i * offset],
+                SAC: result[start + 20 + i * offset],
+                SF: result[start + 21 + i * offset],
+                BB: result[start + 22 + i * offset],
+                IBB: result[start + 23 + i * offset],
+                HBP: result[start + 24 + i * offset],
+                CS: result[start + 25 + i * offset],
+                GO: result[start + 26 + i * offset],
+                AO: result[start + 27 + i * offset],
+                GF: result[start + 28 + i * offset],
+                SBprecent: result[start + 29 + i * offset],
+                TA: result[start + 30 + i * offset],
+                SSA: result[start + 31 + i * offset]
+              }
+            }
+          }
+        },
+        { merge: true }
+      );
+  }
+}
+function upsertFirestorePitcher(result, totalPlayer) {
+  const teamID = mapTeam(result[33]);
+  const start = 31;
+  const offset = 32; // 一循環
+  for (let i = 0; i < totalPlayer; i++) {
+    modules.firestore
+      .collection(`${sportName}_${leagueName}`)
+      .doc(teamID)
+      .set(
+        {
+          players: {
+            // 背號＋姓名
+            [`${result[start + i * offset]}_${
+              result[start + 1 + i * offset]
+            }`]: {
+              player_id: result[start + i * offset],
+              ori_name: result[start + 1 + i * offset], // 原文
+              name: result[start + 1 + i * offset], // 英文
+              name_ch: result[start + 1 + i * offset], // 中文
+              [`${season}`]: {
+                G: result[start + 3 + i * offset],
+                GS: result[start + 4 + i * offset],
+                GR: result[start + 5 + i * offset],
+                CG: result[start + 6 + i * offset],
+                SHO: result[start + 7 + i * offset],
+                NBB: result[start + 8 + i * offset],
+                W: result[start + 9 + i * offset],
+                L: result[start + 10 + i * offset],
+                SV: result[start + 11 + i * offset],
+                BS: result[start + 12 + i * offset],
+                HLD: result[start + 13 + i * offset],
+                IP: result[start + 14 + i * offset],
+                WHIP: result[start + 15 + i * offset],
+                ERA: result[start + 16 + i * offset],
+                BF: result[start + 17 + i * offset],
+                NP: result[start + 18 + i * offset],
+                H: result[start + 19 + i * offset],
+                HR: result[start + 20 + i * offset],
+                BB: result[start + 21 + i * offset],
+                IBB: result[start + 22 + i * offset],
+                HBP: result[start + 23 + i * offset],
+                SO: result[start + 24 + i * offset],
+                WP: result[start + 25 + i * offset],
+                BK: result[start + 26 + i * offset],
+                R: result[start + 27 + i * offset],
+                ER: result[start + 28 + i * offset],
+                GO: result[start + 29 + i * offset],
+                AO: result[start + 30 + i * offset],
+                GF: result[start + 31 + i * offset]
+              }
+            }
+          }
+        },
+        { merge: true }
+      );
+  }
+}
+// async function upsertMysqlTeam(teamNumber, result) {
+//  const teamID = mapTeam(result[7 + teamNumber]);
+//  const team1 = mapTeam(result[8]);
+//  const team2 = mapTeam(result[9]);
+//  const team3 = mapTeam(result[10]);
+//  const team4 = mapTeam(result[11]);
+//  if (teamNumber === 1) {
+//    const index = 17;
+//    const offsetPitch = 74;
+//    const offsetBit = 145;
+//    await db.Team.upsert({
+//      team_id: teamID,
+//      baseball_stats: JSON.stringify({
+//        season_2020: {
+//          // 團隊對戰戰績
+//          team_base: {
+//            G: result[index + 1],
+//            Win: result[index + 2].split('-')[0],
+//            Fair: result[index + 2].split('-')[1],
+//            Lose: result[index + 2].split('-')[2],
+//            PCT: result[index + 3],
+//            GB: result[index + 4],
+//            [`${teamID}VS${team1}`]: result[index + 5],
+//            [`${teamID}VS${team2}`]: result[index + 6],
+//            [`${teamID}VS${team3}`]: result[index + 7],
+//            [`${teamID}VS${team4}`]: result[index + 8],
+//            at_home: result[index + 9],
+//            at_away: result[index + 10],
+//            STRK: change2English(result[index + 11]),
+//            L10: result[index + 12]
+//          },
+//          // 團隊投球成績
+//          team_pitch: {
+//            G: result[index + offsetPitch],
+//            BF: result[index + offsetPitch + 1],
+//            NP: result[index + offsetPitch + 2],
+//            H: result[index + offsetPitch + 3],
+//            HR: result[index + offsetPitch + 4],
+//            BB: result[index + offsetPitch + 5],
+//            SO: result[index + offsetPitch + 6],
+//            WP: result[index + offsetPitch + 7],
+//            BK: result[index + offsetPitch + 8],
+//            R: result[index + offsetPitch + 9],
+//            ER: result[index + offsetPitch + 10],
+//            WHIP: result[index + offsetPitch + 11],
+//            ERA: result[index + offsetPitch + 12]
+//          },
+//          // 團隊打擊成績
+//          team_hit: {
+//            G: result[index + offsetBit],
+//            AB: result[index + offsetBit + 1],
+//            R: result[index + offsetBit + 2],
+//            RBI: result[index + offsetBit + 3],
+//            H: result[index + offsetBit + 4],
+//            HR: result[index + offsetBit + 5],
+//            TB: result[index + offsetBit + 6],
+//            SO: result[index + offsetBit + 7],
+//            BB: result[index + offsetBit + 8],
+//            SB: result[index + offsetBit + 9],
+//            OBP: result[index + offsetBit + 10],
+//            SLG: result[index + offsetBit + 11],
+//            AVG: result[index + offsetBit + 12]
+//          }
+//        }
+//      })
+//    });
+//  } else {
+//    const index = teamNumber * 15 + 1;
+//    const offsetPitch = 76 - teamNumber;
+//    const offsetBit = 147 - teamNumber;
+//    await db.Team.upsert({
+//      team_id: teamID,
+//      baseball_stats: JSON.stringify({
+//        season_2020: {
+//          // 團隊基本
+//          team_base: {
+//            G: result[index + 1],
+//            Win: result[index + 2].split('-')[0],
+//            Draw: result[index + 2].split('-')[1],
+//            Lose: result[index + 2].split('-')[2],
+//            PCT: result[index + 3],
+//            GB: result[index + 4],
+//            [`${teamID}VS${team1}`]: result[index + 6],
+//            [`${teamID}VS${team2}`]: result[index + 7],
+//            [`${teamID}VS${team3}`]: result[index + 8],
+//            [`${teamID}VS${team4}`]: result[index + 9],
+//            at_home: result[index + 10],
+//            at_away: result[index + 11],
+//            STRK: change2English(result[index + 12]),
+//            L10: result[index + 13]
+//          },
+//          // 團隊投球成績
+//          team_pitch: {
+//            BF: result[index + offsetPitch + 1],
+//            NP: result[index + offsetPitch + 2],
+//            H: result[index + offsetPitch + 3],
+//            HR: result[index + offsetPitch + 4],
+//            BB: result[index + offsetPitch + 5],
+//            SO: result[index + offsetPitch + 6],
+//            WP: result[index + offsetPitch + 7],
+//            BK: result[index + offsetPitch + 8],
+//            R: result[index + offsetPitch + 9],
+//            ER: result[index + offsetPitch + 10],
+//            WHIP: result[index + offsetPitch + 11],
+//            ERA: result[index + offsetPitch + 12]
+//          },
+//          // 團隊打擊成績
+//          team_hit: {
+//            AB: result[index + offsetBit + 1],
+//            R: result[index + offsetBit + 2],
+//            RBI: result[index + offsetBit + 3],
+//            H: result[index + offsetBit + 4],
+//            HR: result[index + offsetBit + 5],
+//            TB: result[index + offsetBit + 6],
+//            SO: result[index + offsetBit + 7],
+//            BB: result[index + offsetBit + 8],
+//            SB: result[index + offsetBit + 9],
+//            OBP: result[index + offsetBit + 10],
+//            SLG: result[index + offsetBit + 11],
+//            AVG: result[index + offsetBit + 12]
+//          }
+//        }
+//      })
+//    });
+//  }
+// }
 module.exports = prematch_CPBL;
 // 對戰成績
 // console.log(result[17]); //接下來的數據是屬於哪一隊 team1
