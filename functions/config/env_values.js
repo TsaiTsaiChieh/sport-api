@@ -34,12 +34,10 @@ exports.firebaseConfig = {
   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
   measurementId: 'G-WRP22SQG9M'
 };
-
 exports.redisConfig = {
   REDISHOST: process.env.REDISHOST || isEmulator ? 'localhost' : '10.128.16.3',
   REDISPORT: process.env.REDISPORT || 6379
 };
-
 exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
 // 以上測式站
 

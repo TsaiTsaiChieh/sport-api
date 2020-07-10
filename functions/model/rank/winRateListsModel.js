@@ -1,7 +1,7 @@
 const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { CacheQuery } = require('../../util/redisUtil');
+// const { CacheQuery } = require('../../util/redisUtil');
 
 async function winRateLists(args) {
   const range = args.range;
@@ -24,8 +24,10 @@ async function winRateLists(args) {
   for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
     const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
 
-    const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
-    const [err, leagueWinRateListsQuery] = await to(CacheQuery(db.sequelize, `
+    // 當賣牌時，快取會無法跟上更新
+    // const redisKey = ['rank', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
+
+    const [err, leagueWinRateListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -81,13 +83,13 @@ async function winRateLists(args) {
       },
       limit: 30,
       type: db.sequelize.QueryTypes.SELECT
-    }, redisKey));
+    }));
     if (err) {
       console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
       throw errs.dbErrsMsg('404', '14010');
     }
 
-    if (leagueWinRateListsQuery === undefined || leagueWinRateListsQuery.length <= 0) return { userlists: winRateLists }; // 如果沒有找到資料回傳 []
+    if (!leagueWinRateListsQuery || leagueWinRateListsQuery.length <= 0) return { userlists: winRateLists }; // 如果沒有找到資料回傳 []
 
     leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinRateLists.push(repackage(data, rangeWinRateCodebook(range)));

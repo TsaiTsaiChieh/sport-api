@@ -2248,7 +2248,7 @@ const CashflowMission = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER
     },
-    bonus_ticket: {
+    lottery: {
       type: Sequelize.INTEGER
     },
     createdAt: {
@@ -2451,6 +2451,9 @@ const MissionItem = sequelize.define(
     mission_id: {
       type: Sequelize.INTEGER
     },
+    func_type: {
+      type: Sequelize.STRING
+    },
     target: {
       type: Sequelize.STRING
     },
@@ -2480,6 +2483,9 @@ const MissionGod = sequelize.define(
     mission_id: {
       type: Sequelize.INTEGER
     },
+    func_type: {
+      type: Sequelize.STRING
+    },
     reward_type: {
       type: Sequelize.STRING
     },
@@ -2508,6 +2514,9 @@ const MissionDeposit = sequelize.define(
     },
     mission_id: {
       type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
     },
     deposit_list_id: {
       type: Sequelize.INTEGER

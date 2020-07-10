@@ -79,7 +79,7 @@ async function god(req, res) {
       log('取得 大神預測牌組結算 第  %s筆 buy_id: %s ', index, data.buy_id, data.god_uid, data.league_id, yesterdayYYYYMMDDUnix);
 
       // 如果已經取過就不要再取
-      if (godSellDeckListSettle[data.buy_id] !== undefined) continue;
+      if (godSellDeckListSettle[data.buy_id]) continue;
       godSellDeckListSettle[data.buy_id] = data;
 
       // 測試模擬資料;
@@ -141,7 +141,7 @@ async function god(req, res) {
     // win_bets > 0 和 =< 0 兩種情況需要分別處理 正常情況 和 退款情況
     for (const data of Object.values(godSellDeckListSettle)) {
       log(`[搞錠] ${data.uid}  ${data.league_id} ${yesterdayYYYYMMDDUnix} ${data.matches_date} 注數：${data.win_bets}`);
-      if (data.win_bets === undefined || data.win_bets === null) continue;
+      if (!data.win_bets) continue;
 
       let createInfo = {
         buy_id: data.buy_id,
