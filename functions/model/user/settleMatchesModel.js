@@ -80,18 +80,18 @@ async function settleMatchesModel(args) {
 
     // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
     // eSoccer Soccer 足球 計算方式和其他不同 (不用於 籃球、冰球、棒球等等)
-    const settleSpreadResult = (data.spread_handicap == null) ? null
+    const settleSpreadResult = !data.spread_handicap ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
     if (settleSpreadResult === '') throw errs.errsMsg('404', '13111'); // 賽事結算讓分 結果不應該為空白
 
-    const settleTotalsResult = (data.totals_handicap == null) ? null
+    const settleTotalsResult = !data.totals_handicap ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
     if (settleTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
 
     d(bets_id, settleSpreadResult, settleTotalsResult);
 
     // 回寫結果
-    if (settleSpreadResult !== null || settleTotalsResult !== null) {
+    if (settleSpreadResult) {
       const [err, r] = await to(db.Match.update({
         spread_result: settleSpreadResult,
         totals_result: settleTotalsResult
@@ -154,17 +154,17 @@ async function settleMatchesModel(args) {
     };
 
     // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
-    const settleSpreadResult = (data.spread_handicap == null) ? null
+    const settleSpreadResult = !data.spread_handicap ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
     if (settleSpreadResult === '') throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為空白
 
-    const settleTotalsResult = (data.totals_handicap == null) ? null
+    const settleTotalsResult = !data.totals_handicap ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
     if (settleTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult);
+    const spreadResultFlag = !data.spread_handicap ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult);
+    const totalsResultFlag = !data.totals_handicap ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult);
     d(bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({

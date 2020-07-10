@@ -192,21 +192,21 @@ function predictionsWinList(data) {
 
       // 勝率 winRate
       const predictSpreadCorrectCounts = ele.reduce(
-        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.spread_result_flag)
+        (acc, cur) => (!!cur.spread_bets && cur.spread_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.spread_result_flag)
         0
       );
       const predictTotalsCorrectCounts = ele.reduce(
-        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.totals_result_flag)
+        (acc, cur) => (!!cur.totals_bets && cur.totals_result_flag > 0 ? ++acc : acc), // (correct.includes(cur.totals_result_flag)
         0
       );
       const predictCorrectCounts = NP.plus(predictSpreadCorrectCounts, predictTotalsCorrectCounts);
 
       const predictSpreadFaultCounts = ele.reduce(
-        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag < 0 ? ++acc : acc), // fault.includes(cur.spread_result_flag)
+        (acc, cur) => (!!cur.spread_bets && cur.spread_result_flag < 0 ? ++acc : acc), // fault.includes(cur.spread_result_flag)
         0
       );
       const predictTotalsFaultCounts = ele.reduce(
-        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag < 0 ? ++acc : acc), // fault.includes(cur.totals_result_flag)
+        (acc, cur) => (!!cur.totals_bets && cur.totals_result_flag < 0 ? ++acc : acc), // fault.includes(cur.totals_result_flag)
         0
       );
       const predictFaultCounts = NP.plus(predictSpreadFaultCounts, predictTotalsFaultCounts);
@@ -237,14 +237,14 @@ function predictionsWinList(data) {
       // 勝注
       const predictSpreadCorrectBets = ele.reduce( // correct.includes(cur.spread_result_flag)
         (acc, cur) =>
-          cur.spread_bets !== null && cur.spread_result_flag > 0
+          !!cur.spread_bets && cur.spread_result_flag > 0
             ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
       const predictTotalsCorrectBets = ele.reduce( // correct.includes(cur.totals_result_flag)
         (acc, cur) =>
-          cur.totals_bets !== null && cur.totals_result_flag > 0
+          !!cur.totals_bets && cur.totals_result_flag > 0
             ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
@@ -253,14 +253,14 @@ function predictionsWinList(data) {
 
       const predictSpreadFaultBets = ele.reduce( // fault.includes(cur.spread_result_flag)
         (acc, cur) =>
-          cur.spread_bets !== null && cur.spread_result_flag < 0
+          !!cur.spread_bets && cur.spread_result_flag < 0
             ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
       const predictTotalsFaultBets = ele.reduce( // fault.includes(cur.totals_result_flag)
         (acc, cur) =>
-          cur.totals_bets !== null && cur.totals_result_flag < 0
+          !!cur.totals_bets && cur.totals_result_flag < 0
             ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0
