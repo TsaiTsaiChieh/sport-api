@@ -2434,7 +2434,7 @@ const Mission = sequelize.define(
   {
     indexes: [
       {
-        fields: ['type', 'start_date', 'end_date', 'status']
+        fields: ['type', 'status', 'start_date', 'end_date']
       }
     ]
   }
