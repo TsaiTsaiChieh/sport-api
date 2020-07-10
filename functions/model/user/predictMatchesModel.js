@@ -288,7 +288,7 @@ async function createNewsDB(insertData, needed) {
       const period = modules.getTitlesPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
-      if (sell === 1) {
+      if (sell === 0 || sell === 1) {
         const price_data = await db.sequelize.query(`
             SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
         `,
