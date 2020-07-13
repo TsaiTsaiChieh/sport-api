@@ -1,6 +1,8 @@
 /* eslint-disable prefer-const */
 const { date3UnixInfo } = require('../../util/modules');
-const { dailyMission } = require('../../util/missionUtil');
+const to = require('await-to-js').default;
+const errs = require('../../util/errorCode');
+const { addUserMissionStatus, dailyMission, dailyMissionLogin } = require('../../util/missionUtil');
 
 async function missionDaily(args) {
   // 要區分 未登入、已登入
@@ -25,6 +27,31 @@ async function missionDaily(args) {
     }
     return result;
   }
+
+  //
+  // 已登入處理
+  //
+  const missionLists = await dailyMissionLogin(userUid, todayUnix);
+  if (missionLists.length === 0) return result; // 回傳 空Array
+
+  for (const data of Object.values(missionLists)) {
+    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  status = 1 領取
+    //   !data.status 為 undefined、null 代表 user_mission 尚未有資料，一但有資料必為 1: 領取  2: 已完成
+    //    userUid !== undefined or null 使用者登入
+    //   ifFinishMission 任務完成
+    // 新增 領取 資料
+    if (!data.status && userUid) {
+      data.status = 1;
+      const [err] = await to(addUserMissionStatus(userUid,
+        { mission_item_id: data.mission_item_id, dateUnix: todayUnix })); // status: data.status, 如果新增是已完成，這裡需要設定為2
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+
+      result.daily.push(repackageDaily(data));
+      continue;
+    }
+
+    result.daily.push(repackageDaily(data));
+  };
 
   return result;
 }
