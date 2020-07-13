@@ -111,6 +111,7 @@ function repackage(predictions) {
 }
 
 function repackageMatch(ele) {
+  console.log('---', ele.bets_id, ele.spread_id, ele.home_tw, ele.away_tw);
   try {
     const data = {
       id: ele.bets_id,
@@ -135,7 +136,7 @@ function repackageMatch(ele) {
         id: ele.spread_id ? ele.spread_id : null,
         handicap: ele.spread_handicap !== null ? ele.spread_handicap : null,
         home_tw: ele.home_tw !== null ? ele.home_tw : null,
-        away_tw: ele.away_tw !== null ? ele.home_tw : null,
+        away_tw: ele.away_tw !== null ? ele.away_tw : null,
         predict: ele.spread_option ? ele.spread_option : null,
         ori_bets: ele.spread_bets !== null ? ele.spread_bets : null,
         result: ele.spread_option !== null ? ele.spread_result_flag : null
