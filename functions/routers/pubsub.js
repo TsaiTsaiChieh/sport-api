@@ -26,7 +26,7 @@ router.get('/mysql', require('../pubsub/mysql/connection'));
 // router.get('/god', require('../pubsub/god'));
 
 // 金流
-router.get('/cashflow', require('../pubsub/cashflow'));
+// router.get('/cashflow', require('../pubsub/cashflow'));
 
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 // test statscore
