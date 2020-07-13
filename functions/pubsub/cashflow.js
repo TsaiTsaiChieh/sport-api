@@ -17,9 +17,9 @@ function log(...args) {
 
 // 1. `每天`  `清晨 05:00` 紅利退款 搞幣退款 搞錠正常處理或退款
 // 2. `每天`  `清晨 12:00` `這個月第 14 天日期` 本月到期紅利
-// 3. `每天`  `下午 11:59` `這個月 月底` 更新金流紅利過期、刪除使用者紅利
+// 3. `每天`  `清晨 12:00` `這個月第 1 天日期` 更新金流紅利過期、刪除使用者紅利  //`下午 11:59` `這個月 月底`
 
-async function god(req, res) {
+async function cashflow() {
   const nowInfo = date3UnixInfo(Date.now());
   // const nowUnix = nowInfo.mdate.unix();
   // const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
@@ -33,9 +33,9 @@ async function god(req, res) {
   const nowDayOfMonth = nowInfo.mdate.format('DD');
   const lastDayOfMonth = nowInfo.mdate.endOf('month').format('DD');
 
-  log('========== pubsub god start ==========');
+  log('========== pubsub cashflow start ==========');
   log('Date.now() ', Date.now());
-  log('nowInfo: ', nowInfo);
+  log('nowInfo: ', JSON.stringify(nowInfo));
   log('nowHHmmss: ', nowHHmm, typeof nowHHmm);
   log('nowDayOfWeek: ', nowDayOfWeek);
   log('nowDayOfMonth: ', nowDayOfMonth);
@@ -185,25 +185,25 @@ async function god(req, res) {
   //
   // 2. `每天`  `清晨 12:00` `這個月第 14 天日期` 本月到期紅利
   //
-  // 清晨 HHmm 0500
+  // 清晨 HHmm 1200
   if (nowHHmm === '0000' && nowDayOfMonth === '14') {
     log('每天 清晨 12:00 這個月第 14 天日期 紅利 提醒');
     await dividendExpireModel({ method: 'POST' });
   }
 
   //
-  // 3. `每天`  `下午 11:59` `這個月 月底` 更新金流紅利過期、刪除使用者紅利
+  // 3. `每天`  `清晨 12:00` `這個月第 1 天日期`  更新金流紅利過期、刪除使用者紅利  // `下午 11:59` `這個月 月底`
   //
-  // 清晨 HHmm 0500
-  if (nowHHmm === '2359' && nowDayOfMonth === lastDayOfMonth) {
-    log('每天 下午 11:59 這個月 月底 紅利 失效');
+  // 清晨 HHmm 0000
+  if (nowHHmm === '0000' && nowDayOfMonth === '01') {
+    log('每天 清晨 12:00 這個月 第 1 天日期 紅利 失效');
     await dividendExpireModel({ method: 'PUT' });
     await dividendExpireModel({ method: 'DELETE' });
   }
 
   //
   log('========== pubsub god end ==========');
-  return res.json({ status: 'ok' });
+  return '{ status: \'ok\' }'; // res.json({ status: 'ok' });
 }
 
-module.exports = god;
+module.exports = cashflow;
