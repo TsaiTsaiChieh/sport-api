@@ -61,11 +61,10 @@ module.exports = predictionResult;
  *
  * @apiSuccess {Object} body 有下注的各聯盟內容
  * @apiSuccess {Array} each_league ex: 聯盟種類，ex: `eSoccer`, `NBA`, ...
- * @apiSuccess {Object} league ex: 聯盟種類物件，ex: `eSoccer`, `NBA`, ...
- * @apiSuccess {String} league.id 賽事編號
+ * @apiSuccess {String} id 賽事編號
  * @apiSuccess {String} match_status 賽事的狀態，2 未來賽事，1 正在打，0 結束，-1 延遲（API 問題），-2 延後，-3 取消
- * @apiSuccess {Number} league.scheduled 賽事開打時間的 unix 表示法
- * @apiSuccess {String} league.league_id 聯盟編號
+ * @apiSuccess {Number} scheduled 賽事開打時間的 unix 表示法
+ * @apiSuccess {String} league_id 聯盟編號
  * @apiSuccess {Object} home 主隊資訊（客隊資訊同邏輯，不再贅述）
  * @apiSuccess {String} home.id 主隊編號
  * @apiSuccess {String} home.alias 主隊簡稱
