@@ -3,9 +3,17 @@ const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
+const livescore = require('../model/home/livescore');
+const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
 let keepPBP = 1;
 const Match = db.Match;
-async function ESoccerpbpInplay(parameter, firestoreData) {
+let leagueID;
+let leagueName;
+let firestoreData;
+async function ESoccerpbpInplay(parameter, totalData) {
+  leagueName = await leagueOnLivescore();
+  leagueID = modules.leagueCodebook(leagueName).id;
+  firestoreData = await livescore(totalData);
   // 14 秒一次
   const perStep = 14000;
   // 一分鐘3次
@@ -18,7 +26,7 @@ async function ESoccerpbpInplay(parameter, firestoreData) {
     realtimeData = null;
   }
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function() {
+  const timerForStatus2 = setInterval(async function () {
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     const parameterPBP = {
       betsID: betsID,
@@ -36,17 +44,332 @@ async function ESoccerpbpInplay(parameter, firestoreData) {
   }, perStep);
 }
 async function axiosForURL(URL) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const {data} = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));
     }
   });
 }
+async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
+  let flag = 0;
+  if ((await leagueOnLivescore()) === 'eSoccer') {
+    // 寫到realtime
+    for (let i = 0; i < firestoreData.length; i++) {
+      if (firestoreData[i] === betsID) {
+        flag = 1;
+      }
+    }
+    if (flag === 1) {
+      try {
+        await modules.database.ref(`home_livescore/`).set({
+          [`${firestoreData[0].bets_id}`]: {
+            id: firestoreData[0].bets_id,
+            league: leagueName,
+            ori_league: firestoreData[0].league_name_ch,
+            sport: modules.league2Sport(leagueName).sport,
+            status: firestoreData[0].status,
+            scheduled: firestoreData[0].scheduled,
+            spread: {
+              handicap:
+                firestoreData[0].handicap === null
+                  ? 'null'
+                  : firestoreData[0].handicap,
+              home_tw:
+                firestoreData[0].home_tw === null
+                  ? 'null'
+                  : firestoreData[0].home_tw,
+              away_tw:
+                firestoreData[0].away_tw === null
+                  ? 'null'
+                  : firestoreData[0].away_tw
+            },
+            home: {
+              teamname:
+                firestoreData[0].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[0].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[0].home_alias_ch,
+              player_name:
+                firestoreData[0].home_name.indexOf('(') > 0
+                  ? firestoreData[0].home_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[0].home_name,
+              alias: firestoreData[0].home_alias,
+              alias_ch:
+                firestoreData[0].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[0].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[0].home_alias_ch,
+              image_id: firestoreData[0].home_image_id
+            },
+            away: {
+              teamname:
+                firestoreData[0].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[0].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[0].away_alias_ch,
+              player_name:
+                firestoreData[0].away_name.indexOf('(') > 0
+                  ? firestoreData[0].away_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[0].away_name,
+              alias: firestoreData[0].away_alias,
+              alias_ch:
+                firestoreData[0].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[0].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[0].away_alias_ch,
+              image_id: firestoreData[0].away_image_id
+            },
+            Now_clock: timer,
+            Summary: {
+              info: {
+                home: {
+                  Total: {points: homeScores}
+                },
+                away: {
+                  Total: {points: awayScores}
+                }
+              }
+            }
+          },
+          [`${firestoreData[1].bets_id}`]: {
+            id: firestoreData[1].bets_id,
+            league: leagueName,
+            ori_league: firestoreData[1].league_name_ch,
+            sport: modules.league2Sport(leagueName).sport,
+            status: firestoreData[1].status,
+            scheduled: firestoreData[1].scheduled,
+            spread: {
+              handicap:
+                firestoreData[1].handicap === null
+                  ? 'null'
+                  : firestoreData[1].handicap,
+              home_tw:
+                firestoreData[1].home_tw === null
+                  ? 'null'
+                  : firestoreData[1].home_tw,
+              away_tw:
+                firestoreData[1].away_tw === null
+                  ? 'null'
+                  : firestoreData[1].away_tw
+            },
+            home: {
+              teamname:
+                firestoreData[1].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[1].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[1].home_alias_ch,
+              player_name:
+                firestoreData[1].home_name.indexOf('(') > 0
+                  ? firestoreData[1].home_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[1].home_name,
+              alias: firestoreData[1].home_alias,
+              alias_ch:
+                firestoreData[1].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[1].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[1].home_alias_ch,
+              image_id: firestoreData[1].home_image_id
+            },
+            away: {
+              teamname:
+                firestoreData[1].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[1].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[1].away_alias_ch,
+              player_name:
+                firestoreData[1].away_name.indexOf('(') > 0
+                  ? firestoreData[1].away_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[1].away_name,
+              alias: firestoreData[1].away_alias,
+              alias_ch:
+                firestoreData[1].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[1].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[1].away_alias_ch,
+              image_id: firestoreData[1].away_image_id
+            },
+            Now_clock: timer,
+            Summary: {
+              info: {
+                home: {
+                  Total: {points: homeScores}
+                },
+                away: {
+                  Total: {points: awayScores}
+                }
+              }
+            }
+          },
+          [`${firestoreData[2].bets_id}`]: {
+            id: firestoreData[2].bets_id,
+            league: leagueName,
+            ori_league: firestoreData[2].league_name_ch,
+            sport: modules.league2Sport(leagueName).sport,
+            status: firestoreData[2].status,
+            scheduled: firestoreData[2].scheduled,
+            spread: {
+              handicap:
+                firestoreData[2].handicap === null
+                  ? 'null'
+                  : firestoreData[2].handicap,
+              home_tw:
+                firestoreData[2].home_tw === null
+                  ? 'null'
+                  : firestoreData[2].home_tw,
+              away_tw:
+                firestoreData[2].away_tw === null
+                  ? 'null'
+                  : firestoreData[2].away_tw
+            },
+            home: {
+              teamname:
+                firestoreData[2].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[2].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[2].home_alias_ch,
+              player_name:
+                firestoreData[2].home_name.indexOf('(') > 0
+                  ? firestoreData[2].home_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[2].home_name,
+              alias: firestoreData[2].home_alias,
+              alias_ch:
+                firestoreData[2].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[2].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[2].home_alias_ch,
+              image_id: firestoreData[2].home_image_id
+            },
+            away: {
+              teamname:
+                firestoreData[2].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[2].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[2].away_alias_ch,
+              player_name:
+                firestoreData[2].away_name.indexOf('(') > 0
+                  ? firestoreData[2].away_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[2].away_name,
+              alias: firestoreData[2].away_alias,
+              alias_ch:
+                firestoreData[2].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[2].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[2].away_alias_ch,
+              image_id: firestoreData[2].away_image_id
+            },
+            Now_clock: timer,
+            Summary: {
+              info: {
+                home: {
+                  Total: {points: homeScores}
+                },
+                away: {
+                  Total: {points: awayScores}
+                }
+              }
+            }
+          },
+          [`${firestoreData[3].bets_id}`]: {
+            id: firestoreData[3].bets_id,
+            league: leagueName,
+            ori_league: firestoreData[3].league_name_ch,
+            sport: modules.league2Sport(leagueName).sport,
+            status: firestoreData[3].status,
+            scheduled: firestoreData[3].scheduled,
+            spread: {
+              handicap:
+                firestoreData[3].handicap === null
+                  ? 'null'
+                  : firestoreData[3].handicap,
+              home_tw:
+                firestoreData[3].home_tw === null
+                  ? 'null'
+                  : firestoreData[3].home_tw,
+              away_tw:
+                firestoreData[3].away_tw === null
+                  ? 'null'
+                  : firestoreData[3].away_tw
+            },
+            home: {
+              teamname:
+                firestoreData[3].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[3].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[3].home_alias_ch,
+              player_name:
+                firestoreData[3].home_name.indexOf('(') > 0
+                  ? firestoreData[3].home_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[3].home_name,
+              alias: firestoreData[3].home_alias,
+              alias_ch:
+                firestoreData[3].home_alias_ch.indexOf('(') > 0
+                  ? firestoreData[3].home_alias_ch.split('(')[0].trim()
+                  : firestoreData[3].home_alias_ch,
+              image_id: firestoreData[3].home_image_id
+            },
+            away: {
+              teamname:
+                firestoreData[3].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[3].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[3].away_alias_ch,
+              player_name:
+                firestoreData[3].away_name.indexOf('(') > 0
+                  ? firestoreData[3].away_name
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
+                  : null,
+              name: firestoreData[3].away_name,
+              alias: firestoreData[3].away_alias,
+              alias_ch:
+                firestoreData[3].away_alias_ch.indexOf('(') > 0
+                  ? firestoreData[3].away_alias_ch.split('(')[0].trim()
+                  : firestoreData[3].away_alias_ch,
+              image_id: firestoreData[3].away_image_id
+            },
+            Now_clock: timer,
+            Summary: {
+              info: {
+                home: {
+                  Total: {points: homeScores}
+                },
+                away: {
+                  Total: {points: awayScores}
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at pbpESoccer of doPBP on ${betsID} by DY`
+          )
+        );
+      }
+    }
+  }
+}
 async function ESoccerpbpHistory(parameter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = `https://api.betsapi.com/v1/event/view?token=${envValues.betsToken}&event_id=${betsID}`;
     let data;
@@ -81,7 +404,7 @@ async function ESoccerpbpHistory(parameter) {
       awayScores = data.results[0].ss.split('-')[1];
     }
     if (!data.results[0].timer) {
-      data.results[0].timer = { tm: 'xx', ts: 'xx' };
+      data.results[0].timer = {tm: 'xx', ts: 'xx'};
     }
 
     if (!data.results[0].stats) {
@@ -163,7 +486,7 @@ async function ESoccerpbpHistory(parameter) {
   });
 }
 async function doPBP(parameter, firestoreData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -349,7 +672,7 @@ async function doPBP(parameter, firestoreData) {
             let awayScores = 'no data';
 
             if (!data.results[0].timer) {
-              data.results[0].timer = { tm: 'xx', ts: 'xx' };
+              data.results[0].timer = {tm: 'xx', ts: 'xx'};
             }
             if (!data.results[0].ss || data.results[0].ss === null) {
               data.results[0].ss = 'no data';
@@ -387,22 +710,15 @@ async function doPBP(parameter, firestoreData) {
             if (!data.results[0].stats.redcards) {
               data.results[0].stats.redcards = ['no data', 'no data'];
             }
-
+            let timer;
             try {
-              const timer = timeFormat(
+              timer = timeFormat(
                 data.results[0].timer.tm,
                 data.results[0].timer.ts
               );
               await modules.database
                 .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
                 .set(timer);
-              for (let i = 0; i < firestoreData.length; i++) {
-                if (firestoreData[i].bets_id === betsID) {
-                  await modules.database
-                    .ref(`home_livescore/${betsID}/Summary/Now_clock`)
-                    .set(timer, { merge: true });
-                }
-              }
             } catch (err) {
               return reject(
                 new AppErrors.FirebaseRealtimeError(
@@ -447,27 +763,6 @@ async function doPBP(parameter, firestoreData) {
                       }
                     }
                   });
-                for (let i = 0; i < firestoreData.length; i++) {
-                  if (firestoreData[i].bets_id === betsID) {
-                    await modules.database
-                      .ref(`home_livescore/${betsID}/Summary/info`)
-                      .set(
-                        {
-                          home: {
-                            Total: {
-                              points: homeScores
-                            }
-                          },
-                          away: {
-                            Total: {
-                              points: awayScores
-                            }
-                          }
-                        },
-                        { merge: true }
-                      );
-                  }
-                }
               }
             } catch (err) {
               return reject(
@@ -476,6 +771,7 @@ async function doPBP(parameter, firestoreData) {
                 )
               );
             }
+            await write2HomeLivescore(betsID, timer, homeScores, awayScores);
           }
         }
       }
@@ -516,4 +812,4 @@ function timeFormat(tm, ts) {
   return `${tm}:${ts}`;
 }
 
-module.exports = { ESoccerpbpInplay, ESoccerpbpHistory };
+module.exports = {ESoccerpbpInplay, ESoccerpbpHistory};

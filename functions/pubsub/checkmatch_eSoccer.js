@@ -5,240 +5,11 @@ const db = require('../util/dbUtil');
 const ESoccerpbpInplay = ESoccerpbp.ESoccerpbpInplay;
 const ESoccerpbpHistory = ESoccerpbp.ESoccerpbpHistory;
 const Match = db.Match;
-const livescore = require('../model/home/livescore');
-const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
-let leagueID;
-let leagueName;
+let leagueID = '22000';
 async function checkmatch_eSoccer() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      leagueName = await leagueOnLivescore();
-      leagueID = modules.leagueCodebook(leagueName).id;
-
       const totalData = await queryForEvents();
-      let firestoreData;
-      if ((await leagueOnLivescore()) === 'eSoccer') {
-        // 寫到realtime
-        firestoreData = await livescore(totalData);
-
-        await modules.database.ref('home_livescore/').set(
-          {
-            [`${firestoreData[0].bets_id}`]: {
-              id: firestoreData[0].bets_id,
-              league: firestoreData[0].league_name_ch,
-              ori_league: leagueName,
-              sport: modules.league2Sport(leagueName).sport,
-              status: firestoreData[0].status,
-              scheduled: firestoreData[0].scheduled,
-              spread: {
-                handicap: firestoreData[0].handicap,
-                home_tw: firestoreData[0].home_tw,
-                away_tw: firestoreData[0].away_tw
-              },
-              home: {
-                teamname:
-                  firestoreData[0].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[0].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[0].home_alias_ch,
-                player_name:
-                  firestoreData[0].home_name.indexOf('(') > 0
-                    ? firestoreData[0].home_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[0].home_name,
-                alias: firestoreData[0].home_alias,
-                alias_ch:
-                  firestoreData[0].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[0].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[0].home_alias_ch,
-                image_id: firestoreData[0].home_image_id
-              },
-              away: {
-                teamname:
-                  firestoreData[0].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[0].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[0].away_alias_ch,
-                player_name:
-                  firestoreData[0].away_name.indexOf('(') > 0
-                    ? firestoreData[0].away_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[0].away_name,
-                alias: firestoreData[0].away_alias,
-                alias_ch:
-                  firestoreData[0].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[0].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[0].away_alias_ch,
-                image_id: firestoreData[0].away_image_id
-              }
-            },
-            [`${firestoreData[1].bets_id}`]: {
-              id: firestoreData[1].bets_id,
-              league: firestoreData[1].league_name_ch,
-              ori_league: leagueName,
-              sport: modules.league2Sport(leagueName).sport,
-              status: firestoreData[1].status,
-              scheduled: firestoreData[1].scheduled,
-              spread: {
-                handicap: firestoreData[1].handicap,
-                home_tw: firestoreData[1].home_tw,
-                away_tw: firestoreData[1].away_tw
-              },
-              home: {
-                teamname:
-                  firestoreData[1].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[1].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[1].home_alias_ch,
-                player_name:
-                  firestoreData[1].home_name.indexOf('(') > 0
-                    ? firestoreData[1].home_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[1].home_name,
-                alias: firestoreData[1].home_alias,
-                alias_ch:
-                  firestoreData[1].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[1].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[1].home_alias_ch,
-                image_id: firestoreData[1].home_image_id
-              },
-              away: {
-                teamname:
-                  firestoreData[1].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[1].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[1].away_alias_ch,
-                player_name:
-                  firestoreData[1].away_name.indexOf('(') > 0
-                    ? firestoreData[1].away_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[1].away_name,
-                alias: firestoreData[1].away_alias,
-                alias_ch:
-                  firestoreData[1].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[1].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[1].away_alias_ch,
-                image_id: firestoreData[1].away_image_id
-              }
-            },
-            [`${firestoreData[2].bets_id}`]: {
-              id: firestoreData[2].bets_id,
-              league: firestoreData[2].league_name_ch,
-              ori_league: leagueName,
-              sport: modules.league2Sport(leagueName).sport,
-              status: firestoreData[2].status,
-              scheduled: firestoreData[2].scheduled,
-              spread: {
-                handicap: firestoreData[2].handicap,
-                home_tw: firestoreData[2].home_tw,
-                away_tw: firestoreData[2].away_tw
-              },
-              home: {
-                teamname:
-                  firestoreData[2].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[2].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[2].home_alias_ch,
-                player_name:
-                  firestoreData[3].home_name.indexOf('(') > 0
-                    ? firestoreData[2].home_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[2].home_name,
-                alias: firestoreData[2].home_alias,
-                alias_ch:
-                  firestoreData[2].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[2].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[2].home_alias_ch,
-                image_id: firestoreData[2].home_image_id
-              },
-              away: {
-                teamname:
-                  firestoreData[2].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[2].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[2].away_alias_ch,
-                player_name:
-                  firestoreData[2].away_name.indexOf('(') > 0
-                    ? firestoreData[2].away_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[2].away_name,
-                alias: firestoreData[2].away_alias,
-                alias_ch:
-                  firestoreData[2].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[2].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[2].away_alias_ch,
-                image_id: firestoreData[2].away_image_id
-              }
-            },
-            [`${firestoreData[3].bets_id}`]: {
-              id: firestoreData[3].bets_id,
-              league: firestoreData[3].league_name_ch,
-              ori_league: leagueName,
-              sport: modules.league2Sport(leagueName).sport,
-              status: firestoreData[3].status,
-              scheduled: firestoreData[3].scheduled,
-              spread: {
-                handicap: firestoreData[3].handicap,
-                home_tw: firestoreData[3].home_tw,
-                away_tw: firestoreData[3].away_tw
-              },
-              home: {
-                teamname:
-                  firestoreData[3].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[3].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[3].home_alias_ch,
-                player_name:
-                  firestoreData[3].home_name.indexOf('(') > 0
-                    ? firestoreData[3].home_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[3].home_name,
-                alias: firestoreData[3].home_alias,
-                alias_ch:
-                  firestoreData[3].home_alias_ch.indexOf('(') > 0
-                    ? firestoreData[3].home_alias_ch.split('(')[0].trim()
-                    : firestoreData[3].home_alias_ch,
-                image_id: firestoreData[3].home_image_id
-              },
-              away: {
-                teamname:
-                  firestoreData[3].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[3].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[3].away_alias_ch,
-                player_name:
-                  firestoreData[3].away_name.indexOf('(') > 0
-                    ? firestoreData[3].away_name
-                      .split('(')[1]
-                      .replace(')', '')
-                      .trim()
-                    : null,
-                name: firestoreData[3].away_name,
-                alias: firestoreData[3].away_alias,
-                alias_ch:
-                  firestoreData[3].away_alias_ch.indexOf('(') > 0
-                    ? firestoreData[3].away_alias_ch.split('(')[0].trim()
-                    : firestoreData[3].away_alias_ch,
-                image_id: firestoreData[3].away_image_id
-              }
-            }
-          },
-          { merge: true }
-        );
-      }
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const gameTime = totalData[i].scheduled * 1000;
@@ -258,7 +29,7 @@ async function checkmatch_eSoccer() {
                 const parameter = {
                   betsID: betsID
                 };
-                await ESoccerpbpInplay(parameter, firestoreData);
+                await ESoccerpbpInplay(parameter, totalData);
               } catch (err) {
                 return reject(
                   new AppErrors.PBPEsoccerError(
@@ -284,7 +55,7 @@ async function checkmatch_eSoccer() {
                   betsID: betsID,
                   realtimeData: realtimeData
                 };
-                await ESoccerpbpInplay(parameter, firestoreData);
+                await ESoccerpbpInplay(parameter, totalData);
               }
 
               if (realtimeData.Summary.status === 'closed') {
@@ -315,7 +86,7 @@ async function checkmatch_eSoccer() {
   });
 }
 async function queryForEvents() {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `
