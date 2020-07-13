@@ -111,7 +111,6 @@ function repackage(predictions) {
 }
 
 function repackageMatch(ele) {
-  console.log('---', ele.bets_id, ele.spread_id, ele.home_tw, ele.away_tw);
   try {
     const data = {
       id: ele.bets_id,
