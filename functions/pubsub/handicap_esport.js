@@ -280,13 +280,13 @@ function spreadCalculator(handicapObj) {
         // 整數
         if (handicapObj.handicap > 0) {
           // 主讓客
-          handicapObj.home_tw = handicapObj.handicap;
+          handicapObj.home_tw = Math.abs(handicapObj.handicap);
           handicapObj.away_tw = null;
           handicapObj.rate = 0;
         } else {
           // 客讓主
           handicapObj.home_tw = null;
-          handicapObj.away_tw = handicapObj.handicap;
+          handicapObj.away_tw = Math.abs(handicapObj.handicap);
           handicapObj.rate = 0;
         }
       } else if (handicapObj.handicap % 1 !== 0) {

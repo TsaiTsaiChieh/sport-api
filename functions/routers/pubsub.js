@@ -59,4 +59,5 @@ router.get('/forpastevent', require('../pubsub/forpastevent'));
 
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
+router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 module.exports = router;

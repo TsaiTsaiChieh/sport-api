@@ -136,7 +136,7 @@ exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
 // 此排程再購買API後必須停掉
 exports.forpastevent = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('* */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程
