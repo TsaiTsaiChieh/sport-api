@@ -4,16 +4,16 @@ const AppErrors = require('../../util/AppErrors');
 const CPBL_URL = 'http://www.cpbl.com.tw';
 const totalTeam = 4;
 const leagueName = 'CPBL';
-const league = modules.leagueCodebook(leagueName);
+// const league = modules.leagueCodebook(leagueName);
 const sportName = modules.league2Sport(leagueName).sport;
-const sport = '16';
+// const sport = '16';
 const perStep = 2000; // 每秒抓一項資訊
 const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
 async function prematch_CPBL(req, res) {
   let URL;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     countForStatus2 = countForStatus2 + 1;
     if (countForStatus2 > timesPerLoop) {
       console.log('craw CPBL success');
@@ -76,9 +76,9 @@ async function prematch_CPBL(req, res) {
 }
 
 function getPitchersStandings(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios.get(URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
@@ -164,9 +164,9 @@ function getPitchersStandings(URL) {
 //  }
 // }
 function getHittersStandings(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios.get(URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
@@ -253,10 +253,10 @@ function getHittersStandings(URL) {
 //  }
 // }
 function getTeamsStandings(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // 球隊的季戰績
-      const {data} = await modules.axios.get(URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
       let titles = $('.gap_b20').text();
       titles = titles.replace(/\r/g, '');
@@ -379,7 +379,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
             }
           }
         },
-        {merge: true}
+        { merge: true }
       );
   } else {
     const index = teamNumber * 15 + 1;
@@ -439,7 +439,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
             }
           }
         },
-        {merge: true}
+        { merge: true }
       );
   }
 }
@@ -498,7 +498,7 @@ function upsertFirestoreHitter(result, totalPlayer) {
             }
           }
         },
-        {merge: true}
+        { merge: true }
       );
   }
 }
@@ -557,7 +557,7 @@ function upsertFirestorePitcher(result, totalPlayer) {
             }
           }
         },
-        {merge: true}
+        { merge: true }
       );
   }
 }

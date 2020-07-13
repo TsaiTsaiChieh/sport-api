@@ -10,7 +10,7 @@ const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
 let leagueID;
 let leagueName;
 async function checkmatch_eSoccer() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       leagueName = await leagueOnLivescore();
       leagueID = modules.leagueCodebook(leagueName).id;
@@ -21,7 +21,7 @@ async function checkmatch_eSoccer() {
         // 寫到realtime
         firestoreData = await livescore(totalData);
 
-        await modules.database.ref(`home_livescore/`).set(
+        await modules.database.ref('home_livescore/').set(
           {
             [`${firestoreData[0].bets_id}`]: {
               id: firestoreData[0].bets_id,
@@ -43,9 +43,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[0].home_name.indexOf('(') > 0
                     ? firestoreData[0].home_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[0].home_name,
                 alias: firestoreData[0].home_alias,
@@ -63,9 +63,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[0].away_name.indexOf('(') > 0
                     ? firestoreData[0].away_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[0].away_name,
                 alias: firestoreData[0].away_alias,
@@ -96,9 +96,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[1].home_name.indexOf('(') > 0
                     ? firestoreData[1].home_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[1].home_name,
                 alias: firestoreData[1].home_alias,
@@ -116,9 +116,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[1].away_name.indexOf('(') > 0
                     ? firestoreData[1].away_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[1].away_name,
                 alias: firestoreData[1].away_alias,
@@ -149,9 +149,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[3].home_name.indexOf('(') > 0
                     ? firestoreData[2].home_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[2].home_name,
                 alias: firestoreData[2].home_alias,
@@ -169,9 +169,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[2].away_name.indexOf('(') > 0
                     ? firestoreData[2].away_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[2].away_name,
                 alias: firestoreData[2].away_alias,
@@ -202,9 +202,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[3].home_name.indexOf('(') > 0
                     ? firestoreData[3].home_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[3].home_name,
                 alias: firestoreData[3].home_alias,
@@ -222,9 +222,9 @@ async function checkmatch_eSoccer() {
                 player_name:
                   firestoreData[3].away_name.indexOf('(') > 0
                     ? firestoreData[3].away_name
-                        .split('(')[1]
-                        .replace(')', '')
-                        .trim()
+                      .split('(')[1]
+                      .replace(')', '')
+                      .trim()
                     : null,
                 name: firestoreData[3].away_name,
                 alias: firestoreData[3].away_alias,
@@ -236,7 +236,7 @@ async function checkmatch_eSoccer() {
               }
             }
           },
-          {merge: true}
+          { merge: true }
         );
       }
       for (let i = 0; i < totalData.length; i++) {
@@ -315,7 +315,7 @@ async function checkmatch_eSoccer() {
   });
 }
 async function queryForEvents() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         `
