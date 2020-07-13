@@ -3,9 +3,12 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const leagueOnLivescore = require('../../model/home/leagueOnLivescoreModel');
 let league;
-async function livescore(totalData) {
+async function livescore(total) {
   league = modules.leagueCodebook(await leagueOnLivescore());
   // return totalData;
+  const totalData = await total.sort(function(a, b) {
+    return a.scheduled > b.scheduled ? 1 : -1;
+  });
   const result = [];
   if (totalData.length >= 4) {
     for (let i = 0; i < 4; i++) {
@@ -28,7 +31,7 @@ async function queryForEvents(length) {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
-        `(
+        `
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status,
 				        home.name AS home_name,home.alias_ch AS home_alias_ch,home.image_id AS home_image_id,
 				        away.name AS away_name,away.alias_ch AS away_alias_ch,away.image_id AS away_image_id,
@@ -63,7 +66,7 @@ async function queryForEvents(length) {
 						AND game.ori_league_id = league.ori_league_id
 						)
 				 	LIMIT 4-${length}
-			 )`,
+			 `,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
