@@ -116,8 +116,42 @@ async function dailyMission(todayUnix) {
   return missions;
 }
 
+async function dailyMissionLogin(uid, todayUnix) {
+  const missions = await db.sequelize.query(`
+    select mission.*, 
+           user__missions.id, user__missions.uid,
+           user__missions.mission_god_id, user__missions.mission_deposit_id,
+           user__missions.status, user__missions.date_timestamp
+      from (
+             select missions.title, missions.desc, missions.start_date, missions.end_date,
+                    missions.need_finish_nums,
+                    mission_items.mission_item_id, mission_items.target,
+                    mission_items.reward_class, mission_items.reward_type, 
+                    mission_items.reward_num, mission_items.reward_class_num
+              from missions, mission_items
+             where missions.mission_id = mission_items.mission_id
+               and missions.type = 0
+               and missions.status = 1
+               and :todayUnix between start_date and end_date
+           ) mission
+      left join user__missions
+        on mission.mission_item_id = user__missions.mission_item_id
+       and date_timestamp = :todayUnix
+       and (isnull(:uid) or user__missions.uid = :uid)
+  `, {
+    replacements: {
+      todayUnix: todayUnix,
+      uid: uid
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
 module.exports = {
   addUserMissionStatus,
   setUserMissionStatus,
-  dailyMission
+  dailyMission,
+  dailyMissionLogin
 };
