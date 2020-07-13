@@ -1,6 +1,6 @@
 const league = 'KBO';
+const collectionName = `baseball_${league}`;
 const modules = require('../../util/modules');
-const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const dbEngine = require('../../util/databaseEngine');
 const KBO_URL = 'https://mykbostats.com/';
@@ -99,11 +99,13 @@ function repackage_L10(data) {
 function repackageTeamStats(teamsStats) {
   return new Promise(async function(resolve, reject) {
     try {
-      const data = [];
+      const teamBase = [];
+      const teamNames = [];
       for (let i = 0; i < teamsStats.length; i = i + teamTableFieldCount + 1) {
+        teamNames.push({ team_id: String(teamName2id(teamsStats[i])), team_name: teamsStats[i] });
         const temp = {
-          team_id: String(teamName2id(teamsStats[i])),
-          G: teamsStats[i + 1] + teamsStats[i + 2],
+          // team_id: String(teamName2id(teamsStats[i])),
+          G: Number.parseInt(teamsStats[i + 1]) + Number.parseInt(teamsStats[i + 2]) + Number.parseInt(teamsStats[i + 3]),
           Win: teamsStats[i + 1],
           Fair: teamsStats[i + 3],
           Loss: teamsStats[i + 2],
@@ -112,9 +114,9 @@ function repackageTeamStats(teamsStats) {
           STRK: teamsStats[i + 6],
           L10: teamsStats[i + 7]
         };
-        data.push(temp);
+        teamBase.push(temp);
       }
-      return resolve(data);
+      return resolve({ teamBase, teamNames });
     } catch (err) {
       return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
     }
@@ -150,21 +152,19 @@ function teamName2id(name) {
 }
 
 function insertToTeamDB(teamData) {
+  const { teamBase, teamNames } = teamData;
   return new Promise(async function(resolve, reject) {
     const resultArray = [];
     try {
-      for (let i = 0; i < teamData.length; i++) {
+      for (let i = 0; i < teamBase.length; i++) {
         const data = {};
-        const ele = teamData[i];
+        const ele = teamBase[i];
+        const teamId = teamNames[i].team_id;
         const season = await getSeason(league);
         data[`season_${season}`] = { team_base: ele };
-        const result = await db.Team.update(
-          {
-            baseball_stats: JSON.stringify(data)
-          },
-          { where: { team_id: ele.team_id } });
-        console.log(`Update KBO_${season}, team id is ${ele.team_id}`);
 
+        const result = await modules.firestore.collection(collectionName).doc(teamId).set(data, { merge: true });
+        console.log(`Update KBO_${season}, team id is ${teamId}`);
         resultArray.push(result);
       }
       // TODO if result === 0 (update failed, should rerun this program)
