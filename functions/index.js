@@ -221,12 +221,12 @@ exports.pbp_statscore_CPBL = functions
   .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
 // 大神
 exports.god = functions.pubsub
-  .schedule('0 1 * * *')
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god'));
 
 // 金流
-exports.god = functions.pubsub
-  .schedule('0 1 * * *')
+exports.cashflow = functions.pubsub
+  .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/cashflow'));
