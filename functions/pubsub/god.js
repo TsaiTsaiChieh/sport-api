@@ -22,7 +22,8 @@ function log(...args) {
 // 3. `每天` `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
 // 4. `每天` `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
 // 5. `每天` `清晨 5:00` 大神預測牌組結算
-async function god(req, res) {
+
+async function god() {
   const nowInfo = date3UnixInfo(Date.now());
   const nowUnix = nowInfo.mdate.unix();
   const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
@@ -39,8 +40,8 @@ async function god(req, res) {
   const nowDayOfMonth = nowInfo.mdate.format('DD');
 
   log('========== pubsub god start ==========');
-  log(Date.now());
-  log(nowInfo);
+  log('Date.now() ', Date.now());
+  log('nowInfo: ', JSON.stringify(nowInfo));
   log('nowHHmmss: ', nowHHmm, typeof nowHHmm);
   log('period: ', period);
   log('nextPeriod: ', nextPeriod);
@@ -63,7 +64,7 @@ async function god(req, res) {
   //
   if (nowHHmm === '1700') {
     log('每天 17:00 賽事勝注勝率計算 run');
-    await settleWinList({ args: { uid: '999' }, date: nowYYYYMMDD });
+    await settleWinList({ token: { uid: '999' }, date: nowYYYYMMDD });
     await redis.specialDel('*titles*', 100);
     await redis.specialDel('*users__win__lists*', 100);
   }
@@ -196,7 +197,7 @@ async function god(req, res) {
 
   //
   log('========== pubsub god end ==========');
-  return res.json({ status: 'ok' });
+  return '{ status: \'ok\' }'; // res.json({ status: 'ok' });
 }
 
 module.exports = god;
