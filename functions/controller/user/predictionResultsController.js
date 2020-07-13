@@ -63,6 +63,7 @@ module.exports = predictionResult;
  * @apiSuccess {Array} each_league ex: 聯盟種類，ex: `eSoccer`, `NBA`, ...
  * @apiSuccess {Object} league ex: 聯盟種類物件，ex: `eSoccer`, `NBA`, ...
  * @apiSuccess {String} league.id 賽事編號
+ * @apiSuccess {String} match_status 賽事的狀態，2 未來賽事，1 正在打，0 結束，-1 延遲（API 問題），-2 延後，-3 取消
  * @apiSuccess {Number} league.scheduled 賽事開打時間的 unix 表示法
  * @apiSuccess {String} league.league_id 聯盟編號
  * @apiSuccess {Object} home 主隊資訊（客隊資訊同邏輯，不再贅述）
@@ -91,6 +92,7 @@ module.exports = predictionResult;
     "eSoccer": [
         {
             "id": "2331650",
+            "match_status": 0,
             "scheduled": 1593558000,
             "scheduled_tw": "07:00 AM",
             "league_id": "22000",
@@ -132,6 +134,7 @@ module.exports = predictionResult;
     "NBA": [
         {
             "id": "2118058",
+            "match_status": 0,
             "scheduled": 1593558000,
             "scheduled_tw": "07:00 AM",
             "league_id": "2274",
@@ -174,6 +177,7 @@ module.exports = predictionResult;
         },
         {
             "id": "2119917",
+            "match_status": 0,
             "scheduled": 1593565200,
             "scheduled_tw": "09:00 AM",
             "league_id": "2274",
