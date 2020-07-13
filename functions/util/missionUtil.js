@@ -9,11 +9,11 @@ const to = require('await-to-js').default;
 // 活動觸發 有些任務 新增 使用者任務 的 預設狀態  2: 已完成
 // parms: mission_item_id, mission_god_id, mission_deposit_id, status, dateUnix
 async function addUserMissionStatus(uid, parms, trans = null) {
-  const itrans = trans || await db.sequelize.transaction();
+  const insideTrans = trans || await db.sequelize.transaction();
   parms = Object.assign({}, { status: 1, dateUnix: null }, parms); // 給預設值
 
   const whereSql = { uid: uid };
-  const defaultSql = { uid: uid, status: parms.status, dateUnix: parms.dateUnix };
+  const defaultSql = { uid: uid, status: parms.status, date_timestamp: parms.dateUnix };
 
   // 處理 id 可能來源 item or god or deposit
   if (parms.mission_item_id) {
@@ -43,11 +43,11 @@ async function addUserMissionStatus(uid, parms, trans = null) {
     [err, [r, created]] = await to(db.UserMission.findOrCreate({
       where: whereSql,
       defaults: defaultSql,
-      transaction: itrans
+      transaction: insideTrans
     }));
   } catch (e) {
     console.error('[addUserMissionStatus]', err);
-    await itrans.rollback();
+    await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
   }
 
@@ -55,14 +55,14 @@ async function addUserMissionStatus(uid, parms, trans = null) {
   //   [err, r] = await to(setUserMissionStatus(uid, id, status, dateUnix));
   //   if (err) {console.error(err); throw errs.dbErrsMsg('404', '15016', { addMsg: err.parent.code });}
   // }
-  if (!trans) await itrans.commit();
+  if (!trans) await insideTrans.commit();
 }
 
 // 更新 使用者任務 的 狀態  0: 前往(預設)  1: 領取  2: 已完成
 // parms { mission_item_id: ooxx } or { mission_god_id: ooxx } or { mission_deposit_id: ooxx } status, dateUnix
 // parms status 部份需要特別注意，一些活動(大神產生、購買獎勵) user__missions 是沒有資料的
 async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
-  const itrans = trans || await db.sequelize.transaction();
+  const insideTrans = trans || await db.sequelize.transaction();
   parms = Object.assign({}, { dateUnix: null }, parms); // 給預設值
 
   const whereSql = { uid: uid };
@@ -79,18 +79,18 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
     status: updateStatus
   }, {
     where: whereSql,
-    transaction: itrans
+    transaction: insideTrans
   }));
 
   if (err) {
     console.error(err);
-    await itrans.rollback();
+    await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15010', { addMsg: err.parent.code });
   }
 
   // 結果檢查交給呼叫者
   // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
-  if (!trans) await itrans.commit();
+  if (!trans) await insideTrans.commit();
   return r;
 }
 
