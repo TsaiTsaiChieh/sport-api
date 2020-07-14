@@ -9,12 +9,22 @@ const pastTime = Math.floor(Date.now()) - 86400 * 1000 * pastDays;
 function queryMatches() {
   return new Promise(async function(resolve, reject) {
     try {
+      const unix = Date.now() / 1000;
+      const date = modules.convertTimezoneFormat(unix, {
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: 0,
+        unit: 'days'
+      });
+      const time = new Date(date);
+
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
-           WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
+					 WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
+					   AND game.scheduled < ${time.getTime() / 1000} 
         )`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -279,7 +289,8 @@ async function pbpHistory(parameterHistory) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
     }
-    if (leagueName === 'KBO') {
+
+    if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
       if (!data.results[0].ss) {
         realtimeData = await modules.database
           .ref(`${sportName}/${leagueName}/${betsID}`)
@@ -303,8 +314,8 @@ async function pbpHistory(parameterHistory) {
     try {
       await Match.upsert({
         bets_id: betsID,
-        home_points: homeScores,
-        away_points: awayScores,
+        home_points: awayScores,
+        away_points: homeScores,
         status: 0
       });
     } catch (err) {

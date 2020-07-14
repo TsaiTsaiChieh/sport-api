@@ -121,7 +121,7 @@ function queryFiveFightEvent(args) {
                AND (five.spread_id IS NULL AND five.totals_id IS NULL)       
           ) 
           ORDER BY scheduled   
-          LIMIT 5             
+          LIMIT 10             
           `,
         {
           replacements: {

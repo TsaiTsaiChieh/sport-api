@@ -2248,7 +2248,7 @@ const CashflowMission = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER
     },
-    bonus_ticket: {
+    lottery: {
       type: Sequelize.INTEGER
     },
     createdAt: {
@@ -2369,6 +2369,9 @@ const Player = sequelize.define(
       type: Sequelize.STRING
     },
     team_id: {
+      type: Sequelize.STRING
+    },
+    ori_name: {
       type: Sequelize.STRING
     },
     name: {

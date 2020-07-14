@@ -11,7 +11,7 @@ async function livescoreHome(args) {
 
       resolve(result);
     } catch (err) {
-      console.error('Error in sport/livescoreModel by DY', err);
+      console.error('Error in home/livescoreModel by DY', err);
       reject({ code: 500, error: err });
     }
   });

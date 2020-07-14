@@ -56,7 +56,8 @@ router.get(
   require('../pubsub/checkmatch_statscore_CBA')
 );
 router.get('/forpastevent', require('../pubsub/forpastevent'));
-
+router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
+router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 module.exports = router;

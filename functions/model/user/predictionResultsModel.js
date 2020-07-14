@@ -55,7 +55,7 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                 totals.handicap AS totals_handicap, totals.over_tw
            FROM 
                 (
-                 SELECT prediction.bets_id, 
+                 SELECT prediction.bets_id, matches.status,
                         league.name AS league, league.league_id,
                         home.team_id AS home_id, home.alias AS home_alias, home.alias_ch AS home_alias_ch, 
                         away.team_id AS away_id, away.alias AS away_alias, away.alias_ch AS away_alias_ch, 
@@ -114,6 +114,7 @@ function repackageMatch(ele) {
   try {
     const data = {
       id: ele.bets_id,
+      match_status: ele.status,
       scheduled: ele.scheduled,
       scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'A hh:mm' }),
       league_id: ele.league_id,
@@ -135,7 +136,7 @@ function repackageMatch(ele) {
         id: ele.spread_id ? ele.spread_id : null,
         handicap: ele.spread_handicap !== null ? ele.spread_handicap : null,
         home_tw: ele.home_tw !== null ? ele.home_tw : null,
-        away_tw: ele.away_tw !== null ? ele.home_tw : null,
+        away_tw: ele.away_tw !== null ? ele.away_tw : null,
         predict: ele.spread_option ? ele.spread_option : null,
         ori_bets: ele.spread_bets !== null ? ele.spread_bets : null,
         result: ele.spread_option !== null ? ele.spread_result_flag : null
@@ -202,8 +203,8 @@ function repackageHandicap(option, handicap, result) {
     //   }
     // }
   } catch (err) {
-    console.error(`${err.stack} by TsaiChieh`);
-    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    console.error(`${err.stack} by Alan`);
+    throw new AppErrors.RepackageError(`${err.stack} by Alan`);
   }
 }
 module.exports = predictionResult;
