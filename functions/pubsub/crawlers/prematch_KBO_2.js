@@ -1,6 +1,6 @@
 const configs = {
   league: 'KBO',
-  official_URL: 'http://eng.koreabaseball.com/Stats/TeamStats.aspx',
+  official_URL: 'http://eng.koreabaseball.com/',
   blackboard_URL: 'https://mykbostats.com/',
   blackboardTeamTableTitles: ['Rank/Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
   collectionName: 'baseball_KBO'
@@ -31,8 +31,7 @@ function crawler_KBO() {
       // await crawler(configs.official_URL);
       // 黑板
       const blackboardData = await crawler(configs.blackboard_URL);
-      const a = await getTeamsStandingsFromBlackboard(blackboardData);
-      console.log(a);
+      const blackboardTeamData = await getTeamsStandingsFromBlackboard(blackboardData);
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -167,4 +166,5 @@ function teamName2id(name) {
       return 'unknown team name';
   }
 }
+
 module.exports = prematch_KBO;
