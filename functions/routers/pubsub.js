@@ -23,10 +23,10 @@ router.get('/title_period', require('../pubsub/titlePeriod'));
 router.get('/mysql', require('../pubsub/mysql/connection'));
 
 // 大神
-router.get('/god', require('../pubsub/god'));
+// router.get('/god', require('../pubsub/god'));
 
 // 金流
-router.get('/cashflow', require('../pubsub/cashflow'));
+// router.get('/cashflow', require('../pubsub/cashflow'));
 
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 // test statscore
