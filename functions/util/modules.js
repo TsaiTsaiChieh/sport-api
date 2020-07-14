@@ -287,6 +287,10 @@ function league2Sport(league) {
       return {
         sport: 'baseball'
       };
+    case 'CBA':
+      return {
+        sport: 'basketball'
+      };
     case 'eSoccer':
       return {
         sport: 'esports'

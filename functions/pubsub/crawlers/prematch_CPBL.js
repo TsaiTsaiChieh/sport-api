@@ -71,6 +71,8 @@ async function prematch_CPBL(req, res) {
           break;
         }
       }
+      URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
+      await getHittersStandings(URL); // 中信兄弟 選手打擊
     }
   }, perStep);
 }
@@ -107,7 +109,6 @@ function getPitchersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      // await upsertMysqlPitcher(result, totalPlayer);
       await upsertFirestorePitcher(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
@@ -195,7 +196,24 @@ function getHittersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      // await upsertMysqlHitter(result, totalPlayer);
+      let id = $('.gap_b20 a').attr('href');
+
+      id = id.replace(/\r/g, '');
+      id = id.replace(/\n/g, '');
+      id = id.replace(/\t/g, ' ');
+      id = id.split(' ');
+      result = [];
+      for (let i = 0; i < id.length; i++) {
+        if (id[i] === '') {
+          continue;
+        } else {
+          result.push(id[i].trim());
+        }
+      }
+      for (let i = 0; i < result.length; i++) {
+        console.log(i + '    ' + result[i]);
+      }
+
       await upsertFirestoreHitter(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');

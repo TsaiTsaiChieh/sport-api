@@ -289,7 +289,8 @@ async function pbpHistory(parameterHistory) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
     }
-    if (leagueName === 'KBO') {
+
+    if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
       if (!data.results[0].ss) {
         realtimeData = await modules.database
           .ref(`${sportName}/${leagueName}/${betsID}`)
@@ -313,8 +314,8 @@ async function pbpHistory(parameterHistory) {
     try {
       await Match.upsert({
         bets_id: betsID,
-        home_points: homeScores,
-        away_points: awayScores,
+        home_points: awayScores,
+        away_points: homeScores,
         status: 0
       });
     } catch (err) {
