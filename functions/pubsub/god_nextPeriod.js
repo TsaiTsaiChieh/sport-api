@@ -12,10 +12,11 @@ function log(...args) {
   }
 }
 
-// 1. `每天`  `清晨 12:00` `下期第一天` 產生大神
+// 1.  `清晨 12:00` `下期第一天` 產生大神
 
 async function god_nextPeriod() {
   const nowInfo = date3UnixInfo(Date.now());
+  const nowUnix = nowInfo.mdate.unix();
   const nowHHmm = nowInfo.mdate.format('HHmm');
   const period = getTitlesPeriod(Date.now());
   const nextPeriod = getTitlesNextPeriod(Date.now());
@@ -34,14 +35,14 @@ async function god_nextPeriod() {
   log('nowDayOfMonth: ', nowDayOfMonth);
 
   //
-  // 1. `每天`  `清晨 12:00` `下期第一天` 產生大神
+  // 1. 清晨 12:00` `下期第一天` 產生大神
   //
   // 清晨 HHmm 0000
-  // if (nowUnix === nextPeriodStartDateUnix && nowHHmm === '0000') {
-  log('每天 清晨 12:00 下期第一天 產生大神 run');
-  await settleGodRank();
-  await redis.specialDel('*titles*', 100);
-  // }
+  if (nowUnix === nextPeriodStartDateUnix && nowHHmm === '0000') {
+    log('清晨 12:00 下期第一天 產生大神 run');
+    await settleGodRank({ token: { uid: '999' } });
+    await redis.specialDel('*titles*', 100);
+  }
 
   //
   log('========== pubsub god_nextPeriod end ==========');
