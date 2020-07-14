@@ -13,10 +13,10 @@ async function ESoccerpbpInplay(parameter, Data) {
   leagueName = await leagueOnLivescore();
   // leagueID = modules.leagueCodebook(leagueName).id;
   firestoreData = Data;
-  // 14 秒一次
-  const perStep = 14000;
-  // 一分鐘3次
-  const timesPerLoop = 4;
+  // 50 秒一次
+  const perStep = 50000;
+  // 一分鐘1次
+  const timesPerLoop = 2;
   const betsID = parameter.betsID;
   let realtimeData;
   if (parameter.realtimeData) {

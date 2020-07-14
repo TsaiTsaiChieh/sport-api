@@ -19,62 +19,64 @@ async function prematch_CPBL(req, res) {
       console.log('craw CPBL success');
       clearInterval(timerForStatus2);
     } else {
-      // switch (countForStatus2) {
-      //  case 1: {
-      //    // 取得各隊伍的資訊
-      //    URL = `${CPBL_URL}/standing/season.html`;
-      //    await getTeamsStandings(URL);
-      //    break;
-      //  }
-      //  // 取得球員資訊
-      //  case 2: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
-      //    await getHittersStandings(URL); // 中信兄弟 選手打擊
-      //    break;
-      //  }
-      //  case 3: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&team=L01&gameno=01`;
-      //    await getHittersStandings(URL); // 統一獅 選手打擊
-      //    break;
-      //  }
-      //  case 4: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&team=AJL011&gameno=01`;
-      //    await getHittersStandings(URL); // 樂天猴 選手打擊
-      //    break;
-      //  }
-      //  case 5: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&team=B04&gameno=01`;
-      //    await getHittersStandings(URL); // 富邦 選手打擊
-      //    break;
-      //  }
-      //  case 6: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=2&syear=2020`;
-      //    await getPitchersStandings(URL); // 中信兄弟 選手投手
-      //    break;
-      //  }
-      //  case 7: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=L01&year=2020&grade=2&syear=2020`;
-      //    await getPitchersStandings(URL); // 統一獅 選手投手
-      //    break;
-      //  }
-      //  case 8: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=AJL011&year=2020&grade=2&syear=2020`;
-      //    await getPitchersStandings(URL); // 樂天猴 選手投手
-      //    break;
-      //  }
-      //  case 9: {
-      //    URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=B04&year=2020&grade=2&syear=2020`;
-      //    await getPitchersStandings(URL); // 富邦 選手投手
-      //    break;
-      //  }
-      //  default: {
-      //    break;
-      //  }
-      // }
+      switch (countForStatus2) {
+        case 1: {
+          // 取得各隊伍的資訊
+          URL = `${CPBL_URL}/standing/season.html`;
+          await getTeamsStandings(URL);
+          break;
+        }
+        // 取得球員資訊
+        case 2: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
+          await getHittersStandings(URL); // 中信兄弟 選手打擊
+          break;
+        }
+        case 3: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=L01&gameno=01`;
+          await getHittersStandings(URL); // 統一獅 選手打擊
+          break;
+        }
+        case 4: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=AJL011&gameno=01`;
+          await getHittersStandings(URL); // 樂天猴 選手打擊
+          break;
+        }
+        case 5: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&team=B04&gameno=01`;
+          await getHittersStandings(URL); // 富邦 選手打擊
+          break;
+        }
+        case 6: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=E02&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 中信兄弟 選手投手
+          break;
+        }
+        case 7: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=L01&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 統一獅 選手投手
+          break;
+        }
+        case 8: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=AJL011&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 樂天猴 選手投手
+          break;
+        }
+        case 9: {
+          URL = `${CPBL_URL}/web/team_playergrade.php?&gameno=01&team=B04&year=2020&grade=2&syear=2020`;
+          await getPitchersStandings(URL); // 富邦 選手投手
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
+      await getHittersStandings(URL); // 中信兄弟 選手打擊
     }
   }, perStep);
 }
-// function getPlayerID
+
 function getPitchersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -107,7 +109,6 @@ function getPitchersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      // await upsertMysqlPitcher(result, totalPlayer);
       await upsertFirestorePitcher(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
@@ -195,7 +196,24 @@ function getHittersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      // await upsertMysqlHitter(result, totalPlayer);
+      let id = $('.gap_b20 a').attr('href');
+
+      id = id.replace(/\r/g, '');
+      id = id.replace(/\n/g, '');
+      id = id.replace(/\t/g, ' ');
+      id = id.split(' ');
+      result = [];
+      for (let i = 0; i < id.length; i++) {
+        if (id[i] === '') {
+          continue;
+        } else {
+          result.push(id[i].trim());
+        }
+      }
+      for (let i = 0; i < result.length; i++) {
+        console.log(i + '    ' + result[i]);
+      }
+
       await upsertFirestoreHitter(result, totalPlayer);
     } catch (err) {
       console.error(err, '=-----');
