@@ -149,7 +149,7 @@ async function repackageMatchDate(ele, matchDate) {
         handicap: ele.spread_handicap,
         home_tw: ele.home_tw,
         away_tw: ele.away_tw,
-        option: ele.spread_option,
+        predict: ele.spread_option,
         bets: ele.spread_bets,
         result: ele.spread_result,
         end: returnSettlement(ele.spread_result_flag)
