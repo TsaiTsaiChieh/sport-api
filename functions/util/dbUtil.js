@@ -2424,7 +2424,8 @@ const Mission = sequelize.define(
       type: Sequelize.INTEGER
     },
     need_finish_nums: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 1
     },
     status: {
       type: Sequelize.INTEGER,
