@@ -11,7 +11,8 @@ const sports = [
   1,
   16,
   16,
-  16
+  16,
+  18
 ];
 const leagueUniteIDArray = [
   // 2274
@@ -20,7 +21,8 @@ const leagueUniteIDArray = [
   8,
   347, // 日職
   349, // 韓職
-  11235 // 台職
+  11235, // 台職
+  2319 // 中國職籃
 ];
 const Match = db.Match;
 const MatchSpread = db.Spread;
@@ -179,26 +181,54 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
-    try {
-      await MatchSpread.upsert({
-        spread_id: odd.id,
-        match_id: ele.bets_id,
-        league_id: leagueUniteID,
-        handicap: Number.parseFloat(odd.handicap),
-        rate: Number.parseFloat(odd.rate),
-        home_odd: Number.parseFloat(odd.away_od),
-        away_odd: Number.parseFloat(odd.home_od),
-        home_tw: odd.home_tw,
-        away_tw: odd.away_tw,
-        add_time: Number.parseInt(odd.add_time) * 1000
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(
-          `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
-        )
-      );
+    if (
+      leagueUniteID === '11235' ||
+      leagueUniteID === '347' ||
+      leagueUniteID === '349'
+    ) {
+      try {
+        await MatchSpread.upsert({
+          spread_id: odd.id,
+          match_id: ele.bets_id,
+          league_id: leagueUniteID,
+          handicap: Number.parseFloat(odd.handicap),
+          rate: Number.parseFloat(odd.rate),
+          home_odd: Number.parseFloat(odd.away_od),
+          away_odd: Number.parseFloat(odd.home_od),
+          home_tw: odd.home_tw,
+          away_tw: odd.away_tw,
+          add_time: Number.parseInt(odd.add_time) * 1000
+        });
+        return resolve('ok');
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
+          )
+        );
+      }
+    } else {
+      try {
+        await MatchSpread.upsert({
+          spread_id: odd.id,
+          match_id: ele.bets_id,
+          league_id: leagueUniteID,
+          handicap: Number.parseFloat(odd.handicap),
+          rate: Number.parseFloat(odd.rate),
+          home_odd: Number.parseFloat(odd.home_od),
+          away_odd: Number.parseFloat(odd.away_od),
+          home_tw: odd.home_tw,
+          away_tw: odd.away_tw,
+          add_time: Number.parseInt(odd.add_time) * 1000
+        });
+        return resolve('ok');
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
+          )
+        );
+      }
     }
   });
 }
@@ -523,13 +553,17 @@ function spreadCalculator(handicapObj, sport) {
             // 相同賠率
             if (handicapObj.handicap >= 0) {
               // 主讓客
-              handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.home_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.away_tw = null;
               handicapObj.rate = -50;
             } else {
               // 客讓主
               handicapObj.home_tw = null;
-              handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.away_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.rate = -50;
             }
           }
@@ -665,6 +699,9 @@ function spreadCalculator(handicapObj, sport) {
 }
 
 function totalsCalculator(handicapObj, sport) {
+  handicapObj.handicap = parseFloat(handicapObj.handicap);
+  handicapObj.over_odd = parseFloat(handicapObj.over_od);
+  handicapObj.under_odd = parseFloat(handicapObj.under_od);
   if (handicapObj.handicap) {
     if (sport === 17 || sport === 18) {
       // 籃球或冰球
@@ -680,6 +717,7 @@ function totalsCalculator(handicapObj, sport) {
     }
     if (sport === 16) {
       // 棒球
+
       if (handicapObj.handicap % 1 === 0) {
         // 整數
         if (handicapObj.over_odd !== handicapObj.under_odd) {
@@ -689,7 +727,7 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.over_tw = `${handicapObj.handicap}+50`;
             handicapObj.rate = 50;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${handicapObj.handicap}-50`;
             handicapObj.rate = -50;
           }
@@ -707,13 +745,13 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}+50`;
             handicapObj.rate = 50;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-50`;
             handicapObj.rate = -50;
           }
         } else {
           // 賠率相同
-          handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}輸`;
+          handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-100`;
           handicapObj.rate = -100;
         }
       }
@@ -772,7 +810,7 @@ function totalsCalculator(handicapObj, sport) {
 function normalTable(handicap, upOrDown) {
   if (upOrDown === 1) {
     return [
-      `${Math.floor(handicap)}輸`,
+      `${Math.floor(handicap)}-100`,
       `${Math.floor(handicap)}-50`,
       `${Math.floor(handicap)}平`,
       `${Math.floor(handicap)}+50`
@@ -782,12 +820,13 @@ function normalTable(handicap, upOrDown) {
       `${Math.floor(handicap)}+50`,
       `${Math.floor(handicap)}平`,
       `${Math.floor(handicap)}-50`,
-      `${Math.floor(handicap)}輸`
+      `${Math.floor(handicap)}-100`
     ];
   }
 }
 function modifyHandicap(handicap, upOrDown, unit) {
-  const specificTable = ['1+50', 'PK', '-1+50', '-1輸'];
+  const specificTable = ['1+50', 'PK', 'PK', 'PK']; //   ver.2 邏輯
+  const pkTable = ['PK', 'PK', 'PK', 'PK'];
   let handicapNow;
   const unitArray = Math.ceil(unit / 4) + 1; // 總共需要幾個unit組合
   const calculateArray = [];
@@ -799,6 +838,8 @@ function modifyHandicap(handicap, upOrDown, unit) {
       if (handicapNow === 0) {
         // 加特殊情況
         specificTable.forEach((item) => calculateArray.push(item));
+      } else if (handicapNow < 0) {
+        pkTable.forEach((item) => calculateArray.push(item));
       } else {
         // 加一般陣列
         normalTable(handicapNow, upOrDown).forEach((item) =>

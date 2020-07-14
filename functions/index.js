@@ -136,7 +136,7 @@ exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
 // 此排程再購買API後必須停掉
 exports.forpastevent = functions.pubsub
-  .schedule('0 5 * * *')
+  .schedule('* */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程
@@ -219,14 +219,47 @@ exports.pbp_statscore_CPBL = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+
 // 大神
-exports.god = functions.pubsub
-  .schedule('0 1 * * *')
+// 1. 清晨 12:00` `下期第一天` 產生大神
+exports.god_nextPeriod = functions.pubsub
+  .schedule('0 0 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/god'));
+  .onRun(require('./pubsub/god_nextPeriod'));
+// 2. `每天` `下午5點` 賽事勝注勝率計算 `A部份`
+exports.god_settleWinList_A = functions.pubsub
+  .schedule('0 17 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/god_settleWinList_A'));
+// 3. `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
+exports.god_1OfWeek = functions.pubsub
+  .schedule('0 17 * * 1')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/god_1OfWeek'));
+// 4. `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
+exports.god_1OfMonth = functions.pubsub
+  .schedule('0 17 * * 1')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/god_1OfMonth'));
+// 5. `每天``清晨 5:00` 大神預測牌組結算
+exports.god_settlePrediction = functions.pubsub
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/god_settlePrediction'));
 
 // 金流
-exports.god = functions.pubsub
+// 1. `每天`  `清晨 05:00` 紅利退款 搞幣退款 搞錠正常處理或退款
+exports.cashflow_settleRefund = functions.pubsub
+  .schedule('0 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/cashflow_settleRefund'));
+// 2. `清晨 12:00` `這個月第 14 天日期` 本月到期紅利
+exports.cashflow_dividendExpire14 = functions.pubsub
+  .schedule('0 14 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/cashflow_dividendExpire14'));
+// 3. `清晨 12:00` `這個月第 1 天日期` 更新金流紅利過期、刪除使用者紅利
+exports.cashflow_dividendExpire1 = functions.pubsub
   .schedule('0 1 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/cashflow'));
+  .onRun(require('./pubsub/cashflow_dividendExpire1'));

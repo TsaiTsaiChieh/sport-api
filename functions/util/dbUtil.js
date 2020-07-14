@@ -2374,6 +2374,9 @@ const Player = sequelize.define(
     team_id: {
       type: Sequelize.STRING
     },
+    ori_name: {
+      type: Sequelize.STRING
+    },
     name: {
       type: Sequelize.STRING
     },
@@ -2437,7 +2440,7 @@ const Mission = sequelize.define(
   {
     indexes: [
       {
-        fields: ['type', 'start_date', 'end_date', 'status']
+        fields: ['type', 'status', 'start_date', 'end_date']
       }
     ]
   }
@@ -2489,6 +2492,9 @@ const MissionGod = sequelize.define(
     func_type: {
       type: Sequelize.STRING
     },
+    target: {
+      type: Sequelize.STRING
+    },
     reward_type: {
       type: Sequelize.STRING
     },
@@ -2518,19 +2524,19 @@ const MissionDeposit = sequelize.define(
     mission_id: {
       type: Sequelize.INTEGER
     },
-    func_type: {
-      type: Sequelize.STRING
-    },
     deposit_list_id: {
       type: Sequelize.INTEGER
     },
-    lottery: {
-      type: Sequelize.INTEGER
+    func_type: {
+      type: Sequelize.STRING
     },
-    ingot: {
-      type: Sequelize.INTEGER
+    target: {
+      type: Sequelize.STRING
     },
-    coin: {
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    reward_num: {
       type: Sequelize.INTEGER
     }
   }
