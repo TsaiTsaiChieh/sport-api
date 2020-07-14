@@ -1,6 +1,7 @@
 const db = require('../../util/dbUtil');
 const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
 const neweb_config = require('../../config/cashflow/neweb_config');
+// const dbEngine = require('../../util/databaseEngine.js');
 // const invoice_model = require('../../config/invoice_ezpay/mpg_model');
 async function mpgNotifyModel(res) {
   const update = await updateOrder(res); // 更新訂單狀態
@@ -55,6 +56,10 @@ async function updateOrder(res) {
   if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
     await db.User.update({ coin: purse_self.coin + purse_deposit.coin, dividend: purse_self.dividend + purse_deposit.dividend }, { where: { uid: purse_deposit.uid } });
   }
+
+
+  /*檢查是否達到抽獎券上限 && 發放 */
+  // await dbEngine.issue_lottery(uid, 1);
 
   const rtns = {
     status: exchange.order_stutus,

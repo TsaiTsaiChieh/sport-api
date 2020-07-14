@@ -269,6 +269,138 @@ async function createData(Data, status, action, inTrans = undefined) {
   // const test = inTrans !== undefined ? await trans.commit() : '';
 }
 
+//
+// 任務
+//
+// 新增 使用者任務 的 預設狀態  1: 領取
+// 活動觸發 有些任務 新增 使用者任務 的 預設狀態  2: 已完成
+async function addUserMissionStatus(uid, id, status = 1, dateUnix = null) {
+  const whereSql = { uid: uid, date_timestamp: dateUnix };
+  const defaultSql = { uid: uid, status: status, date_timestamp: dateUnix };
+
+  // 處理 id 可能來源 item or god or deposit
+  if (id.mission_item_id) {
+    whereSql.mission_item_id = id.mission_item_id;
+    defaultSql.mission_item_id = id.mission_item_id;
+  }
+
+  if (id.mission_god_id) {
+    whereSql.mission_god_id = id.mission_god_id;
+    defaultSql.mission_god_id = id.mission_god_id;
+  }
+
+  if (id.mission_deposit_id) {
+    whereSql.mission_deposit_id = id.mission_deposit_id;
+    defaultSql.mission_deposit_id = id.mission_deposit_id;
+  }
+
+  if (dateUnix) whereSql.date_timestamp = dateUnix;
+  if (dateUnix) defaultSql.date_timestamp = dateUnix;
+
+  // eslint-disable-next-line no-unused-vars
+  let err, r, created;
+
+  try {
+    [err, [r, created]] = await to(db.UserMission.findOrCreate({
+      where: whereSql,
+      defaults: defaultSql
+    }));
+  } catch (e) {console.error('[addUserMissionStatus]', err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+
+  // if (!created) {
+  //   [err, r] = await to(setUserMissionStatus(uid, id, status, dateUnix));
+  //   if (err) {console.error(err); throw errs.dbErrsMsg('404', '15016', { addMsg: err.parent.code });}
+  // }
+}
+
+// 更新 使用者任務 的 狀態  0: 前往(預設)  1: 領取  2: 已完成
+// parms { mission_item_id: ooxx } or { mission_god_id: ooxx } or { mission_deposit_id: ooxx }
+// parms status 部份需要特別注意，一些活動(大神產生、購買獎勵) user__missions 是沒有資料的
+async function setUserMissionStatus(uid, parms, status, dateUnix = null) {
+  const whereSql = { uid: uid };
+
+  if (parms.mission_item_id) whereSql.mission_item_id = parms.mission_item_id;
+  if (parms.mission_god_id) whereSql.mission_god_id = parms.mission_god_id;
+  if (parms.mission_deposit_id) whereSql.mission_deposit_id = parms.mission_deposit_id;
+  if (!parms.mission_item_id && !parms.mission_god_id && !parms.mission_deposit_id) throw errs.errsMsg('404', '15014');
+
+  if (parms.status) whereSql.status = parms.status;
+  if (dateUnix) whereSql.date_timestamp = dateUnix;
+
+  const [err, r] = await to(db.UserMission.update({
+    status: status
+  }, {
+    where: whereSql,
+    logging: console.log
+  }));
+
+  if (err) {console.error(err); throw errs.dbErrsMsg('404', '15010', { addMsg: err.parent.code });}
+  return r;
+  // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
+}
+
+/* 發放搞錠 */
+async function cashflow_issue(currency, uid){
+        uid = '123';
+        const ele = {};
+        if(!currency.lottery_limit){
+          ele.lottery_limit = 1;
+        }
+        if(!currency.dividend){
+          ele.dividend = 0;
+        }
+        if(!currency.coin){
+          ele.coin = 0;
+        }
+        if(!currency.ingot){
+          ele.ingot = 0;
+        }
+        if(!currency.lottery){
+          ele.lottery = 1;
+        }
+
+        if(currency.type==1){
+          /* 發放搞錠、搞幣、紅利 */
+          await db.CashflowMission.create({
+            uid             : uid,
+            mission_id      : 11,
+            mission_item_id : 22,
+            ingot           : 10,
+            coin            : 0,
+            dividend        : 0,
+            lottery         : 1
+          })
+        }else{
+          /* 發放抽獎券 */
+          const res = await db.CashflowMission.findAndCountAll({
+            attributes: [
+            'cashflow_mission_id',
+            'mission_id',
+            'mission_item_id'
+            ],
+            where: {
+            uid:uid
+            },
+            raw: true
+          });
+
+          /* 判斷是否已領取抽獎券上限 */
+          const issue_timestamp = modules.moment().unix();
+          const status = false;
+          if(res.count<ele.lottery_limit){
+            await db.CashflowMission.create({
+                uid             : 22,
+            mission_id          : 1,
+            mission_item_id     : 2,
+            lottery             : 1,
+            issue_timestamp     : issue_timestamp
+            })
+            status = true;
+          }
+        }
+        return status;
+}
+
 module.exports = {
   findUser,
   getSeason,
@@ -278,5 +410,8 @@ module.exports = {
   checkGodSellPrediction,
   getGodSellPredictionDatesWinBetsInfo,
   getGodSellPredictionWinBetsInfo,
-  createData
+  createData,
+  addUserMissionStatus,
+  setUserMissionStatus,
+  cashflow_issue
 };
