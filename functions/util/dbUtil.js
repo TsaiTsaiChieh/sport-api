@@ -2251,6 +2251,9 @@ const CashflowMission = sequelize.define(
     lottery: {
       type: Sequelize.INTEGER
     },
+    issue_timestamp: {
+      type: Sequelize.INTEGER
+    },
     createdAt: {
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')

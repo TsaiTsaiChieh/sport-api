@@ -28,14 +28,13 @@ function dividendExpireModel(args) {
       /* 上個月紅利過期更新 */
       const expire = await db.sequelize.query(
         `
-            UPDATE cashflow_dividends
-                SET status=0,
-                    expire_scheduled = :expire_scheduled
-              WHERE scheduled
-            BETWEEN :from AND :to
+          UPDATE cashflow_dividends
+              SET status=0,
+                  expire_scheduled = :expire_scheduled
+            WHERE scheduled
+          BETWEEN :from AND :to
         `,
         {
-          logging: true,
           replacements: { expire_scheduled: expire_scheduled, from: from, to: to },
           type: db.sequelize.QueryTypes.INSERT
         });
@@ -44,8 +43,8 @@ function dividendExpireModel(args) {
       /* 刪除使用者錢包紅利 */
       const expire_uids = await db.sequelize.query(
         `
-        SELECT uid, SUM(expire_points) as total_expire_points
-          FROM cashflow_dividends
+         SELECT uid, SUM(expire_points) as total_expire_points
+           FROM cashflow_dividends
           WHERE scheduled BETWEEN :from AND :to
             AND status = 1
             AND expire_points > 0 
@@ -60,7 +59,6 @@ function dividendExpireModel(args) {
       let update = 0;
 
       expire_uids.forEach(function(data) {
-        console.log(data, data.uid);
         const expire = db.sequelize.query(
           `
               UPDATE users
@@ -69,7 +67,6 @@ function dividendExpireModel(args) {
           `
           ,
           {
-            logging: true,
             replacements: { expire_points: data.total_expire_points, uid: data.uid },
             type: db.sequelize.QueryTypes.UPDATE
           });
