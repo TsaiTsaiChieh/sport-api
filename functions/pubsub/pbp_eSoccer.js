@@ -6,12 +6,12 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
 let keepPBP = 1;
 const Match = db.Match;
-let leagueID;
+// let leagueID;
 let leagueName;
 let firestoreData;
 async function ESoccerpbpInplay(parameter, Data) {
   leagueName = await leagueOnLivescore();
-  leagueID = modules.leagueCodebook(leagueName).id;
+  // leagueID = modules.leagueCodebook(leagueName).id;
   firestoreData = Data;
   // 14 秒一次
   const perStep = 14000;
@@ -77,15 +77,15 @@ async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
             spread: {
               handicap:
                 firestoreData[index].handicap === null
-                  ? 'null'
+                  ? null
                   : firestoreData[index].handicap,
               home_tw:
                 firestoreData[index].home_tw === null
-                  ? 'null'
+                  ? null
                   : firestoreData[index].home_tw,
               away_tw:
                 firestoreData[index].away_tw === null
-                  ? 'null'
+                  ? null
                   : firestoreData[index].away_tw
             },
             home: {
@@ -352,6 +352,7 @@ async function doPBP(parameter) {
                 )
               );
             }
+            keepPBP = 1;
           }
 
           if (data.results[0].time_status === '2') {

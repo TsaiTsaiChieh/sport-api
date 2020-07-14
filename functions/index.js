@@ -184,9 +184,14 @@ exports.pbp_KBO = functions
   .onRun(require('./pubsub/checkmatch_KBO'));
 exports.pbp_abnormal = functions
   .runWith(runtimeOpts)
-  .pubsub.schedule('*/10 * * * *')
+  .pubsub.schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_abnormal'));
+exports.pbp_another = functions
+  .runWith(runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_another'));
 
 exports.auth_statscore = functions.pubsub
   .schedule('50 23 * * *')

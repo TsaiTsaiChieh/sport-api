@@ -185,11 +185,11 @@ async function write2HomeLivescore(firestoreData) {
           scheduled: firestoreData.scheduled,
           spread: {
             handicap:
-              firestoreData.handicap === null ? 'null' : firestoreData.handicap,
+              firestoreData.handicap === null ? null : firestoreData.handicap,
             home_tw:
-              firestoreData.home_tw === null ? 'null' : firestoreData.home_tw,
+              firestoreData.home_tw === null ? null : firestoreData.home_tw,
             away_tw:
-              firestoreData.away_tw === null ? 'null' : firestoreData.away_tw
+              firestoreData.away_tw === null ? null : firestoreData.away_tw
           },
           home: {
             teamname:
@@ -225,14 +225,14 @@ async function write2HomeLivescore(firestoreData) {
                 : firestoreData.away_alias_ch,
             image_id: firestoreData.away_image_id
           },
-          Now_clock: 'null',
+          Now_clock: null,
           Summary: {
             info: {
               home: {
-                Total: { points: 'null' }
+                Total: { points: null }
               },
               away: {
-                Total: { points: 'null' }
+                Total: { points: null }
               }
             }
           }
