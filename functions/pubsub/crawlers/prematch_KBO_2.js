@@ -1,52 +1,85 @@
-const league = 'KBO';
-const collectionName = `baseball_${league}`;
+const configs = {
+  league: 'KBO',
+  official_URL: 'http://eng.koreabaseball.com/',
+  blackboard_URL: 'https://mykbostats.com/',
+  blackboardTeamTableTitles: ['Rank/Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
+  collectionName: 'baseball_KBO'
+};
 const modules = require('../../util/modules');
-const AppErrors = require('../../util/AppErrors');
 const dbEngine = require('../../util/databaseEngine');
-const KBO_URL = 'https://mykbostats.com/';
-const teamTableTitles = ['Rank/Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'];
-const teamTableFieldCount = teamTableTitles.length;
+const AppErrors = require('../../util/AppErrors');
 
-// 1. 取得各隊伍的資訊
-// 2. insert match__teams
+// TODO crawler KBO prematch information:
+// 1. 隊伍資訊 ex: team_base, team_hit
+// team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG
+// team_hit: 得分，安打率，全壘打數，打擊率，上壘率，長打率
+// 2. 球員資訊
+
 async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
-      const teamData = await getTeamsStandings();
-      await insertToTeamDB(teamData);
+      const season = await getSeason(configs.league);
+      await crawler_KBO(season);
+    } catch (err) {
+      return reject(new AppErrors.KBOCrawlersError(err.stack));
+    }
+  });
+}
+
+function getSeason(league) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      return resolve(await dbEngine.getSeason(modules.leagueCodebook(league).id));
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+function crawler_KBO(season) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      // 官網
+      // await crawler(configs.official_URL);
+      // 黑板
+      const $_blackboardData = await crawler(configs.blackboard_URL);
+      const blackboardTeamData = await getTeamsStandingsFromBlackboard($_blackboardData);
+      const $_blackboardTeamSplitsData = await crawler(`${configs.blackboard_URL}stats/team_splits/${season}`);
+      const a = await getTeamSplitsFromBlackboard($_blackboardTeamSplitsData);
+      console.log(blackboardTeamData, a);
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
-function getTeamsStandings() {
+function crawler(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios.get(KBO_URL);
+      const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data); // load in the HTML
-      return resolve(await getTeamsStats($));
+      return resolve($);
     } catch (err) {
       return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
-function getTeamsStats($) {
+function getTeamsStandingsFromBlackboard($) {
   return new Promise(async function(resolve, reject) {
     try {
       const tdArray = [];
       let teamsCount = 0;
       $('td').each(function(i) {
         // The i is to be filtered when it is a multiple of 7
-        if (i % teamTableFieldCount === 0) {
+        if (i % configs.blackboardTeamTableTitles.length === 0) {
           teamsCount += 1;
           const removeLineBreaks = $(this).text().replace(`\n${teamsCount}\n\n`, '').trim();
           tdArray[i] = removeLineBreaks;
         } else tdArray[i] = $(this).text();
       });
       const data = decompose_STRK_LAST(tdArray);
-      return resolve(repackageTeamStats(data));
+      return resolve(decomposeTeamBaseAndName(data));
     } catch (err) {
       return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -59,26 +92,26 @@ function decompose_STRK_LAST(tdArray) {
 
   let L10_Array = [];
   for (let i = 0; i < tdArray.length; i++) {
-    for (let j = 0; j < tdArray.length; j = j + teamTableFieldCount) {
-      if (i === teamTableFieldCount - 1) {
+    for (let j = 0; j < tdArray.length; j = j + configs.blackboardTeamTableTitles.length) {
+      if (i === configs.blackboardTeamTableTitles.length - 1) {
         const ele = tdArray[i + j];
         const slashIndex = ele.indexOf('/');
         const STRK = ele.substring(0, slashIndex).trim();
         const L10 = ele.substring(slashIndex + 1, ele.length).trim();
         L10_Array.push(L10);
-        temp.splice(j + teamTableFieldCount - 1, 1, STRK);
+        temp.splice(j + configs.blackboardTeamTableTitles.length - 1, 1, STRK);
       }
     }
   }
-
   L10_Array = repackage_L10(L10_Array);
   let j = 0;
-  for (let i = teamTableFieldCount; i <= temp.length; i = i + teamTableFieldCount + 1) {
+  for (let i = configs.blackboardTeamTableTitles.length; i <= temp.length; i = i + configs.blackboardTeamTableTitles.length + 1) {
     temp.splice(i, 0, L10_Array[j]);
     j++;
   }
   return temp;
 }
+
 // 7W 3L 0D 改為 7-0-3
 function repackage_L10(data) {
   const temp = [];
@@ -86,7 +119,6 @@ function repackage_L10(data) {
     const ele = data[i];
     const winIndex = ele.indexOf('W');
     const lossIndex = ele.indexOf('L');
-    // const fairIndex = ele.indexOf('D');
     const win = ele.substring(0, winIndex).trim();
     const loss = ele.substring(winIndex + 1, lossIndex).trim();
     const fair = ele.substring(lossIndex + 1, ele.length - 1).trim();
@@ -96,20 +128,19 @@ function repackage_L10(data) {
   return temp;
 }
 
-function repackageTeamStats(teamsStats) {
+function decomposeTeamBaseAndName(teamsStats) {
   return new Promise(async function(resolve, reject) {
     try {
       const teamBase = [];
       const teamNames = [];
-      for (let i = 0; i < teamsStats.length; i = i + teamTableFieldCount + 1) {
+      for (let i = 0; i < teamsStats.length; i = i + configs.blackboardTeamTableTitles.length + 1) {
         teamNames.push({ team_id: String(teamName2id(teamsStats[i])), team_name: teamsStats[i] });
         const temp = {
-          // team_id: String(teamName2id(teamsStats[i])),
-          G: Number.parseInt(teamsStats[i + 1]) + Number.parseInt(teamsStats[i + 2]) + Number.parseInt(teamsStats[i + 3]),
+          G: String(Number.parseInt(teamsStats[i + 1]) + Number.parseInt(teamsStats[i + 2]) + Number.parseInt(teamsStats[i + 3])),
           Win: teamsStats[i + 1],
-          Fair: teamsStats[i + 3],
+          Draws: teamsStats[i + 3],
           Loss: teamsStats[i + 2],
-          PCT: `0${teamsStats[i + 4]}`,
+          PCT: `${teamsStats[i + 4]}`,
           GB: teamsStats[i + 5],
           STRK: teamsStats[i + 6],
           L10: teamsStats[i + 7]
@@ -151,37 +182,19 @@ function teamName2id(name) {
   }
 }
 
-function insertToTeamDB(teamData) {
-  const { teamBase, teamNames } = teamData;
+function getTeamSplitsFromBlackboard($) {
   return new Promise(async function(resolve, reject) {
-    const resultArray = [];
     try {
-      for (let i = 0; i < teamBase.length; i++) {
-        const data = {};
-        const ele = teamBase[i];
-        const teamId = teamNames[i].team_id;
-        const season = await getSeason(league);
-        data[`season_${season}`] = { team_base: ele };
-
-        const result = await modules.firestore.collection(collectionName).doc(teamId).set(data, { merge: true });
-        console.log(`Update KBO_${season}, team id is ${teamId}`);
-        resultArray.push(result);
-      }
-      // TODO if result === 0 (update failed, should rerun this program)
-      return resolve(resultArray);
+      $('.syncscroll').each(function(i, ele) {
+        // console.log(ele.text);
+        console.log(i);
+        // console.log('====');
+        // console.log($(this).text());
+      });
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
-function getSeason(league) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      return resolve(await dbEngine.getSeason(modules.leagueCodebook(league).id));
-    } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
-    }
-  });
-}
 module.exports = prematch_KBO;
