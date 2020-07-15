@@ -45,7 +45,7 @@ async function modifyUserProfile(req, res) {
         }
       };
       const valid = modules.ajv.validate(schema, data);
-      data.birthday_tw = modules.moment.tz(data.birthday, modules.zone).format('YYYY-MM-DD');
+      data.birthday_tw = modules.moment.unix(data.birthday).subtract(1, "days").format('YYYY-MM-DD');
 
       // if (!valid) return res.status(400).json(modules.ajv.errors);
       if (!valid) {
