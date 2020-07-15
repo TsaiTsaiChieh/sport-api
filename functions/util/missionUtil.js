@@ -2,8 +2,7 @@ const db = require('./dbUtil');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
-  topicCheckByDateBetween, predictMatchCheckByDateBetween,
-  predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
+  topicCheckByDateBetween, predictMatchCheckByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
 
