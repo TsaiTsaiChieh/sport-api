@@ -81,16 +81,15 @@ module.exports = othersPredicitions;
           "predict": "",
           "spread_id": "31235573",
           "handicap": -1.5,
-          "handicap_home_tw": "",
-          "handicap_away_tw": "1輸",
-          "percentage": 0,
+          "home_tw": "",
+          "away_tw": "1輸",
           "bets": ""
         },
         "totals": {
           "predict": "",
           "totals_id": "34458529",
           "handicap": "232",
-          "percentage": 0,
+          "over_tw": "192",
           "bets": ""
         }
       },
@@ -114,15 +113,15 @@ module.exports = othersPredicitions;
           "predict": "",
           "spread_id": "31236860",
           "handicap": 2,
-          "handicap_home_tw": "2平",
-          "handicap_away_tw": "",
-          "percentage": 0,
+          "home_tw": "2平",
+          "away_tw": "",
           "bets": ""
         },
         "totals": {
           "predict": "",
           "totals_id": "34364723",
           "handicap": "218",
+          "over_tw": "192",
           "percentage": 0,
           "bets": ""
         }
@@ -147,15 +146,15 @@ module.exports = othersPredicitions;
           "predict": "away",
           "spread_id": "31268919",
           "handicap": 10.5,
-          "handicap_home_tw": "10輸",
-          "handicap_away_tw": "",
-          "percentage": 0,
+          "home_tw": "10輸",
+          "away_tw": "",
           "bets": 1
         },
         "totals": {
           "predict": "over",
           "totals_id": "34417671",
           "handicap": "210.5",
+          "over_tw": "192",
           "percentage": 0,
           "bets": 1
         }
@@ -180,15 +179,15 @@ module.exports = othersPredicitions;
           "predict": "away",
           "spread_id": "31267231",
           "handicap": 11.5,
-          "handicap_home_tw": "11輸",
-          "handicap_away_tw": "",
-          "percentage": 0,
+          "home_tw": "11輸",
+          "away_tw": "",
           "bets": 1
         },
         "totals": {
           "predict": "over",
           "totals_id": "34409340",
           "handicap": "214.5",
+          "over_tw": "192",
           "percentage": 0,
           "bets": 1
         }
