@@ -6,32 +6,47 @@ const configs = {
   collectionName: 'baseball_KBO'
 };
 const modules = require('../../util/modules');
+const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 
 // TODO crawler KBO prematch information:
 // 1. 隊伍資訊 ex: team_base, team_hit
-// team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，平均得分/失分 RG/-RG
+// team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG
 // team_hit: 得分，安打率，全壘打數，打擊率，上壘率，長打率
 // 2. 球員資訊
 
 async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
-      await crawler_KBO();
+      const season = await getSeason(configs.league);
+      await crawler_KBO(season);
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(err.stack));
     }
   });
 }
 
-function crawler_KBO() {
+function getSeason(league) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      return resolve(await dbEngine.getSeason(modules.leagueCodebook(league).id));
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+function crawler_KBO(season) {
   return new Promise(async function(resolve, reject) {
     try {
       // 官網
       // await crawler(configs.official_URL);
       // 黑板
-      const blackboardData = await crawler(configs.blackboard_URL);
-      const blackboardTeamData = await getTeamsStandingsFromBlackboard(blackboardData);
+      const $_blackboardData = await crawler(configs.blackboard_URL);
+      const blackboardTeamData = await getTeamsStandingsFromBlackboard($_blackboardData);
+      const $_blackboardTeamSplitsData = await crawler(`${configs.blackboard_URL}stats/team_splits/${season}`);
+      const a = await getTeamSplitsFromBlackboard($_blackboardTeamSplitsData);
+      console.log(blackboardTeamData, a);
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -165,6 +180,21 @@ function teamName2id(name) {
     default:
       return 'unknown team name';
   }
+}
+
+function getTeamSplitsFromBlackboard($) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      $('.syncscroll').each(function(i, ele) {
+        // console.log(ele.text);
+        console.log(i);
+        // console.log('====');
+        // console.log($(this).text());
+      });
+    } catch (err) {
+      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+    }
+  });
 }
 
 module.exports = prematch_KBO;
