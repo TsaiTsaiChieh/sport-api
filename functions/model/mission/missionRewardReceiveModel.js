@@ -9,7 +9,7 @@ async function missionRewardReceive(args) {
   const type = args.query.type;
   const id = args.query.id;
   const nowInfo = date3UnixInfo(Date.now());
-  const todayUnix = nowInfo.dateBeginUnix;
+  const todayUnix = nowInfo.dateBeginUnix; // 用來判斷是否還在活動期間內
   let check1;
 
   // 取得 mission type： mission_item(每日、活動-預測)  mission_god(活動-大神)  mission_deposit(活動-儲值)
@@ -20,9 +20,11 @@ async function missionRewardReceive(args) {
         from missions, mission_items
        where missions.mission_id = mission_items.mission_id
          and mission_items.mission_item_id = :id
+         and :todayUnix between start_date and end_date
     `, {
       replacements: {
-        id: id
+        id: id,
+        todayUnix: todayUnix
       },
       type: db.sequelize.QueryTypes.SELECT
     });
@@ -36,9 +38,11 @@ async function missionRewardReceive(args) {
   //       from missions, mission_gods
   //      where missions.mission_id = mission_gods.mission_id
   //        and mission_gods.mission_god_id = :id
+  //        and :todayUnix between start_date and end_date
   //   `, {
   //     replacements: {
-  //       id: id
+  //       id: id,
+  //       todayUnix: todayUnix
   //     },
   //     type: db.sequelize.QueryTypes.SELECT
   //   });
@@ -52,9 +56,11 @@ async function missionRewardReceive(args) {
   //       from missions, mission_deposits
   //      where missions.mission_id = mission_deposits.mission_id
   //        and mission_deposits.mission_deposit_id = :id
+  //        and :todayUnix between start_date and end_date
   //   `, {
   //     replacements: {
-  //       id: id
+  //       id: id,
+  //       todayUnix: todayUnix
   //     },
   //     type: db.sequelize.QueryTypes.SELECT
   //   });
