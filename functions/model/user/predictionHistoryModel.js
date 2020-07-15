@@ -156,9 +156,9 @@ async function repackageMatchDate(ele, matchDate) {
       },
       totals: {
         id: ele.totals_id,
-        option: ele.totals_option,
         handicap: ele.totals_handicap,
         over_tw: ele.over_tw,
+        predict: ele.totals_option,
         bets: ele.totals_bets,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
