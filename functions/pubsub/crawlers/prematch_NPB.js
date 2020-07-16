@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
+
 // const db = require('../../util/dbUtil');
 // const NPB_URL = 'http://www.cpbl.com.tw';
 // const totalTeam = 12;
@@ -74,8 +75,9 @@ async function prematch_NPB(req, res) {
       }
     }
   }, perStep);
-  const URL = 'https://www.rotowire.com/npb/standings.php';
-
+  // const URL = 'https://npb.jp/bis/2020/stats/tmb_c.html'; 團隊打擊
+  const URL = 'https://npb.jp/bis/2020/stats/std_c.html'; // 中央聯盟球隊基本資料
+  // const URL = `https://npb.jp/bis/2020/stats/std_p.html`; // 台平洋聯盟球隊基本資料
   await getTeamsStandings(URL);
 }
 
@@ -83,27 +85,23 @@ function getTeamsStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       // 球隊的季戰績
-      const { data } = await modules.axios.get(URL);
-      const $ = modules.cheerio.load(data);
-      const titles = $('div div div div div').text();
-      console.log(titles);
+      let URL = 'https://npb.jp/bis/2020/stats/std_c.html';
+      let { data } = await modules.axios.get(URL);
+      let $ = modules.cheerio.load(data);
+      const teamStatC = [];
+      $('td').each(function(i) {
+        teamStatC.push($(this).text());
+      });
 
-      //* [@id="datatable1594872315168"]/div[2]/div[2]/div/div[1]/div[1]
-      // titles = titles.replace(/\r/g, '');
-      // titles = titles.replace(/\n/g, '');
-      // titles = titles.replace(/\t/g, ' ');
-      // titles = titles.split(' ');
-      // const result = [];
-      // for (let i = 0; i < titles.length; i++) {
-      //  if (titles[i] === '') {
-      //    continue;
-      //  } else {
-      //    result.push(titles[i].trim());
-      //  }
-      // }
-
-      // await upsertFirestoreTeam(result);
-
+      URL = 'https://npb.jp/bis/2020/stats/std_p.html';
+      data = await modules.axios.get(URL);
+      $ = modules.cheerio.load(data);
+      const teamStatP = [];
+      $('td').each(function(i) {
+        teamStatP.push($(this).text());
+      });
+      await upsertFirestoreTeamC(teamStatC);
+      await upsertFirestoreTeamP(teamStatP);
       resolve('ok');
     } catch (err) {
       console.error(err, '=-----');
@@ -112,10 +110,61 @@ function getTeamsStandings(URL) {
   });
 }
 
-// async function upsertFirestoreTeam(result) {
-//  for (let i = 0; i < result.length; i++) {
-//    console.log(i + '    ' + result[i]);
-//  }
-// }
-
+ function mapTeam(name) {
+  switch (name) {
+    case '広　島' || '広島東洋カープ': {
+      return '3324';
+    }
+    case 'DeNA' || '横浜DeNAベイスターズ': {
+      return '3323';
+    }
+    case '巨　人' || '読　売ジャイアンツ': {
+      return '45295';
+    }
+    case '中　日' || '中　日ドラゴンズ': {
+      return '3318';
+    }
+    case 'ヤクルト' || '東京ヤクルトスワローズ': {
+      return '10216';
+    }
+    case '阪　神' || '阪　神タイガース': {
+      return '3317';
+    }
+    case '楽　天' || '東北楽天ゴールデンイーグルス': {
+      return '5438';
+    }
+    case 'ソフトバンク' || '福岡ソフトバンクホークス': {
+      return '2386';
+    }
+    case '西　武' || '埼玉西武ライオンズ': {
+      return '2387';
+    }
+    case 'オリックス' || 'オリックスバファローズ': {
+      return '8025';
+    }
+    case 'ロッテ' || '千葉ロッテマリーンズ': {
+      return '5438';
+    }
+    case '日本ハム' || '北海道日本ハムファイターズ': {
+      return '10078';
+    }
+  }
+ }
+async function upsertFirestoreTeamC(result) {
+  // const team1 = '45295';
+  // const team2 = '10216';
+  // const team3 = '3323';
+  // const team4 = '3324';
+  // const team5 = '3318';
+	// const team6 = '3317';
+	mapTeam('aa');
+}
+async function upsertFirestoreTeamP(result) {
+  // const team1 = '5438';
+  // const team2 = '2386';
+  // const team3 = '5438';
+  // const team4 = '2387';
+  // const team5 = '10078';
+  // const team6 = '8025';
+}
 module.exports = prematch_NPB;

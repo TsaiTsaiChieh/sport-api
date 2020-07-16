@@ -134,11 +134,6 @@ exports.api = functions.runWith(runtimeOpts).https.onRequest(app);
 // admin cloud function
 exports.admin = functions.runWith(runtimeOpts).https.onRequest(adminapp);
 
-// 此排程再購買API後必須停掉
-exports.forpastevent = functions.pubsub
-  .schedule('* */1 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/forpastevent'));
 // 各聯盟API排程
 exports.prematch = functions.pubsub
   .schedule('0 5 * * *')
@@ -177,11 +172,6 @@ exports.pbp_eSoccer = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_eSoccer'));
-exports.pbp_KBO = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_KBO'));
 exports.pbp_abnormal = functions
   .runWith(runtimeOpts)
   .pubsub.schedule('*/30 * * * *')

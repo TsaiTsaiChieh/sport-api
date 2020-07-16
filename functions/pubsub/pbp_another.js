@@ -6,7 +6,7 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 let keepPBP = 1;
 async function AnotherpbpInplay(parameter, sport, league, leagueID) {
-  const perStep = 14000;
+  const perStep = 50000;
   const timesPerLoop = 2;
   let countForStatus2 = 0;
   const betsID = parameter.betsID;
