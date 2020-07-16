@@ -2,9 +2,11 @@ const db = require('./dbUtil');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
-  topicCheckByDateBetween, predictMatchCheckByDateBetween
+  topicCheckByDateBetween, predictMatchCheckByDateBetween,
+  predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
+const { CacheQuery, redis } = require('./redisUtil');
 
 //
 // 任務
@@ -61,6 +63,7 @@ async function addUserMissionStatus(uid, parms, trans = null) {
   //   if (err) {console.error(err); throw errs.dbErrsMsg('404', '15016', { addMsg: err.parent.code });}
   // }
   if (!trans) await insideTrans.commit(); // trans 為外面呼叫帶入，不可以 commit
+  await redis.specialDel(`*${uid}*Mission*`, 100);
   return created;
 }
 
@@ -97,6 +100,7 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   // 結果檢查交給呼叫者
   // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
   if (!trans) await insideTrans.commit();
+  await redis.specialDel(`*${uid}*Mission*`, 100);
   return r;
 }
 
@@ -191,7 +195,8 @@ function repackageDaily(ele) {
 }
 
 async function dailyMission(todayUnix) {
-  const missions = await db.sequelize.query(`
+  const redisKey = ['daily', 'Mission', todayUnix].join(':');
+  const missions = await CacheQuery(db.sequelize, `
     select missions.title, missions.desc, missions.start_date, missions.end_date,
            missions.need_finish_nums,
            mission_items.mission_item_id, mission_items.func_type, mission_items.target,
@@ -207,7 +212,7 @@ async function dailyMission(todayUnix) {
       todayUnix: todayUnix
     },
     type: db.sequelize.QueryTypes.SELECT
-  });
+  }, redisKey);
 
   return missions;
 }
@@ -285,11 +290,6 @@ async function missionActivityGod(args) {
     };
   }
 
-  const t = await activityGodCheckStatusReturnReward(userUid, todayUnix);
-  console.log('activityGodCheckStatusReturnReward: ', t);
-  const t2 = await activityDepositsCheckStatusReturnReward(userUid, todayUnix);
-  console.log('activityDepositsCheckStatusReturnReward: ', t2);
-
   return result;
 }
 
@@ -314,7 +314,8 @@ function repackageActivityGod(ele) {
 }
 
 async function activityGodMission(todayUnix) {
-  const missions = await db.sequelize.query(`
+  const redisKey = ['activity', 'God', 'Mission', todayUnix].join(':');
+  const missions = await CacheQuery(db.sequelize, `
     select missions.title, missions.desc, missions.start_date, missions.end_date,
            missions.need_finish_nums,
            mission_gods.mission_god_id, mission_gods.target, mission_gods.reward_type, 
@@ -331,7 +332,7 @@ async function activityGodMission(todayUnix) {
       todayUnix: todayUnix
     },
     type: db.sequelize.QueryTypes.SELECT
-  });
+  }, redisKey);
 
   return missions;
 }
@@ -465,7 +466,8 @@ function repackageActivityDeposit(ele) {
 }
 
 async function activityDepositMission(todayUnix) {
-  const missions = await db.sequelize.query(`
+  const redisKey = ['activity', 'Deposit', 'Mission', todayUnix].join(':');
+  const missions = await CacheQuery(db.sequelize, `
     select missions.title, missions.desc, missions.start_date, missions.end_date,
            missions.need_finish_nums,
            mission_deposits.mission_deposit_id, mission_deposits.target,
@@ -481,7 +483,7 @@ async function activityDepositMission(todayUnix) {
       todayUnix: todayUnix
     },
     type: db.sequelize.QueryTypes.SELECT
-  });
+  }, redisKey);
 
   return missions;
 }
@@ -549,6 +551,164 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
   return result;
 }
 
+//
+// Mission Activity Predict
+//
+async function missionActivityPredict(args) {
+  // 要區分 未登入、已登入
+  const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，有 uesr uid
+
+  const nowInfo = date3UnixInfo(Date.now());
+  const todayUnix = nowInfo.dateBeginUnix;
+
+  const result = [];
+
+  //
+  // 未登入處理
+  //
+  if (!userUid) {
+    const missionLists = await activityPredictMission(todayUnix);
+    if (missionLists.length === 0) return result; // 回傳 空Array
+
+    for (const data of Object.values(missionLists)) {
+      data.status = 0;
+      data.now_finish_nums = 0;
+      result.push(repackageDaily(data));
+    }
+    return result;
+  }
+
+  //
+  // 已登入處理
+  //
+  const missionLists = await activityPredictMissionLogin(userUid, todayUnix);
+  if (missionLists.length === 0) return result; // 回傳 空Array
+
+  for (const data of Object.values(missionLists)) {
+    data.now_finish_nums = 0;
+
+    // predicts 任務期間內 日期-聯盟 正確盤數  old_correct_count 多筆時記錄最大正確盤數
+    let predictsInfo, old_correct_count;
+
+    if (data.func_type === 'predictCorrectLeagueDailyByDateBetween') { // 預測 同聯盟 正確盤數 correct_count
+      predictsInfo = await predictCorrectLeagueDailyByDateBetween(userUid, data.start_date, data.end_date);
+    }
+
+    // 處理 需要完成任務盤數 和 現在完成任務盤數 並 記錄目前完成最大正確盤數
+    for (const ele of Object.values(predictsInfo)) {
+      if (ele.correct_count >= data.need_finish_nums) { // 完成任務
+        data.now_finish_nums = data.need_finish_nums;
+        break;
+      }
+
+      old_correct_count = !old_correct_count ? ele.correct_count
+        : ele.correct_count > old_correct_count ? ele.correct_count : old_correct_count;
+      data.now_finish_nums = +old_correct_count;
+    };
+
+    const ifFinishMission = data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
+    if (ifFinishMission) data.now_finish_nums = data.need_finish_nums; // 有可能任務數 現在完成 > 需要完成，看起來很怪
+
+    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  status = 1 領取
+    //   !data.status 為 undefined、null 代表 user_mission 尚未有資料，一但有資料必為 1: 領取  2: 已完成
+    //    userUid !== undefined or null 使用者登入
+    //   ifFinishMission 任務完成
+    // 新增 領取 資料
+    if (!data.status && userUid && ifFinishMission) {
+      data.status = 1;
+      const [err] = await to(addUserMissionStatus(userUid, { mission_item_id: data.mission_item_id }));
+      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+
+      result.push(repackageActivePredict(data));
+      continue;
+    }
+
+    result.push(repackageActivePredict(data));
+  };
+
+  return result;
+}
+
+function repackageActivePredict(ele) {
+  const data = {
+    title: ele.title,
+    desc: ele.desc, // 開賽時間
+    start_date: !ele.start_date ? '' : ele.start_date,
+    end_date: !ele.end_date ? '' : ele.end_date,
+    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    target: ele.target,
+    reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
+    reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
+    reward_num: ele.reward_num,
+    reward_class_num: ele.reward_class === 1 ? ele.reward_class_num : '',
+    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    need_finish_nums: ele.need_finish_nums,
+    now_finish_nums: ele.now_finish_nums
+  };
+
+  return data;
+}
+
+async function activityPredictMission(todayUnix) {
+  const redisKey = ['activity', 'Predict', 'Mission', todayUnix].join(':');
+  const missions = await CacheQuery(db.sequelize, `
+    select missions.title, missions.desc, missions.start_date, missions.end_date,
+           missions.need_finish_nums,
+           mission_items.mission_item_id, mission_items.func_type, mission_items.target,
+           mission_items.reward_class, mission_items.reward_type, 
+           mission_items.reward_num, mission_items.reward_class_num
+      from missions, mission_items
+     where missions.mission_id = mission_items.mission_id
+       and missions.type = 2
+       and missions.activity_type = 'predict'
+       and missions.status = 1
+       and :todayUnix between start_date and end_date
+  `, {
+    replacements: {
+      todayUnix: todayUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  }, redisKey);
+
+  return missions;
+}
+
+async function activityPredictMissionLogin(uid, todayUnix) {
+  const missions = await db.sequelize.query(`
+    select mission.*, 
+            user__missions.id um_id, user__missions.uid um_uid,
+            user__missions.mission_item_id um_mission_item_id, 
+            user__missions.mission_god_id um_mission_god_id, 
+            user__missions.mission_deposit_id um_mission_deposit_id,
+            user__missions.status um_status, user__missions.date_timestamp um_date_timestamp
+      from (
+             select missions.title, missions.desc, missions.start_date, missions.end_date,
+                    missions.need_finish_nums,
+                    mission_items.mission_item_id, mission_items.func_type, mission_items.target,
+                    mission_items.reward_class, mission_items.reward_type, 
+                    mission_items.reward_num, mission_items.reward_class_num
+               from missions, mission_items
+              where missions.mission_id = mission_items.mission_id
+                and missions.type = 2
+                and missions.activity_type = 'predict'
+                and missions.status = 1
+                and :todayUnix between start_date and end_date
+           ) mission
+      left join user__missions
+        on mission.mission_item_id = user__missions.mission_item_id
+       and date_timestamp = :todayUnix
+       and (isnull(:uid) or user__missions.uid = :uid)
+  `, {
+    replacements: {
+      todayUnix: todayUnix,
+      uid: uid
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
 module.exports = {
   addUserMissionStatus,
   setUserMissionStatus,
@@ -565,5 +725,9 @@ module.exports = {
   missionActivityDeposit,
   activityDepositMission,
   activityDepositMissionLogin,
-  activityDepositsCheckStatusReturnReward
+  activityDepositsCheckStatusReturnReward,
+
+  missionActivityPredict,
+  activityPredictMission,
+  activityPredictMissionLogin
 };
