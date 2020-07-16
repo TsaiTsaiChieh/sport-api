@@ -95,8 +95,8 @@ async function predictMatches(req, res) {
 module.exports = predictMatches;
 
 /**
- * @api {post} /user/predictions Predict Matches
- * @apiVersion 2.0.0
+ * @api {post} /user/predictions 預測頁-送出預測
+ * @apiVersion 3.0.0
  * @apiDescription User send own prediction form by Tsai-Chieh
  * @apiName Create or update own prediction form
  * @apiGroup User
@@ -149,7 +149,6 @@ module.exports = predictMatches;
  * @apiSuccess {Array} [success.totals] totals[0] totals information array which is successful
  *
  * @apiSuccessExample {JSON} Success-Response
- *  HTTP/1.1 200 OK
 {
     "failed": [],
     "success": [
@@ -249,6 +248,70 @@ module.exports = predictMatches;
         ]
     }
 }
+* @apiErrorExample {JSON} 200-Response
+ * HTTP/1.1 200 Bad Request
+ {
+    "error": "UserPredictSomeFailed",
+    "devcode": 1002,
+    "message": {
+        "failed": [
+            {
+                "id": "211880",
+                "spread": [
+                    "31236860",
+                    "home",
+                    3
+                ],
+                "code": 404,
+                "error": "Match id: 211880 in NBA not found",
+                "error_ch": "無此 211880 的賽事編號"
+            },
+            {
+                "id": "2118058",
+                "spread": [
+                    "31247649",
+                    "away",
+                    2
+                ],
+                "code": 409,
+                "error": "Match id: 2118058 in NBA already started",
+                "error_ch": "賽事編號 2118058(NBA) 已經開始，不能再下注"
+            },
+            {
+                "id": "2118809",
+                "spread": [
+                    "31236867",
+                    "home",
+                    3
+                ],
+                "code": 406,
+                "error": "Match id: 2118809 [spread_id: 31236867] in NBA not acceptable",
+                "error_ch": "賽事編號 2118809 的讓分編號 31236867 已過期"
+            }
+        ],
+        "success": [
+            {
+                "id": "2118809",
+                "spread": [
+                    "31236860",
+                    "home",
+                    3
+                ],
+                "match_date": null,
+                "home": {
+                    "id": "58056",
+                    "alias": "MEM",
+                    "alias_ch": "灰熊"
+                },
+                "away": {
+                    "id": "56088",
+                    "alias": "ORL",
+                    "alias_ch": "魔術"
+                }
+            }
+        ]
+    }
+}
  * @apiErrorExample {JSON} 400-Response
  * HTTP/1.1 400 Bad Request
  * [
@@ -264,12 +327,7 @@ module.exports = predictMatches;
         "message": "should be equal to one of the allowed values"
     }
 ]
-* @apiErrorExample {JSON} 403-Response
- * HTTP/1.1 403 Bad Request
- * {
-    "error": "UserPredictFailed",
-    "devcode": 1202
-}
+
  * @apiErrorExample {JSON} 500-Response
  * HTTP/1.1 500 Internal Server Error
  * {
