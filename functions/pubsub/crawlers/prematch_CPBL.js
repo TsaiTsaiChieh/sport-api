@@ -275,7 +275,7 @@ function getTeamsStandings(URL) {
       // 球隊的季戰績
       const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
-      let titles = $('.gap_b20').text();
+      let titles = $('.gap_b20');
       titles = titles.replace(/\r/g, '');
       titles = titles.replace(/\n/g, '');
       titles = titles.replace(/\t/g, ' ');
@@ -349,7 +349,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
             team_base: {
               G: result[index + 1],
               Win: result[index + 2].split('-')[0],
-              Fair: result[index + 2].split('-')[1],
+              Draw: result[index + 2].split('-')[1],
               Lose: result[index + 2].split('-')[2],
               PCT: result[index + 3],
               GB: result[index + 4],
@@ -360,7 +360,17 @@ async function upsertFirestoreTeam(teamNumber, result) {
               at_home: result[index + 9],
               at_away: result[index + 10],
               STRK: change2English(result[index + 11]),
-              L10: result[index + 12]
+              L10: result[index + 12],
+              R: result[index + offsetBit + 2],
+              allow_R: result[index + offsetPitch + 9],
+              per_R: (
+                parseFloat(result[index + offsetBit + 2]) /
+                parseFloat(result[index + 1])
+              ).toFixed(3),
+              per_allow_R: (
+                parseFloat(result[index + offsetPitch + 9]) /
+                parseFloat(result[index + 1])
+              ).toFixed(3)
             },
             // 團隊投球成績
             team_pitch: {
@@ -422,7 +432,17 @@ async function upsertFirestoreTeam(teamNumber, result) {
               at_home: result[index + 10],
               at_away: result[index + 11],
               STRK: change2English(result[index + 12]),
-              L10: result[index + 13]
+              L10: result[index + 13],
+              R: result[index + offsetBit + 2],
+              allow_R: result[index + offsetPitch + 9],
+              per_R: (
+                parseFloat(result[index + offsetBit + 2]) /
+                parseFloat(result[index + 1])
+              ).toFixed(3),
+              per_allow_R: (
+                parseFloat(result[index + offsetPitch + 9]) /
+                parseFloat(result[index + 1])
+              ).toFixed(3)
             },
             // 團隊投球成績
             team_pitch: {
@@ -592,7 +612,7 @@ function upsertFirestorePitcher(result, totalPlayer, playerID) {
 //          team_base: {
 //            G: result[index + 1],
 //            Win: result[index + 2].split('-')[0],
-//            Fair: result[index + 2].split('-')[1],
+//            Draw: result[index + 2].split('-')[1],
 //            Lose: result[index + 2].split('-')[2],
 //            PCT: result[index + 3],
 //            GB: result[index + 4],

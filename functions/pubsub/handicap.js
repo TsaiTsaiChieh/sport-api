@@ -92,50 +92,52 @@ async function upsertHandicap(querysForEvent, sport, league) {
         /* 因為 res 可能為 {
         "success": 1,
         "results": {}
-      } */
-        if (data.results.odds) {
-          if (data.results.odds[`${sport}_2`]) {
-            spread_odds = data.results.odds[`${sport}_2`];
-          }
-          if (data.results.odds[`${sport}_3`]) {
-            totals_odds = data.results.odds[`${sport}_3`];
-          }
+			} */
+        if (data.results) {
+          if (data.results.odds) {
+            if (data.results.odds[`${sport}_2`]) {
+              spread_odds = data.results.odds[`${sport}_2`];
+            }
+            if (data.results.odds[`${sport}_3`]) {
+              totals_odds = data.results.odds[`${sport}_3`];
+            }
 
-          let newest_spread;
-          if (spread_odds.length > 0) {
-            for (let spcount = 0; spcount < spread_odds.length; spcount++) {
-              if (
-                spread_odds[spcount].home_od !== null &&
-                spread_odds[spcount].handicap !== null &&
-                spread_odds[spcount].away_od !== null &&
-                spread_odds[spcount].home_od !== '-' &&
-                spread_odds[spcount].away_od !== '-' &&
-                spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
-              ) {
-                newest_spread = spread_odds[spcount];
-                newest_spread = spreadCalculator(newest_spread, sport);
-                await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-                await write2MysqlOfMatchSpread(newest_spread, ele, league);
-                break;
+            let newest_spread;
+            if (spread_odds.length > 0) {
+              for (let spcount = 0; spcount < spread_odds.length; spcount++) {
+                if (
+                  spread_odds[spcount].home_od !== null &&
+                  spread_odds[spcount].handicap !== null &&
+                  spread_odds[spcount].away_od !== null &&
+                  spread_odds[spcount].home_od !== '-' &&
+                  spread_odds[spcount].away_od !== '-' &&
+                  spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
+                ) {
+                  newest_spread = spread_odds[spcount];
+                  newest_spread = spreadCalculator(newest_spread, sport);
+                  await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+                  await write2MysqlOfMatchSpread(newest_spread, ele, league);
+                  break;
+                }
               }
             }
-          }
-          let newest_totals;
-          if (totals_odds.length > 0) {
-            for (let tocount = 0; tocount < totals_odds.length; tocount++) {
-              if (
-                totals_odds[tocount].over_od !== null &&
-                totals_odds[tocount].handicap !== null &&
-                totals_odds[tocount].under_od !== null &&
-                totals_odds[tocount].over_od !== '-' &&
-                totals_odds[tocount].under_od !== '-' &&
-                totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
-              ) {
-                newest_totals = totals_odds[tocount];
-                newest_totals = totalsCalculator(newest_totals, sport);
-                await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-                await write2MysqlOfMatchTotals(newest_totals, ele, league);
-                break;
+            let newest_totals;
+            if (totals_odds.length > 0) {
+              for (let tocount = 0; tocount < totals_odds.length; tocount++) {
+                if (
+                  totals_odds[tocount].over_od !== null &&
+                  totals_odds[tocount].handicap !== null &&
+                  totals_odds[tocount].under_od !== null &&
+                  totals_odds[tocount].over_od !== '-' &&
+                  totals_odds[tocount].under_od !== '-' &&
+                  totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
+                ) {
+                  newest_totals = totals_odds[tocount];
+                  newest_totals = totalsCalculator(newest_totals, sport);
+                  await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+                  await write2MysqlOfMatchTotals(newest_totals, ele, league);
+                  break;
+                }
               }
             }
           }
@@ -358,6 +360,9 @@ function spreadCalculator(handicapObj, sport) {
                     Math.abs(handicapObj.handicap)
                   )}+50`;
                   handicapObj.away_tw = null;
+                  handicapObj.handicap = `${Math.floor(
+                    Math.abs(handicapObj.handicap)
+                  )}`;
                   handicapObj.rate = 50;
                 } else {
                   // 主賠率<客賠率 顯示 -
@@ -365,6 +370,9 @@ function spreadCalculator(handicapObj, sport) {
                     Math.abs(handicapObj.handicap)
                   )}-50`;
                   handicapObj.away_tw = null;
+                  handicapObj.handicap = `${Math.floor(
+                    Math.abs(handicapObj.handicap)
+                  )}`;
                   handicapObj.rate = -50;
                 }
               } else {
@@ -375,6 +383,9 @@ function spreadCalculator(handicapObj, sport) {
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
+                  handicapObj.handicap = `${Math.floor(
+                    Math.abs(handicapObj.handicap)
+                  )}`;
                   handicapObj.rate = -50;
                 } else {
                   // 主賠率<客賠率 顯示 +
@@ -382,6 +393,9 @@ function spreadCalculator(handicapObj, sport) {
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}+50`;
+                  handicapObj.handicap = `${Math.floor(
+                    Math.abs(handicapObj.handicap)
+                  )}`;
                   handicapObj.rate = 50;
                 }
               }
@@ -558,6 +572,9 @@ function spreadCalculator(handicapObj, sport) {
                 Math.abs(handicapObj.handicap)
               )}-50`;
               handicapObj.away_tw = null;
+              handicapObj.handicap = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}`;
               handicapObj.rate = -50;
             } else {
               // 客讓主
@@ -565,6 +582,9 @@ function spreadCalculator(handicapObj, sport) {
               handicapObj.away_tw = `${Math.floor(
                 Math.abs(handicapObj.handicap)
               )}-50`;
+              handicapObj.handicap = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}`;
               handicapObj.rate = -50;
             }
           }
@@ -745,10 +765,16 @@ function totalsCalculator(handicapObj, sport) {
             // 大分賠率>小分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}+50`;
             handicapObj.rate = 50;
+            handicapObj.handicap = `${Math.floor(
+              Math.abs(handicapObj.handicap)
+            )}`;
           } else {
             // 小分賠率>大分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-50`;
             handicapObj.rate = -50;
+            handicapObj.handicap = `${Math.floor(
+              Math.abs(handicapObj.handicap)
+            )}`;
           }
         } else {
           // 賠率相同
