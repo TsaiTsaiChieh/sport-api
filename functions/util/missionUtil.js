@@ -176,7 +176,7 @@ function repackageDaily(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
@@ -245,11 +245,325 @@ async function dailyMissionLogin(uid, todayUnix) {
   return missions;
 }
 
+//
+// Mission Activity God
+//
+async function missionActivityGod(args) {
+  // 要區分 未登入、已登入
+  const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，有 uesr uid
+
+  const nowInfo = date3UnixInfo(Date.now());
+  const todayUnix = nowInfo.dateBeginUnix;
+
+  const result = [];
+
+  //
+  // 未登入處理
+  //
+  if (!userUid) {
+    // 活動 大神
+    const activityGodLists = await activityGodMission(todayUnix);
+    if (activityGodLists.length > 0) {
+      for (const data of Object.values(activityGodLists)) {
+        data.status = 0;
+        data.now_finish_nums = 0;
+        result.push(repackageActivityGod(data));
+      }
+    }
+    return result;
+  }
+
+  //
+  // 已登入處理
+  //
+  // 任務 大神
+  const activityGodLists = await activityGodMissionLogin(userUid, todayUnix);
+  if (activityGodLists.length > 0) {
+    for (const data of Object.values(activityGodLists)) {
+      data.now_finish_nums = (data.status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
+      result.push(repackageActivityGod(data));
+    };
+  }
+
+  const t = await activityGodCheckStatusReturnReward(userUid, todayUnix);
+  console.log('activityGodCheckStatusReturnReward: ', t);
+  const t2 = await activityDepositsCheckStatusReturnReward(userUid, todayUnix);
+  console.log('activityDepositsCheckStatusReturnReward: ', t2);
+
+  return result;
+}
+
+function repackageActivityGod(ele) {
+  const data = {
+    title: ele.title,
+    desc: ele.desc, // 開賽時間
+    start_date: !ele.start_date ? '' : ele.start_date,
+    end_date: !ele.end_date ? '' : ele.end_date,
+    mission_god_id: !ele.mission_god_id ? '' : ele.mission_god_id,
+    target: ele.target,
+    reward_class: 1, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
+    reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
+    reward_num: ele.diamond_reward, // ele.reward_num,
+    reward_class_num: ele.copper_reward, // ele.reward_class === 1 ? ele.reward_class_num : ''
+    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    need_finish_nums: ele.need_finish_nums,
+    now_finish_nums: ele.now_finish_nums
+  };
+
+  return data;
+}
+
+async function activityGodMission(todayUnix) {
+  const missions = await db.sequelize.query(`
+    select missions.title, missions.desc, missions.start_date, missions.end_date,
+           missions.need_finish_nums,
+           mission_gods.mission_god_id, mission_gods.target, mission_gods.reward_type, 
+           mission_gods.diamond_reward, mission_gods.gold_reward,
+           mission_gods.sliver_reward, mission_gods.copper_reward
+      from missions, mission_gods
+     where missions.mission_id = mission_gods.mission_id
+       and missions.type = 2
+       and missions.activity_type = 'god'
+       and missions.status = 1
+       and :todayUnix between start_date and end_date
+  `, {
+    replacements: {
+      todayUnix: todayUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
+async function activityGodMissionLogin(uid, todayUnix) {
+  const missions = await db.sequelize.query(`
+    select mission_god.*,
+           user__missions.id um_id, user__missions.uid um_uid,
+           user__missions.mission_item_id um_mission_item_id, 
+           user__missions.mission_god_id um_mission_god_id, 
+           user__missions.mission_deposit_id um_mission_deposit_id,
+           user__missions.status um_status, user__missions.date_timestamp um_date_timestamp
+      from (
+             select missions.title, missions.desc, missions.start_date, missions.end_date,
+                    missions.need_finish_nums,
+                    mission_gods.mission_god_id, mission_gods.target, mission_gods.reward_type, 
+                    mission_gods.diamond_reward, mission_gods.gold_reward,
+                    mission_gods.sliver_reward, mission_gods.copper_reward
+               from missions, mission_gods
+              where missions.mission_id = mission_gods.mission_id
+                and missions.type = 2
+                and missions.activity_type = 'god'
+                and missions.status = 1
+                and :todayUnix between start_date and end_date
+           ) mission_god
+      left join user__missions
+        on mission_god.mission_god_id = user__missions.mission_god_id
+       and user__missions.uid = :uid
+  `, {
+    replacements: {
+      todayUnix: todayUnix,
+      uid: uid
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
+// "大神產生完" 後，判斷是否有活動 且 首次為大神 回傳對應應該給予的獎勵
+async function activityGodCheckStatusReturnReward(uid, todayUnix) {
+  const mission = await activityGodMissionLogin(uid, todayUnix);
+  const result = [];
+
+  for (const data of Object.values(mission)) { // um 為 user_missions table
+    if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
+
+    // 是否首次大神
+    const titlesCount = await db.Title.count({
+      where: {
+        uid: uid
+      }
+    });
+
+    // true: 有活動, 有效
+    if (!data.um_mission_god_id && titlesCount === 0) { // 必需是 沒有領取過 且 首次為大神 才會出現
+      result.push({
+        mission_god_id: data.mission_god_id,
+        reward_type: data.reward_type,
+        diamond_reward: data.diamond_reward ? data.diamond_reward : 0,
+        gold_reward: data.gold_reward ? data.gold_reward : 0,
+        sliver_reward: data.sliver_reward ? data.sliver_reward : 0,
+        copper_reward: data.copper_reward ? data.copper_reward : 0
+      });
+    }
+  };
+
+  return result;
+}
+
+//
+// Mission Activity Deposit
+//
+async function missionActivityDeposit(args) {
+  // 要區分 未登入、已登入
+  const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，有 uesr uid
+
+  const nowInfo = date3UnixInfo(Date.now());
+  const todayUnix = nowInfo.dateBeginUnix;
+
+  const result = [];
+
+  //
+  // 未登入處理
+  //
+  if (!userUid) {
+    const activityDepositLists = await activityDepositMission(todayUnix);
+    if (activityDepositLists.length > 0) {
+      for (const data of Object.values(activityDepositLists)) {
+        data.status = 0;
+        data.now_finish_nums = 0;
+        result.push(repackageActivityDeposit(data));
+      }
+    }
+    return result;
+  }
+
+  //
+  // 已登入處理
+  //
+  // 任務 儲值
+  const activityDepositLists = await activityDepositMissionLogin(userUid, todayUnix);
+  if (activityDepositLists.length > 0) {
+    for (const data of Object.values(activityDepositLists)) {
+      data.now_finish_nums = (data.status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
+      result.push(repackageActivityDeposit(data));
+    };
+  }
+
+  return result;
+}
+
+function repackageActivityDeposit(ele) {
+  const data = {
+    title: ele.title,
+    desc: ele.desc, // 開賽時間
+    start_date: !ele.start_date ? '' : ele.start_date,
+    end_date: !ele.end_date ? '' : ele.end_date,
+    mission_deposit_id: !ele.mission_deposit_id ? '' : ele.mission_deposit_id,
+    target: ele.target,
+    reward_class: 0, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
+    reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利  lottery: 彩卷
+    reward_num: ele.reward_num,
+    reward_class_num: ele.reward_class === 1 ? ele.reward_class_num : '',
+    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    need_finish_nums: ele.need_finish_nums,
+    now_finish_nums: ele.now_finish_nums
+  };
+
+  return data;
+}
+
+async function activityDepositMission(todayUnix) {
+  const missions = await db.sequelize.query(`
+    select missions.title, missions.desc, missions.start_date, missions.end_date,
+           missions.need_finish_nums,
+           mission_deposits.mission_deposit_id, mission_deposits.target,
+           mission_deposits.reward_type, mission_deposits.reward_num
+      from missions, mission_deposits
+     where missions.mission_id = mission_deposits.mission_id
+       and missions.type = 2
+       and missions.activity_type = 'deposit'
+       and missions.status = 1
+       and :todayUnix between start_date and end_date
+  `, {
+    replacements: {
+      todayUnix: todayUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
+async function activityDepositMissionLogin(uid, todayUnix) {
+  const missions = await db.sequelize.query(`
+    select mission_deposit.*,
+           user__missions.id um_id, user__missions.uid um_uid,
+           user__missions.mission_item_id um_mission_item_id, 
+           user__missions.mission_god_id um_mission_god_id, 
+           user__missions.mission_deposit_id um_mission_deposit_id,
+           user__missions.status um_status, user__missions.date_timestamp um_date_timestamp
+      from (
+             select missions.title, missions.desc, missions.start_date, missions.end_date,
+                    missions.need_finish_nums,
+                    mission_deposits.mission_deposit_id, mission_deposits.target,
+                    mission_deposits.reward_type, mission_deposits.reward_num
+               from missions, mission_deposits
+              where missions.mission_id = mission_deposits.mission_id
+                and missions.type = 2
+                and missions.activity_type = 'deposit'
+                and missions.status = 1
+                and :todayUnix between start_date and end_date
+           ) mission_deposit
+      left join user__missions
+        on mission_deposit.mission_deposit_id = user__missions.mission_deposit_id
+       and user__missions.uid = :uid
+  `, {
+    replacements: {
+      todayUnix: todayUnix,
+      uid: uid
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return missions;
+}
+
+// "使用者儲值" 後，判斷是否有活動 且 首次儲值 回傳對應應該給予的獎勵
+async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
+  const mission = await activityDepositMissionLogin(uid, todayUnix);
+  const result = [];
+
+  for (const data of Object.values(mission)) { // um 為 user_missions table
+    if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
+
+    // 是否首次儲值
+    const depositCount = await db.CashflowDeposit.count({
+      where: {
+        uid: uid,
+        order_status: 1
+      }
+    });
+
+    // true: 有活動, 有效
+    if (!data.um_mission_deposit_id && depositCount === 0) { // 必需是 沒有領取過 且 首次儲值 才會出現
+      result.push({
+        mission_deposit_id: data.mission_deposit_id,
+        reward_type: data.reward_type,
+        reward_num: data.reward_num ? data.reward_num : 0
+      });
+    }
+  };
+
+  return result;
+}
+
 module.exports = {
   addUserMissionStatus,
   setUserMissionStatus,
 
   missionDaily,
   dailyMission,
-  dailyMissionLogin
+  dailyMissionLogin,
+
+  missionActivityGod,
+  activityGodMission,
+  activityGodMissionLogin,
+  activityGodCheckStatusReturnReward,
+
+  missionActivityDeposit,
+  activityDepositMission,
+  activityDepositMissionLogin,
+  activityDepositsCheckStatusReturnReward
 };

@@ -11,7 +11,7 @@ const errs = require('../util/errorCode');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub cashflow]', util.format(...args));
+    console.log('[pubsub cashflow_settleRefund]', util.format(...args));
   }
 }
 
