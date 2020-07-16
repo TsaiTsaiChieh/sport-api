@@ -1,6 +1,7 @@
 const { ajv } = require('../../util/modules');
 // const missionModel = require('../../model/mission/missionModel');
 const missionDailyModel = require('../../model/mission/missionDailyModel');
+const missionActivityModel = require('../../model/mission/missionActivityModel');
 
 async function mission(req, res) {
   const schema = {
@@ -25,6 +26,9 @@ async function mission(req, res) {
     switch (req.query.type) {
       case 'daily':
         res.json(await missionDailyModel(req.body));
+        break;
+      case 'activity':
+        res.json(await missionActivityModel(req.body));
         break;
     }
   } catch (err) {
@@ -76,6 +80,40 @@ module.exports = mission;
       "reward_class_num": "",
       "status": 0,
       "need_finish_nums": 5,
+      "now_finish_nums": 0
+    }
+  ]
+}
+{
+  "activity": [
+    {
+      "title": "首次晉升成大神",
+      "desc": "鑽石大神：20 搞錠\n金牌大神：19 搞錠\n銀牌大神：18 搞錠\n銀牌大神：17 搞錠",
+      "start_date": 1594051200,
+      "end_date": 1594396799,
+      "item_id": 1,
+      "target": "predict",
+      "reward_class": 1,
+      "reward_type": "Ingot",
+      "reward_num": 20,
+      "reward_class_num": 17,
+      "status": 0,
+      "need_finish_nums": 1,
+      "now_finish_nums": 0
+    },
+    {
+      "title": "首次儲值100000獎金讓你抽",
+      "desc": "首次儲值達 288 搞幣以上，送一張摸獎券。",
+      "start_date": 1594051200,
+      "end_date": 1594396799,
+      "item_id": 1,
+      "target": "buy",
+      "reward_class": 0,
+      "reward_type": "lottery",
+      "reward_num": 1,
+      "reward_class_num": "",
+      "status": 0,
+      "need_finish_nums": 1,
       "now_finish_nums": 0
     }
   ]

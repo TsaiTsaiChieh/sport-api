@@ -4,20 +4,20 @@ const missionRewardReceiveModel = require('../../model/mission/missionRewardRece
 async function mission(req, res) {
   const schema = {
     type: 'object',
-    required: ['item_id', 'type'],
+    required: ['id', 'type'],
     properties: {
-      item_id: {
+      id: {
         type: 'integer'
       },
       type: {
         type: 'string',
-        enum: ['daily', 'adv', 'activity']
+        enum: ['mission_item', 'mission_god', 'mission_deposit']
       }
     }
   };
 
   const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value); // 處理 get number 問題
-  if (isNumber(req.query.item_id)) req.query.item_id = parseInt(req.query.item_id);
+  if (isNumber(req.query.id)) req.query.id = parseInt(req.query.id);
 
   const valid = ajv.validate(schema, req.query);
   if (!valid) {
@@ -28,7 +28,7 @@ async function mission(req, res) {
     req.body.token = req.token; // 從 cookie 取得 __session 中 token
 
     switch (req.query.type) {
-      case 'daily':
+      case 'mission_item':
         res.json(await missionRewardReceiveModel(req));
         break;
     }

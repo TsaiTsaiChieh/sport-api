@@ -6,7 +6,7 @@ const dividendExpireModel = require('../model/cashflow/dividendExpireModel');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub cashflow]', util.format(...args));
+    console.log('[pubsub cashflow_dividendExpire14]', util.format(...args));
   }
 }
 
