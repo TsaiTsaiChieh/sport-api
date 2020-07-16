@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable consistent-return */
 const modules = require('../../util/modules');
-const AppError = require('../../util/AppErrors');
+const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
@@ -28,7 +28,7 @@ function isGodSellValid(args) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     sell === NORMAL_USER_SELL && titles.includes(league)
-      ? reject(new AppError.GodSellStatusWrong())
+      ? reject(new AppErrors.GodSellStatusWrong())
       : resolve();
   });
 }
@@ -39,7 +39,7 @@ function isGodBelongToLeague(args) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     (sell === 0 || sell === 1) && !titles.includes(league)
-      ? reject(new AppError.UserCouldNotSell())
+      ? reject(new AppErrors.UserCouldNotSell())
       : resolve();
   });
 }
@@ -49,7 +49,7 @@ function isNormalUserSell(args) {
   return new Promise(function(resolve, reject) {
     const role = Number.parseInt(args.token.customClaims.role);
     role === NORMAL_USER && args.sell !== NORMAL_USER_SELL
-      ? reject(new AppError.UserCouldNotSell())
+      ? reject(new AppErrors.UserCouldNotSell())
       : resolve();
   });
 }
@@ -103,9 +103,9 @@ async function isMatchValid(args, ele, filter) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-
+      // TODO 補上回傳隊名
       if (!results.length) {
-        ele.code = 404;
+        ele.code = modules.httpStatus.NOT_FOUND;
         ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
         filter.failed.push(ele);
       } else if (results) {
@@ -113,6 +113,7 @@ async function isMatchValid(args, ele, filter) {
         const match_date = modules.convertTimezone(date);
         ele.match_scheduled = results[0].scheduled;
         ele.match_scheduled_tw = results[0].scheduled_tw;
+        // ele.match_scheduled_tw = modules.convertTimezoneFormat(results[0].scheduled, { format: 'A hh:mm' });
         ele.match_date = match_date;
         ele.home = {
           id: results[0].home_id,
@@ -129,7 +130,7 @@ async function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -154,14 +155,14 @@ function isGodUpdate(uid, i, filter) {
 
       if (predictResults.length) {
         const error = {
-          code: 403,
-          error: `${handicapType} id: ${handicapId} already exist, locked`
+          code: modules.httpStatus.NOT_ACCEPTABLE,
+          error: `${handicapType} id: ${handicapId} already exist, locked（大神無法更新已下注內容）`
         };
         filterProcessor(filter, i, error);
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -215,11 +216,11 @@ function isGodSellConsistent(args, i, filter) {
       );
       if (results.length) {
         if (results[0].sell !== args.sell) {
-          return reject(new AppError.GodSellInconsistent());
+          return reject(new AppErrors.GodSellInconsistent());
         } else return resolve();
       } else return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -228,7 +229,7 @@ function sendPrediction(args, filter) {
   return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
-      return reject(new AppError.UserPredictFailed({ failed: filter.failed }));
+      return reject(new AppErrors.UserPredictFailed({ failed: filter.failed }));
     } else if (neededResult) {
       await insertDB(args, filter.needed);
       await createNewsDB(args, filter.needed);
@@ -274,7 +275,7 @@ async function insertDB(args, needed) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -305,18 +306,20 @@ async function createNewsDB(insertData, needed) {
       }
       return resolve({ news_status: 'success' });
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by Henry`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by Henry`));
     }
   });
 }
 
 function repackagePrediction(args, ele) {
+  console.log(ele.match_scheduled);
   const data = {
     bets_id: ele.id,
     league_id: ele.league_id,
     sell: args.sell,
     match_scheduled: ele.match_scheduled,
     match_scheduled_tw: ele.match_scheduled_tw,
+    // match_scheduled_tw: modules.convertTimezoneFormat(ele.match_scheduled, { format: 'hh:mm A' }),
     match_date: ele.match_date,
     uid: args.token.uid,
     user_status: args.token.customClaims.role
@@ -340,6 +343,7 @@ function repackageReturnData(filter) {
     if (ele.length === undefined) {
       delete ele.league_id;
       delete ele.match_scheduled;
+      delete ele.match_scheduled_tw;
       filter.success.push(ele);
     }
   }
@@ -348,9 +352,26 @@ function repackageReturnData(filter) {
     if (ele.length === undefined) {
       delete ele.league_id;
       delete ele.match_scheduled;
+      delete ele.match_scheduled_tw;
     }
   }
   delete filter.needed;
-  return filter;
+  // isFailedAndSuccessCoexist(filter);
+  // return filter;
+  const a = isFailedAndSuccessCoexist(filter);
+  console.log(a);
+  return a;
+}
+
+function isFailedAndSuccessCoexist(filter) {
+  const { failed, success } = filter;
+  if (failed && success) {
+    const userPredictSomeFailed = new AppErrors.UserPredictSomeFailed({ failed, success });
+    return {
+      error: userPredictSomeFailed.getError.error,
+      devcode: userPredictSomeFailed.getError.devcode,
+      message: userPredictSomeFailed.getError.message
+    };
+  }
 }
 module.exports = prematch;
