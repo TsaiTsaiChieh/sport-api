@@ -60,4 +60,5 @@ router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO_2'));
 router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
+router.get('/NPB_crawler', require('../pubsub/crawlers/prematch_NPB'));
 module.exports = router;

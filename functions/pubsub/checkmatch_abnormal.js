@@ -23,7 +23,7 @@ function queryMatches() {
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
-					 WHERE game.status = '${modules.MATCH_STATUS.ABNORMAL}'
+					 WHERE (game.status = '${modules.MATCH_STATUS.ABNORMAL}' OR game.status = '-2')
 					   AND game.scheduled < ${time.getTime() / 1000} 
         )`,
         {
