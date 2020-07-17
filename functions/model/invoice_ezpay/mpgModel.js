@@ -3,13 +3,29 @@ const ezpay_config = require('../../config/invoice/ezpay_config');
 const httpBuildQuery = require('http-build-query');
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-async function mpgModel(res) {
+async function mpgModel(data) {
 
 //   const exchange = res.body;
 //   const uid = res.token.uid;
   
   return new Promise(async function(resolve, reject) {
     try {
+
+        const data2 = {
+          merchant_order_no:'20200717',
+          username:'username',
+          amt:'274',
+          tax_amt:'14',
+          total_amt:'288',
+          item_name:'商品一', 
+          item_count:1, 
+          item_unit:'個',
+          item_price:288, 
+          item_amt:288
+        }
+        data = data2;
+        /* 使用者名稱 */
+        
 
         /*商品名稱*/
        
@@ -25,15 +41,15 @@ async function mpgModel(res) {
 
         const HashKey = setting.hash_key;
         const HashIV = setting.hash_iv;
-        const php_sdk_url = 'https://test.gets-info.com/invoice/invoice_sdk.php';
+        const php_sdk_url = common.php_sdk_url;
         const cashflow_url = setting.cashflow_url;
         const ver = common.ver;
-        
+        const time_stamp = modules.moment().unix();
         /* 電子發票-ezpay */
         // const expire_date = modules.moment(new Date()).add(ATM_ExpireDate, 'days').format('YYYY-MM-DD');
         // const serial_number = modules.moment(new Date()).format('YYYYMMDDHHMMSS');
         // exchange.merchant_order_no = neweb_sdk.getOrderNo();
-        const time_stamp = modules.moment().unix();
+        
         // const now_format = modules.moment().format('YYYY-MM-DD');
         // console.log(now_format);
         // createTicket(exchange, uid);
@@ -44,29 +60,29 @@ async function mpgModel(res) {
         };
         const trade_info_arr = {
             'RespondType':'JSON',
-            'Version':'1.4',
+            'Version':ver,
             'TimeStamp':time_stamp, 
-            'MerchantOrderNo':'12345678910134123124',
-            'Status':'1',
-            'Category':'B2C',
-            'BuyerName':'UserName',
-            'PrintFlag':'Y',
-            'TaxType':'1',
-            'TaxRate':'5',
-            'Amt':'274',
-            'TaxAmt':'14',
-            'TotalAmt':'288',
-            'ItemName':'商品一', 
-            'ItemCount':'1', 
-            'ItemUnit':'個',
-            'ItemPrice':'288', 
-            'ItemAmt':'288'
+            'MerchantOrderNo':data.merchant_order_no,
+            'Status':common.status,
+            'Category':common.category,
+            'BuyerName':data.username,
+            'BuyerEmail': 'henry@gets-info.com',
+            'PrintFlag':common.print_flag,
+            'TaxType':common.tax_type,
+            'TaxRate':common.tax_rate,
+            'Amt':data.amt,
+            'TaxAmt':data.tax_amt,
+            'TotalAmt':data.total_amt,
+            'ItemName':data.item_name, 
+            'ItemCount':data.item_count, 
+            'ItemUnit':data.item_unit,
+            'ItemPrice':data.item_price, 
+            'ItemAmt':data.item_amt
         }
         const post_data = {
           'hash':hash,
           'trade_info_arr':trade_info_arr,
         }
-   
     var request = require('request');
  
     request(

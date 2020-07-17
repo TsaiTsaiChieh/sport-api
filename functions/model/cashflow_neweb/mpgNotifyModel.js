@@ -2,15 +2,43 @@ const db = require('../../util/dbUtil');
 const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
 const neweb_config = require('../../config/cashflow/neweb_config');
 // const dbEngine = require('../../util/databaseEngine.js');
+const missionUtil = require('../../util/missionUtil.js');
 // const invoice_model = require('../../config/invoice_ezpay/mpg_model');
 async function mpgNotifyModel(res) {
-  const update = await updateOrder(res); // 更新訂單狀態
-  if (update.status) {
-    console.log('invoice pending');
-    // await invoice_model.mpgModel(update.rdata);
+
+  try{
+    const update_order = await updateOrder(res); // 更新訂單狀態
+  
+    /* 判斷繳款是否成功，成功即開立發票 */
+    if (update_order.status) {
+      console.log('invoice pending');
+      const issue_lottery = await invoice_model.mpgModel(update_order.rdata);
+    }else{
+      /* 開立失敗，回傳錯誤訊息 */
+    }
+  
+
+    /* 任務/活動 區塊 */
+    /* 判斷發票是否開立成功，成功即發放抽獎券 */
+    if(issue_lottery.status) {
+      const issue_status = await dbEngine.issueLottery();
+    }else{
+      /* 開立失敗，回傳錯誤訊息 */
+    }
+    
+    /* 判斷所有流程是否皆成功，成功回傳成功訊息 */
+    if(issue_status) {
+
+    }
   }
+  catch (e) {
+    console.log('交易失敗');
+  }
+  
+
 }
 
+/* 繳款成功後，更新訂單狀態 */
 async function updateOrder(res) {
   const exchange = res.body; // request data
   const setting = neweb_config.setting.test; // 讀取設定檔(測試/正式)
@@ -56,10 +84,6 @@ async function updateOrder(res) {
   if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
     await db.User.update({ coin: purse_self.coin + purse_deposit.coin, dividend: purse_self.dividend + purse_deposit.dividend }, { where: { uid: purse_deposit.uid } });
   }
-
-
-  /*檢查是否達到抽獎券上限 && 發放 */
-  // await dbEngine.issue_lottery(uid, 1);
 
   const rtns = {
     status: exchange.order_stutus,
