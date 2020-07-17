@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const AppError = require('../../util/AppErrors');
+const AppErrors = require('../../util/AppErrors');
 const { SCHEDULED, INPLAY, END } = modules.MATCH_STATUS;
 const flag_prematch = 1;
 
@@ -64,7 +64,7 @@ function getMatchesWithDate(args) {
 
       return resolve(results);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -93,10 +93,11 @@ function returnGodUserPrediction(args) {
       );
       return resolve(results);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
+
 function isGodBelongToLeague(args) {
   if (args.token) {
     if (args.token.customClaims.titles.includes(args.league)) {
@@ -104,6 +105,7 @@ function isGodBelongToLeague(args) {
     }
   } else return false;
 }
+
 function repackageMatches(results, args, godPredictions) {
   const data = {
     sell: -1,
@@ -153,6 +155,11 @@ function repackageMatches(results, args, godPredictions) {
         disable: !!((ele.totals_id === null || ele.totals_handicap === null))
       }
     };
+
+    // if (!temp.spread.id && !temp.totals.id) {
+    //   break;
+    // }
+
     if (godPredictions.length) {
       data.sell = godPredictions[0].sell;
       isHandicapDisable(ele, temp, godPredictions);
@@ -188,6 +195,7 @@ function repackageMatches(results, args, godPredictions) {
   }
   return data;
 }
+
 // 將大神預測單的資料作顯示上的處理
 function isHandicapDisable(ele, temp, predictions) {
   for (let i = 0; i < predictions.length; i++) {
