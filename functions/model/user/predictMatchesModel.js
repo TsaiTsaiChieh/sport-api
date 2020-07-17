@@ -126,7 +126,7 @@ function checkIfError(result, args, ele, filter) {
     if (result[0].status !== modules.MATCH_STATUS.SCHEDULED) { // 賽事已開打
       ele.code = modules.httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
-      ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始，不能再下注`;
+      ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
       filter.failed.push(ele);
       return;
     }
