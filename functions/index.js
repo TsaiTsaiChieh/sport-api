@@ -159,14 +159,6 @@ exports.lineups_MLB = functions.pubsub
   .schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/lineups_MLB'));
-// exports.pbp_MLB = functions.pubsub
-//   .schedule('* * * * *')
-//   .timeZone('Asia/Taipei')
-//   .onRun(require('./pubsub/checkmatch_MLB'));
-// exports.pbp_NBA = functions.pubsub
-//   .schedule('* * * * *')
-//   .timeZone('Asia/Taipei')
-//   .onRun(require('./pubsub/checkmatch_NBA'));
 exports.pbp_eSoccer = functions
   .runWith(runtimeOpts)
   .pubsub.schedule('* * * * *')
@@ -183,37 +175,39 @@ exports.pbp_another = functions
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_another'));
 
-exports.auth_statscore = functions.pubsub
-  .schedule('50 23 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/auth_statscore'));
-exports.prematch_statscore_KBO = functions.pubsub
-  .schedule('5 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_statscore_KBO'));
-exports.pbp_statscore_KBO = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
-exports.prematch_statscore_NPB = functions.pubsub
-  .schedule('5 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_statscore_NPB'));
-exports.pbp_statscore_NPB = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
-exports.prematch_statscore_CPBL = functions.pubsub
-  .schedule('5 5 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/prematch_statscore_CPBL'));
-exports.pbp_statscore_CPBL = functions
-  .runWith(runtimeOpts)
-  .pubsub.schedule('* * * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+// -------- statscore 專區 --------
+// exports.auth_statscore = functions.pubsub
+//  .schedule('50 23 * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/auth_statscore'));
+// exports.prematch_statscore_KBO = functions.pubsub
+//  .schedule('5 5 * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/prematch_statscore_KBO'));
+// exports.pbp_statscore_KBO = functions
+//  .runWith(runtimeOpts)
+//  .pubsub.schedule('* * * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
+// exports.prematch_statscore_NPB = functions.pubsub
+//  .schedule('5 5 * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/prematch_statscore_NPB'));
+// exports.pbp_statscore_NPB = functions
+//  .runWith(runtimeOpts)
+//  .pubsub.schedule('* * * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
+// exports.prematch_statscore_CPBL = functions.pubsub
+//  .schedule('5 5 * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/prematch_statscore_CPBL'));
+// exports.pbp_statscore_CPBL = functions
+//  .runWith(runtimeOpts)
+//  .pubsub.schedule('* * * * *')
+//  .timeZone('Asia/Taipei')
+//  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+// -------- statscore 專區 --------
 
 // 大神
 // 1. 清晨 12:00` `下期第一天` 產生大神

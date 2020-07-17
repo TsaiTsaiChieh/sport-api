@@ -110,7 +110,7 @@ function getTeamsStandings(URL) {
   });
 }
 
- function mapTeam(name) {
+function mapTeam(name) {
   switch (name) {
     case '広　島' || '広島東洋カープ': {
       return '3324';
@@ -149,15 +149,15 @@ function getTeamsStandings(URL) {
       return '10078';
     }
   }
- }
+}
 async function upsertFirestoreTeamC(result) {
   // const team1 = '45295';
   // const team2 = '10216';
   // const team3 = '3323';
   // const team4 = '3324';
   // const team5 = '3318';
-	// const team6 = '3317';
-	mapTeam('aa');
+  // const team6 = '3317';
+  mapTeam('aa');
 }
 async function upsertFirestoreTeamP(result) {
   // const team1 = '5438';

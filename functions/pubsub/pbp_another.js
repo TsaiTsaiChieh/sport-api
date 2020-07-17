@@ -36,7 +36,15 @@ async function axiosForURL(URL) {
       const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
-      return reject(new AppErrors.AxiosError(`${err} at pbp_another by DY`));
+      try {
+        if (err.code === 'ECOUNNRESET') {
+          console.log('axios again at pbp_another');
+          const { data } = await modules.axios(URL);
+          return resolve(data);
+        }
+      } catch (err) {
+        return reject(new AppErrors.AxiosError(`${err} at pbp_another by DY`));
+      }
     }
   });
 }
@@ -141,7 +149,7 @@ async function doPBP(parameter) {
     const pbpURL = parameter.pbpURL;
     const sport = parameter.sport;
     const league = parameter.league;
-
+    const leagueID = parameter.leagueID;
     let data;
     try {
       data = await axiosForURL(pbpURL);
@@ -318,37 +326,39 @@ async function doPBP(parameter) {
             keepPBP = 0;
           }
           if (keepPBP === 1) {
-            // let homeScores = null;
-            // let awayScores = null;
-            // if (!data.results[0].ss || data.results[0].ss === null) {
-            //  data.results[0].ss = 'no data';
-            // } else {
-            //  homeScores = data.results[0].ss.split('-')[0];
-            //  awayScores = data.results[0].ss.split('-')[1];
-            // }
-            // try {
-            //  if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
-            //    await modules.database
-            //      .ref(`${sport}/${league}/${betsID}/Summary/info`)
-            //      .set({
-            //        home: {points: awayScores},
-            //        away: {points: homeScores}
-            //      });
-            //  } else {
-            //    await modules.database
-            //      .ref(`${sport}/${league}/${betsID}/Summary/info`)
-            //      .set({
-            //        home: {points: homeScores},
-            //        away: {points: awayScores}
-            //      });
-            //  }
-            // } catch (err) {
-            //  return reject(
-            //    new AppErrors.FirebaseRealtimeError(
-            //      `${err} at doPBP of info on ${betsID} by DY`
-            //    )
-            //  );
-            // }
+            if (data.results[0].ss) {
+              if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
+                try {
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info`)
+                    .set({
+                      away: { Total: { points: data.results[0].ss.split('-')[1] } },
+                      home: { Total: { points: data.results[0].ss.split('-')[0] } }
+                    });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP of status on ${betsID} by DY`
+                    )
+                  );
+                }
+              } else {
+                try {
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info`)
+                    .set({
+                      away: { Total: { points: data.results[0].ss.split('-')[0] } },
+                      home: { Total: { points: data.results[0].ss.split('-')[1] } }
+                    });
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP of status on ${betsID} by DY`
+                    )
+                  );
+                }
+              }
+            }
           }
         }
       }
