@@ -25,6 +25,16 @@ class DeletePredictionsFailed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class UserPredictSomeFailed extends ExtendableError {
+  constructor(message, status = 1002, isPublic = true, code = httpStatus.OK) {
+    super(message, status, isPublic, code);
+  }
+
+  get getError() {
+    return { error: this.constructor.name, message: this.message, devcode: this.status };
+  }
+}
 /* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
@@ -474,6 +484,7 @@ module.exports = {
   CouldNotBuyOwnPredictions,
   UserPredictFailed,
   DeletePredictionsFailed,
+  UserPredictSomeFailed,
   MysqlError,
   BetsAPIError,
   PrematchEsoccerError,

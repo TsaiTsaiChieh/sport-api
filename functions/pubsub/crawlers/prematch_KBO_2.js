@@ -2,7 +2,13 @@ const configs = {
   league: 'KBO',
   official_URL: 'http://eng.koreabaseball.com/',
   blackboard_URL: 'https://mykbostats.com/',
+  // TODO table titles should be dynamic to crawler
+  officialTeamStandingsTitles: ['RK', 'TEAM', 'GAMES', 'W', 'L', 'D', 'PCT', 'GB', 'STREAK', 'HOME', 'AWAY'],
   blackboardTeamTableTitles: ['Rank/Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
+  blackboardTeamSplitsTitles: ['Season', 'G', 'W', 'L', 'D', 'W%', 'R/G', '-R/G', 'R', '-R', 'dR', 'H/G', '-H/G', 'H',
+    '-H', 'dH', 'HR/G', '-HR/G', 'HR', '-HR', 'dHR', 'BA', 'ERA_sp', 'ERA_rp'],
+
+  teamNumber: 10,
   collectionName: 'baseball_KBO'
 };
 const modules = require('../../util/modules');
@@ -40,13 +46,15 @@ function crawler_KBO(season) {
   return new Promise(async function(resolve, reject) {
     try {
       // 官網
-      // await crawler(configs.official_URL);
+      const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx`);
+      const officialData = await getTeamStandingsFromOfficial($_officialData);
+      combineTwoTableFromOfficial(officialData);
       // 黑板
       const $_blackboardData = await crawler(configs.blackboard_URL);
       const blackboardTeamData = await getTeamsStandingsFromBlackboard($_blackboardData);
       const $_blackboardTeamSplitsData = await crawler(`${configs.blackboard_URL}stats/team_splits/${season}`);
-      const a = await getTeamSplitsFromBlackboard($_blackboardTeamSplitsData);
-      console.log(blackboardTeamData, a);
+      const blackboardTeamSplitsData = await getTeamSplitsFromBlackboard($_blackboardTeamSplitsData);
+      console.log(blackboardTeamData, blackboardTeamSplitsData);
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -65,6 +73,35 @@ function crawler(URL) {
   });
 }
 
+function getTeamStandingsFromOfficial($) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const upperTable = [];
+      const lowerTable = [];
+      $('td').each(function(i) {
+        // upper table
+        if (i < configs.officialTeamStandingsTitles.length * configs.teamNumber) {
+          upperTable[i] = $(this).text();
+        } else { // lower table
+          lowerTable.push($(this).text());
+        }
+      });
+      // console.log(upperTable, lowerTable);
+      return resolve({ upperTable, lowerTable });
+    } catch (err) {
+      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+function combineTwoTableFromOfficial(officialData) {
+  try {
+    console.log(officialData);
+  } catch (err) {
+    console.error(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+  }
+}
 function getTeamsStandingsFromBlackboard($) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -157,40 +194,48 @@ function decomposeTeamBaseAndName(teamsStats) {
 function teamName2id(name) {
   name = name.toLowerCase();
   switch (name) {
-    case 'lotte giants':
+    case 'lotte giants' || 'lotte':
       return 2408;
-    case 'samsung lions':
+    case 'samsung lions' || 'samsung':
       return 3356;
-    case 'kia tigers':
+    case 'kia tigers' || 'kt':
       return 4202;
-    case 'doosan bears':
+    case 'doosan bears' || 'doosan':
       return 2406;
-    case 'hanwha eagles':
+    case 'hanwha eagles' || 'hanwha':
       return 2405;
-    case 'sk wyverns':
+    case 'sk wyverns' || 'sk':
       return 8043;
-    case 'lg twins':
+    case 'lg twins' || 'lg':
       return 2407;
-    case 'kiwoom heroes':
+    case 'kiwoom heroes' || 'kiwoom':
       return 269103;
-    case 'nc dinos':
+    case 'nc dinos' || 'nc':
       return 3353;
-    case 'kt wiz':
+    case 'kt wiz' || 'kt':
       return 3354;
     default:
-      return 'unknown team name';
+      return 'Unknown team name';
   }
 }
 
 function getTeamSplitsFromBlackboard($) {
   return new Promise(async function(resolve, reject) {
     try {
-      $('.syncscroll').each(function(i, ele) {
-        // console.log(ele.text);
-        console.log(i);
-        // console.log('====');
-        // console.log($(this).text());
+      const tdArray = [];
+      $('td').each(function(i) {
+        // Just want the season table
+        if (i < configs.blackboardTeamSplitsTitles.length * configs.teamNumber) {
+          if (i % configs.blackboardTeamSplitsTitles.length === 0) {
+            const removeLineBreaks = $(this).text().replace('\n\n', '').trim();
+            tdArray[i] = removeLineBreaks;
+          } else {
+            const removeLineBreaks = $(this).text().replace('\n', '').trim();
+            tdArray[i] = removeLineBreaks;
+          }
+        }
       });
+      return resolve(tdArray);
     } catch (err) {
       return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
     }
