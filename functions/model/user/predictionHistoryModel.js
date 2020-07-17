@@ -160,7 +160,7 @@ async function repackageMatchDate(ele, matchDate) {
         handicap: ele.totals_handicap,
         over_tw: ele.over_tw,
         predict: ele.totals_option,
-        ori_bets: ele.total_bets,
+        ori_bets: ele.totals_bets,
         bets: ele.total_bets !== null ? ele.totals_bets * ele.totals_result_flag : null,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
