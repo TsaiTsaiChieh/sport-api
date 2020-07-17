@@ -213,7 +213,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
           spread_id: odd.id,
           match_id: ele.bets_id,
           league_id: leagueUniteID,
-          handicap: Number.parseFloat(odd.handicap),
+          handicap: -Number.parseFloat(odd.handicap),
           rate: Number.parseFloat(odd.rate),
           home_odd: Number.parseFloat(odd.home_od),
           away_odd: Number.parseFloat(odd.away_od),
@@ -274,6 +274,7 @@ function spreadCalculator(handicapObj, sport) {
           handicapObj.rate = 0;
         } else {
           // 客讓主
+
           handicapObj.home_tw = null;
           handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
           handicapObj.rate = 0;
@@ -707,7 +708,7 @@ function totalsCalculator(handicapObj, sport) {
       // 籃球或冰球
       if (handicapObj.handicap % 1 === 0) {
         // 整數
-        handicapObj.over_tw = `${handicapObj.handicap}`;
+        handicapObj.over_tw = `${handicapObj.handicap}平`;
         handicapObj.rate = 0;
       } else {
         // 小數
@@ -733,7 +734,7 @@ function totalsCalculator(handicapObj, sport) {
           }
         } else {
           // 賠率相同
-          handicapObj.over_tw = `${handicapObj.handicap}`;
+          handicapObj.over_tw = `${handicapObj.handicap}平`;
           handicapObj.rate = 0;
         }
       } else {

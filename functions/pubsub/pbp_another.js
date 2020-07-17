@@ -78,7 +78,7 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
     }
 
     try {
-      if (leagueID === '11235' || leagueID === '347' || leagueID === '349') {
+      if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
         await Match.upsert({
           bets_id: betsID,
           home_points: awayScores,
@@ -141,7 +141,7 @@ async function doPBP(parameter) {
     const pbpURL = parameter.pbpURL;
     const sport = parameter.sport;
     const league = parameter.league;
-    const leagueID = parameter.leagueID;
+
     let data;
     try {
       data = await axiosForURL(pbpURL);
@@ -318,37 +318,37 @@ async function doPBP(parameter) {
             keepPBP = 0;
           }
           if (keepPBP === 1) {
-            let homeScores = null;
-            let awayScores = null;
-            if (!data.results[0].ss || data.results[0].ss === null) {
-              data.results[0].ss = 'no data';
-            } else {
-              homeScores = data.results[0].ss.split('-')[0];
-              awayScores = data.results[0].ss.split('-')[1];
-            }
-            try {
-              if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
-                await modules.database
-                  .ref(`${sport}/${league}/${betsID}/Summary/info`)
-                  .set({
-                    home: { points: awayScores },
-                    away: { points: homeScores }
-                  });
-              } else {
-                await modules.database
-                  .ref(`${sport}/${league}/${betsID}/Summary/info`)
-                  .set({
-                    home: { points: homeScores },
-                    away: { points: awayScores }
-                  });
-              }
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP of info on ${betsID} by DY`
-                )
-              );
-            }
+            // let homeScores = null;
+            // let awayScores = null;
+            // if (!data.results[0].ss || data.results[0].ss === null) {
+            //  data.results[0].ss = 'no data';
+            // } else {
+            //  homeScores = data.results[0].ss.split('-')[0];
+            //  awayScores = data.results[0].ss.split('-')[1];
+            // }
+            // try {
+            //  if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
+            //    await modules.database
+            //      .ref(`${sport}/${league}/${betsID}/Summary/info`)
+            //      .set({
+            //        home: {points: awayScores},
+            //        away: {points: homeScores}
+            //      });
+            //  } else {
+            //    await modules.database
+            //      .ref(`${sport}/${league}/${betsID}/Summary/info`)
+            //      .set({
+            //        home: {points: homeScores},
+            //        away: {points: awayScores}
+            //      });
+            //  }
+            // } catch (err) {
+            //  return reject(
+            //    new AppErrors.FirebaseRealtimeError(
+            //      `${err} at doPBP of info on ${betsID} by DY`
+            //    )
+            //  );
+            // }
           }
         }
       }

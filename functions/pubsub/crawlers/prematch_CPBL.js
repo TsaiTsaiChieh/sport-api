@@ -7,7 +7,7 @@ const leagueName = 'CPBL';
 // const league = modules.leagueCodebook(leagueName);
 const sportName = modules.league2Sport(leagueName).sport;
 // const sport = '16';
-const perStep = 2000; // 每秒抓一項資訊
+const perStep = 1000; // 每秒抓一項資訊
 const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
 async function prematch_CPBL(req, res) {
@@ -71,8 +71,6 @@ async function prematch_CPBL(req, res) {
           break;
         }
       }
-      URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
-      await getHittersStandings(URL); // 中信兄弟 選手打擊
     }
   }, perStep);
 }
@@ -109,7 +107,16 @@ function getPitchersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      await upsertFirestorePitcher(result, totalPlayer);
+      const id = $('tr td a');
+      const playerID = [];
+      id.each(function(index, ele) {
+        if (index % 2 === 0) {
+          playerID.push(
+            ele.attribs.href.split('?')[1].split('=')[1].split('&')[0]
+          );
+        }
+      });
+      await upsertFirestorePitcher(result, totalPlayer, playerID);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -196,25 +203,17 @@ function getHittersStandings(URL) {
           result.push(title[i].trim());
         }
       }
-      let id = $('.gap_b20 a').attr('href');
-
-      id = id.replace(/\r/g, '');
-      id = id.replace(/\n/g, '');
-      id = id.replace(/\t/g, ' ');
-      id = id.split(' ');
-      result = [];
-      for (let i = 0; i < id.length; i++) {
-        if (id[i] === '') {
-          continue;
-        } else {
-          result.push(id[i].trim());
+      const id = $('tr td a');
+      const playerID = [];
+      id.each(function(index, ele) {
+        if (index % 2 === 0) {
+          playerID.push(
+            ele.attribs.href.split('?')[1].split('=')[1].split('&')[0]
+          );
         }
-      }
-      for (let i = 0; i < result.length; i++) {
-        console.log(i + '    ' + result[i]);
-      }
+      });
 
-      await upsertFirestoreHitter(result, totalPlayer);
+      await upsertFirestoreHitter(result, totalPlayer, playerID);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -461,7 +460,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
       );
   }
 }
-function upsertFirestoreHitter(result, totalPlayer) {
+function upsertFirestoreHitter(result, totalPlayer, playerID) {
   const teamID = mapTeam(result[33]);
   const start = 31;
   const offset = 32; // 一循環
@@ -474,9 +473,7 @@ function upsertFirestoreHitter(result, totalPlayer) {
           [`season_${season}`]: {
             players: {
               // 背號＋姓名
-              [`${result[start + i * offset]}_${
-                result[start + 1 + i * offset]
-              }`]: {
+              [`${playerID[i]}`]: {
                 player_id: result[start + i * offset],
                 ori_name: result[start + 1 + i * offset], // 原文
                 name: result[start + 1 + i * offset], // 英文
@@ -520,7 +517,7 @@ function upsertFirestoreHitter(result, totalPlayer) {
       );
   }
 }
-function upsertFirestorePitcher(result, totalPlayer) {
+function upsertFirestorePitcher(result, totalPlayer, playerID) {
   const teamID = mapTeam(result[33]);
   const start = 31;
   const offset = 32; // 一循環
@@ -533,9 +530,7 @@ function upsertFirestorePitcher(result, totalPlayer) {
           [`season_${season}`]: {
             players: {
               // 背號＋姓名
-              [`${result[start + i * offset]}_${
-                result[start + 1 + i * offset]
-              }`]: {
+              [`${playerID[i]}`]: {
                 player_id: result[start + i * offset],
                 ori_name: result[start + 1 + i * offset], // 原文
                 name: result[start + 1 + i * offset], // 英文
