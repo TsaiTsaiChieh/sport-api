@@ -3,7 +3,7 @@ const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
   topicCheckByDateBetween, predictMatchCheckByDateBetween,
-  predictCorrectLeagueDailyByDateBetween
+  predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
 const { CacheQuery, redis } = require('./redisUtil');
@@ -592,6 +592,10 @@ async function missionActivityPredict(args) {
 
     if (data.func_type === 'predictCorrectLeagueDailyByDateBetween') { // 預測 同聯盟 正確盤數 correct_count
       predictsInfo = await predictCorrectLeagueDailyByDateBetween(userUid, data.start_date, data.end_date);
+    }
+
+    if (data.func_type === 'predictCorrectDailyByDateBetween') { // 預測 不同聯盟 正確盤數 correct_count
+      predictsInfo = await predictCorrectDailyByDateBetween(userUid, data.start_date, data.end_date);
     }
 
     // 處理 需要完成任務盤數 和 現在完成任務盤數 並 記錄目前完成最大正確盤數
