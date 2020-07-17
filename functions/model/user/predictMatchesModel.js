@@ -1,11 +1,8 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable consistent-return */
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
-const scheduledStatus = 2;
 
 function prematch(args) {
   return new Promise(async function(resolve, reject) {
@@ -81,60 +78,81 @@ async function checkMatches(args) {
 }
 async function isMatchValid(args, ele, filter) {
   return new Promise(async function(resolve, reject) {
-    const { league } = args;
-    const { handicapType, handicapId } = handicapProcessor(ele);
-
     try {
-      // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
-      const results = await db.sequelize.query(
-        `SELECT game.*, 
+      // index is const(matches-game); const(match__teams-home); const(match__team-away), taking 165ms
+      const result = await db.sequelize.query(
+        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, 
                 home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias,  
                 away.team_id AS away_id, away.alias_ch AS away_alias_ch, away.alias AS away_alias
            FROM matches AS game, 
                 match__teams AS home,
                 match__teams AS away
-          WHERE game.bets_id = :id
-            AND game.${handicapType}_id = :handicapId
-            AND game.status = ${scheduledStatus}
+          WHERE game.bets_id = :bets_id
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
-          replacements: { id: ele.id, handicapId },
+          replacements: { bets_id: ele.id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      // TODO 補上回傳隊名
-      if (!results.length) {
-        ele.code = modules.httpStatus.NOT_FOUND;
-        ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
-        filter.failed.push(ele);
-      } else if (results) {
-        const date = modules.convertTimezoneFormat(results[0].scheduled);
-        const match_date = modules.convertTimezone(date);
-        ele.match_scheduled = results[0].scheduled;
-        ele.match_scheduled_tw = results[0].scheduled_tw;
-        // ele.match_scheduled_tw = modules.convertTimezoneFormat(results[0].scheduled, { format: 'A hh:mm' });
-        ele.match_date = match_date;
-        ele.home = {
-          id: results[0].home_id,
-          alias: results[0].home_alias,
-          alias_ch: results[0].home_alias_ch
-        };
-        ele.away = {
-          id: results[0].away_id,
-          alias: results[0].away_alias,
-          alias_ch: results[0].away_alias_ch
-        };
-        ele.league_id = modules.leagueCodebook(league).id;
-        filter.needed.push(ele);
-      }
-      resolve(filter);
+      return resolve(checkIfError(result, args, ele, filter));
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
+function checkIfError(result, args, ele, filter) {
+  // 檢查以下三種狀況
+  // 1. 賽事 id 無效
+  // 2. 盤口已更新
+  // 3. 賽事已開打
+  const { handicapType, handicapId, handicapName } = handicapProcessor(ele);
+  if (!result.length) { // 代表賽事 id 無效
+    ele.code = modules.httpStatus.NOT_FOUND;
+    ele.error = `Match id: ${ele.id} in ${args.league} not found`;
+    ele.error_ch = `無此 ${ele.id} 的賽事編號`;
+    filter.failed.push(ele);
+    return;
+  }
+  if (result) {
+    if (result[0][`${handicapType}_id`] !== handicapId) { // 盤口已更新
+      ele.code = modules.httpStatus.NOT_ACCEPTABLE;
+      ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
+      ele.error_ch = `賽事編號 ${ele.id} 的${handicapName}(handicapType)編號 ${handicapId} 已非最新盤口編號`;
+      filter.failed.push(ele);
+      return;
+    }
+    if (result[0].status !== modules.MATCH_STATUS.SCHEDULED) { // 賽事已開打
+      ele.code = modules.httpStatus.CONFLICT;
+      ele.error = `Match id: ${ele.id} in ${args.league} already started`;
+      ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始，不能再下注`;
+      filter.failed.push(ele);
+      return;
+    }
+  }
+  pushValidMatchToNeeded(result, args, ele, filter);
+}
+
+function pushValidMatchToNeeded(result, args, ele, filter) {
+  const date = modules.convertTimezoneFormat(result[0].scheduled);
+  const match_date = modules.convertTimezone(date);
+  ele.match_scheduled = result[0].scheduled;
+  ele.match_scheduled_tw = result[0].scheduled_tw;
+  ele.match_date = match_date;
+  ele.home = {
+    id: result[0].home_id,
+    alias: result[0].home_alias,
+    alias_ch: result[0].home_alias_ch
+  };
+  ele.away = {
+    id: result[0].away_id,
+    alias: result[0].away_alias,
+    alias_ch: result[0].away_alias_ch
+  };
+  ele.league_id = modules.leagueCodebook(args.league).id;
+  filter.needed.push(ele);
+}
 function isGodUpdate(uid, i, filter) {
   return new Promise(async function(resolve, reject) {
     const ele = filter.needed[i];
@@ -168,17 +186,20 @@ function isGodUpdate(uid, i, filter) {
 }
 
 function handicapProcessor(ele) {
-  let handicapType = '';
+  let handicapType;
   let handicapId;
+  let handicapName;
 
   if (ele.spread) {
     handicapType = 'spread';
     handicapId = ele.spread[0];
+    handicapName = '讓分';
   } else if (ele.totals) {
     handicapType = 'totals';
     handicapId = ele.totals[0];
+    handicapName = '大小分';
   }
-  return { handicapType, handicapId };
+  return { handicapType, handicapId, handicapName };
 }
 function filterProcessor(filter, i, error) {
   const ele = filter.needed[i];
@@ -312,14 +333,12 @@ async function createNewsDB(insertData, needed) {
 }
 
 function repackagePrediction(args, ele) {
-  console.log(ele.match_scheduled);
   const data = {
     bets_id: ele.id,
     league_id: ele.league_id,
     sell: args.sell,
     match_scheduled: ele.match_scheduled,
     match_scheduled_tw: ele.match_scheduled_tw,
-    // match_scheduled_tw: modules.convertTimezoneFormat(ele.match_scheduled, { format: 'hh:mm A' }),
     match_date: ele.match_date,
     uid: args.token.uid,
     user_status: args.token.customClaims.role
@@ -356,11 +375,7 @@ function repackageReturnData(filter) {
     }
   }
   delete filter.needed;
-  // isFailedAndSuccessCoexist(filter);
-  // return filter;
-  const a = isFailedAndSuccessCoexist(filter);
-  console.log(a);
-  return a;
+  return isFailedAndSuccessCoexist(filter);
 }
 
 function isFailedAndSuccessCoexist(filter) {
