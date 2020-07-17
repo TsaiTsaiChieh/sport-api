@@ -81,7 +81,7 @@ async function isMatchValid(args, ele, filter) {
     try {
       // index is const(matches-game); const(match__teams-home); const(match__team-away), taking 165ms
       const result = await db.sequelize.query(
-        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, 
+        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, game.scheduled, game.scheduled_tw, 
                 home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias,  
                 away.team_id AS away_id, away.alias_ch AS away_alias_ch, away.alias AS away_alias
            FROM matches AS game, 
@@ -156,6 +156,7 @@ function pushValidMatchToNeeded(result, args, ele, filter) {
   ele.match_scheduled = result[0].scheduled;
   ele.match_scheduled_tw = result[0].scheduled_tw;
   ele.match_date = match_date;
+
   ele.home = {
     id: result[0].home_id,
     alias: result[0].home_alias,
@@ -380,7 +381,6 @@ function repackageReturnData(filter) {
       delete ele.league_id;
       delete ele.match_scheduled;
       delete ele.match_scheduled_tw;
-      delete ele.match_date;
       filter.success.push(ele);
     }
   }
@@ -390,7 +390,6 @@ function repackageReturnData(filter) {
       delete ele.league_id;
       delete ele.match_scheduled;
       delete ele.match_scheduled_tw;
-      delete ele.match_date;
     }
   }
   delete filter.needed;
@@ -399,13 +398,13 @@ function repackageReturnData(filter) {
 
 function isFailedAndSuccessCoexist(filter) {
   const { failed, success } = filter;
-  if (failed && success) {
+  if (failed.length && success.length) {
     const userPredictSomeFailed = new AppErrors.UserPredictSomeFailed({ failed, success });
     return {
       error: userPredictSomeFailed.getError.error,
       devcode: userPredictSomeFailed.getError.devcode,
       message: userPredictSomeFailed.getError.message
     };
-  }
+  } else return filter;
 }
 module.exports = prematch;
