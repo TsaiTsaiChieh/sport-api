@@ -193,7 +193,10 @@ module.exports = predictMatches;
 
  * @apiError 200 OK (but all predictions are failed)
  * @apiError 400 Bad Request
- * @apiError 403 Forbidden
+ * @apiError 1000-403 Forbidden 因為大神無法再更新已下注內容
+ * @apiError 1002-404 Not Found 賽事無效
+ * @apiError 1002-406 Not Acceptable 盤口已過期
+ * @apiError 1002-409 Conflict 賽事已開打或已結束
  *
  * @apiErrorExample {JSON} 200-Response
  * {
