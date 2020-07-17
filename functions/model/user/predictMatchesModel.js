@@ -120,6 +120,7 @@ function checkIfError(result, args, ele, filter) {
       ele.code = modules.httpStatus.NOT_ACCEPTABLE;
       ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
       ele.error_ch = `賽事編號 ${ele.id} 的${handicapName}(handicapType)編號 ${handicapId} 已非最新盤口編號`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
       filter.failed.push(ele);
       return;
     }
@@ -127,11 +128,26 @@ function checkIfError(result, args, ele, filter) {
       ele.code = modules.httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
       ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
       filter.failed.push(ele);
       return;
     }
   }
   pushValidMatchToNeeded(result, args, ele, filter);
+}
+
+function pushNotValidMatchToFailed(result, args, ele, filter) {
+  ele.home = {
+    id: result[0].home_id,
+    alias: result[0].home_alias,
+    alias_ch: result[0].home_alias_ch
+  };
+  ele.away = {
+    id: result[0].away_id,
+    alias: result[0].away_alias,
+    alias_ch: result[0].away_alias_ch
+  };
+  ele.league_id = modules.leagueCodebook(args.league).id;
 }
 
 function pushValidMatchToNeeded(result, args, ele, filter) {
@@ -153,6 +169,7 @@ function pushValidMatchToNeeded(result, args, ele, filter) {
   ele.league_id = modules.leagueCodebook(args.league).id;
   filter.needed.push(ele);
 }
+
 function isGodUpdate(uid, i, filter) {
   return new Promise(async function(resolve, reject) {
     const ele = filter.needed[i];
@@ -363,6 +380,7 @@ function repackageReturnData(filter) {
       delete ele.league_id;
       delete ele.match_scheduled;
       delete ele.match_scheduled_tw;
+      delete ele.match_date;
       filter.success.push(ele);
     }
   }
@@ -372,6 +390,7 @@ function repackageReturnData(filter) {
       delete ele.league_id;
       delete ele.match_scheduled;
       delete ele.match_scheduled_tw;
+      delete ele.match_date;
     }
   }
   delete filter.needed;
