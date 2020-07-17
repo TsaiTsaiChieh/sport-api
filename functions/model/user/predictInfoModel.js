@@ -117,9 +117,9 @@ function repackage(ele) {
       predict: ele.spread_option,
       spread_id: ele.spread_id,
       handicap: ele.spread_handicap,
-      handicap_home_tw: ele.home_tw ? ele.home_tw : '',
-      handicap_away_tw: ele.away_tw ? ele.away_tw : '',
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      home_tw: ele.home_tw ? ele.home_tw : '',
+      away_tw: ele.away_tw ? ele.away_tw : '',
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.spread_bets
     };
   }
@@ -128,8 +128,9 @@ function repackage(ele) {
     data.totals = {
       predict: ele.totals_option,
       totals_id: ele.totals_id,
-      handicap: ele.over_tw, // ele.totals_handicap,
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      handicap: ele.totals_handicap,
+      over_tw: ele.over_tw,
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.totals_bets
     };
   }

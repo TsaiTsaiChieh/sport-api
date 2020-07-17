@@ -11,7 +11,7 @@ const { redis } = require('../util/redisUtil');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god]', util.format(...args));
+    console.log('[pubsub god_settlePrediction]', util.format(...args));
   }
 }
 

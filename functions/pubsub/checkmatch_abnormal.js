@@ -289,7 +289,8 @@ async function pbpHistory(parameterHistory) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
     }
-    if (leagueName === 'KBO') {
+
+    if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
       if (!data.results[0].ss) {
         realtimeData = await modules.database
           .ref(`${sportName}/${leagueName}/${betsID}`)
@@ -308,22 +309,55 @@ async function pbpHistory(parameterHistory) {
         homeScores = data.results[0].ss.split('-')[0];
         awayScores = data.results[0].ss.split('-')[1];
       }
+      try {
+        await Match.upsert({
+          bets_id: betsID,
+          home_points: awayScores,
+          away_points: homeScores,
+          status: 0
+        });
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at pbpESoccer of Match on ${betsID} by DY`
+          )
+        );
+      }
+    } else {
+      if (!data.results[0].ss) {
+        realtimeData = await modules.database
+          .ref(`${sportName}/${leagueName}/${betsID}`)
+          .once('value');
+        realtimeData = realtimeData.val();
+        data = realtimeData;
+        data.results[0].ss = 'no data';
+        if (!realtimeData.Summary.info.home.Total.points) {
+          homeScores = -99;
+          awayScores = -99;
+        } else {
+          homeScores = realtimeData.Summary.info.home.Total.points;
+          awayScores = realtimeData.Summary.info.away.Total.points;
+        }
+      } else {
+        homeScores = data.results[0].ss.split('-')[0];
+        awayScores = data.results[0].ss.split('-')[1];
+      }
+      try {
+        await Match.upsert({
+          bets_id: betsID,
+          home_points: homeScores,
+          away_points: awayScores,
+          status: 0
+        });
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at pbpESoccer of Match on ${betsID} by DY`
+          )
+        );
+      }
     }
 
-    try {
-      await Match.upsert({
-        bets_id: betsID,
-        home_points: homeScores,
-        away_points: awayScores,
-        status: 0
-      });
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(
-          `${err} at pbpESoccer of Match on ${betsID} by DY`
-        )
-      );
-    }
     try {
       await modules.database
         .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
