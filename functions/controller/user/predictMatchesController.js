@@ -252,7 +252,6 @@ module.exports = predictMatches;
     }
 }
 * @apiErrorExample {JSON} 200-Response
- * HTTP/1.1 200 Bad Request
  {
     "error": "UserPredictSomeFailed",
     "devcode": 1002,
@@ -278,7 +277,38 @@ module.exports = predictMatches;
                 ],
                 "code": 409,
                 "error": "Match id: 2118058 in NBA already started",
-                "error_ch": "賽事編號 2118058(NBA) 已經開始，不能再下注"
+                "error_ch": "賽事編號 2118058(NBA) 已經開始或結束，不能再下注",
+                "home": {
+                    "id": "54379",
+                    "alias": "LAL",
+                    "alias_ch": "湖人"
+                },
+                "away": {
+                    "id": "54759",
+                    "alias": "BKN",
+                    "alias_ch": "籃網"
+                }
+            },
+            {
+                "id": "2118809",
+                "totals": [
+                    "3436472",
+                    "over",
+                    3
+                ],
+                "code": 406,
+                "error": "Match id: 2118809 [totals_id: 3436472] in NBA not acceptable",
+                "error_ch": "賽事編號 2118809 的大小分(handicapType)編號 3436472 已非最新盤口編號",
+                "home": {
+                    "id": "58056",
+                    "alias": "MEM",
+                    "alias_ch": "灰熊"
+                },
+                "away": {
+                    "id": "56088",
+                    "alias": "ORL",
+                    "alias_ch": "魔術"
+                }
             },
             {
                 "id": "2118809",
@@ -289,7 +319,17 @@ module.exports = predictMatches;
                 ],
                 "code": 406,
                 "error": "Match id: 2118809 [spread_id: 31236867] in NBA not acceptable",
-                "error_ch": "賽事編號 2118809 的讓分編號 31236867 已過期"
+                "error_ch": "賽事編號 2118809 的讓分(handicapType)編號 31236867 已非最新盤口編號",
+                "home": {
+                    "id": "58056",
+                    "alias": "MEM",
+                    "alias_ch": "灰熊"
+                },
+                "away": {
+                    "id": "56088",
+                    "alias": "ORL",
+                    "alias_ch": "魔術"
+                }
             }
         ],
         "success": [
@@ -300,7 +340,6 @@ module.exports = predictMatches;
                     "home",
                     3
                 ],
-                "match_date": null,
                 "home": {
                     "id": "58056",
                     "alias": "MEM",
