@@ -143,7 +143,7 @@ async function queryForEvents(leagueID, date1, date2) {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at checkmatch_eSoccer by DY`)
+        new AppErrors.MysqlError(`${err} at checkmatch_another by DY`)
       );
     }
   });
