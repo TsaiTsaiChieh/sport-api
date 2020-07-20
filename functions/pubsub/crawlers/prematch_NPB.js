@@ -2,15 +2,15 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
 const sportName = modules.league2Sport(leagueName).sport;
-const perStep = 1000; // 每秒抓一項資訊
-const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
+//const perStep = 1000; // 每秒抓一項資訊
+//const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
-let centralTeam = 6;
-let pacificTeam = 6;
+const centralTeam = 6;
+const pacificTeam = 6;
 async function prematch_NPB(req, res) {
   // const URL;
-  let countForStatus2 = 0;
-  //const timerForStatus2 = setInterval(async function () {
+  //const countForStatus2 = 0;
+  // const timerForStatus2 = setInterval(async function () {
   //  countForStatus2 = countForStatus2 + 1;
   //  if (countForStatus2 > timesPerLoop) {
   //    console.log('craw NPB success');
@@ -19,29 +19,29 @@ async function prematch_NPB(req, res) {
   //    switch (countForStatus2) {
   //    }
   //  }
-  //}, perStep);
+  // }, perStep);
   // const URL = 'https://npb.jp/bis/2020/stats/tmb_c.html'; 團隊打擊
-  //const URL = 'https://npb.jp/bis/2020/stats/std_c.html'; // 中央聯盟球隊基本資料
+  // const URL = 'https://npb.jp/bis/2020/stats/std_c.html'; // 中央聯盟球隊基本資料
   // const URL = `https://npb.jp/bis/2020/stats/std_p.html`; // 台平洋聯盟球隊基本資料
   await getTeamsStandings();
 }
 async function crawl(URL) {
-  let {data} = await modules.axios.get(URL);
-  let $ = modules.cheerio.load(data);
+  const { data } = await modules.axios.get(URL);
+  const $ = modules.cheerio.load(data);
   const result = [];
-  $('td').each(function (i) {
+  $('td').each(function(i) {
     result.push($(this).text());
   });
   return result;
 }
 function getTeamsStandings() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       // 球隊的基本季戰績
       let URL = 'https://npb.jp/bis/2020/stats/std_c.html';
-      let teamStatC = await crawl(URL);
+      const teamStatC = await crawl(URL);
       URL = 'https://npb.jp/bis/2020/stats/std_p.html';
-      let teamStatP = await crawl(URL);
+      const teamStatP = await crawl(URL);
 
       await upsertTeambaseTeamC(teamStatC);
       await upsertTeambaseTeamP(teamStatP);
@@ -54,17 +54,17 @@ function getTeamsStandings() {
 }
 
 async function upsertTeambaseTeamC(result) {
-  let team = [];
+  const team = [];
   team[0] = '45295';
   team[1] = '10216';
   team[2] = '3323';
   team[3] = '3324';
   team[4] = '3318';
   team[5] = '3317';
-  let index = 21;
-  let offset = 17;
+  const index = 21;
+  const offset = 17;
   for (let i = 0; i < centralTeam; i++) {
-    let teamID = team[i];
+    const teamID = team[i];
 
     await modules.firestore
       .collection(`${sportName}_${leagueName}`)
@@ -114,18 +114,18 @@ async function upsertTeambaseTeamC(result) {
   }
 }
 async function upsertTeambaseTeamP(result) {
-  let team = [];
+  const team = [];
   team[0] = '5438';
   team[1] = '2386';
   team[2] = '5438';
   team[3] = '2387';
   team[4] = '10078';
   team[5] = '8025';
-  let index = 21;
-  let offset = 17;
+  const index = 21;
+  const offset = 17;
 
   for (let i = 0; i < pacificTeam; i++) {
-    let teamID = team[i];
+    const teamID = team[i];
 
     await modules.firestore
       .collection(`${sportName}_${leagueName}`)
@@ -177,57 +177,17 @@ async function upsertTeambaseTeamP(result) {
 
 function formatRecord(oriString) {
   if (oriString.indexOf('(') >= 0) {
-    let draw = oriString.split('(')[1].replace(')', '');
-    let win = oriString.split('(')[0].split('-')[0];
-    let lose = oriString.split('(')[0].split('-')[1];
+    const draw = oriString.split('(')[1].replace(')', '');
+    const win = oriString.split('(')[0].split('-')[0];
+    const lose = oriString.split('(')[0].split('-')[1];
 
     return `${win}-${draw}-${lose}`;
   } else {
-    let draw = 0;
-    let win = oriString.split('-')[0];
-    let lose = oriString.split('-')[1];
+    const draw = 0;
+    const win = oriString.split('-')[0];
+    const lose = oriString.split('-')[1];
 
     return `${win}-${draw}-${lose}`;
   }
 }
 module.exports = prematch_NPB;
-//function mapTeam(name) {
-//  switch (name) {
-//    case '広　島' || '広島東洋カープ': {
-//      return '3324';
-//    }
-//    case 'DeNA' || '横浜DeNAベイスターズ': {
-//      return '3323';
-//    }
-//    case '巨　人' || '読　売ジャイアンツ': {
-//      return '45295';
-//    }
-//    case '中　日' || '中　日ドラゴンズ': {
-//      return '3318';
-//    }
-//    case 'ヤクルト' || '東京ヤクルトスワローズ': {
-//      return '10216';
-//    }
-//    case '阪　神' || '阪　神タイガース': {
-//      return '3317';
-//    }
-//    case '楽　天' || '東北楽天ゴールデンイーグルス': {
-//      return '5438';
-//    }
-//    case 'ソフトバンク' || '福岡ソフトバンクホークス': {
-//      return '2386';
-//    }
-//    case '西　武' || '埼玉西武ライオンズ': {
-//      return '2387';
-//    }
-//    case 'オリックス' || 'オリックスバファローズ': {
-//      return '8025';
-//    }
-//    case 'ロッテ' || '千葉ロッテマリーンズ': {
-//      return '5438';
-//    }
-//    case '日本ハム' || '北海道日本ハムファイターズ': {
-//      return '10078';
-//    }
-//  }
-//}
