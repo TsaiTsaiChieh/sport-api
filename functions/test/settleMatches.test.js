@@ -109,7 +109,7 @@ describe('測試 冰球/籃球', () => {
       };
 
       const settleResult = settleSpread(data);
-      expect(settleResult).toBe('fair|home');
+      expect(settleResult).toBe('fair|away');
 
       expect(resultFlag('home', settleResult, data.spreadRate)).toBe(-0.1);
       expect(resultFlag('away', settleResult, data.spreadRate)).toBe(0.1);
@@ -139,7 +139,7 @@ describe('測試 冰球/籃球', () => {
       };
 
       const settleResult = settleSpread(data);
-      expect(settleResult).toBe('fair|away');
+      expect(settleResult).toBe('fair|home');
 
       expect(resultFlag('home', settleResult, data.spreadRate)).toBe(0.1);
       expect(resultFlag('away', settleResult, data.spreadRate)).toBe(-0.1);
@@ -248,7 +248,7 @@ describe('測試 冰球/籃球', () => {
       };
 
       const settleResult = settleTotals(data);
-      expect(settleResult).toBe('fair|over');
+      expect(settleResult).toBe('fair|under');
 
       expect(resultFlag('over', settleResult, data.totalsRate)).toBe(-0.1);
       expect(resultFlag('under', settleResult, data.totalsRate)).toBe(0.1);

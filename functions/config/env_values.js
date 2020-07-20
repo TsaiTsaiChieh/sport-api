@@ -21,8 +21,8 @@
 
 // 測試版 sportslottery-test-adminsdk
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
-exports.apiURL = 'https://api-getsports.web.app/';
-exports.productURL = 'https://api-dosports.web.app/';
+exports.apiURL = 'https://api-dosports.web.app/';
+exports.productURL = 'https://dosports.web.app/';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
 exports.firebaseConfig = {
   apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
