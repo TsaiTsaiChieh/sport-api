@@ -405,6 +405,6 @@ function isFailedAndSuccessCoexist(filter) {
       devcode: userPredictSomeFailed.getError.devcode,
       message: userPredictSomeFailed.getError.message
     };
-  } else return filter;
+  } else return { message: filter };
 }
 module.exports = prematch;
