@@ -601,6 +601,8 @@ async function missionActivityPredict(args) {
       predictsInfo = await predictCorrectDailyByDateBetween(userUid, data.start_date, data.end_date);
     }
 
+    if (!predictsInfo) continue; // null or undefined 情況，略過底下不處理
+
     // 處理 需要完成任務盤數 和 現在完成任務盤數 並 記錄目前完成最大正確盤數
     for (const ele of Object.values(predictsInfo)) {
       if (ele.correct_count >= data.need_finish_nums) { // 完成任務
@@ -643,7 +645,7 @@ function repackageActivePredict(ele) {
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
     id: !ele.mission_item_id ? '' : ele.mission_item_id,
-    type: !ele.mission_item_id ? '' : 'mission_item_',
+    type: !ele.mission_item_id ? '' : 'mission_item',
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
