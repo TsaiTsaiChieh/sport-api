@@ -65,8 +65,7 @@ async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
       end: endYMD + ' 23:59:59',
       category: category
     },
-    type: db.sequelize.QueryTypes.SELECT,
-    logging: true
+    type: db.sequelize.QueryTypes.SELECT
   });
 
   return topics;
