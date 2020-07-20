@@ -1648,7 +1648,7 @@ const News = sequelize.define(
       type: Sequelize.STRING
     },
     content: {
-      type: Sequelize.STRING
+      type: Sequelize.TEXT
     },
     status: {
       type: Sequelize.INTEGER

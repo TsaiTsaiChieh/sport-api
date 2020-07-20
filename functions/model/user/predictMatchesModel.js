@@ -81,7 +81,7 @@ async function isMatchValid(args, ele, filter) {
     try {
       // index is const(matches-game); const(match__teams-home); const(match__team-away), taking 165ms
       const result = await db.sequelize.query(
-        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, 
+        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, game.scheduled, game.scheduled_tw, 
                 home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias,  
                 away.team_id AS away_id, away.alias_ch AS away_alias_ch, away.alias AS away_alias
            FROM matches AS game, 
@@ -120,6 +120,7 @@ function checkIfError(result, args, ele, filter) {
       ele.code = modules.httpStatus.NOT_ACCEPTABLE;
       ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
       ele.error_ch = `賽事編號 ${ele.id} 的${handicapName}(handicapType)編號 ${handicapId} 已非最新盤口編號`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
       filter.failed.push(ele);
       return;
     }
@@ -127,11 +128,26 @@ function checkIfError(result, args, ele, filter) {
       ele.code = modules.httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
       ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
       filter.failed.push(ele);
       return;
     }
   }
   pushValidMatchToNeeded(result, args, ele, filter);
+}
+
+function pushNotValidMatchToFailed(result, args, ele, filter) {
+  ele.home = {
+    id: result[0].home_id,
+    alias: result[0].home_alias,
+    alias_ch: result[0].home_alias_ch
+  };
+  ele.away = {
+    id: result[0].away_id,
+    alias: result[0].away_alias,
+    alias_ch: result[0].away_alias_ch
+  };
+  ele.league_id = modules.leagueCodebook(args.league).id;
 }
 
 function pushValidMatchToNeeded(result, args, ele, filter) {
@@ -140,6 +156,7 @@ function pushValidMatchToNeeded(result, args, ele, filter) {
   ele.match_scheduled = result[0].scheduled;
   ele.match_scheduled_tw = result[0].scheduled_tw;
   ele.match_date = match_date;
+
   ele.home = {
     id: result[0].home_id,
     alias: result[0].home_alias,
@@ -153,6 +170,7 @@ function pushValidMatchToNeeded(result, args, ele, filter) {
   ele.league_id = modules.leagueCodebook(args.league).id;
   filter.needed.push(ele);
 }
+
 function isGodUpdate(uid, i, filter) {
   return new Promise(async function(resolve, reject) {
     const ele = filter.needed[i];
@@ -380,13 +398,13 @@ function repackageReturnData(filter) {
 
 function isFailedAndSuccessCoexist(filter) {
   const { failed, success } = filter;
-  if (failed && success) {
+  if (failed.length && success.length) {
     const userPredictSomeFailed = new AppErrors.UserPredictSomeFailed({ failed, success });
     return {
       error: userPredictSomeFailed.getError.error,
       devcode: userPredictSomeFailed.getError.devcode,
       message: userPredictSomeFailed.getError.message
     };
-  }
+  } else return { message: filter };
 }
 module.exports = prematch;

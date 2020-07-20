@@ -150,7 +150,8 @@ async function repackageMatchDate(ele, matchDate) {
         home_tw: ele.home_tw,
         away_tw: ele.away_tw,
         predict: ele.spread_option,
-        bets: ele.spread_bets,
+        ori_bets: ele.spread_bets,
+        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null,
         result: ele.spread_result,
         end: returnSettlement(ele.spread_result_flag)
       },
@@ -159,7 +160,8 @@ async function repackageMatchDate(ele, matchDate) {
         handicap: ele.totals_handicap,
         over_tw: ele.over_tw,
         predict: ele.totals_option,
-        bets: ele.totals_bets,
+        ori_bets: ele.totals_bets,
+        bets: ele.total_bets !== null ? ele.totals_bets * ele.totals_result_flag : null,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
       }

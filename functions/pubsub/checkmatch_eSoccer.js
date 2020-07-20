@@ -60,7 +60,10 @@ async function checkmatch_eSoccer() {
                 .ref('home_livescore/')
                 .once('value');
               realtimeHome = realtimeHome.val();
-              const realtimeNow = Object.keys(realtimeHome);
+              let realtimeNow = 0;
+              if (realtimeHome !== undefined && realtimeHome !== null) {
+                realtimeNow = Object.keys(realtimeHome);
+              }
 
               for (let fi = 0; fi < realtimeNow.length; fi++) {
                 let flag = 0;
