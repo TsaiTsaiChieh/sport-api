@@ -180,7 +180,8 @@ function repackageDaily(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    type: !ele.mission_item_id ? '' : 'mission_item',
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
@@ -299,7 +300,8 @@ function repackageActivityGod(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_god_id: !ele.mission_god_id ? '' : ele.mission_god_id,
+    id: !ele.mission_god_id ? '' : ele.mission_god_id,
+    type: !ele.mission_god_id ? '' : 'mission_god',
     target: ele.target,
     reward_class: 1, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
@@ -451,7 +453,8 @@ function repackageActivityDeposit(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_deposit_id: !ele.mission_deposit_id ? '' : ele.mission_deposit_id,
+    id: !ele.mission_deposit_id ? '' : ele.mission_deposit_id,
+    type: !ele.mission_deposit_id ? '' : 'mission_deposit',
     target: ele.target,
     reward_class: 0, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利  lottery: 彩卷
@@ -639,7 +642,8 @@ function repackageActivePredict(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    type: !ele.mission_item_id ? '' : 'mission_item_',
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
