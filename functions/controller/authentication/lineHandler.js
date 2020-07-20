@@ -32,9 +32,11 @@ const lineLogin = new Line_login({
 // call from Line SDK
 async function loginHandler(req, res) {
   // const returnJson = { success: false };
+  console.log(JSON.stringify(req.query));
   const lineAccessToken = req.query.code;
   if (!lineAccessToken) {
-    return res.status(401).send({ error: 'login failed!' });
+    // return res.status(401).send({ error: 'login failed!' });
+    return res.redirect(307, `${envValues.productURL}loginFailed`);
   }
   // https://api.line.me/oauth2/v2.1/token`
   try {
