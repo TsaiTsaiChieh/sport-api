@@ -24,12 +24,16 @@ function settleSpread(data) {
   // 平盤有兩情況
   // fair 要計算注數，會分輸贏
   // fair2 平盤 不要計算注數
+  // fair 因為前端顯示需求，需要進行變更
+  //   特別顯示規定： (跟原本規則相反)
+  //     1. handicap > 0 主讓客 且 rate 為 負 要顯示 代表壓客贏 fair|away
+  //     2. handicap < 0 客讓主 且 rate 為 正 要顯示 代表壓客贏 fair|away
   return homePoints - handicap === awayPoints
     ? rate === 0
       ? 'fair2'
-      : handicap > 0
-        ? 'fair|home'
-        : 'fair|away'
+      : (handicap > 0 && rate < 0) || (handicap < 0 && rate > 0)
+        ? 'fair|away'
+        : 'fair|home'
     : homePoints - handicap > awayPoints
       ? 'home'
       : 'away';
@@ -85,10 +89,13 @@ function settleTotals(data) {
   // const underOdd = data.totalsUnderOdd;
 
   // 平盤有兩情況
+  // fair 因為前端顯示需求，需要進行變更
+  //   特別顯示規定： (跟原本規則相反) (大小 handicap 只會大於 0，所以只考慮這個情況，跟讓分不同)
+  //     1. handicap > 0 主讓客 且 rate 為 負 要顯示 代表壓客贏 fair|away
   return homePoints + awayPoints === handicap
     ? rate === 0
       ? 'fair2'
-      : handicap > 0
+      : handicap > 0 && rate > 0
         ? 'fair|over'
         : 'fair|under'
     : homePoints + awayPoints > handicap
@@ -136,7 +143,13 @@ function predictionsResultFlag(option, settleResult, rate = 50) {
     ['fair|home', 'fair|away', 'fair|over', 'fair|under'].includes(settleResult)
   ) {
     const settleOption = settleResult.split('|')[1];
-    return settleOption === option ? rateDivide100 : -rateDivide100;
+
+    // rateDivide100 > 0 代表 rate 為正，計算規則照舊
+    // rateDivide100 < 0 代表 rate 為負，上面 讓分、大小 輸贏判斷已經有調整 (跟原本規則相反)
+    //  故要倒回原本情況，計算才是正確
+    if (rateDivide100 > 0) return (settleOption === option) ? rateDivide100 : -rateDivide100;
+    // if (rateDivide100 < 0)
+    return settleOption === option ? -rateDivide100 : rateDivide100;
   }
 
   // -2 未結算，-1 輸，0 不算，1 贏，0.xx 輸，-0.xx   //無效 0.5 平 (一半一半)
