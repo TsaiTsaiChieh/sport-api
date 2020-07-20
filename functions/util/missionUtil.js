@@ -153,7 +153,7 @@ async function missionDaily(args) {
     const ifFinishMission = data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
     if (ifFinishMission) data.now_finish_nums = data.need_finish_nums; // 有可能任務數 現在完成 > 需要完成，看起來很怪
 
-    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  status = 1 領取
+    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  um_status = 1 領取
     //   !data.status 為 undefined、null 代表 user_mission 尚未有資料，一但有資料必為 1: 領取  2: 已完成
     //    userUid !== undefined or null 使用者登入 (上面有判斷了，理論上是多餘的)
     //   ifFinishMission 任務完成
