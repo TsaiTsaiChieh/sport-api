@@ -423,7 +423,7 @@ function groupSum(arr, filterField, groupByField) {
 
   // 開始處理
   d('\n');
-  d(`${colors.fg.Magenta}Filter: %o %o ${colors.Reset}`, sumName, sumValue);
+  d(`${colors.fg.Magenta} Filter: %o %o ${colors.Reset}`, sumName, sumValue);
   const counts = filtered_arr.reduce((p, c) => {
     if (!Object.prototype.hasOwnProperty.call(p, sumName)) { // 初始化欄位
       p = initCounts;
