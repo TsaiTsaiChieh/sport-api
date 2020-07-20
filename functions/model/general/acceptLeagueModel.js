@@ -22,7 +22,7 @@ async function repackage(acceptLeague) {
       }
     }
 
-    return result;
+    return acceptLeague;
   } catch (err) {
     console.error(`${err.stack} by DY`);
     throw new AppErrors.RepackageError(`${err.stack} by DY`);
