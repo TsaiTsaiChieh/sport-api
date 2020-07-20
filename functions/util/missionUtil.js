@@ -3,7 +3,7 @@ const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
   topicCheckByDateBetween, predictMatchCheckByDateBetween,
-  predictCorrectLeagueDailyByDateBetween
+  predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
 const { CacheQuery, redis } = require('./redisUtil');
@@ -180,7 +180,8 @@ function repackageDaily(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    type: !ele.mission_item_id ? '' : 'mission_item',
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
@@ -299,7 +300,8 @@ function repackageActivityGod(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_god_id: !ele.mission_god_id ? '' : ele.mission_god_id,
+    id: !ele.mission_god_id ? '' : ele.mission_god_id,
+    type: !ele.mission_god_id ? '' : 'mission_god',
     target: ele.target,
     reward_class: 1, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
@@ -451,7 +453,8 @@ function repackageActivityDeposit(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_deposit_id: !ele.mission_deposit_id ? '' : ele.mission_deposit_id,
+    id: !ele.mission_deposit_id ? '' : ele.mission_deposit_id,
+    type: !ele.mission_deposit_id ? '' : 'mission_deposit',
     target: ele.target,
     reward_class: 0, // ele.reward_class, // 虛擬欄位 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利  lottery: 彩卷
@@ -594,6 +597,10 @@ async function missionActivityPredict(args) {
       predictsInfo = await predictCorrectLeagueDailyByDateBetween(userUid, data.start_date, data.end_date);
     }
 
+    if (data.func_type === 'predictCorrectDailyByDateBetween') { // 預測 不同聯盟 正確盤數 correct_count
+      predictsInfo = await predictCorrectDailyByDateBetween(userUid, data.start_date, data.end_date);
+    }
+
     // 處理 需要完成任務盤數 和 現在完成任務盤數 並 記錄目前完成最大正確盤數
     for (const ele of Object.values(predictsInfo)) {
       if (ele.correct_count >= data.need_finish_nums) { // 完成任務
@@ -635,7 +642,8 @@ function repackageActivePredict(ele) {
     desc: ele.desc, // 開賽時間
     start_date: !ele.start_date ? '' : ele.start_date,
     end_date: !ele.end_date ? '' : ele.end_date,
-    mission_item_id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    id: !ele.mission_item_id ? '' : ele.mission_item_id,
+    type: !ele.mission_item_id ? '' : 'mission_item_',
     target: ele.target,
     reward_class: ele.reward_class, // 獎勵類型 0: 單一獎勵  1: 不同角色不同獎勵
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
