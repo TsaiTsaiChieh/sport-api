@@ -31,10 +31,10 @@ const lineLogin = new Line_login({
 
 // call from Line SDK
 async function loginHandler(req, res) {
-  // const returnJson = { success: false };
   const lineAccessToken = req.query.code;
   if (!lineAccessToken) {
-    return res.status(401).send({ error: 'login failed!' });
+    // return res.status(401).send({ error: 'login failed!' });
+    return res.redirect(307, `${envValues.productURL}loginFailed`);
   }
   // https://api.line.me/oauth2/v2.1/token`
   try {
@@ -51,10 +51,8 @@ async function loginHandler(req, res) {
     if (verify_response.client_id !== envValues.lineConfig.channelID) {
       return res.status(401).send({ error: 'Line channel ID mismatched' });
     }
-    // console.error(JSON.stringify(token_response.id_token));
     const userRecord = await userUtils.getFirebaseUser(token_response.id_token);
     const token = await firebaseAdmin.auth().createCustomToken(userRecord.uid);
-    // res.json(token);
     return res.redirect(307, `${envValues.productURL}lineLogin?token=${token}`);
   } catch (err) {
     console.error('Error in authentication/lineHandler function by Rex', err);

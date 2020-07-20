@@ -2,14 +2,14 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
 const sportName = modules.league2Sport(leagueName).sport;
-//const perStep = 1000; // 每秒抓一項資訊
-//const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
+// const perStep = 1000; // 每秒抓一項資訊
+// const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
 const centralTeam = 6;
 const pacificTeam = 6;
 async function prematch_NPB(req, res) {
   // const URL;
-  //const countForStatus2 = 0;
+  // const countForStatus2 = 0;
   // const timerForStatus2 = setInterval(async function () {
   //  countForStatus2 = countForStatus2 + 1;
   //  if (countForStatus2 > timesPerLoop) {
