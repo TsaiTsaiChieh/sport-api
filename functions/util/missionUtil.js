@@ -155,11 +155,11 @@ async function missionDaily(args) {
 
     // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  status = 1 領取
     //   !data.status 為 undefined、null 代表 user_mission 尚未有資料，一但有資料必為 1: 領取  2: 已完成
-    //    userUid !== undefined or null 使用者登入
+    //    userUid !== undefined or null 使用者登入 (上面有判斷了，理論上是多餘的)
     //   ifFinishMission 任務完成
     // 新增 領取 資料
-    if (!data.status && userUid && ifFinishMission) {
-      data.status = 1;
+    if (!data.um_status && userUid && ifFinishMission) {
+      data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid,
         { mission_item_id: data.mission_item_id, dateUnix: todayUnix })); // status: data.status, 如果新增是已完成，這裡需要設定為2
       if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
@@ -187,7 +187,7 @@ function repackageDaily(ele) {
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
     reward_num: ele.reward_num,
     reward_class_num: ele.reward_class === 1 ? ele.reward_class_num : '',
-    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    status: !ele.um_status ? 0 : ele.um_status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
     need_finish_nums: ele.need_finish_nums,
     now_finish_nums: ele.now_finish_nums
   };
@@ -222,8 +222,10 @@ async function dailyMissionLogin(uid, todayUnix) {
   const missions = await db.sequelize.query(`
     select mission.*, 
            user__missions.id, user__missions.uid,
-           user__missions.mission_god_id, user__missions.mission_deposit_id,
-           user__missions.status, user__missions.date_timestamp
+           user__missions.mission_item_id um_mission_item_id, 
+           user__missions.mission_god_id um_mission_god_id, 
+           user__missions.mission_deposit_id um_mission_deposit_id,
+           user__missions.status um_status, user__missions.date_timestamp
       from (
              select missions.title, missions.desc, missions.start_date, missions.end_date,
                     missions.need_finish_nums,
@@ -307,7 +309,7 @@ function repackageActivityGod(ele) {
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
     reward_num: ele.diamond_reward, // ele.reward_num,
     reward_class_num: ele.copper_reward, // ele.reward_class === 1 ? ele.reward_class_num : ''
-    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    status: !ele.um_status ? 0 : ele.um_status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
     need_finish_nums: ele.need_finish_nums,
     now_finish_nums: ele.now_finish_nums
   };
@@ -460,7 +462,7 @@ function repackageActivityDeposit(ele) {
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利  lottery: 彩卷
     reward_num: ele.reward_num,
     reward_class_num: ele.reward_class === 1 ? ele.reward_class_num : '',
-    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    status: !ele.um_status ? 0 : ele.um_status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
     need_finish_nums: ele.need_finish_nums,
     now_finish_nums: ele.now_finish_nums
   };
@@ -618,13 +620,13 @@ async function missionActivityPredict(args) {
     const ifFinishMission = data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
     if (ifFinishMission) data.now_finish_nums = data.need_finish_nums; // 有可能任務數 現在完成 > 需要完成，看起來很怪
 
-    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  status = 1 領取
+    // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  um_status = 1 領取
     //   !data.status 為 undefined、null 代表 user_mission 尚未有資料，一但有資料必為 1: 領取  2: 已完成
-    //    userUid !== undefined or null 使用者登入
+    //    userUid !== undefined or null 使用者登入 (上面有判斷了，理論上是多餘的)
     //   ifFinishMission 任務完成
     // 新增 領取 資料
-    if (!data.status && userUid && ifFinishMission) {
-      data.status = 1;
+    if (!data.um_status && userUid && ifFinishMission) {
+      data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid, { mission_item_id: data.mission_item_id }));
       if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
 
@@ -651,7 +653,7 @@ function repackageActivePredict(ele) {
     reward_type: ele.reward_type, // 獎勵幣型 ingot: 搞錠  coin: 搞幣  dividend: 紅利
     reward_num: ele.reward_num,
     reward_class_num: ele.reward_class === 1 ? ele.reward_class_num : '',
-    status: !ele.status ? 0 : ele.status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
+    status: !ele.um_status ? 0 : ele.um_status, // 任務狀態 0: 前往(預設)  1: 領取  2: 已完成
     need_finish_nums: ele.need_finish_nums,
     now_finish_nums: ele.now_finish_nums
   };
@@ -706,7 +708,6 @@ async function activityPredictMissionLogin(uid, todayUnix) {
            ) mission
       left join user__missions
         on mission.mission_item_id = user__missions.mission_item_id
-       and date_timestamp = :todayUnix
        and (isnull(:uid) or user__missions.uid = :uid)
   `, {
     replacements: {
