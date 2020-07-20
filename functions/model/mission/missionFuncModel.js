@@ -62,7 +62,7 @@ async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
     replacements: {
       uid: uid,
       begin: beginYMD + ' 00:00:00',
-      end: endYMD + ' 11:59:59',
+      end: endYMD + ' 23:59:59',
       category: category
     },
     type: db.sequelize.QueryTypes.SELECT
@@ -78,12 +78,42 @@ async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUni
     select league_id, match_date, sum(spread_corrct_count) correct_count
       from (
              select league_id, match_date, 
-                    if (spread_result_flag > 0, 1, 0) spread_corrct_count
+                    if (spread_result_flag > 0, 1, 0) spread_corrct_count,
+                    if (totals_result_flag > 0, 1, 0) totals_corrct_count
                from user__predictions
               where uid = :userUid
                 and match_date between :begin and :end
+                and (spread_result_flag > 0 or totals_result_flag > 0)
            ) a
      group by league_id, match_date
+     order by match_date
+  `, {
+    replacements: {
+      userUid: userUid,
+      begin: beginUnix,
+      end: endUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return matchs;
+}
+
+// 預測賽事 當日 不同聯盟 ?盤勝利 (限一次)
+// begin、end: 日期區間
+async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
+  const matchs = await db.sequelize.query(`
+    select match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
+      from (
+             select match_date, 
+                    if (spread_result_flag > 0, 1, 0) spread_corrct_count, 
+                    if (totals_result_flag > 0, 1, 0) totals_corrct_count
+               from user__predictions
+              where uid = :userUid
+                and match_date between :begin and :end
+                and (spread_result_flag > 0 or totals_result_flag > 0)
+           ) a
+     group by match_date
      order by match_date
   `, {
     replacements: {
@@ -101,5 +131,6 @@ module.exports = {
   predictLeagueMatchCheckByDateBetween,
   predictMatchCheckByDateBetween,
   topicCheckByDateBetween,
-  predictCorrectLeagueDailyByDateBetween
+  predictCorrectLeagueDailyByDateBetween,
+  predictCorrectDailyByDateBetween
 };
