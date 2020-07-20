@@ -62,7 +62,7 @@ async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
     replacements: {
       uid: uid,
       begin: beginYMD + ' 00:00:00',
-      end: endYMD + ' 11:59:59',
+      end: endYMD + ' 23:59:59',
       category: category
     },
     type: db.sequelize.QueryTypes.SELECT
