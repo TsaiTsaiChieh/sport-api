@@ -332,8 +332,8 @@ async function doPBP(parameter) {
                   await modules.database
                     .ref(`${sport}/${league}/${betsID}/Summary/info`)
                     .set({
-                      away: { Total: { points: data.results[0].ss.split('-')[1] } },
-                      home: { Total: { points: data.results[0].ss.split('-')[0] } }
+                      home: { Total: { points: data.results[0].ss.split('-')[1] } },
+                      away: { Total: { points: data.results[0].ss.split('-')[0] } }
                     });
                 } catch (err) {
                   return reject(
@@ -347,8 +347,8 @@ async function doPBP(parameter) {
                   await modules.database
                     .ref(`${sport}/${league}/${betsID}/Summary/info`)
                     .set({
-                      away: { Total: { points: data.results[0].ss.split('-')[0] } },
-                      home: { Total: { points: data.results[0].ss.split('-')[1] } }
+                      home: { Total: { points: data.results[0].ss.split('-')[0] } },
+                      away: { Total: { points: data.results[0].ss.split('-')[1] } }
                     });
                 } catch (err) {
                   return reject(
