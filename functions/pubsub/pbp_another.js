@@ -331,11 +331,11 @@ async function doPBP(parameter) {
               if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
                 try {
                   await modules.database
-                    .ref(`${sport}/${league}/${betsID}/Summary/info`)
-                    .set({
-                      home: { Total: { points: data.results[0].ss.split('-')[1] } },
-                      away: { Total: { points: data.results[0].ss.split('-')[0] } }
-                    });
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+                    .set(data.results[0].ss.split('-')[1]);
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+                    .set(data.results[0].ss.split('-')[0]);
                   for (let inningCount = 1; inningCount < 10; inningCount++) {
                     await modules.database
                       .ref(
@@ -368,6 +368,12 @@ async function doPBP(parameter) {
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
                       .set('xx:xx');
                   }
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+                    .set(data.results[0].ss.split('-')[0]);
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+                    .set(data.results[0].ss.split('-')[1]);
                   await modules.database
                     .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
                     .set(`${data.results[0].timer.q - 1}`);
