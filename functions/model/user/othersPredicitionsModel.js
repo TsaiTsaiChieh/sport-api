@@ -72,7 +72,7 @@ async function othersPredictions(args) {
            titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
            titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue
       from (
-             select prediction.bets_id, sell, match_scheduled,
+             select prediction.bets_id, sell, match_scheduled, matches.status,
                     prediction.league_id, league.name league,
                     prediction.uid,
                     team_home.alias home_alias, team_home.alias_ch home_alias_ch,
@@ -237,6 +237,7 @@ function repackage(ele, paidType) {
   const data = {
     bets_id: ele.bets_id,
     scheduled: ele.match_scheduled, // 開賽時間
+    match_status: ele.status,
     league: ele.league,
     home: {
       team_name: ele.home_alias,
