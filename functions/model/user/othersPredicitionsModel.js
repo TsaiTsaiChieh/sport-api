@@ -67,7 +67,7 @@ async function othersPredictions(args) {
     select prediction.*, 
            spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
            totals.handicap totals_handicap, totals.over_tw,
-           users.status, users.default_god_league_rank,
+           users.status users_status, users.default_god_league_rank,
            titles.rank_id, titles.default_title,
            titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
            titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue
