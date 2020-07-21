@@ -141,7 +141,7 @@ async function missionDaily(args) {
     data.now_finish_nums = 0;
 
     if (data.func_type === 'topicCheckByDateBetween') { // 發文
-      const topics = await topicCheckByDateBetween(userUid, todayUnix, todayUnix, [2, 3, 4]);
+      const topics = await topicCheckByDateBetween(userUid, todayUnix, todayUnix, [3, 4, 5]);
       data.now_finish_nums = topics[0].count;
     }
 
