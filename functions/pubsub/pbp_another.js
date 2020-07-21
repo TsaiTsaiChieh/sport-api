@@ -5,9 +5,10 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 let keepPBP = 1;
+
 async function AnotherpbpInplay(parameter, sport, league, leagueID) {
-  const perStep = 50000;
-  const timesPerLoop = 2;
+  const perStep = 28000;
+  const timesPerLoop = 3;
   let countForStatus2 = 0;
   const betsID = parameter.betsID;
 
@@ -330,11 +331,66 @@ async function doPBP(parameter) {
               if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
                 try {
                   await modules.database
-                    .ref(`${sport}/${league}/${betsID}/Summary/info`)
-                    .set({
-                      home: { Total: { points: data.results[0].ss.split('-')[1] } },
-                      away: { Total: { points: data.results[0].ss.split('-')[0] } }
-                    });
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+                    .set(data.results[0].ss.split('-')[1]);
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+                    .set(data.results[0].ss.split('-')[0]);
+                  for (let inningCount = 1; inningCount < 10; inningCount++) {
+                    await modules.database
+                      .ref(
+                        `${sport}/${league}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
+                      )
+                      .set(data.results[0].scores[`${inningCount}`].away);
+                    await modules.database
+                      .ref(
+                        `${sport}/${league}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
+                      )
+                      .set(data.results[0].scores[`${inningCount}`].home);
+                  }
+                } catch (err) {
+                  return reject(
+                    new AppErrors.FirebaseRealtimeError(
+                      `${err} at doPBP of status on ${betsID} by DY`
+                    )
+                  );
+                }
+              } else if (leagueID === 2319) {
+                try {
+                  if (data.results[0].timer) {
+                    await modules.database
+                      .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+                      .set(
+                        `${data.results[0].timer.tm}:${data.results[0].timer.ts}`
+                      );
+                  } else {
+                    await modules.database
+                      .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
+                      .set('xx:xx');
+                  }
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+                    .set(data.results[0].ss.split('-')[0]);
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+                    .set(data.results[0].ss.split('-')[1]);
+                  await modules.database
+                    .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
+                    .set(`${data.results[0].timer.q - 1}`);
+                  await modules.database
+                    .ref(
+                      `${sport}/${league}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
+                    )
+                    .set(
+                      `${data.results[0].scores[data.results[0].timer.q].home}`
+                    );
+                  await modules.database
+                    .ref(
+                      `${sport}/${league}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
+                    )
+                    .set(
+                      `${data.results[0].scores[data.results[0].timer.q].away}`
+                    );
                 } catch (err) {
                   return reject(
                     new AppErrors.FirebaseRealtimeError(
