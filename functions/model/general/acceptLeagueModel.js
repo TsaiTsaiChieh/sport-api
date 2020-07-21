@@ -1,6 +1,5 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
-const db = require('../../util/dbUtil');
 
 async function acceptLeague() {
   return new Promise(async function(resolve, reject) {
