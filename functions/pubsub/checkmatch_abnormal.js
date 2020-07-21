@@ -211,6 +211,7 @@ async function doPBP(parameter) {
             if (data.results[0].time_status === '0') {
               console.log(`${betsID} status is still -1`);
             }
+            // 即時比分
           }
         }
       }
@@ -288,6 +289,20 @@ async function pbpHistory(parameterHistory) {
       if (!data.results[0].stats.redcards) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
+      try {
+        await modules.database
+          .ref(`${sportName}/${leagueName}/${betsID}/Summary/info`)
+          .set({
+            home: { Total: { points: data.results[0].ss.split('-')[0] } },
+            away: { Total: { points: data.results[0].ss.split('-')[1] } }
+          });
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at doPBP of status on ${betsID} by DY`
+          )
+        );
+      }
     }
 
     if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
@@ -310,6 +325,36 @@ async function pbpHistory(parameterHistory) {
         awayScores = data.results[0].ss.split('-')[1];
       }
       try {
+        await modules.database
+          .ref(
+            `${sportName}/${leagueName}/${betsID}/Summary/info/home/Total/points`
+          )
+          .set(data.results[0].ss.split('-')[1]);
+        await modules.database
+          .ref(
+            `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
+          )
+          .set(data.results[0].ss.split('-')[0]);
+        for (let inningCount = 1; inningCount < 10; inningCount++) {
+          await modules.database
+            .ref(
+              `${sportName}/${leagueName}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
+            )
+            .set(data.results[0].scores[`${inningCount}`].away);
+          await modules.database
+            .ref(
+              `${sportName}/${leagueName}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
+            )
+            .set(data.results[0].scores[`${inningCount}`].home);
+        }
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at abnormal on ${betsID} by DY`
+          )
+        );
+      }
+      try {
         await Match.upsert({
           bets_id: betsID,
           home_points: awayScores,
@@ -320,6 +365,61 @@ async function pbpHistory(parameterHistory) {
         return reject(
           new AppErrors.MysqlError(
             `${err} at pbpESoccer of Match on ${betsID} by DY`
+          )
+        );
+      }
+    } else if (leagueName === 'CBA') {
+      try {
+        if (data.results[0].timer) {
+          await modules.database
+            .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_clock`)
+            .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
+          await modules.database
+            .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_periods`)
+            .set(`${data.results[0].timer.q - 1}`);
+          await modules.database
+            .ref(
+              `${sportName}/${leagueName}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
+            )
+            .set(`${data.results[0].scores[data.results[0].timer.q].home}`);
+          await modules.database
+            .ref(
+              `${sportName}/${leagueName}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
+            )
+            .set(`${data.results[0].scores[data.results[0].timer.q].away}`);
+        } else {
+          await modules.database
+            .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_clock`)
+            .set('xx:xx');
+        }
+        await modules.database
+          .ref(
+            `${sportName}/${leagueName}/${betsID}/Summary/info/home/Total/points`
+          )
+          .set(data.results[0].ss.split('-')[0]);
+        await modules.database
+          .ref(
+            `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
+          )
+          .set(data.results[0].ss.split('-')[1]);
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at doPBP of status on ${betsID} by DY`
+          )
+        );
+      }
+      try {
+        await Match.upsert({
+          bets_id: betsID,
+          home_points: homeScores,
+          away_points: awayScores,
+          status: 0
+        });
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at abnormal of Match on ${betsID} by DY`
           )
         );
       }
@@ -343,6 +443,20 @@ async function pbpHistory(parameterHistory) {
         awayScores = data.results[0].ss.split('-')[1];
       }
       try {
+        await modules.database
+          .ref(`${sportName}/${leagueName}/${betsID}/Summary/info`)
+          .set({
+            home: { Total: { points: data.results[0].ss.split('-')[0] } },
+            away: { Total: { points: data.results[0].ss.split('-')[1] } }
+          });
+      } catch (err) {
+        return reject(
+          new AppErrors.FirebaseRealtimeError(
+            `${err} at doPBP of status on ${betsID} by DY`
+          )
+        );
+      }
+      try {
         await Match.upsert({
           bets_id: betsID,
           home_points: homeScores,
@@ -352,7 +466,7 @@ async function pbpHistory(parameterHistory) {
       } catch (err) {
         return reject(
           new AppErrors.MysqlError(
-            `${err} at pbpESoccer of Match on ${betsID} by DY`
+            `${err} at abnormal of Match on ${betsID} by DY`
           )
         );
       }
@@ -365,7 +479,7 @@ async function pbpHistory(parameterHistory) {
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
-          `${err} at pbpESoccer of status on ${betsID} by DY`
+          `${err} at abnormal of status on ${betsID} by DY`
         )
       );
     }
@@ -378,7 +492,7 @@ async function pbpHistory(parameterHistory) {
       });
     } catch (err) {
       console.log(
-        'Error in pubsub/pbp_eSoccer on YuHsien by DY:  %o : %o',
+        'Error in pubsub/abnormal on YuHsien by DY:  %o : %o',
         err,
         betsID
       );

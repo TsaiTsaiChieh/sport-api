@@ -37,11 +37,19 @@ async function crawl(URL) {
 function getTeamsStandings() {
   return new Promise(async function(resolve, reject) {
     try {
-      // 球隊的基本季戰績
-      let URL = 'https://npb.jp/bis/2020/stats/std_c.html';
+      // 中央球隊的基本季戰績
+      let URL = `https://npb.jp/bis/${season}/stats/std_c.html`;
       const teamStatC = await crawl(URL);
-      URL = 'https://npb.jp/bis/2020/stats/std_p.html';
+
+      // 中央球隊的打擊季戰績
+      URL = `https://npb.jp/bis/${season}/stats/tmb_c.html`;
+
+      // 太平洋球隊基本季戰績
+      URL = `https://npb.jp/bis/${season}/stats/std_p.html`;
       const teamStatP = await crawl(URL);
+
+      // 太平洋球隊的打擊季戰績
+      URL = `https://npb.jp/bis/${season}/stats/tmb_p.html`;
 
       await upsertTeambaseTeamC(teamStatC);
       await upsertTeambaseTeamP(teamStatP);
