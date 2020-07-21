@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const envValues = require('../config/env_values');
-const session = require('express-session');
+const session = require('cookie-session');
 const verification = require('../util/verification');
 
 const session_options_line = {
