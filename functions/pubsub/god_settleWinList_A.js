@@ -3,6 +3,7 @@ const {
 } = require('../util/modules');
 const { zone_tw } = require('../config/env_values');
 const settleWinList = require('../model/user/settleWinListModel');
+const settleGodTitle = require('../model/user/settleGodTitleModel');
 const { redis } = require('../util/redisUtil');
 
 const util = require('util');
@@ -40,8 +41,11 @@ async function god_settleWinList_A() {
   // if (nowHHmm === '1700') {
   log('每天 17:00 賽事勝注勝率計算 run');
   await settleWinList({ token: { uid: '999' }, date: nowYYYYMMDD });
-  await redis.specialDel('*titles*', 100);
   await redis.specialDel('*users__win__lists*', 100);
+
+  // 大神 title 計算
+  await settleGodTitle({ token: { uid: '999' }, period: period.period });
+  await redis.specialDel('*titles*', 100);
   // }
 
   log('========== pubsub god_settleWinList_A end ==========');
