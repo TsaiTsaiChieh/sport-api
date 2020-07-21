@@ -9,22 +9,21 @@ const pastTime = Math.floor(Date.now()) - 86400 * 1000 * pastDays;
 function queryMatches() {
   return new Promise(async function(resolve, reject) {
     try {
-      const unix = Date.now() / 1000;
-      const date = modules.convertTimezoneFormat(unix, {
-        format: 'YYYY-MM-DD 00:00:00',
-        op: 'add',
-        value: 0,
-        unit: 'days'
-      });
-      const time = new Date(date);
+      // const unix = Date.now() / 1000;
+      // const date = modules.convertTimezoneFormat(unix, {
+      //  format: 'YYYY-MM-DD 00:00:00',
+      //  op: 'add',
+      //  value: 1,
+      //  unit: 'days'
+      // });
+      // const time = new Date(date);
 
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
-					 WHERE (game.status = '${modules.MATCH_STATUS.ABNORMAL}' OR game.status = '-2')
-					   AND game.scheduled < ${time.getTime() / 1000} 
+					 WHERE (game.status = '${modules.MATCH_STATUS.ABNORMAL}' OR game.status = '-2') 
         )`,
         {
           type: db.sequelize.QueryTypes.SELECT

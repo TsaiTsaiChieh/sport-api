@@ -7,8 +7,8 @@ const Match = db.Match;
 let keepPBP = 1;
 
 async function AnotherpbpInplay(parameter, sport, league, leagueID) {
-  const perStep = 28000;
-  const timesPerLoop = 3;
+  const perStep = 35000;
+  const timesPerLoop = 2;
   let countForStatus2 = 0;
   const betsID = parameter.betsID;
 
@@ -340,17 +340,19 @@ async function doPBP(parameter) {
                       `${sport}/${league}/${betsID}/Summary/info/away/Total/points`
                     )
                     .set(data.results[0].ss.split('-')[0]);
-                  for (let inningCount = 1; inningCount < 10; inningCount++) {
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
-                      )
-                      .set(data.results[0].scores[`${inningCount}`].away);
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
-                      )
-                      .set(data.results[0].scores[`${inningCount}`].home);
+                  if (data.results[0].scores) {
+                    for (let inningCount = 1; inningCount < 10; inningCount++) {
+                      await modules.database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
+                        )
+                        .set(data.results[0].scores[`${inningCount}`].away);
+                      await modules.database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
+                        )
+                        .set(data.results[0].scores[`${inningCount}`].home);
+                    }
                   }
                 } catch (err) {
                   return reject(
