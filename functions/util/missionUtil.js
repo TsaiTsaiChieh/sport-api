@@ -83,7 +83,7 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
     await insideTrans.rollback();
     throw errs.errsMsg('404', '15014');
   }
-  
+
   if (parms.status) whereSql.status = parms.status;
   if (parms.dateUnix) whereSql.date_timestamp = parms.dateUnix;
 
