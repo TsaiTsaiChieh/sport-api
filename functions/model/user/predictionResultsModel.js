@@ -47,7 +47,7 @@ function predictionResult(args) {
 function queryUserPredictionWhichIsSettled(args, unix) {
   return new Promise(async function(resolve, reject) {
     try {
-      // index is range(prediction); eq_ref(matches); eq_ref(match__teams-home); eq_ref(match__teams-away); ref(match__spreads-spread); ref(match__totals-totals), taking 170ms
+      // index is range or eq_ref, taking 161ms
       // TODO index in league table is ALL
       const result = await db.sequelize.query(
         `SELECT prediction.*, 
@@ -72,6 +72,7 @@ function queryUserPredictionWhichIsSettled(args, unix) {
                     AND matches.away_id = away.team_id 
                     AND prediction.uid = '${args.uid}'
                     AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
+                    AND matches.status = ${modules.MATCH_STATUS.END}
                     AND (spread_result_flag != ${settlement.unsettlement} OR totals_result_flag != ${settlement.unsettlement})
                 ) 
              AS prediction
