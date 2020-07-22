@@ -72,7 +72,9 @@ async function prematch_CPBL(req, res) {
         }
       }
     }
-  }, perStep);
+	}, perStep);
+
+          
 }
 
 function getPitchersStandings(URL) {
@@ -182,7 +184,9 @@ function getTeamsStandings(URL) {
       // 球隊的季戰績
       const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
-      let titles = $('.gap_b20');
+			let titles = $('.gap_b20').text();
+		
+			
       titles = titles.replace(/\r/g, '');
       titles = titles.replace(/\n/g, '');
       titles = titles.replace(/\t/g, ' ');
