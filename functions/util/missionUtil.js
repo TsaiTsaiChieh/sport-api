@@ -79,8 +79,11 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   if (parms.mission_item_id) whereSql.mission_item_id = parms.mission_item_id;
   if (parms.mission_god_id) whereSql.mission_god_id = parms.mission_god_id;
   if (parms.mission_deposit_id) whereSql.mission_deposit_id = parms.mission_deposit_id;
-  if (!parms.mission_item_id && !parms.mission_god_id && !parms.mission_deposit_id) throw errs.errsMsg('404', '15014');
-
+  if (!parms.mission_item_id && !parms.mission_god_id && !parms.mission_deposit_id) {
+    await insideTrans.rollback();
+    throw errs.errsMsg('404', '15014');
+  }
+  
   if (parms.status) whereSql.status = parms.status;
   if (parms.dateUnix) whereSql.date_timestamp = parms.dateUnix;
 
