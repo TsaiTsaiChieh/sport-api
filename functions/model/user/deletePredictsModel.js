@@ -25,7 +25,7 @@ function isGodBelongsToLeague(args) {
   return new Promise(function(resolve, reject) {
     !args.token.titles.includes(args.league)
       ? resolve()
-      : reject(new AppErrors.OnlyAcceptNormalUser());
+      : reject(new AppErrors.OnlyAcceptUserDoesNotBelongsToCertainLeague());
   });
 }
 
