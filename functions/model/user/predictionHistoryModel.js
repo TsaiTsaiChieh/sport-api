@@ -53,9 +53,9 @@ async function getUserPredictionData(args, userData) {
          ON game.home_id = home.team_id
  INNER JOIN match__teams AS away
          ON game.away_id = away.team_id
- INNER JOIN match__spreads AS spread
+  LEFT JOIN match__spreads AS spread
          ON spread.spread_id = prediction.spread_id
- INNER JOIN match__totals AS totals
+  LEFT JOIN match__totals AS totals
          ON totals.totals_id = prediction.totals_id
       WHERE prediction.uid = '${userData.uid}'
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
