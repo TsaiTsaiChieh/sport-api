@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
-  topicCheckByDateBetween, predictMatchCheckByDateBetween,
+  topicCheckByDateBetween, predictHandicapCheckByDateBetween,
   predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
@@ -145,8 +145,8 @@ async function missionDaily(args) {
       data.now_finish_nums = topics[0].count;
     }
 
-    if (data.func_type === 'predictMatchCheckByDateBetween') { // 預測
-      const matchs = await predictMatchCheckByDateBetween(userUid, todayUnix, todayUnix);
+    if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
+      const matchs = await predictHandicapCheckByDateBetween(userUid, todayUnix, todayUnix);
       data.now_finish_nums = matchs[0].count;
     }
 
