@@ -64,6 +64,28 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
   return szHtml;
 }
 
+function CheckOutGash(URL='https://api.eg.gashplus.com/CP_Module/order.aspx', data='')
+{
+  let szHtml = '<!doctype html>';
+  szHtml += '<html>';
+  szHtml += '<head>';
+  szHtml += '<meta charset="utf-8">';
+  szHtml += '</head>';
+  szHtml += '<body>';
+  szHtml += '<form name="gashpay" id="gashpay" method="post" action="' + URL + '" style="display:none;">';
+  szHtml += '<input type="text" name="data" value="' + data + '" type="hidden">';
+  // szHtml += '<input type="text" name="TradeInfo" value="' + TradeInfo + '"   type="hidden">';
+  // szHtml += '<input type="text" name="TradeSha" value="' + SHA256 + '" type="hidden">';
+  // szHtml += '<input type="text" name="Version"  value="' + VER + '" type="hidden">';
+  szHtml += '</form>';
+  szHtml += '<script type="text/javascript">';
+  szHtml += 'document.getElementById("gashpay").submit();';
+  szHtml += '</script>';
+  szHtml += '</body>';
+  szHtml += '</html>';
+
+  return szHtml;
+}
 function InvoiceGenerator(URL = '', MerchantID = '', PostData = '', VER = '') {
   let szHtml = '<!doctype html>';
   szHtml += '<html>';
@@ -75,7 +97,7 @@ function InvoiceGenerator(URL = '', MerchantID = '', PostData = '', VER = '') {
   szHtml += '<input type="text" name="MerchantID_" value="' + MerchantID + '" type="hidden">';
   szHtml += '<input type="text" name="PostData_" value="' + PostData + '"   type="hidden">';
   // szHtml += '<input type="text" name="TradeSha" value="' + SHA256 + '" type="hidden">';
-  szHtml += '<input type="text" name="Version"  value="' + VER + '" type="hidden">';
+  // szHtml += '<input type="text" name="Version"  value="' + VER + '" type="hidden">';
   szHtml += '</form>';
   szHtml += '<script type="text/javascript">';
   szHtml += 'document.getElementById("invoice").submit();';
@@ -101,5 +123,6 @@ module.exports = {
   SHA_str,
   SHA256,
   CheckOut,
+  CheckOutGash,
   InvoiceGenerator
 };

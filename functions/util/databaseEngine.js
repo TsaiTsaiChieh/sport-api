@@ -4,6 +4,7 @@ const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
 const modules = require('../util/modules');
+const mission = require('../util/missionUtil');
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -339,67 +340,7 @@ async function setUserMissionStatus(uid, parms, status, dateUnix = null) {
   // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
 }
 
-/* 發放搞錠 */
-async function cashflow_issue(currency, uid){
-        uid = '123';
-        const ele = {};
-        if(!currency.lottery_limit){
-          ele.lottery_limit = 1;
-        }
-        if(!currency.dividend){
-          ele.dividend = 0;
-        }
-        if(!currency.coin){
-          ele.coin = 0;
-        }
-        if(!currency.ingot){
-          ele.ingot = 0;
-        }
-        if(!currency.lottery){
-          ele.lottery = 1;
-        }
 
-        if(currency.type==1){
-          /* 發放搞錠、搞幣、紅利 */
-          await db.CashflowMission.create({
-            uid             : uid,
-            mission_id      : 11,
-            mission_item_id : 22,
-            ingot           : 10,
-            coin            : 0,
-            dividend        : 0,
-            lottery         : 1
-          })
-        }else{
-          /* 發放抽獎券 */
-          const res = await db.CashflowMission.findAndCountAll({
-            attributes: [
-            'cashflow_mission_id',
-            'mission_id',
-            'mission_item_id'
-            ],
-            where: {
-            uid:uid
-            },
-            raw: true
-          });
-
-          /* 判斷是否已領取抽獎券上限 */
-          const issue_timestamp = modules.moment().unix();
-          const status = false;
-          if(res.count<ele.lottery_limit){
-            await db.CashflowMission.create({
-                uid             : 22,
-            mission_id          : 1,
-            mission_item_id     : 2,
-            lottery             : 1,
-            issue_timestamp     : issue_timestamp
-            })
-            status = true;
-          }
-        }
-        return status;
-}
 
 module.exports = {
   findUser,
@@ -412,6 +353,5 @@ module.exports = {
   getGodSellPredictionWinBetsInfo,
   createData,
   addUserMissionStatus,
-  setUserMissionStatus,
-  cashflow_issue
+  setUserMissionStatus
 };

@@ -143,11 +143,6 @@ router.put(
   require('../controller/user/purseController')
 );
 
-// router.post(
-//   '/convert',
-//   verification.token,
-//   require('../controller/user/convertController')
-// );
 router.put(
   '/pay',
   verification.token,

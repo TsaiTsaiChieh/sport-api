@@ -122,7 +122,7 @@ app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
 app.use('/cashflow_api', require('./routers/cashflow_api'));// 金流介接(gash)
 app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接(藍新)
-// app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票介接(ezpay)
+app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票介接(ezpay)
 // keep firebase cloud function :API awake
 app.use('/mission', require('./routers/mission'));
 app.get('/awakeAPI', (req, res) => {

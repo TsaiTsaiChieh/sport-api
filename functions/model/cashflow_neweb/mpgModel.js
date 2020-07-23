@@ -25,7 +25,7 @@ async function mpgModel(res) {
       //   reject({'msg':'沒有該項商品'})
       // }
 
-      const setting = neweb_config.setting.test; // 讀取設定檔(測試/正式)
+      const setting = neweb_config.setting.official; // 讀取設定檔(測試/正式)
       const common = neweb_config.setting.common;
       /* 商品名稱 */
       const ntd = exchange.coin;										 	// 商品價格

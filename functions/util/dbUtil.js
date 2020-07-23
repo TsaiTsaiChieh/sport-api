@@ -2575,6 +2575,22 @@ const UserMission = sequelize.define(
   }
 );
 
+const invoice_test = sequelize.define(
+  'invoice_test',
+  {
+    content:{
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid', 'content']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2628,7 +2644,8 @@ const dbUtil = {
   MissionItem,
   MissionGod,
   MissionDeposit,
-  UserMission
+  UserMission,
+  invoice_test
 };
 
 module.exports = dbUtil;
