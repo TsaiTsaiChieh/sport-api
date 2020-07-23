@@ -251,10 +251,10 @@ async function upsertHitter(result, result2) {
                       result[i + 12] +
                       result[i + 19]),
                 TB: result[i + 9],
-                oneB:
+                one_B:
                   result[i + 5] - result[i + 6] - result[i + 7] - result[i + 8],
-                twoB: result[i + 6],
-                threeB: result[i + 7],
+                two_B: result[i + 6],
+                three_B: result[i + 7],
                 name: result[i],
                 name_ch: result[i],
                 ori_name: result[i],

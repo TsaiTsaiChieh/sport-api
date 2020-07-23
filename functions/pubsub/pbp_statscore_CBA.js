@@ -5,12 +5,13 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'basketball';
 const league = 'CBA';
-let eventNow = 0;
-let eventOrderNow = 0;
-let periodNow = '1';
+
 // let memberHomeNow = 0;
 // let memberAwayNow = 0;
 async function CBApbpInplay(parameter) {
+  let eventNow = 0;
+  let eventOrderNow = 0;
+  let periodNow = '1';
   // 14 秒一次
   let perStep;
   let timesPerLoop;
@@ -28,7 +29,7 @@ async function CBApbpInplay(parameter) {
   const token = await queryForToken();
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     let realtimeData = await modules.database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
@@ -50,7 +51,10 @@ async function CBApbpInplay(parameter) {
       betsID: betsID,
       pbpURL: pbpURL,
       realtimeData: realtimeData,
-      first: parameter.first
+      first: parameter.first,
+      eventNow: eventNow,
+      eventOrderNow: eventOrderNow,
+      periodNow: periodNow
     };
 
     countForStatus2 = countForStatus2 + 1;
@@ -64,7 +68,7 @@ async function CBApbpInplay(parameter) {
 }
 
 async function CBApbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
       const statscoreID = parameter.statscoreID;
@@ -129,10 +133,13 @@ async function CBApbpHistory(parameter) {
 }
 
 async function doPBP(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
+    const eventNow = parameter.eventNow;
+    const eventOrderNow = parameter.eventOrderNow;
+    const periodNow = parameter.periodNow;
     let first = parameter.first;
     let pbpFlag = 1;
     const data = await axiosForURL(pbpURL);
@@ -242,7 +249,14 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, realtimeData, data);
+        await writeRealtime(
+          betsID,
+          realtimeData,
+          data,
+          eventNow,
+          eventOrderNow,
+          periodNow
+        );
       }
     }
 
@@ -251,9 +265,9 @@ async function doPBP(parameter) {
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await modules.axios(URL);
+      const { data } = await modules.axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -266,7 +280,7 @@ async function axiosForURL(URL) {
 }
 
 async function queryForToken() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -287,7 +301,7 @@ async function queryForToken() {
 }
 
 async function initRealtime(betsID, data) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
@@ -314,12 +328,12 @@ async function initRealtime(betsID, data) {
         .length > 0
     ) {
       const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
       const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-        function (a, b) {
+        function(a, b) {
           return a.id > b.id ? 1 : -1;
         }
       );
@@ -418,8 +432,15 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, realtimeData, data) {
-  return new Promise(async function (resolve, reject) {
+async function writeRealtime(
+  betsID,
+  realtimeData,
+  data,
+  eventNow,
+  eventOrderNow,
+  periodNow
+) {
+  return new Promise(async function(resolve, reject) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
@@ -536,10 +557,10 @@ async function writeRealtime(betsID, realtimeData, data) {
         ].participant_id === null
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ? '1'
-          : '0';
+            eventCount
+          ].participant_id === homeID
+            ? 'home'
+            : 'away';
       if (
         periodNow !==
         changePeriod(
@@ -549,7 +570,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           periodNow
         )
       ) {
-        eventOrderNow = 0;
+        eventOrderNow = 1;
         periodNow = changePeriod(
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
@@ -667,7 +688,7 @@ async function writeRealtime(betsID, realtimeData, data) {
         await modules.database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
           .set(periodNow);
-        await writeBacktoReal(betsID);
+        await writeBacktoReal(betsID, eventNow, eventOrderNow);
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
@@ -679,21 +700,23 @@ async function writeRealtime(betsID, realtimeData, data) {
   });
 }
 function changeTime(oriTime, periodNow) {
-  //從12分鐘倒數
-  let nowTime =
+  // 從12分鐘倒數
+  const nowTime =
     parseInt(oriTime.split(':')[0]) * 60 + parseInt(oriTime.split(':')[1]);
-  if (periodNow === 1) {
-    let resultTime = 720 - nowTime;
+  if (periodNow === '1') {
+    const resultTime = 720 - nowTime;
     return `${Math.floor(resultTime / 60)}:${resultTime % 60}`;
   } else {
-    //第二節以上
-    let resultTime = 720 - (nowTime - 720 * periodNow);
-    return `${Math.floor(resultTime / 60)}:${resultTime % 60}`;
+    // 第二節以上
+    const resultTime = 720 - (nowTime - 720 * (periodNow - 1));
+    return resultTime % 60 === 0
+      ? `${Math.floor(resultTime / 60)}:${resultTime % 60}0`
+      : `${Math.floor(resultTime / 60)}:${resultTime % 60}`;
   }
 }
 
-async function writeBacktoReal(betsID) {
-  return new Promise(async function (resolve, reject) {
+async function writeBacktoReal(betsID, eventNow, eventOrderNow) {
+  return new Promise(async function(resolve, reject) {
     try {
       await modules.database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
@@ -1165,4 +1188,4 @@ function changePeriod(period, now_periods) {
   return periodNow;
 }
 
-module.exports = {CBApbpInplay, CBApbpHistory};
+module.exports = { CBApbpInplay, CBApbpHistory };

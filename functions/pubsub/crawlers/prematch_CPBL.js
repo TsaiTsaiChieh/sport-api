@@ -72,9 +72,7 @@ async function prematch_CPBL(req, res) {
         }
       }
     }
-	}, perStep);
-
-          
+  }, perStep);
 }
 
 function getPitchersStandings(URL) {
@@ -184,9 +182,8 @@ function getTeamsStandings(URL) {
       // 球隊的季戰績
       const { data } = await modules.axios.get(URL);
       const $ = modules.cheerio.load(data);
-			let titles = $('.gap_b20').text();
-		
-			
+      let titles = $('.gap_b20').text();
+
       titles = titles.replace(/\r/g, '');
       titles = titles.replace(/\n/g, '');
       titles = titles.replace(/\t/g, ' ');
@@ -415,9 +412,9 @@ function upsertFirestoreHitter(result, totalPlayer, playerID) {
                 RBI: result[start + 6 + i * offset],
                 R: result[start + 7 + i * offset],
                 H: result[start + 8 + i * offset],
-                oneB: result[start + 9 + i * offset],
-                twoB: result[start + 10 + i * offset],
-                threeB: result[start + 11 + i * offset],
+                one_B: result[start + 9 + i * offset],
+                two_B: result[start + 10 + i * offset],
+                three_B: result[start + 11 + i * offset],
                 HR: result[start + 12 + i * offset],
                 TB: result[start + 13 + i * offset],
                 SO: result[start + 14 + i * offset],
