@@ -457,7 +457,7 @@ class CrawlersError extends ExtendableError {
   }
 }
 
-class KBOCrawlersError extends ExtendableError {
+class KBO_CrawlersError extends ExtendableError {
   constructor(
     message = 'KBO 爬蟲賽前排程錯誤',
     status = 1523,
@@ -509,5 +509,5 @@ module.exports = {
   CreateCashflowBuyRollback,
   PredictionHistoryModelError,
   CrawlersError,
-  KBOCrawlersError
+  KBO_CrawlersError
 };
