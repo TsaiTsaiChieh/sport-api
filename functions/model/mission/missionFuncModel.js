@@ -44,6 +44,33 @@ async function predictMatchCheckByDateBetween(userUid, beginUnix, endUnix) {
   return matchs;
 }
 
+// 預測盤數 不區分聯盟
+// begin、end: 日期區間
+async function predictHandicapCheckByDateBetween(userUid, beginUnix, endUnix) {
+  const matchs = await db.sequelize.query(`
+    select sum(spread_count) + sum(totals_count) count
+    from (
+          select match_date, 
+                  if (spread_option is not null, 1, 0) spread_count, 
+                  if (totals_option is not null, 1, 0) totals_count
+            from user__predictions
+            where uid = :userUid
+              and match_date between :begin and :end
+              and (spread_option is not null or totals_option is not null)
+        ) a
+    group by match_date
+  `, {
+    replacements: {
+      userUid: userUid,
+      begin: beginUnix,
+      end: endUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
+
+  return matchs;
+}
+
 // 發文檢查  category 類型(投注分享/賽事分析....等)
 // begin、end:  同天 1594310400 1594310400 或 一段區間 1594310400 1594483200
 async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
@@ -75,7 +102,7 @@ async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
 // begin、end: 日期區間
 async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUnix) {
   const matchs = await db.sequelize.query(`
-    select league_id, match_date, sum(spread_corrct_count) correct_count
+    select league_id, match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
       from (
              select league_id, match_date, 
                     if (spread_result_flag > 0, 1, 0) spread_corrct_count,
@@ -130,6 +157,7 @@ async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
 module.exports = {
   predictLeagueMatchCheckByDateBetween,
   predictMatchCheckByDateBetween,
+  predictHandicapCheckByDateBetween,
   topicCheckByDateBetween,
   predictCorrectLeagueDailyByDateBetween,
   predictCorrectDailyByDateBetween

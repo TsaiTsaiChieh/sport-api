@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const {
-  topicCheckByDateBetween, predictMatchCheckByDateBetween,
+  topicCheckByDateBetween, predictHandicapCheckByDateBetween,
   predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
@@ -79,7 +79,10 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   if (parms.mission_item_id) whereSql.mission_item_id = parms.mission_item_id;
   if (parms.mission_god_id) whereSql.mission_god_id = parms.mission_god_id;
   if (parms.mission_deposit_id) whereSql.mission_deposit_id = parms.mission_deposit_id;
-  if (!parms.mission_item_id && !parms.mission_god_id && !parms.mission_deposit_id) throw errs.errsMsg('404', '15014');
+  if (!parms.mission_item_id && !parms.mission_god_id && !parms.mission_deposit_id) {
+    await insideTrans.rollback();
+    throw errs.errsMsg('404', '15014');
+  }
 
   if (parms.status) whereSql.status = parms.status;
   if (parms.dateUnix) whereSql.date_timestamp = parms.dateUnix;
@@ -145,8 +148,8 @@ async function missionDaily(args) {
       data.now_finish_nums = topics[0].count;
     }
 
-    if (data.func_type === 'predictMatchCheckByDateBetween') { // 預測
-      const matchs = await predictMatchCheckByDateBetween(userUid, todayUnix, todayUnix);
+    if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
+      const matchs = await predictHandicapCheckByDateBetween(userUid, todayUnix, todayUnix);
       data.now_finish_nums = matchs[0].count;
     }
 
