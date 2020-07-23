@@ -1,16 +1,15 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable consistent-return */
 const modules = require('../../util/modules');
-const AppError = require('../../util/AppErrors');
+const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
-const NORMAL_USER = 1;
 const scheduledStatus = 2;
 const NORMAL_USER_SELL = -1;
 
 function deletePredictions(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      await isNormalUser(args);
+      await isGodBelongsToLeague(args);
       const filter = await checkMatches(args);
       await updatePredictions(args, filter);
       await deletePredictionsWhichAreNull(args.token.uid, args.league);
@@ -21,12 +20,12 @@ function deletePredictions(args) {
   });
 }
 
-// 檢查使用者是否為一般玩家
-function isNormalUser(args) {
+// 非為該聯盟的大神才能刪除
+function isGodBelongsToLeague(args) {
   return new Promise(function(resolve, reject) {
-    args.token.customClaims.role === NORMAL_USER
+    !args.token.titles.includes(args.league)
       ? resolve()
-      : reject(new AppError.OnlyAcceptNormalUser());
+      : reject(new AppErrors.OnlyAcceptUserDoesNotBelongsToCertainLeague());
   });
 }
 
@@ -86,7 +85,7 @@ function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -134,7 +133,7 @@ function isHandicapExist(args, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -184,7 +183,7 @@ function updatePredictions(args, filter) {
       }
       return resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -207,7 +206,7 @@ function deletePredictionsWhichAreNull(uid, league) {
       );
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -216,7 +215,7 @@ function returnData(filter) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(
-        new AppError.DeletePredictionsFailed({ failed: filter.failed })
+        new AppErrors.DeletePredictionsFailed({ failed: filter.failed })
       );
     } else if (neededResult) {
       return resolve(repackageReturnData(filter));

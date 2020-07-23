@@ -159,9 +159,9 @@ class CouldNotModifySellInformation extends ExtendableError {
   }
 }
 
-class OnlyAcceptNormalUser extends ExtendableError {
+class OnlyAcceptUserDoesNotBelongsToCertainLeague extends ExtendableError {
   constructor(
-    message = '此功能只允許一般玩家操作',
+    message = '刪除只允許非屬於該聯盟的大神玩家操作',
     status = 1208,
     isPublic = true,
     code = httpStatus.FORBIDDEN
@@ -477,7 +477,7 @@ module.exports = {
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
-  OnlyAcceptNormalUser,
+  OnlyAcceptUserDoesNotBelongsToCertainLeague,
   GodUserDidNotSell,
   CoinOrDividendNotEnough,
   PurchaseTimeShouldBeforeLastMatch,

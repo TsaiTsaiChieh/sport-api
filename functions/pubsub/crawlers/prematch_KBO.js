@@ -21,7 +21,7 @@ const teamStandings = {};
 // team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG (per_R & allow_per_R)
 // team_hit: 得分，安打，全壘打數，打擊率，上壘率，長打率
 // 2. 本季投手資訊
-// 勝敗，防禦率，三振數
+// 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)
 
 async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
@@ -157,12 +157,16 @@ function insertFirestore(data, teamId, season) {
 function crawlerPitcher(season) {
   return new Promise(async function(resolve, reject) {
     try {
-      // TODO deploy should change to configs.teamCode.length
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < configs.teamNumber; i++) {
         const teamCode = configs.teamCode[i];
-        const $_pitchingStats = await crawler(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
-        const pitchingStatsData = await getPitchingStatsFromOfficial($_pitchingStats);
-        repackagePitcherData(pitchingStatsData, season);
+        // page1
+        const $_pitchingStatsForPage1 = await crawler(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
+        const pitchingStatsDataForPage1 = await getPitchingStatsFromOfficial($_pitchingStatsForPage1, configs.pitcherByTeamPage1Titles);
+        repackagePitcherDataForPage1(pitchingStatsDataForPage1, configs.pitcherByTeamPage1Titles, season);
+        // page 2
+        const $_pitchingStatsForPage2 = await crawler(`${configs.official_URL}Stats/PitchingByTeams02.aspx?codeTeam=${teamCode}`);
+        const pitchingStatsDataForPage2 = await getPitchingStatsFromOfficial($_pitchingStatsForPage2, configs.pitcherByTeamPage2Titles);
+        repackagePitcherDataForPage2(pitchingStatsDataForPage2, configs.pitcherByTeamPage2Titles, season);
       }
     } catch (err) {
       return reject(new AppErrors.KBOCrawlersError(`${err.stack} by TsaiChieh`));
@@ -170,13 +174,13 @@ function crawlerPitcher(season) {
   });
 }
 
-function getPitchingStatsFromOfficial($) {
+function getPitchingStatsFromOfficial($, titles) {
   return new Promise(async function(resolve, reject) {
     try {
       const pitcherStats = [];
       const pitcherIds = [];
       $('td').each(function(i, ele) {
-        if (i % configs.pitcherByTeamPage1Titles.length === 0) {
+        if (i % titles.length === 0) {
           const pitcherId = $(ele).find('a').attr('href').replace('/teams/playerinfopitcher/summary.aspx?pcode=', '');
           pitcherIds.push(pitcherId);
         }
@@ -189,19 +193,61 @@ function getPitchingStatsFromOfficial($) {
   });
 }
 
-function repackagePitcherData(pitchingStats, season) {
+function repackagePitcherDataForPage1(pitchingStats, titles, season) {
   const { pitcherStats, pitcherIds } = pitchingStats;
-  // console.log(pitcherIds);
   let j = 0;
   const data = {};
   const teamId = teamsMapping.KBO_teamName2id(pitcherStats[1]);
   for (let i = 0; i < pitcherStats.length; i++) {
-    if (i % configs.pitcherByTeamPage1Titles.length === 0) {
+    if (i % titles.length === 0) {
       const name = pitcherStats[i];
       const pitcherId = pitcherIds[j];
       const ERA = pitcherStats[i + 3];
       const G = pitcherStats[i + 4];
-      data[pitcherId] = { name, ERA, G };
+      const CG = pitcherStats[i + 5];
+      const SHO = pitcherStats[i + 6];
+      const W = pitcherStats[i + 7];
+      const SV = pitcherStats[i + 8];
+      const HLD = pitcherStats[i + 9];
+      const PCT = pitcherStats[i + 10];
+      const PA = pitcherStats[i + 11];
+      const NP = pitcherStats[i + 12];
+      const IP = pitcherStats[i + 13];
+      const H = pitcherStats[i + 14];
+      const two_B = pitcherStats[i + 15];
+      const three_B = pitcherStats[i + 16];
+      const one_B = String(Number(H) - Number(two_B) - Number(three_B));
+      const HR = pitcherStats[i + 17];
+      data[pitcherId] = { name, ERA, G, CG, SHO, W, SV, HLD, PCT, PA, NP, IP, H, one_B, two_B, three_B, HR };
+      j++;
+    }
+  }
+  insertPitcherToFirestore(data, teamId, season);
+}
+
+function repackagePitcherDataForPage2(pitchingStats, titles, season) {
+  const { pitcherStats, pitcherIds } = pitchingStats;
+  let j = 0;
+  const data = {};
+  const teamId = teamsMapping.KBO_teamName2id(pitcherStats[1]);
+  for (let i = 0; i < pitcherStats.length; i++) {
+    if (i % titles.length === 0) {
+      const pitcherId = pitcherIds[j];
+      const SAC = pitcherStats[i + 2];
+      const SF = pitcherStats[i + 3];
+      const BB = pitcherStats[i + 4];
+      const IBB = pitcherStats[i + 5];
+      const HBP = pitcherStats[i + 6];
+      const SO = pitcherStats[i + 7];
+      const WP = pitcherStats[i + 8];
+      const BK = pitcherStats[i + 9];
+      const R = pitcherStats[i + 10];
+      const ER = pitcherStats[i + 11];
+      const BS = pitcherStats[i + 12];
+      const WHIP = pitcherStats[i + 13];
+      const OAVG = pitcherStats[i + 14];
+      const QS = pitcherStats[i + 15];
+      data[pitcherId] = { SAC, SF, BB, IBB, HBP, SO, WP, BK, R, ER, BS, WHIP, OAVG, QS };
       j++;
     }
   }
@@ -215,10 +261,8 @@ function insertPitcherToFirestore(officialData, teamId, season) {
       data[`season_${season}`] = {};
       data[`season_${season}`].pitchers = {};
       data[`season_${season}`].pitchers = officialData;
-      // console.log(data);
-      // console.log(officialData.pitcherId);
-      const result = await modules.firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
-      console.log(result);
+      await modules.firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
+      return resolve();
     } catch (err) {
       return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
     }
