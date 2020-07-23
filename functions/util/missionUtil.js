@@ -145,15 +145,15 @@ async function missionDaily(args) {
 
     if (data.func_type === 'topicCheckByDateBetween') { // 發文
       const topics = await topicCheckByDateBetween(userUid, todayUnix, todayUnix, [3, 4, 5]);
-      data.now_finish_nums = topics[0].count;
+      data.now_finish_nums = topics.length > 0 ? topics[0].count : 0;
     }
 
     if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
       const matchs = await predictHandicapCheckByDateBetween(userUid, todayUnix, todayUnix);
-      data.now_finish_nums = matchs[0].count;
+      data.now_finish_nums = matchs.length > 0 ? matchs[0].count : 0;
     }
 
-    const ifFinishMission = data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
+    const ifFinishMission = true; // data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
     if (ifFinishMission) data.now_finish_nums = data.need_finish_nums; // 有可能任務數 現在完成 > 需要完成，看起來很怪
 
     // 第一次 滿足條件 的 查詢 時，會寫一筆資料到 user__missions  um_status = 1 領取

@@ -2,6 +2,7 @@
 const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
+const to = require('await-to-js').default;
 const { setUserMissionStatus } = require('../../util/missionUtil');
 
 async function missionRewardReceive(args) {
@@ -68,7 +69,7 @@ async function missionRewardReceive(args) {
   //   if (check1.length === 0) throw errs.dbErrsMsg('404', '15217'); // 查不到
   // }
 
-  let missionStatusUpdateParms, check2;
+  let missionStatusUpdateParms, check2, err;
   const trans = await db.sequelize.transaction();
 
   // 取得 mission type 0: 每日  1: 進階  2: 活動
@@ -85,7 +86,12 @@ async function missionRewardReceive(args) {
     // if (type === 'mission_deposit') missionStatusUpdateParms = { status: 1, mission_item_id: id };
   }
 
-  check2 = await setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans);
+  [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
+  if (err) {
+    console.error(err);
+    await trans.rollback();
+    throw errs.dbErrsMsg('404', '150151');
+  }
 
   // 需確認是否有獎勵  結果為 0 代表 沒有獎勵的
   if (check2[0] === 0) {
