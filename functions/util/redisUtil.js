@@ -11,14 +11,14 @@ redis.on('error', (err) => console.error('[REDIS]', err));
 function Cache() {}
 Cache.get = async function(key) {
   const [err, res] = await to(redis.get(key));
-  if (err) {console.error('[REDIS][Cache.get]', err); return null;}
+  if (err) {console.error('[Error][REDIS][Cache.get]', err); return null;}
   return JSON.parse(res);
 };
 
 Cache.set = async function(key, value) {
   value = JSON.stringify(value);
   const [err] = await to(redis.set(key, value));
-  if (err) {console.error('[REDIS][Cache.set]', err); }
+  if (err) {console.error('[Error][REDIS][Cache.set]', err); }
 };
 
 // Special Delete

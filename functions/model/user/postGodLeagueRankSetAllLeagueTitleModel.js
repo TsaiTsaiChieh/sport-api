@@ -26,7 +26,7 @@ async function postGodLeagueRankSetAllLeagueTitle(args) {
     }));
 
     if (err) {
-      console.error('[postGodLeagueRankSetAllLeagueTitleModel][Title] ', err);
+      console.error('[Error][postGodLeagueRankSetAllLeagueTitleModel][Title] ', err);
       throw errs.dbErrsMsg('404', '13541', { addMsg: err.parent.code });
     }
     if (r[0] === 0) {throw errs.dbErrsMsg('404', '13542');}

@@ -254,7 +254,7 @@ async function settleGodTitle(args) {
         }
       }));
       if (err) {
-        console.error('[settleGodTitleModel][Title] ', err);
+        console.error('[Error][settleGodTitleModel][Title] ', err);
         throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });
       }
       if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });

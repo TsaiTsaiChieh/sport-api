@@ -58,7 +58,7 @@ async function godlists(args) {
     type: db.sequelize.QueryTypes.SELECT
   }));
   if (err) {
-    console.error('Error 2. in rank/godListsModel by YuHsien', err);
+    console.error('[Error][rank][godListsModel][godListsQuery] ', err);
     throw errs.dbErrsMsg('404', '13810');
   }
 

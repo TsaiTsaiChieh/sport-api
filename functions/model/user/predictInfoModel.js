@@ -62,7 +62,7 @@ async function predictInfo(args) {
     type: db.sequelize.QueryTypes.SELECT
   }));
   if (err) {
-    console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
+    console.error('[Error][predictonInfoModell][predictionsInfoDocs] ', err);
     throw errs.dbErrsMsg('404', '14050');
   }
 

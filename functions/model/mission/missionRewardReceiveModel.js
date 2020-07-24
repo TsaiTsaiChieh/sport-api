@@ -88,7 +88,7 @@ async function missionRewardReceive(args) {
 
   [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
   if (err) {
-    console.error('[missionRewardReciveModel][setUserMissionStatus] ', err);
+    console.error('[Error][missionRewardReciveModel][setUserMissionStatus] ', err);
     await trans.rollback();
     throw errs.dbErrsMsg('404', '150151');
   }

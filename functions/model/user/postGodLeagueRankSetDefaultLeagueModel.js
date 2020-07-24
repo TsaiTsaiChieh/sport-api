@@ -22,7 +22,7 @@ async function postGodLeagueRankSetDefaultLeague(args) {
   }));
 
   if (err) {
-    console.error('[postGodLeagueRankSetDefaultLeagueModel][User] ', err);
+    console.error('[Error][postGodLeagueRankSetDefaultLeagueModel][User] ', err);
     throw errs.dbErrsMsg('404', '13001', { addMsg: err.parent.code });
   }
   if (r[0] === 0) {throw errs.dbErrsMsg('404', '13002');}

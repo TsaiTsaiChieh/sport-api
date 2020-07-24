@@ -69,7 +69,7 @@ async function winBetsLists() {
       type: db.sequelize.QueryTypes.SELECT
     }, redisKey));
     if (err) {
-      console.error('Error in  home/WinBetsListsModel by YuHsien:  %o', err);
+      console.error('[Error][home][WinBetsListsModel][CacheQuery] ', err);
       throw errs.dbErrsMsg('404', '14030');
     }
 

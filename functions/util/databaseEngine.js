@@ -39,7 +39,10 @@ function getSeason(league_id) {
 // rightArr = [1, 2] // 一般使用者, 大神
 async function checkUserRight(uid, rightArr = [], source = null) {
   const [err, memberInfo] = await to(db.User.findOne({ where: { uid: uid } }));
-  if (err) {console.error('Error 1. in util/databaseEngine/checkUserRight by YuHsien', err); throw errs.dbErrsMsg('500', '500', err);};
+  if (err) {
+    console.error('[Error][databaseEngine][checkUserRight] ', err);
+    throw errs.dbErrsMsg('500', '500', err);
+  };
   if (!memberInfo) return errs.errsMsg('404', '1301');
   if (!rightArr.includes(memberInfo.status)) return source ? errs.errsMsg('404', source) : errs.errsMsg('404', '1308');
   return {};
@@ -55,7 +58,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
     }
   }));
   if (err) {
-    console.error('Error 1. in util/databaseEngine/countGodSellPredictionBuyers by YuHsien', err);
+    console.error('[Error][databaseEngine][countGodSellPredictionBuyers] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -76,7 +79,7 @@ async function checkUidBuyGodSellPrediction(uid, god_uid, league_id, matches_dat
     }
   }));
   if (err) {
-    console.error('Error 1. in util/databaseEngine/checkUidBuyGodSellPrediction by YuHsien', err);
+    console.error('[Error][databaseEngine][checkUidBuyGodSellPrediction] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -100,7 +103,7 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
     }
   }));
   if (err) {
-    console.error('Error 1. in util/databaseEngine/checkGodSellPrediction by YuHsien', err);
+    console.error('[Error][databaseEngine][checkGodSellPrediction] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 

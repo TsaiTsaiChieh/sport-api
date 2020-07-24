@@ -42,7 +42,7 @@ async function godlists() {
     type: db.sequelize.QueryTypes.SELECT
   }, redisKey));
   if (err) {
-    console.error('Error in  home/godlists by YuHsien:  %o', err);
+    console.error('[Error][home][godListsModel][CacheQuery] ', err);
     throw errs.dbErrsMsg('404', '14020');
   }
 

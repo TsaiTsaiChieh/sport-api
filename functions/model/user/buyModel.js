@@ -8,7 +8,10 @@ async function buyModel(args, uid) {
   const end = args.end;
 
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
-  if (err) {console.error('Error in  user/buy by henry:  %o', err); throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });}
+  if (err) {
+    console.error('[Error][buyModel][getGodSellPredictionDatesWinBetsInfo] ', err);
+    throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });
+  }
   if (!buy) return buyList;
 
   for (const ele of buy) {

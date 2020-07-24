@@ -216,7 +216,7 @@ async function settleWinList(args) {
         }
       }));
       if (err) {
-        console.error('[settleWinListModel][Users_WinListsHistory] ', err);
+        console.error('[Error][settleWinListModel][Users_WinListsHistory] ', err);
         throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });
       }
     }
@@ -325,7 +325,7 @@ async function settleWinList(args) {
         }
       }));
       if (err) {
-        console.error('[settleWinListModel][Users_WinLists] ', err);
+        console.error('[Error][settleWinListModel][Users_WinLists] ', err);
         throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
       }
     }
@@ -348,7 +348,7 @@ async function settleWinList(args) {
       }
     }));
     if (err) {
-      console.error('[settleWinListModel][Title] ', err);
+      console.error('[Error][settleWinListModel][Title] ', err);
       throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
     }
 

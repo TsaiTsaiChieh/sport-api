@@ -102,7 +102,7 @@ async function settleMatchesModel(args) {
       }));
 
       if (err) {
-        console.error('[settleMatchesModel][Match] ', err);
+        console.error('[Error][settleMatchesModel][Match] ', err);
         throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });
       }
       if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
@@ -181,7 +181,7 @@ async function settleMatchesModel(args) {
       }
     }));
     if (err) {
-      console.error('[settleMatchesModel][Prediction] ', err);
+      console.error('[Error][settleMatchesModel][Prediction] ', err);
       throw errs.dbErrsMsg('404', '13213', { addMsg: err.parent.code });
     }
     if (r[0] !== 1) throw errs.errsMsg('404', '13214'); // 更新筆數異常
