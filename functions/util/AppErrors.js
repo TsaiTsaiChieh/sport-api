@@ -347,7 +347,7 @@ class RepackageError extends ExtendableError {
   }
 }
 
-class firestoreQueryError extends ExtendableError {
+class FirestoreQueryError extends ExtendableError {
   constructor(
     message = 'Firestore查詢失敗',
     status = 1513,
@@ -499,7 +499,7 @@ module.exports = {
   PBPKBOError,
   RepackageError,
   PBPAbnormalError,
-  firestoreQueryError,
+  FirestoreQueryError,
   PurchasePredictionsModelError,
   UpdateUserCoinAndDividend,
   PropertyMissingError,
