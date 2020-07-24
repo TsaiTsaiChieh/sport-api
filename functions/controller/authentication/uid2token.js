@@ -1,8 +1,7 @@
-
-const modules = require('../../util/modules');
-const firebase = modules.firebase;
-const firebaseAdmin = modules.firebaseAdmin;
+const firebase = require('firebase');
+const { firebaseAdmin } = require('../../util/firebaseModules');
 const envValues = require('../../config/env_values');
+firebase.initializeApp(envValues.firebaseConfig);
 
 async function uid2token(req, res) {
   const firebaseUid = req.body.uid;
@@ -12,8 +11,6 @@ async function uid2token(req, res) {
       console.log('Error creating custom token:', error);
       res.status(401).json(error);
     });
-
-  firebase.initializeApp(envValues.firebaseConfig);
 
   // 用自定token登入
   const signInInfo = await firebase.auth().signInWithCustomToken(customToken)

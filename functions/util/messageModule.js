@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { getSnapshot, bucket } = require('../../util/firebaseModules');
 const folder = 'share_files';
 const day = 7;
 
@@ -47,12 +47,12 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
     }
   };
   if (message.replyMessageId) {
-    const replyMessageSnapshot = await modules.getSnapshot(
+    const replyMessageSnapshot = await getSnapshot(
       'messages',
       message.replyMessageId
     );
     const replyMessage = replyMessageSnapshot.data();
-    const replyUserSnapshot = await modules.getSnapshot(
+    const replyUserSnapshot = await getSnapshot(
       'users',
       message.replyUid
     );
@@ -70,7 +70,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
   if (message.fileUploadId) {
     // get storage
     try {
-      const file = modules.bucket.file(
+      const file = bucket.file(
         `${folder}/${message.fileUploadId}.${message.fileSubname}`
       );
       const getFile = await file.get();
@@ -126,7 +126,7 @@ function orderByCreateTime(messages) {
 
 async function maskMessages(messages, token) {
   // get user uid from token info
-  const userSnapshot = await modules.getSnapshot('users', token.uid);
+  const userSnapshot = await getSnapshot('users', token.uid);
   const user = userSnapshot.data();
 
   messages.forEach(ele => {

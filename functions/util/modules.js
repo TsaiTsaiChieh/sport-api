@@ -1,7 +1,3 @@
-const express = require('express');
-const envValues = require('../config/env_values');
-const firebaseAdmin = require('firebase-admin');
-const firebase = require('firebase');
 const Moment = require('moment');
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
@@ -9,13 +5,9 @@ require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const axios = require('axios');
-const { zone_tw } = envValues;
-const path = require('path');
-const os = require('os');
-const fs = require('fs');
+const { zone_tw } = require('../config/env_values');
 const https = require('https');
 const httpStatus = require('http-status');
-const firestoreService = require('firestore-export-import');
 const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
@@ -173,45 +165,6 @@ function date3UnixInfo(sdateUnix, zone = zone_tw) {
   return date3Info(sdateUnix, zone);
 }
 
-function initFirebase() {
-  if (firebaseAdmin.apps.length === 0) {
-    console.log('initializing firebase database');
-    firebaseAdmin.initializeApp({
-      credential: firebaseAdmin.credential.cert(envValues.cert),
-      databaseURL: envValues.firebaseConfig.databaseURL,
-      storageBucket: envValues.firebaseConfig.storageBucket
-    });
-  } else {
-    console.log('firebase is already initialized');
-  }
-}
-
-initFirebase();
-// firebaseAdmin.initializeApp({
-//   credential: firebaseAdmin.credential.cert(envValues.cert),
-//   databaseURL: envValues.firebaseConfig.databaseURL,
-//   storageBucket: envValues.firebaseConfig.storageBucket
-// });
-const bucket = firebaseAdmin
-  .storage()
-  .bucket(envValues.firebaseConfig.storageBucket);
-const firestore = firebaseAdmin.firestore();
-const database = firebaseAdmin.database();
-
-function getSnapshot(collection, id) {
-  return firestore.collection(collection).doc(id).get();
-}
-
-function getDoc(collection, id) {
-  return firestore.collection(collection).doc(id);
-}
-
-function addDataInCollection(collection, data) {
-  return firestore.collection(collection).add(data);
-}
-function addDataInCollectionWithId(collection, id, data) {
-  return firestore.collection(collection).doc(id).set(data, { merge: true });
-}
 function createError(code, error) {
   const err = {};
   err.code = code;
@@ -247,16 +200,7 @@ function dateFormat(date) {
     day: date.substring(8, 10)
   };
 }
-async function cloneFirestore(name, clonedName) {
-  const snapshot = await firestore.collection(name).get();
-  const clonedDb = firestore.collection(clonedName);
-  snapshot.docs.map(function(doc) {
-    clonedDb.doc(doc.data().bets_id).set(doc.data(), { merge: true });
-  });
-}
-function firebaseTimestamp(milliseconds) {
-  return firebaseAdmin.firestore.Timestamp.fromDate(new Date(milliseconds));
-}
+
 function league2Sport(league) {
   switch (league) {
     case 'NBA':
@@ -814,31 +758,15 @@ function validateProperty(data, propertyName) {
 }
 
 module.exports = {
-  express,
-  firebaseAdmin,
-  firebase,
-  firestore,
-  getSnapshot,
   createError,
-  getDoc,
   ajv,
-  bucket,
-  database,
-  addDataInCollection,
   moment,
   axios,
   db,
-  path,
-  os,
-  fs,
   https,
   dateFormat,
-  cloneFirestore,
-  firebaseTimestamp,
-  firestoreService,
   league2Sport,
   leagueCodebook,
-  addDataInCollectionWithId,
   getTitlesPeriod,
   getTitlesNextPeriod,
   getTitles,

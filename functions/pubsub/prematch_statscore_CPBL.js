@@ -66,7 +66,7 @@ async function prematch_statscore_CPBL() {
           }
         }
       }
-      // await modules.database
+      // await database
       //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
       //  .set('scheduled');
       return resolve('ok');

@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const ESoccerpbp = require('./pbp_eSoccer');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -31,7 +32,7 @@ async function checkmatch_eSoccer() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`esports/eSoccer/${betsID}/Summary/status`)
                   .set('inprogress');
                 const parameter = {
@@ -46,7 +47,7 @@ async function checkmatch_eSoccer() {
                 );
               }
             } else {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('scheduled');
 
@@ -56,7 +57,7 @@ async function checkmatch_eSoccer() {
                 }
               }
 
-              let realtimeHome = await modules.database
+              let realtimeHome = await database
                 .ref('home_livescore/')
                 .once('value');
               realtimeHome = realtimeHome.val();
@@ -73,7 +74,7 @@ async function checkmatch_eSoccer() {
                   }
                 }
                 if (flag === 0) {
-                  await modules.database
+                  await database
                     .ref(`home_livescore/${realtimeNow[fi]}`)
                     .set(null);
                 }
@@ -83,7 +84,7 @@ async function checkmatch_eSoccer() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`esports/eSoccer/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
@@ -177,7 +178,7 @@ async function queryForEvents() {
 async function write2HomeLivescore(firestoreData) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`home_livescore/${firestoreData.bets_id}`)
         .set({
           id: firestoreData.bets_id,

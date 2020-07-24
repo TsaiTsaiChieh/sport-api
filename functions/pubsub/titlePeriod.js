@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { addDataInCollection } = require('../../util/firebaseModules');
 
 function titlePeriod() {
   const specificDate = '20200302';
@@ -39,7 +40,7 @@ function titlePeriod() {
       end_date: end.format('YYYYMMDD'),
       end_timestamp: end.valueOf()
     };
-    modules.addDataInCollectionWithId(
+    addDataInCollectionWithId(
       'titles_period',
       (i + 1).toString(),
       data

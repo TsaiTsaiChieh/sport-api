@@ -1,5 +1,4 @@
 const modules = require('../../util/modules');
-// const admin = modules.firebaseAdmin;
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
   return new Promise(async function(resolve, reject) {
@@ -86,7 +85,7 @@ async function accuseUser(req, res) {
     const valid = modules.ajv.validate(schema, args);
     if (!valid) return res.status(400).json(modules.ajv.errors);
     // if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
-    // const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
+    // const accuserSnapshot = await getSnapshot('users', req.token.uid);
     const mysql_user = await getUserInfo(args.defendant);
     if (!mysql_user) return res.status(400).json('user not dound');
     const accuser = mysql_user; // await accuserSnapshot.data();
@@ -104,7 +103,7 @@ async function accuseUser(req, res) {
     //   reason: args.reason,
     //   status: 0
     // };
-    // modules.firestore.collection('accuse_users').doc(args.defendant).set(event, { merge: true }).then(ref => {
+    // firestore.collection('accuse_users').doc(args.defendant).set(event, { merge: true }).then(ref => {
     //   console.log('Added document with ID: ', ref);
     //   return res.status(200).json({ success: true, result: ref });
     // }).catch(e => {

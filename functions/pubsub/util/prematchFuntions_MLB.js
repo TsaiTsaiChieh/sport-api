@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { firestore, firebaseTimestamp } = require('../../util/firebaseModules');
 
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
@@ -14,7 +15,7 @@ module.exports.MLB_PRE = {
           const ele = data.results[i];
           if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
             results.push(
-              modules.firestore
+              firestore
                 .collection(modules.db.baseball_MLB)
                 .doc(ele.id)
                 .set(repackage_bets(ele), { merge: true })
@@ -81,7 +82,7 @@ module.exports.MLB = {
             .utcOffset(8)
             .format('ll')}, URL: ${completeURL}`
         );
-        modules.firestore
+        firestore
           .collection(modules.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_lineups(data), { merge: true });
@@ -109,7 +110,7 @@ module.exports.MLB = {
         const awayTeam = await modules.axios.get(awayURL);
         console.log(`SportRadar URL: ${homeURL} on ${new Date()}`);
         console.log(`SportRadar URL: ${awayURL} on ${new Date()}`);
-        modules.firestore
+        firestore
           .collection(modules.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_team(homeTeam.data, awayTeam.data), { merge: true });
@@ -164,9 +165,9 @@ function skipTeam(id) {
 
 function repackage_bets(ele) {
   return {
-    update_time: modules.firebaseTimestamp(new Date()),
+    update_time: firebaseTimestamp(new Date()),
     bets_id: ele.id,
-    scheduled: modules.firebaseTimestamp(Number.parseInt(ele.time) * 1000),
+    scheduled: firebaseTimestamp(Number.parseInt(ele.time) * 1000),
     home: {
       alias: codebook(ele.home.id, ele.home.name).alias,
       alias_ch: codebook(ele.home.id, ele.home.name).alias_ch,
@@ -398,7 +399,7 @@ function codebook(id, name) {
 }
 
 async function query_MLB(flag, value) {
-  const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(modules.db.baseball_MLB);
   const results = [];
 
   try {
@@ -429,7 +430,7 @@ function integration(query, ele, league) {
         ele.home.abbr.toUpperCase() === query[i].away.alias &&
         ele.away.abbr.toUpperCase() === query[i].home.alias)
     ) {
-      modules.firestore
+      firestore
         .collection(modules.db.baseball_MLB)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
@@ -444,7 +445,7 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.abbr.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.abbr.toUpperCase() === query.away.alias;
   return {
-    update_time: modules.firebaseTimestamp(Date.now()),
+    update_time: firebaseTimestamp(Date.now()),
     radar_id: ele.id,
     league: {
       radar_id: league.id
@@ -479,7 +480,7 @@ function repackage_sportradar(ele, query, league) {
 }
 
 async function queryBeforeOneDay(date, flag, value) {
-  const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(modules.db.baseball_MLB);
   const results = [];
   try {
     const querys = await eventsRef
@@ -582,7 +583,7 @@ function repackage_lineups(ele) {
 function repackage_team(homeData, awayData) {
   return {
     stat: {
-      update_time: modules.firebaseTimestamp(new Date()),
+      update_time: firebaseTimestamp(new Date()),
       home: {
         r: homeData.statistics.hitting.overall.runs.total,
         h: homeData.statistics.hitting.overall.onbase.h,

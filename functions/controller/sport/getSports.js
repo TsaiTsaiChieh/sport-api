@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { firestore } = require('../../util/firebaseModules');
 
 /**
  * @api {get} /sport Get Sport List
@@ -119,7 +119,7 @@ const modules = require('../../util/modules');
 async function getSports(req, res) {
   const returnJson = {};
   try {
-    const snapshot = await modules.firestore.collection('sports').get();
+    const snapshot = await firestore.collection('sports').get();
     snapshot.forEach(function(doc) {
       // console.log("...", doc.id, " => ", doc.data());
       returnJson[doc.id] = doc.data();

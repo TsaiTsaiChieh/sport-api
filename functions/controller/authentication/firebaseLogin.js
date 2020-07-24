@@ -1,7 +1,6 @@
-// const userUtils = require('../../util/userUtil');
 const db = require('../../util/dbUtil');
-const modules = require('../../util/modules');
-const firebaseAdmin = modules.firebaseAdmin;
+const { firebaseAdmin } = require('../../util/firebaseModules');
+const { getTitlesPeriod } = require('../../util/modules');
 const envValues = require('../../config/env_values');
 
 /**
@@ -92,7 +91,7 @@ const envValues = require('../../config/env_values');
 async function firebaseLogin(req, res) {
   const returnJson = { success: false };
   const token = req.body.token;
-  const period = modules.getTitlesPeriod(new Date()).period;
+  const period = getTitlesPeriod(new Date()).period;
   if (!token) {
     console.log('Error login user: missing token');
     res.status(401).json(returnJson);

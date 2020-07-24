@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { database, firestore } = require('../util/firebaseModules');
 const axios = require('axios');
 const firestoreName = 'pagetest';
 const sbl_api_key = '8hhpmvusugeguqdwkuf4ftmu';
@@ -13,14 +13,14 @@ async function SBLpbpInplay(gameID, betsID, periodsNow, eventsNow) {
   const timerForStatus2 = setInterval(async function() {
     try {
       const { data } = await axios(pbpURL);
-      let ref = modules.database.ref(`basketball/SBL/${betsID}/Summary/status`);
+      let ref = database.ref(`basketball/SBL/${betsID}/Summary/status`);
       await ref.set(data.sport_event_status.status);
 
       // call summary to get player information
       // scores, blocks, assists, minutes
-      ref = modules.database.ref(`basketball/SBL/${betsID}/Summary/homepoints`);
+      ref = database.ref(`basketball/SBL/${betsID}/Summary/homepoints`);
       await ref.set(data.home.points);
-      ref = modules.database.ref(`basketball/SBL/${betsID}/Summary/awaypoints`);
+      ref = database.ref(`basketball/SBL/${betsID}/Summary/awaypoints`);
       await ref.set(data.away.points);
     } catch (error) {
       console.log(
@@ -32,7 +32,7 @@ async function SBLpbpInplay(gameID, betsID, periodsNow, eventsNow) {
     countForStatus2 = countForStatus2 + 1;
 
     if (countForStatus2 >= timesPerLoop) {
-      modules.firestore
+      firestore
         .collection(firestoreName)
         .doc(betsID)
         .set({ flag: { status: 1 } }, { merge: true });
@@ -52,7 +52,7 @@ async function SBLpbpHistory(gameID, betsID) {
     return error;
   }
   // change the status to 1
-  modules.firestore
+  firestore
     .collection(firestoreName)
     .doc(betsID)
     .set({ flag: { status: 0 } }, { merge: true });

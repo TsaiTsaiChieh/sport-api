@@ -1,11 +1,12 @@
-const modules = require('../util/modules');
+const { getTitlesPeriod, httpStatus, leagueDecoder } = require('../util/modules');
+const { firebaseAdmin } = require('../util/firebaseModules');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
 const ADMIN_USER = 9;
 const MANAGER_USER = 8;
 const SERVICE_USER = 7;
-const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = modules.httpStatus;
+const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = httpStatus;
 
 async function admin(req, res, next) {
   try {
@@ -56,10 +57,10 @@ async function confirmLogin(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await modules.firebaseAdmin
+      const decodedIdToken = await firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
-      req.token = await modules.firebaseAdmin
+      req.token = await firebaseAdmin
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
@@ -77,7 +78,7 @@ async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則�
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await modules.firebaseAdmin
+      const decodedIdToken = await firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
@@ -101,11 +102,11 @@ async function token(req, res, next) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
 
-      const decodedIdToken = await modules.firebaseAdmin
+      const decodedIdToken = await firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
-      req.token = await modules.firebaseAdmin
+      req.token = await firebaseAdmin
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
@@ -125,7 +126,7 @@ async function token_v2(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await modules.firebaseAdmin
+      const decodedIdToken = await firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
       req.token = decodedIdToken;
@@ -147,11 +148,11 @@ async function getToken(req, res, next) { // 只取得 token 未登入不擋，�
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
 
-      const decodedIdToken = await modules.firebaseAdmin
+      const decodedIdToken = await firebaseAdmin
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
-      req.token = await modules.firebaseAdmin
+      req.token = await firebaseAdmin
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
@@ -178,13 +179,13 @@ async function getRoleAndTitles(uid) {
       const titlesResult = await db.Title.findAll({
         where: {
           uid,
-          period: modules.getTitlesPeriod(new Date()).period
+          period: getTitlesPeriod(new Date()).period
         },
         attributes: ['league_id']
       });
       const titles = [];
       for (let i = 0; i < titlesResult.length; i++) {
-        titles.push(modules.leagueDecoder(titlesResult[i].league_id));
+        titles.push(leagueDecoder(titlesResult[i].league_id));
       }
       // req.token.customClaims = { role: GOD_USER, titles };
       return { role: GOD_USER, titles };

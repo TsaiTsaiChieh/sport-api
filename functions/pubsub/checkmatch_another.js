@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const Anotherpbp = require('./pbp_another');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -47,7 +48,7 @@ async function checkmatch_another() {
                     bets_id: betsID,
                     status: 1
                   });
-                  await modules.database
+                  await database
                     .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
                     .set('inprogress');
                   const parameter = {
@@ -67,7 +68,7 @@ async function checkmatch_another() {
                   );
                 }
               } else {
-                await modules.database
+                await database
                   .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
                   .set('scheduled');
               }
@@ -75,7 +76,7 @@ async function checkmatch_another() {
             }
             case 1: {
               try {
-                let realtimeData = await modules.database
+                let realtimeData = await database
                   .ref(`${sportName}/${leagueName}/${betsID}`)
                   .once('value');
                 realtimeData = realtimeData.val();

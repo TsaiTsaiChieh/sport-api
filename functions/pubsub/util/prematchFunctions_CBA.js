@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { database } = require('../../util/firebaseModules');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -63,7 +64,7 @@ async function checkTheHandicap(ele) {
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');

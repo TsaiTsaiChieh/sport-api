@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -65,7 +66,7 @@ async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
     }
     if (flag === 1) {
       try {
-        await modules.database
+        await database
           .ref(`home_livescore/${firestoreData[index].bets_id}`)
           .set({
             id: firestoreData[index].bets_id,
@@ -148,7 +149,7 @@ async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
         );
       }
     } else {
-      await modules.database.ref(`home_livescore/${betsID}`).set(null);
+      await database.ref(`home_livescore/${betsID}`).set(null);
     }
   });
 }
@@ -170,7 +171,7 @@ async function ESoccerpbpHistory(parameter) {
     let homeScores = null;
     let awayScores = null;
     if (!data.results[0].ss) {
-      realtimeData = await modules.database
+      realtimeData = await database
         .ref(`esports/eSoccer/${betsID}`)
         .once('value');
       realtimeData = realtimeData.val();
@@ -236,7 +237,7 @@ async function ESoccerpbpHistory(parameter) {
       );
     }
     try {
-      await modules.database
+      await database
         .ref(`esports/eSoccer/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {
@@ -289,7 +290,7 @@ async function doPBP(parameter) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {
             try {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('cancelled');
             } catch (err) {
@@ -315,7 +316,7 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '4') {
             try {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('postponed');
             } catch (err) {
@@ -342,7 +343,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '3') {
             try {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('closed');
             } catch (err) {
@@ -357,7 +358,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '2') {
             try {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -385,7 +386,7 @@ async function doPBP(parameter) {
             if (realtimeData !== null) {
               if (realtimeData.Summary.status !== 'inprogress') {
                 try {
-                  await modules.database
+                  await database
                     .ref(`esports/eSoccer/${betsID}/Summary/status`)
                     .set('inprogress');
                 } catch (err) {
@@ -409,7 +410,7 @@ async function doPBP(parameter) {
                 }
 
                 try {
-                  await modules.database
+                  await database
                     .ref(`esports/eSoccer/${betsID}/Summary/league`)
                     .set({
                       name: data.results[0].league.name,
@@ -428,7 +429,7 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '0') {
             try {
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -501,7 +502,7 @@ async function doPBP(parameter) {
                 data.results[0].timer.tm,
                 data.results[0].timer.ts
               );
-              await modules.database
+              await database
                 .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
                 .set(timer);
             } catch (err) {
@@ -514,7 +515,7 @@ async function doPBP(parameter) {
 
             try {
               if (data.results[0].ss !== 'no data') {
-                await modules.database
+                await database
                   .ref(`esports/eSoccer/${betsID}/Summary/info`)
                   .set({
                     home: {
@@ -565,7 +566,7 @@ async function doPBP(parameter) {
     } else {
       // api error
       try {
-        await modules.database
+        await database
           .ref(`esports/eSoccer/${betsID}/Summary/status`)
           .set('tobefixed');
       } catch (err) {

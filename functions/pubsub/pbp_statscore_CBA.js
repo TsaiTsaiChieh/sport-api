@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
@@ -29,7 +30,7 @@ async function CBApbpInplay(parameter) {
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
   const timerForStatus2 = setInterval(async function() {
-    let realtimeData = await modules.database
+    let realtimeData = await database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
@@ -93,7 +94,7 @@ async function CBApbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -141,7 +142,7 @@ async function doPBP(parameter) {
       'finished'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -156,7 +157,7 @@ async function doPBP(parameter) {
     ) {
       if (realtimeData.Summary.status !== 'inprogress') {
         try {
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('inprogress');
         } catch (err) {
@@ -184,7 +185,7 @@ async function doPBP(parameter) {
       'Postponed'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('postponed');
         await Match.upsert({
@@ -204,7 +205,7 @@ async function doPBP(parameter) {
       'Cancelled'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('cancelled');
         await Match.upsert({
@@ -221,7 +222,7 @@ async function doPBP(parameter) {
       }
     } else {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
         await Match.upsert({
@@ -289,13 +290,13 @@ async function queryForToken() {
 async function initRealtime(betsID, data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
         );
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -329,7 +330,7 @@ async function initRealtime(betsID, data) {
         playercount++
       ) {
         try {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
                 playercount + 1
@@ -360,7 +361,7 @@ async function initRealtime(betsID, data) {
         playercount++
       ) {
         try {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
                 playercount + 1
@@ -385,14 +386,14 @@ async function initRealtime(betsID, data) {
           );
         }
       }
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup0`
         )
         .set({
           name: homeLineup[homeLineup.length].participant_name
         });
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup0`
         )
@@ -401,10 +402,10 @@ async function initRealtime(betsID, data) {
         });
     }
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
         .set('00:00');
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
         .set('1');
     } catch (err) {
@@ -423,7 +424,7 @@ async function writeRealtime(betsID, realtimeData, data) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
         .set({
           points:
@@ -464,7 +465,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[13].value
         });
 
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`)
         .set({
           points:
@@ -559,7 +560,7 @@ async function writeRealtime(betsID, realtimeData, data) {
 
       try {
         if (period === 'common') {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/periods${periodNow}/event${eventOrderNow}`
             )
@@ -580,14 +581,14 @@ async function writeRealtime(betsID, realtimeData, data) {
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].id
             });
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
             .set(
               data.api.data.competition.season.stage.group.event
                 .events_incidents[eventCount].event_time
             );
         } else {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/periods${periodNow}/event${eventOrderNow}`
             )
@@ -616,7 +617,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].id
             });
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
             .set(
               data.api.data.competition.season.stage.group.event
@@ -632,7 +633,7 @@ async function writeRealtime(betsID, realtimeData, data) {
       }
 
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
           .set(periodNow);
         await writeBacktoReal(betsID);
@@ -650,10 +651,10 @@ async function writeRealtime(betsID, realtimeData, data) {
 async function writeBacktoReal(betsID) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(eventNow);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(eventOrderNow);
     } catch (err) {

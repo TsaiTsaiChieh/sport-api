@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const AppErrors = require('../util/AppErrors');
 const CBApbp = require('./pbp_statscore_CBA');
 const CBApbpInplay = CBApbp.CBApbpInplay;
@@ -28,7 +29,7 @@ async function checkmatch_statscore_CBA() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
 
@@ -47,7 +48,7 @@ async function checkmatch_statscore_CBA() {
               }
             } else {
               try {
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
@@ -62,7 +63,7 @@ async function checkmatch_statscore_CBA() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`${sport}/${league}/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();

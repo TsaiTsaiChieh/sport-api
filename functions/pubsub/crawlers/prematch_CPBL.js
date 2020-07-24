@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { firestore } = require('../../util/firebaseModules');
 const AppErrors = require('../../util/AppErrors');
 // const db = require('../../util/dbUtil');
 const CPBL_URL = 'http://www.cpbl.com.tw';
@@ -339,7 +340,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
     const index = 17;
     const offsetPitch = 74;
     const offsetBit = 145;
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -412,7 +413,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
     const index = teamNumber * 15 + 1;
     const offsetPitch = 76 - teamNumber;
     const offsetBit = 147 - teamNumber;
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -485,7 +486,7 @@ function upsertFirestoreHitter(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    modules.firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -542,7 +543,7 @@ function upsertFirestorePitcher(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    modules.firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(

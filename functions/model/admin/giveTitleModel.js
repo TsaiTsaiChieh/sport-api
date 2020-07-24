@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const { moment } = require('../../util/modules');
+const firebaseModules = require('../util/firebaseModules');
 
 function giveTitleModel(args) {
   return new Promise(async function(resolve, reject) {
@@ -8,7 +9,7 @@ function giveTitleModel(args) {
       // check user is admin
       await isAdmin(user.status);
       // get from user_titles collection
-      const periodObj = modules.getTitlesPeriod(new Date());
+      const periodObj = firebaseModules.getTitlesPeriod(new Date());
       const titles = await getTitles(args.uid, periodObj.period);
       const result = await insertTitles(args, titles, periodObj);
       return resolve(result);
@@ -20,7 +21,7 @@ function giveTitleModel(args) {
 
 function getUserDoc(uid) {
   return new Promise(async function(resolve, reject) {
-    const userSnapshot = await modules.getSnapshot('users', uid);
+    const userSnapshot = await firebaseModules.getSnapshot('users', uid);
     if (!userSnapshot.exists) {
       return reject({ code: 404, error: 'user not found' });
     }
@@ -45,7 +46,7 @@ function isAdmin(status) {
 function getTitles(uid, period) {
   return new Promise(async function(resolve, reject) {
     try {
-      const titlesSnapshot = await modules.getSnapshot('users_titles', uid);
+      const titlesSnapshot = await firebaseModules.getSnapshot('users_titles', uid);
       if (!titlesSnapshot.exists) return resolve([]);
       if (titlesSnapshot.exists) {
         const data = titlesSnapshot.data();
@@ -85,7 +86,7 @@ function insertTitles(args, titles, periodObj) {
     return resolve(
       `Add title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
         args.adminUid
-      } on ${modules.moment().format('MMMM Do YYYY, h:mm:ss a')}`
+      } on ${moment().format('MMMM Do YYYY, h:mm:ss a')}`
     );
   });
 }
@@ -96,13 +97,13 @@ function insertDefaultTitle(args, period) {
     league: args.league,
     sport: args.sport
   };
-  modules.addDataInCollectionWithId('users', args.uid, {
+  firebaseModules.addDataInCollectionWithId('users', args.uid, {
     defaultTitle
   });
   data[`${period}_period`] = {
     default_title: defaultTitle
   };
-  modules.addDataInCollectionWithId('users_titles', args.uid, data);
+  firebaseModules.addDataInCollectionWithId('users_titles', args.uid, data);
 }
 async function insertFirestore(args, titles, periodObj, updateResult = {}) {
   const GOD_STATUS = 2;
@@ -127,12 +128,12 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     titles
   };
 
-  modules.addDataInCollectionWithId('users', args.uid, {
+  firebaseModules.addDataInCollectionWithId('users', args.uid, {
     status: GOD_STATUS,
     titles
   });
-  modules.addDataInCollectionWithId('users_titles', args.uid, data);
-  const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
+  firebaseModules.addDataInCollectionWithId('users_titles', args.uid, data);
+  const { customClaims } = await firebaseModules.firebaseAdmin.auth().getUser(args.uid);
 
   if (customClaims.titles) {
     if (customClaims.titles.includes(args.league)) {
@@ -141,20 +142,20 @@ async function insertFirestore(args, titles, periodObj, updateResult = {}) {
     if (!customClaims.titles.includes(args.league)) {
       const userTitles = customClaims.titles;
       userTitles.push(args.league);
-      modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+      firebaseModules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
         role: GOD_STATUS,
         titles: userTitles
       });
     }
   } else if (!customClaims.titles) {
-    modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
+    firebaseModules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
       role: GOD_STATUS,
       titles: [`${args.league}`]
     });
   }
 }
 async function getTitlesRecord(args) {
-  const titlesRecord = await modules.getSnapshot('users_titles', args.uid);
+  const titlesRecord = await firebaseModules.getSnapshot('users_titles', args.uid);
   if (!titlesRecord.exists) {
     return {
       rank1_count: 0,

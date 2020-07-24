@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { firestore, database } = require('../util/firebaseModules');
 const NBApbp = require('./pbp_NBA');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -9,7 +9,7 @@ async function checkmatch_NBA() {
   return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_NBA';
     try {
-      const data = await modules.firestore
+      const data = await firestore
         .collection(firestoreName)
         .where('flag.status', '>', 0)
         .get();
@@ -29,16 +29,16 @@ async function checkmatch_NBA() {
         const eventStatus = totalData[i].flag.status;
         switch (eventStatus) {
           case 2: {
-            let realtimeData = await modules.database
+            let realtimeData = await database
               .ref(`basketball/NBA/${betsID}`)
               .once('value');
             realtimeData = realtimeData.val();
             if (gameTime <= nowTime) {
               try {
-                await modules.database
+                await database
                   .ref(`basketball/NBA/${betsID}/Summary/status`)
                   .set('inprogress');
-                await modules.firestore
+                await firestore
                   .collection(firestoreName)
                   .doc(betsID)
                   .set({ flag: { status: 1 } }, { merge: true });
@@ -66,7 +66,7 @@ async function checkmatch_NBA() {
             } else {
               if (realtimeData.Summary.status !== 'scheduled') {
                 try {
-                  await modules.database
+                  await database
                     .ref(`basketball/NBA/${betsID}/Summary/status`)
                     .set('scheduled');
                 } catch (err) {
@@ -82,7 +82,7 @@ async function checkmatch_NBA() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`basketball/NBA/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();

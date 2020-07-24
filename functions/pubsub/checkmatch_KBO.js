@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -22,7 +23,7 @@ async function checkmatch_KBO() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
                 const parameter = {
@@ -37,7 +38,7 @@ async function checkmatch_KBO() {
                 );
               }
             } else {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('scheduled');
             }
@@ -45,7 +46,7 @@ async function checkmatch_KBO() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`baseball/KBO/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();

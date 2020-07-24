@@ -1,6 +1,5 @@
-const modules = require('./modules');
 const db = require('../util/dbUtil');
-const firebaseAdmin = modules.firebaseAdmin;
+const { firebaseAdmin } = require('../util/firebaseModules');
 
 exports.getFirebaseUser = async function(accessToken) {
   // const firebaseUid = `line:${body.id}`;

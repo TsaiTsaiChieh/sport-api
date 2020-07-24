@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { firestore, database } = require('../util/firebaseModules');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');
@@ -149,7 +150,7 @@ async function NBApbpHistory(parameter) {
           eventsCount++
         ) {
           try {
-            await modules.firestore
+            await firestore
               .collection(`${firestoreName}_PBP`)
               .doc(betsID)
               .set(
@@ -177,7 +178,7 @@ async function NBApbpHistory(parameter) {
       const dataSummary = data;
       for (let i = 0; i < dataSummary.home.players.length; i++) {
         try {
-          await modules.firestore
+          await firestore
             .collection(`${firestoreName}_PBP`)
             .doc(betsID)
             .set(
@@ -198,7 +199,7 @@ async function NBApbpHistory(parameter) {
         }
       }
       try {
-        await modules.firestore
+        await firestore
           .collection(firestoreName)
           .doc(betsID)
           .set({ flag: { status: 0 } }, { merge: true });
@@ -210,7 +211,7 @@ async function NBApbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/statuts`)
           .set('closed');
       } catch (err) {
@@ -303,7 +304,7 @@ async function initRealtime(gameID, betsID) {
       const transSimpleAway = [];
 
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/home/name`)
           .set(homeTeamName);
       } catch (err) {
@@ -314,7 +315,7 @@ async function initRealtime(gameID, betsID) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/away/name`)
           .set(awayTeamName);
       } catch (err) {
@@ -327,7 +328,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordHome.length; i++) {
         transSimpleHome[i] = `${keywordHome[i]}(#${numberHome[i]})`;
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}`)
             .set({
               name: keywordHome[i],
@@ -346,7 +347,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordAway.length; i++) {
         transSimpleAway[i] = `${keywordAway[i]}(#${numberAway[i]})`;
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}`)
             .set({
               name: keywordAway[i],
@@ -388,7 +389,7 @@ async function doPBP(parameter) {
       const dataPBP = data;
       if (dataPBP.status !== 'inprogress') {
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/status`)
             .set('closed');
         } catch (err) {
@@ -401,7 +402,7 @@ async function doPBP(parameter) {
       } else if (dataPBP.status === 'inprogress') {
         if (realtimeData.Summary.status !== 'inprogress') {
           try {
-            await modules.firestore
+            await firestore
               .collection(firestoreName)
               .doc(betsID)
               .set({ flag: { status: 1 } }, { merge: true });
@@ -413,7 +414,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/status`)
               .set('inprogress');
           } catch (err) {
@@ -463,7 +464,7 @@ async function doPBP(parameter) {
             transSimpleAway
           );
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -480,7 +481,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -495,7 +496,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -522,7 +523,7 @@ async function doPBP(parameter) {
                 .name === homeData.name
             ) {
               try {
-                await modules.database
+                await database
                   .ref(
                     `basketball/NBA/${betsID}/Summary/periods${
                       periodsCount + 1
@@ -542,7 +543,7 @@ async function doPBP(parameter) {
                 .name === awayData.name
             ) {
               try {
-                await modules.database
+                await database
                   .ref(
                     `basketball/NBA/${betsID}/Summary/periods${
                       periodsCount + 1
@@ -562,7 +563,7 @@ async function doPBP(parameter) {
             'stoppage'
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/periods${
                     periodsCount + 1
@@ -578,7 +579,7 @@ async function doPBP(parameter) {
             }
           } else {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/periods${
                     periodsCount + 1
@@ -594,7 +595,7 @@ async function doPBP(parameter) {
             }
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/Now_clock`)
               .set(dataPBP.periods[periodsCount].events[eventsCount].clock);
           } catch (err) {
@@ -605,7 +606,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/Now_periods`)
               .set(periodsCount + 1);
           } catch (err) {
@@ -616,7 +617,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/info/home/periods${
                   periodsCount + 1
@@ -631,7 +632,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/info/away/periods${
                   periodsCount + 1
@@ -664,7 +665,7 @@ async function doSummary(parameter) {
       const dataSummary = data;
       const realtimeData = parameter.realtimeData;
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/home/Total`)
           .set({
             assists: dataSummary.home.statistics.assists,
@@ -690,7 +691,7 @@ async function doSummary(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/away/Total`)
           .set({
             assists: dataSummary.away.statistics.assists,
@@ -722,7 +723,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
                 )
@@ -741,7 +742,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
                 )
@@ -756,7 +757,7 @@ async function doSummary(parameter) {
           }
         }
         try {
-          await modules.database
+          await database
             .ref(
               `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/statistics`
             )
@@ -781,7 +782,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
                 )
@@ -800,7 +801,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
                 )
@@ -815,7 +816,7 @@ async function doSummary(parameter) {
           }
         }
         try {
-          await modules.database
+          await database
             .ref(
               `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/statistics`
             )

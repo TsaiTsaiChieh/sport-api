@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const { firestore, database } = require('../util/firebaseModules');
 const MLBpbp = require('./pbp_MLB');
 const AppErrors = require('../util/AppErrors');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;
@@ -8,7 +8,7 @@ async function checkmatch_MLB() {
   return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_MLB';
     try {
-      const data = await modules.firestore.collection(firestoreName).get();
+      const data = await firestore.collection(firestoreName).get();
       const totalData = [];
       data.forEach((doc) => {
         totalData.push(doc.data());
@@ -23,7 +23,7 @@ async function checkmatch_MLB() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
-                const realtimeData = await modules.database
+                const realtimeData = await database
                   .ref(`baseball/MLB/${betsID}`)
                   .once('value')
                   .val();
@@ -50,7 +50,7 @@ async function checkmatch_MLB() {
               }
             } else {
               try {
-                await modules.database
+                await database
                   .ref(`baseball/MLB/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
@@ -65,7 +65,7 @@ async function checkmatch_MLB() {
           }
           case 1: {
             try {
-              const realtimeData = await modules.database
+              const realtimeData = await database
                 .ref(`baseball/MLB/${betsID}`)
                 .once('value')
                 .val();

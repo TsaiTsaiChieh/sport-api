@@ -1,7 +1,7 @@
-const modules = require('../util/modules');
+const { firestore, addDataInCollectionWithId } = require('../util/firebaseModules');
 const collectionName = 'NBA_TC';
 async function tuneDB() {
-  const collection = await modules.firestore.collection(collectionName).get();
+  const collection = await firestore.collection(collectionName).get();
   collection.docs.map(async function(doc) {
     const match = doc.data();
     newestHandicap(match);
@@ -22,7 +22,7 @@ function newestHandicap(data) {
     const newestKey = sortTime(ids, add_time);
 
     data.spread[newestKey].handicap_id = newestKey;
-    modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
+    addDataInCollectionWithId('basketball_NBA', data.bets_id, {
       newest_spread: data.spread[newestKey]
     });
   }
@@ -35,7 +35,7 @@ function newestHandicap(data) {
     }
     const newestKey = sortTime(ids, add_time);
     data.totals[newestKey].handicap_id = newestKey;
-    modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, {
+    addDataInCollectionWithId('basketball_NBA', data.bets_id, {
       newest_totals: data.totals[newestKey]
     });
   }
@@ -60,7 +60,7 @@ async function handicapProcessor(data) {
   if (data.newest_totals) {
     totalsCalculator(data.newest_totals, data.bets_id);
   }
-  await modules.addDataInCollectionWithId('basketball_NBA', data.bets_id, data);
+  await addDataInCollectionWithId('basketball_NBA', data.bets_id, data);
   // return data;
 }
 
@@ -141,10 +141,10 @@ function spreadCalculator(handicapObj, id) {
   return handicapObj;
 }
 // async function tuneDB() {
-//   const collection = await modules.firestore.collection('NBA_TC').get();
+//   const collection = await firestore.collection('NBA_TC').get();
 
 //   collection.docs.map(async function(doc) {
-//     await modules.addDataInCollectionWithId(
+//     await addDataInCollectionWithId(
 //       'NBA_TC',
 //       doc.data().bets_id,
 //       repackageData(doc.data())

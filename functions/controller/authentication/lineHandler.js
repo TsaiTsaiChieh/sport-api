@@ -1,5 +1,4 @@
-const modules = require('../../util/modules');
-const firebaseAdmin = modules.firebaseAdmin;
+const { firebaseAdmin } = require('../../util/firebaseModules');
 const envValues = require('../../config/env_values');
 const userUtils = require('../../util/userUtil');
 const jwt = require('jsonwebtoken');

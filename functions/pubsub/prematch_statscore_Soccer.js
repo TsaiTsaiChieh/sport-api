@@ -69,7 +69,7 @@ async function prematch_statscore_Soccer() {
             }
           }
         }
-        // await modules.database
+        // await database
         //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         //  .set('scheduled');
       }

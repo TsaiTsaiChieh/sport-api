@@ -1,7 +1,4 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable prefer-promise-reject-errors */
-/* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
+const { getSnapshot } = require('../../util/firebaseModules');
 const messageModule = require('../../util/messageModule');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
@@ -28,11 +25,11 @@ async function getUserInfo(uid) {
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const messageSnapshot = await modules.getSnapshot('messages', id);
+      const messageSnapshot = await getSnapshot('messages', id);
       const message = messageSnapshot.data();
       let body = {};
       if (message) {
-        // const userSnapshot = await modules.getSnapshot('users', message.uid);
+        // const userSnapshot = await getSnapshot('users', message.uid);
         // const user = userSnapshot.data();
         const user = await getUserInfo(message.uid);
         if (user) {

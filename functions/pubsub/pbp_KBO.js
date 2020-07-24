@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const { database } = require('../util/firebaseModules');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -52,7 +53,7 @@ async function KBOpbpHistory(parameter) {
       let homeScores = null;
       let awayScores = null;
       if (!data.results[0].ss) {
-        realtimeData = await modules.database
+        realtimeData = await database
           .ref(`baseball/KBO/${betsID}`)
           .once('value');
         realtimeData = realtimeData.val();
@@ -84,7 +85,7 @@ async function KBOpbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`baseball/KBO/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -130,7 +131,7 @@ async function doPBP(parameter) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('cancelled');
             } catch (err) {
@@ -155,7 +156,7 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '4') {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('postponed');
             } catch (err) {
@@ -181,7 +182,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '3') {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('closed');
             } catch (err) {
@@ -195,7 +196,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '2') {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -222,7 +223,7 @@ async function doPBP(parameter) {
             if (realtimeData !== null) {
               if (realtimeData.Summary.status !== 'inprogress') {
                 try {
-                  await modules.database
+                  await database
                     .ref(`baseball/KBO/${betsID}/Summary/status`)
                     .set('inprogress');
                 } catch (err) {
@@ -245,7 +246,7 @@ async function doPBP(parameter) {
                   );
                 }
                 try {
-                  await modules.database
+                  await database
                     .ref(`baseball/KBO/${betsID}/Summary/league`)
                     .set({
                       name: data.results[0].league.name,
@@ -263,7 +264,7 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '0') {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -286,7 +287,7 @@ async function doPBP(parameter) {
               );
             }
             // try {
-            //  await modules.firestore
+            //  await firestore
             //    .collection(firestoreName)
             //    .doc(betsID)
             //    .set({ flag: { status: -1 } }, { merge: true });
@@ -310,7 +311,7 @@ async function doPBP(parameter) {
 
           try {
             if (data.results[0].ss !== 'no data') {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/info`)
                 .set({
                   home: {

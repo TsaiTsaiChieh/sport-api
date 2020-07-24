@@ -12,6 +12,7 @@ const configs = {
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
 const modules = require('../../util/modules');
+const { firestore } = require('../../util/firebaseModules');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const teamsMapping = require('../../util/teamsMapping');
@@ -145,7 +146,7 @@ function insertFirestore(data, teamId, season) {
       const temp = {};
       temp[`season_${season}`] = {};
       temp[`season_${season}`].team_base = data;
-      await modules.firestore.collection(configs.collectionName).doc(teamId).set(temp, { merge: true });
+      await firestore.collection(configs.collectionName).doc(teamId).set(temp, { merge: true });
       return resolve();
     } catch (err) {
       console.error(err);
@@ -261,7 +262,7 @@ function insertPitcherToFirestore(officialData, teamId, season) {
       data[`season_${season}`] = {};
       data[`season_${season}`].pitchers = {};
       data[`season_${season}`].pitchers = officialData;
-      await modules.firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
+      await firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
       return resolve();
     } catch (err) {
       return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));

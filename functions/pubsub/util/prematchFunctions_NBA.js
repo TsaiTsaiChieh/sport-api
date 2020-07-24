@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { firebaseAdmin, firestore } = require('../../util/firebaseModules');
 
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
@@ -13,7 +14,7 @@ module.exports.NBA.upcoming = async function(date) {
     for (let i = 0; i < data.results.length; i++) {
       const ele = data.results[i];
       results.push(
-        modules.firestore
+        firestore
           .collection(modules.db.basketball_NBA)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
@@ -42,8 +43,8 @@ module.exports.NBA.upcoming = async function(date) {
 };
 function repackage_bets(ele) {
   return {
-    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-    scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+    update_time: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+    scheduled: firebaseAdmin.firestore.Timestamp.fromDate(
       new Date(Number.parseInt(ele.time) * 1000)
     ),
     bets_id: ele.id,
@@ -125,7 +126,7 @@ function integration(query, ele, league) {
         ele.home.alias.toUpperCase() === query[i].home.alias) ||
       ele.home.alias.toUpperCase() === query[i].away.alias
     ) {
-      modules.firestore
+      firestore
         .collection(modules.db.basketball_NBA)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
@@ -133,7 +134,7 @@ function integration(query, ele, league) {
   }
 }
 async function query_NBA(date) {
-  const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = firestore.collection(modules.db.basketball_NBA);
   const beginningDate = modules.moment(date).add(1, 'days');
   const endDate = modules.moment(date).add(2, 'days');
   const results = [];
@@ -160,8 +161,8 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.alias.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.alias.toUpperCase() === query.away.alias;
   const data = {
-    update_time: modules.firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-    scheduled: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+    update_time: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+    scheduled: firebaseAdmin.firestore.Timestamp.fromDate(
       new Date(ele.scheduled)
     ),
     radar_id: ele.id,
@@ -375,7 +376,7 @@ module.exports.NBA.lineup = async function(date) {
           .moment(ele.scheduled._seconds * 1000)
           .format('ll')}, URL: ${completeURL}`
       );
-      modules.firestore
+      firestore
         .collection(modules.db.basketball_NBA)
         .doc(queries[i].bets_id)
         .set(repackage_lineup(data), { merge: true });
@@ -388,7 +389,7 @@ module.exports.NBA.lineup = async function(date) {
   }
 };
 async function query_before40Min(date) {
-  const eventsRef = modules.firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = firestore.collection(modules.db.basketball_NBA);
   const results = [];
 
   try {
