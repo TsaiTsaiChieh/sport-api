@@ -70,7 +70,7 @@ class BetsAPIError extends ExtendableError {
 
 class MatchNotFound extends ExtendableError {
   constructor(
-    message = '無任何賽事',
+    message = '找無此賽事',
     status = 1309,
     isPublic = true,
     code = httpStatus.NOT_FOUND
@@ -89,6 +89,23 @@ class GodUserNotFound extends ExtendableError {
   constructor(
     message = '找不到此大神',
     status = 1310,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class TeamInformationNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此隊伍的資料',
+    status = 1311,
     isPublic = true,
     code = httpStatus.NOT_FOUND
   ) {
@@ -347,7 +364,7 @@ class RepackageError extends ExtendableError {
   }
 }
 
-class firestoreQueryError extends ExtendableError {
+class FirestoreQueryError extends ExtendableError {
   constructor(
     message = 'Firestore查詢失敗',
     status = 1513,
@@ -457,7 +474,7 @@ class CrawlersError extends ExtendableError {
   }
 }
 
-class KBOCrawlersError extends ExtendableError {
+class KBO_CrawlersError extends ExtendableError {
   constructor(
     message = 'KBO 爬蟲賽前排程錯誤',
     status = 1523,
@@ -472,6 +489,7 @@ module.exports = {
   UserCouldNotSell,
   MatchNotFound,
   GodUserNotFound,
+  TeamInformationNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserNotBelongToGod,
@@ -499,7 +517,7 @@ module.exports = {
   PBPKBOError,
   RepackageError,
   PBPAbnormalError,
-  firestoreQueryError,
+  FirestoreQueryError,
   PurchasePredictionsModelError,
   UpdateUserCoinAndDividend,
   PropertyMissingError,
@@ -509,5 +527,5 @@ module.exports = {
   CreateCashflowBuyRollback,
   PredictionHistoryModelError,
   CrawlersError,
-  KBOCrawlersError
+  KBO_CrawlersError
 };

@@ -66,7 +66,7 @@ exports.corsList = [
 ];
 exports.runtimeOpts = {
   timeoutSeconds: 300,
-  memory: '128MB'
+  memory: '2GB'
 };
 // 以上測式站
 
