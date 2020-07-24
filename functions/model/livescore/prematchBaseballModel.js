@@ -161,7 +161,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   try {
     const data = {
       season: teamsFromMySQL.season,
-      L10_record: tenFights,
       home: {
         id: teamsFromMySQL.home_id,
         alias: teamsFromMySQL.home_alias,
@@ -172,13 +171,13 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           spread_rate: rate.home_spread_rate,
           totals_rate: rate.home_totals_rate,
           L10: homeData.team_base.L10,
-          W: homeData.team_base.W,
-          L: homeData.team_base.L,
-          D: homeData.team_base.D,
+          Win: homeData.team_base.Win,
+          Loss: homeData.team_base.Loss,
+          Draw: homeData.team_base.Draw,
           at_home: homeData.team_base.at_home,
           at_away: homeData.team_base.at_away,
           per_R: homeData.team_base.per_R,
-          allow_per_R: homeData.team_base.allow_per_R
+          allow_per_R: homeData.team_base.per_allow_R
         },
         team_hit: {
           R: homeData.team_hit.R,
@@ -194,28 +193,30 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         alias: teamsFromMySQL.away_alias,
         alias_ch: teamsFromMySQL.away_alias_ch,
         name: teamsFromMySQL.away_name,
-        name_ch: teamsFromMySQL.away_name_ch
+        name_ch: teamsFromMySQL.away_name_ch,
+        team_base: {
+          spread_rate: rate.away_spread_rate,
+          totals_rate: rate.away_totals_rate,
+          L10: awayData.team_base.L10,
+          W: awayData.team_base.W,
+          L: awayData.team_base.L,
+          D: awayData.team_base.D,
+          at_home: awayData.team_base.at_home,
+          at_away: awayData.team_base.at_away,
+          per_R: awayData.team_base.per_R,
+          allow_per_R: awayData.team_base.allow_per_R
+        },
+        team_hit: {
+          R: awayData.team_hit.R,
+          H: awayData.team_hit.H,
+          HR: awayData.team_hit.HR,
+          AVG: awayData.team_hit.AVG,
+          OBP: awayData.team_hit.OBP,
+          SLG: awayData.team_hit.SLG
+        }
       },
-      team_base: {
-        spread_rate: rate.away_spread_rate,
-        totals_rate: rate.away_totals_rate,
-        L10: awayData.team_base.L10,
-        W: awayData.team_base.W,
-        L: awayData.team_base.L,
-        D: awayData.team_base.D,
-        at_home: awayData.team_base.at_home,
-        at_away: awayData.team_base.at_away,
-        per_R: awayData.team_base.per_R,
-        allow_per_R: awayData.team_base.allow_per_R
-      },
-      team_hit: {
-        R: awayData.team_hit.R,
-        H: awayData.team_hit.H,
-        HR: awayData.team_hit.HR,
-        AVG: awayData.team_hit.AVG,
-        OBP: awayData.team_hit.OBP,
-        SLG: awayData.team_hit.SLG
-      }
+      L10_record: tenFights
+
     };
     return data;
   } catch (err) {
