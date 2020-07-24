@@ -131,8 +131,8 @@ function insertTeamToFirestore(officialData, season) {
             const R = lowerTable[i + 4]; // Runs
             const allow_R = lowerTable[i + 5]; // Runs Allowed
             const G = parseInt(teamStandings[teamName][0].G); // games
-            const per_R = String((parseInt(R) / G).toFixed(3));
-            const per_allow_R = String((parseInt(allow_R) / G).toFixed(3));
+            const per_R = String((parseInt(R) / G).toFixed(1));
+            const per_allow_R = String((parseInt(allow_R) / G).toFixed(1));
             await insertFirestore({ R, allow_R, per_R, per_allow_R }, teamId, season, 'team_base');
           }
         }
