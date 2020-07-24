@@ -21,7 +21,10 @@ async function postGodLeagueRankSetDefaultLeague(args) {
     }
   }));
 
-  if (err) {console.error(err); throw errs.dbErrsMsg('404', '13001', { addMsg: err.parent.code });}
+  if (err) {
+    console.error('[postGodLeagueRankSetDefaultLeagueModel][User] ', err);
+    throw errs.dbErrsMsg('404', '13001', { addMsg: err.parent.code });
+  }
   if (r[0] === 0) {throw errs.dbErrsMsg('404', '13002');}
   if (r[0] === 1) result.success.push(userUid);
 

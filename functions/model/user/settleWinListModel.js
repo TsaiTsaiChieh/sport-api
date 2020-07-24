@@ -215,7 +215,10 @@ async function settleWinList(args) {
           season: season
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });}
+      if (err) {
+        console.error('[settleWinListModel][Users_WinListsHistory] ', err);
+        throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });
+      }
     }
 
     result.status['1'].lists.push({ uid: data.uid, league: data.league_id });
@@ -321,7 +324,10 @@ async function settleWinList(args) {
           league_id: data.league_id
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });}
+      if (err) {
+        console.error('[settleWinListModel][Users_WinLists] ', err);
+        throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
+      }
     }
 
     // if (r) return reject(errs.errsMsg('404', '13420')); // 更新筆數異常
@@ -341,7 +347,10 @@ async function settleWinList(args) {
         period: period
       }
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });}
+    if (err) {
+      console.error('[settleWinListModel][Title] ', err);
+      throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
+    }
 
     // 有可能不是大神，無更新筆數
     // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常

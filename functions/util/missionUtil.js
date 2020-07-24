@@ -95,7 +95,7 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   }));
 
   if (err) {
-    console.error(err);
+    console.error('[missionUtil][setUserMissionStatus][UserMission] ', err);
     await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15010', { addMsg: err.parent.code });
   }
@@ -165,7 +165,10 @@ async function missionDaily(args) {
       data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid,
         { mission_item_id: data.mission_item_id, dateUnix: todayUnix })); // status: data.status, 如果新增是已完成，這裡需要設定為2
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+      if (err) {
+        console.error('[missionUtil][missionDaily][addUserMissionStatus] ', err);
+        throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
+      }
 
       result.daily.push(repackageDaily(data));
       continue;
@@ -631,7 +634,10 @@ async function missionActivityPredict(args) {
     if (!data.um_status && userUid && ifFinishMission) {
       data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid, { mission_item_id: data.mission_item_id }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+      if (err) {
+        console.error('[missionUtil][missionActivityPredict][addUserMissionStatus] ', err);
+        throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
+      }
 
       result.push(repackageActivePredict(data));
       continue;
