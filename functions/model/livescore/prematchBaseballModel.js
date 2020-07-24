@@ -23,11 +23,11 @@ function getHomeAndAwayTeamFromMySQL(args) {
     try {
       const result = await db.sequelize.query(
         // index is const, except match__seasons table is ref, taking 170ms
-        `SELECT game.bets_id, game.home_id, game.away_id, game.season,
-                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, 
-                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch
+        `SELECT game.bets_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
+                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
+                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id
           FROM (
-                  SELECT matches.league_id, matches.bets_id, matches.home_id, matches.away_id, matches.scheduled, season.season
+                  SELECT matches.league_id, matches.bets_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, season.season
                     FROM matches
                LEFT JOIN match__seasons AS season ON season.league_id = matches.league_id
                    WHERE matches.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
@@ -161,12 +161,16 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   try {
     const data = {
       season: teamsFromMySQL.season,
+      status: teamsFromMySQL.status,
+      scheduled: teamsFromMySQL.scheduled,
       home: {
         id: teamsFromMySQL.home_id,
         alias: teamsFromMySQL.home_alias,
         alias_ch: teamsFromMySQL.home_alias_ch,
+        team_name: teamsFromMySQL.home_alias_ch,
         name: teamsFromMySQL.home_name,
         name_ch: teamsFromMySQL.home_name_ch,
+        image_id: teamsFromMySQL.home_image_id,
         team_base: {
           spread_rate: rate.home_spread_rate,
           totals_rate: rate.home_totals_rate,
@@ -192,8 +196,10 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         id: teamsFromMySQL.away_id,
         alias: teamsFromMySQL.away_alias,
         alias_ch: teamsFromMySQL.away_alias_ch,
+        team_name: teamsFromMySQL.away_alias_ch,
         name: teamsFromMySQL.away_name,
         name_ch: teamsFromMySQL.away_name_ch,
+        image_id: teamsFromMySQL.away_image_id,
         team_base: {
           spread_rate: rate.away_spread_rate,
           totals_rate: rate.away_totals_rate,
