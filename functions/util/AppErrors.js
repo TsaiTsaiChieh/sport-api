@@ -70,7 +70,7 @@ class BetsAPIError extends ExtendableError {
 
 class MatchNotFound extends ExtendableError {
   constructor(
-    message = '無任何賽事',
+    message = '找無此賽事',
     status = 1309,
     isPublic = true,
     code = httpStatus.NOT_FOUND
