@@ -55,7 +55,7 @@ function crawlerTeamBase(season) {
       // 官網
       // TODO searchDate should be today(default)
       const today = modules.convertTimezoneFormat(Math.floor(Date.now() / 1000), { format: 'YYYY-MM-DD' });
-      const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-22`);
+      const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-23`);
       // const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=${today}`);
       console.log(today);
       const officialData = await getTeamStandingsFromOfficial($_officialData);
