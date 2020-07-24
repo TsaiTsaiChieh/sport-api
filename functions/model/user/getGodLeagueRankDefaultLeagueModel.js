@@ -1,5 +1,4 @@
 const { getTitlesPeriod, leagueDecoder, getTitles } = require('../../util/modules');
-// const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 async function getGodLeagueRankDefaultLeague(args) {

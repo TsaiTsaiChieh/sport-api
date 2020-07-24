@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
 // const NBA_functions = require('./util/prematchFunctions_NBA');

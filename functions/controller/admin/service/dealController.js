@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const modules = require('../../../util/modules');
 const model = require('../../../model/admin/service/dealModel');
 async function controller(req, res) {

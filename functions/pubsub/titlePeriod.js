@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const { addDataInCollection } = require('../../util/firebaseModules');
+const { addDataInCollectionWithId } = require('../util/firebaseModules');
 
 function titlePeriod() {
   const specificDate = '20200302';

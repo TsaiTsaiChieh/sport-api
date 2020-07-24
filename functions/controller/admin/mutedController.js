@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const mutedModel = require('../../model/admin/mutedModel');
 

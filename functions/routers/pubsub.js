@@ -1,5 +1,5 @@
-const modules = require('../util/modules');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 
 // 一次性專區
 router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);

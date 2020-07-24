@@ -1,6 +1,6 @@
-const modules = require('../util/modules');
 const verification = require('../util/verification');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 /* ------------ 即時比分頁 ------------ */
 router.get('/all', require('../controller/livescore/allController'));
 router.get(

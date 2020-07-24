@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const modules = require('../../../util/modules');
 const model = require('../../../model/admin/topics/setViewCountModel');
 async function controller(req, res) {

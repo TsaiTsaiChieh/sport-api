@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const model = require('../../model/user/setFavoritePlayerModel');
 const types = require('../topics/types');

@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const modules = require('../../util/modules');
 const setClaimModel = require('../../model/admin/setClaimModel');
 

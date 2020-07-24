@@ -1,4 +1,4 @@
-const { getSnapshot, bucket } = require('../../util/firebaseModules');
+const { getSnapshot, bucket } = require('../util/firebaseModules');
 const folder = 'share_files';
 const day = 7;
 

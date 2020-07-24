@@ -1,5 +1,5 @@
 const { moment } = require('../../util/modules');
-const firebaseModules = require('../util/firebaseModules');
+const firebaseModules = require('../../util/firebaseModules');
 
 function giveTitleModel(args) {
   return new Promise(async function(resolve, reject) {
