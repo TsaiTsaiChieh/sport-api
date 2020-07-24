@@ -538,7 +538,8 @@ async function writeRealtime(
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
 
-    const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
+    // 避免執行時間過久，斷開連結，一次最多只存10個事件
+    const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       eventNow = eventNow + 1;
       if (
@@ -647,7 +648,12 @@ async function writeRealtime(
               attribution: period,
               id:
                 data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].id
+                  .events_incidents[eventCount].id,
+              Clock: changeTime(
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].event_time,
+                periodNow
+              )
             });
           await modules.database
             .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
@@ -849,6 +855,9 @@ function translateCommon(event) {
     }
     case 'Break after 8th quarter': {
       return '第八節結束';
+    }
+    case 'Finished regular time': {
+      return '比賽結束';
     }
     default: {
       return '通用';

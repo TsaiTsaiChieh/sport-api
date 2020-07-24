@@ -40,6 +40,18 @@ router.get(
   require('../pubsub/checkmatch_statscore_KBO')
 );
 router.get(
+  '/prematch_statscore_CPBL',
+  require('../pubsub/prematch_statscore_CPBL')
+);
+router.get(
+  '/checkmatch_statscore_CPBL',
+  require('../pubsub/checkmatch_statscore_CPBL')
+);
+router.get(
+  '/prematch_statscore_NPB',
+  require('../pubsub/prematch_statscore_NPB')
+);
+router.get(
   '/prematch_statscore_Soccer',
   require('../pubsub/prematch_statscore_Soccer')
 );

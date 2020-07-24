@@ -8,6 +8,7 @@ const AppErrors = require('../util/AppErrors');
 const KBO_functions = require('./util/prematchFunctions_KBO');
 const NPB_functions = require('./util/prematchFunctions_NPB');
 const CPBL_functions = require('./util/prematchFunctions_CPBL');
+const MLB_functions = require('./util/prematchFunctions_MLB');
 // BASKETBALL
 const CBA_functions = require('./util/prematchFunctions_CBA');
 // SOCCER
@@ -30,6 +31,8 @@ async function prematch() {
       await NPB_functions.NPB.upcoming(tomorrow);
       await CPBL_functions.CPBL.upcoming(now);
       await CPBL_functions.CPBL.upcoming(tomorrow);
+      await MLB_functions.MLB.upcoming(now);
+      await MLB_functions.MLB.upcoming(tomorrow);
       // BASKETBALL
       await CBA_functions.CBA.upcoming(now);
       await CBA_functions.CBA.upcoming(tomorrow);

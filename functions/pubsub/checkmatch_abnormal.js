@@ -401,6 +401,24 @@ async function pbpHistory(parameterHistory) {
             `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
           )
           .set(data.results[0].ss.split('-')[1]);
+        if (!data.results[0].ss) {
+          realtimeData = await modules.database
+            .ref(`${sportName}/${leagueName}/${betsID}`)
+            .once('value');
+          realtimeData = realtimeData.val();
+          data = realtimeData;
+          data.results[0].ss = 'no data';
+          if (!realtimeData.Summary.info.home.Total.points) {
+            homeScores = -99;
+            awayScores = -99;
+          } else {
+            homeScores = realtimeData.Summary.info.home.Total.points;
+            awayScores = realtimeData.Summary.info.away.Total.points;
+          }
+        } else {
+          homeScores = data.results[0].ss.split('-')[0];
+          awayScores = data.results[0].ss.split('-')[1];
+        }
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(

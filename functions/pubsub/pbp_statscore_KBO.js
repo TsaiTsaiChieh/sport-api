@@ -54,6 +54,7 @@ async function KBOpbpInplay(parameter) {
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
+
     if (parameter.first === 0) {
       if (realtimeData.Summary.info) {
         if (realtimeData.Summary.Now_event) {
@@ -481,8 +482,8 @@ async function initRealtime(betsID, data) {
             .set({
               ab: 0,
               h: 0,
-              name: homeLineup[playercount].participant_name,
-              jersey_number: homeLineup[playercount].shirt_nr,
+              name: homeLineup[playercount - 1].participant_name,
+              jersey_number: homeLineup[playercount - 1].shirt_nr,
               // ori
               // order: playercount + 1,
               order: playercount,
@@ -500,8 +501,8 @@ async function initRealtime(betsID, data) {
             .set({
               ab: 0,
               h: 0,
-              name: awayLineup[playercount].participant_name,
-              jersey_number: awayLineup[playercount].shirt_nr,
+              name: awayLineup[playercount - 1].participant_name,
+              jersey_number: awayLineup[playercount - 1].shirt_nr,
               // ori
               // order: playercount + 1,
               order: playercount,
@@ -529,12 +530,12 @@ async function initRealtime(betsID, data) {
           ip: 0,
           k: 0,
           // ori
-          // name: homeLineup[9].participant_name,
-          // jersey_number: homeLineup[9].shirt_nr,
-          // id: homeLineup[9].id,
-          name: homeLineup[1].participant_name,
-          jersey_number: homeLineup[1].shirt_nr,
-          id: homeLineup[1].id,
+          name: homeLineup[9].participant_name,
+          jersey_number: homeLineup[9].shirt_nr,
+          id: homeLineup[9].id,
+          // name: homeLineup[0].participant_name,
+          // jersey_number: homeLineup[0].shirt_nr,
+          // id: homeLineup[0].id,
           order: 10,
           start: 1
         });
@@ -550,12 +551,12 @@ async function initRealtime(betsID, data) {
           ip: 0,
           k: 0,
           // ori
-          // name: awayLineup[9].participant_name,
-          // jersey_number: awayLineup[9].shirt_nr,
-          // id: awayLineup[9].id,
-          name: awayLineup[1].participant_name,
-          jersey_number: awayLineup[1].shirt_nr,
-          id: awayLineup[1].id,
+          name: awayLineup[9].participant_name,
+          jersey_number: awayLineup[9].shirt_nr,
+          id: awayLineup[9].id,
+          // name: awayLineup[0].participant_name,
+          // jersey_number: awayLineup[0].shirt_nr,
+          // id: awayLineup[0].id,
           order: 10,
           start: 1
         });
@@ -744,7 +745,7 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
 
-    const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
+    const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       if (
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -2243,91 +2244,179 @@ function changeInning(inning, now_innings) {
       inningNow = 1;
       break;
     }
-    case '2nd inning' || 'Break after 1st inning': {
+    case '2nd inning': {
       inningNow = 2;
       break;
     }
-    case '3rd inning' || 'Break after 2nd inning': {
+    case 'Break after 1st inning': {
+      inningNow = 2;
+      break;
+    }
+    case '3rd inning': {
       inningNow = 3;
       break;
     }
-    case '4th inning' || 'Break after 3rd inning': {
+    case 'Break after 2nd inning': {
+      inningNow = 3;
+      break;
+    }
+    case '4th inning': {
       inningNow = 4;
       break;
     }
-    case '5th inning' || 'Break after 4th inning': {
+    case 'Break after 3rd inning': {
+      inningNow = 4;
+      break;
+    }
+    case '5th inning': {
       inningNow = 5;
       break;
     }
-    case '6th inning' || 'Break after 5th inning': {
+    case 'Break after 4th inning': {
+      inningNow = 5;
+      break;
+    }
+    case '6th inning': {
       inningNow = 6;
       break;
     }
-    case '7th inning' || 'Break after 6th inning': {
+    case 'Break after 5th inning': {
+      inningNow = 6;
+      break;
+    }
+    case '7th inning': {
       inningNow = 7;
       break;
     }
-    case '8th inning' || 'Break after 7th inning': {
+    case 'Break after 6th inning': {
+      inningNow = 7;
+      break;
+    }
+    case '8th inning': {
       inningNow = 8;
       break;
     }
-    case '9th inning' || 'Break after 8th inning': {
+    case 'Break after 7th inning': {
+      inningNow = 8;
+      break;
+    }
+    case '9th inning': {
       inningNow = 9;
       break;
     }
-    case '10th inning' || 'Break after 9th inning': {
+    case 'Break after 8th inning': {
+      inningNow = 9;
+      break;
+    }
+    case '10th inning': {
       inningNow = 10;
       break;
     }
-    case '11th inning' || 'Break after 10th inning': {
+    case 'Break after 9th inning': {
+      inningNow = 10;
+      break;
+    }
+    case '11th inning': {
       inningNow = 11;
       break;
     }
-    case '12th inning' || 'Break after 11th inning': {
+    case 'Break after 10th inning': {
+      inningNow = 11;
+      break;
+    }
+    case '12th inning': {
       inningNow = 12;
       break;
     }
-    case '13th inning' || 'Break after 12th inning': {
+    case 'Break after 11th inning': {
+      inningNow = 12;
+      break;
+    }
+    case '13th inning': {
       inningNow = 13;
       break;
     }
-    case '14th inning' || 'Break after 13th inning': {
+    case 'Break after 12th inning': {
+      inningNow = 13;
+      break;
+    }
+    case '14th inning': {
       inningNow = 14;
       break;
     }
-    case '15th inning' || 'Break after 14th inning': {
+    case 'Break after 13th inning': {
+      inningNow = 14;
+      break;
+    }
+    case '15th inning': {
       inningNow = 15;
       break;
     }
-    case '16th inning' || 'Break after 15th inning': {
+    case 'Break after 14th inning': {
+      inningNow = 15;
+      break;
+    }
+    case '16th inning': {
       inningNow = 16;
       break;
     }
-    case '17th inning' || 'Break after 16th inning': {
+    case 'Break after 15th inning': {
+      inningNow = 16;
+      break;
+    }
+    case '17th inning': {
       inningNow = 17;
       break;
     }
-    case '18th inning' || 'Break after 17th inning': {
+    case 'Break after 16th inning': {
+      inningNow = 17;
+      break;
+    }
+    case '18th inning': {
       inningNow = 18;
       break;
     }
-    case '19th inning' || 'Break after 18th inning': {
+    case 'Break after 17th inning': {
+      inningNow = 18;
+      break;
+    }
+    case '19th inning': {
       inningNow = 19;
       break;
     }
-    case '20th inning' || 'Break after 19th inning': {
+    case 'Break after 18th inning': {
+      inningNow = 19;
+      break;
+    }
+    case '20th inning': {
       inningNow = 20;
       break;
     }
-    case '21th inning' || 'Break after 20th inning': {
+    case 'Break after 19th inning': {
+      inningNow = 20;
+      break;
+    }
+    case '21th inning': {
       inningNow = 21;
       break;
     }
-    case '22th inning' || 'Break after 21th inning': {
+    case 'Break after 20th inning': {
+      inningNow = 21;
+      break;
+    }
+    case '22th inning': {
       inningNow = 22;
       break;
     }
-    case '23th inning' || 'Break after 22th inning': {
+    case 'Break after 21th inning': {
+      inningNow = 22;
+      break;
+    }
+    case '23th inning': {
+      inningNow = 23;
+      break;
+    }
+    case 'Break after 22th inning': {
       inningNow = 23;
       break;
     }
