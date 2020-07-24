@@ -4,11 +4,15 @@ const model = require('../../model/livescore/prematchBaseballModel');
 async function prematchBaseball(req, res) {
   const schema = {
     type: 'object',
-    required: ['league'],
+    required: ['league', 'event_id'],
     properties: {
       league: {
         type: 'string',
         enum: ['KBO', 'CPBL', 'NPB']
+      },
+      event_id: {
+        type: 'string',
+        pattern: modules.acceptNumberAndLetter
       }
     }
   };
