@@ -1,19 +1,17 @@
 const modules = require('../../util/modules');
-const { database } = require('../../util/firebaseModules');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const Match = db.Match;
-const leagueUniteID = '349';
+const leagueUniteID = '3939';
 const sportID = 16;
-const league = 'KBO';
+const league = 'MLB';
 const sport = 'baseball';
-module.exports.KBO = {};
-module.exports.KBO.upcoming = async function(date) {
+module.exports.MLB = {};
+module.exports.MLB.upcoming = async function(date) {
   return new Promise(async function(resolve, reject) {
     try {
-      const leagueID = 349;
-
+      const leagueID = 225;
       const URL = `https://api.betsapi.com/v2/events/upcoming?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
       const data = await axiosForURL(URL);
       if (data.results) {
@@ -63,10 +61,11 @@ async function checkTheHandicap(ele) {
   }
   return changeFlag;
 }
+
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
-      await database
+      await modules.database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
@@ -79,6 +78,7 @@ async function write2realtime(ele) {
     }
   });
 }
+
 async function write2MysqlOfMatch(ele, change) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -126,38 +126,95 @@ async function write2MysqlOfMatch(ele, change) {
 function changeTeam(team) {
   team = team.split('Game')[0].trim();
   switch (team) {
-    case 'Lotte Giants': {
-      return '2408';
+    case 'LA Angels': {
+      return '1090';
     }
-    case 'Samsung Lions': {
-      return '3356';
+    case 'LA Dodgers': {
+      return '1369';
     }
-    case 'KIA Tigers': {
-      return '4202';
+    case 'HOU Astros': {
+      return '1217';
     }
-    case 'Kia Tigers': {
-      return '4202';
+    case 'CHI Cubs': {
+      return '1368';
     }
-    case 'Doosan Bears': {
-      return '2406';
+    case 'NY Yankees': {
+      return '1121';
     }
-    case 'Hanwha Eagles': {
-      return '2405';
+    case 'WAS Nationals': {
+      return '1147';
     }
-    case 'SK Wyverns': {
-      return '8043';
+    case 'CLE Indians': {
+      return '1310';
     }
-    case 'LG Twins': {
-      return '2407';
+    case 'MIL Brewers': {
+      return '1187';
     }
-    case 'Kiwoom Heroes': {
-      return '269103';
+    case 'BOS Red Sox': {
+      return '1479';
     }
-    case 'NC Dinos': {
-      return '3353';
+    case 'SF Giants': {
+      return '1353';
     }
-    case 'KT Wiz': {
-      return '3354';
+    case 'COL Rockies': {
+      return '1146';
+    }
+    case 'ARI Diamondbacks': {
+      return '1365';
+    }
+    case 'CIN Reds': {
+      return '1364';
+    }
+    case 'OAK Athletics': {
+      return '1222';
+    }
+    case 'MIN Twins': {
+      return '1088';
+    }
+    case 'ATL Braves': {
+      return '1352';
+    }
+    case 'TOR Blue Jays': {
+      return '1089';
+    }
+    case 'TB Rays': {
+      return '1216';
+    }
+    case 'STL Cardinals': {
+      return '1223';
+    }
+    case 'SD Padres': {
+      return '1108';
+    }
+    case 'NY Mets': {
+      return '1113';
+    }
+    case 'SEA Mariners': {
+      return '1202';
+    }
+    case 'TEX Rangers': {
+      return '1311';
+    }
+    case 'PHI Phillies': {
+      return '1112';
+    }
+    case 'DET Tigers': {
+      return '1091';
+    }
+    case 'PIT Pirates': {
+      return '1186';
+    }
+    case 'KC Royals': {
+      return '1478';
+    }
+    case 'BAL Orioles': {
+      return '1120';
+    }
+    case 'CHI White Sox': {
+      return '1203';
+    }
+    case 'MIA Marlins': {
+      return '1109';
     }
   }
 }

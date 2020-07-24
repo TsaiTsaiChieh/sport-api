@@ -6,8 +6,9 @@ const db = require('../util/dbUtil');
 const AnotherpbpInplay = Anotherpbp.AnotherpbpInplay;
 const AnotherpbpHistory = Anotherpbp.AnotherpbpHistory;
 const Match = db.Match;
-const leagueArray = ['KBO', 'CPBL', 'NPB', 'CBA', 'Soccer'];
-
+// const leagueArray = ['KBO', 'CPBL', 'NPB', 'CBA', 'Soccer']; //ori
+const leagueArray = ['KBO', 'CPBL', 'NPB', 'Soccer', 'MLB']; // 2020/07/23
+// const leagueArray = ['MLB'];
 async function checkmatch_another() {
   return new Promise(async function(resolve, reject) {
     try {

@@ -5,24 +5,28 @@ const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const sports = [
-  // 18,
-  // 18,
-  // 16,
-  1,
+  // 籃球
+  18,
+  // 棒球
   16,
   16,
   16,
-  18
+  16,
+  // 足球
+  1
+  // 冰球
 ];
 const leagueUniteIDArray = [
-  // 2274
-  // 8251
-  // 225
-  8,
+  // 籃球
+  2319, // 中國職籃
+  // 棒球
   347, // 日職
   349, // 韓職
   11235, // 台職
-  2319 // 中國職籃
+  3939, // 美棒
+  // 足球
+  8 // 足球
+  // 冰球
 ];
 const Match = db.Match;
 const MatchSpread = db.Spread;
@@ -31,7 +35,6 @@ async function handicap() {
   // go through each league
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
-
     if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
@@ -56,9 +59,10 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 1,
+      value: 2,
       unit: 'days'
     });
+
     const now = modules.convertTimezoneFormat(unix);
     try {
       const queries = await db.sequelize.query(
@@ -186,7 +190,8 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
     if (
       leagueUniteID === '11235' ||
       leagueUniteID === '347' ||
-      leagueUniteID === '349'
+      leagueUniteID === '349' ||
+      leagueUniteID === '3939'
     ) {
       try {
         await MatchSpread.upsert({

@@ -103,7 +103,7 @@ app.use('/livescore', require('./routers/livescore'));
 app.use('/history', require('./routers/history'));
 app.use('/rank', require('./routers/rank'));
 app.use('/cashflow', require('./routers/cashflow'));
-app.use('/cashflow_api', require('./routers/cashflow_api'));// 金流介接(gash)
+app.use('/cashflow_api', require('./routers/cashflow_api')); // 金流介接(gash)
 app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接(藍新)
 // app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票介接(ezpay)
 // keep firebase cloud function :API awake
@@ -159,37 +159,46 @@ exports.pbp_another = functions
   .onRun(require('./pubsub/checkmatch_another'));
 
 // -------- statscore 專區 --------
-// exports.auth_statscore = functions.pubsub
-//  .schedule('50 23 * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/auth_statscore'));
-// exports.prematch_statscore_KBO = functions.pubsub
-//  .schedule('5 5 * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/prematch_statscore_KBO'));
+exports.auth_statscore = functions.pubsub
+  .schedule('50 23 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/auth_statscore'));
+exports.prematch_statscore_KBO = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_KBO'));
 // exports.pbp_statscore_KBO = functions
 //  .runWith(runtimeOpts)
 //  .pubsub.schedule('* * * * *')
 //  .timeZone('Asia/Taipei')
 //  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
-// exports.prematch_statscore_NPB = functions.pubsub
-//  .schedule('5 5 * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/prematch_statscore_NPB'));
+exports.prematch_statscore_NPB = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_NPB'));
 // exports.pbp_statscore_NPB = functions
 //  .runWith(runtimeOpts)
 //  .pubsub.schedule('* * * * *')
 //  .timeZone('Asia/Taipei')
 //  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
-// exports.prematch_statscore_CPBL = functions.pubsub
-//  .schedule('5 5 * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/prematch_statscore_CPBL'));
+exports.prematch_statscore_CPBL = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_CPBL'));
 // exports.pbp_statscore_CPBL = functions
 //  .runWith(runtimeOpts)
 //  .pubsub.schedule('* * * * *')
 //  .timeZone('Asia/Taipei')
 //  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+exports.prematch_statscore_CBA = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_CBA'));
+exports.pbp_statscore_CBA = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_CBA'));
 // -------- statscore 專區 --------
 
 // 大神
@@ -206,18 +215,18 @@ exports.god_settleWinList_A = functions
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_settleWinList_A'));
 // 3. `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
-exports.god_1OfWeek = functions
-  .pubsub.schedule('0 17 * * 1')
+exports.god_1OfWeek = functions.pubsub
+  .schedule('0 17 * * 1')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_1OfWeek'));
 // 4. `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
-exports.god_1OfMonth = functions
-  .pubsub.schedule('0 17 1 * *')
+exports.god_1OfMonth = functions.pubsub
+  .schedule('0 17 1 * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_1OfMonth'));
 // 5. `每天``清晨 5:00` 大神預測牌組結算
-exports.god_settlePrediction = functions
-  .pubsub.schedule('0 5 * * *')
+exports.god_settlePrediction = functions.pubsub
+  .schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_settlePrediction'));
 
@@ -229,12 +238,12 @@ exports.cashflow_settleRefund = functions
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/cashflow_settleRefund'));
 // 2. `清晨 12:00` `這個月第 14 天日期` 本月到期紅利
-exports.cashflow_dividendExpire14 = functions
-  .pubsub.schedule('0 0 14 * *')
+exports.cashflow_dividendExpire14 = functions.pubsub
+  .schedule('0 0 14 * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/cashflow_dividendExpire14'));
 // 3. `清晨 12:00` `這個月第 1 天日期` 更新金流紅利過期、刪除使用者紅利
-exports.cashflow_dividendExpire1 = functions
-  .pubsub.schedule('0 0 1 * *')
+exports.cashflow_dividendExpire1 = functions.pubsub
+  .schedule('0 0 1 * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/cashflow_dividendExpire1'));

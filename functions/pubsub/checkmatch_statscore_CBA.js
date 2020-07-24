@@ -71,7 +71,8 @@ async function checkmatch_statscore_CBA() {
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  first: 0
+                  first: 0,
+                  realtimeData
                 };
                 await CBApbpInplay(parameter);
               }
@@ -93,6 +94,7 @@ async function checkmatch_statscore_CBA() {
             break;
           }
           default: {
+            break;
           }
         }
       }
