@@ -64,7 +64,7 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
   return szHtml;
 }
 
-function CheckOutGash(URL='https://api.eg.gashplus.com/CP_Module/order.aspx', data='')
+function CheckOutGash(URL='', data='')
 {
   let szHtml = '<!doctype html>';
   szHtml += '<html>';

@@ -2,6 +2,7 @@ const neweb_sdk = require('../../util/cashflow_sdk/neweb_sdk');
 const ezpay_config = require('../../config/invoice/ezpay_config');
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const request = require('request');
 async function mpgModel(data) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -110,7 +111,7 @@ async function mpgModel(data) {
         }
         const post_data_arr = JSON.stringify(post_data);
         await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${post_data_arr}')`);
-    var request = require('request');
+
  
     request(
         {
