@@ -95,6 +95,23 @@ class GodUserNotFound extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class TeamInformationNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此隊伍的資料',
+    status = 1311,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 403 FORBIDDEN --------------------------- */
 class UserCouldNotSell extends ExtendableError {
   constructor(
@@ -472,6 +489,7 @@ module.exports = {
   UserCouldNotSell,
   MatchNotFound,
   GodUserNotFound,
+  TeamInformationNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserNotBelongToGod,
