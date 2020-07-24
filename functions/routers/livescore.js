@@ -41,4 +41,7 @@ router.get(
   verification.token_v2,
   require('../controller/livescore/myPredictionsController')
 );
+// 棒球賽前數據
+router.get('/prematch_baseball',
+  require('../controller/livescore/prematchBaseballController'));
 module.exports = router;
