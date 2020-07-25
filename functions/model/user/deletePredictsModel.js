@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
+const httpStatus = require('http-status');
 const db = require('../../util/dbUtil');
 const scheduledStatus = 2;
 const NORMAL_USER_SELL = -1;
@@ -70,13 +71,13 @@ function isMatchValid(args, ele, filter) {
 
       // 若賽事 id 無效，推到 failed；反之，推到 needed
       if (result.length === 0) {
-        ele.code = modules.httpStatus.NOT_FOUND;
+        ele.code = httpStatus.NOT_FOUND;
         ele.error = `Match id: ${ele.id} in ${args.league} not found`;
         filter.failed.push(ele);
       } else {
         addTeamInformation(args, ele, result[0]);
         if (result[0].status !== scheduledStatus) {
-          ele.code = modules.httpStatus.FORBIDDEN;
+          ele.code = httpStatus.FORBIDDEN;
           ele.error = `Match id: ${ele.id} in ${args.league} already started or ended`;
           filter.failed.push(ele);
         } else filter.needed.push(ele);
@@ -172,7 +173,7 @@ function updatePredictions(args, filter) {
           // result = [undefined, 1] 代表有更新成功；反之 [undefined, 0]
           if (!result[1]) {
             const error = {
-              code: modules.httpStatus.ACCEPTED, // 請求接受並處理但可能失敗
+              code: httpStatus.ACCEPTED, // 請求接受並處理但可能失敗
               error: `${handicapType} id: ${handicapId} in ${args.league} update failed`
             };
             filterProcessor(filter, i, error);

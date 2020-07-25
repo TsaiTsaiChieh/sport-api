@@ -1,5 +1,6 @@
-const modules = require('../../util/modules');
+const { acceptNumberAndLetter } = require('../../config/acceptValues');
 const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/livescore/prematchBaseballModel');
 
 async function prematchBaseball(req, res) {
@@ -13,13 +14,13 @@ async function prematchBaseball(req, res) {
       },
       event_id: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter
+        pattern: acceptNumberAndLetter
       }
     }
   };
 
   const valid = ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
+  if (!valid) return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
 
   try {
     res.json(await model(req.query));

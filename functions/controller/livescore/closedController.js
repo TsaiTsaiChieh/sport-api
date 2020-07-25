@@ -1,5 +1,6 @@
-const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
 const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/livescore/livescoreClosedModel');
 
 async function livescoreClosed(req, res) {
@@ -8,7 +9,7 @@ async function livescoreClosed(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       },
       date: {
         type: 'string',
@@ -20,7 +21,7 @@ async function livescoreClosed(req, res) {
   const valid = ajv.validate(schema, req.query);
 
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   try {

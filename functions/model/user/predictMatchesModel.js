@@ -3,6 +3,7 @@ const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
+const httpStatus = require('http-status');
 
 function prematch(args) {
   return new Promise(async function(resolve, reject) {
@@ -109,7 +110,7 @@ function checkIfError(result, args, ele, filter) {
   // 3. 賽事已開打
   const { handicapType, handicapId, handicapName } = handicapProcessor(ele);
   if (!result.length) { // 代表賽事 id 無效
-    ele.code = modules.httpStatus.NOT_FOUND;
+    ele.code = httpStatus.NOT_FOUND;
     ele.error = `Match id: ${ele.id} in ${args.league} not found`;
     ele.error_ch = `無此 ${ele.id} 的賽事編號`;
     filter.failed.push(ele);
@@ -117,7 +118,7 @@ function checkIfError(result, args, ele, filter) {
   }
   if (result) {
     if (result[0][`${handicapType}_id`] !== handicapId) { // 盤口已更新
-      ele.code = modules.httpStatus.NOT_ACCEPTABLE;
+      ele.code = httpStatus.NOT_ACCEPTABLE;
       ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
       ele.error_ch = `賽事編號 ${ele.id} 的${handicapName}(handicapType)編號 ${handicapId} 已非最新盤口編號`;
       pushNotValidMatchToFailed(result, args, ele, filter);
@@ -125,7 +126,7 @@ function checkIfError(result, args, ele, filter) {
       return;
     }
     if (result[0].status !== modules.MATCH_STATUS.SCHEDULED) { // 賽事已開打
-      ele.code = modules.httpStatus.CONFLICT;
+      ele.code = httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
       ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
       pushNotValidMatchToFailed(result, args, ele, filter);
@@ -191,7 +192,7 @@ function isGodUpdate(uid, i, filter) {
 
       if (predictResults.length) {
         const error = {
-          code: modules.httpStatus.NOT_ACCEPTABLE,
+          code: httpStatus.NOT_ACCEPTABLE,
           error: `${handicapType} id: ${handicapId} already exist, locked（大神無法更新已下注內容）`
         };
         filterProcessor(filter, i, error);

@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const acceptValues = require('../../config/acceptValues');
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/deletePredictsModel');
 
@@ -8,13 +8,13 @@ async function deletePredictions(req, res) {
   const spreadSchema = {
     spread: {
       type: 'string',
-      pattern: modules.acceptNumberAndLetter
+      pattern: acceptValues.acceptNumberAndLetter
     }
   };
   const totalsSchema = {
     totals: {
       type: 'string',
-      pattern: modules.acceptNumberAndLetter
+      pattern: acceptValues.acceptNumberAndLetter
     }
   };
 
@@ -24,7 +24,7 @@ async function deletePredictions(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptValues.acceptLeague
       },
       matches: {
         type: 'array',
@@ -45,7 +45,7 @@ async function deletePredictions(req, res) {
           properties: {
             id: {
               type: 'string',
-              pattern: modules.acceptNumberAndLetter
+              pattern: acceptValues.acceptNumberAndLetter
             },
             spread: spreadSchema,
             totals: totalsSchema

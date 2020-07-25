@@ -1,11 +1,11 @@
-const modules = require('../../util/modules');
+const acceptValues = require('../../config/acceptValues');
 const AppErrors = require('../../util/AppErrors');
 // const db = require('../../util/dbUtil');
 
 async function acceptLeague() {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await repackage(modules.acceptLeague);
+      const result = await repackage(acceptValues.acceptLeague);
       resolve(result);
     } catch (err) {
       reject(err);

@@ -1,5 +1,7 @@
 const modules = require('../../util/modules');
+const { acceptNumberAndLetter } = require('../../config/acceptValues');
 const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/user/predictionResultsModel');
 
 async function predictionResult(req, res) {
@@ -16,7 +18,7 @@ async function predictionResult(req, res) {
       },
       uid: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter,
+        pattern: acceptNumberAndLetter,
         default: req.query.uid ? req.query.uid : (req.token ? req.token.uid : req.token)
       }
     }
@@ -25,7 +27,7 @@ async function predictionResult(req, res) {
 
   const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   const args = {

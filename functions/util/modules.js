@@ -3,13 +3,9 @@ const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const { zone_tw } = require('../config/env_values');
-const https = require('https');
-const httpStatus = require('http-status');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
-const acceptNumberAndLetter = '^[a-zA-Z0-9_.-]*$';
-const acceptLeague = ['MLB', 'CBA', 'NBA', 'KBO', 'NPB', 'CPBL', 'eSoccer'];
 // const errs = require('./errorCode');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const to = require('await-to-js').default;
@@ -757,7 +753,6 @@ module.exports = {
   createError,
   moment,
   db,
-  https,
   dateFormat,
   league2Sport,
   leagueCodebook,
@@ -777,14 +772,11 @@ module.exports = {
   date3YMDInfo,
   date3UnixInfo,
   leagueDecoder,
-  acceptNumberAndLetter,
-  httpStatus,
   groupBy,
   groupsByOrdersLimit,
   fieldSorter,
   mergeDeep,
   sliceTeamAndPlayer,
-  acceptLeague,
   MATCH_STATUS,
   to,
   godUserPriceTable,

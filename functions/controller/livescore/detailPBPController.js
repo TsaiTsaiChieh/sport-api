@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/livescore/livescoreDetailPBPModel');
 
@@ -8,7 +8,7 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       },
       eventID: {
         type: 'string'

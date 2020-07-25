@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
+const httpStatus = require('http-status');
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/sport/matchesModel');
 
@@ -14,13 +15,13 @@ async function getMatches(req, res) {
       },
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       }
     }
   };
 
   const valid = ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
+  if (!valid) return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
 
   const args = {
     token: req.token,
