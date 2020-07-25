@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const db = require('../util/dbUtil');
 const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
@@ -45,7 +46,7 @@ async function query_event(league) {
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
-					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
+					WHERE game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
 						AND game.league_id =  '${league}'
 			 )`,

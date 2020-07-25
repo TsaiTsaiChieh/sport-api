@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
@@ -18,11 +19,11 @@ module.exports.MLB_PRE = {
           if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
             results.push(
               firestore
-                .collection(modules.db.baseball_MLB)
+                .collection(leagueUtil.db.baseball_MLB)
                 .doc(ele.id)
                 .set(repackage_bets(ele), { merge: true })
             );
-            console.log(`BetsAPI: ${modules.db.baseball_MLB}(${ele.id})`);
+            console.log(`BetsAPI: ${leagueUtil.db.baseball_MLB}(${ele.id})`);
           }
         }
       }
@@ -77,7 +78,7 @@ module.exports.MLB = {
         // eslint-disable-next-line no-await-in-loop
         const { data } = await axios.get(completeURL);
         console.log(
-          `${modules.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+          `${leagueUtil.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
             ele.away.alias
           }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
             .moment(ele.scheduled._seconds * 1000)
@@ -85,7 +86,7 @@ module.exports.MLB = {
             .format('ll')}, URL: ${completeURL}`
         );
         firestore
-          .collection(modules.db.baseball_MLB)
+          .collection(leagueUtil.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_lineups(data), { merge: true });
       }
@@ -113,7 +114,7 @@ module.exports.MLB = {
         console.log(`SportRadar URL: ${homeURL} on ${new Date()}`);
         console.log(`SportRadar URL: ${awayURL} on ${new Date()}`);
         firestore
-          .collection(modules.db.baseball_MLB)
+          .collection(leagueUtil.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_team(homeTeam.data, awayTeam.data), { merge: true });
       } catch (error) {
@@ -401,7 +402,7 @@ function codebook(id, name) {
 }
 
 async function query_MLB(flag, value) {
-  const eventsRef = firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(leagueUtil.db.baseball_MLB);
   const results = [];
 
   try {
@@ -433,11 +434,11 @@ function integration(query, ele, league) {
         ele.away.abbr.toUpperCase() === query[i].home.alias)
     ) {
       firestore
-        .collection(modules.db.baseball_MLB)
+        .collection(leagueUtil.db.baseball_MLB)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
       console.log(
-        `SportRadar: ${modules.db.baseball_MLB}(${query[i].bets_id})`
+        `SportRadar: ${leagueUtil.db.baseball_MLB}(${query[i].bets_id})`
       );
     }
   }
@@ -482,7 +483,7 @@ function repackage_sportradar(ele, query, league) {
 }
 
 async function queryBeforeOneDay(date, flag, value) {
-  const eventsRef = firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(leagueUtil.db.baseball_MLB);
   const results = [];
   try {
     const querys = await eventsRef

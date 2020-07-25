@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const AppErrors = require('../util/AppErrors');
 const Soccerpbp = require('./pbp_statscore_Soccer');
@@ -8,7 +8,7 @@ const db = require('../util/dbUtil');
 const Match = db.Match;
 const sport = 'Soccer';
 const league = 'Soccer';
-const leagueID = modules.leagueCodebook(league).id;
+const leagueID = leagueUtil.leagueCodebook(league).id;
 
 async function checkmatch_statscore_Soccer() {
   return new Promise(async function(resolve, reject) {
@@ -118,7 +118,7 @@ async function queryForEvents() {
         `(
 				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id = '${leagueID}'
 			 )`,
         {

@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
@@ -17,7 +18,7 @@ module.exports.SBL.upcomming = async function(date) {
       const ele = data.results[i];
       results.push(
         firestore
-          .collection(modules.db.basketball_SBL)
+          .collection(leagueUtil.db.basketball_SBL)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
       );
@@ -117,7 +118,7 @@ module.exports.SBL.prematch = async function(date) {
   }
 };
 async function query_SBL(date) {
-  const basketRef = firestore.collection(modules.db.basketball_SBL);
+  const basketRef = firestore.collection(leagueUtil.db.basketball_SBL);
   const beginningDate = modules.moment(date);
   const endDate = modules.moment(date).add(1, 'days');
   const results = [];
@@ -151,7 +152,7 @@ function integration(query, ele) {
       ele.sport_event.competitors[0].abbreviation === query[i].home.alias
     ) {
       firestore
-        .collection(modules.db.basketball_SBL)
+        .collection(leagueUtil.db.basketball_SBL)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele), { merge: true });
     }

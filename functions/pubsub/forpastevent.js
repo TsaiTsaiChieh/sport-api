@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const db = require('../util/dbUtil');
 const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
@@ -129,7 +130,7 @@ async function queryForMatches(date) {
 					SELECT game.bets_id, game.league_id
 					  FROM matches AS game
 					 WHERE game.scheduled < '${date}'
-						 AND status = ${modules.MATCH_STATUS.SCHEDULED}
+						 AND status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						 AND home_points is NULL
 				)`,
         {

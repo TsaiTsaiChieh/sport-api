@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 async function teams(args) {
@@ -25,7 +25,7 @@ function queryAllTeams(args) {
          )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id
+            leagueID: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
         }

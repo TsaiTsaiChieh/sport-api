@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -56,7 +56,7 @@ function queryMatch(args) {
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             eventID: args.eventID
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -72,10 +72,10 @@ async function repackage(args, match) {
   try {
     if (match.length > 0) {
       if (args.league === 'NBA') {
-        match.sport = modules.league2Sport(args.league);
+        match.sport = leagueUtil.league2Sport(args.league);
         return match;
       } else if (args.league === 'MLB') {
-        match.sport = modules.league2Sport(args.league);
+        match.sport = leagueUtil.league2Sport(args.league);
 
         return match;
       } else if (args.league === 'eSoccer') {
@@ -83,7 +83,7 @@ async function repackage(args, match) {
         const temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,
@@ -141,11 +141,11 @@ async function repackage(args, match) {
         return temp;
       } else {
         const ele = match[0];
-        match.sport = modules.league2Sport(args.league);
+        match.sport = leagueUtil.league2Sport(args.league);
         const temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,

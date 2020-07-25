@@ -37,7 +37,7 @@ async function repackage(acceptLeague) {
 //        `
 //				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 //					 FROM matches AS game
-//					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY} OR game.status = ${modules.MATCH_STATUS.END})
+//					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY} OR game.status = ${leagueUtil.MATCH_STATUS.END})
 //						AND game.league_id = ${leagueID}
 //						AND game.scheduled BETWEEN ${date1} AND ${date2}
 //			 `,

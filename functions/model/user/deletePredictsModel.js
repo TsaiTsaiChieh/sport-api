@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const httpStatus = require('http-status');
 const db = require('../../util/dbUtil');
@@ -60,7 +61,7 @@ function isMatchValid(args, ele, filter) {
                 match__teams AS home,
                 match__teams AS away
           WHERE game.bets_id = :id
-            AND game.league_id = ${modules.leagueCodebook(args.league).id}
+            AND game.league_id = ${leagueUtil.leagueCodebook(args.league).id}
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
@@ -100,7 +101,7 @@ function addTeamInformation(args, ele, result) {
     alias: result.away_alias,
     alias_ch: result.away_alias_ch
   };
-  ele.league_id = modules.leagueCodebook(args.league).id;
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
 }
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
@@ -116,7 +117,7 @@ function isHandicapExist(args, i, filter) {
             AND bets_id = :id
             AND ${handicapType}_id = '${handicapId}'
             AND sell = ${NORMAL_USER_SELL}
-            AND league_id = ${modules.leagueCodebook(args.league).id}`,
+            AND league_id = ${leagueUtil.leagueCodebook(args.league).id}`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { id: ele.id }
@@ -200,7 +201,7 @@ function deletePredictionsWhichAreNull(uid, league) {
             AND league_id = :league_id`,
         {
           type: db.sequelize.QueryTypes.DELETE,
-          replacements: { uid, league_id: modules.leagueCodebook(league).id, raw: true }
+          replacements: { uid, league_id: leagueUtil.leagueCodebook(league).id, raw: true }
         }
       );
       return resolve();

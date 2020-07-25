@@ -1,8 +1,8 @@
-const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const database = firebaseAdmin().database();
 const axios = require('axios');
+const simple2Tradition = require('chinese-simple-tradition-translator');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');
@@ -263,7 +263,7 @@ async function initRealtime(gameID, betsID) {
       // [主隊英文名稱、主隊隊員英文名字、主隊隊員背號、客隊英文名稱、客隊隊員英文名字、客隊隊員背號]
       for (let i = 0; i < keywordTransHome.length; i++) {
         try {
-          keywordTransHome[i] = await modules.simple2Tradition.translate(
+          keywordTransHome[i] = await simple2Tradition.translate(
             keywordTransHome[i]
           );
         } catch (err) {
@@ -276,7 +276,7 @@ async function initRealtime(gameID, betsID) {
       }
       for (let i = 0; i < keywordTransHome.length; i++) {
         try {
-          keywordTransAway[i] = await modules.simple2Tradition.translate(
+          keywordTransAway[i] = await simple2Tradition.translate(
             keywordTransAway[i]
           );
         } catch (err) {

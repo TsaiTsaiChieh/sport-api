@@ -1,10 +1,10 @@
-const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const axios = require('axios');
 const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
+const leagueUtil = require('../util/leagueUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const pastDays = 14; // 兩週算一次 所以兩週以前的賽事就算還是 -1 也沒關係
@@ -26,7 +26,7 @@ function queryMatches() {
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
-					 WHERE (game.status = '${modules.MATCH_STATUS.ABNORMAL}' OR game.status = '-2') 
+					 WHERE (game.status = '${leagueUtil.MATCH_STATUS.ABNORMAL}' OR game.status = '-2') 
         )`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -91,8 +91,8 @@ async function doPBP(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
-    const leagueName = modules.leagueDecoder(parameter.leagueID);
-    const sportName = modules.league2Sport(leagueName).sport;
+    const leagueName = leagueUtil.leagueDecoder(parameter.leagueID);
+    const sportName = leagueUtil.league2Sport(leagueName).sport;
 
     try {
       const data = await axiosForURL(pbpURL);
@@ -405,7 +405,7 @@ async function pbpHistory(parameterHistory) {
           )
           .set(data.results[0].ss.split('-')[1]);
         if (!data.results[0].ss) {
-          realtimeData = await modules.database
+          realtimeData = await database
             .ref(`${sportName}/${leagueName}/${betsID}`)
             .once('value');
           realtimeData = realtimeData.val();

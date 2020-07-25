@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const ESoccerpbp = require('./pbp_eSoccer');
@@ -17,7 +17,7 @@ async function checkmatch_eSoccer() {
   return new Promise(async function(resolve, reject) {
     try {
       leagueName = await leagueOnLivescore();
-      leagueID = modules.leagueCodebook(leagueName).id;
+      leagueID = leagueUtil.leagueCodebook(leagueName).id;
       const totalData = await queryForEvents();
       firestoreData = await livescore(totalData);
       for (let i = 0; i < totalData.length; i++) {
@@ -139,7 +139,7 @@ async function queryForEvents() {
 								match__teams AS away,
 								match__spreads AS spread,
 								match__leagues AS league
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id = ${leagueID}
 						AND game.home_id = home.team_id
 						AND game.away_id = away.team_id
@@ -155,7 +155,7 @@ async function queryForEvents() {
 					      match__teams AS home,
 								match__teams AS away,
 								match__leagues AS league
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 								AND game.league_id = ${leagueID}
 								AND game.home_id = home.team_id
 								AND game.away_id = away.team_id
@@ -185,7 +185,7 @@ async function write2HomeLivescore(firestoreData) {
           id: firestoreData.bets_id,
           league: leagueName,
           ori_league: firestoreData.league_name_ch,
-          sport: modules.league2Sport(leagueName).sport,
+          sport: leagueUtil.league2Sport(leagueName).sport,
           status: firestoreData.status,
           scheduled: firestoreData.scheduled,
           spread: {

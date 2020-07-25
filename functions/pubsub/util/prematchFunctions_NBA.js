@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
@@ -17,7 +18,7 @@ module.exports.NBA.upcoming = async function(date) {
       const ele = data.results[i];
       results.push(
         firestore
-          .collection(modules.db.basketball_NBA)
+          .collection(leagueUtil.db.basketball_NBA)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
       );
@@ -129,14 +130,14 @@ function integration(query, ele, league) {
       ele.home.alias.toUpperCase() === query[i].away.alias
     ) {
       firestore
-        .collection(modules.db.basketball_NBA)
+        .collection(leagueUtil.db.basketball_NBA)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true }).then();
     }
   }
 }
 async function query_NBA(date) {
-  const eventsRef = firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = firestore.collection(leagueUtil.db.basketball_NBA);
   const beginningDate = modules.moment(date).add(1, 'days');
   const endDate = modules.moment(date).add(2, 'days');
   const results = [];
@@ -372,14 +373,14 @@ module.exports.NBA.lineup = async function(date) {
       // eslint-disable-next-line no-await-in-loop
       const { data } = await axios.get(completeURL);
       console.log(
-        `${modules.db.basketball_NBA}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+        `${leagueUtil.db.basketball_NBA}(${ele.bets_id}) - ${ele.away.alias_ch}(${
           ele.away.alias
         }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
           .moment(ele.scheduled._seconds * 1000)
           .format('ll')}, URL: ${completeURL}`
       );
       firestore
-        .collection(modules.db.basketball_NBA)
+        .collection(leagueUtil.db.basketball_NBA)
         .doc(queries[i].bets_id)
         .set(repackage_lineup(data), { merge: true });
     }
@@ -391,7 +392,7 @@ module.exports.NBA.lineup = async function(date) {
   }
 };
 async function query_before40Min(date) {
-  const eventsRef = firestore.collection(modules.db.basketball_NBA);
+  const eventsRef = firestore.collection(leagueUtil.db.basketball_NBA);
   const results = [];
 
   try {

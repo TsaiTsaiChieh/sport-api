@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
@@ -125,7 +126,7 @@ function checkIfError(result, args, ele, filter) {
       filter.failed.push(ele);
       return;
     }
-    if (result[0].status !== modules.MATCH_STATUS.SCHEDULED) { // 賽事已開打
+    if (result[0].status !== leagueUtil.MATCH_STATUS.SCHEDULED) { // 賽事已開打
       ele.code = httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
       ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
@@ -148,7 +149,7 @@ function pushNotValidMatchToFailed(result, args, ele, filter) {
     alias: result[0].away_alias,
     alias_ch: result[0].away_alias_ch
   };
-  ele.league_id = modules.leagueCodebook(args.league).id;
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
 }
 
 function pushValidMatchToNeeded(result, args, ele, filter) {
@@ -168,7 +169,7 @@ function pushValidMatchToNeeded(result, args, ele, filter) {
     alias: result[0].away_alias,
     alias_ch: result[0].away_alias_ch
   };
-  ele.league_id = modules.leagueCodebook(args.league).id;
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
   filter.needed.push(ele);
 }
 
@@ -249,7 +250,7 @@ function isGodSellConsistent(args, i, filter) {
         {
           replacements: {
             uid: args.token.uid,
-            league_id: modules.leagueCodebook(args.league).id
+            league_id: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
         }

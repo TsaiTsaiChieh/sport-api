@@ -1,4 +1,4 @@
-const { axios } = require('../../util/modules');
+const axios = require('axios');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';

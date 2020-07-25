@@ -14,9 +14,11 @@ const configs = {
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const axios = require('axios');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
+const cheerio = require('cheerio');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const teamsMapping = require('../../util/teamsMapping');
@@ -45,7 +47,7 @@ async function prematch_KBO() {
 function getSeason(league) {
   return new Promise(async function(resolve, reject) {
     try {
-      return resolve(await dbEngine.getSeason(modules.leagueCodebook(league).id));
+      return resolve(await dbEngine.getSeason(leagueUtil.leagueCodebook(league).id));
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
@@ -74,7 +76,7 @@ function crawler(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       const { data } = await axios.get(URL);
-      const $ = modules.cheerio.load(data); // load in the HTML
+      const $ = cheerio.load(data); // load in the HTML
       return resolve($);
     } catch (err) {
       return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));

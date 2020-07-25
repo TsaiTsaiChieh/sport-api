@@ -1,6 +1,6 @@
-const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
+const leagueUtil = require('../util/leagueUtil');
 const axios = require('axios');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
@@ -14,7 +14,7 @@ let leagueName;
 let firestoreData;
 async function ESoccerpbpInplay(parameter, Data) {
   leagueName = await leagueOnLivescore();
-  // leagueID = modules.leagueCodebook(leagueName).id;
+  // leagueID = leagueUtil.leagueCodebook(leagueName).id;
   firestoreData = Data;
   // 50 秒一次
   const perStep = 50000;
@@ -74,7 +74,7 @@ async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
             id: firestoreData[index].bets_id,
             league: leagueName,
             ori_league: firestoreData[index].league_name_ch,
-            sport: modules.league2Sport(leagueName).sport,
+            sport: leagueUtil.league2Sport(leagueName).sport,
             status: firestoreData[index].status,
             scheduled: firestoreData[index].scheduled,
             spread: {

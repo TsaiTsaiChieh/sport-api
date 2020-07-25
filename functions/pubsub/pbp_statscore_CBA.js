@@ -1,4 +1,3 @@
-const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const axios = require('axios');
@@ -669,7 +668,7 @@ async function writeRealtime(
             );
         }
 
-        await modules.database
+        await database
           .ref(
             `${sport}/${league}/${betsID}/Summary/info/away/periods${periodNow}/points`
           )
@@ -677,7 +676,7 @@ async function writeRealtime(
             data.api.data.competition.season.stage.group.event.participants[1]
               .results[5 + parseInt(periodNow)].value
           );
-        await modules.database
+        await database
           .ref(
             `${sport}/${league}/${betsID}/Summary/info/home/periods${periodNow}/points`
           )

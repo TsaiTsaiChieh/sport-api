@@ -1,4 +1,6 @@
-const { getTitlesPeriod, httpStatus, leagueDecoder } = require('../util/modules');
+const { getTitlesPeriod } = require('../util/modules');
+const httpStatus = require('http-status');
+const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
@@ -185,7 +187,7 @@ async function getRoleAndTitles(uid) {
       });
       const titles = [];
       for (let i = 0; i < titlesResult.length; i++) {
-        titles.push(leagueDecoder(titlesResult[i].league_id));
+        titles.push(leagueUtil.leagueDecoder(titlesResult[i].league_id));
       }
       // req.token.customClaims = { role: GOD_USER, titles };
       return { role: GOD_USER, titles };

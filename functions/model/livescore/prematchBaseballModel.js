@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const db = require('../../util/dbUtil');
@@ -42,7 +42,7 @@ function getHomeAndAwayTeamFromMySQL(args) {
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: {
-            league_id: modules.leagueCodebook(args.league).id,
+            league_id: leagueUtil.leagueCodebook(args.league).id,
             bets_id: args.event_id
           }
         });
@@ -84,7 +84,7 @@ function queryHomeEvents(args) {
                  match__spreads AS spread,
                  match__totals AS totals
            WHERE game.bets_id = :event_id
-             AND historygame.status = ${modules.MATCH_STATUS.END}
+             AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
              AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
@@ -98,7 +98,7 @@ function queryHomeEvents(args) {
         )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -127,7 +127,7 @@ function queryAwayEvents(args) {
                match__spreads AS spread,
                match__totals AS totals
          WHERE game.bets_id = :event_id
-           AND historygame.status = ${modules.MATCH_STATUS.END}
+           AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
            AND game.league_id = :leagueID
            AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
@@ -141,7 +141,7 @@ function queryAwayEvents(args) {
         )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -468,7 +468,7 @@ function queryTenFightEvent(args) {
                    match__teams AS away
              WHERE game.bets_id = :event_id
                AND five.bets_id != :event_id
-               AND five.status = ${modules.MATCH_STATUS.END}
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = :leagueID
                AND five.home_id = home.team_id
@@ -486,7 +486,7 @@ function queryTenFightEvent(args) {
 									 match__totals AS total,
                    match__teams AS away
              WHERE game.bets_id = :event_id
-               AND five.status = ${modules.MATCH_STATUS.END}
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
                AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = :leagueID
@@ -505,7 +505,7 @@ function queryTenFightEvent(args) {
 									 match__spreads AS spread,
                    match__teams AS away
              WHERE game.bets_id = :event_id
-               AND five.status = ${modules.MATCH_STATUS.END}
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
                AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = :leagueID
@@ -523,7 +523,7 @@ function queryTenFightEvent(args) {
                    match__teams AS home,
                    match__teams AS away
              WHERE game.bets_id = :event_id
-               AND five.status = ${modules.MATCH_STATUS.END}
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
                AND five.bets_id != :event_id
                AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
                AND five.league_id = :leagueID
@@ -536,7 +536,7 @@ function queryTenFightEvent(args) {
           `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT

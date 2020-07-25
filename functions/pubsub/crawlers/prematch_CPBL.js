@@ -1,14 +1,15 @@
-const modules = require('../../util/modules');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
 const AppErrors = require('../../util/AppErrors');
+const cheerio = require('cheerio');
 // const db = require('../../util/dbUtil');
 const CPBL_URL = 'http://www.cpbl.com.tw';
 const totalTeam = 4;
 const leagueName = 'CPBL';
-// const league = modules.leagueCodebook(leagueName);
-const sportName = modules.league2Sport(leagueName).sport;
+const leagueUtil = require('../../util/leagueUtil');
+// const league = leagueUtil.leagueCodebook(leagueName);
+const sportName = leagueUtil.league2Sport(leagueName).sport;
 // const sport = '16';
 const perStep = 1000; // 每秒抓一項資訊
 const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
@@ -82,7 +83,7 @@ function getPitchersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       const { data } = await axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const $ = cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
       number = number.replace(/\n/g, '');
@@ -132,7 +133,7 @@ function getHittersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       const { data } = await axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const $ = cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
       number = number.replace(/\n/g, '');
@@ -184,7 +185,7 @@ function getTeamsStandings(URL) {
     try {
       // 球隊的季戰績
       const { data } = await axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const $ = cheerio.load(data);
       let titles = $('.gap_b20').text();
 
       titles = titles.replace(/\r/g, '');

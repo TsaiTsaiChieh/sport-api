@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
+const leagueUtil = require('../util/leagueUtil');
 const Anotherpbp = require('./pbp_another');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -29,9 +30,9 @@ async function checkmatch_another() {
 
       // const ele = await queryForMatches(time.getTime() / 1000);
       for (let leagueC = 0; leagueC < leagueArray.length; leagueC++) {
-        const leagueID = modules.leagueCodebook(leagueArray[leagueC]).id;
+        const leagueID = leagueUtil.leagueCodebook(leagueArray[leagueC]).id;
         const leagueName = leagueArray[leagueC];
-        const sportName = modules.league2Sport(leagueArray[leagueC]).sport;
+        const sportName = leagueUtil.league2Sport(leagueArray[leagueC]).sport;
         const totalData = await queryForEvents(
           leagueID,
           new Date(date1).getTime() / 1000,
@@ -135,7 +136,7 @@ async function queryForEvents(leagueID, date1, date2) {
         `
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game			      
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id = ${leagueID}
 						AND game.scheduled BETWEEN ${date1} AND ${date2}
 			 `,

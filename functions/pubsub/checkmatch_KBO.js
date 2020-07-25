@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const KBOpbp = require('./pbp_KBO');
@@ -94,7 +94,7 @@ async function queryForEvents() {
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id =  '349'
 			 )`,
       {
