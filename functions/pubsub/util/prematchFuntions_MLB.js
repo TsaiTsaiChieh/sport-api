@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
-const firebaseAdmin = require('../../util/firebaseUtil').initial();
-const firestore = firebaseAdmin.firestore();
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
 
 module.exports.MLB_PRE = {

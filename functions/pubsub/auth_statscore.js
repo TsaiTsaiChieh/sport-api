@@ -1,4 +1,3 @@
-const modules = require('../util/modules');
 const axios = require('axios');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');

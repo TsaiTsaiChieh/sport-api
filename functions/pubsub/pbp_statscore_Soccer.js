@@ -1,4 +1,3 @@
-const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const axios = require('axios');

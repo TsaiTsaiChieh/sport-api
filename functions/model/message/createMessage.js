@@ -32,7 +32,7 @@ function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const insertData = {};
-      insertData.createTime = firebaseAdmin.firestore.Timestamp.now();
+      insertData.createTime = firestore.Timestamp.now();
 
       /* get user according token */
       // user部分讀mysql 訊息仍然放在firebase rtdb
