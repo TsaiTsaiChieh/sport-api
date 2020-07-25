@@ -9,7 +9,7 @@ module.exports = function() {
       storageBucket: envValues.firebaseConfig.storageBucket
     });
   } else {
-    console.log('firebase is already initialized');
+    // console.log('firebase is already initialized');
     return admin;
   }
 };
