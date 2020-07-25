@@ -1,5 +1,5 @@
 const db = require('../../util/dbUtil');
-const { firebaseAdmin } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const { getTitlesPeriod } = require('../../util/modules');
 const envValues = require('../../config/env_values');
 
@@ -98,13 +98,13 @@ async function firebaseLogin(req, res) {
     return;
   }
 
-  firebaseAdmin
+  firebaseAdmin()
     .auth()
     .verifyIdToken(token)
     // eslint-disable-next-line promise/always-return
     .then(decodedIdToken => {
       // Create session cookie and set it.
-      firebaseAdmin
+      firebaseAdmin()
         .auth()
         .createSessionCookie(token, { expiresIn: envValues.cookieOptions.maxAge })
         .then(async sessionCookie => {

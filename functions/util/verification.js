@@ -1,5 +1,5 @@
 const { getTitlesPeriod, httpStatus, leagueDecoder } = require('../util/modules');
-const { firebaseAdmin } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
 const db = require('../util/dbUtil');
 const NORMAL_USER = 1;
 const GOD_USER = 2;
@@ -57,10 +57,10 @@ async function confirmLogin(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await firebaseAdmin
+      const decodedIdToken = await firebaseAdmin()
         .auth()
         .verifySessionCookie(bearerToken, true);
-      req.token = await firebaseAdmin
+      req.token = await firebaseAdmin()
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
@@ -78,7 +78,7 @@ async function confirmLogin_v2(req, res, next) { // 未登入不擋，登入則�
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await firebaseAdmin
+      const decodedIdToken = await firebaseAdmin()
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
@@ -102,11 +102,11 @@ async function token(req, res, next) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
 
-      const decodedIdToken = await firebaseAdmin
+      const decodedIdToken = await firebaseAdmin()
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
-      req.token = await firebaseAdmin
+      req.token = await firebaseAdmin()
         .auth()
         .getUser(decodedIdToken.uid);
     } else {
@@ -126,7 +126,7 @@ async function token_v2(req, res, next) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      const decodedIdToken = await firebaseAdmin
+      const decodedIdToken = await firebaseAdmin()
         .auth()
         .verifySessionCookie(bearerToken, true);
       req.token = decodedIdToken;
@@ -148,11 +148,11 @@ async function getToken(req, res, next) { // 只取得 token 未登入不擋，�
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
 
-      const decodedIdToken = await firebaseAdmin
+      const decodedIdToken = await firebaseAdmin()
         .auth()
         .verifySessionCookie(bearerToken, true);
       console.log('UID : ', decodedIdToken.uid);
-      req.token = await firebaseAdmin
+      req.token = await firebaseAdmin()
         .auth()
         .getUser(decodedIdToken.uid);
     } else {

@@ -1,4 +1,6 @@
-const { firestore, database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 const MLBpbp = require('./pbp_MLB');
 const AppErrors = require('../util/AppErrors');
 const MLBpbpInplay = MLBpbp.MLBpbpInplay;

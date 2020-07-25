@@ -1,4 +1,4 @@
-const { getSnapshot, bucket } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
 const folder = 'share_files';
 const day = 7;
 
@@ -46,16 +46,11 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
       nanoseconds: message.createTime._nanoseconds
     }
   };
+  const firestore = firebaseAdmin().firestore();
   if (message.replyMessageId) {
-    const replyMessageSnapshot = await getSnapshot(
-      'messages',
-      message.replyMessageId
-    );
+    const replyMessageSnapshot = await firestore.collection('messages').doc(message.replyMessageId).get();
     const replyMessage = replyMessageSnapshot.data();
-    const replyUserSnapshot = await getSnapshot(
-      'users',
-      message.replyUid
-    );
+    const replyUserSnapshot = await firestore.collection('users').doc(message.replyUid).get();
     const replyUser = replyUserSnapshot.data();
     if (replyFlag === 1) {
       body.reply = await repackageMessageDataWithFlag(
@@ -70,6 +65,7 @@ async function repackageMessageDataWithFlag(message, user, replyFlag) {
   if (message.fileUploadId) {
     // get storage
     try {
+      const bucket = firebaseAdmin().storage().bucket();
       const file = bucket.file(
         `${folder}/${message.fileUploadId}.${message.fileSubname}`
       );
@@ -126,7 +122,8 @@ function orderByCreateTime(messages) {
 
 async function maskMessages(messages, token) {
   // get user uid from token info
-  const userSnapshot = await getSnapshot('users', token.uid);
+  const firestore = firebaseAdmin().firestore();
+  const userSnapshot = await firestore.collection('users').doc(token.uid).get();
   const user = userSnapshot.data();
 
   messages.forEach(ele => {

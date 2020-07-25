@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const { database } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -66,6 +66,7 @@ async function axiosForURL(URL) {
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
+      const database = firebaseAdmin().database();
       await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');

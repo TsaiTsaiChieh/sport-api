@@ -1,4 +1,4 @@
-const { firestore, database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
 const NBApbp = require('./pbp_NBA');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -9,6 +9,8 @@ async function checkmatch_NBA() {
   return new Promise(async function(resolve, reject) {
     const firestoreName = 'pagetest_NBA';
     try {
+      const firestore = firebaseAdmin().firestore();
+      const database = firebaseAdmin().database();
       const data = await firestore
         .collection(firestoreName)
         .where('flag.status', '>', 0)

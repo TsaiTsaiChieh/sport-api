@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');

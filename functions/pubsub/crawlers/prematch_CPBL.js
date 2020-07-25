@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
-const { firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const AppErrors = require('../../util/AppErrors');
 // const db = require('../../util/dbUtil');
 const CPBL_URL = 'http://www.cpbl.com.tw';

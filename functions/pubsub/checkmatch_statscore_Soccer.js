@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
 const AppErrors = require('../util/AppErrors');
 const Soccerpbp = require('./pbp_statscore_Soccer');
 const SoccerpbpInplay = Soccerpbp.SoccerpbpInplay;
@@ -13,6 +13,7 @@ const leagueID = modules.leagueCodebook(league).id;
 async function checkmatch_statscore_Soccer() {
   return new Promise(async function(resolve, reject) {
     try {
+      const database = firebaseAdmin().database();
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
         if (!totalData[i].statscore_id) {

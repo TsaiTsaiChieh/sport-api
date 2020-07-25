@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
-const { firestore, firebaseTimestamp } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil').initial();
+const firestore = firebaseAdmin.firestore();
 
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
@@ -165,9 +166,9 @@ function skipTeam(id) {
 
 function repackage_bets(ele) {
   return {
-    update_time: firebaseTimestamp(new Date()),
+    update_time: firestore.Timestamp.fromDate(new Date(new Date())),
     bets_id: ele.id,
-    scheduled: firebaseTimestamp(Number.parseInt(ele.time) * 1000),
+    scheduled: firestore.Timestamp.fromDate(new Date(Number.parseInt(ele.time) * 1000)),
     home: {
       alias: codebook(ele.home.id, ele.home.name).alias,
       alias_ch: codebook(ele.home.id, ele.home.name).alias_ch,
@@ -445,7 +446,7 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.abbr.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.abbr.toUpperCase() === query.away.alias;
   return {
-    update_time: firebaseTimestamp(Date.now()),
+    update_time: firestore.Timestamp.fromDate(new Date(Date.now())),
     radar_id: ele.id,
     league: {
       radar_id: league.id
@@ -583,7 +584,7 @@ function repackage_lineups(ele) {
 function repackage_team(homeData, awayData) {
   return {
     stat: {
-      update_time: firebaseTimestamp(new Date()),
+      update_time: firestore.Timestamp.fromDate(new Date(new Date())),
       home: {
         r: homeData.statistics.hitting.overall.runs.total,
         h: homeData.statistics.hitting.overall.onbase.h,

@@ -1,12 +1,11 @@
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const { firebaseAdmin } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
 
 async function modifyUserProfile(req, res) {
   const uid = req.token.uid;
-  // const userSnapshot = await getSnapshot("users", uid);
   const userSnapshot = await db.sequelize.query(
     `
       SELECT *
@@ -71,12 +70,12 @@ async function modifyUserProfile(req, res) {
       data.point = 0;
       data.block_count = 0;
       data.accuse_credit = 20; // 檢舉信用值預設20，limit 100
-      firebaseAdmin.auth().updateUser(uid, {
+      firebaseAdmin().auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
         display_name: req.body.display_name
       });
-      firebaseAdmin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
+      firebaseAdmin().auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
     }
     case 1: // 一般會員
@@ -96,7 +95,7 @@ async function modifyUserProfile(req, res) {
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
-    firebaseAdmin.auth().updateUser(uid, {
+    firebaseAdmin().auth().updateUser(uid, {
       photoURL: req.body.avatar
     });
   }

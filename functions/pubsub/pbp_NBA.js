@@ -1,5 +1,7 @@
 const modules = require('../util/modules');
-const { firestore, database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');

@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
-const { firebaseAdmin, firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
@@ -43,8 +44,8 @@ module.exports.NBA.upcoming = async function(date) {
 };
 function repackage_bets(ele) {
   return {
-    update_time: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-    scheduled: firebaseAdmin.firestore.Timestamp.fromDate(
+    update_time: firestore.Timestamp.fromDate(new Date()),
+    scheduled: firestore.Timestamp.fromDate(
       new Date(Number.parseInt(ele.time) * 1000)
     ),
     bets_id: ele.id,
@@ -129,7 +130,7 @@ function integration(query, ele, league) {
       firestore
         .collection(modules.db.basketball_NBA)
         .doc(query[i].bets_id)
-        .set(repackage_sportradar(ele, query[i], league), { merge: true });
+        .set(repackage_sportradar(ele, query[i], league), { merge: true }).then();
     }
   }
 }
@@ -161,8 +162,8 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.alias.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.alias.toUpperCase() === query.away.alias;
   const data = {
-    update_time: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
-    scheduled: firebaseAdmin.firestore.Timestamp.fromDate(
+    update_time: firestore.Timestamp.fromDate(new Date()),
+    scheduled: firestore.Timestamp.fromDate(
       new Date(ele.scheduled)
     ),
     radar_id: ele.id,

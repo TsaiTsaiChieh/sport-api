@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
 const AppErrors = require('../util/AppErrors');
 const NPBpbp = require('./pbp_statscore_NPB');
 const NPBpbpInplay = NPBpbp.NPBpbpInplay;

@@ -1,5 +1,7 @@
 import { SBLpbpInplay } from './pbpSBL';
-const { firestore, database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 // const SBLpbp = require('./pbp_SBL');
 checkmatch_SBL();
 async function checkmatch_SBL() {

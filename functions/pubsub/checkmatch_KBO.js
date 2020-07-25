@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
 const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');

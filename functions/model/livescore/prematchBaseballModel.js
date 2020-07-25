@@ -1,4 +1,6 @@
 const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const limit = 10;
@@ -56,8 +58,8 @@ function getPrematchFromFirestore(args, matchData) {
   return new Promise(async function(resolve, reject) {
     try {
       const { home_id, away_id, season } = matchData;
-      const homeData = await modules.getSnapshot(`baseball_${args.league}`, home_id);
-      const awayData = await modules.getSnapshot(`baseball_${args.league}`, away_id);
+      const homeData = await firestore.collection(`baseball_${args.league}`).doc(home_id).get();
+      const awayData = await firestore.collection(`baseball_${args.league}`).doc(away_id).get();
       // error handle when home or away data is not found
       if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
       return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });

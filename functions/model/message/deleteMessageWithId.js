@@ -1,4 +1,4 @@
-const { database, getSnapshot, getDoc } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const day = 1;
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
@@ -27,10 +27,11 @@ function deleteMessageWithId(args) {
   return new Promise(async function(resolve, reject) {
     // -1: admin delete, 0: user retract, 1: user delete
     try {
-      const messageSnapshot = await getSnapshot(
-        `chat_${args.channelId}`,
-        args.messageId
-      );
+      const database = firebaseAdmin().database();
+      const firestore = firebaseAdmin().firestore();
+      const messageSnapshot = await firestore
+        .collection(`chat_${args.channelId}`)
+        .doc(args.messageId).get();
       const message = messageSnapshot.data();
 
       // if message did not exist, it would return undefined
@@ -67,7 +68,9 @@ function deleteMessageWithId(args) {
             });
             return;
           }
-          await getDoc(`chat_${args.channelId}`, args.messageId)
+          await firestore
+            .collection(`chat_${args.channelId}`)
+            .doc(args.messageId)
             .set(
               { message: { softDelete: args.deleteAction } },
               { merge: true }
@@ -84,7 +87,9 @@ function deleteMessageWithId(args) {
         // const user = userSnapshot.data();
         const user = await getUserInfo(args.token.uid);
         if (user.status >= 9) {
-          await getDoc(`chat_${args.channelId}`, args.messageId)
+          await firestore
+            .collection(`chat_${args.channelId}`)
+            .doc(args.messageId)
             .set(
               { message: { softDelete: args.deleteAction } },
               { merge: true }

@@ -1,4 +1,5 @@
-const { getSnapshot } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const messageModule = require('../../util/messageModule');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
@@ -25,7 +26,7 @@ async function getUserInfo(uid) {
 function getMessageWithId(id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const messageSnapshot = await getSnapshot('messages', id);
+      const messageSnapshot = await firestore.collection('messages').doc(id).get();
       const message = messageSnapshot.data();
       let body = {};
       if (message) {

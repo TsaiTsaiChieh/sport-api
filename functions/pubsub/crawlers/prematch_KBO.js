@@ -14,7 +14,8 @@ const configs = {
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
 const modules = require('../../util/modules');
-const { firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const teamsMapping = require('../../util/teamsMapping');

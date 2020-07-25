@@ -2,7 +2,8 @@ const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
 const sportName = modules.league2Sport(leagueName).sport;
-const { firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil').initial();
+const firestore = firebaseAdmin.firestore();
 // const perStep = 1000; // 每秒抓一項資訊
 // const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
@@ -452,7 +453,6 @@ async function upsertTeambaseTeamC(result) {
   const offset = 17;
   for (let i = 0; i < centralTeam; i++) {
     const teamID = team[i];
-
     await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)

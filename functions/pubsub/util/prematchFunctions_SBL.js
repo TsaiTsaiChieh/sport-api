@@ -1,5 +1,6 @@
 const modules = require('../../util/modules');
-const { firebaseAdmin, firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const envValues = require('../../config/env_values');
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
@@ -44,7 +45,7 @@ module.exports.SBL.upcomming = async function(date) {
 
 function repackage_bets(ele) {
   const data = {};
-  data.scheduled = firebaseAdmin.firestore.Timestamp.fromDate(
+  data.scheduled = firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
   data.bets_id = ele.id;
@@ -158,7 +159,7 @@ function integration(query, ele) {
 function repackage_sportradar(ele) {
   const data = {};
   data.radar_id = ele.sport_event.id.replace('sr:sport_event:', '');
-  data.update_time = firebaseAdmin.firestore.Timestamp.fromDate(
+  data.update_time = firestore.Timestamp.fromDate(
     new Date()
   );
   data.league = {

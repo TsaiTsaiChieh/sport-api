@@ -1,5 +1,5 @@
 const { axios } = require('../../util/modules');
-const { firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = '35388-8IqMa0NK19LJVY';
@@ -7,6 +7,7 @@ const token = '35388-8IqMa0NK19LJVY';
 function getEvents(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      const firestore = firebaseAdmin().firestore();
       // this example is soccer(1) all leagues
       const { data } = await axios(
         // 'https://betsapi.com/api-doc/samples/bet365_upcoming.json'

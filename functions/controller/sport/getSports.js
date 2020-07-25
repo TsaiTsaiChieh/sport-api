@@ -1,4 +1,5 @@
-const { firestore } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 
 /**
  * @api {get} /sport Get Sport List

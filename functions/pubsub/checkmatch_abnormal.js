@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil').initial();
+const database = firebaseAdmin.database();
 const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');

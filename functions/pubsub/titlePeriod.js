@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
-const { addDataInCollectionWithId } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 
 function titlePeriod() {
   const specificDate = '20200302';
@@ -40,11 +41,7 @@ function titlePeriod() {
       end_date: end.format('YYYYMMDD'),
       end_timestamp: end.valueOf()
     };
-    addDataInCollectionWithId(
-      'titles_period',
-      (i + 1).toString(),
-      data
-    );
+    firestore.collection('titles_period').doc((i + 1).toString()).set(data, { merge: true }).then();
   }
 }
 module.exports = titlePeriod;

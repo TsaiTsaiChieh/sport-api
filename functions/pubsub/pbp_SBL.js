@@ -1,4 +1,6 @@
-const { database, firestore } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 const axios = require('axios');
 const firestoreName = 'pagetest';
 const sbl_api_key = '8hhpmvusugeguqdwkuf4ftmu';

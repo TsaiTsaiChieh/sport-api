@@ -1,5 +1,5 @@
 const modules = require('../util/modules');
-const { database } = require('../util/firebaseModules');
+const firebaseAdmin = require('../util/firebaseUtil');
 const AppErrors = require('../util/AppErrors');
 const CBApbp = require('./pbp_statscore_CBA');
 const CBApbpInplay = CBApbp.CBApbpInplay;
@@ -14,6 +14,7 @@ async function checkmatch_statscore_CBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
+      const database = firebaseAdmin().database();
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const statscoreID = totalData[i].statscore_id;

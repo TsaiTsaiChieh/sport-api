@@ -1,10 +1,11 @@
 const { moment } = require('../../util/modules');
-const { firebaseAdmin, getDoc } = require('../../util/firebaseModules');
-// const firebase = require('firebase');
+const firebaseAdmin = require('../../util/firebaseUtil');
+
 function muted(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const userDoc = await getDoc('users', args.uid);
+      const firestore = firebaseAdmin().firestore();
+      const userDoc = await firestore.collection('users').doc(args.uid);
       const userSnapshot = await userDoc.get();
       /* step1: check if user exists */
       if (!userSnapshot.exists) {
@@ -26,7 +27,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: 1,
-            blockMessage: firebaseAdmin.firestore.Timestamp.fromDate(
+            blockMessage: firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -45,7 +46,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: firebaseAdmin.firestore.Timestamp.fromDate(
+            blockMessage: firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -55,7 +56,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: firebaseAdmin.firestore.Timestamp.fromDate(
+            blockMessage: firestore.Timestamp.fromDate(
               new Date(moment().add(100, 'years'))
             )
           },

@@ -1,5 +1,5 @@
 const modules = require('../../util/modules');
-const { getSnapshot } = require('../../util/firebaseModules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
   return new Promise(async function(resolve, reject) {
@@ -91,7 +91,8 @@ async function accuseMessage(req, res) {
     if (!mysql_user) return res.status(400).send();
     const accuser = mysql_user; // await accuserSnapshot.data();
     if (accuser.status < 1) return res.status(400).send();
-    const messageSnapshot = await getSnapshot(`chat_${args.channelId}`, args.messageId);
+    const firestore = firebaseAdmin().firestore();
+    const messageSnapshot = await firestore.collection(`chat_${args.channelId}`).doc(args.messageId).get();
     if (!messageSnapshot.exists) return res.status(400).send();
     const message = await messageSnapshot.data();
     if (accuser.uid === message.user.uid) return res.status(400).send();
