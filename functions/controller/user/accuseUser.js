@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
   return new Promise(async function(resolve, reject) {
@@ -82,8 +82,8 @@ async function accuseUser(req, res) {
         evidence: { type: 'string', format: 'url' }
       }
     };
-    const valid = modules.ajv.validate(schema, args);
-    if (!valid) return res.status(400).json(modules.ajv.errors);
+    const valid = ajv.validate(schema, args);
+    if (!valid) return res.status(400).json(ajv.errors);
     // if (!req.body.defendant || req.body.reason || req.body.evidence) return res.status(400).send();
     // const accuserSnapshot = await getSnapshot('users', req.token.uid);
     const mysql_user = await getUserInfo(args.defendant);

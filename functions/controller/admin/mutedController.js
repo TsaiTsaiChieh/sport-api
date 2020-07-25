@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const mutedModel = require('../../model/admin/mutedModel');
 
 function muted(req, res) {
@@ -12,9 +12,9 @@ function muted(req, res) {
   args.uid = req.body.uid;
   args.admin = req.admin;
   args.adminUid = req.adminUid;
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
 

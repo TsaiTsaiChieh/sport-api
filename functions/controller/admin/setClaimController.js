@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const setClaimModel = require('../../model/admin/setClaimModel');
 
 async function setClaim(req, res) {
@@ -20,9 +20,9 @@ async function setClaim(req, res) {
   const args = {};
   args.uid = req.body.uid;
   args.role = req.body.role;
-  const validate = modules.ajv.validate(schema, args);
+  const validate = ajv.validate(schema, args);
   if (!validate) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   args.token = req.token;

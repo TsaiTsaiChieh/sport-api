@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/postGodSellInformationModel');
 
 async function godSellInformation(req, res) {
@@ -51,9 +52,9 @@ async function godSellInformation(req, res) {
     tips: req.body.tips,
     now
   };
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   try {

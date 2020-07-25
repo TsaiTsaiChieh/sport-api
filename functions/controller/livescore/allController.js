@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/livescore/livescoreAllModel');
 
 async function livescoreAll(req, res) {
@@ -16,9 +17,9 @@ async function livescoreAll(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   try {

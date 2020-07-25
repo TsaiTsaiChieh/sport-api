@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/getTitlesAndSignatureModel');
 
 async function getTitlesAndSignature(req, res) {
@@ -20,8 +21,8 @@ async function getTitlesAndSignature(req, res) {
     token: req.token
   };
 
-  const valid = modules.ajv.validate(schema, args);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  const valid = ajv.validate(schema, args);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
 
   try {
     res.json(await model(args));

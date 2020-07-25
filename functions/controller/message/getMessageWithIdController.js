@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const messageModel = require('../../model/message/getMessageWithIdModel');
 
 function getMessageWithId(req, res) {
@@ -12,9 +12,9 @@ function getMessageWithId(req, res) {
 
   const args = {};
   args.id = req.params.id ? req.params.id : '';
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
   if (!valid) {
-    res.status(400).send(modules.ajv.errors);
+    res.status(400).send(ajv.errors);
     return;
   }
 

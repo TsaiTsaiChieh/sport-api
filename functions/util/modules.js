@@ -2,8 +2,6 @@ const Moment = require('moment');
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
-const Ajv = require('ajv');
-const ajv = new Ajv({ allErrors: true, useDefaults: true });
 const { zone_tw } = require('../config/env_values');
 const https = require('https');
 const httpStatus = require('http-status');
@@ -757,7 +755,6 @@ function validateProperty(data, propertyName) {
 
 module.exports = {
   createError,
-  ajv,
   moment,
   db,
   https,

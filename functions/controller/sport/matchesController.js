@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/sport/matchesModel');
 
 // eslint-disable-next-line consistent-return
@@ -18,8 +19,8 @@ async function getMatches(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  const valid = ajv.validate(schema, req.query);
+  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
 
   const args = {
     token: req.token,

@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const messageModel = require('../../model/message/createMessage');
 
 function createMessage(req, res) {
@@ -64,9 +64,9 @@ function createMessage(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   req.body.token = req.token;

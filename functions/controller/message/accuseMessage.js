@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
@@ -80,8 +80,8 @@ async function accuseMessage(req, res) {
         channelId: { type: 'string' }
       }
     };
-    const valid = modules.ajv.validate(schema, args);
-    if (!valid) return res.status(400).json(modules.ajv.errors);
+    const valid = ajv.validate(schema, args);
+    if (!valid) return res.status(400).json(ajv.errors);
     // const accuserSnapshot = await getSnapshot('users', req.token.uid);
     // if (!accuserSnapshot.exists) return res.status(400).send();
     // const accuser = await accuserSnapshot.data();

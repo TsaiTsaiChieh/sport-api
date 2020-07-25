@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/livescore/livescoreDeleteCollectModel');
 
 async function deleteCollect(req, res) {
@@ -11,9 +12,9 @@ async function deleteCollect(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(modules.httpStatus.BAD_REQUEST).json(ajv.errors);
   }
   req.body.token = req.token;
   try {

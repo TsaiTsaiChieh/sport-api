@@ -1,5 +1,6 @@
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const db = require('../../util/dbUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
@@ -43,12 +44,12 @@ async function modifyUserProfile(req, res) {
           signature: { type: 'string', maxLength: 20 }
         }
       };
-      const valid = modules.ajv.validate(schema, data);
+      const valid = ajv.validate(schema, data);
       data.birthday_tw = modules.moment.tz(data.birthday, modules.zone).format('YYYY-MM-DD');
 
-      // if (!valid) return res.status(400).json(modules.ajv.errors);
+      // if (!valid) return res.status(400).json(ajv.errors);
       if (!valid) {
-        res.status(400).json(modules.ajv.errors);
+        res.status(400).json(ajv.errors);
         return;
       }
 

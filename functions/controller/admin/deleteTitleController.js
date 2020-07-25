@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/admin/deleteTitleModel');
 
 async function deleteTitle(req, res) {
@@ -105,9 +105,9 @@ async function deleteTitle(req, res) {
   };
   const args = req.body;
   args.adminUid = req.adminUid;
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   try {
