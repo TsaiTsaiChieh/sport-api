@@ -4,11 +4,9 @@ const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
-const axios = require('axios');
 const { zone_tw } = require('../config/env_values');
 const https = require('https');
 const httpStatus = require('http-status');
-const translate = require('@k3rn31p4nic/google-translate-api');
 const simple2Tradition = require('chinese-simple-tradition-translator');
 const UTF0 = 0;
 const UTF8 = 8;
@@ -761,7 +759,6 @@ module.exports = {
   createError,
   ajv,
   moment,
-  axios,
   db,
   https,
   dateFormat,
@@ -772,7 +769,6 @@ module.exports = {
   getTitles,
   getAllTitles,
   userStatusCodebook,
-  translate,
   simple2Tradition,
   UTF0,
   UTF8,

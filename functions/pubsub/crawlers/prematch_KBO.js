@@ -14,6 +14,7 @@ const configs = {
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
 const modules = require('../../util/modules');
+const axios = require('axios');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const dbEngine = require('../../util/databaseEngine');
@@ -72,7 +73,7 @@ function crawlerTeamBase(season) {
 function crawler(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios.get(URL);
+      const { data } = await axios.get(URL);
       const $ = modules.cheerio.load(data); // load in the HTML
       return resolve($);
     } catch (err) {

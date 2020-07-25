@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const axios = require('axios');
 const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
 const sportName = modules.league2Sport(leagueName).sport;
@@ -28,7 +29,7 @@ async function prematch_NPB(req, res) {
   await getPlayer();
 }
 async function crawl(URL) {
-  const { data } = await modules.axios.get(URL);
+  const { data } = await axios.get(URL);
   const $ = modules.cheerio.load(data);
   const result = [];
   $('td').each(function(i) {

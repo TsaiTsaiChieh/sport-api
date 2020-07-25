@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
+const axios = require('axios');
 
 module.exports.NBA = {};
 // eslint-disable-next-line consistent-return
@@ -11,7 +12,7 @@ module.exports.NBA.upcoming = async function(date) {
   // axios
   const results = [];
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     for (let i = 0; i < data.results.length; i++) {
       const ele = data.results[i];
       results.push(
@@ -97,7 +98,7 @@ module.exports.NBA.prematch = async function(date) {
   const URL = `http://api.sportradar.us/nba/trial/v7/en/games/${_date.year}/${_date.month}/${_date.day}/schedule.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
   console.log(`SportRadarAPI NBA URL on ${date}: ${URL}`);
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     const query = await query_NBA(date);
 
     for (let i = 0; i < data.games.length; i++) {
@@ -369,7 +370,7 @@ module.exports.NBA.lineup = async function(date) {
       const ele = queries[i];
       const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASKETBALL_NBA}`;
       // eslint-disable-next-line no-await-in-loop
-      const { data } = await modules.axios.get(completeURL);
+      const { data } = await axios.get(completeURL);
       console.log(
         `${modules.db.basketball_NBA}(${ele.bets_id}) - ${ele.away.alias_ch}(${
           ele.away.alias

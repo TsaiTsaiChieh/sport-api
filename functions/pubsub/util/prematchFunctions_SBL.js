@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
+const axios = require('axios');
 const envValues = require('../../config/env_values');
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
@@ -11,7 +12,7 @@ module.exports.SBL.upcomming = async function(date) {
   // axios
   const results = [];
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     for (let i = 0; i < data.results.length; i++) {
       const ele = data.results[i];
       results.push(
@@ -87,7 +88,7 @@ module.exports.SBL.prematch = async function(date) {
   // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
   console.log(`SportRadar SBL URL on ${date}: ${URL}`);
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     const query = await query_SBL(date);
 
     for (let i = 0; i < data.summaries.length; i++) {

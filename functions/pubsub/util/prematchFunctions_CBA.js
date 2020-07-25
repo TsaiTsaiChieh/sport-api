@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const axios = require('axios');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
@@ -37,7 +37,7 @@ module.exports.CBA.upcoming = async function(date) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(

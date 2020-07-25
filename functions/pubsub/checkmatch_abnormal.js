@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil').initial();
 const database = firebaseAdmin.database();
+const axios = require('axios');
 const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -76,7 +77,7 @@ async function checkmatch_abnormal() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(

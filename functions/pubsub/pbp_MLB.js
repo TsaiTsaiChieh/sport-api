@@ -1,7 +1,8 @@
-const modules = require('../util/modules');
+const axios = require('axios');
 const firebaseAdmin = require('../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const database = firebaseAdmin().database();
+const translate = require('@k3rn31p4nic/google-translate-api');
 const AppErrors = require('../util/AppErrors');
 const transMLB = require('./translateMLB');
 const translateMLB = transMLB.translateMLB;
@@ -112,7 +113,7 @@ async function doPBP(parameter) {
     let eventAtbatNow = parameter.eventAtbatNow;
 
     try {
-      const { data } = await modules.axios(pbpURL);
+      const { data } = await axios(pbpURL);
       const dataPBP = data;
       const awayLineupLength = dataPBP.game.innings[0].halfs[0].events.length;
       const homeLineupLength = dataPBP.game.innings[0].halfs[1].events.length;
@@ -1020,7 +1021,7 @@ async function doSummary(parameter) {
     const betsID = parameter.betsID;
     const summaryURL = parameter.summaryURL;
     try {
-      const { data } = await modules.axios(summaryURL);
+      const { data } = await axios(summaryURL);
       const dataSummary = data;
 
       for (let i = 0; i < dataSummary.game.home.players.length; i++) {
@@ -1180,7 +1181,7 @@ async function MLBpbpHistory(parameter) {
     const pbpURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/pbp.json?api_key=${mlb_api_key}`;
     const summaryURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
     try {
-      let { data } = await modules.axios(pbpURL);
+      let { data } = await axios(pbpURL);
       const dataPBP = data;
       const ref = firestore
         .collection(`${firestoreName}_PBP`)
@@ -1423,7 +1424,7 @@ async function MLBpbpHistory(parameter) {
         }
       }
       // call summary
-      ({ data } = await modules.axios(summaryURL));
+      ({ data } = await axios(summaryURL));
       const dataSummary = data;
       try {
         await ref.set(
@@ -1507,7 +1508,7 @@ async function transFunction(stringTrans) {
       );
     }
 
-    const temp = await modules.translate(stringTrans[j], {
+    const temp = await translate(stringTrans[j], {
       from: 'en',
       to: 'zh-tw'
     });
@@ -1526,7 +1527,7 @@ async function summmaryEN(gameID) {
       const keywordAway = [];
       const numberHome = [];
       const numberAway = [];
-      const { data } = await modules.axios(enSummaryURL);
+      const { data } = await axios(enSummaryURL);
       const dataSummary = data;
       const homeTeamName = dataSummary.game.home.name;
       const awayTeamName = dataSummary.game.away.name;

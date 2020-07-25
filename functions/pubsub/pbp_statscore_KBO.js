@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const axios = require('axios');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const db = require('../util/dbUtil');
@@ -400,7 +400,7 @@ async function doPBP(parameter) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(

@@ -1,6 +1,7 @@
 const modules = require('../../util/modules');
 const firebaseAdmin = require('../../util/firebaseUtil').initial();
 const firestore = firebaseAdmin.firestore();
+const axios = require('axios');
 
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
@@ -10,7 +11,7 @@ module.exports.MLB_PRE = {
     // axios
     const results = [];
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       if (data.results.length) {
         for (let i = 0; i < data.results.length; i++) {
           const ele = data.results[i];
@@ -53,7 +54,7 @@ module.exports.MLB = {
     const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${_date.year}/${_date.month}/${_date.day}/schedule.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
     console.log(`SportRadar MLB_PRE URL on ${date}: ${URL}`);
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       const querys = await query_MLB('flag.prematch', 0);
       for (let i = 0; i < data.games.length; i++) {
         const ele = data.games[i];
@@ -74,7 +75,7 @@ module.exports.MLB = {
         const ele = querys[i];
         const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
         // eslint-disable-next-line no-await-in-loop
-        const { data } = await modules.axios.get(completeURL);
+        const { data } = await axios.get(completeURL);
         console.log(
           `${modules.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
             ele.away.alias
@@ -106,9 +107,9 @@ module.exports.MLB = {
       const awayURL = `${URL}/${ele.away.radar_id}/statistics.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
       try {
         // eslint-disable-next-line no-await-in-loop
-        const homeTeam = await modules.axios.get(homeURL);
+        const homeTeam = await axios.get(homeURL);
         // eslint-disable-next-line no-await-in-loop
-        const awayTeam = await modules.axios.get(awayURL);
+        const awayTeam = await axios.get(awayURL);
         console.log(`SportRadar URL: ${homeURL} on ${new Date()}`);
         console.log(`SportRadar URL: ${awayURL} on ${new Date()}`);
         firestore

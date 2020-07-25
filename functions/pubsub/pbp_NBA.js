@@ -2,6 +2,7 @@ const modules = require('../util/modules');
 const firebaseAdmin = require('../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const database = firebaseAdmin().database();
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');
@@ -80,7 +81,7 @@ async function summmaryZH(gameID) {
     try {
       const keywordTransHome = [];
       const keywordTransAway = [];
-      const { data } = await modules.axios(zhSummaryURL);
+      const { data } = await axios(zhSummaryURL);
       for (let i = 0; i < data.home.players.length; i++) {
         keywordTransHome.push(data.home.players[i].full_name);
       }
@@ -104,7 +105,7 @@ async function summmaryEN(gameID) {
       const keywordAway = [];
       const numberHome = [];
       const numberAway = [];
-      const { data } = await modules.axios(enSummaryURL);
+      const { data } = await axios(enSummaryURL);
       const homeTeamName = data.home.name;
       const awayTeamName = data.away.name;
       for (let i = 0; i < data.home.players.length; i++) {
@@ -138,7 +139,7 @@ async function NBApbpHistory(parameter) {
     const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
     const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
     try {
-      let { data } = await modules.axios(pbpURL);
+      let { data } = await axios(pbpURL);
       const dataPBP = data;
 
       for (
@@ -176,7 +177,7 @@ async function NBApbpHistory(parameter) {
         }
       }
 
-      ({ data } = await modules.axios(enSummaryURL));
+      ({ data } = await axios(enSummaryURL));
       const dataSummary = data;
       for (let i = 0; i < dataSummary.home.players.length; i++) {
         try {
@@ -387,7 +388,7 @@ async function doPBP(parameter) {
     const transSimpleAway = parameter.transSimpleAway;
     const realtimeData = parameter.realtimeData;
     try {
-      const { data } = await modules.axios(pbpURL);
+      const { data } = await axios(pbpURL);
       const dataPBP = data;
       if (dataPBP.status !== 'inprogress') {
         try {
@@ -663,7 +664,7 @@ async function doSummary(parameter) {
     const betsID = parameter.betsID;
     const summaryURL = parameter.summaryURL;
     try {
-      const { data } = await modules.axios(summaryURL);
+      const { data } = await axios(summaryURL);
       const dataSummary = data;
       const realtimeData = parameter.realtimeData;
       try {

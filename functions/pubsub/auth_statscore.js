@@ -1,4 +1,5 @@
 const modules = require('../util/modules');
+const axios = require('axios');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Token = db.Token;
@@ -25,7 +26,7 @@ async function auth_statscore() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at auth_statscore by DY`));

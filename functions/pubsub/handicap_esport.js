@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const envValues = require('../config/env_values');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
@@ -20,7 +21,7 @@ async function handicap_esport() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(

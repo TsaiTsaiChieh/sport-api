@@ -1,5 +1,6 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = ['1718', '1507']; // 各種足球
@@ -132,7 +133,7 @@ function change(team) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(

@@ -1,6 +1,7 @@
 const modules = require('../util/modules');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
+const axios = require('axios');
 const Match = db.Match;
 const competitionID = '133'; // CBA
 const leagueID = '2319';
@@ -80,7 +81,7 @@ async function prematch_statscore_CBA() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
