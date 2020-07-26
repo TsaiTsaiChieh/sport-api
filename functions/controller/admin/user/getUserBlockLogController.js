@@ -12,7 +12,7 @@ async function controller(req, res) {
   };
   const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    console.log(ajv.errors);
+    console.warn(ajv.errors);
     const ajv_errs = [];
     for (let i = 0; i < ajv.errors.length; i++) {
       ajv_errs.push('path: \'' + ajv.errors[i].dataPath + '\': ' + ajv.errors[i].message);

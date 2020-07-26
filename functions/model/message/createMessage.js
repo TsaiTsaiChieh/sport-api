@@ -32,7 +32,7 @@ function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const insertData = {};
-      insertData.createTime = firestore.Timestamp.now();
+      insertData.createTime = firebaseAdmin().firestore.Timestamp.now();
 
       /* get user according token */
       // user部分讀mysql 訊息仍然放在firebase rtdb
@@ -122,7 +122,7 @@ function createMessage(args) {
         return;
       }
     } catch (err) {
-      console.log('error happened...', err);
+      console.error('error happened...', err);
       reject({ code: 500, error: err });
     }
   });

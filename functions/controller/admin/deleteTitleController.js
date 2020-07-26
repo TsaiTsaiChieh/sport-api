@@ -113,7 +113,7 @@ async function deleteTitle(req, res) {
   try {
     res.json(await model(args));
   } catch (err) {
-    console.log(
+    console.error(
       'Error in controller/admin/deleteTitleController function by TsaiChieh',
       err
     );

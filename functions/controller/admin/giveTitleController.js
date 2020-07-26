@@ -114,7 +114,7 @@ async function giveTitle(req, res) {
   try {
     res.json(await giveTitleModel(args));
   } catch (err) {
-    console.log(
+    console.error(
       'Error in controller/admin/giveTitleController giveTitle function by TsaiChieh',
       err
     );

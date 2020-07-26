@@ -46,8 +46,8 @@ module.exports.NBA.upcoming = async function(date) {
 };
 function repackage_bets(ele) {
   return {
-    update_time: firestore.Timestamp.fromDate(new Date()),
-    scheduled: firestore.Timestamp.fromDate(
+    update_time: firebaseAdmin().firestore.Timestamp.fromDate(new Date()),
+    scheduled: firebaseAdmin().firestore.Timestamp.fromDate(
       new Date(Number.parseInt(ele.time) * 1000)
     ),
     bets_id: ele.id,
@@ -164,8 +164,8 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.alias.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.alias.toUpperCase() === query.away.alias;
   const data = {
-    update_time: firestore.Timestamp.fromDate(new Date()),
-    scheduled: firestore.Timestamp.fromDate(
+    update_time: firebaseAdmin().firestore.Timestamp.fromDate(new Date()),
+    scheduled: firebaseAdmin().firestore.Timestamp.fromDate(
       new Date(ele.scheduled)
     ),
     radar_id: ele.id,

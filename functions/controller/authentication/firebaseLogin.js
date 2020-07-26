@@ -93,7 +93,7 @@ async function firebaseLogin(req, res) {
   const token = req.body.token;
   const period = getTitlesPeriod(new Date()).period;
   if (!token) {
-    console.log('Error login user: missing token');
+    console.warn('Error login user: missing token');
     res.status(401).json(returnJson);
     return;
   }
@@ -144,7 +144,7 @@ async function firebaseLogin(req, res) {
           returnJson.status = 0;
 
           if (mysqlUser) {
-            console.log('firestoreUser exist');
+            console.warn('firestoreUser exist');
             if (mysqlUser) {
               returnJson.uid = mysqlUser.uid;
             } else {
@@ -162,12 +162,12 @@ async function firebaseLogin(req, res) {
           res.status(200).json(returnJson);
         })
         .catch(error => {
-          console.log('Error login user: \n\t', error);
+          console.error('Error login user: \n\t', error);
           res.status(401).json({ devcode: '004', err: 'missing token' });
         });
     })
     .catch(error => {
-      console.log('Error login user: \n\t', error);
+      console.error('Error login user: \n\t', error);
       res.status(401).json({ success: false });
     });
 }

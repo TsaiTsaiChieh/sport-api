@@ -109,6 +109,9 @@ app.use('/cashflow_neweb', require('./routers/cashflow_neweb')); // 金流介接
 // keep firebase cloud function :API awake
 app.use('/mission', require('./routers/mission'));
 app.get('/awakeAPI', (req, res) => {
+  console.log('awakeAPI log test');
+  console.warn('awakeAPI log test');
+  console.error('awakeAPI log test');
   res.status(200).json(functions.config());
 });
 

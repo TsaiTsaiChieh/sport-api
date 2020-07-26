@@ -29,7 +29,7 @@ async function setClaim(req, res) {
   try {
     res.json(await setClaimModel(args));
   } catch (err) {
-    console.log('err....', err);
+    console.error('err....', err);
     res.status(err.code).json(err);
   }
 }

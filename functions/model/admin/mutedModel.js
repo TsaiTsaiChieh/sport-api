@@ -27,7 +27,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: 1,
-            blockMessage: firestore.Timestamp.fromDate(
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -46,7 +46,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: firestore.Timestamp.fromDate(
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -56,7 +56,7 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: firestore.Timestamp.fromDate(
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
               new Date(moment().add(100, 'years'))
             )
           },

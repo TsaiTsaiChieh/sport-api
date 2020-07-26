@@ -124,7 +124,7 @@ async function accuseMessage(req, res) {
     //   return res.status(500).json({ success: false, message: 'update failed' });
     // });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return res.status(500).json({ success: false });
   }
 }
