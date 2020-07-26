@@ -484,6 +484,17 @@ class KBO_CrawlersError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class GetSeasonError extends ExtendableError {
+  constructor(
+    message = '取得賽季時發生錯誤',
+    status = 1524,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -527,5 +538,6 @@ module.exports = {
   CreateCashflowBuyRollback,
   PredictionHistoryModelError,
   CrawlersError,
-  KBO_CrawlersError
+  KBO_CrawlersError,
+  GetSeasonError
 };
