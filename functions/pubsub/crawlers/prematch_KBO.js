@@ -11,7 +11,7 @@ const configs = {
   teamBattingStatsPage1Titles: ['TEAM', 'AVG', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B', 'HR', 'TB', 'RBI', 'SB', 'CS', 'SAC', 'SF'],
   teamBattingStatsPage2Titles: ['TEAM', 'BB', 'IBB', 'HBP', 'SO', 'GIDP', 'SLG', 'OBP', 'E', 'SBPCT', 'BB/K', 'XBH/H', 'MH', 'OPS', 'RISP', 'PH'],
   teamNumber: 10,
-  collectionName: 'baseball_KBO_2',
+  collectionName: 'baseball_KBO',
   // DOOSAN, KIWOOM, SK, LG, NC, KT, KIA, SAMSUNG, HANWHA, LOTTE
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
@@ -24,18 +24,19 @@ const teamStandings = {};
 // 1. 隊伍資訊 ex: team_base, team_hit
 // team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG (per_R & allow_per_R)
 // 2. 本季投手資訊
-// 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)
+// 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)、背號「未做」
 // 3. 本季打擊資訊
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
+// 4. 本季球員資訊「未做」
 
 async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
-      // await crawlerTeamBase(season);
+      await crawlerTeamBase(season);
       await crawlerTeamBaseForL10(season);
-      // await crawlerPitcher(season);
-      // await crawlerHitting(season);
+      await crawlerPitcher(season);
+      await crawlerHitting(season);
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
@@ -47,7 +48,7 @@ function getSeason(league) {
     try {
       return resolve(await dbEngine.getSeason(modules.leagueCodebook(league).id));
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.GetSeasonError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -58,8 +59,8 @@ function crawlerTeamBase(season) {
       // 官網
       // TODO searchDate should be today(default)
       const today = modules.convertTimezoneFormat(Math.floor(Date.now() / 1000), { format: 'YYYY-MM-DD' });
-      const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-24`);
-      // const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=${today}`);
+      // const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-25`);
+      const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=${today}`);
       console.log(today);
       const officialData = await getTeamStandingsFromOfficial($_officialData);
       repackageTeamStandingsFromOfficial(officialData, season);
@@ -119,12 +120,11 @@ function repackageTeamStandingsFromOfficial(officialData, season) {
             const Draw = upperTable[i + 5]; // D
             const PCT = upperTable[i + 6]; // 勝率
             const GB = upperTable[i + 7]; // 勝差
-            const STRK = upperTable[i + 8]; // streak 連勝/連輸
             const at_home = upperTable[i + 9];
             const at_away = upperTable[i + 10];
             teamStandings[teamName].push({ G });
             await insertTeamNameToFirestore(teamName, teamId);
-            await setDataToFirestore({ G, Win, Loss, Draw, PCT, GB, STRK, at_home, at_away }, teamId, season, 'team_base');
+            await setDataToFirestore({ G, Win, Loss, Draw, PCT, GB, at_home, at_away }, teamId, season, 'team_base');
           }
         }
 
@@ -137,12 +137,7 @@ function repackageTeamStandingsFromOfficial(officialData, season) {
             const G = parseInt(teamStandings[teamName][0].G); // games
             const per_R = String((parseInt(R) / G).toFixed(1));
             const per_allow_R = String((parseInt(allow_R) / G).toFixed(1));
-            // add create time & update time to debug
-            const now = modules.firebaseAdmin.firestore.Timestamp.now();
-            const create_time = now;
-            const update_time = now;
-            await addDataToFirestore({ create_time }, teamId, season, 'team_base');
-            await setDataToFirestore({ R, allow_R, per_R, per_allow_R, update_time }, teamId, season, 'team_base');
+            await setDataToFirestore({ R, allow_R, per_R, per_allow_R }, teamId, season, 'team_base');
           }
         }
       }
@@ -157,20 +152,6 @@ function insertTeamNameToFirestore(data, teamId) {
   return new Promise(async function(resolve, reject) {
     try {
       await modules.firestore.collection(configs.collectionName).doc(teamId).set({ alias: data }, { merge: true });
-      return resolve();
-    } catch (err) {
-      return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
-    }
-  });
-}
-// for creating create_time field in the first time
-function addDataToFirestore(data, teamId, season, subLayerName) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const temp = {};
-      temp[`season_${season}`] = {};
-      temp[`season_${season}`][subLayerName] = data;
-      await modules.firestore.collection(configs.collectionName).doc(teamId).add(temp);
       return resolve();
     } catch (err) {
       return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
@@ -198,6 +179,7 @@ function crawlerTeamBaseForL10(season) {
       const $_myKBOData = await crawler(`${configs.myKBO_ULR}`);
       const myKBOData = await getTeamStandingsFromMyKBO($_myKBOData);
       repackageTeamStandingsFromMyKBO(myKBOData, season);
+      return resolve();
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -218,28 +200,43 @@ function getTeamStandingsFromMyKBO($) {
   });
 }
 
-function repackageTeamStandingsFromMyKBO(myKBOData) {
+function repackageTeamStandingsFromMyKBO(myKBOData, season) {
   return new Promise(async function(resolve, reject) {
     try {
       let j = 1;
       for (let i = 0; i < myKBOData.length; i++) {
         if (i % configs.teamStandingsFromMyKBO.length === 0) {
           const teamName = myKBOData[i].replace(`\n${j}\n\n`, '');
-          const STRK_LAST_10G = deposite10L(myKBOData[i + 6]);
-          console.log(myKBOData[i + 6]);
+          const teamId = teamsMapping.KBO_teamName2id(teamName);
+          const { STRK, L10 } = decompose_STRK_and_L10(myKBOData[i + 6]);
+          // add create time & update time to debug
+          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
+          // await addDataToFirestore({ create_time }, teamId, season, 'team_base');
+          await setDataToFirestore({ STRK, L10, update_time }, teamId, season, 'team_base');
           j++;
         }
       }
+      return resolve();
     } catch (err) {
-
+      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
-function deposite10L(STRK_LAST_10G) {
+function decompose_STRK_and_L10(str) {
+  const slashIndex = str.indexOf('/');
+  const winIndex = str.indexOf('W', slashIndex);
+  const lossIndex = str.indexOf('L', slashIndex);
 
+  const STRK = str.substring(0, slashIndex).trim(); // streak 連勝/連輸
+  const win = str.substring(slashIndex + 1, winIndex).trim();
+  const loss = str.substring(winIndex + 1, lossIndex).trim();
+  const draw = str.substring(lossIndex + 1, str.length - 1).trim();
+  const L10 = `${win}-${loss}-${draw}`;
+  return { STRK, L10 };
 }
 function crawlerPitcher(season) {
+  console.log('hello');
   return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < configs.teamNumber; i++) {
@@ -253,6 +250,7 @@ function crawlerPitcher(season) {
         const pitchingStatsDataForPage2 = await getPitchingStatsFromOfficial($_pitchingStatsForPage2, configs.pitcherByTeamPage2Titles);
         repackagePitcherDataForPage2(pitchingStatsDataForPage2, configs.pitcherByTeamPage2Titles, season);
       }
+      return resolve();
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -334,7 +332,8 @@ function repackagePitcherDataForPage2(pitchingStats, titles, season) {
           const WHIP = pitcherStats[i + 13];
           const OAVG = pitcherStats[i + 14];
           const QS = pitcherStats[i + 15];
-          data[pitcherId] = { SAC, SF, BB, IBB, HBP, SO, WP, BK, R, ER, BS, WHIP, OAVG, QS };
+          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
+          data[pitcherId] = { SAC, SF, BB, IBB, HBP, SO, WP, BK, R, ER, BS, WHIP, OAVG, QS, update_time };
           j++;
         }
       }
@@ -351,7 +350,6 @@ function insertPitcherToFirestore(officialData, teamId, season) {
     try {
       const data = {};
       data[`season_${season}`] = {};
-      data[`season_${season}`].pitchers = {};
       data[`season_${season}`].pitchers = officialData;
       await modules.firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
       return resolve();
@@ -442,7 +440,8 @@ function repackageHittingData(hittingStats, titles, season) {
           const OPS = teamHittingStatsForPage2[i + 29];
           const RISP = teamHittingStatsForPage2[i + 30];
           const PH = teamHittingStatsForPage2[i + 31];
-          await setDataToFirestore({ BB, IBB, HBP, SO, GIDP, SLG, OBP, E, SBPCT, BB_per_K, XBH_per_H, MH, OPS, RISP, PH }, teamId, season, 'team_hit');
+          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
+          await setDataToFirestore({ BB, IBB, HBP, SO, GIDP, SLG, OBP, E, SBPCT, BB_per_K, XBH_per_H, MH, OPS, RISP, PH, update_time }, teamId, season, 'team_hit');
         }
       }
       resolve();
