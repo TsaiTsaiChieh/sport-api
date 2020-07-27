@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-// const modules = require('../../util/modules');
 const model = require('../../model/topics/getFavoriteArticleModel');
 async function getFavoriteArticle(req, res) {
   let page = 0;

@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 function dbFind(article_id) { // 確認文章存在

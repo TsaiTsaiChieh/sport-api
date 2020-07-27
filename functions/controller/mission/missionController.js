@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 // const missionModel = require('../../model/mission/missionModel');
 const missionDailyModel = require('../../model/mission/missionDailyModel');
 const missionActivityModel = require('../../model/mission/missionActivityModel');

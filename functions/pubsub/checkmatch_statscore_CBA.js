@@ -1,4 +1,5 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
+const firebaseAdmin = require('../util/firebaseUtil');
 const AppErrors = require('../util/AppErrors');
 const CBApbp = require('./pbp_statscore_CBA');
 const CBApbpInplay = CBApbp.CBApbpInplay;
@@ -7,12 +8,13 @@ const db = require('../util/dbUtil');
 const Match = db.Match;
 const sport = 'basketball';
 const league = 'CBA';
-const leagueID = modules.leagueCodebook(league).id;
+const leagueID = leagueUtil.leagueCodebook(league).id;
 
 async function checkmatch_statscore_CBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const totalData = await queryForEvents();
+      const database = firebaseAdmin().database();
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const statscoreID = totalData[i].statscore_id;
@@ -28,7 +30,7 @@ async function checkmatch_statscore_CBA() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
 
@@ -47,7 +49,7 @@ async function checkmatch_statscore_CBA() {
               }
             } else {
               try {
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
@@ -62,7 +64,7 @@ async function checkmatch_statscore_CBA() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`${sport}/${league}/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
@@ -70,7 +72,8 @@ async function checkmatch_statscore_CBA() {
                 const parameter = {
                   betsID: betsID,
                   statscoreID: statscoreID,
-                  first: 0
+                  first: 0,
+                  realtimeData
                 };
                 await CBApbpInplay(parameter);
               }
@@ -92,6 +95,7 @@ async function checkmatch_statscore_CBA() {
             break;
           }
           default: {
+            break;
           }
         }
       }
@@ -113,7 +117,7 @@ async function queryForEvents() {
         `(
 				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id = '${leagueID}'
 			 )`,
         {

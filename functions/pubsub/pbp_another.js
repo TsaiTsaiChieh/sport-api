@@ -1,4 +1,6 @@
-const modules = require('../util/modules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
+const axios = require('axios');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -7,8 +9,8 @@ const Match = db.Match;
 let keepPBP = 1;
 
 async function AnotherpbpInplay(parameter, sport, league, leagueID) {
-  const perStep = 28000;
-  const timesPerLoop = 3;
+  const perStep = 35000;
+  const timesPerLoop = 2;
   let countForStatus2 = 0;
   const betsID = parameter.betsID;
 
@@ -34,13 +36,13 @@ async function AnotherpbpInplay(parameter, sport, league, leagueID) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       try {
         if (err.code === 'ECOUNNRESET') {
           console.log('axios again at pbp_another');
-          const { data } = await modules.axios(URL);
+          const { data } = await axios(URL);
           return resolve(data);
         }
       } catch (err) {
@@ -68,7 +70,7 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
     let homeScores = null;
     let awayScores = null;
     if (!data.results[0].ss) {
-      realtimeData = await modules.database
+      realtimeData = await database
         .ref(`${sport}/${league}/${betsID}`)
         .once('value');
       realtimeData = realtimeData.val();
@@ -110,7 +112,7 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
       );
     }
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {
@@ -166,7 +168,7 @@ async function doPBP(parameter) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('cancelled');
             } catch (err) {
@@ -193,7 +195,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '4') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('postponed');
             } catch (err) {
@@ -220,7 +222,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '3') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('closed');
             } catch (err) {
@@ -235,7 +237,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '2') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -261,7 +263,7 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '1') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('inprogress');
             } catch (err) {
@@ -284,7 +286,7 @@ async function doPBP(parameter) {
               );
             }
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/league`)
                 .set({
                   name: data.results[0].league.name,
@@ -302,7 +304,7 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '0') {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
@@ -330,27 +332,29 @@ async function doPBP(parameter) {
             if (data.results[0].ss) {
               if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/home/Total/points`
                     )
                     .set(data.results[0].ss.split('-')[1]);
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/away/Total/points`
                     )
                     .set(data.results[0].ss.split('-')[0]);
-                  for (let inningCount = 1; inningCount < 10; inningCount++) {
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
-                      )
-                      .set(data.results[0].scores[`${inningCount}`].away);
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
-                      )
-                      .set(data.results[0].scores[`${inningCount}`].home);
+                  if (data.results[0].scores) {
+                    for (let inningCount = 1; inningCount < 10; inningCount++) {
+                      await database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
+                        )
+                        .set(data.results[0].scores[`${inningCount}`].away);
+                      await database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
+                        )
+                        .set(data.results[0].scores[`${inningCount}`].home);
+                    }
                   }
                 } catch (err) {
                   return reject(
@@ -362,15 +366,18 @@ async function doPBP(parameter) {
               } else if (leagueID === 2319) {
                 try {
                   if (data.results[0].timer) {
-                    await modules.database
+                    if (data.results[0].timer.ts === '0') {
+                      data.results[0].timer.ts = '00';
+                    }
+                    await database
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
                       .set(
                         `${data.results[0].timer.tm}:${data.results[0].timer.ts}`
                       );
-                    await modules.database
+                    await database
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
                       .set(`${data.results[0].timer.q - 1}`);
-                    await modules.database
+                    await database
                       .ref(
                         `${sport}/${league}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
                       )
@@ -379,7 +386,7 @@ async function doPBP(parameter) {
                           data.results[0].scores[data.results[0].timer.q].home
                         }`
                       );
-                    await modules.database
+                    await database
                       .ref(
                         `${sport}/${league}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
                       )
@@ -389,16 +396,16 @@ async function doPBP(parameter) {
                         }`
                       );
                   } else {
-                    await modules.database
+                    await database
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
                       .set('xx:xx');
                   }
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/home/Total/points`
                     )
                     .set(data.results[0].ss.split('-')[0]);
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/away/Total/points`
                     )
@@ -412,7 +419,7 @@ async function doPBP(parameter) {
                 }
               } else {
                 try {
-                  await modules.database
+                  await database
                     .ref(`${sport}/${league}/${betsID}/Summary/info`)
                     .set({
                       home: { Total: { points: data.results[0].ss.split('-')[0] } },
@@ -432,7 +439,7 @@ async function doPBP(parameter) {
       }
     } else {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
       } catch (err) {

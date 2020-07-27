@@ -1,12 +1,13 @@
 import { SBLpbpInplay } from './pbpSBL';
-
-const modules = require('../util/modules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 // const SBLpbp = require('./pbp_SBL');
 checkmatch_SBL();
 async function checkmatch_SBL() {
   const firestoreName = 'basketball_SBL';
 
-  const data = await modules.firestore.collection(firestoreName).get();
+  const data = await firestore.collection(firestoreName).get();
   const totalData = [];
   data.forEach((doc) => {
     totalData.push(doc.data());
@@ -22,7 +23,7 @@ async function checkmatch_SBL() {
       const realtimeData = JSON.parse(
         JSON.stringify(
           // eslint-disable-next-line no-await-in-loop
-          await modules.database.ref(`basketball/SBL/${betsID}`).once('value')
+          await database.ref(`basketball/SBL/${betsID}`).once('value')
         )
       );
       let periodsNow;

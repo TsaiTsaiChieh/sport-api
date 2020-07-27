@@ -1,5 +1,5 @@
-const modules = require('../util/modules');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 
 /* 信用卡支付 */
 // router.post(

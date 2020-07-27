@@ -1,7 +1,8 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
-const { SCHEDULED, INPLAY, END } = modules.MATCH_STATUS;
+const { SCHEDULED, INPLAY, END } = leagueUtil.MATCH_STATUS;
 const SoccerID = ['22000', '8']; // 電競足球運動足球
 const spreadOption = ['home', 'away'];
 const totalsOption = ['under'];
@@ -46,7 +47,7 @@ function getUserTodayPredictionsInformation(args) {
        ORDER BY game.scheduled`,
         {
           type: db.sequelize.QueryTypes.SELECT,
-          replacements: { uid: args.uid, league_id: modules.leagueCodebook(args.league).id },
+          replacements: { uid: args.uid, league_id: leagueUtil.leagueCodebook(args.league).id },
           raw: true
         });
       return resolve(result);
@@ -72,9 +73,9 @@ function repackageData(args, predictions) {
           scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
           status: ele.status,
           league_id: ele.league_id,
-          league: modules.leagueDecoder(ele.league_id),
+          league: leagueUtil.leagueDecoder(ele.league_id),
           ori_league: ele.name_ch,
-          sport: modules.league2Sport(args.league).sport
+          sport: leagueUtil.league2Sport(args.league).sport
         },
         home: {
           id: ele.home_id,

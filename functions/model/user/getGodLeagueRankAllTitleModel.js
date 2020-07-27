@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueDecoder, getAllTitles } = require('../../util/modules');
+const { getTitlesPeriod, getAllTitles } = require('../../util/modules');
+const { leagueDecoder } = require('../../util/leagueUtil');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 

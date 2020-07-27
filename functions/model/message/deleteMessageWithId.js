@@ -1,7 +1,4 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable prefer-promise-reject-errors */
-/* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const day = 1;
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
@@ -30,10 +27,11 @@ function deleteMessageWithId(args) {
   return new Promise(async function(resolve, reject) {
     // -1: admin delete, 0: user retract, 1: user delete
     try {
-      const messageSnapshot = await modules.getSnapshot(
-        `chat_${args.channelId}`,
-        args.messageId
-      );
+      const database = firebaseAdmin().database();
+      const firestore = firebaseAdmin().firestore();
+      const messageSnapshot = await firestore
+        .collection(`chat_${args.channelId}`)
+        .doc(args.messageId).get();
       const message = messageSnapshot.data();
 
       // if message did not exist, it would return undefined
@@ -70,8 +68,9 @@ function deleteMessageWithId(args) {
             });
             return;
           }
-          await modules
-            .getDoc(`chat_${args.channelId}`, args.messageId)
+          await firestore
+            .collection(`chat_${args.channelId}`)
+            .doc(args.messageId)
             .set(
               { message: { softDelete: args.deleteAction } },
               { merge: true }
@@ -84,12 +83,13 @@ function deleteMessageWithId(args) {
           return;
         }
       } else if (args.deleteAction === -1) {
-        // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
+        // const userSnapshot = await getSnapshot('users', args.token.uid);
         // const user = userSnapshot.data();
         const user = await getUserInfo(args.token.uid);
         if (user.status >= 9) {
-          await modules
-            .getDoc(`chat_${args.channelId}`, args.messageId)
+          await firestore
+            .collection(`chat_${args.channelId}`)
+            .doc(args.messageId)
             .set(
               { message: { softDelete: args.deleteAction } },
               { merge: true }
@@ -99,7 +99,7 @@ function deleteMessageWithId(args) {
       // if 0, -1 => mask message
       if (args.deleteAction <= 0) {
         // udpate realtime database
-        modules.database
+        database
           .ref(`chat_${args.channelId}`)
           .child(args.messageId)
           .child('message')
@@ -114,15 +114,15 @@ function deleteMessageWithId(args) {
       // before: if 1, just change softDelete
       // now: update mask_message
       if (args.deleteAction === 1) {
-        // modules.database
+        // database
         //   .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
         //   .set(args.messageId);
-        modules.database
+        database
           .ref(`mask_message/${args.token.uid}/chat_${args.channelId}`)
           .child(args.messageId)
           .set(1);
         // .set(args.messageId);
-        // modules.database
+        // database
         //   .ref(`chat_${args.channelId}`)
         //   .child(args.messageId)
         //   .child('message')

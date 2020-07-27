@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const missionRewardReceiveModel = require('../../model/mission/missionRewardReceiveModel');
 
 async function mission(req, res) {

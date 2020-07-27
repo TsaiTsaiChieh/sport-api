@@ -1,4 +1,4 @@
-const { leagueCodebook } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;

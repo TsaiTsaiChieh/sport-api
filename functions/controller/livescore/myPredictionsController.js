@@ -1,4 +1,7 @@
 const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/livescore/myPredictionsModel');
 
 async function predictions(req, res) {
@@ -10,13 +13,13 @@ async function predictions(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       }
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  const valid = ajv.validate(schema, req.query);
+  if (!valid) return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
 
   // append required parameter to model
   const args = {

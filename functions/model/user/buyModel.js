@@ -1,4 +1,5 @@
-const { NP, leagueCodebook, to } = require('../../util/modules');
+const { NP, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const { getGodSellPredictionDatesWinBetsInfo } = require('../../util/databaseEngine');
 

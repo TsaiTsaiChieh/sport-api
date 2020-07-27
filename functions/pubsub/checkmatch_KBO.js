@@ -1,4 +1,6 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
 const KBOpbp = require('./pbp_KBO');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
@@ -22,7 +24,7 @@ async function checkmatch_KBO() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`baseball/KBO/${betsID}/Summary/status`)
                   .set('inprogress');
                 const parameter = {
@@ -37,7 +39,7 @@ async function checkmatch_KBO() {
                 );
               }
             } else {
-              await modules.database
+              await database
                 .ref(`baseball/KBO/${betsID}/Summary/status`)
                 .set('scheduled');
             }
@@ -45,7 +47,7 @@ async function checkmatch_KBO() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`baseball/KBO/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
@@ -92,7 +94,7 @@ async function queryForEvents() {
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id =  '349'
 			 )`,
       {
