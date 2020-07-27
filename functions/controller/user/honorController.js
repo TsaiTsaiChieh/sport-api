@@ -1,4 +1,3 @@
-// const modules = require('../../util/modules');
 const honorModel = require('../../model/user/honorModel');
 
 async function honor(req, res) {

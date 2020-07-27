@@ -1,7 +1,11 @@
-const modules = require('../../util/modules');
+const axios = require('axios');
 const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
-const sportName = modules.league2Sport(leagueName).sport;
+const leagueUtil = require('../../util/leagueUtil');
+const sportName = leagueUtil.league2Sport(leagueName).sport;
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const cheerio = require('cheerio');
 // const perStep = 1000; // 每秒抓一項資訊
 // const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
@@ -26,8 +30,8 @@ async function prematch_NPB(req, res) {
   await getPlayer();
 }
 async function crawl(URL) {
-  const { data } = await modules.axios.get(URL);
-  const $ = modules.cheerio.load(data);
+  const { data } = await axios.get(URL);
+  const $ = cheerio.load(data);
   const result = [];
   $('td').each(function(i) {
     result.push($(this).text());
@@ -121,7 +125,7 @@ async function upsertPitcher(result, result2) {
       }
     }
 
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -192,7 +196,7 @@ async function upsertHitter(result, result2) {
         break;
       }
     }
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -280,7 +284,7 @@ async function upsertPitcherTeamC(result) {
   const index = 1;
   for (let i = 0; i < centralTeam; i++) {
     const teamID = team[i];
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -325,7 +329,7 @@ async function upsertPitcherTeamP(result) {
   const index = 1;
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -369,7 +373,7 @@ async function upsertHitterTeamC(result) {
     const teamID = team[i];
     const offset = 23;
     const index = 1;
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -410,7 +414,7 @@ async function upsertHitterTeamP(result) {
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
 
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -451,8 +455,7 @@ async function upsertTeambaseTeamC(result) {
   const offset = 17;
   for (let i = 0; i < centralTeam; i++) {
     const teamID = team[i];
-
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -516,7 +519,7 @@ async function upsertTeambaseTeamP(result) {
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
 
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(

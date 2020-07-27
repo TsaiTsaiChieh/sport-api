@@ -6,7 +6,7 @@ async function redisDel(req, res) {
     await redis.specialDel('home*', 100);
     res.json({ status: 'success!' });
   } catch (err) {
-    console.log('err....', err);
+    console.warn('err....', err);
     res.status(err.code).json(err);
   }
 }

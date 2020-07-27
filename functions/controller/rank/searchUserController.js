@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const searchUserModel = require('../../model/rank/searchUserModel');
 
 async function searchUser(req, res) {
@@ -13,9 +13,9 @@ async function searchUser(req, res) {
 
     const args = {};
     args.display_name = req.params.display_name ? req.params.display_name : '';
-    const valid = modules.ajv.validate(schema, args);
+    const valid = ajv.validate(schema, args);
     if (!valid) {
-      res.status(400).send(modules.ajv.errors);
+      res.status(400).send(ajv.errors);
       return;
     }
     res.json(await searchUserModel(args.display_name));

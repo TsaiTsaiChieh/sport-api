@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const givePointsModel = require('../../model/admin/givePointsModel');
 function givePoints(req, res) {
   const schema = {
@@ -18,10 +18,10 @@ function givePoints(req, res) {
   args.points = req.body.points;
   args.token = req.token;
 
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
 
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   givePointsModel(args)

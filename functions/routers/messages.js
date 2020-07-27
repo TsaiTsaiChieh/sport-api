@@ -1,6 +1,6 @@
 const verification = require('../util/verification');
-const modules = require('../util/modules');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 
 // Just test
 router.get('/list', function(req, res) {

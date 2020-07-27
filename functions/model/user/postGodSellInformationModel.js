@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const SELL = 1;
@@ -33,7 +34,7 @@ function isBeforeScheduled(args, unix) {
         `SELECT scheduled
            FROM matches
           WHERE scheduled BETWEEN ${unix.begin} AND ${unix.end}
-            AND league_id = "${modules.leagueCodebook(args.league).id}"
+            AND league_id = "${leagueUtil.leagueCodebook(args.league).id}"
        ORDER BY scheduled DESC
           LIMIT 1`,
         { type: db.sequelize.QueryTypes.SELECT }
@@ -67,7 +68,7 @@ function checkPredictionSell(args, unix) {
         `SELECT sell
            FROM user__predictions AS prediction
           WHERE uid = "${args.token.uid}"
-            AND league_id = ${modules.leagueCodebook(args.league).id}
+            AND league_id = ${leagueUtil.leagueCodebook(args.league).id}
             AND match_scheduled BETWEEN ${unix.begin} AND ${unix.end}
           LIMIT 1`,
         { type: db.sequelize.QueryTypes.SELECT }
@@ -89,7 +90,7 @@ function getTitleRank(args) {
         where: {
           uid: args.token.uid,
           period: modules.getTitlesPeriod(args.now).period,
-          league_id: modules.leagueCodebook(args.league).id
+          league_id: leagueUtil.leagueCodebook(args.league).id
         },
         attributes: ['rank_id']
       });
@@ -105,7 +106,7 @@ async function insertDB(args, unix) {
     try {
       await db.PredictionDescription.upsert({
         uid: args.token.uid,
-        league_id: modules.leagueCodebook(args.league).id,
+        league_id: leagueUtil.leagueCodebook(args.league).id,
         rank_id: args.rank,
         day: unix.begin,
         description: args.desc,

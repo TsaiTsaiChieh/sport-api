@@ -1,11 +1,15 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const axios = require('axios');
 const AppErrors = require('../../util/AppErrors');
+const cheerio = require('cheerio');
 // const db = require('../../util/dbUtil');
 const CPBL_URL = 'http://www.cpbl.com.tw';
 const totalTeam = 4;
 const leagueName = 'CPBL';
-// const league = modules.leagueCodebook(leagueName);
-const sportName = modules.league2Sport(leagueName).sport;
+const leagueUtil = require('../../util/leagueUtil');
+// const league = leagueUtil.leagueCodebook(leagueName);
+const sportName = leagueUtil.league2Sport(leagueName).sport;
 // const sport = '16';
 const perStep = 1000; // 每秒抓一項資訊
 const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
@@ -78,8 +82,8 @@ async function prematch_CPBL(req, res) {
 function getPitchersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const { data } = await axios.get(URL);
+      const $ = cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
       number = number.replace(/\n/g, '');
@@ -128,8 +132,8 @@ function getPitchersStandings(URL) {
 function getHittersStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const { data } = await axios.get(URL);
+      const $ = cheerio.load(data);
       let number = $('td').text();
       number = number.replace(/\r/g, '');
       number = number.replace(/\n/g, '');
@@ -180,8 +184,8 @@ function getTeamsStandings(URL) {
   return new Promise(async function(resolve, reject) {
     try {
       // 球隊的季戰績
-      const { data } = await modules.axios.get(URL);
-      const $ = modules.cheerio.load(data);
+      const { data } = await axios.get(URL);
+      const $ = cheerio.load(data);
       let titles = $('.gap_b20').text();
 
       titles = titles.replace(/\r/g, '');
@@ -247,7 +251,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
     const index = 17;
     const offsetPitch = 74;
     const offsetBit = 145;
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -320,7 +324,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
     const index = teamNumber * 15 + 1;
     const offsetPitch = 76 - teamNumber;
     const offsetBit = 147 - teamNumber;
-    await modules.firestore
+    await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -393,7 +397,7 @@ function upsertFirestoreHitter(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    modules.firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -448,7 +452,7 @@ function upsertFirestorePitcher(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    modules.firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(

@@ -1,10 +1,11 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 
 function givePoints(args) {
   return new Promise(async function(resolve, reject) {
     /* step 1: check if user exists */
     try {
-      const userDoc = await modules.getDoc('users', args.uid);
+      const firestore = firebaseAdmin().firestore();
+      const userDoc = await firestore.collection('users').doc(args.uid);
       const userSnapshot = await userDoc.get();
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });

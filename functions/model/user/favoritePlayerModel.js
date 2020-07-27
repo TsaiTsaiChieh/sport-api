@@ -1,5 +1,6 @@
 const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 
 function favoritePlayerModel(args) {
   return new Promise(async function(resolve, reject) {
@@ -70,7 +71,7 @@ function repackage(ele) {
     avatar: ele.avatar,
     display_name: ele.display_name,
     league_name: ele.name,
-    league_id: modules.leagueCodebook(ele.name).id
+    league_id: leagueUtil.leagueCodebook(ele.name).id
   };
 
   /* 欄位無資料防呆 */

@@ -5,7 +5,7 @@ async function redisDel(req, res) {
     await redis.specialDel(req.body.target, 100);
     res.json({ status: 'success!' });
   } catch (err) {
-    console.log('err....', err);
+    console.error('err....', err);
     res.status(err.code).json(err);
   }
 }

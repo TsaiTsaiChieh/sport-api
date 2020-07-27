@@ -1,7 +1,10 @@
-const modules = require('../util/modules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
+const axios = require('axios');
 const envValues = require('../config/env_values');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
+const leagueUtil = require('../util/leagueUtil');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const pastDays = 14; // 兩週算一次 所以兩週以前的賽事就算還是 -1 也沒關係
@@ -23,7 +26,7 @@ function queryMatches() {
         `(
           SELECT game.bets_id AS bets_id, game.status AS status, game.league_id AS league_id, game.scheduled AS scheduled      
             FROM matches AS game   
-					 WHERE (game.status = '${modules.MATCH_STATUS.ABNORMAL}' OR game.status = '-2') 
+					 WHERE (game.status = '${leagueUtil.MATCH_STATUS.ABNORMAL}' OR game.status = '-2') 
         )`,
         {
           type: db.sequelize.QueryTypes.SELECT
@@ -74,7 +77,7 @@ async function checkmatch_abnormal() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -88,8 +91,8 @@ async function doPBP(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
-    const leagueName = modules.leagueDecoder(parameter.leagueID);
-    const sportName = modules.league2Sport(leagueName).sport;
+    const leagueName = leagueUtil.leagueDecoder(parameter.leagueID);
+    const sportName = leagueUtil.league2Sport(leagueName).sport;
 
     try {
       const data = await axiosForURL(pbpURL);
@@ -98,7 +101,7 @@ async function doPBP(parameter) {
           if (data.results[0].time_status) {
             if (data.results[0].time_status === '5') {
               try {
-                await modules.database
+                await database
                   .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
                   .set('cancelled');
               } catch (err) {
@@ -123,7 +126,7 @@ async function doPBP(parameter) {
             }
             if (data.results[0].time_status === '4') {
               try {
-                await modules.database
+                await database
                   .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
                   .set('postponed');
               } catch (err) {
@@ -169,7 +172,7 @@ async function doPBP(parameter) {
             }
             if (data.results[0].time_status === '1') {
               try {
-                await modules.database
+                await database
                   .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
                   .set('inprogress');
               } catch (err) {
@@ -193,7 +196,7 @@ async function doPBP(parameter) {
               }
 
               try {
-                await modules.database
+                await database
                   .ref(`${sportName}/${leagueName}/${betsID}/Summary/league`)
                   .set({
                     name: data.results[0].league.name,
@@ -237,7 +240,7 @@ async function pbpHistory(parameterHistory) {
     let awayScores = 'no data';
     if (leagueName === 'eSoccer') {
       if (!data.results[0].ss) {
-        realtimeData = await modules.database
+        realtimeData = await database
           .ref(`${sportName}/${leagueName}/${betsID}`)
           .once('value');
         realtimeData = realtimeData.val();
@@ -289,7 +292,7 @@ async function pbpHistory(parameterHistory) {
         data.results[0].stats.redcards = ['no data', 'no data'];
       }
       try {
-        await modules.database
+        await database
           .ref(`${sportName}/${leagueName}/${betsID}/Summary/info`)
           .set({
             home: { Total: { points: data.results[0].ss.split('-')[0] } },
@@ -306,7 +309,7 @@ async function pbpHistory(parameterHistory) {
 
     if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
       if (!data.results[0].ss) {
-        realtimeData = await modules.database
+        realtimeData = await database
           .ref(`${sportName}/${leagueName}/${betsID}`)
           .once('value');
         realtimeData = realtimeData.val();
@@ -324,23 +327,23 @@ async function pbpHistory(parameterHistory) {
         awayScores = data.results[0].ss.split('-')[1];
       }
       try {
-        await modules.database
+        await database
           .ref(
             `${sportName}/${leagueName}/${betsID}/Summary/info/home/Total/points`
           )
           .set(data.results[0].ss.split('-')[1]);
-        await modules.database
+        await database
           .ref(
             `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
           )
           .set(data.results[0].ss.split('-')[0]);
         for (let inningCount = 1; inningCount < 10; inningCount++) {
-          await modules.database
+          await database
             .ref(
               `${sportName}/${leagueName}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
             )
             .set(data.results[0].scores[`${inningCount}`].away);
-          await modules.database
+          await database
             .ref(
               `${sportName}/${leagueName}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
             )
@@ -370,39 +373,39 @@ async function pbpHistory(parameterHistory) {
     } else if (leagueName === 'CBA') {
       try {
         if (data.results[0].timer) {
-          await modules.database
+          await database
             .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_clock`)
             .set(`${data.results[0].timer.tm}:${data.results[0].timer.ts}`);
-          await modules.database
+          await database
             .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_periods`)
             .set(`${data.results[0].timer.q - 1}`);
-          await modules.database
+          await database
             .ref(
               `${sportName}/${leagueName}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
             )
             .set(`${data.results[0].scores[data.results[0].timer.q].home}`);
-          await modules.database
+          await database
             .ref(
               `${sportName}/${leagueName}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
             )
             .set(`${data.results[0].scores[data.results[0].timer.q].away}`);
         } else {
-          await modules.database
+          await database
             .ref(`${sportName}/${leagueName}/${betsID}/Summary/Now_clock`)
             .set('xx:xx');
         }
-        await modules.database
+        await database
           .ref(
             `${sportName}/${leagueName}/${betsID}/Summary/info/home/Total/points`
           )
           .set(data.results[0].ss.split('-')[0]);
-        await modules.database
+        await database
           .ref(
             `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
           )
           .set(data.results[0].ss.split('-')[1]);
         if (!data.results[0].ss) {
-          realtimeData = await modules.database
+          realtimeData = await database
             .ref(`${sportName}/${leagueName}/${betsID}`)
             .once('value');
           realtimeData = realtimeData.val();
@@ -442,7 +445,7 @@ async function pbpHistory(parameterHistory) {
       }
     } else {
       if (!data.results[0].ss) {
-        realtimeData = await modules.database
+        realtimeData = await database
           .ref(`${sportName}/${leagueName}/${betsID}`)
           .once('value');
         realtimeData = realtimeData.val();
@@ -460,7 +463,7 @@ async function pbpHistory(parameterHistory) {
         awayScores = data.results[0].ss.split('-')[1];
       }
       try {
-        await modules.database
+        await database
           .ref(`${sportName}/${leagueName}/${betsID}/Summary/info`)
           .set({
             home: { Total: { points: data.results[0].ss.split('-')[0] } },
@@ -490,7 +493,7 @@ async function pbpHistory(parameterHistory) {
     }
 
     try {
-      await modules.database
+      await database
         .ref(`${sportName}/${leagueName}/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {
