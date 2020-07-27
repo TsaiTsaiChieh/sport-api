@@ -24,12 +24,14 @@ function getHomeAndAwayTeamFromMySQL(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const result = await db.sequelize.query(
-        // index is const, except match__seasons table is ref, taking 170ms
-        `SELECT game.bets_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
+        // index is const, except match__seasons, match__spreads, match__totals table is ref, taking 170ms
+        `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
                 home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
-                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id
+                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
+                spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, 
+                totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw
           FROM (
-                  SELECT matches.league_id, matches.bets_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, season.season
+                  SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, season.season
                     FROM matches
                LEFT JOIN match__seasons AS season ON season.league_id = matches.league_id
                    WHERE matches.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
@@ -37,6 +39,8 @@ function getHomeAndAwayTeamFromMySQL(args) {
             AS game
      LEFT JOIN match__teams AS home ON game.home_id = home.team_id
      LEFT JOIN match__teams AS away ON game.away_id = away.team_id
+     LEFT JOIN match__spreads AS spread ON game.spread_id = spread.spread_id
+     LEFT JOIN match__totals AS totals ON game.totals_id = totals.totals_id
          WHERE game.league_id = :league_id
            AND bets_id = :bets_id`,
         {
@@ -164,7 +168,22 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
     const data = {
       season: teamsFromMySQL.season,
       status: teamsFromMySQL.status,
+      sport: leagueUtil.league2Sport(args.league).sport,
+      league: args.league,
+      league_id: teamsFromMySQL.league_id,
+      ori_league: leagueUtil.leagueCodebook(args.league).name_ch,
       scheduled: teamsFromMySQL.scheduled,
+      spread: {
+        id: teamsFromMySQL.spread_id,
+        handicap: teamsFromMySQL.spread_handicap,
+        home_tw: teamsFromMySQL.home_tw,
+        away_tw: teamsFromMySQL.away_tw
+      },
+      totals: {
+        id: teamsFromMySQL.totals_id,
+        handicap: teamsFromMySQL.totals_handicap,
+        over_tw: teamsFromMySQL.over_tw
+      },
       home: {
         id: teamsFromMySQL.home_id,
         alias: teamsFromMySQL.home_alias,
