@@ -1,14 +1,10 @@
-const modules = require('./modules');
 const db = require('../util/dbUtil');
-const firebaseAdmin = modules.firebaseAdmin;
+const firebaseAdmin = require('../util/firebaseUtil');
 
 exports.getFirebaseUser = async function(accessToken) {
-  // const firebaseUid = `line:${body.id}`;
-  // const firebaseUid = accessToken.sub.toString();
   const email = accessToken.email.toString();
   try {
-    // const userRecord = await firebaseAdmin.auth().getUser(firebaseUid);
-    const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
+    const userRecord = await firebaseAdmin().auth().getUserByEmail(email);
     console.error(JSON.stringify(userRecord));
     return userRecord;
   } catch (e) {
@@ -20,37 +16,13 @@ exports.getFirebaseUser = async function(accessToken) {
         photoURL: accessToken.picture,
         email: email
       };
-      return await firebaseAdmin.auth().createUser(userJson);
+      return await firebaseAdmin().auth().createUser(userJson);
     } else {
       console.error('firebaseUser error code ' + e.code);
       return null;
     }
   }
 };
-
-// async function getUserProfile(req, res) {
-//     let sessionCookie = req.cookies.__session;
-//     console.log("test...");
-//     console.log(sessionCookie);
-//     if (!sessionCookie) return res.status(401).send("missing token");
-//     firebaseAdmin.auth().verifySessionCookie(
-//         sessionCookie, true)
-//         .then((decodedClaims) => {
-//             console.log('getUserProfile - verifySessionCookie success : ', decodedClaims);
-//             let uid = decodedClaims.uid;
-//             userUtils.getUserProfile(uid).then(async firestoreUser => {
-//                 res.setHeader('Access-Control-Allow-Origin', '*');
-//                 return res.status(200).json(firestoreUser)
-//             }).catch(error => {
-//                 console.log('getUserProfile - getUserProfile false : ', error);
-//                 return res.status(500).send("error");
-//             });
-//         })
-//         .catch(error => {
-//             console.log('getUserProfile - verifySessionCookie false : ', error);
-//             return res.status(401).send("verify failed");
-//         });
-// }
 
 exports.getUserProfile = async function(userId) {
   const returnJson = {

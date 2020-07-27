@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 // 幾勝幾敗 win-lose
@@ -37,7 +37,7 @@ function queryTeamHandicap(args) {
         {
           replacements: {
             team_id: args.team_id,
-            leagueID: modules.leagueCodebook(args.league).id
+            leagueID: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
         }

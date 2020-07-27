@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
@@ -43,7 +44,7 @@ function queryTwoDaysEvent(args) {
              ORDER BY scheduled
          )`,
         {
-          replacements: { leagueID: modules.leagueCodebook(args.league).id },
+          replacements: { leagueID: leagueUtil.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );

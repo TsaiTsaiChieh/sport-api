@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppError = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -31,7 +32,7 @@ function getPredictionDescription(args, unix) {
            FROM user__prediction__descriptions
           WHERE uid = :uid
             AND day = ${unix.begin}
-            AND league_id = ${modules.leagueCodebook(args.league).id}`,
+            AND league_id = ${leagueUtil.leagueCodebook(args.league).id}`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { uid: args.uid }

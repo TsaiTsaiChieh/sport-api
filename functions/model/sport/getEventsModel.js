@@ -1,6 +1,5 @@
-/* eslint-disable no-await-in-loop */
-const modules = require('../../util/modules');
-
+const axios = require('axios');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const upcomingURL = 'https://api.betsapi.com/v2/events/upcoming';
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const token = '35388-8IqMa0NK19LJVY';
@@ -8,8 +7,9 @@ const token = '35388-8IqMa0NK19LJVY';
 function getEvents(args) {
   return new Promise(async function(resolve, reject) {
     try {
+      const firestore = firebaseAdmin().firestore();
       // this example is soccer(1) all leagues
-      const { data } = await modules.axios(
+      const { data } = await axios(
         // 'https://betsapi.com/api-doc/samples/bet365_upcoming.json'
         `${upcomingURL}?token=${token}&sport_id=${args.sport_id}&league_id=${args.league_id}&page=${args.page}&day=${args.date}`
       );
@@ -23,7 +23,7 @@ function getEvents(args) {
         body.battles[i].odds = await oddsData(eventId);
       }
       for (let i = 0; i < battles.length; i++) {
-        modules.firestore
+        firestore
           .collection('sport_events')
           .doc(battles[i].sport_id)
           .collection(battles[i].league.id)
@@ -42,7 +42,7 @@ function getEvents(args) {
 }
 
 async function oddsData(eventId) {
-  const { data } = await modules.axios(
+  const { data } = await axios(
     `${oddsURL}?token=${token}&event_id=${eventId}&source=bet365&odds_market=2,3`
   );
 

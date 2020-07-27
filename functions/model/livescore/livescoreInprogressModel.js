@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -42,7 +43,7 @@ function queryInplayMatches(args) {
                 AND game.spread_id = spread.spread_id
                 AND game.scheduled*1000 BETWEEN :begin AND :end
                 AND game.ori_league_id = league.ori_league_id
-                AND game.status = '${modules.MATCH_STATUS.INPLAY}'
+                AND game.status = '${leagueUtil.MATCH_STATUS.INPLAY}'
            )
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -59,13 +60,13 @@ function queryInplayMatches(args) {
                 AND game.spread_id IS NULL
                 AND game.scheduled*1000 BETWEEN :begin AND :end
                 AND game.ori_league_id = league.ori_league_id
-                AND game.status = '${modules.MATCH_STATUS.INPLAY}'
+                AND game.status = '${leagueUtil.MATCH_STATUS.INPLAY}'
            )
            ORDER BY scheduled
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             begin: begin * 1000,
             end: end * 1000 - 1
           },
@@ -89,7 +90,7 @@ async function repackage(args, matches) {
         temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,
@@ -137,7 +138,7 @@ async function repackage(args, matches) {
         temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,

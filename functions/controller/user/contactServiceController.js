@@ -1,5 +1,4 @@
-/* eslint-disable promise/always-return */
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/contactServiceModel');
 async function contactService(req, res) {
   const schema = {
@@ -23,9 +22,9 @@ async function contactService(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   req.body.token = req.token;

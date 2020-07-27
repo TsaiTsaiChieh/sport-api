@@ -1,4 +1,3 @@
-// const modules = require('../../util/modules');
 const bankModel = require('../../model/user/bankModel');
 
 async function purse(req, res) {

@@ -1,16 +1,16 @@
-const modules = require('../../util/modules');
+const acceptValues = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/predictMatchesModel');
 
-// eslint-disable-next-line consistent-return
 async function predictMatches(req, res) {
   const now = Date.now();
   const spreadSchema = {
     type: 'array',
     items: [
-      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      { type: 'string', pattern: acceptValues.acceptNumberAndLetter },
       {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter,
+        pattern: acceptValues.acceptNumberAndLetter,
         enum: ['home', 'away']
       },
       { type: 'integer', minimum: 1, maximum: 3 }
@@ -19,10 +19,10 @@ async function predictMatches(req, res) {
   const totalsSchema = {
     type: 'array',
     items: [
-      { type: 'string', pattern: modules.acceptNumberAndLetter },
+      { type: 'string', pattern: acceptValues.acceptNumberAndLetter },
       {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter,
+        pattern: acceptValues.acceptNumberAndLetter,
         enum: ['over', 'under']
       },
       { type: 'integer', minimum: 1, maximum: 3 }
@@ -34,7 +34,7 @@ async function predictMatches(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptValues.acceptLeague
       },
       sell: {
         type: 'integer',
@@ -59,7 +59,7 @@ async function predictMatches(req, res) {
           properties: {
             id: {
               type: 'string',
-              pattern: modules.acceptNumberAndLetter
+              pattern: acceptValues.acceptNumberAndLetter
             },
             spread: spreadSchema,
             totals: totalsSchema
@@ -69,9 +69,9 @@ async function predictMatches(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(400).json(modules.ajv.errors);
+    return res.status(400).json(ajv.errors);
   }
   req.body.token = req.token;
   req.body.now = now;

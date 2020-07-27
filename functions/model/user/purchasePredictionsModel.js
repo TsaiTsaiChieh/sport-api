@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const dbEngine = require('../../util/databaseEngine');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -57,7 +58,7 @@ async function checkGodUserRank(args) {
     {
       replacements: {
         god_uid: args.god_uid,
-        league_id: modules.leagueCodebook(args.god_title).id,
+        league_id: leagueUtil.leagueCodebook(args.god_title).id,
         period
       },
       type: db.sequelize.QueryTypes.SELECT
@@ -86,7 +87,7 @@ async function checkGodPredictions(args) {
     {
       replacements: {
         god_uid: args.god_uid,
-        league_id: modules.leagueCodebook(args.god_title).id
+        league_id: leagueUtil.leagueCodebook(args.god_title).id
       },
       type: db.sequelize.QueryTypes.SELECT
     }));
@@ -140,11 +141,11 @@ async function checkUserDepositIsEnough(args, godData, deposit) {
 }
 
 async function repackagePurchaseData(args, godData) {
-  const [getSeasonErr, season] = await modules.to(dbEngine.getSeason(modules.leagueCodebook(args.god_title).id));
+  const [getSeasonErr, season] = await modules.to(dbEngine.getSeason(leagueUtil.leagueCodebook(args.god_title).id));
   if (getSeasonErr) throw new AppErrors.MysqlError(`${getSeasonErr.stack} by TsaiChieh`);
   const data = {
     uid: modules.validateProperty(args.token, 'uid'),
-    league_id: modules.leagueCodebook(args.god_title).id,
+    league_id: leagueUtil.leagueCodebook(args.god_title).id,
     matches_date: modules.convertTimezone(args.matches_date),
     matches_date_tw: modules.convertTimezone(args.matches_date) * 1000,
     god_uid: modules.validateProperty(godData, 'uid'),

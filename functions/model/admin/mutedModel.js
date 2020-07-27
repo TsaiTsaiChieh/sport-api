@@ -1,9 +1,11 @@
-const modules = require('../../util/modules');
-// const firebase = require('firebase');
+const { moment } = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+
 function muted(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const userDoc = await modules.getDoc('users', args.uid);
+      const firestore = firebaseAdmin().firestore();
+      const userDoc = await firestore.collection('users').doc(args.uid);
       const userSnapshot = await userDoc.get();
       /* step1: check if user exists */
       if (!userSnapshot.exists) {
@@ -21,11 +23,11 @@ function muted(args) {
       }
       // blockCount default is 0, so this logic can combine
       if (!user.blockCount) {
-        const expired = modules.moment().add(1, 'days');
+        const expired = moment().add(1, 'days');
         userDoc.set(
           {
             blockCount: 1,
-            blockMessage: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -35,16 +37,16 @@ function muted(args) {
         let expired = 0;
         switch (user.blockCount) {
           case 1:
-            expired = modules.moment().add(3, 'days');
+            expired = moment().add(3, 'days');
             break;
           case 2:
-            expired = modules.moment().add(7, 'days');
+            expired = moment().add(7, 'days');
             break;
         }
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: modules.firebaseAdmin.firestore.Timestamp.fromDate(
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
               new Date(expired)
             )
           },
@@ -54,8 +56,8 @@ function muted(args) {
         userDoc.set(
           {
             blockCount: user.blockCount + 1,
-            blockMessage: modules.firebaseAdmin.firestore.Timestamp.fromDate(
-              new Date(modules.moment().add(100, 'years'))
+            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
+              new Date(moment().add(100, 'years'))
             )
           },
           { merge: true }

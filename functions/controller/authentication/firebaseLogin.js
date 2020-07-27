@@ -1,7 +1,6 @@
-// const userUtils = require('../../util/userUtil');
 const db = require('../../util/dbUtil');
-const modules = require('../../util/modules');
-const firebaseAdmin = modules.firebaseAdmin;
+const firebaseAdmin = require('../../util/firebaseUtil');
+const { getTitlesPeriod } = require('../../util/modules');
 const envValues = require('../../config/env_values');
 
 /**
@@ -92,20 +91,20 @@ const envValues = require('../../config/env_values');
 async function firebaseLogin(req, res) {
   const returnJson = { success: false };
   const token = req.body.token;
-  const period = modules.getTitlesPeriod(new Date()).period;
+  const period = getTitlesPeriod(new Date()).period;
   if (!token) {
-    console.log('Error login user: missing token');
+    console.warn('Error login user: missing token');
     res.status(401).json(returnJson);
     return;
   }
 
-  firebaseAdmin
+  firebaseAdmin()
     .auth()
     .verifyIdToken(token)
     // eslint-disable-next-line promise/always-return
     .then(decodedIdToken => {
       // Create session cookie and set it.
-      firebaseAdmin
+      firebaseAdmin()
         .auth()
         .createSessionCookie(token, { expiresIn: envValues.cookieOptions.maxAge })
         .then(async sessionCookie => {
@@ -145,7 +144,7 @@ async function firebaseLogin(req, res) {
           returnJson.status = 0;
 
           if (mysqlUser) {
-            console.log('firestoreUser exist');
+            console.warn('firestoreUser exist');
             if (mysqlUser) {
               returnJson.uid = mysqlUser.uid;
             } else {
@@ -163,12 +162,12 @@ async function firebaseLogin(req, res) {
           res.status(200).json(returnJson);
         })
         .catch(error => {
-          console.log('Error login user: \n\t', error);
+          console.error('Error login user: \n\t', error);
           res.status(401).json({ devcode: '004', err: 'missing token' });
         });
     })
     .catch(error => {
-      console.log('Error login user: \n\t', error);
+      console.error('Error login user: \n\t', error);
       res.status(401).json({ success: false });
     });
 }
