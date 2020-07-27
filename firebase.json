@@ -7,7 +7,7 @@
   },
   "hosting": [
     {
-      "site": "api-dosports",
+      "site": "api-getsports",
       "public": "public",
       "ignore": [
         "firebase.json",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "site": "dosports",
+      "site": "getsports-gsi",
       "public": "public",
       "ignore": [
         "firebase.json",
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "site": "admin-api-dosports",
+      "site": "admin-api-getsports",
       "public": "public",
       "ignore": [
         "firebase.json",
