@@ -3,6 +3,7 @@ const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
+const logger = require('firebase-functions/lib/logger');
 const { setUserMissionStatus } = require('../../util/missionUtil');
 
 async function missionRewardReceive(args) {
@@ -88,7 +89,7 @@ async function missionRewardReceive(args) {
 
   [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
   if (err) {
-    console.error('[Error][missionRewardReciveModel][setUserMissionStatus] ', err);
+    logger.warn('[Error][missionRewardReciveModel][setUserMissionStatus] ', err);
     await trans.rollback();
     throw errs.dbErrsMsg('404', '150151');
   }
