@@ -7,10 +7,11 @@ const errs = require('../util/errorCode');
 const { zone_tw } = require('../config/env_values');
 const { redis } = require('../util/redisUtil');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god_1OfWeek]', util.format(...args));
+    logger.log('[pubsub god_1OfWeek]', util.format(...args));
   }
 }
 
@@ -50,7 +51,7 @@ async function god_1OfWeek() {
     `, { type: db.sequelize.QueryTypes.UPDATE }));
 
   log('更新 users__win__lists 筆數: ', r);
-  if (err) {console.error(err); console.error(errs.dbErrsMsg('404', '50010', { addMsg: err.parent.code }));}
+  if (err) {logger.warn(err); logger.warn(errs.dbErrsMsg('404', '50010', { addMsg: err.parent.code }));}
 
   const [err2, r2] = await to(db.sequelize.query(`
       update users__win__lists 
@@ -61,7 +62,7 @@ async function god_1OfWeek() {
     `, { type: db.sequelize.QueryTypes.UPDATE }));
 
   log('更新 users__win__lists 筆數: ', r2);
-  if (err) {console.error(err2); console.error(err2.dbErrsMsg('404', '50010', { addMsg: err.parent.code }));}
+  if (err) {logger.warn(err2); logger.warn(err2.dbErrsMsg('404', '50010', { addMsg: err.parent.code }));}
 
   await redis.specialDel('*titles*', 100);
   await redis.specialDel('*users__win__lists*', 100);

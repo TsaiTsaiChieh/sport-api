@@ -71,7 +71,7 @@ async function winRateLists() {
       type: db.sequelize.QueryTypes.SELECT
     }, redisKey));
     if (err) {
-      console.error('Error 2. in home/winRateListsModel by YuHsien', err);
+      console.error('[Error][home][winRateListsModel][CacheQuery] ', err);
       throw errs.dbErrsMsg('404', '14040');
     }
 

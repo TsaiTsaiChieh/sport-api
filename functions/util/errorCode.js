@@ -84,6 +84,7 @@ const errorCodeLists = {
   15012: { msg: ['更新 使用者任務狀態 失敗'], backend: ['更新 UserMission.update 異常 筆數不正確，只能一筆才對。', ''] },
   15014: { msg: ['更新 使用者任務狀態 失敗'], backend: ['輸入 parms 參數內容錯誤，至少要有一個 mission_ooxx_id 才正確。', ''] },
   15015: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 更新結果 0 筆，應該至少一筆。', ''] },
+  150151: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 有異常發生。', ''] },
   15016: { msg: ['新增 使用者任務狀態 失敗'], backend: ['addUserMissionStatus 更新 UserMission.update 產生錯誤。', ''] },
   15110: { msg: ['新增 使用者任務 失敗'], backend: ['missionDaily 新增 UserMission.addUserMissionStatus 產生錯誤。', ''] },
 

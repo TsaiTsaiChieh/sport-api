@@ -8,10 +8,11 @@ const db = require('../util/dbUtil');
 const to = require('await-to-js').default;
 const errs = require('../util/errorCode');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub cashflow_settleRefund]', util.format(...args));
+    logger.log('[pubsub cashflow_settleRefund]', util.format(...args));
   }
 }
 
@@ -124,7 +125,7 @@ async function cashflow_settleRefund() {
       status: buy_status
     }, buy_status, 'buy'));
 
-    if (err) {console.error(errs.dbErrsMsg('404', '50112', { addMsg: err }));}
+    if (err) {logger.warn(errs.dbErrsMsg('404', '50112', { addMsg: err }));}
   };
 
   // !!! 這裡計算必定要在 紅利退款 搞幣退款 之後
@@ -171,7 +172,7 @@ async function cashflow_settleRefund() {
 
     const [err, r] = await to(createData(createInfo, createInfo.status, 'sell'));
 
-    if (err) {console.error(errs.dbErrsMsg('404', '50114', { addMsg: err }));}
+    if (err) {logger.warn(errs.dbErrsMsg('404', '50114', { addMsg: err }));}
   };
   // }
 

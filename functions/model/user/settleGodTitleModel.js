@@ -8,11 +8,12 @@ const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 const floatNumber = 4;
 
+const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[user settleGodTitleModel]', util.format(...args));
+    logger.log('[user settleGodTitleModel]', util.format(...args));
   }
 }
 
@@ -253,7 +254,10 @@ async function settleGodTitle(args) {
           period: period
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });}
+      if (err) {
+        logger.warn('[Error][settleGodTitleModel][Title] ', err);
+        throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });
+      }
       if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
     };
   };
