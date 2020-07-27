@@ -6,10 +6,11 @@ const settleWinList = require('../model/user/settleWinListModel');
 const settleGodTitle = require('../model/user/settleGodTitleModel');
 const { redis } = require('../util/redisUtil');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god_settleWinList_A]', util.format(...args));
+    logger.log('[pubsub god_settleWinList_A]', util.format(...args));
   }
 }
 

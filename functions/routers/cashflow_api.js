@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const verification = require('../util/verification');
 
-/* 信用卡支付 */
-// router.post(
-//     '/ccard',
-//     require('../controller/cashflow_api/ccardController')
-// );
+router.get(
+  '/mpg',
+  // verification.token,
+  require('../controller/cashflow_api/mpgController')
+);
+router.post(
+  '/mpg',
+  verification.token,
+  require('../controller/cashflow_api/mpgController')
+);
+
 /* 信用卡支付(回覆通知) */
 router.post(
   '/ccard_notify',

@@ -7,6 +7,7 @@ const {
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
 const { CacheQuery, redis } = require('./redisUtil');
+const logger = require('firebase-functions/lib/logger');
 
 //
 // 任務
@@ -53,14 +54,14 @@ async function addUserMissionStatus(uid, parms, trans = null) {
       transaction: insideTrans
     }));
   } catch (e) {
-    console.error('[addUserMissionStatus]', err);
+    logger.warn('[addUserMissionStatus]', err);
     await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
   }
 
   // if (!created) {
   //   [err, r] = await to(setUserMissionStatus(uid, id, status, dateUnix));
-  //   if (err) {console.error(err); throw errs.dbErrsMsg('404', '15016', { addMsg: err.parent.code });}
+  //   if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '15016', { addMsg: err.parent.code });}
   // }
   if (!trans) await insideTrans.commit(); // trans 為外面呼叫帶入，不可以 commit
   await redis.specialDel(`*${uid}*Mission*`, 100);
@@ -95,7 +96,7 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   }));
 
   if (err) {
-    console.error(err);
+    logger.warn('[Error][missionUtil][setUserMissionStatus][UserMission] ', err);
     await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15010', { addMsg: err.parent.code });
   }
@@ -145,12 +146,12 @@ async function missionDaily(args) {
 
     if (data.func_type === 'topicCheckByDateBetween') { // 發文
       const topics = await topicCheckByDateBetween(userUid, todayUnix, todayUnix, [3, 4, 5]);
-      data.now_finish_nums = topics[0].count;
+      data.now_finish_nums = topics.length > 0 ? topics[0].count : 0;
     }
 
     if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
       const matchs = await predictHandicapCheckByDateBetween(userUid, todayUnix, todayUnix);
-      data.now_finish_nums = matchs[0].count;
+      data.now_finish_nums = matchs.length > 0 ? matchs[0].count : 0;
     }
 
     const ifFinishMission = data.now_finish_nums >= data.need_finish_nums; // 現在完成任務數 > 需要完成任務數 => 任務完成
@@ -165,7 +166,10 @@ async function missionDaily(args) {
       data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid,
         { mission_item_id: data.mission_item_id, dateUnix: todayUnix })); // status: data.status, 如果新增是已完成，這裡需要設定為2
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+      if (err) {
+        logger.warn('[Error][missionUtil][missionDaily][addUserMissionStatus] ', err);
+        throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
+      }
 
       result.daily.push(repackageDaily(data));
       continue;
@@ -631,7 +635,10 @@ async function missionActivityPredict(args) {
     if (!data.um_status && userUid && ifFinishMission) {
       data.um_status = 1;
       const [err] = await to(addUserMissionStatus(userUid, { mission_item_id: data.mission_item_id }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });}
+      if (err) {
+        logger.warn('[Error][missionUtil][missionActivityPredict][addUserMissionStatus] ', err);
+        throw errs.dbErrsMsg('404', '15110', { addMsg: err.parent.code });
+      }
 
       result.push(repackageActivePredict(data));
       continue;

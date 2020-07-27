@@ -3,10 +3,11 @@
 const { date3UnixInfo, mergeDeep } = require('../util/modules');
 const dividendExpireModel = require('../model/cashflow/dividendExpireModel');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub cashflow_dividendExpire1]', util.format(...args));
+    logger.log('[pubsub cashflow_dividendExpire1]', util.format(...args));
   }
 }
 

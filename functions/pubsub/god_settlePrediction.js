@@ -8,10 +8,11 @@ const { zone_tw } = require('../config/env_values');
 const settleWinList = require('../model/user/settleWinListModel');
 const { redis } = require('../util/redisUtil');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god_settlePrediction]', util.format(...args));
+    logger.log('[pubsub god_settlePrediction]', util.format(...args));
   }
 }
 

@@ -86,7 +86,7 @@ async function winRateLists(args) {
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
-      console.error('Error 2. in rank/winRateListsModel by YuHsien', err);
+      console.error('[Error][rank][winRateListsModel] ', err);
       throw errs.dbErrsMsg('404', '14010');
     }
 

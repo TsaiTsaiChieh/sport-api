@@ -8,11 +8,12 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
+const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[user settleWinListModel]', util.format(...args));
+    logger.log('[user settleWinListModel]', util.format(...args));
   }
 }
 
@@ -108,8 +109,9 @@ async function settleWinList(args) {
            and matches.flag_prematch = 1
            and matches.status = 0
            and (
-                 spread_result_flag != -2 or totals_result_flag != -2 or 
-                 spread_result_flag != 0 or totals_result_flag != 0
+                   (spread_result_flag != -2 and spread_result_flag != 0)
+                 or 
+                   (totals_result_flag != -2 and totals_result_flag != 0)
                )
       `, {
     replacements: {
@@ -180,8 +182,8 @@ async function settleWinList(args) {
           season: season
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
+    } catch (e) {logger.warn(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
+    // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinListsHistory.update({
@@ -215,7 +217,10 @@ async function settleWinList(args) {
           season: season
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });}
+      if (err) {
+        logger.warn('[Error][settleWinListModel][Users_WinListsHistory] ', err);
+        throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });
+      }
     }
 
     result.status['1'].lists.push({ uid: data.uid, league: data.league_id });
@@ -290,8 +295,8 @@ async function settleWinList(args) {
           this_season_fault_counts: ele.sum_season.fault_counts
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
+    } catch (e) {logger.warn(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
+    // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinLists.update({
@@ -321,7 +326,10 @@ async function settleWinList(args) {
           league_id: data.league_id
         }
       }));
-      if (err) {console.error(err); throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });}
+      if (err) {
+        logger.warn('[Error][settleWinListModel][Users_WinLists] ', err);
+        throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
+      }
     }
 
     // if (r) return reject(errs.errsMsg('404', '13420')); // 更新筆數異常
@@ -341,7 +349,10 @@ async function settleWinList(args) {
         period: period
       }
     }));
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });}
+    if (err) {
+      logger.warn('[Error][settleWinListModel][Title] ', err);
+      throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
+    }
 
     // 有可能不是大神，無更新筆數
     // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
