@@ -36,7 +36,7 @@ async function mpgModel(res) {
       createOrder(exchange, uid); // 建立訂單到資料庫
 
       const trade_arr = {
-        serial_number: serial_number,
+        serial_number: exchange.merchant_order_no,
         coin: exchange.coin,
         return_url: setting.return_url
       };
