@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const axios = require('axios');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -52,7 +53,7 @@ module.exports.Soccer.upcoming = async function(date) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -65,7 +66,8 @@ async function axiosForURL(URL) {
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      const database = firebaseAdmin().database();
+      await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');

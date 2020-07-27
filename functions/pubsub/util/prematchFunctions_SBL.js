@@ -1,4 +1,8 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const axios = require('axios');
 const envValues = require('../../config/env_values');
 module.exports.SBL = {};
 // eslint-disable-next-line consistent-return
@@ -9,12 +13,12 @@ module.exports.SBL.upcomming = async function(date) {
   // axios
   const results = [];
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     for (let i = 0; i < data.results.length; i++) {
       const ele = data.results[i];
       results.push(
-        modules.firestore
-          .collection(modules.db.basketball_SBL)
+        firestore
+          .collection(leagueUtil.db.basketball_SBL)
           .doc(ele.id)
           .set(repackage_bets(ele), { merge: true })
       );
@@ -43,7 +47,7 @@ module.exports.SBL.upcomming = async function(date) {
 
 function repackage_bets(ele) {
   const data = {};
-  data.scheduled = modules.firebaseAdmin.firestore.Timestamp.fromDate(
+  data.scheduled = firebaseAdmin().firestore.Timestamp.fromDate(
     new Date(Number.parseInt(ele.time) * 1000)
   );
   data.bets_id = ele.id;
@@ -85,7 +89,7 @@ module.exports.SBL.prematch = async function(date) {
   // const sportRadarURL = `http://api.sportradar.us/basketball/trial/v2/en/schedules/${year}-03-07/summaries.json?api_key=${modules.sportRadarKeys.GLOABL_BASKETBALL}`;
   console.log(`SportRadar SBL URL on ${date}: ${URL}`);
   try {
-    const { data } = await modules.axios(URL);
+    const { data } = await axios(URL);
     const query = await query_SBL(date);
 
     for (let i = 0; i < data.summaries.length; i++) {
@@ -114,7 +118,7 @@ module.exports.SBL.prematch = async function(date) {
   }
 };
 async function query_SBL(date) {
-  const basketRef = modules.firestore.collection(modules.db.basketball_SBL);
+  const basketRef = firestore.collection(leagueUtil.db.basketball_SBL);
   const beginningDate = modules.moment(date);
   const endDate = modules.moment(date).add(1, 'days');
   const results = [];
@@ -147,8 +151,8 @@ function integration(query, ele) {
       milliseconds === query[i].scheduled._seconds &&
       ele.sport_event.competitors[0].abbreviation === query[i].home.alias
     ) {
-      modules.firestore
-        .collection(modules.db.basketball_SBL)
+      firestore
+        .collection(leagueUtil.db.basketball_SBL)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele), { merge: true });
     }
@@ -157,7 +161,7 @@ function integration(query, ele) {
 function repackage_sportradar(ele) {
   const data = {};
   data.radar_id = ele.sport_event.id.replace('sr:sport_event:', '');
-  data.update_time = modules.firebaseAdmin.firestore.Timestamp.fromDate(
+  data.update_time = firebaseAdmin().firestore.Timestamp.fromDate(
     new Date()
   );
   data.league = {

@@ -1,4 +1,8 @@
-const modules = require('../util/modules');
+const axios = require('axios');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
+const translate = require('@k3rn31p4nic/google-translate-api');
 const AppErrors = require('../util/AppErrors');
 const transMLB = require('./translateMLB');
 const translateMLB = transMLB.translateMLB;
@@ -109,7 +113,7 @@ async function doPBP(parameter) {
     let eventAtbatNow = parameter.eventAtbatNow;
 
     try {
-      const { data } = await modules.axios(pbpURL);
+      const { data } = await axios(pbpURL);
       const dataPBP = data;
       const awayLineupLength = dataPBP.game.innings[0].halfs[0].events.length;
       const homeLineupLength = dataPBP.game.innings[0].halfs[1].events.length;
@@ -119,7 +123,7 @@ async function doPBP(parameter) {
         inningsCount++
       ) {
         try {
-          await modules.database
+          await database
             .ref(`baseball/MLB/${betsID}/Summary/Now_innings`)
             .set(inningsCount);
         } catch (err) {
@@ -140,7 +144,7 @@ async function doPBP(parameter) {
             const order =
               dataPBP.game.innings[0].halfs[1].events[numberCount].lineup.order;
             try {
-              await modules.database
+              await database
                 .ref(
                   `baseball/MLB/${betsID}/Summary/info/home/Now_lineup/lineup${order}`
                 )
@@ -186,7 +190,7 @@ async function doPBP(parameter) {
             const order =
               dataPBP.game.innings[0].halfs[0].events[numberCount].lineup.order;
             try {
-              await modules.database
+              await database
                 .ref(
                   `baseball/MLB/${betsID}/Summary/info/away/Now_lineup/lineup${order}`
                 )
@@ -243,7 +247,7 @@ async function doPBP(parameter) {
             halfCount++
           ) {
             try {
-              await modules.database
+              await database
                 .ref(`baseball/MLB/${betsID}/Summary/Now_halfs`)
                 .set(halfCount);
             } catch (err) {
@@ -270,7 +274,7 @@ async function doPBP(parameter) {
             ) {
               if (halfCount === 0) {
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `baseball/MLB/${betsID}/Summary/info/away/Innings${inningsCount}/scoring`
                     )
@@ -291,7 +295,7 @@ async function doPBP(parameter) {
               }
               if (halfCount === 1) {
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `baseball/MLB/${betsID}/Summary/info/home/Innings${inningsCount}/scoring`
                     )
@@ -318,7 +322,7 @@ async function doPBP(parameter) {
                 eventAtbatNow = 0;
                 if (halfCount === 0) {
                   try {
-                    await modules.database
+                    await database
                       .ref(
                         `baseball/MLB/${betsID}/Summary/info/away/Now_lineup/lineup${dataPBP.game.innings[inningsCount].halfs[halfCount].events[eventHalfCount].lineup.order}`
                       )
@@ -351,7 +355,7 @@ async function doPBP(parameter) {
                   }
                 } else {
                   try {
-                    await modules.database
+                    await database
                       .ref(
                         `baseball/MLB/${betsID}/Summary/info/home/Now_lineup/lineup${dataPBP.game.innings[inningsCount].halfs[halfCount].events[eventHalfCount].lineup.order}`
                       )
@@ -396,7 +400,7 @@ async function doPBP(parameter) {
                   totalDescriptionOrEachBall
                 );
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/lineup/description`
                     )
@@ -412,7 +416,7 @@ async function doPBP(parameter) {
                   );
                 }
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/lineup/description_ch`
                     )
@@ -485,7 +489,7 @@ async function doPBP(parameter) {
                     ].k;
                 }
                 try {
-                  await modules.database
+                  await database
                     .ref(`baseball/MLB/${betsID}/Summary/Now_pitcher`)
                     .set({
                       first_name:
@@ -542,7 +546,7 @@ async function doPBP(parameter) {
                       count3 = 9;
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Now_order`)
                         .set(
                           realtimeDataForLineup.Now_lineup[`lineup${count1}`]
@@ -556,7 +560,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Now_hitter`)
                         .set(
                           realtimeDataForLineup.Now_lineup[`lineup${count1}`]
@@ -569,7 +573,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Now_hitter/ab`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -587,7 +591,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Now_hitter/h`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -606,7 +610,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next1_hitter`)
                         .set(
                           realtimeDataForLineup.Now_lineup[`lineup${count2}`]
@@ -619,7 +623,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next1_hitter/ab`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -638,7 +642,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next1_hitter/h`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -657,7 +661,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next2_hitter`)
                         .set(
                           realtimeDataForLineup.Now_lineup[`lineup${count3}`]
@@ -670,7 +674,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next2_hitter/ab`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -689,7 +693,7 @@ async function doPBP(parameter) {
                       );
                     }
                     try {
-                      await modules.database
+                      await database
                         .ref(`baseball/MLB/${betsID}/Summary/Next2_hitter/h`)
                         .set(
                           realtimeDataForLineup.roster[
@@ -728,7 +732,7 @@ async function doPBP(parameter) {
                     totalDescriptionOrEachBall
                   );
                   try {
-                    await modules.database
+                    await database
                       .ref(
                         `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description`
                       )
@@ -744,7 +748,7 @@ async function doPBP(parameter) {
                     );
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(
                         `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/description_ch`
                       )
@@ -820,7 +824,7 @@ async function doPBP(parameter) {
                       totalDescriptionOrEachBall
                     );
                     try {
-                      await modules.database
+                      await database
                         .ref(
                           `baseball/MLB/${betsID}/Summary/Innings${inningsCount}/halfs${halfCount}/events${eventHalfCount}/at_bat/events${eventAtbatCount}`
                         )
@@ -843,7 +847,7 @@ async function doPBP(parameter) {
 
                   // 球數
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_strikes`)
                       .set(
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
@@ -858,7 +862,7 @@ async function doPBP(parameter) {
                     );
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_balls`)
                       .set(
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
@@ -873,7 +877,7 @@ async function doPBP(parameter) {
                     );
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_outs`)
                       .set(
                         dataPBP.game.innings[inningsCount].halfs[halfCount]
@@ -923,7 +927,7 @@ async function doPBP(parameter) {
                     }
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_firstbase`)
                       .set(baseNow[0]);
                   } catch (err) {
@@ -934,7 +938,7 @@ async function doPBP(parameter) {
                     );
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_secondbase`)
                       .set(baseNow[1]);
                   } catch (err) {
@@ -945,7 +949,7 @@ async function doPBP(parameter) {
                     );
                   }
                   try {
-                    await modules.database
+                    await database
                       .ref(`baseball/MLB/${betsID}/Summary/Now_thirdbase`)
                       .set(baseNow[2]);
                   } catch (err) {
@@ -962,13 +966,13 @@ async function doPBP(parameter) {
         }
       }
       if (dataPBP.game.status !== 'inprogress') {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/statuts`)
           .set('closed');
       } else if (dataPBP.game.status === 'inprogress') {
         if (realtimeData.Summary.status !== 'inprogress') {
           try {
-            await modules.firestore
+            await firestore
               .collection(firestoreName)
               .doc(betsID)
               .set({ flag: { status: 1 } }, { merge: true });
@@ -980,7 +984,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(`baseball/MLB/${betsID}/Summary/statuts`)
               .set('inprogress');
           } catch (err) {
@@ -1017,7 +1021,7 @@ async function doSummary(parameter) {
     const betsID = parameter.betsID;
     const summaryURL = parameter.summaryURL;
     try {
-      const { data } = await modules.axios(summaryURL);
+      const { data } = await axios(summaryURL);
       const dataSummary = data;
 
       for (let i = 0; i < dataSummary.game.home.players.length; i++) {
@@ -1025,7 +1029,7 @@ async function doSummary(parameter) {
 
         if (dataSummary.game.home.players[i].position === 'P') {
           try {
-            await modules.database
+            await database
               .ref(
                 `baseball/MLB/${betsID}/Summary/info/home/roster/lineup${number}/performance`
               )
@@ -1053,7 +1057,7 @@ async function doSummary(parameter) {
           }
         } else {
           try {
-            await modules.database
+            await database
               .ref(
                 `baseball/MLB/${betsID}/Summary/info/home/roster/lineup${number}/performance`
               )
@@ -1081,7 +1085,7 @@ async function doSummary(parameter) {
 
         if (dataSummary.game.home.players[i].position === 'P') {
           try {
-            await modules.database
+            await database
               .ref(
                 `baseball/MLB/${betsID}/Summary/info/away/roster/lineup${number}/performance`
               )
@@ -1109,7 +1113,7 @@ async function doSummary(parameter) {
           }
         } else {
           try {
-            await modules.database
+            await database
               .ref(
                 `baseball/MLB/${betsID}/Summary/info/away/roster/lineup${number}/performance`
               )
@@ -1133,7 +1137,7 @@ async function doSummary(parameter) {
         }
       }
       try {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/info/home/Total`)
           .set({
             runs: dataSummary.game.home.runs,
@@ -1148,7 +1152,7 @@ async function doSummary(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/info/away/Total`)
           .set({
             runs: dataSummary.game.away.runs,
@@ -1177,9 +1181,9 @@ async function MLBpbpHistory(parameter) {
     const pbpURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/pbp.json?api_key=${mlb_api_key}`;
     const summaryURL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${gameID}/summary.json?api_key=${mlb_api_key}`;
     try {
-      let { data } = await modules.axios(pbpURL);
+      let { data } = await axios(pbpURL);
       const dataPBP = data;
-      const ref = modules.firestore
+      const ref = firestore
         .collection(`${firestoreName}_PBP`)
         .doc(betsID);
       for (
@@ -1420,7 +1424,7 @@ async function MLBpbpHistory(parameter) {
         }
       }
       // call summary
-      ({ data } = await modules.axios(summaryURL));
+      ({ data } = await axios(summaryURL));
       const dataSummary = data;
       try {
         await ref.set(
@@ -1449,7 +1453,7 @@ async function MLBpbpHistory(parameter) {
         );
       }
       try {
-        await modules.firestore
+        await firestore
           .collection('pagetest_MLB')
           .doc(betsID)
           .set({ flag: { status: 0 } }, { merge: true });
@@ -1461,7 +1465,7 @@ async function MLBpbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/statuts`)
           .set('closed');
       } catch (err) {
@@ -1504,7 +1508,7 @@ async function transFunction(stringTrans) {
       );
     }
 
-    const temp = await modules.translate(stringTrans[j], {
+    const temp = await translate(stringTrans[j], {
       from: 'en',
       to: 'zh-tw'
     });
@@ -1523,7 +1527,7 @@ async function summmaryEN(gameID) {
       const keywordAway = [];
       const numberHome = [];
       const numberAway = [];
-      const { data } = await modules.axios(enSummaryURL);
+      const { data } = await axios(enSummaryURL);
       const dataSummary = data;
       const homeTeamName = dataSummary.game.home.name;
       const awayTeamName = dataSummary.game.away.name;
@@ -1580,7 +1584,7 @@ async function initRealtime(gameID, betsID) {
       const transSimpleHome = [];
       const transSimpleAway = [];
       try {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/info/home/name`)
           .set(homeTeamName);
       } catch (err) {
@@ -1591,7 +1595,7 @@ async function initRealtime(gameID, betsID) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`baseball/MLB/${betsID}/Summary/info/away/name`)
           .set(awayTeamName);
       } catch (err) {
@@ -1604,7 +1608,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordHome.length; i++) {
         transSimpleHome[i] = `${keywordHome[i]}(#${numberHome[i]})`;
         try {
-          await modules.database
+          await database
             .ref(
               `baseball/MLB/${betsID}/Summary/info/home/roster/lineup${numberHome[i]}`
             )
@@ -1633,7 +1637,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordAway.length; i++) {
         transSimpleAway[i] = `${keywordAway[i]}(#${numberAway[i]})`;
         try {
-          await modules.database
+          await database
             .ref(
               `baseball/MLB/${betsID}/Summary/info/away/roster/lineup${numberAway[i]}`
             )

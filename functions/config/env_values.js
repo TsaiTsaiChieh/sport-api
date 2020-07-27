@@ -17,6 +17,15 @@
 //   REDISPORT: process.env.REDISPORT || 6379
 // };
 // exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
+// exports.corsList = [
+//   'https://getsports.cc',
+//   'https://getsport.cc',
+//   'https://api-getsports.web.app/'
+// ];
+// exports.runtimeOpts = {
+//   timeoutSeconds: 300,
+//   memory: '2GB'
+// };
 // ***以上正式站***
 
 // 測試版 sportslottery-test-adminsdk
@@ -39,6 +48,26 @@ exports.redisConfig = {
   REDISPORT: process.env.REDISPORT || 6379
 };
 exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
+exports.corsList = [
+  'https://chat.doinfo.cc',
+  'https://doinfo.cc',
+  'http://localhost:5000',
+  'http://127.0.0.1:5000',
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:9528',
+  'https://dosports.web.app',
+  'https://api-dosports.web.app',
+  'https://admin-dosports.web.app',
+  'https://getsports.cc',
+  'https://getsport.cc',
+  'https://api-getsports.web.app/',
+  'https://li1550-147.members.linode.com/'
+];
+exports.runtimeOpts = {
+  timeoutSeconds: 300,
+  memory: '2GB'
+};
 // 以上測式站
 
 exports.cookieOptions = {

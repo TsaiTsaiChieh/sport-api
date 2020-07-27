@@ -1,26 +1,29 @@
-const modules = require('../util/modules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
+const axios = require('axios');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'basketball';
 const league = 'CBA';
-let eventNow = 0;
-let eventOrderNow = 0;
-let periodNow = '1';
+
 // let memberHomeNow = 0;
 // let memberAwayNow = 0;
 async function CBApbpInplay(parameter) {
+  let eventNow = 0;
+  let eventOrderNow = 0;
+  let periodNow = '1';
   // 14 秒一次
   let perStep;
   let timesPerLoop;
   if (parameter.first === 1) {
     // 最一開始需要初始化所以較長時間
-    perStep = 50000;
+    perStep = 30000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 14000;
-    timesPerLoop = 3; // 一分鐘2次
+    timesPerLoop = 4; // 一分鐘3次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -29,7 +32,7 @@ async function CBApbpInplay(parameter) {
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
   const timerForStatus2 = setInterval(async function() {
-    let realtimeData = await modules.database
+    let realtimeData = await database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
@@ -50,7 +53,10 @@ async function CBApbpInplay(parameter) {
       betsID: betsID,
       pbpURL: pbpURL,
       realtimeData: realtimeData,
-      first: parameter.first
+      first: parameter.first,
+      eventNow: eventNow,
+      eventOrderNow: eventOrderNow,
+      periodNow: periodNow
     };
 
     countForStatus2 = countForStatus2 + 1;
@@ -93,7 +99,7 @@ async function CBApbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -133,6 +139,9 @@ async function doPBP(parameter) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
+    const eventNow = parameter.eventNow;
+    const eventOrderNow = parameter.eventOrderNow;
+    const periodNow = parameter.periodNow;
     let first = parameter.first;
     let pbpFlag = 1;
     const data = await axiosForURL(pbpURL);
@@ -141,7 +150,7 @@ async function doPBP(parameter) {
       'finished'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -156,7 +165,7 @@ async function doPBP(parameter) {
     ) {
       if (realtimeData.Summary.status !== 'inprogress') {
         try {
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('inprogress');
         } catch (err) {
@@ -184,7 +193,7 @@ async function doPBP(parameter) {
       'Postponed'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('postponed');
         await Match.upsert({
@@ -204,7 +213,7 @@ async function doPBP(parameter) {
       'Cancelled'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('cancelled');
         await Match.upsert({
@@ -221,7 +230,7 @@ async function doPBP(parameter) {
       }
     } else {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
         await Match.upsert({
@@ -242,7 +251,14 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, realtimeData, data);
+        await writeRealtime(
+          betsID,
+          realtimeData,
+          data,
+          eventNow,
+          eventOrderNow,
+          periodNow
+        );
       }
     }
 
@@ -253,7 +269,7 @@ async function doPBP(parameter) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -289,13 +305,13 @@ async function queryForToken() {
 async function initRealtime(betsID, data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
         );
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -329,7 +345,7 @@ async function initRealtime(betsID, data) {
         playercount++
       ) {
         try {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
                 playercount + 1
@@ -360,7 +376,7 @@ async function initRealtime(betsID, data) {
         playercount++
       ) {
         try {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
                 playercount + 1
@@ -385,14 +401,14 @@ async function initRealtime(betsID, data) {
           );
         }
       }
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup0`
         )
         .set({
           name: homeLineup[homeLineup.length].participant_name
         });
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup0`
         )
@@ -401,10 +417,10 @@ async function initRealtime(betsID, data) {
         });
     }
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
-        .set('00:00');
-      await modules.database
+        .set('12:00');
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
         .set('1');
     } catch (err) {
@@ -418,16 +434,23 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, realtimeData, data) {
+async function writeRealtime(
+  betsID,
+  realtimeData,
+  data,
+  eventNow,
+  eventOrderNow,
+  periodNow
+) {
   return new Promise(async function(resolve, reject) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
         .set({
           points:
-            data.api.data.competition.season.stage.group.event.participants[1]
+            data.api.data.competition.season.stage.group.event.participants[0]
               .results[2].value,
           two_point_attempts:
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -464,7 +487,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[13].value
         });
 
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`)
         .set({
           points:
@@ -512,15 +535,25 @@ async function writeRealtime(betsID, realtimeData, data) {
       );
     }
 
-    // 文字直撥
+    // 文字直播
     const totalEvent =
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
 
-    const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
+    // 避免執行時間過久，斷開連結，一次最多只存10個事件
+    const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       eventNow = eventNow + 1;
-
+      if (
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].incident_name === '1st quarter started' &&
+        data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].event_status_name === 'Break after 1st quarter'
+      ) {
+        continue;
+      }
       const period =
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -529,8 +562,8 @@ async function writeRealtime(betsID, realtimeData, data) {
           : data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
           ].participant_id === homeID
-            ? '1'
-            : '0';
+            ? 'home'
+            : 'away';
       if (
         periodNow !==
         changePeriod(
@@ -540,7 +573,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           periodNow
         )
       ) {
-        eventOrderNow = 0;
+        eventOrderNow = 1;
         periodNow = changePeriod(
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
@@ -559,9 +592,9 @@ async function writeRealtime(betsID, realtimeData, data) {
 
       try {
         if (period === 'common') {
-          await modules.database
+          await database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/periods${periodNow}/event${eventOrderNow}`
+              `${sport}/${league}/${betsID}/Summary/periods${periodNow}/events${eventOrderNow}`
             )
             .set({
               description:
@@ -575,21 +608,24 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .events_incidents[eventCount].incident_name
               ),
               Period: periodNow,
-              homeOrAway: period,
+              attribution: period,
               id:
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].id
             });
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
             .set(
-              data.api.data.competition.season.stage.group.event
-                .events_incidents[eventCount].event_time
+              changeTime(
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].event_time,
+                periodNow
+              )
             );
         } else {
-          await modules.database
+          await database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/periods${periodNow}/event${eventOrderNow}`
+              `${sport}/${league}/${betsID}/Summary/periods${periodNow}/events${eventOrderNow}`
             )
             .set({
               // 待翻譯
@@ -601,28 +637,53 @@ async function writeRealtime(betsID, realtimeData, data) {
                 ' ' +
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name,
-              description_ch: translateNormal(
-                realtimeData,
-                teamTrans(
-                  data.api.data.competition.season.stage.group.event
-                    .events_incidents[eventCount].participant_id
+              description_ch: await translateNormal(
+                await teamTrans(
+                  data.api.data.competition.season.stage.group.event.events_incidents[
+                    eventCount
+                  ].participant_id.toString()
                 ),
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
               Period: periodNow,
-              homeOrAway: period,
+              attribution: period,
               id:
                 data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].id
+                  .events_incidents[eventCount].id,
+              Clock: changeTime(
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].event_time,
+                periodNow
+              )
             });
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
             .set(
-              data.api.data.competition.season.stage.group.event
-                .events_incidents[eventCount].event_time
+              changeTime(
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].event_time,
+                periodNow
+              )
             );
         }
+
+        await database
+          .ref(
+            `${sport}/${league}/${betsID}/Summary/info/away/periods${periodNow}/points`
+          )
+          .set(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .results[5 + parseInt(periodNow)].value
+          );
+        await database
+          .ref(
+            `${sport}/${league}/${betsID}/Summary/info/home/periods${periodNow}/points`
+          )
+          .set(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .results[5 + parseInt(periodNow)].value
+          );
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
@@ -632,10 +693,10 @@ async function writeRealtime(betsID, realtimeData, data) {
       }
 
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
           .set(periodNow);
-        await writeBacktoReal(betsID);
+        await writeBacktoReal(betsID, eventNow, eventOrderNow);
       } catch (err) {
         return reject(
           new AppErrors.FirebaseRealtimeError(
@@ -646,14 +707,29 @@ async function writeRealtime(betsID, realtimeData, data) {
     }
   });
 }
+function changeTime(oriTime, periodNow) {
+  // 從12分鐘倒數
+  const nowTime =
+    parseInt(oriTime.split(':')[0]) * 60 + parseInt(oriTime.split(':')[1]);
+  if (periodNow === '1') {
+    const resultTime = 720 - nowTime;
+    return `${Math.floor(resultTime / 60)}:${resultTime % 60}`;
+  } else {
+    // 第二節以上
+    const resultTime = 720 - (nowTime - 720 * (periodNow - 1));
+    return resultTime % 60 === 0
+      ? `${Math.floor(resultTime / 60)}:${resultTime % 60}0`
+      : `${Math.floor(resultTime / 60)}:${resultTime % 60}`;
+  }
+}
 
-async function writeBacktoReal(betsID) {
+async function writeBacktoReal(betsID, eventNow, eventOrderNow) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(eventNow);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(eventOrderNow);
     } catch (err) {
@@ -723,6 +799,9 @@ function teamTrans(id) {
     case '1940': {
       return '八一南昌';
     }
+    case '1953': {
+      return '山西汾酒猛龍';
+    }
     default: {
       return id;
     }
@@ -779,13 +858,16 @@ function translateCommon(event) {
     case 'Break after 8th quarter': {
       return '第八節結束';
     }
+    case 'Finished regular time': {
+      return '比賽結束';
+    }
     default: {
       return '通用';
     }
   }
 }
 
-function translateNormal(name, event) {
+async function translateNormal(name, event) {
   let out;
   let string_ch;
 
@@ -1027,7 +1109,6 @@ function translateNormal(name, event) {
       break;
     }
   }
-
   if (
     event === '1st quarter started' ||
     event === '2nd quarter started' ||
@@ -1063,11 +1144,12 @@ function translateNormal(name, event) {
   } else {
     out = name + ' ' + string_ch;
   }
+
   return out;
 }
 
 function changePeriod(period, now_periods) {
-  let periodNow = 0;
+  let periodNow = '0';
   switch (period) {
     case '1st quarter': {
       periodNow = '1';

@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppError = require('../../util/AppErrors');
 const GOD_STATUS = 2;
@@ -35,7 +36,7 @@ function searchMatches(args) {
         `SELECT game.bets_id, game.status
            FROM matches AS game FORCE INDEX(matches_scheduled)
           WHERE game.scheduled BETWEEN ${begin} AND ${end}
-            AND game.league_id = ${modules.leagueCodebook(league).id}`,
+            AND game.league_id = ${leagueUtil.leagueCodebook(league).id}`,
         { type: db.sequelize.QueryTypes.SELECT }
       );
 

@@ -1,5 +1,7 @@
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const db = require('../util/dbUtil');
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
 const competitionID = ['1718', '1507']; // 各種足球
@@ -69,7 +71,7 @@ async function prematch_statscore_Soccer() {
             }
           }
         }
-        // await modules.database
+        // await database
         //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         //  .set('scheduled');
       }
@@ -132,7 +134,7 @@ function change(team) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -175,7 +177,7 @@ async function queryForMatches(date1, date2) {
 							  match__teams as away
 					WHERE game.league_id = '${leagueID}'
 					  AND game.scheduled between '${date1}' and '${date2}'
-					  AND game.status = '${modules.MATCH_STATUS.SCHEDULED}'
+					  AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
 				  	AND home.team_id = game.home_id
 				  	AND away.team_id = game.away_id
 				)`,

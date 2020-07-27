@@ -1,10 +1,10 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const leagueOnLivescore = require('../../model/home/leagueOnLivescoreModel');
 let league;
 async function livescore(total) {
-  league = modules.leagueCodebook(await leagueOnLivescore());
+  league = leagueUtil.leagueCodebook(await leagueOnLivescore());
   // return totalData;
   const totalData = await total.sort(function(a, b) {
     return a.scheduled > b.scheduled ? 1 : -1;
@@ -42,7 +42,7 @@ async function queryForEvents(length) {
 								match__teams AS away,
 								match__spreads AS spread,
 								match__leagues AS league
-					WHERE (game.status = ${modules.MATCH_STATUS.END})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.END})
 						AND game.league_id = ${league}
 						AND game.home_id = home.team_id
 						AND game.away_id = away.team_id
@@ -58,7 +58,7 @@ async function queryForEvents(length) {
 				    		match__teams AS home,
 				    		match__teams AS away,
 								match__leagues AS league
-			    WHERE (game.status = ${modules.MATCH_STATUS.END})
+			    WHERE (game.status = ${leagueUtil.MATCH_STATUS.END})
 			    	AND game.league_id = ${league}
 			    	AND game.home_id = home.team_id
 			     	AND game.away_id = away.team_id

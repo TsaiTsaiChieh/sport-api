@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const httpStatus = require('http-status');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/home/carouselModel');
 async function carouselHome(req, res) {
   const schema = {
@@ -10,9 +11,9 @@ async function carouselHome(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
   try {
     res.json(await model(req.query));

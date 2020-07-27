@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const modules = require('../util/modules');
 const AppErrors = require('../util/AppErrors');
 const eSoccer_functions = require('./util/prematchFunctions_eSoccer');

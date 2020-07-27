@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
@@ -33,7 +33,7 @@ function queryHomeEvents(args) {
                  matches AS historygame,
                  match__seasons AS season
            WHERE game.bets_id = :event_id
-             AND historygame.status = ${modules.MATCH_STATUS.END}
+             AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
              AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
@@ -42,7 +42,7 @@ function queryHomeEvents(args) {
         )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -68,7 +68,7 @@ function queryAwayEvents(args) {
                matches AS historygame,
                match__seasons AS season
          WHERE game.bets_id = :event_id
-           AND historygame.status = ${modules.MATCH_STATUS.END}
+           AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
            AND game.league_id = :leagueID
            AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
@@ -77,7 +77,7 @@ function queryAwayEvents(args) {
         )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -103,7 +103,7 @@ function queryTwoTeamsEvents(args) {
                  matches AS historygame,
                  match__seasons AS season
            WHERE game.bets_id = :event_id
-             AND historygame.status = ${modules.MATCH_STATUS.END}
+             AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
              AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.away_id = historygame.home_id) 
@@ -113,7 +113,7 @@ function queryTwoTeamsEvents(args) {
         )`,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             event_id: args.event_id
           },
           type: db.sequelize.QueryTypes.SELECT

@@ -1,4 +1,4 @@
-
+const httpStatus = require('http-status');
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
@@ -36,7 +36,7 @@ function predictionResult(args) {
       return resolve(repackage(predictions));
     } catch (err) {
       return reject({
-        code: modules.httpStatus.INTERNAL_SERVER_ERROR,
+        code: httpStatus.INTERNAL_SERVER_ERROR,
         error: `${err} by TsaiChieh`
       });
     }

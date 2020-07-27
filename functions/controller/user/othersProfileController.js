@@ -1,4 +1,6 @@
-const modules = require('../../util/modules');
+const { acceptNumberAndLetter } = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/user/othersProfileModel');
 
 async function othersProfile(req, res) {
@@ -9,13 +11,13 @@ async function othersProfile(req, res) {
     properties: {
       uid: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter
+        pattern: acceptNumberAndLetter
       }
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  const valid = ajv.validate(schema, req.query);
+  if (!valid) return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   const args = {
     othersUid: req.query.uid,
     userUid: req.token ? req.token.uid : undefined,

@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
 const model = require('../../model/livescore/livescoreDetailPrematchModel');
 
 async function livescore(req, res) {
@@ -7,7 +8,7 @@ async function livescore(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       },
       eventID: {
         type: 'string'
@@ -15,9 +16,9 @@ async function livescore(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
 
