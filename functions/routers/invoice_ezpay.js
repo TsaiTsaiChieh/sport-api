@@ -1,6 +1,6 @@
-const modules = require('../util/modules');
+const express = require('express');
 const verification = require('../util/verification');
-const router = modules.express.Router();
+const router = express.Router();
 /* MPG 付款頁面 */
 router.get(
   '/mpg',
