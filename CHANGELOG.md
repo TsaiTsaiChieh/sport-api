@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Henry 【ezpay - 電子發票串接】【GASH-支付串接】【藍新金流 - 串接】 ***by gsihenry*** [#289](https://github.com/gets-info/sports-api/pull/289)
 #### Fix:
+-  pub/sub god_nextPeriod 調整大神產生前需要再次計算勝注勝率 ***by alangets*** [#290](https://github.com/gets-info/sports-api/pull/290)
 #### Removed:
 #### DB:
 ***
