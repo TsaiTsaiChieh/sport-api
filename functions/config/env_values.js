@@ -1,73 +1,73 @@
 // 正式站 getsports-gsi
-// exports.apiURL = 'https://api-getsports.web.app/';
-// exports.productURL = 'https://getsport.cc/';
-// exports.cert = require('../auth/getsports-gsi-firebase-adminsdk.json');
-// exports.firebaseConfig = {
-//   apiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo',
-//   authDomain: 'getsports-gsi.firebaseapp.com',
-//   databaseURL: 'https://getsports-gsi.firebaseio.com',
-//   projectId: 'getsports-gsi',
-//   storageBucket: 'getsports-gsi.appspot.com',
-//   messagingSenderId: '605990362975',
-//   appId: '1:605990362975:web:6ce4a3172117dfc36ea0ea',
-//   measurementId: 'G-KJ81TH7PPS'
-// };
-// exports.redisConfig = {
-//   REDISHOST: process.env.REDISHOST || '10.170.59.179',
-//   REDISPORT: process.env.REDISPORT || 6379
-// };
-// exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
-// exports.corsList = [
-//   'https://getsports.cc',
-//   'https://getsport.cc',
-//   'https://api-getsports.web.app/'
-// ];
-// exports.runtimeOpts = {
-//   timeoutSeconds: 300,
-//   memory: '2GB'
-// };
-// ***以上正式站***
-
-// 測試版 sportslottery-test-adminsdk
-const isEmulator = process.env.FUNCTIONS_EMULATOR;
-exports.apiURL = 'https://api-dosports.web.app/';
-exports.productURL = 'https://dosports.web.app/';
-exports.cert = require('../auth/sportslottery-test-adminsdk.json');
+exports.apiURL = 'https://api-getsports.web.app/';
+exports.productURL = 'https://getsport.cc/';
+exports.cert = require('../auth/getsports-gsi-firebase-adminsdk.json');
 exports.firebaseConfig = {
-  apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
-  authDomain: 'sportslottery-test.firebaseapp.com',
-  databaseURL: 'https://sportslottery-test.firebaseio.com',
-  projectId: 'sportslottery-test',
-  storageBucket: 'sportslottery-test.appspot.com',
-  messagingSenderId: '969081540385',
-  appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
-  measurementId: 'G-WRP22SQG9M'
+  apiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo',
+  authDomain: 'getsports-gsi.firebaseapp.com',
+  databaseURL: 'https://getsports-gsi.firebaseio.com',
+  projectId: 'getsports-gsi',
+  storageBucket: 'getsports-gsi.appspot.com',
+  messagingSenderId: '605990362975',
+  appId: '1:605990362975:web:6ce4a3172117dfc36ea0ea',
+  measurementId: 'G-KJ81TH7PPS'
 };
 exports.redisConfig = {
-  REDISHOST: process.env.REDISHOST || isEmulator ? 'localhost' : '10.128.16.3',
+  REDISHOST: process.env.REDISHOST || '10.170.59.179',
   REDISPORT: process.env.REDISPORT || 6379
 };
-exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
+exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
 exports.corsList = [
-  'https://chat.doinfo.cc',
-  'https://doinfo.cc',
-  'http://localhost:5000',
-  'http://127.0.0.1:5000',
-  'http://localhost:8080',
-  'http://localhost:8081',
-  'http://localhost:9528',
-  'https://dosports.web.app',
-  'https://api-dosports.web.app',
-  'https://admin-dosports.web.app',
   'https://getsports.cc',
   'https://getsport.cc',
-  'https://api-getsports.web.app/',
-  'https://li1550-147.members.linode.com/'
+  'https://api-getsports.web.app/'
 ];
 exports.runtimeOpts = {
   timeoutSeconds: 300,
   memory: '2GB'
 };
+// ***以上正式站***
+
+// 測試版 sportslottery-test-adminsdk
+// const isEmulator = process.env.FUNCTIONS_EMULATOR;
+// exports.apiURL = 'https://api-dosports.web.app/';
+// exports.productURL = 'https://dosports.web.app/';
+// exports.cert = require('../auth/sportslottery-test-adminsdk.json');
+// exports.firebaseConfig = {
+//   apiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE',
+//   authDomain: 'sportslottery-test.firebaseapp.com',
+//   databaseURL: 'https://sportslottery-test.firebaseio.com',
+//   projectId: 'sportslottery-test',
+//   storageBucket: 'sportslottery-test.appspot.com',
+//   messagingSenderId: '969081540385',
+//   appId: '1:969081540385:web:da08ff289d0bec4ca9b860',
+//   measurementId: 'G-WRP22SQG9M'
+// };
+// exports.redisConfig = {
+//   REDISHOST: process.env.REDISHOST || isEmulator ? 'localhost' : '10.128.16.3',
+//   REDISPORT: process.env.REDISPORT || 6379
+// };
+// exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
+// exports.corsList = [
+//   'https://chat.doinfo.cc',
+//   'https://doinfo.cc',
+//   'http://localhost:5000',
+//   'http://127.0.0.1:5000',
+//   'http://localhost:8080',
+//   'http://localhost:8081',
+//   'http://localhost:9528',
+//   'https://dosports.web.app',
+//   'https://api-dosports.web.app',
+//   'https://admin-dosports.web.app',
+//   'https://getsports.cc',
+//   'https://getsport.cc',
+//   'https://api-getsports.web.app/',
+//   'https://li1550-147.members.linode.com/'
+// ];
+// exports.runtimeOpts = {
+//   timeoutSeconds: 300,
+//   memory: '2GB'
+// };
 // 以上測式站
 
 exports.cookieOptions = {
