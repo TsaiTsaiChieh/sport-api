@@ -1,20 +1,3 @@
-const configs = {
-  league: 'KBO',
-  official_URL: 'http://eng.koreabaseball.com/',
-  myKBO_ULR: 'https://mykbostats.com/',
-  // TODO table titles should be dynamic to crawler
-  officialTeamStandingsUpperTitles: ['RK', 'TEAM', 'GAMES', 'W', 'L', 'D', 'PCT', 'GB', 'STREAK', 'HOME', 'AWAY'],
-  officialTeamStandingsLowerTitles: ['RK', 'TEAM', 'AVG', 'ERA', 'RUNS', 'RUNS ALLOWED', 'HR'],
-  teamStandingsFromMyKBO: ['Rank / Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
-  pitcherByTeamPage1Titles: ['PLAYER', 'TEAM', 'ERA',	'G',	'CG', 'SHO', 'W', 'L', 'SV', 'HLD', 'PCT', 'PA', 'NP', 'IP', 'H', '2B', '3B', 'HR'],
-  pitcherByTeamPage2Titles: ['PLAYER', 'TEAM', 'SAC', 'SF', 'BB', 'IBB', 'HBP', 'SO', 'WP', 'BK', 'R', 'ER', 'BS', 'WHIP', 'OAVG', 'QS'],
-  teamBattingStatsPage1Titles: ['TEAM', 'AVG', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B', 'HR', 'TB', 'RBI', 'SB', 'CS', 'SAC', 'SF'],
-  teamBattingStatsPage2Titles: ['TEAM', 'BB', 'IBB', 'HBP', 'SO', 'GIDP', 'SLG', 'OBP', 'E', 'SBPCT', 'BB/K', 'XBH/H', 'MH', 'OPS', 'RISP', 'PH'],
-  teamNumber: 10,
-  collectionName: 'baseball_KBO',
-  // DOOSAN, KIWOOM, SK, LG, NC, KT, KIA, SAMSUNG, HANWHA, LOTTE
-  teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
-};
 const modules = require('../../util/modules');
 const leagueUtil = require('../../util/leagueUtil');
 const axios = require('axios');
@@ -25,17 +8,36 @@ const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const teamsMapping = require('../../util/teamsMapping');
 const teamStandings = {};
+const configs = {
+  league: 'KBO',
+  official_URL: 'http://eng.koreabaseball.com/',
+  myKBO_ULR: 'https://mykbostats.com/',
+  // TODO table titles should be dynamic to crawler
+  officialTeamStandingsUpperTitles: ['RK', 'TEAM', 'GAMES', 'W', 'L', 'D', 'PCT', 'GB', 'STREAK', 'HOME', 'AWAY'],
+  officialTeamStandingsLowerTitles: ['RK', 'TEAM', 'AVG', 'ERA', 'RUNS', 'RUNS ALLOWED', 'HR'],
+  teamStandingsFromMyKBO: ['Rank / Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
+  pitcherByTeamPage1Titles: ['PLAYER', 'TEAM', 'ERA',	'G',	'CG', 'SHO', 'W', 'L', 'SV', 'HLD', 'PCT', 'PA', 'NP', 'IP', 'H', '2B', '3B', 'HR'],
+  pitcherByTeamPage2Titles: ['PLAYER', 'TEAM', 'SAC', 'SF', 'BB', 'IBB', 'HBP', 'SO', 'WP', 'BK', 'R', 'ER', 'BS', 'WHIP', 'OAVG', 'QS'],
+  pitcherSearchTitles: ['PLAYER', 'No.', 'POSITION', 'BORN', 'HT, WT'],
+  teamBattingStatsPage1Titles: ['TEAM', 'AVG', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B', 'HR', 'TB', 'RBI', 'SB', 'CS', 'SAC', 'SF'],
+  teamBattingStatsPage2Titles: ['TEAM', 'BB', 'IBB', 'HBP', 'SO', 'GIDP', 'SLG', 'OBP', 'E', 'SBPCT', 'BB/K', 'XBH/H', 'MH', 'OPS', 'RISP', 'PH'],
+  teamNumber: 10,
+  collectionName: 'baseball_KBO',
+  // DOOSAN, KIWOOM, SK, LG, NC, KT, KIA, SAMSUNG, HANWHA, LOTTE
+  teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
+};
 // TODO crawler KBO prematch information:
 // 1. 隊伍資訊 ex: team_base, team_hit
 // team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG (per_R & allow_per_R)
 // 2. 本季投手資訊
 // 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)、背號「未做」
+// TODO 作全隊
 // 2-1 背號 ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
 // 3. 本季打擊資訊
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
 // 4. 本季球員資訊「未做」
 
-async function prematch_KBO() {
+async function prematch_KBO(req, res) {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
@@ -44,6 +46,7 @@ async function prematch_KBO() {
       // await crawlerPitcher(season);
       await crawlerPitcherJerseyId(season);
       // await crawlerHitting(season);
+      return resolve(res.json('ok'));
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
@@ -249,6 +252,7 @@ function crawlerPitcher(season) {
       for (let i = 0; i < configs.teamNumber; i++) {
         const teamCode = configs.teamCode[i];
         // page1
+        // console.log(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
         const $_pitchingStatsForPage1 = await crawler(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
         const pitchingStatsDataForPage1 = await getPitchingStatsFromOfficial($_pitchingStatsForPage1, configs.pitcherByTeamPage1Titles);
         repackagePitcherDataForPage1(pitchingStatsDataForPage1, configs.pitcherByTeamPage1Titles, season);
@@ -369,8 +373,15 @@ function insertPitcherToFirestore(officialData, teamId, season) {
 function crawlerPitcherJerseyId(season) {
   return new Promise(async function(resolve, reject) {
     try {
-      const $_PitchersData = await crawler(`${configs.official_URL}/Teams/PlayerSearch.aspx`);
-      const PitchersData = await getPitcherJerseyId($_PitchersData);
+      // for (let i = 0; i < configs.teamCode.length; i++) {
+      // const teamCode = configs.teamCode[i].toLowerCase();
+      const $_pitchersData = await crawler(`${configs.official_URL}Teams/PlayerSearch.aspx`);
+
+      const pitchersData = await getPitcherJerseyId($_pitchersData);
+      // console.log(`${configs.official_URL}Teams/PlayerSearch.aspx?codeTeam=${teamCode}`, '------');
+      await repackagePitchersData(pitchersData, season);
+      // }
+      return resolve();
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
     }
@@ -380,11 +391,47 @@ function crawlerPitcherJerseyId(season) {
 function getPitcherJerseyId($) {
   return new Promise(async function(resolve, reject) {
     try {
-      $('td').each(function(i) {
-        console.log($(this).text());
+      const pitchersData = [];
+      const pitcherIds = [];
+      $('tr').each(function(i, ele) {
+        if (i > 0) { // Escape title
+          const pitcherId = $(ele).find('a').attr('href').replace('/Teams/PlayerInfoPitcher/Summary.aspx?pcode=', '');
+          pitcherIds.push(pitcherId);
+        }
       });
+      $('td').each(function(i) {
+        pitchersData.push($(this).text());
+      });
+      return resolve({ pitchersData, pitcherIds });
     } catch (err) {
+      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
 
+function repackagePitchersData(data, season) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { pitchersData, pitcherIds } = data;
+      let j = 0;
+      const temp = {};
+      for (let i = 0; i < pitchersData.length; i++) {
+        if (i % (configs.pitcherSearchTitles.length - 1) === 0) {
+          const pitcherId = pitcherIds[j];
+          const teamId = '3353';
+          const jersey_id = pitchersData[i];
+          const born = pitchersData[i + 2];
+          const HT_WT = pitchersData[i + 3];
+          temp[pitcherId] = { jersey_id, born, HT_WT };
+          j++;
+          console.log(temp);
+          await insertPitcherToFirestore(temp, teamId, season);
+        }
+      }
+
+      return resolve();
+    } catch (err) {
+      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -396,6 +443,7 @@ function crawlerHitting(season) {
       const $_teamHittingStats = await crawler(`${configs.official_URL}Stats/TeamStats.aspx`);
       const teamHittingStatsData = await getTeamHittingFromOfficial($_teamHittingStats);
       repackageHittingData(teamHittingStatsData, { teamBattingStatsPage1Titles, teamBattingStatsPage2Titles }, season);
+      return resolve();
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
     }
