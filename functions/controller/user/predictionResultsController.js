@@ -1,4 +1,7 @@
 const modules = require('../../util/modules');
+const { acceptNumberAndLetter } = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/user/predictionResultsModel');
 
 async function predictionResult(req, res) {
@@ -15,16 +18,16 @@ async function predictionResult(req, res) {
       },
       uid: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter,
+        pattern: acceptNumberAndLetter,
         default: req.query.uid ? req.query.uid : (req.token ? req.token.uid : req.token)
       }
     }
 
   };
 
-  const valid = modules.ajv.validate(schema, req.query);
+  const valid = ajv.validate(schema, req.query);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   const args = {
@@ -61,10 +64,10 @@ module.exports = predictionResult;
  *
  * @apiSuccess {Object} body 有下注的各聯盟內容
  * @apiSuccess {Array} each_league ex: 聯盟種類，ex: `eSoccer`, `NBA`, ...
- * @apiSuccess {Object} league ex: 聯盟種類物件，ex: `eSoccer`, `NBA`, ...
- * @apiSuccess {String} league.id 賽事編號
- * @apiSuccess {Number} league.scheduled 賽事開打時間的 unix 表示法
- * @apiSuccess {String} league.league_id 聯盟編號
+ * @apiSuccess {String} id 賽事編號
+ * @apiSuccess {String} match_status 賽事的狀態，2 未來賽事，1 正在打，0 結束，-1 延遲（API 問題），-2 延後，-3 取消
+ * @apiSuccess {Number} scheduled 賽事開打時間的 unix 表示法
+ * @apiSuccess {String} league_id 聯盟編號
  * @apiSuccess {Object} home 主隊資訊（客隊資訊同邏輯，不再贅述）
  * @apiSuccess {String} home.id 主隊編號
  * @apiSuccess {String} home.alias 主隊簡稱
@@ -91,6 +94,7 @@ module.exports = predictionResult;
     "eSoccer": [
         {
             "id": "2331650",
+            "match_status": 0,
             "scheduled": 1593558000,
             "scheduled_tw": "07:00 AM",
             "league_id": "22000",
@@ -132,6 +136,7 @@ module.exports = predictionResult;
     "NBA": [
         {
             "id": "2118058",
+            "match_status": 0,
             "scheduled": 1593558000,
             "scheduled_tw": "07:00 AM",
             "league_id": "2274",
@@ -174,6 +179,7 @@ module.exports = predictionResult;
         },
         {
             "id": "2119917",
+            "match_status": 0,
             "scheduled": 1593565200,
             "scheduled_tw": "09:00 AM",
             "league_id": "2274",

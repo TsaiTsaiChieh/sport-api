@@ -39,7 +39,7 @@ async function othersPredictions(args) {
   //   2. 已購牌：完整預測內容。有引言、武功祕技
 
   // 要區分 未登入、已登入
-  const userUid = args.token === undefined ? null : args.token.uid; // 需要判斷 有登入的話，判斷有沒有購牌
+  const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，判斷有沒有購牌
 
   const othersUid = args.othersUid;
   const period = getTitlesPeriod(Date.now()).period;
@@ -67,12 +67,12 @@ async function othersPredictions(args) {
     select prediction.*, 
            spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
            totals.handicap totals_handicap, totals.over_tw,
-           users.status, users.default_god_league_rank,
+           users.status users_status, users.default_god_league_rank,
            titles.rank_id, titles.default_title,
            titles.continue, titles.predict_rate1, titles.predict_rate2, titles.predict_rate3,
            titles.win_bets_continue, titles.matches_rate1, titles.matches_rate2, titles.matches_continue
       from (
-             select prediction.bets_id, sell, match_scheduled,
+             select prediction.bets_id, sell, match_scheduled, matches.status,
                     prediction.league_id, league.name league,
                     prediction.uid,
                     team_home.alias home_alias, team_home.alias_ch home_alias_ch,
@@ -204,8 +204,8 @@ function getPaidType(info) {
 }
 
 function checkBuyGodPredictions(uid, buyId) {
-  if (uid === null) return false; // 代表未登入，回傳 未付費
-  if (buyId === null) return false; // 代表登入 未購買，回傳 未付費
+  if (!uid) return false; // 代表未登入，回傳 未付費
+  if (!buyId) return false; // 代表登入 未購買，回傳 未付費
   return true; // 已付費
 }
 
@@ -237,6 +237,7 @@ function repackage(ele, paidType) {
   const data = {
     bets_id: ele.bets_id,
     scheduled: ele.match_scheduled, // 開賽時間
+    match_status: ele.status,
     league: ele.league,
     home: {
       team_name: ele.home_alias,
@@ -254,24 +255,25 @@ function repackage(ele, paidType) {
     totals: {}
   };
 
-  if (!(ele.spread_id == null)) { // 有讓分資料
+  if (ele.spread_id) { // 有讓分資料
     data.spread = {
       predict: (paidType === 'unpaid') ? '' : ele.spread_option,
       spread_id: ele.spread_id,
       handicap: ele.spread_handicap,
-      handicap_home_tw: ele.home_tw ? ele.home_tw : '',
-      handicap_away_tw: ele.away_tw ? ele.away_tw : '',
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      home_tw: ele.home_tw ? ele.home_tw : '',
+      away_tw: ele.away_tw ? ele.away_tw : '',
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.spread_bets
     };
   }
 
-  if (!(ele.totals_id == null)) { // 有大小資料
+  if (ele.totals_id) { // 有大小資料
     data.totals = {
       predict: (paidType === 'unpaid') ? '' : ele.totals_option,
       totals_id: ele.totals_id,
-      handicap: ele.over_tw, // ele.totals_handicap,
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      handicap: ele.totals_handicap,
+      over_tw: ele.over_tw,
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.totals_bets
     };
   }

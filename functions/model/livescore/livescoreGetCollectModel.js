@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 async function livescore(args) {
   return new Promise(async function(resolve, reject) {
@@ -36,7 +37,7 @@ function queryAllCollection(args) {
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             uid: args.token.uid,
             begin: begin,
             end: end

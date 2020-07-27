@@ -1,7 +1,6 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable prefer-promise-reject-errors */
-/* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
 const db = require('../../util/dbUtil');
 const messageModule = require('../../util/messageModule');
 async function getUserInfo(uid) {
@@ -33,12 +32,11 @@ function createMessage(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const insertData = {};
-      insertData.createTime = modules.firebaseAdmin.firestore.Timestamp.now();
+      insertData.createTime = firebaseAdmin().firestore.Timestamp.now();
 
       /* get user according token */
       // user部分讀mysql 訊息仍然放在firebase rtdb
       const mysql_user = await getUserInfo(args.token.uid);
-      // const userSnapshot = await modules.getSnapshot('users', args.token.uid);
       /* step1: check if user exists */
       if (!mysql_user) {
         reject({ code: 404, error: 'user not found' });
@@ -59,10 +57,7 @@ function createMessage(args) {
       // }
       /* step3: get reply message info (future can be written as function) */
       if (args.reply) {
-        const messageSnapshot = await modules.getSnapshot(
-          `chat_${args.message.channelId}`,
-          args.reply.messageId
-        );
+        const messageSnapshot = await firestore.collection(`chat_${args.message.channelId}`).doc(args.reply.messageId).get();
         /* messageId did not exist return 400 error */
         /* second condition is soft delete logic: if -1 (admin delete) or 0 (user delete) return error */
         if (
@@ -89,7 +84,7 @@ function createMessage(args) {
         insertData.reply = reply;
       }
       /* step3: get insert doc id */
-      const messageDoc = modules.firestore
+      const messageDoc = firestore
         .collection(`chat_${args.message.channelId}`)
         .doc();
       const messageId = messageDoc.id;
@@ -117,7 +112,7 @@ function createMessage(args) {
       /* add message data to firestore & realtime */
       const result = await messageDoc.set(insertData);
       if (result) {
-        modules.database
+        database
           .ref(`chat_${args.message.channelId}`)
           .child(messageId)
           .set(insertData);
@@ -127,7 +122,7 @@ function createMessage(args) {
         return;
       }
     } catch (err) {
-      console.log('error happened...', err);
+      console.error('error happened...', err);
       reject({ code: 500, error: err });
     }
   });

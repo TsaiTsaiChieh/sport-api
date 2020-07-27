@@ -1,12 +1,12 @@
 const userUtils = require('../../util/userUtil');
 const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const db = require('../../util/dbUtil');
-const admin = modules.firebaseAdmin;
+const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
 
 async function modifyUserProfile(req, res) {
   const uid = req.token.uid;
-  // const userSnapshot = await modules.getSnapshot("users", uid);
   const userSnapshot = await db.sequelize.query(
     `
       SELECT *
@@ -20,14 +20,12 @@ async function modifyUserProfile(req, res) {
   const userStatus = userSnapshot != null ? userSnapshot.status : 0;
   const data = {};
   const nowTimeStamp = modules.moment().unix();
-  const args = {};
   data.display_name = req.body.display_name;
   data.name = req.body.name;
   data.country_code = req.body.country_code;
   data.phone = req.body.phone;
   data.email = req.body.email;
   data.birthday = req.body.birthday;
-  data.birthday_tw = modules.moment.tz(args.birthday, modules.zone).format('YYYY-MM-DD HH:mm:ss');
   data.uid = uid;
   switch (userStatus) {
     case 0: // 新會員
@@ -46,57 +44,15 @@ async function modifyUserProfile(req, res) {
           signature: { type: 'string', maxLength: 20 }
         }
       };
-      const valid = modules.ajv.validate(schema, data);
+      const valid = ajv.validate(schema, data);
+      data.birthday_tw = modules.moment.tz(data.birthday, modules.zone).format('YYYY-MM-DD');
 
-      // if (!valid) return res.status(400).json(modules.ajv.errors);
+      // if (!valid) return res.status(400).json(ajv.errors);
       if (!valid) {
-        res.status(400).json(modules.ajv.errors);
+        res.status(400).json(ajv.errors);
         return;
       }
 
-      // const uniqueNameSnapshot = await modules.firestore
-      //   .collection('uniqueName')
-      //   .doc(args.displayName)
-      //   .get();
-      // const uniqueEmailSnapshot = await modules.firestore
-      //   .collection('uniqueEmail')
-      //   .doc(args.email)
-      //   .get();
-      // const uniquePhoneSnapshot = await modules.firestore
-      //   .collection('uniquePhone')
-      //   .doc(args.phone)
-      //   .get();
-      // if (
-      //   uniqueNameSnapshot.exists ||
-      //   uniqueEmailSnapshot.exists ||
-      //   uniquePhoneSnapshot.exists
-      // ) {
-      //   res.status(400).json({
-      //     success: false,
-      //     message: 'user name , email or phone exists'
-      //   });
-      //   return;
-      // } else {
-      //   modules.firestore
-      //     .collection('uniqueName')
-      //     .doc(args.displayName)
-      //     .set({ uid: uid });
-      //   modules.firestore
-      //     .collection('uniqueEmail')
-      //     .doc(args.email)
-      //     .set({ uid: uid });
-      //   modules.firestore
-      //     .collection('uniquePhone')
-      //     .doc(args.phone)
-      //     .set({ uid: uid });
-      // }
-
-      // data.display_name = args.display_name; // only new user can set displayName, none changeable value
-      // data.name = args.name; // only new user can set name(Actual name), none changeable value
-      // data.phone = args.phone;
-
-      // data.birthday = args.birthday;
-      // data.birthday_tw = args.birthday_tw;
       if (!data.avatar) {
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
       }
@@ -115,33 +71,32 @@ async function modifyUserProfile(req, res) {
       data.point = 0;
       data.block_count = 0;
       data.accuse_credit = 20; // 檢舉信用值預設20，limit 100
-      admin.auth().updateUser(uid, {
+      firebaseAdmin().auth().updateUser(uid, {
         // email: req.body.email,
         // phoneNumber: req.body.phone,
         display_name: req.body.display_name
       });
-      admin.auth().setCustomUserClaims(uid, { role: 1, titles: [] });
+      firebaseAdmin().auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
     }
     case 1: // 一般會員
-      console.log('normal user');
+      // console.log('normal user');
       break;
     case 2: // 大神
-      console.log('godlike user');
+      // console.log('godlike user');
       break;
     case -1: // 鎖帳號會員
-      console.log('blocked user');
-      res.status(400).json({ success: false, message: 'blocked user' });
-      break;
+      // console.log('blocked user');
+      return res.status(400).json({ success: false, message: 'blocked user' });
     case 9: // 管理員
-      console.log('manager user');
+      // console.log('manager user');
       break;
     default:
       return res.status(401).json({ success: false, message: 'user status error' });
   }
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
-    admin.auth().updateUser(uid, {
+    firebaseAdmin().auth().updateUser(uid, {
       photoURL: req.body.avatar
     });
   }
@@ -151,8 +106,8 @@ async function modifyUserProfile(req, res) {
   if (req.body.signature) data.signature = req.body.signature;
   // if (req.body.title) data.defaultTitle = req.body.title;//移到另外API
   data.updateTime = nowTimeStamp;
-  const resultJson = {};
 
+  // 推薦碼（停用)
   // const refCode = req.body.refCode;
   // const userReferrer = userSnapshot.exists ? userSnapshot.referrer : undefined;
   // if (refCode && !userReferrer && refCode !== uid) {
@@ -163,7 +118,7 @@ async function modifyUserProfile(req, res) {
   //     /^[a-zA-Z0-9]{28}$/g.test(refCode) === true ||
   //     /^[U][a-f0-9]{32}$/g.test(refCode) === true
   //   ) {
-  //     const referrerSnapshot = await modules.getSnapshot('users', refCode);
+  //     const referrerSnapshot = await getSnapshot('users', refCode);
   //     if (referrerSnapshot.exists) {
   //       const referrerProfile = await referrerSnapshot.data();
   //       // process Ref Point
@@ -190,14 +145,14 @@ async function modifyUserProfile(req, res) {
   // if(display_name_unique!=null){
   //   reject({'error':'error'});
   // }
-  console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
+  // console.log('user profile updated : ', JSON.stringify(data, null, '\t'));
   await db.User.upsert(data)
     .then(async(ref) => {
-      const userResult = await userUtils.getUserProfile(uid);
-      resultJson.data = userResult;
+      const resultJson = {};
+      resultJson.data = await userUtils.getUserProfile(uid);
       resultJson.success = true;
-      console.log('Added document with ID: ', ref);
-      res.status(200).json(resultJson);
+      // console.log('Added document with ID: ', ref);
+      return res.status(200).json(resultJson);
     })
     .catch((e) => {
       console.log('Added document with error: ', e);

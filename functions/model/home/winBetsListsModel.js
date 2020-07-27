@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueCodebook, to } = require('../../util/modules');
+const { getTitlesPeriod, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { CacheQuery } = require('../../util/redisUtil');
@@ -69,11 +70,11 @@ async function winBetsLists() {
       type: db.sequelize.QueryTypes.SELECT
     }, redisKey));
     if (err) {
-      console.error('Error in  home/WinBetsListsModel by YuHsien:  %o', err);
+      console.error('[Error][home][WinBetsListsModel][CacheQuery] ', err);
       throw errs.dbErrsMsg('404', '14030');
     }
 
-    if (leagueWinBetsListsQuery === undefined || leagueWinBetsListsQuery.length <= 0) return { win_bets_lists: winBetsLists }; // 如果沒有找到資料回傳 []
+    if (!leagueWinBetsListsQuery || leagueWinBetsListsQuery.length <= 0) return { win_bets_lists: winBetsLists }; // 如果沒有找到資料回傳 []
 
     leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
       leagueWinBetsLists.push(repackage(data));

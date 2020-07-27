@@ -1,4 +1,6 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const database = firebaseAdmin().database();
+const axios = require('axios');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -80,7 +82,7 @@ module.exports.eSoccer.upcoming = async function(date) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -93,7 +95,7 @@ async function axiosForURL(URL) {
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
@@ -176,6 +178,8 @@ function translate(team, leagueID) {
     "M'Gladbach",
     "Borussia M'gladbach",
     "B M'gladbach",
+    "B.M'Gladbach",
+    "M'gladbach",
     'Tottenham',
     'Real Madrid',
     'Portugal',
@@ -184,6 +188,7 @@ function translate(team, leagueID) {
     'CSKA Moscow',
     'Borussia Dortmund',
     'Dortmund',
+    'B Dortmund',
     'Barcelona',
     'Valencia',
     'Lokomotiv Moscow',
@@ -201,6 +206,7 @@ function translate(team, leagueID) {
     'Spartak Moscow',
     'Bayer Leverkusen',
     'Leverkusen',
+    'B Leverkusen',
     'Inter Milan',
     'Brazil',
     'France',
@@ -221,6 +227,7 @@ function translate(team, leagueID) {
     'Inter',
     'Atl Madrid',
     'Loko Moscow',
+    'Lok Moscow',
     'Man United',
     'CSKA',
     'Shakhtar',
@@ -240,6 +247,8 @@ function translate(team, leagueID) {
     '門興格拉德巴赫',
     '門興格拉德巴赫',
     '門興格拉德巴赫',
+    '門興格拉德巴赫',
+    '門興格拉德巴赫',
     '托特納姆',
     '皇家馬德里',
     '葡萄牙',
@@ -247,7 +256,8 @@ function translate(team, leagueID) {
     '那不勒斯',
     '莫斯科中央陸軍',
     '白俄羅斯多蒙特',
-    '多蒙特',
+    '白俄羅斯多蒙特',
+    '白俄羅斯多蒙特',
     '巴塞隆納',
     '巴倫西亞',
     '莫斯科火車頭',
@@ -263,6 +273,7 @@ function translate(team, leagueID) {
     '拜仁慕尼黑',
     '斯巴達克',
     '莫斯科斯巴達克',
+    '拜耳樂沃庫森',
     '拜耳樂沃庫森',
     '拜耳樂沃庫森',
     '國際米蘭',
@@ -284,6 +295,7 @@ function translate(team, leagueID) {
     '莫斯科火車頭',
     '國際米蘭',
     '馬德里競技',
+    '莫斯科火車頭',
     '莫斯科火車頭',
     '曼徹斯特聯',
     '莫斯科中央陸軍',
@@ -388,7 +400,9 @@ function translate(team, leagueID) {
     'Sportivo Rustico',
     'IASA',
     'Central Espanol',
-    'Villa Espanola'
+    'Villa Espanola',
+    'Clain',
+    'La Carreta'
   ];
   const eFUFV12tran = [
     '達奴比奧',
@@ -442,7 +456,9 @@ function translate(team, leagueID) {
     '魯斯蒂科',
     'IASA',
     '中央足球',
-    '維拉艾斯潘諾拉社會'
+    '維拉艾斯潘諾拉社會',
+    '克萊恩',
+    '拉卡雷塔'
   ];
   const ePro12ori = [
     'Pele Warriors (PWR)',
@@ -480,7 +496,9 @@ function translate(team, leagueID) {
     '甘比特 (GMB)',
     'Inactivetv (INA)',
     '西海岸 (WCU)',
-    '帕怕克里奇 (ROB)'
+    '帕怕克里奇 (ROB)',
+    '阿列夫塞普',
+    '阿塔瑞斯'
   ];
   const ePlayer12ori = [
     'Klinger (R10)',
@@ -556,7 +574,9 @@ function translate(team, leagueID) {
     'Gios',
     'Peppeu',
     'Felipe Barreto',
-    'Arthursep'
+    'Arthursep',
+    'Aleefsep',
+    'Artareies'
   ];
   const ePlayer12tran = [
     '克林格 (R10)',
@@ -588,7 +608,7 @@ function translate(team, leagueID) {
     'Barrinha97 (R10)',
     'Rafia13 (NSE)',
     '維尼 (NSE)',
-    'Vpzao',
+    '法帕索',
     'EbinhoB (Wolves)',
     '亞諾茲 (INF)',
     '迪戈·阿勞霍 (NSE)',

@@ -139,7 +139,7 @@ describe('結算退款 搞幣紅利', () => {
           dividend: '169' 
         };
 
-      const settleResult = = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
+      const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
         diamondData.coin, diamondData.dividend);
 
       expect(settleResult).toHaveProperty('coin_real', 0);

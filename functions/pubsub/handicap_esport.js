@@ -1,5 +1,7 @@
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const db = require('../util/dbUtil');
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const envValues = require('../config/env_values');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
@@ -20,7 +22,7 @@ async function handicap_esport() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -44,7 +46,7 @@ async function query_event(league) {
       `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
-					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
+					WHERE game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
 						AND game.league_id =  '${league}'
 			 )`,
@@ -280,13 +282,13 @@ function spreadCalculator(handicapObj) {
         // 整數
         if (handicapObj.handicap > 0) {
           // 主讓客
-          handicapObj.home_tw = handicapObj.handicap;
+          handicapObj.home_tw = Math.abs(handicapObj.handicap);
           handicapObj.away_tw = null;
           handicapObj.rate = 0;
         } else {
           // 客讓主
           handicapObj.home_tw = null;
-          handicapObj.away_tw = handicapObj.handicap;
+          handicapObj.away_tw = Math.abs(handicapObj.handicap);
           handicapObj.rate = 0;
         }
       } else if (handicapObj.handicap % 1 !== 0) {

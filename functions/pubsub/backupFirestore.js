@@ -1,17 +1,18 @@
-const modules = require('../util/modules');
 const testServiceAccount = require('../auth/sportslottery-test-adminsdk.json');
 const testDatabaseURL = 'https://sportslottery-test.firebaseio.com';
 // const officialServiceAccount = require('../auth/sport19y0715-dev.json');
 // const officialDatabaseURL = 'https://sport19y0715.firebaseio.com';
 const jsonFile = require('../json/matches/firestore_NBA.json');
 const collectionName = ['basketball_NBA'];
+const firestoreService = require('firestore-export-import');
+const fs = require('fs');
 
 function backupFirestore(req, res) {
   // Initiate Firebase App
-  modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
+  firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
   // eslint-disable-next-line promise/always-return
-  modules.firestoreService.backups(collectionName).then(function(data) {
-    modules.fs.writeFile(
+  firestoreService.backups(collectionName).then(function(data) {
+    fs.writeFile(
       // './json/matches/firestore_MLB.json', // origin
       // './json/matches/NBA.json', // match
       './json/spread/NBA.json', // spread
@@ -30,12 +31,12 @@ function backupFirestore(req, res) {
 }
 
 async function restoreFirestore(req, res) {
-  // modules.firestoreService.initializeApp(
+  // firestoreService.initializeApp(
   //   officialServiceAccount,
   //   officialDatabaseURL
   // );
-  modules.firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
-  modules.firestoreService.restore(jsonFile, {
+  firestoreService.initializeApp(testServiceAccount, testDatabaseURL);
+  firestoreService.restore(jsonFile, {
     dates: ['update_time', 'scheduled']
   });
   res.json('Restore complete');
@@ -95,8 +96,8 @@ function repackageSpread(data) {
 
 // eslint-disable-next-line no-unused-vars
 function backup_match(res, collectionName, path) {
-  modules.firestoreService.backups(collectionName).then(function(data) {
-    modules.fs.writeFile(
+  firestoreService.backups(collectionName).then(function(data) {
+    fs.writeFile(
       path,
       JSON.stringify(repackageMatch(data.basketball_NBA)),
       function(err) {

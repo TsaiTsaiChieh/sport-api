@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
@@ -32,7 +33,7 @@ function queryTwoDaysEvent(args) {
       const queries = await db.sequelize.query(
         // take 169 ms
         `(
-          SELECT bets_id AS id, scheduled, scheduled_tw, home.name AS home_name,away.name AS away_name, home.name_ch AS home_name_ch,away.name_ch AS away_name_ch
+          SELECT bets_id AS id, scheduled, scheduled_tw, home.name AS home_name,away.name AS away_name, home.name_ch AS home_name_ch, home.alias_ch AS home_alias_ch,away.name_ch AS away_name_ch,away.alias_ch AS away_alias_ch
             FROM matches AS game ,
                  match__teams AS home,
                  match__teams AS away
@@ -43,7 +44,7 @@ function queryTwoDaysEvent(args) {
              ORDER BY scheduled
          )`,
         {
-          replacements: { leagueID: modules.leagueCodebook(args.league).id },
+          replacements: { leagueID: leagueUtil.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -113,8 +114,8 @@ async function repackage(events) {
         day: dayOfWeek,
         home_name: ele.home_name.split('(')[0].trim(),
         away_name: ele.away_name.split('(')[0].trim(),
-        home_name_ch: ele.home_name_ch,
-        away_name_ch: ele.away_name_ch
+        home_name_ch: ele.home_alias_ch,
+        away_name_ch: ele.away_alias_ch
       };
       data.push(temp);
     }

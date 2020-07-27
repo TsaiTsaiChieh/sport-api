@@ -1,35 +1,38 @@
-const modules = require('../util/modules');
+const axios = require('axios');
+const firebaseAdmin = require('../util/firebaseUtil');
+const database = firebaseAdmin().database();
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
 const league = 'KBO';
-let eventNow = 0;
-let eventOrderNow = 0;
-let hitterHomeNow = 0;
-let hitterAwayNow = 0;
-let pitcherHomeNow = 0;
-let pitcherAwayNow = 0;
-let inningNow = 1;
-let halfNow = '0';
-let memberHomeNow = 0;
-let memberAwayNow = 0;
-let pitcherHomeBalls = 0;
-let pitcherHomeStrikes = 0;
-let pitcherHomeER = 0;
-let pitcherHomeH = 0;
-let pitcherHomeK = 0;
-let pitcherAwayBalls = 0;
-let pitcherAwayStrikes = 0;
-let pitcherAwayER = 0;
-let pitcherAwayH = 0;
-let pitcherAwayK = 0;
-let hitterHomeAB = 0;
-let hitterHomeH = 0;
-let hitterAwayAB = 0;
-let hitterAwayH = 0;
+
 async function KBOpbpInplay(parameter) {
+  let eventNow = 0;
+  let eventOrderNow = 0;
+  let hitterHomeNow = 0;
+  let hitterAwayNow = 0;
+  let pitcherHomeNow = 0;
+  let pitcherAwayNow = 0;
+  let inningNow = 1;
+  let halfNow = '0';
+  let memberHomeNow = 0;
+  let memberAwayNow = 0;
+  let pitcherHomeBalls = 0;
+  let pitcherHomeStrikes = 0;
+  let pitcherHomeER = 0;
+  let pitcherHomeH = 0;
+  let pitcherHomeK = 0;
+  let pitcherAwayBalls = 0;
+  let pitcherAwayStrikes = 0;
+  let pitcherAwayER = 0;
+  let pitcherAwayH = 0;
+  let pitcherAwayK = 0;
+  const hitterHomeAB = 0;
+  const hitterHomeH = 0;
+  let hitterAwayAB = 0;
+  let hitterAwayH = 0;
   // 14 秒一次
   let perStep;
   let timesPerLoop;
@@ -39,7 +42,7 @@ async function KBOpbpInplay(parameter) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 14000;
-    timesPerLoop = 3; // 一分鐘2次
+    timesPerLoop = 4; // 一分鐘3次
   }
 
   const betsID = parameter.betsID;
@@ -49,10 +52,11 @@ async function KBOpbpInplay(parameter) {
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
   const timerForStatus2 = setInterval(async function() {
-    let realtimeData = await modules.database
+    let realtimeData = await database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
+
     if (parameter.first === 0) {
       if (realtimeData.Summary.info) {
         if (realtimeData.Summary.Now_event) {
@@ -154,11 +158,38 @@ async function KBOpbpInplay(parameter) {
         }
       }
     }
+    const baseballParameter = {
+      eventNow: eventNow,
+      eventOrderNow: eventOrderNow,
+      hitterHomeNow: hitterHomeNow,
+      hitterAwayNow: hitterAwayNow,
+      pitcherHomeNow: pitcherHomeNow,
+      pitcherAwayNow: pitcherAwayNow,
+      inningNow: inningNow,
+      halfNow: halfNow,
+      memberHomeNow: memberHomeNow,
+      memberAwayNow: memberAwayNow,
+      pitcherHomeBalls: pitcherHomeBalls,
+      pitcherHomeStrikes: pitcherHomeStrikes,
+      pitcherHomeER: pitcherHomeER,
+      pitcherHomeH: pitcherHomeH,
+      pitcherHomeK: pitcherHomeK,
+      pitcherAwayBalls: pitcherAwayBalls,
+      pitcherAwayStrikes: pitcherAwayStrikes,
+      pitcherAwayER: pitcherAwayER,
+      pitcherAwayH: pitcherAwayH,
+      pitcherAwayK: pitcherAwayK,
+      hitterHomeAB: hitterHomeAB,
+      hitterHomeH: hitterHomeH,
+      hitterAwayAB: hitterAwayAB,
+      hitterAwayH: hitterAwayH
+    };
     const parameterPBP = {
       betsID: betsID,
       pbpURL: pbpURL,
       realtimeData: realtimeData,
-      first: parameter.first
+      first: parameter.first,
+      baseballParameter: baseballParameter
     };
 
     countForStatus2 = countForStatus2 + 1;
@@ -202,7 +233,7 @@ async function KBOpbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -242,6 +273,7 @@ async function doPBP(parameter) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
+    const baseballParameter = parameter.baseballParameter;
     let first = parameter.first;
     let pbpFlag = 1;
 
@@ -252,7 +284,7 @@ async function doPBP(parameter) {
       'finished'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -267,7 +299,7 @@ async function doPBP(parameter) {
     ) {
       if (realtimeData.Summary.status !== 'inprogress') {
         try {
-          await modules.database
+          await database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('inprogress');
         } catch (err) {
@@ -295,7 +327,7 @@ async function doPBP(parameter) {
       'Postponed'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('postponed');
         await Match.upsert({
@@ -315,7 +347,7 @@ async function doPBP(parameter) {
       'Cancelled'
     ) {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('cancelled');
         await Match.upsert({
@@ -332,7 +364,7 @@ async function doPBP(parameter) {
       }
     } else {
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
         await Match.upsert({
@@ -357,8 +389,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, realtimeData, data);
-        await writeBacktoReal(betsID);
+        await writeRealtime(betsID, realtimeData, data, baseballParameter);
       }
     }
 
@@ -369,7 +400,7 @@ async function doPBP(parameter) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -405,13 +436,13 @@ async function queryForToken() {
 async function initRealtime(betsID, data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
         );
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -439,36 +470,44 @@ async function initRealtime(betsID, data) {
           return a.id > b.id ? 1 : -1;
         }
       );
-
-      for (let playercount = 0; playercount < 9; playercount++) {
+      // ori for (let playercount = 0; playercount < 9; playercount++)
+      for (let playercount = 1; playercount < 10; playercount++) {
         try {
-          await modules.database
+          await database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
-                playercount + 1
-              }`
+              // ori
+              // `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
+              //  playercount + 1
+              // }`
+              `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${playercount}`
             )
             .set({
               ab: 0,
               h: 0,
-              name: homeLineup[playercount].participant_name,
-              jersey_number: homeLineup[playercount].shirt_nr,
-              order: playercount + 1,
+              name: homeLineup[playercount - 1].participant_name,
+              jersey_number: homeLineup[playercount - 1].shirt_nr,
+              // ori
+              // order: playercount + 1,
+              order: playercount,
               id: homeLineup[playercount].id,
               start: 1
             });
-          await modules.database
+          await database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
-                playercount + 1
-              }`
+              // ori
+              // `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
+              //  playercount + 1
+              // }`
+              `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${playercount}`
             )
             .set({
               ab: 0,
               h: 0,
-              name: awayLineup[playercount].participant_name,
-              jersey_number: awayLineup[playercount].shirt_nr,
-              order: playercount + 1,
+              name: awayLineup[playercount - 1].participant_name,
+              jersey_number: awayLineup[playercount - 1].shirt_nr,
+              // ori
+              // order: playercount + 1,
+              order: playercount,
               id: awayLineup[playercount].id,
               start: 1
             });
@@ -481,7 +520,7 @@ async function initRealtime(betsID, data) {
         }
       }
       // 投手
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup10`
         )
@@ -492,13 +531,17 @@ async function initRealtime(betsID, data) {
           h: 0,
           ip: 0,
           k: 0,
+          // ori
           name: homeLineup[9].participant_name,
           jersey_number: homeLineup[9].shirt_nr,
-          order: 10,
           id: homeLineup[9].id,
+          // name: homeLineup[0].participant_name,
+          // jersey_number: homeLineup[0].shirt_nr,
+          // id: homeLineup[0].id,
+          order: 10,
           start: 1
         });
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup10`
         )
@@ -509,21 +552,25 @@ async function initRealtime(betsID, data) {
           h: 0,
           ip: 0,
           k: 0,
+          // ori
           name: awayLineup[9].participant_name,
           jersey_number: awayLineup[9].shirt_nr,
-          order: 10,
           id: awayLineup[9].id,
+          // name: awayLineup[0].participant_name,
+          // jersey_number: awayLineup[0].shirt_nr,
+          // id: awayLineup[0].id,
+          order: 10,
           start: 1
         });
       // 教練
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup0`
         )
         .set({
           name: homeLineup[10].participant_name
         });
-      await modules.database
+      await database
         .ref(
           `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup0`
         )
@@ -532,46 +579,46 @@ async function initRealtime(betsID, data) {
         });
     }
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
         .set('0');
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
         .set(1);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(0);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(0);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_home`)
         .set(0);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_home`)
         .set(1);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_home`)
         .set(2);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_away`)
         .set(0);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_away`)
         .set(1);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_away`)
         .set(2);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_member_home`)
         .set(11);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_member_away`)
         .set(11);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_home`)
         .set(10);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_away`)
         .set(10);
     } catch (err) {
@@ -585,12 +632,37 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, realtimeData, data) {
+async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
   return new Promise(async function(resolve, reject) {
+    let eventNow = baseballParameter.eventNow;
+    let eventOrderNow = baseballParameter.eventOrderNow;
+    let hitterHomeNow = baseballParameter.hitterHomeNow;
+    let hitterAwayNow = baseballParameter.hitterAwayNow;
+    const pitcherHomeNow = baseballParameter.pitcherHomeNow;
+    const pitcherAwayNow = baseballParameter.pitcherAwayNow;
+    let inningNow = baseballParameter.inningNow;
+    let halfNow = baseballParameter.halfNow;
+    let memberHomeNow = baseballParameter.memberHomeNow;
+    let memberAwayNow = baseballParameter.memberAwayNow;
+    let pitcherHomeBalls = baseballParameter.pitcherHomeBalls;
+    let pitcherHomeStrikes = baseballParameter.pitcherHomeStrikes;
+    let pitcherHomeER = baseballParameter.pitcherHomeER;
+    let pitcherHomeH = baseballParameter.pitcherHomeH;
+    let pitcherHomeK = baseballParameter.pitcherHomeK;
+    let pitcherAwayBalls = baseballParameter.pitcherAwayBalls;
+    let pitcherAwayStrikes = baseballParameter.pitcherAwayStrikes;
+    let pitcherAwayER = baseballParameter.pitcherAwayER;
+    let pitcherAwayH = baseballParameter.pitcherAwayH;
+    let pitcherAwayK = baseballParameter.pitcherAwayK;
+    let hitterHomeAB = baseballParameter.hitterHomeAB;
+    let hitterHomeH = baseballParameter.hitterHomeH;
+    let hitterAwayAB = baseballParameter.hitterAwayAB;
+    let hitterAwayH = baseballParameter.hitterAwayH;
+
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
         .set({
           points:
@@ -604,7 +676,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               .stats[1].value
         });
 
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`)
         .set({
           points:
@@ -630,7 +702,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           data.api.data.competition.season.stage.group.event.participants[0]
             .results[count].value !== ''
         ) {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/home/Innings${
                 count - 2
@@ -648,7 +720,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           data.api.data.competition.season.stage.group.event.participants[1]
             .results[count].value !== ''
         ) {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/away/Innings${
                 count - 2
@@ -670,12 +742,12 @@ async function writeRealtime(betsID, realtimeData, data) {
         );
       }
     }
-
+    // 文字直播
     const totalEvent =
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
 
-    const eventEnd = totalEvent > eventNow + 2 ? eventNow + 2 : totalEvent;
+    const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       if (
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -752,7 +824,7 @@ async function writeRealtime(betsID, realtimeData, data) {
       }
       try {
         if (half === 'common') {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${halfNow}/event${eventOrderNow}`
             )
@@ -775,7 +847,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .events_incidents[eventCount].id
             });
         } else {
-          await modules.database
+          await database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${half}/event${eventOrderNow}`
             )
@@ -793,7 +865,9 @@ async function writeRealtime(betsID, realtimeData, data) {
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].participant_name,
                 data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].incident_name
+                  .events_incidents[eventCount].incident_name,
+                hitterAwayNow,
+                hitterHomeNow
               ),
               Inning: inningNow,
               Half: half,
@@ -810,10 +884,10 @@ async function writeRealtime(betsID, realtimeData, data) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
           .set(inningNow);
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_strikes`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -824,7 +898,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats[17].value
           );
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_outs`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -835,7 +909,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats[18].value
           );
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_balls`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -846,7 +920,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats[19].value
           );
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -861,7 +935,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .participants[1].stats[20].value
               )
           );
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_secondbase`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -876,7 +950,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   .participants[1].stats[21].value
               )
           );
-        await modules.database
+        await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_thirdbase`)
           .set(
             data.api.data.competition.season.stage.group.event.events_incidents[
@@ -913,7 +987,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -932,13 +1006,13 @@ async function writeRealtime(betsID, realtimeData, data) {
           try {
             hitterHomeNow =
               hitterHomeNow + 1 === 9 ? 9 : (hitterHomeNow + 1) % 9;
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_home`)
               .set(hitterHomeNow);
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_home`)
               .set(hitterHomeNow + 1 === 9 ? 9 : (hitterHomeNow + 1) % 9);
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_home`)
               .set(hitterHomeNow + 2 === 9 ? 9 : (hitterHomeNow + 2) % 9);
           } catch (err) {
@@ -982,7 +1056,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   }
                 );
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}}`
                     )
@@ -1000,7 +1074,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                 }
                 // 將新的打擊手移到目前的order上
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}`
                     )
@@ -1032,7 +1106,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                     `lineup${hitterHomeNow}`
                   ].ab;
                 hitterHomeAB = hitterHomeAB + 1;
-                await modules.database
+                await database
                   .ref(
                     `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
                   )
@@ -1047,7 +1121,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             } else {
               hitterHomeAB = hitterHomeAB + 1;
               try {
-                await modules.database
+                await database
                   .ref(
                     `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
                   )
@@ -1065,13 +1139,13 @@ async function writeRealtime(betsID, realtimeData, data) {
           // 客隊
           hitterAwayNow = hitterAwayNow + 1 === 9 ? 9 : (hitterAwayNow + 1) % 9;
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_away`)
               .set(hitterAwayNow);
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_away`)
               .set(hitterAwayNow + 1 === 9 ? 9 : (hitterAwayNow + 1) % 9);
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_away`)
               .set(hitterAwayNow + 2 === 9 ? 9 : (hitterAwayNow + 2) % 9);
           } catch (err) {
@@ -1112,7 +1186,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   }
                 );
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
                     )
@@ -1129,7 +1203,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   );
                 }
                 try {
-                  await modules.database
+                  await database
                     .ref(
                       `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}`
                     )
@@ -1161,7 +1235,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                     `lineup${hitterAwayNow}`
                   ].ab;
                 hitterAwayAB = hitterAwayAB + 1;
-                await modules.database
+                await database
                   .ref(
                     `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
                   )
@@ -1176,7 +1250,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             } else {
               try {
                 hitterAwayAB = hitterAwayAB + 1;
-                await modules.database
+                await database
                   .ref(
                     `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
                   )
@@ -1205,7 +1279,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1228,14 +1302,14 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].participant_id === homeID
           ) {
             hitterAwayAB = hitterAwayAB - 1;
-            await modules.database
+            await database
               .ref(
                 `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
               )
               .set(hitterAwayAB);
           } else {
             hitterHomeAB = hitterHomeAB - 1;
-            await modules.database
+            await database
               .ref(
                 `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
               )
@@ -1259,7 +1333,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1282,7 +1356,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           ) {
             try {
               hitterHomeAB = hitterHomeAB - 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
                 )
@@ -1297,7 +1371,7 @@ async function writeRealtime(betsID, realtimeData, data) {
           } else {
             try {
               hitterAwayAB = hitterAwayAB - 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
                 )
@@ -1325,7 +1399,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1347,7 +1421,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             ].participant_id === homeID
           ) {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_home`)
                 .set(memberHomeNow);
             } catch (err) {
@@ -1363,7 +1437,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               }
             );
             try {
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}`
                 )
@@ -1395,7 +1469,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             pitcherHomeK = 0;
           } else {
             try {
-              await modules.database
+              await database
                 .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_away`)
                 .set(memberAwayNow);
             } catch (err) {
@@ -1411,7 +1485,7 @@ async function writeRealtime(betsID, realtimeData, data) {
               }
             );
             try {
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
                 )
@@ -1457,7 +1531,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1484,7 +1558,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].er;
               pitcherAwayER = pitcherAwayER + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/er`
                 )
@@ -1504,7 +1578,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].er;
               pitcherHomeER = pitcherHomeER + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/er`
                 )
@@ -1533,7 +1607,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1560,7 +1634,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].k;
               pitcherAwayK = pitcherAwayK + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/k`
                 )
@@ -1579,7 +1653,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherHomeNow}`
                 ].k;
               pitcherHomeK = pitcherHomeK + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/k`
                 )
@@ -1607,7 +1681,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1634,7 +1708,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${hitterHomeNow}`
                 ].h;
               hitterHomeH = hitterHomeH + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/h`
                 )
@@ -1652,7 +1726,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].h;
               pitcherAwayH = pitcherAwayH + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/h`
                 )
@@ -1671,7 +1745,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${hitterAwayNow}`
                 ].h;
               hitterAwayH = hitterAwayH + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/h`
                 )
@@ -1689,7 +1763,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherHomeNow}`
                 ].h;
               pitcherHomeH = pitcherHomeH + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/h`
                 )
@@ -1720,7 +1794,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '0';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1747,7 +1821,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].strikes;
               pitcherAwayStrikes = pitcherAwayStrikes + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/strikes`
                 )
@@ -1766,7 +1840,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherHomeNow}`
                 ].strikes;
               pitcherHomeStrikes = pitcherHomeStrikes + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/strikes`
                 )
@@ -1794,7 +1868,7 @@ async function writeRealtime(betsID, realtimeData, data) {
             : '1';
         if (halfNow !== realtimeData.Summary.Now_halfs) {
           try {
-            await modules.database
+            await database
               .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
               .set(halfNow);
           } catch (err) {
@@ -1821,7 +1895,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherHomeNow}`
                 ].balls;
               pitcherHomeBalls = pitcherHomeBalls + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/balls`
                 )
@@ -1840,7 +1914,7 @@ async function writeRealtime(betsID, realtimeData, data) {
                   `lineup${pitcherAwayNow}`
                 ].balls;
               pitcherAwayBalls = pitcherAwayBalls + 1;
-              await modules.database
+              await database
                 .ref(
                   `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/balls`
                 )
@@ -1856,23 +1930,36 @@ async function writeRealtime(betsID, realtimeData, data) {
         }
       }
     }
+    await writeBacktoReal(
+      betsID,
+      eventNow,
+      eventOrderNow,
+      memberHomeNow,
+      memberAwayNow
+    );
     resolve('ok');
   });
 }
 
-async function writeBacktoReal(betsID) {
+async function writeBacktoReal(
+  betsID,
+  eventNow,
+  eventOrderNow,
+  memberHomeNow,
+  memberAwayNow
+) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(eventNow);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(eventOrderNow);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_member_home`)
         .set(memberHomeNow);
-      await modules.database
+      await database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_member_away`)
         .set(memberAwayNow);
     } catch (err) {
@@ -1963,7 +2050,14 @@ function translateCommon(event) {
   }
 }
 
-function translateNormal(half, realtimeData, name, event) {
+function translateNormal(
+  half,
+  realtimeData,
+  name,
+  event,
+  hitterAwayNow,
+  hitterHomeNow
+) {
   let out;
   let string_ch;
 
@@ -2152,91 +2246,179 @@ function changeInning(inning, now_innings) {
       inningNow = 1;
       break;
     }
-    case '2nd inning' || 'Break after 1st inning': {
+    case '2nd inning': {
       inningNow = 2;
       break;
     }
-    case '3rd inning' || 'Break after 2nd inning': {
+    case 'Break after 1st inning': {
+      inningNow = 2;
+      break;
+    }
+    case '3rd inning': {
       inningNow = 3;
       break;
     }
-    case '4th inning' || 'Break after 3rd inning': {
+    case 'Break after 2nd inning': {
+      inningNow = 3;
+      break;
+    }
+    case '4th inning': {
       inningNow = 4;
       break;
     }
-    case '5th inning' || 'Break after 4th inning': {
+    case 'Break after 3rd inning': {
+      inningNow = 4;
+      break;
+    }
+    case '5th inning': {
       inningNow = 5;
       break;
     }
-    case '6th inning' || 'Break after 5th inning': {
+    case 'Break after 4th inning': {
+      inningNow = 5;
+      break;
+    }
+    case '6th inning': {
       inningNow = 6;
       break;
     }
-    case '7th inning' || 'Break after 6th inning': {
+    case 'Break after 5th inning': {
+      inningNow = 6;
+      break;
+    }
+    case '7th inning': {
       inningNow = 7;
       break;
     }
-    case '8th inning' || 'Break after 7th inning': {
+    case 'Break after 6th inning': {
+      inningNow = 7;
+      break;
+    }
+    case '8th inning': {
       inningNow = 8;
       break;
     }
-    case '9th inning' || 'Break after 8th inning': {
+    case 'Break after 7th inning': {
+      inningNow = 8;
+      break;
+    }
+    case '9th inning': {
       inningNow = 9;
       break;
     }
-    case '10th inning' || 'Break after 9th inning': {
+    case 'Break after 8th inning': {
+      inningNow = 9;
+      break;
+    }
+    case '10th inning': {
       inningNow = 10;
       break;
     }
-    case '11th inning' || 'Break after 10th inning': {
+    case 'Break after 9th inning': {
+      inningNow = 10;
+      break;
+    }
+    case '11th inning': {
       inningNow = 11;
       break;
     }
-    case '12th inning' || 'Break after 11th inning': {
+    case 'Break after 10th inning': {
+      inningNow = 11;
+      break;
+    }
+    case '12th inning': {
       inningNow = 12;
       break;
     }
-    case '13th inning' || 'Break after 12th inning': {
+    case 'Break after 11th inning': {
+      inningNow = 12;
+      break;
+    }
+    case '13th inning': {
       inningNow = 13;
       break;
     }
-    case '14th inning' || 'Break after 13th inning': {
+    case 'Break after 12th inning': {
+      inningNow = 13;
+      break;
+    }
+    case '14th inning': {
       inningNow = 14;
       break;
     }
-    case '15th inning' || 'Break after 14th inning': {
+    case 'Break after 13th inning': {
+      inningNow = 14;
+      break;
+    }
+    case '15th inning': {
       inningNow = 15;
       break;
     }
-    case '16th inning' || 'Break after 15th inning': {
+    case 'Break after 14th inning': {
+      inningNow = 15;
+      break;
+    }
+    case '16th inning': {
       inningNow = 16;
       break;
     }
-    case '17th inning' || 'Break after 16th inning': {
+    case 'Break after 15th inning': {
+      inningNow = 16;
+      break;
+    }
+    case '17th inning': {
       inningNow = 17;
       break;
     }
-    case '18th inning' || 'Break after 17th inning': {
+    case 'Break after 16th inning': {
+      inningNow = 17;
+      break;
+    }
+    case '18th inning': {
       inningNow = 18;
       break;
     }
-    case '19th inning' || 'Break after 18th inning': {
+    case 'Break after 17th inning': {
+      inningNow = 18;
+      break;
+    }
+    case '19th inning': {
       inningNow = 19;
       break;
     }
-    case '20th inning' || 'Break after 19th inning': {
+    case 'Break after 18th inning': {
+      inningNow = 19;
+      break;
+    }
+    case '20th inning': {
       inningNow = 20;
       break;
     }
-    case '21th inning' || 'Break after 20th inning': {
+    case 'Break after 19th inning': {
+      inningNow = 20;
+      break;
+    }
+    case '21th inning': {
       inningNow = 21;
       break;
     }
-    case '22th inning' || 'Break after 21th inning': {
+    case 'Break after 20th inning': {
+      inningNow = 21;
+      break;
+    }
+    case '22th inning': {
       inningNow = 22;
       break;
     }
-    case '23th inning' || 'Break after 22th inning': {
+    case 'Break after 21th inning': {
+      inningNow = 22;
+      break;
+    }
+    case '23th inning': {
+      inningNow = 23;
+      break;
+    }
+    case 'Break after 22th inning': {
       inningNow = 23;
       break;
     }

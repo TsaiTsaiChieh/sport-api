@@ -46,7 +46,7 @@ function getLeague(not_ajv = false) {
 
   if (!not_ajv) {
     return ['MLB', 'CPBL', 'KBO', 'NPB', 'ABL', 'LMB', 'NBA', 'SBL', 'WNBA', 'NBL', 'KBL', 'CBA', 'JBL', 'NHL', 'Soccer', 'eSoccer'];
-    // return modules.acceptLeague;
+    // return acceptLeague;
   } else {
     return leagues;
   }

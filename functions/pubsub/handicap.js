@@ -1,26 +1,34 @@
 // from https://docs.google.com/document/d/1eLni15nSnqND1-o5nBo1YOy3jT8QnuclzVNDxshewSc/edit#
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
+const axios = require('axios');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const sports = [
-  // 18,
-  // 18,
-  // 16,
-  1,
+  // 籃球
+  18,
+  // 棒球
   16,
   16,
-  16
+  16,
+  16,
+  // 足球
+  1
+  // 冰球
 ];
 const leagueUniteIDArray = [
-  // 2274
-  // 8251
-  // 225
-  8,
+  // 籃球
+  2319, // 中國職籃
+  // 棒球
   347, // 日職
   349, // 韓職
-  11235 // 台職
+  11235, // 台職
+  3939, // 美棒
+  // 足球
+  8 // 足球
+  // 冰球
 ];
 const Match = db.Match;
 const MatchSpread = db.Spread;
@@ -29,7 +37,6 @@ async function handicap() {
   // go through each league
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
-
     if (querysForEvent.length > 0) {
       await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
@@ -39,7 +46,7 @@ async function handicap() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -54,16 +61,17 @@ async function query_event(league) {
     const unix = Math.floor(Date.now() / 1000);
     const tomorrow = modules.convertTimezoneFormat(unix, {
       op: 'add',
-      value: 1,
+      value: 2,
       unit: 'days'
     });
+
     const now = modules.convertTimezoneFormat(unix);
     try {
       const queries = await db.sequelize.query(
         `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
-					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
+					WHERE game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
 						AND game.league_id = '${league}'
 			 )`,
@@ -90,50 +98,52 @@ async function upsertHandicap(querysForEvent, sport, league) {
         /* 因為 res 可能為 {
         "success": 1,
         "results": {}
-      } */
-        if (data.results.odds) {
-          if (data.results.odds[`${sport}_2`]) {
-            spread_odds = data.results.odds[`${sport}_2`];
-          }
-          if (data.results.odds[`${sport}_3`]) {
-            totals_odds = data.results.odds[`${sport}_3`];
-          }
+			} */
+        if (data.results) {
+          if (data.results.odds) {
+            if (data.results.odds[`${sport}_2`]) {
+              spread_odds = data.results.odds[`${sport}_2`];
+            }
+            if (data.results.odds[`${sport}_3`]) {
+              totals_odds = data.results.odds[`${sport}_3`];
+            }
 
-          let newest_spread;
-          if (spread_odds.length > 0) {
-            for (let spcount = 0; spcount < spread_odds.length; spcount++) {
-              if (
-                spread_odds[spcount].home_od !== null &&
-                spread_odds[spcount].handicap !== null &&
-                spread_odds[spcount].away_od !== null &&
-                spread_odds[spcount].home_od !== '-' &&
-                spread_odds[spcount].away_od !== '-' &&
-                spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
-              ) {
-                newest_spread = spread_odds[spcount];
-                newest_spread = spreadCalculator(newest_spread, sport);
-                await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-                await write2MysqlOfMatchSpread(newest_spread, ele, league);
-                break;
+            let newest_spread;
+            if (spread_odds.length > 0) {
+              for (let spcount = 0; spcount < spread_odds.length; spcount++) {
+                if (
+                  spread_odds[spcount].home_od !== null &&
+                  spread_odds[spcount].handicap !== null &&
+                  spread_odds[spcount].away_od !== null &&
+                  spread_odds[spcount].home_od !== '-' &&
+                  spread_odds[spcount].away_od !== '-' &&
+                  spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
+                ) {
+                  newest_spread = spread_odds[spcount];
+                  newest_spread = spreadCalculator(newest_spread, sport);
+                  await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+                  await write2MysqlOfMatchSpread(newest_spread, ele, league);
+                  break;
+                }
               }
             }
-          }
-          let newest_totals;
-          if (totals_odds.length > 0) {
-            for (let tocount = 0; tocount < totals_odds.length; tocount++) {
-              if (
-                totals_odds[tocount].over_od !== null &&
-                totals_odds[tocount].handicap !== null &&
-                totals_odds[tocount].under_od !== null &&
-                totals_odds[tocount].over_od !== '-' &&
-                totals_odds[tocount].under_od !== '-' &&
-                totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
-              ) {
-                newest_totals = totals_odds[tocount];
-                newest_totals = totalsCalculator(newest_totals, sport);
-                await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-                await write2MysqlOfMatchTotals(newest_totals, ele, league);
-                break;
+            let newest_totals;
+            if (totals_odds.length > 0) {
+              for (let tocount = 0; tocount < totals_odds.length; tocount++) {
+                if (
+                  totals_odds[tocount].over_od !== null &&
+                  totals_odds[tocount].handicap !== null &&
+                  totals_odds[tocount].under_od !== null &&
+                  totals_odds[tocount].over_od !== '-' &&
+                  totals_odds[tocount].under_od !== '-' &&
+                  totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
+                ) {
+                  newest_totals = totals_odds[tocount];
+                  newest_totals = totalsCalculator(newest_totals, sport);
+                  await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+                  await write2MysqlOfMatchTotals(newest_totals, ele, league);
+                  break;
+                }
               }
             }
           }
@@ -179,26 +189,55 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
-    try {
-      await MatchSpread.upsert({
-        spread_id: odd.id,
-        match_id: ele.bets_id,
-        league_id: leagueUniteID,
-        handicap: Number.parseFloat(odd.handicap),
-        rate: Number.parseFloat(odd.rate),
-        home_odd: Number.parseFloat(odd.away_od),
-        away_odd: Number.parseFloat(odd.home_od),
-        home_tw: odd.home_tw,
-        away_tw: odd.away_tw,
-        add_time: Number.parseInt(odd.add_time) * 1000
-      });
-      return resolve('ok');
-    } catch (err) {
-      return reject(
-        new AppErrors.MysqlError(
-          `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
-        )
-      );
+    if (
+      leagueUniteID === '11235' ||
+      leagueUniteID === '347' ||
+      leagueUniteID === '349' ||
+      leagueUniteID === '3939'
+    ) {
+      try {
+        await MatchSpread.upsert({
+          spread_id: odd.id,
+          match_id: ele.bets_id,
+          league_id: leagueUniteID,
+          handicap: Number.parseFloat(odd.handicap),
+          rate: Number.parseFloat(odd.rate),
+          home_odd: Number.parseFloat(odd.away_od),
+          away_odd: Number.parseFloat(odd.home_od),
+          home_tw: odd.home_tw,
+          away_tw: odd.away_tw,
+          add_time: Number.parseInt(odd.add_time) * 1000
+        });
+        return resolve('ok');
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
+          )
+        );
+      }
+    } else {
+      try {
+        await MatchSpread.upsert({
+          spread_id: odd.id,
+          match_id: ele.bets_id,
+          league_id: leagueUniteID,
+          handicap: Number.parseFloat(odd.handicap),
+          rate: Number.parseFloat(odd.rate),
+          home_odd: Number.parseFloat(odd.home_od),
+          away_odd: Number.parseFloat(odd.away_od),
+          home_tw: odd.home_tw,
+          away_tw: odd.away_tw,
+          add_time: Number.parseInt(odd.add_time) * 1000
+        });
+        return resolve('ok');
+      } catch (err) {
+        return reject(
+          new AppErrors.MysqlError(
+            `${err} at handicap of MatchSpread ${ele.bets_id} by DY`
+          )
+        );
+      }
     }
   });
 }
@@ -229,9 +268,17 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 
 function spreadCalculator(handicapObj, sport) {
   if (handicapObj.handicap) {
-    handicapObj.handicap = parseFloat(handicapObj.handicap);
-    handicapObj.home_odd = parseFloat(handicapObj.away_od);
-    handicapObj.away_odd = parseFloat(handicapObj.home_od);
+    if (sport === 17 || sport === 18) {
+      // 籃球等主客正常的
+      handicapObj.handicap = -parseFloat(handicapObj.handicap);
+      handicapObj.home_odd = parseFloat(handicapObj.home_od);
+      handicapObj.away_odd = parseFloat(handicapObj.away_od);
+    } else {
+      // 棒球等主客交換的
+      handicapObj.handicap = parseFloat(handicapObj.handicap);
+      handicapObj.home_odd = parseFloat(handicapObj.away_od);
+      handicapObj.away_odd = parseFloat(handicapObj.home_od);
+    }
 
     if (sport === 17 || sport === 18) {
       // 籃球或冰球
@@ -241,11 +288,13 @@ function spreadCalculator(handicapObj, sport) {
           // 主讓客
           handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}平`;
           handicapObj.away_tw = null;
+
           handicapObj.rate = 0;
         } else {
           // 客讓主
           handicapObj.home_tw = null;
           handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}平`;
+
           handicapObj.rate = 0;
         }
       } else {
@@ -254,11 +303,13 @@ function spreadCalculator(handicapObj, sport) {
           // 主讓客
           handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}`;
           handicapObj.away_tw = null;
+
           handicapObj.rate = 0;
         } else {
           // 客讓主
           handicapObj.home_tw = null;
           handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}`;
+
           handicapObj.rate = 0;
         }
       }
@@ -327,6 +378,7 @@ function spreadCalculator(handicapObj, sport) {
                     Math.abs(handicapObj.handicap)
                   )}+50`;
                   handicapObj.away_tw = null;
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = 50;
                 } else {
                   // 主賠率<客賠率 顯示 -
@@ -334,6 +386,7 @@ function spreadCalculator(handicapObj, sport) {
                     Math.abs(handicapObj.handicap)
                   )}-50`;
                   handicapObj.away_tw = null;
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = -50;
                 }
               } else {
@@ -344,6 +397,7 @@ function spreadCalculator(handicapObj, sport) {
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = -50;
                 } else {
                   // 主賠率<客賠率 顯示 +
@@ -351,6 +405,7 @@ function spreadCalculator(handicapObj, sport) {
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}+50`;
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = 50;
                 }
               }
@@ -523,13 +578,17 @@ function spreadCalculator(handicapObj, sport) {
             // 相同賠率
             if (handicapObj.handicap >= 0) {
               // 主讓客
-              handicapObj.home_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.home_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.away_tw = null;
               handicapObj.rate = -50;
             } else {
               // 客讓主
               handicapObj.home_tw = null;
-              handicapObj.away_tw = `${Math.abs(handicapObj.handicap)}-50`;
+              handicapObj.away_tw = `${Math.floor(
+                Math.abs(handicapObj.handicap)
+              )}-50`;
               handicapObj.rate = -50;
             }
           }
@@ -665,12 +724,15 @@ function spreadCalculator(handicapObj, sport) {
 }
 
 function totalsCalculator(handicapObj, sport) {
+  handicapObj.handicap = parseFloat(handicapObj.handicap);
+  handicapObj.over_odd = parseFloat(handicapObj.over_od);
+  handicapObj.under_odd = parseFloat(handicapObj.under_od);
   if (handicapObj.handicap) {
     if (sport === 17 || sport === 18) {
       // 籃球或冰球
       if (handicapObj.handicap % 1 === 0) {
         // 整數
-        handicapObj.over_tw = `${handicapObj.handicap}`;
+        handicapObj.over_tw = `${handicapObj.handicap}平`;
         handicapObj.rate = 0;
       } else {
         // 小數
@@ -680,6 +742,7 @@ function totalsCalculator(handicapObj, sport) {
     }
     if (sport === 16) {
       // 棒球
+
       if (handicapObj.handicap % 1 === 0) {
         // 整數
         if (handicapObj.over_odd !== handicapObj.under_odd) {
@@ -689,13 +752,13 @@ function totalsCalculator(handicapObj, sport) {
             handicapObj.over_tw = `${handicapObj.handicap}+50`;
             handicapObj.rate = 50;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${handicapObj.handicap}-50`;
             handicapObj.rate = -50;
           }
         } else {
           // 賠率相同
-          handicapObj.over_tw = `${handicapObj.handicap}`;
+          handicapObj.over_tw = `${handicapObj.handicap}平`;
           handicapObj.rate = 0;
         }
       } else {
@@ -706,14 +769,20 @@ function totalsCalculator(handicapObj, sport) {
             // 大分賠率>小分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}+50`;
             handicapObj.rate = 50;
+            handicapObj.handicap = `${Math.floor(
+              Math.abs(handicapObj.handicap)
+            )}`;
           } else {
-            // 大分賠率>小分賠率
+            // 小分賠率>大分賠率
             handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-50`;
             handicapObj.rate = -50;
+            handicapObj.handicap = `${Math.floor(
+              Math.abs(handicapObj.handicap)
+            )}`;
           }
         } else {
           // 賠率相同
-          handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}輸`;
+          handicapObj.over_tw = `${Math.floor(handicapObj.handicap)}-100`;
           handicapObj.rate = -100;
         }
       }
@@ -772,7 +841,7 @@ function totalsCalculator(handicapObj, sport) {
 function normalTable(handicap, upOrDown) {
   if (upOrDown === 1) {
     return [
-      `${Math.floor(handicap)}輸`,
+      `${Math.floor(handicap)}-100`,
       `${Math.floor(handicap)}-50`,
       `${Math.floor(handicap)}平`,
       `${Math.floor(handicap)}+50`
@@ -782,12 +851,13 @@ function normalTable(handicap, upOrDown) {
       `${Math.floor(handicap)}+50`,
       `${Math.floor(handicap)}平`,
       `${Math.floor(handicap)}-50`,
-      `${Math.floor(handicap)}輸`
+      `${Math.floor(handicap)}-100`
     ];
   }
 }
 function modifyHandicap(handicap, upOrDown, unit) {
-  const specificTable = ['1+50', 'PK', '-1+50', '-1輸'];
+  const specificTable = ['1+50', 'PK', 'PK', 'PK']; //   ver.2 邏輯
+  const pkTable = ['PK', 'PK', 'PK', 'PK'];
   let handicapNow;
   const unitArray = Math.ceil(unit / 4) + 1; // 總共需要幾個unit組合
   const calculateArray = [];
@@ -799,6 +869,8 @@ function modifyHandicap(handicap, upOrDown, unit) {
       if (handicapNow === 0) {
         // 加特殊情況
         specificTable.forEach((item) => calculateArray.push(item));
+      } else if (handicapNow < 0) {
+        pkTable.forEach((item) => calculateArray.push(item));
       } else {
         // 加一般陣列
         normalTable(handicapNow, upOrDown).forEach((item) =>

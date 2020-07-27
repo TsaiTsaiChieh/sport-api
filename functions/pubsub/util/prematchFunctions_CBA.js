@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const axios = require('axios');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
@@ -36,7 +37,7 @@ module.exports.CBA.upcoming = async function(date) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -48,13 +49,13 @@ async function axiosForURL(URL) {
 async function checkTheHandicap(ele) {
   const URL = `https://api.betsapi.com/v2/event/odds?token=${envValues.betsToken}&event_id=${ele.id}&odds_market=2,3`;
   const data = await axiosForURL(URL);
-  let changeFlag = 0;
+  let changeFlag = 1;
   if (data.results.odds) {
     if (data.results.odds[`${sportID}_2`]) {
-      changeFlag = 1;
+      changeFlag = 0;
     }
     if (data.results.odds[`${sportID}_3`]) {
-      changeFlag = 1;
+      changeFlag = 0;
     }
   }
   return changeFlag;
@@ -63,7 +64,8 @@ async function checkTheHandicap(ele) {
 async function write2realtime(ele) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.database
+      const database = firebaseAdmin().database();
+      await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
         .set('scheduled');
       return resolve('ok');
@@ -102,8 +104,8 @@ async function write2MysqlOfMatch(ele, change) {
           ori_league_id: ele.league.id,
           sport_id: ele.sport_id,
           ori_sport_id: ele.sport_id,
-          home_id: changeTeam(ele.home.name),
-          away_id: changeTeam(ele.away.name),
+          home_id: changeTeam(ele.away.name),
+          away_id: changeTeam(ele.home.name),
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
@@ -123,6 +125,9 @@ async function write2MysqlOfMatch(ele, change) {
 function changeTeam(team) {
   switch (team) {
     case 'Zhejiang Golden Bulls': {
+      return '60581';
+    }
+    case 'Zhejiang Chouzhou Bank': {
       return '60581';
     }
     case 'Zhejiang Lions': {
@@ -181,6 +186,9 @@ function changeTeam(team) {
     }
     case 'Jiangsu Dragons': {
       return '8924';
+    }
+    case 'Shanxi Loongs': {
+      return '311032';
     }
     default: {
       return team;

@@ -1,4 +1,8 @@
-const modules = require('../util/modules');
+const firebaseAdmin = require('../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const database = firebaseAdmin().database();
+const axios = require('axios');
+const simple2Tradition = require('chinese-simple-tradition-translator');
 const AppErrors = require('../util/AppErrors');
 const db = require('../util/dbUtil');
 const transNBA = require('./translateNBA.js');
@@ -77,7 +81,7 @@ async function summmaryZH(gameID) {
     try {
       const keywordTransHome = [];
       const keywordTransAway = [];
-      const { data } = await modules.axios(zhSummaryURL);
+      const { data } = await axios(zhSummaryURL);
       for (let i = 0; i < data.home.players.length; i++) {
         keywordTransHome.push(data.home.players[i].full_name);
       }
@@ -101,7 +105,7 @@ async function summmaryEN(gameID) {
       const keywordAway = [];
       const numberHome = [];
       const numberAway = [];
-      const { data } = await modules.axios(enSummaryURL);
+      const { data } = await axios(enSummaryURL);
       const homeTeamName = data.home.name;
       const awayTeamName = data.away.name;
       for (let i = 0; i < data.home.players.length; i++) {
@@ -135,7 +139,7 @@ async function NBApbpHistory(parameter) {
     const pbpURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/pbp.json?api_key=${nba_api_key}`;
     const enSummaryURL = `http://api.sportradar.us/nba/trial/v7/en/games/${gameID}/summary.json?api_key=${nba_api_key}`;
     try {
-      let { data } = await modules.axios(pbpURL);
+      let { data } = await axios(pbpURL);
       const dataPBP = data;
 
       for (
@@ -149,7 +153,7 @@ async function NBApbpHistory(parameter) {
           eventsCount++
         ) {
           try {
-            await modules.firestore
+            await firestore
               .collection(`${firestoreName}_PBP`)
               .doc(betsID)
               .set(
@@ -173,11 +177,11 @@ async function NBApbpHistory(parameter) {
         }
       }
 
-      ({ data } = await modules.axios(enSummaryURL));
+      ({ data } = await axios(enSummaryURL));
       const dataSummary = data;
       for (let i = 0; i < dataSummary.home.players.length; i++) {
         try {
-          await modules.firestore
+          await firestore
             .collection(`${firestoreName}_PBP`)
             .doc(betsID)
             .set(
@@ -198,7 +202,7 @@ async function NBApbpHistory(parameter) {
         }
       }
       try {
-        await modules.firestore
+        await firestore
           .collection(firestoreName)
           .doc(betsID)
           .set({ flag: { status: 0 } }, { merge: true });
@@ -210,7 +214,7 @@ async function NBApbpHistory(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/statuts`)
           .set('closed');
       } catch (err) {
@@ -259,7 +263,7 @@ async function initRealtime(gameID, betsID) {
       // [主隊英文名稱、主隊隊員英文名字、主隊隊員背號、客隊英文名稱、客隊隊員英文名字、客隊隊員背號]
       for (let i = 0; i < keywordTransHome.length; i++) {
         try {
-          keywordTransHome[i] = await modules.simple2Tradition.translate(
+          keywordTransHome[i] = await simple2Tradition.translate(
             keywordTransHome[i]
           );
         } catch (err) {
@@ -272,7 +276,7 @@ async function initRealtime(gameID, betsID) {
       }
       for (let i = 0; i < keywordTransHome.length; i++) {
         try {
-          keywordTransAway[i] = await modules.simple2Tradition.translate(
+          keywordTransAway[i] = await simple2Tradition.translate(
             keywordTransAway[i]
           );
         } catch (err) {
@@ -303,7 +307,7 @@ async function initRealtime(gameID, betsID) {
       const transSimpleAway = [];
 
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/home/name`)
           .set(homeTeamName);
       } catch (err) {
@@ -314,7 +318,7 @@ async function initRealtime(gameID, betsID) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/away/name`)
           .set(awayTeamName);
       } catch (err) {
@@ -327,7 +331,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordHome.length; i++) {
         transSimpleHome[i] = `${keywordHome[i]}(#${numberHome[i]})`;
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}`)
             .set({
               name: keywordHome[i],
@@ -346,7 +350,7 @@ async function initRealtime(gameID, betsID) {
       for (let i = 0; i < keywordAway.length; i++) {
         transSimpleAway[i] = `${keywordAway[i]}(#${numberAway[i]})`;
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}`)
             .set({
               name: keywordAway[i],
@@ -384,11 +388,11 @@ async function doPBP(parameter) {
     const transSimpleAway = parameter.transSimpleAway;
     const realtimeData = parameter.realtimeData;
     try {
-      const { data } = await modules.axios(pbpURL);
+      const { data } = await axios(pbpURL);
       const dataPBP = data;
       if (dataPBP.status !== 'inprogress') {
         try {
-          await modules.database
+          await database
             .ref(`basketball/NBA/${betsID}/Summary/status`)
             .set('closed');
         } catch (err) {
@@ -401,7 +405,7 @@ async function doPBP(parameter) {
       } else if (dataPBP.status === 'inprogress') {
         if (realtimeData.Summary.status !== 'inprogress') {
           try {
-            await modules.firestore
+            await firestore
               .collection(firestoreName)
               .doc(betsID)
               .set({ flag: { status: 1 } }, { merge: true });
@@ -413,7 +417,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/status`)
               .set('inprogress');
           } catch (err) {
@@ -463,7 +467,7 @@ async function doPBP(parameter) {
             transSimpleAway
           );
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -480,7 +484,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -495,7 +499,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/periods${
                   periodsCount + 1
@@ -522,7 +526,7 @@ async function doPBP(parameter) {
                 .name === homeData.name
             ) {
               try {
-                await modules.database
+                await database
                   .ref(
                     `basketball/NBA/${betsID}/Summary/periods${
                       periodsCount + 1
@@ -542,7 +546,7 @@ async function doPBP(parameter) {
                 .name === awayData.name
             ) {
               try {
-                await modules.database
+                await database
                   .ref(
                     `basketball/NBA/${betsID}/Summary/periods${
                       periodsCount + 1
@@ -562,7 +566,7 @@ async function doPBP(parameter) {
             'stoppage'
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/periods${
                     periodsCount + 1
@@ -578,7 +582,7 @@ async function doPBP(parameter) {
             }
           } else {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/periods${
                     periodsCount + 1
@@ -594,7 +598,7 @@ async function doPBP(parameter) {
             }
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/Now_clock`)
               .set(dataPBP.periods[periodsCount].events[eventsCount].clock);
           } catch (err) {
@@ -605,7 +609,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(`basketball/NBA/${betsID}/Summary/Now_periods`)
               .set(periodsCount + 1);
           } catch (err) {
@@ -616,7 +620,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/info/home/periods${
                   periodsCount + 1
@@ -631,7 +635,7 @@ async function doPBP(parameter) {
             );
           }
           try {
-            await modules.database
+            await database
               .ref(
                 `basketball/NBA/${betsID}/Summary/info/away/periods${
                   periodsCount + 1
@@ -660,11 +664,11 @@ async function doSummary(parameter) {
     const betsID = parameter.betsID;
     const summaryURL = parameter.summaryURL;
     try {
-      const { data } = await modules.axios(summaryURL);
+      const { data } = await axios(summaryURL);
       const dataSummary = data;
       const realtimeData = parameter.realtimeData;
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/home/Total`)
           .set({
             assists: dataSummary.home.statistics.assists,
@@ -690,7 +694,7 @@ async function doSummary(parameter) {
         );
       }
       try {
-        await modules.database
+        await database
           .ref(`basketball/NBA/${betsID}/Summary/info/away/Total`)
           .set({
             assists: dataSummary.away.statistics.assists,
@@ -722,7 +726,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
                 )
@@ -741,7 +745,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/starter`
                 )
@@ -756,7 +760,7 @@ async function doSummary(parameter) {
           }
         }
         try {
-          await modules.database
+          await database
             .ref(
               `basketball/NBA/${betsID}/Summary/info/home/lineup/lineup${i}/statistics`
             )
@@ -781,7 +785,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
                 )
@@ -800,7 +804,7 @@ async function doSummary(parameter) {
             undefined
           ) {
             try {
-              await modules.database
+              await database
                 .ref(
                   `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/starter`
                 )
@@ -815,7 +819,7 @@ async function doSummary(parameter) {
           }
         }
         try {
-          await modules.database
+          await database
             .ref(
               `basketball/NBA/${betsID}/Summary/info/away/lineup/lineup${i}/statistics`
             )

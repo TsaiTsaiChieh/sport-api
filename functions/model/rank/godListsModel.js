@@ -1,7 +1,8 @@
-const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
-const { CacheQuery } = require('../../util/redisUtil');
+// const { CacheQuery } = require('../../util/redisUtil');
 
 async function godlists(args) {
   const godLists = {};
@@ -14,9 +15,11 @@ async function godlists(args) {
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = nowInfo.dateEndUnix;
 
-  const redisKey = ['rank', 'godLists', 'titles', league_id, period, beginUnix, endUnix].join(':');
+  // 當賣牌時，快取會無法跟上更新
+  // const redisKey = ['rank', 'godLists', 'titles', league_id, period, beginUnix, endUnix].join(':');
+
   // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-  const [err, godListsQuery] = await to(CacheQuery(db.sequelize, `
+  const [err, godListsQuery] = await to(db.sequelize.query(`
       select titles.uid, users.avatar, users.display_name, titles.rank_id, 
              CASE prediction.sell
                WHEN 1 THEN 1
@@ -54,13 +57,13 @@ async function godlists(args) {
       end: endUnix
     },
     type: db.sequelize.QueryTypes.SELECT
-  }, redisKey));
+  }));
   if (err) {
-    console.error('Error 2. in rank/godListsModel by YuHsien', err);
+    console.error('[Error][rank][godListsModel][godListsQuery] ', err);
     throw errs.dbErrsMsg('404', '13810');
   }
 
-  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+  if (!godListsQuery || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
   // 進行 order 排序，將來後台可能指定順序  這個部份可能無法正常運作，因為 order 不知道放那
   godListsQuery.sort(fieldSorter(['order'])); // 升 小->大

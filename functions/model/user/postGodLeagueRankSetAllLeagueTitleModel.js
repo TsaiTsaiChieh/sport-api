@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueCodebook } = require('../../util/modules');
+const { getTitlesPeriod } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -25,7 +26,10 @@ async function postGodLeagueRankSetAllLeagueTitle(args) {
       }
     }));
 
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13541', { addMsg: err.parent.code });}
+    if (err) {
+      console.error('[Error][postGodLeagueRankSetAllLeagueTitleModel][Title] ', err);
+      throw errs.dbErrsMsg('404', '13541', { addMsg: err.parent.code });
+    }
     if (r[0] === 0) {throw errs.dbErrsMsg('404', '13542');}
     if (r[0] === 1) result.success.push({ league: title.league, default_title: title.default_title });
   }

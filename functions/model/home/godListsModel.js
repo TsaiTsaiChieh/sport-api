@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueCodebook, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { CacheQuery } = require('../../util/redisUtil');
@@ -42,11 +43,11 @@ async function godlists() {
     type: db.sequelize.QueryTypes.SELECT
   }, redisKey));
   if (err) {
-    console.error('Error in  home/godlists by YuHsien:  %o', err);
+    console.error('[Error][home][godListsModel][CacheQuery] ', err);
     throw errs.dbErrsMsg('404', '14020');
   }
 
-  if (godListsQuery === undefined || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
+  if (!godListsQuery || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
   // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
   //      ,

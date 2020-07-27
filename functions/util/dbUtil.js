@@ -522,6 +522,9 @@ const Team = sequelize.define(
     },
     information: {
       type: Sequelize.TEXT
+    },
+    baseball_stats: {
+      type: Sequelize.TEXT
     }
   },
   {
@@ -1638,11 +1641,14 @@ const News = sequelize.define(
     sort_id: {
       type: Sequelize.INTEGER
     },
+    league: {
+      type: Sequelize.STRING
+    },
     title: {
       type: Sequelize.STRING
     },
     content: {
-      type: Sequelize.STRING
+      type: Sequelize.TEXT
     },
     status: {
       type: Sequelize.INTEGER
@@ -2210,7 +2216,58 @@ const CashflowDonate = sequelize.define(
     ]
   }
 );
-
+const CashflowMission = sequelize.define(
+  'cashflow_mission',
+  {
+    cashflow_mission_id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING
+    },
+    mission_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_item_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_god_id: {
+      type: Sequelize.INTEGER
+    },
+    mission_deposit_id: {
+      type: Sequelize.INTEGER
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    },
+    dividend: {
+      type: Sequelize.INTEGER
+    },
+    lottery: {
+      type: Sequelize.INTEGER
+    },
+    createdAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    },
+    updatedAt: {
+      type: Sequelize.DATE(3),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['cashflow_mission_id', 'uid']
+      }
+    ]
+  }
+);
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2314,6 +2371,9 @@ const Player = sequelize.define(
     team_id: {
       type: Sequelize.STRING
     },
+    ori_name: {
+      type: Sequelize.STRING
+    },
     name: {
       type: Sequelize.STRING
     },
@@ -2367,7 +2427,8 @@ const Mission = sequelize.define(
       type: Sequelize.INTEGER
     },
     need_finish_nums: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 1
     },
     status: {
       type: Sequelize.INTEGER,
@@ -2377,7 +2438,7 @@ const Mission = sequelize.define(
   {
     indexes: [
       {
-        fields: ['type', 'start_date', 'end_date', 'status']
+        fields: ['type', 'status', 'start_date', 'end_date']
       }
     ]
   }
@@ -2393,6 +2454,9 @@ const MissionItem = sequelize.define(
     },
     mission_id: {
       type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
     },
     target: {
       type: Sequelize.STRING
@@ -2422,6 +2486,12 @@ const MissionGod = sequelize.define(
     },
     mission_id: {
       type: Sequelize.INTEGER
+    },
+    func_type: {
+      type: Sequelize.STRING
+    },
+    target: {
+      type: Sequelize.STRING
     },
     reward_type: {
       type: Sequelize.STRING
@@ -2455,13 +2525,16 @@ const MissionDeposit = sequelize.define(
     deposit_list_id: {
       type: Sequelize.INTEGER
     },
-    lottery: {
-      type: Sequelize.INTEGER
+    func_type: {
+      type: Sequelize.STRING
     },
-    ingot: {
-      type: Sequelize.INTEGER
+    target: {
+      type: Sequelize.STRING
     },
-    coin: {
+    reward_type: {
+      type: Sequelize.STRING
+    },
+    reward_num: {
       type: Sequelize.INTEGER
     }
   }
@@ -2543,6 +2616,7 @@ const dbUtil = {
   CashflowBuy,
   CashflowSell,
   CashflowDonate,
+  CashflowMission,
   PurchaseList,
   Token,
   AdminLogging,

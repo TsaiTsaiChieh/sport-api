@@ -1,4 +1,6 @@
-const modules = require('../../util/modules');
+const { acceptLeague } = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/user/postGodSellInformationModel');
 
 async function godSellInformation(req, res) {
@@ -9,7 +11,7 @@ async function godSellInformation(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptLeague
       },
       date: {
         type: 'string',
@@ -51,9 +53,9 @@ async function godSellInformation(req, res) {
     tips: req.body.tips,
     now
   };
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
 
   try {

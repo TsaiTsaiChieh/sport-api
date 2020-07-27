@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -63,7 +64,7 @@ function queryTeamEvent(args) {
                   match__teams AS away
             WHERE (game.home_id = :team_id OR game.away_id = :team_id)
               AND game.league_id = :leagueID
-              AND game.status = ${modules.MATCH_STATUS.END}
+              AND game.status = ${leagueUtil.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND game.spread_id = spread.spread_id
@@ -80,7 +81,7 @@ function queryTeamEvent(args) {
 									 match__teams AS away
 						 WHERE (game.home_id = :team_id OR game.away_id = :team_id )
 							 AND game.league_id = :leagueID
-							 AND game.status = ${modules.MATCH_STATUS.END}
+							 AND game.status = ${leagueUtil.MATCH_STATUS.END}
 							 AND game.home_id = home.team_id
 							 AND game.away_id = away.team_id 
 							 AND game.spread_id IS NULL
@@ -98,7 +99,7 @@ function queryTeamEvent(args) {
 									 match__teams AS away
 						 WHERE (game.home_id = :team_id OR game.away_id = :team_id )
 							 AND game.league_id = :leagueID
-							 AND game.status = ${modules.MATCH_STATUS.END}
+							 AND game.status = ${leagueUtil.MATCH_STATUS.END}
 							 AND game.home_id = home.team_id
 							 AND game.away_id = away.team_id 
 							 AND game.spread_id = spread.spread_id
@@ -114,7 +115,7 @@ function queryTeamEvent(args) {
                   match__teams AS away
             WHERE (game.home_id = :team_id OR game.away_id = :team_id )
               AND game.league_id = :leagueID
-              AND game.status = ${modules.MATCH_STATUS.END}
+              AND game.status = ${leagueUtil.MATCH_STATUS.END}
               AND game.home_id = home.team_id
               AND game.away_id = away.team_id 
               AND (game.spread_id IS NULL AND game.totals_id IS NULL)
@@ -126,7 +127,7 @@ function queryTeamEvent(args) {
         {
           replacements: {
             team_id: args.team_id,
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             date1: args.date1,
             date2: args.date2
           },

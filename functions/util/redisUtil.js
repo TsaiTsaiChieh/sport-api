@@ -1,24 +1,25 @@
 const { Sequelize } = require('sequelize');
 const to = require('await-to-js').default;
+const logger = require('firebase-functions/lib/logger');
 const { redisConfig } = require('../config/env_values');
 const Redis = require('ioredis');
 const redis = new Redis(redisConfig.REDISPORT, redisConfig.REDISHOST, {
   maxRetriesPerRequest: 1
 });
-redis.on('error', (err) => console.error('[REDIS]', err));
+redis.on('error', (err) => logger.warn('[REDIS]', err));
 
 // Cache
 function Cache() {}
 Cache.get = async function(key) {
   const [err, res] = await to(redis.get(key));
-  if (err) {console.error('[REDIS][Cache.get]', err); return null;}
+  if (err) {logger.warn('[Error][REDIS][Cache.get]', err); return null;}
   return JSON.parse(res);
 };
 
 Cache.set = async function(key, value) {
   value = JSON.stringify(value);
   const [err] = await to(redis.set(key, value));
-  if (err) {console.error('[REDIS][Cache.set]', err); }
+  if (err) {logger.warn('[Error][REDIS][Cache.set]', err); }
 };
 
 // Special Delete
@@ -78,10 +79,10 @@ Sequelize.Model.findOneCache = async function() {
 
 // 底下是使用 npm redis 的版本 不支援 promise
 // redisClient
-// redisClient.set("hello", "world"), function(err) { console.error(err); });
-// redisClient.get("hello", function(err, res) { console.error(err, res); });
+// redisClient.set("hello", "world"), function(err) { logger.warn(err); });
+// redisClient.get("hello", function(err, res) { logger.warn(err, res); });
 // const redisClient = redis.createClient(redisConfig.REDISPORT, redisConfig.REDISHOST);
-// redisClient.on('error', (err) => console.error('[REDIS]', err));
+// redisClient.on('error', (err) => logger.warn('[REDIS]', err));
 
 // promisify
 // await redisGet(key)
@@ -98,7 +99,7 @@ Sequelize.Model.findOneCache = async function() {
 // Cache.get = function(key) {
 //   return new Promise((resolve, reject) => {
 //     redisClient.get(key, function(err, res) {
-//       if (err) {console.error('[REDIS]', err); return resolve(null);} // return reject(err);
+//       if (err) {logger.warn('[REDIS]', err); return resolve(null);} // return reject(err);
 //       return resolve(JSON.parse(res));
 //     });
 //   });
@@ -108,7 +109,7 @@ Sequelize.Model.findOneCache = async function() {
 //   value = JSON.stringify(value);
 //   return new Promise((resolve, reject) => {
 //     redisClient.set(key, value, function(err) {
-//       if (err) {console.error('[REDIS]', err); } // return reject(err);
+//       if (err) {logger.warn('[REDIS]', err); } // return reject(err);
 //       resolve();
 //     });
 //   });

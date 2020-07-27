@@ -1,5 +1,5 @@
-const modules = require('../util/modules');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 
 // 一次性專區
 router.get('/backup', require('../pubsub/backupFirestore').backupFirestore);
@@ -23,10 +23,10 @@ router.get('/title_period', require('../pubsub/titlePeriod'));
 router.get('/mysql', require('../pubsub/mysql/connection'));
 
 // 大神
-router.get('/god', require('../pubsub/god'));
+// router.get('/god', require('../pubsub/god'));
 
 // 金流
-router.get('/cashflow', require('../pubsub/cashflow'));
+// router.get('/cashflow', require('../pubsub/cashflow'));
 
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 // test statscore
@@ -38,6 +38,18 @@ router.get(
 router.get(
   '/checkmatch_statscore_KBO',
   require('../pubsub/checkmatch_statscore_KBO')
+);
+router.get(
+  '/prematch_statscore_CPBL',
+  require('../pubsub/prematch_statscore_CPBL')
+);
+router.get(
+  '/checkmatch_statscore_CPBL',
+  require('../pubsub/checkmatch_statscore_CPBL')
+);
+router.get(
+  '/prematch_statscore_NPB',
+  require('../pubsub/prematch_statscore_NPB')
 );
 router.get(
   '/prematch_statscore_Soccer',
@@ -55,8 +67,9 @@ router.get(
   '/checkmatch_statscore_CBA',
   require('../pubsub/checkmatch_statscore_CBA')
 );
-router.get('/forpastevent', require('../pubsub/forpastevent'));
-
+router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
+router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
+router.get('/NPB_crawler', require('../pubsub/crawlers/prematch_NPB'));
 module.exports = router;

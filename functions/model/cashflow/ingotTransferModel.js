@@ -1,4 +1,3 @@
-// const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const modules = require('../../util/modules');
 async function ingotTransferModel(args) {

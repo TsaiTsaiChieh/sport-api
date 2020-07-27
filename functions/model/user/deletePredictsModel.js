@@ -1,16 +1,15 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable consistent-return */
 const modules = require('../../util/modules');
-const AppError = require('../../util/AppErrors');
+const leagueUtil = require('../../util/leagueUtil');
+const AppErrors = require('../../util/AppErrors');
+const httpStatus = require('http-status');
 const db = require('../../util/dbUtil');
-const NORMAL_USER = 1;
 const scheduledStatus = 2;
 const NORMAL_USER_SELL = -1;
 
 function deletePredictions(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      await isNormalUser(args);
+      await isGodBelongsToLeague(args);
       const filter = await checkMatches(args);
       await updatePredictions(args, filter);
       await deletePredictionsWhichAreNull(args.token.uid, args.league);
@@ -21,12 +20,12 @@ function deletePredictions(args) {
   });
 }
 
-// 檢查使用者是否為一般玩家
-function isNormalUser(args) {
+// 非為該聯盟的大神才能刪除
+function isGodBelongsToLeague(args) {
   return new Promise(function(resolve, reject) {
-    args.token.customClaims.role === NORMAL_USER
+    !args.token.titles.includes(args.league)
       ? resolve()
-      : reject(new AppError.OnlyAcceptNormalUser());
+      : reject(new AppErrors.OnlyAcceptUserDoesNotBelongsToCertainLeague());
   });
 }
 
@@ -62,7 +61,7 @@ function isMatchValid(args, ele, filter) {
                 match__teams AS home,
                 match__teams AS away
           WHERE game.bets_id = :id
-            AND game.league_id = ${modules.leagueCodebook(args.league).id}
+            AND game.league_id = ${leagueUtil.leagueCodebook(args.league).id}
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
@@ -73,20 +72,20 @@ function isMatchValid(args, ele, filter) {
 
       // 若賽事 id 無效，推到 failed；反之，推到 needed
       if (result.length === 0) {
-        ele.code = modules.httpStatus.NOT_FOUND;
+        ele.code = httpStatus.NOT_FOUND;
         ele.error = `Match id: ${ele.id} in ${args.league} not found`;
         filter.failed.push(ele);
       } else {
         addTeamInformation(args, ele, result[0]);
         if (result[0].status !== scheduledStatus) {
-          ele.code = modules.httpStatus.FORBIDDEN;
+          ele.code = httpStatus.FORBIDDEN;
           ele.error = `Match id: ${ele.id} in ${args.league} already started or ended`;
           filter.failed.push(ele);
         } else filter.needed.push(ele);
       }
       resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -102,7 +101,7 @@ function addTeamInformation(args, ele, result) {
     alias: result.away_alias,
     alias_ch: result.away_alias_ch
   };
-  ele.league_id = modules.leagueCodebook(args.league).id;
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
 }
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
@@ -118,7 +117,7 @@ function isHandicapExist(args, i, filter) {
             AND bets_id = :id
             AND ${handicapType}_id = '${handicapId}'
             AND sell = ${NORMAL_USER_SELL}
-            AND league_id = ${modules.leagueCodebook(args.league).id}`,
+            AND league_id = ${leagueUtil.leagueCodebook(args.league).id}`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { id: ele.id }
@@ -134,7 +133,7 @@ function isHandicapExist(args, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -175,7 +174,7 @@ function updatePredictions(args, filter) {
           // result = [undefined, 1] 代表有更新成功；反之 [undefined, 0]
           if (!result[1]) {
             const error = {
-              code: modules.httpStatus.ACCEPTED, // 請求接受並處理但可能失敗
+              code: httpStatus.ACCEPTED, // 請求接受並處理但可能失敗
               error: `${handicapType} id: ${handicapId} in ${args.league} update failed`
             };
             filterProcessor(filter, i, error);
@@ -184,7 +183,7 @@ function updatePredictions(args, filter) {
       }
       return resolve(filter);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -202,12 +201,12 @@ function deletePredictionsWhichAreNull(uid, league) {
             AND league_id = :league_id`,
         {
           type: db.sequelize.QueryTypes.DELETE,
-          replacements: { uid, league_id: modules.leagueCodebook(league).id, raw: true }
+          replacements: { uid, league_id: leagueUtil.leagueCodebook(league).id, raw: true }
         }
       );
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -216,7 +215,7 @@ function returnData(filter) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
       return reject(
-        new AppError.DeletePredictionsFailed({ failed: filter.failed })
+        new AppErrors.DeletePredictionsFailed({ failed: filter.failed })
       );
     } else if (neededResult) {
       return resolve(repackageReturnData(filter));

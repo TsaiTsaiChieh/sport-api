@@ -1,4 +1,5 @@
-const { NP, leagueCodebook, to } = require('../../util/modules');
+const { NP, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const { getGodSellPredictionDatesWinBetsInfo } = require('../../util/databaseEngine');
 
@@ -8,8 +9,11 @@ async function buyModel(args, uid) {
   const end = args.end;
 
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
-  if (err) {console.error('Error in  user/buy by henry:  %o', err); throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });}
-  if (buy === undefined) return buyList;
+  if (err) {
+    console.error('[Error][buyModel][getGodSellPredictionDatesWinBetsInfo] ', err);
+    throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });
+  }
+  if (!buy) return buyList;
 
   for (const ele of buy) {
     buyList.push({

@@ -25,6 +25,16 @@ class DeletePredictionsFailed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class UserPredictSomeFailed extends ExtendableError {
+  constructor(message, status = 1002, isPublic = true, code = httpStatus.OK) {
+    super(message, status, isPublic, code);
+  }
+
+  get getError() {
+    return { error: this.constructor.name, message: this.message, devcode: this.status };
+  }
+}
 /* --------------------------- 404 NOT FOUND --------------------------- */
 /**
  * 找不到使用者資料 Error
@@ -60,7 +70,7 @@ class BetsAPIError extends ExtendableError {
 
 class MatchNotFound extends ExtendableError {
   constructor(
-    message = '無任何賽事',
+    message = '找無此賽事',
     status = 1309,
     isPublic = true,
     code = httpStatus.NOT_FOUND
@@ -79,6 +89,23 @@ class GodUserNotFound extends ExtendableError {
   constructor(
     message = '找不到此大神',
     status = 1310,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class TeamInformationNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此隊伍的資料',
+    status = 1311,
     isPublic = true,
     code = httpStatus.NOT_FOUND
   ) {
@@ -149,9 +176,9 @@ class CouldNotModifySellInformation extends ExtendableError {
   }
 }
 
-class OnlyAcceptNormalUser extends ExtendableError {
+class OnlyAcceptUserDoesNotBelongsToCertainLeague extends ExtendableError {
   constructor(
-    message = '此功能只允許一般玩家操作',
+    message = '刪除只允許非屬於該聯盟的大神玩家操作',
     status = 1208,
     isPublic = true,
     code = httpStatus.FORBIDDEN
@@ -337,7 +364,7 @@ class RepackageError extends ExtendableError {
   }
 }
 
-class firestoreQueryError extends ExtendableError {
+class FirestoreQueryError extends ExtendableError {
   constructor(
     message = 'Firestore查詢失敗',
     status = 1513,
@@ -446,23 +473,47 @@ class CrawlersError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class KBO_CrawlersError extends ExtendableError {
+  constructor(
+    message = 'KBO 爬蟲賽前排程錯誤',
+    status = 1523,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
+class GetSeasonError extends ExtendableError {
+  constructor(
+    message = '取得賽季時發生錯誤',
+    status = 1524,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
   MatchNotFound,
   GodUserNotFound,
+  TeamInformationNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
   UserNotBelongToGod,
   CouldNotFillInSellInformation,
   CouldNotModifySellInformation,
-  OnlyAcceptNormalUser,
+  OnlyAcceptUserDoesNotBelongsToCertainLeague,
   GodUserDidNotSell,
   CoinOrDividendNotEnough,
   PurchaseTimeShouldBeforeLastMatch,
   CouldNotBuyOwnPredictions,
   UserPredictFailed,
   DeletePredictionsFailed,
+  UserPredictSomeFailed,
   MysqlError,
   BetsAPIError,
   PrematchEsoccerError,
@@ -477,7 +528,7 @@ module.exports = {
   PBPKBOError,
   RepackageError,
   PBPAbnormalError,
-  firestoreQueryError,
+  FirestoreQueryError,
   PurchasePredictionsModelError,
   UpdateUserCoinAndDividend,
   PropertyMissingError,
@@ -486,5 +537,7 @@ module.exports = {
   UpdateUserCoinORDividendRollback,
   CreateCashflowBuyRollback,
   PredictionHistoryModelError,
-  CrawlersError
+  CrawlersError,
+  KBO_CrawlersError,
+  GetSeasonError
 };

@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -56,7 +56,7 @@ function queryMatch(args) {
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             eventID: args.eventID
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -70,117 +70,121 @@ function queryMatch(args) {
 }
 async function repackage(args, match) {
   try {
-    if (args.league === 'NBA') {
-      match.sport = modules.league2Sport(args.league);
-      return match;
-    } else if (args.league === 'MLB') {
-      match.sport = modules.league2Sport(args.league);
+    if (match.length > 0) {
+      if (args.league === 'NBA') {
+        match.sport = leagueUtil.league2Sport(args.league);
+        return match;
+      } else if (args.league === 'MLB') {
+        match.sport = leagueUtil.league2Sport(args.league);
 
-      return match;
-    } else if (args.league === 'eSoccer') {
-      const ele = match[0];
-      const temp = {
-        id: ele.id,
-        status: ele.status,
-        sport: modules.league2Sport(args.league).sport,
-        league: args.league,
-        ori_league: ele.league_name_ch,
-        scheduled: ele.scheduled,
-        spread: {
-          handicap:
-            ele.spread_handicap || ele.spread_handicap === 0
-              ? ele.spread_handicap
-              : null,
-          home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
-          away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
-        },
-        totals: {
-          handicap:
-            ele.total_handicap || ele.total_handicap === 0
-              ? ele.total_handicap
-              : null,
-          over_tw: ele.total_over_tw ? ele.total_over_tw : null
-        },
-        home: {
-          team_name:
-            ele.home_alias_ch.indexOf('(') > 0
-              ? ele.home_alias_ch.split('(')[0].trim()
-              : ele.home_alias_ch,
-          player_name:
-            ele.home_name.indexOf('(') > 0
-              ? ele.home_name.split('(')[1].replace(')', '').trim()
-              : null,
-          name: ele.home_name,
-          alias: ele.home_alias,
-          alias_ch:
-            ele.home_alias_ch.indexOf('(') > 0
-              ? ele.home_alias_ch.split('(')[0].trim()
-              : ele.home_alias_ch,
-          image_id: ele.home_image_id
-        },
-        away: {
-          team_name:
-            ele.away_alias_ch.indexOf('(') > 0
-              ? ele.away_alias_ch.split('(')[0].trim()
-              : ele.away_alias_ch,
-          player_name:
-            ele.away_name.indexOf('(') > 0
-              ? ele.away_name.split('(')[1].replace(')', '').trim()
-              : null,
-          name: ele.away_name,
-          alias: ele.away_alias,
-          alias_ch:
-            ele.away_alias_ch.indexOf('(') > 0
-              ? ele.away_alias_ch.split('(')[0].trim()
-              : ele.away_alias_ch,
-          image_id: ele.away_image_id
-        }
-      };
+        return match;
+      } else if (args.league === 'eSoccer') {
+        const ele = match[0];
+        const temp = {
+          id: ele.id,
+          status: ele.status,
+          sport: leagueUtil.league2Sport(args.league).sport,
+          league: args.league,
+          ori_league: ele.league_name_ch,
+          scheduled: ele.scheduled,
+          spread: {
+            handicap:
+              ele.spread_handicap || ele.spread_handicap === 0
+                ? ele.spread_handicap
+                : null,
+            home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+          },
+          totals: {
+            handicap:
+              ele.total_handicap || ele.total_handicap === 0
+                ? ele.total_handicap
+                : null,
+            over_tw: ele.total_over_tw ? ele.total_over_tw : null
+          },
+          home: {
+            team_name:
+              ele.home_alias_ch.indexOf('(') > 0
+                ? ele.home_alias_ch.split('(')[0].trim()
+                : ele.home_alias_ch,
+            player_name:
+              ele.home_name.indexOf('(') > 0
+                ? ele.home_name.split('(')[1].replace(')', '').trim()
+                : null,
+            name: ele.home_name,
+            alias: ele.home_alias,
+            alias_ch:
+              ele.home_alias_ch.indexOf('(') > 0
+                ? ele.home_alias_ch.split('(')[0].trim()
+                : ele.home_alias_ch,
+            image_id: ele.home_image_id
+          },
+          away: {
+            team_name:
+              ele.away_alias_ch.indexOf('(') > 0
+                ? ele.away_alias_ch.split('(')[0].trim()
+                : ele.away_alias_ch,
+            player_name:
+              ele.away_name.indexOf('(') > 0
+                ? ele.away_name.split('(')[1].replace(')', '').trim()
+                : null,
+            name: ele.away_name,
+            alias: ele.away_alias,
+            alias_ch:
+              ele.away_alias_ch.indexOf('(') > 0
+                ? ele.away_alias_ch.split('(')[0].trim()
+                : ele.away_alias_ch,
+            image_id: ele.away_image_id
+          }
+        };
 
-      return temp;
+        return temp;
+      } else {
+        const ele = match[0];
+        match.sport = leagueUtil.league2Sport(args.league);
+        const temp = {
+          id: ele.id,
+          status: ele.status,
+          sport: leagueUtil.league2Sport(args.league).sport,
+          league: args.league,
+          ori_league: ele.league_name_ch,
+          scheduled: ele.scheduled,
+          spread: {
+            handicap:
+              ele.spread_handicap || ele.spread_handicap === 0
+                ? ele.spread_handicap
+                : null,
+            home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+          },
+          totals: {
+            handicap:
+              ele.total_handicap || ele.total_handicap === 0
+                ? ele.total_handicap
+                : null,
+            over_tw: ele.total_over_tw ? ele.total_over_tw : null
+          },
+          home: {
+            team_name: ele.home_alias_ch,
+            player_name: null,
+            name: ele.home_name,
+            alias: ele.home_alias,
+            alias_ch: ele.home_alias_ch,
+            image_id: ele.home_image_id
+          },
+          away: {
+            team_name: ele.away_alias_ch,
+            player_name: null,
+            name: ele.away_name,
+            alias: ele.away_alias,
+            alias_ch: ele.away_alias_ch,
+            image_id: ele.away_image_id
+          }
+        };
+        return temp;
+      }
     } else {
-      const ele = match[0];
-      match.sport = modules.league2Sport(args.league);
-      const temp = {
-        id: ele.id,
-        status: ele.status,
-        sport: modules.league2Sport(args.league).sport,
-        league: args.league,
-        ori_league: ele.league_name_ch,
-        scheduled: ele.scheduled,
-        spread: {
-          handicap:
-            ele.spread_handicap || ele.spread_handicap === 0
-              ? ele.spread_handicap
-              : null,
-          home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
-          away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
-        },
-        totals: {
-          handicap:
-            ele.total_handicap || ele.total_handicap === 0
-              ? ele.total_handicap
-              : null,
-          over_tw: ele.total_over_tw ? ele.total_over_tw : null
-        },
-        home: {
-          team_name: ele.home_alias_ch,
-          player_name: null,
-          name: ele.home_name,
-          alias: ele.home_alias,
-          alias_ch: ele.home_alias_ch,
-          image_id: ele.home_image_id
-        },
-        away: {
-          team_name: ele.away_alias_ch,
-          player_name: null,
-          name: ele.away_name,
-          alias: ele.away_alias,
-          alias_ch: ele.away_alias_ch,
-          image_id: ele.away_image_id
-        }
-      };
-      return temp;
+      return [];
     }
   } catch (err) {
     console.error(`${err.stack} by DY`);

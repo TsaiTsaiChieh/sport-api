@@ -3,15 +3,20 @@
     ".read": true,
     ".write": "auth !== null",
     "chat_public": {
-      // ".read": true,
-      ".indexOn": "createTime/_seconds"
-    }, 
+       ".read": true,
+      ".indexOn": ["createTime/_seconds"]
+    },
     "chat_test": {
-      // ".read": true,
-      // ".write": "auth !== null",
+       ".read": true,
+       ".write": "auth !== null",
       "$messageId": {
         ".read": "data.child('message').child('softDelete').val() === 1",
       }
-    }
-  } 
+    },
+    "chat_room_users": {
+      "public": {
+        ".write" : true
+      }
+    },
+  }
 }

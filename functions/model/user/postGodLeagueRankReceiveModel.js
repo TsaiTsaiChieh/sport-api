@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueCodebook } = require('../../util/modules');
+const { getTitlesPeriod } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
@@ -22,7 +23,10 @@ async function postGodLeagueRankReceiveBack(args) {
       }
     }));
 
-    if (err) {console.error(err); throw errs.dbErrsMsg('404', '13540', { addMsg: err.parent.code });}
+    if (err) {
+      console.error('[Error][postGodLeagueRankReceiveModel][Title] ', err);
+      throw errs.dbErrsMsg('404', '13540', { addMsg: err.parent.code });
+    }
     if (r[0] === 1) result.success.push(league);
   };
 

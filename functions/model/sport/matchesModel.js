@@ -1,8 +1,10 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
-const AppError = require('../../util/AppErrors');
-const { SCHEDULED, INPLAY, END } = modules.MATCH_STATUS;
+const AppErrors = require('../../util/AppErrors');
+const { SCHEDULED, INPLAY, END } = leagueUtil.MATCH_STATUS;
 const flag_prematch = 1;
+const ignoreLeagueId = '22000';
 
 function getMatches(args) {
   return new Promise(async function(resolve, reject) {
@@ -32,7 +34,7 @@ function getMatchesWithDate(args) {
     try {
       // index is range, eq_ref, taking 170 ms
       const results = await db.sequelize.query(
-        `SELECT game.bets_id AS id, game.scheduled, game.status, game.spread_id, game.totals_id, 
+        `SELECT game.bets_id AS id, game.scheduled, game.status, game.league_id, game.spread_id, game.totals_id, 
                 game.home_points, game.away_points, game.spread_result, game.totals_result, 
                 game.home_name, game.home_alias_ch, game.home_alias, game.home_image_id, 
                 game.away_name, game.away_alias_ch, game.away_alias, game.away_image_id, 
@@ -49,7 +51,7 @@ function getMatchesWithDate(args) {
                        match__teams AS away
                  WHERE game.flag_prematch = ${flag_prematch}
                    AND scheduled BETWEEN ${begin} AND ${end}
-                   AND game.league_id = '${modules.leagueCodebook(league).id}'
+                   AND game.league_id = '${leagueUtil.leagueCodebook(league).id}'
                    AND game.home_id = home.team_id 
                    AND game.away_id = away.team_id
                    AND (game.status = ${SCHEDULED} OR game.status = ${INPLAY} OR game.status = ${END})
@@ -64,7 +66,7 @@ function getMatchesWithDate(args) {
 
       return resolve(results);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -85,7 +87,7 @@ function returnGodUserPrediction(args) {
            FROM user__predictions
           WHERE uid = :uid 
             AND match_scheduled BETWEEN ${begin} AND ${end}
-            AND league_id = '${modules.leagueCodebook(args.league).id}'`,
+            AND league_id = '${leagueUtil.leagueCodebook(args.league).id}'`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { uid: args.token.uid }
@@ -93,10 +95,11 @@ function returnGodUserPrediction(args) {
       );
       return resolve(results);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
+
 function isGodBelongToLeague(args) {
   if (args.token) {
     if (args.token.customClaims.titles.includes(args.league)) {
@@ -104,6 +107,7 @@ function isGodBelongToLeague(args) {
     }
   } else return false;
 }
+
 function repackageMatches(results, args, godPredictions) {
   const data = {
     sell: -1,
@@ -122,6 +126,7 @@ function repackageMatches(results, args, godPredictions) {
       status: ele.status,
       league: args.league,
       league_ch: ele.name_ch,
+      league_id: ele.league_id,
       ori_league_id: ele.ori_league_id,
       home: {
         id: ele.home_id,
@@ -153,6 +158,10 @@ function repackageMatches(results, args, godPredictions) {
         disable: !!((ele.totals_id === null || ele.totals_handicap === null))
       }
     };
+
+    // ignore eSoccer league when spread & totals are null
+    if (temp.league_id === ignoreLeagueId && !temp.spread.id && !temp.totals.id) continue;
+
     if (godPredictions.length) {
       data.sell = godPredictions[0].sell;
       isHandicapDisable(ele, temp, godPredictions);
@@ -188,6 +197,7 @@ function repackageMatches(results, args, godPredictions) {
   }
   return data;
 }
+
 // 將大神預測單的資料作顯示上的處理
 function isHandicapDisable(ele, temp, predictions) {
   for (let i = 0; i < predictions.length; i++) {

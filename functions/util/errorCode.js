@@ -80,6 +80,21 @@ const errorCodeLists = {
 
   14050: { msg: ['查詢 我的預測 失敗'], backend: ['查詢產生資料庫錯誤，因該是欄位有異動產生這個錯誤。', ''] },
 
+  15010: { msg: ['更新 使用者任務狀態 失敗'], backend: ['更新 UserMission.update 產生錯誤。', ''] },
+  15012: { msg: ['更新 使用者任務狀態 失敗'], backend: ['更新 UserMission.update 異常 筆數不正確，只能一筆才對。', ''] },
+  15014: { msg: ['更新 使用者任務狀態 失敗'], backend: ['輸入 parms 參數內容錯誤，至少要有一個 mission_ooxx_id 才正確。', ''] },
+  15015: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 更新結果 0 筆，應該至少一筆。', ''] },
+  150151: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 有異常發生。', ''] },
+  15016: { msg: ['新增 使用者任務狀態 失敗'], backend: ['addUserMissionStatus 更新 UserMission.update 產生錯誤。', ''] },
+  15110: { msg: ['新增 使用者任務 失敗'], backend: ['missionDaily 新增 UserMission.addUserMissionStatus 產生錯誤。', ''] },
+
+  15210: { msg: ['查詢 任務資訊 異常'], backend: ['mission_item_id 只會有一筆 mission 資料，有多筆代表資料已經異常', ''] },
+  15211: { msg: ['查詢 任務資訊 異常'], backend: ['mission_god_id 只會有一筆 mission 資料，有多筆代表資料已經異常', ''] },
+  15212: { msg: ['查詢 任務資訊 異常'], backend: ['mission_deposit_id 只會有一筆 mission 資料，有多筆代表資料已經異常', ''] },
+  15215: { msg: ['查詢 任務資訊 失敗'], backend: ['查詢 mission_item_id 異常 查不到資料。', ''] },
+  15216: { msg: ['查詢 任務資訊 失敗'], backend: ['查詢 mission_god_id 異常 查不到資料。', ''] },
+  15217: { msg: ['查詢 任務資訊 失敗'], backend: ['查詢 mission_deposit_id 異常 查不到資料。', ''] },
+
   20001: { msg: ['更新 交易 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20002: { msg: ['更新 搞錠轉換搞幣 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },
   20003: { msg: ['更新 錢包搞錠小於轉換搞錠 失敗'], backend: ['更新 Update Titles receive 失敗 資料庫原因錯誤', ''] },

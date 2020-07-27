@@ -1,4 +1,4 @@
-const modules = require('../util/modules');
+const translate = require('@k3rn31p4nic/google-translate-api');
 
 async function translateMLB(
   stringOrigin,
@@ -1115,7 +1115,7 @@ async function translateMLB(
 }
 
 async function transFunction(stringTrans) {
-  const stringAfterTrans = await modules.translate(stringTrans, {
+  const stringAfterTrans = await translate(stringTrans, {
     from: 'en',
     to: 'zh-tw'
   });

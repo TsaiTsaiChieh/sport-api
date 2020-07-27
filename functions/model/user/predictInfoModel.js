@@ -1,4 +1,4 @@
-const { coreDateInfo, sliceTeamAndPlayer, groupBy, to } = require('../../util/modules');
+const { date3UnixInfo, sliceTeamAndPlayer, groupBy, to } = require('../../util/modules');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -17,8 +17,8 @@ async function predictInfo(args) {
   if (checkResult.code) throw checkResult;
 
   // 2.
-  const nowInfo = coreDateInfo(new Date());
-  const nowUnix = nowInfo.mdate.unix();
+  const nowInfo = date3UnixInfo(new Date());
+  // const nowUnix = nowInfo.mdate.unix();
 
   // 使用者預測資訊
   // 賽前 (scheduled 開賽時間 > api呼叫時間)
@@ -30,7 +30,8 @@ async function predictInfo(args) {
                spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
                totals.handicap totals_handicap, totals.over_tw
           from (
-                 select prediction.bets_id, match_scheduled, league.name league,
+                 select prediction.bets_id, match_scheduled, matches.status,
+                        league.name league,
                         team_home.alias home_alias, team_home.alias_ch home_alias_ch,
                         team_away.alias away_alias, team_away.alias_ch away_alias_ch,
                         prediction.spread_id, prediction.spread_option, prediction.spread_bets,
@@ -44,8 +45,9 @@ async function predictInfo(args) {
                     and prediction.bets_id = matches.bets_id
                     and matches.home_id = team_home.team_id
                     and matches.away_id = team_away.team_id
+                    and matches.status != 0
                     and prediction.uid = :uid
-                    and prediction.match_scheduled > :now
+                    and prediction.match_scheduled > :dateUnix
                ) prediction
           left join match__spreads spread
             on prediction.spread_id = spread.spread_id
@@ -54,18 +56,18 @@ async function predictInfo(args) {
     `, {
     replacements: {
       uid: userUid,
-      now: nowUnix
+      dateUnix: nowInfo.yesterdayBeginUnix
     },
     limit: 30,
     type: db.sequelize.QueryTypes.SELECT
   }));
   if (err) {
-    console.error('Error 2. in user/predictonInfoModell by YuHsien', err);
+    console.error('[Error][predictonInfoModell][predictionsInfoDocs] ', err);
     throw errs.dbErrsMsg('404', '14050');
   }
 
   // 使用者 一開始尚未預測
-  if (predictionsInfoDocs === undefined || predictionsInfoDocs.length === 0) {
+  if (!predictionsInfoDocs || predictionsInfoDocs.length === 0) {
     return predictionsInfoList; // 回傳 空Array
   }
 
@@ -95,6 +97,7 @@ function repackage(ele) {
   const data = {
     bets_id: ele.bets_id,
     scheduled: ele.match_scheduled, // 開賽時間
+    match_status: ele.status,
     league: ele.league,
     home: {
       team_name: ele.home_alias,
@@ -112,24 +115,25 @@ function repackage(ele) {
     totals: {}
   };
 
-  if (!(ele.spread_id == null)) { // 有讓分資料
+  if (ele.spread_id) { // 有讓分資料
     data.spread = {
       predict: ele.spread_option,
       spread_id: ele.spread_id,
       handicap: ele.spread_handicap,
-      handicap_home_tw: ele.home_tw ? ele.home_tw : '',
-      handicap_away_tw: ele.away_tw ? ele.away_tw : '',
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      home_tw: ele.home_tw ? ele.home_tw : '',
+      away_tw: ele.away_tw ? ele.away_tw : '',
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.spread_bets
     };
   }
 
-  if (!(ele.totals_id == null)) { // 有大小資料
+  if (ele.totals_id) { // 有大小資料
     data.totals = {
       predict: ele.totals_option,
       totals_id: ele.totals_id,
-      handicap: ele.over_tw, // ele.totals_handicap,
-      percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
+      handicap: ele.totals_handicap,
+      over_tw: ele.over_tw,
+      // percentage: 0, // Math.floor(Math.random() * 50), // 目前先使用隨機數，將來有決定怎麼產生資料時，再處理
       bets: ele.totals_bets
     };
   }

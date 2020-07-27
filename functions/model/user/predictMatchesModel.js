@@ -1,11 +1,10 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable consistent-return */
 const modules = require('../../util/modules');
-const AppError = require('../../util/AppErrors');
+const leagueUtil = require('../../util/leagueUtil');
+const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const NORMAL_USER_SELL = -1;
 const NORMAL_USER = 1;
-const scheduledStatus = 2;
+const httpStatus = require('http-status');
 
 function prematch(args) {
   return new Promise(async function(resolve, reject) {
@@ -28,7 +27,7 @@ function isGodSellValid(args) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     sell === NORMAL_USER_SELL && titles.includes(league)
-      ? reject(new AppError.GodSellStatusWrong())
+      ? reject(new AppErrors.GodSellStatusWrong())
       : resolve();
   });
 }
@@ -39,7 +38,7 @@ function isGodBelongToLeague(args) {
     const { sell, league } = args;
     const { titles } = args.token.customClaims;
     (sell === 0 || sell === 1) && !titles.includes(league)
-      ? reject(new AppError.UserCouldNotSell())
+      ? reject(new AppErrors.UserCouldNotSell())
       : resolve();
   });
 }
@@ -49,7 +48,7 @@ function isNormalUserSell(args) {
   return new Promise(function(resolve, reject) {
     const role = Number.parseInt(args.token.customClaims.role);
     role === NORMAL_USER && args.sell !== NORMAL_USER_SELL
-      ? reject(new AppError.UserCouldNotSell())
+      ? reject(new AppErrors.UserCouldNotSell())
       : resolve();
   });
 }
@@ -81,57 +80,97 @@ async function checkMatches(args) {
 }
 async function isMatchValid(args, ele, filter) {
   return new Promise(async function(resolve, reject) {
-    const { league } = args;
-    const { handicapType, handicapId } = handicapProcessor(ele);
-
     try {
-      // 有無賽事 ID，檢查是否可以下注了（且時間必須在 scheduled 前），盤口 ID 是否是最新的
-      const results = await db.sequelize.query(
-        `SELECT game.*, 
+      // index is const(matches-game); const(match__teams-home); const(match__team-away), taking 165ms
+      const result = await db.sequelize.query(
+        `SELECT game.bets_id, game.status, game.spread_id, game.totals_id, game.scheduled, game.scheduled_tw, 
                 home.team_id AS home_id, home.alias_ch AS home_alias_ch, home.alias AS home_alias,  
                 away.team_id AS away_id, away.alias_ch AS away_alias_ch, away.alias AS away_alias
            FROM matches AS game, 
                 match__teams AS home,
                 match__teams AS away
-          WHERE game.bets_id = :id
-            AND game.${handicapType}_id = :handicapId
-            AND game.status = ${scheduledStatus}
+          WHERE game.bets_id = :bets_id
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
-          replacements: { id: ele.id, handicapId },
+          replacements: { bets_id: ele.id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-
-      if (!results.length) {
-        ele.code = 404;
-        ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
-        filter.failed.push(ele);
-      } else if (results) {
-        const date = modules.convertTimezoneFormat(results[0].scheduled);
-        const match_date = modules.convertTimezone(date);
-        ele.match_scheduled = results[0].scheduled;
-        ele.match_scheduled_tw = results[0].scheduled_tw;
-        ele.match_date = match_date;
-        ele.home = {
-          id: results[0].home_id,
-          alias: results[0].home_alias,
-          alias_ch: results[0].home_alias_ch
-        };
-        ele.away = {
-          id: results[0].away_id,
-          alias: results[0].away_alias,
-          alias_ch: results[0].away_alias_ch
-        };
-        ele.league_id = modules.leagueCodebook(league).id;
-        filter.needed.push(ele);
-      }
-      resolve(filter);
+      return resolve(checkIfError(result, args, ele, filter));
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
+}
+
+function checkIfError(result, args, ele, filter) {
+  // 檢查以下三種狀況
+  // 1. 賽事 id 無效
+  // 2. 盤口已更新
+  // 3. 賽事已開打
+  const { handicapType, handicapId, handicapName } = handicapProcessor(ele);
+  if (!result.length) { // 代表賽事 id 無效
+    ele.code = httpStatus.NOT_FOUND;
+    ele.error = `Match id: ${ele.id} in ${args.league} not found`;
+    ele.error_ch = `無此 ${ele.id} 的賽事編號`;
+    filter.failed.push(ele);
+    return;
+  }
+  if (result) {
+    if (result[0][`${handicapType}_id`] !== handicapId) { // 盤口已更新
+      ele.code = httpStatus.NOT_ACCEPTABLE;
+      ele.error = `Match id: ${ele.id} [${handicapType}_id: ${handicapId}] in ${args.league} not acceptable`;
+      ele.error_ch = `賽事編號 ${ele.id} 的${handicapName}(handicapType)編號 ${handicapId} 已非最新盤口編號`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
+      filter.failed.push(ele);
+      return;
+    }
+    if (result[0].status !== leagueUtil.MATCH_STATUS.SCHEDULED) { // 賽事已開打
+      ele.code = httpStatus.CONFLICT;
+      ele.error = `Match id: ${ele.id} in ${args.league} already started`;
+      ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
+      pushNotValidMatchToFailed(result, args, ele, filter);
+      filter.failed.push(ele);
+      return;
+    }
+  }
+  pushValidMatchToNeeded(result, args, ele, filter);
+}
+
+function pushNotValidMatchToFailed(result, args, ele, filter) {
+  ele.home = {
+    id: result[0].home_id,
+    alias: result[0].home_alias,
+    alias_ch: result[0].home_alias_ch
+  };
+  ele.away = {
+    id: result[0].away_id,
+    alias: result[0].away_alias,
+    alias_ch: result[0].away_alias_ch
+  };
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
+}
+
+function pushValidMatchToNeeded(result, args, ele, filter) {
+  const date = modules.convertTimezoneFormat(result[0].scheduled);
+  const match_date = modules.convertTimezone(date);
+  ele.match_scheduled = result[0].scheduled;
+  ele.match_scheduled_tw = result[0].scheduled_tw;
+  ele.match_date = match_date;
+
+  ele.home = {
+    id: result[0].home_id,
+    alias: result[0].home_alias,
+    alias_ch: result[0].home_alias_ch
+  };
+  ele.away = {
+    id: result[0].away_id,
+    alias: result[0].away_alias,
+    alias_ch: result[0].away_alias_ch
+  };
+  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
+  filter.needed.push(ele);
 }
 
 function isGodUpdate(uid, i, filter) {
@@ -154,30 +193,33 @@ function isGodUpdate(uid, i, filter) {
 
       if (predictResults.length) {
         const error = {
-          code: 403,
-          error: `${handicapType} id: ${handicapId} already exist, locked`
+          code: httpStatus.NOT_ACCEPTABLE,
+          error: `${handicapType} id: ${handicapId} already exist, locked（大神無法更新已下注內容）`
         };
         filterProcessor(filter, i, error);
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
 
 function handicapProcessor(ele) {
-  let handicapType = '';
+  let handicapType;
   let handicapId;
+  let handicapName;
 
   if (ele.spread) {
     handicapType = 'spread';
     handicapId = ele.spread[0];
+    handicapName = '讓分';
   } else if (ele.totals) {
     handicapType = 'totals';
     handicapId = ele.totals[0];
+    handicapName = '大小分';
   }
-  return { handicapType, handicapId };
+  return { handicapType, handicapId, handicapName };
 }
 function filterProcessor(filter, i, error) {
   const ele = filter.needed[i];
@@ -208,18 +250,18 @@ function isGodSellConsistent(args, i, filter) {
         {
           replacements: {
             uid: args.token.uid,
-            league_id: modules.leagueCodebook(args.league).id
+            league_id: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
       if (results.length) {
         if (results[0].sell !== args.sell) {
-          return reject(new AppError.GodSellInconsistent());
+          return reject(new AppErrors.GodSellInconsistent());
         } else return resolve();
       } else return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -228,7 +270,7 @@ function sendPrediction(args, filter) {
   return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
-      return reject(new AppError.UserPredictFailed({ failed: filter.failed }));
+      return reject(new AppErrors.UserPredictFailed({ failed: filter.failed }));
     } else if (neededResult) {
       await insertDB(args, filter.needed);
       await createNewsDB(args, filter.needed);
@@ -274,7 +316,7 @@ async function insertDB(args, needed) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
     }
   });
 }
@@ -288,7 +330,7 @@ async function createNewsDB(insertData, needed) {
       const period = modules.getTitlesPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
-      if (sell === 1) {
+      if (sell === 0 || sell === 1) {
         const price_data = await db.sequelize.query(`
             SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
         `,
@@ -297,15 +339,15 @@ async function createNewsDB(insertData, needed) {
           type: db.sequelize.QueryTypes.SELECT
         });
         price = price_data[0].price;
-      }
 
-      insertData.title = '【' + insertData.league + '】售價：$' + price;
-      insertData.scheduled = modules.moment().unix();
-      insertData.sort = 2;// 售牌
-      await db.sequelize.models.user__new.create(insertData);
+        insertData.title = price;
+        insertData.scheduled = modules.moment().unix();
+        insertData.sort = 2;// 售牌
+        await db.sequelize.models.user__new.create(insertData);
+      }
       return resolve({ news_status: 'success' });
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by Henry`));
+      return reject(new AppErrors.MysqlError(`${err.stack} by Henry`));
     }
   });
 }
@@ -340,6 +382,7 @@ function repackageReturnData(filter) {
     if (ele.length === undefined) {
       delete ele.league_id;
       delete ele.match_scheduled;
+      delete ele.match_scheduled_tw;
       filter.success.push(ele);
     }
   }
@@ -348,9 +391,22 @@ function repackageReturnData(filter) {
     if (ele.length === undefined) {
       delete ele.league_id;
       delete ele.match_scheduled;
+      delete ele.match_scheduled_tw;
     }
   }
   delete filter.needed;
-  return filter;
+  return isFailedAndSuccessCoexist(filter);
+}
+
+function isFailedAndSuccessCoexist(filter) {
+  const { failed, success } = filter;
+  if (failed.length && success.length) {
+    const userPredictSomeFailed = new AppErrors.UserPredictSomeFailed({ failed, success });
+    return {
+      error: userPredictSomeFailed.getError.error,
+      devcode: userPredictSomeFailed.getError.devcode,
+      message: userPredictSomeFailed.getError.message
+    };
+  } else return { message: filter };
 }
 module.exports = prematch;

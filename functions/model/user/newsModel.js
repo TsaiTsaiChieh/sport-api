@@ -49,7 +49,7 @@ function newsModel(method, args, uid) {
            LIMIT :start_system, :limit_system
           `,
           {
-            logging: true,
+            // logging: true,
             replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join(), uid },
             type: db.sequelize.QueryTypes.SELECT
           }
@@ -67,7 +67,7 @@ function newsModel(method, args, uid) {
           type: db.sequelize.QueryTypes.SELECT
         }
         );
-        console.log(favorite_user);
+
         const uids = [];
         favorite_user.forEach(function(user) {
           uids.push(user.god_uid);
@@ -77,7 +77,7 @@ function newsModel(method, args, uid) {
         /* 使用者訊息資料 */
         const user = await db.sequelize.query(
           `
-          SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
+          SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.league, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt
             FROM user__news un, users u
           WHERE un.scheduled BETWEEN :begin and :end
             AND u.uid = un.uid
@@ -88,7 +88,7 @@ function newsModel(method, args, uid) {
             LIMIT :start_user, :limit_user
           `,
           {
-            logging: true,
+            // logging: true,
             replacements: { uids: uids, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
             type: db.sequelize.QueryTypes.SELECT
           }

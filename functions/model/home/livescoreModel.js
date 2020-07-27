@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 // const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 
@@ -11,7 +12,7 @@ async function livescoreHome(args) {
 
       resolve(result);
     } catch (err) {
-      console.error('Error in sport/livescoreModel by DY', err);
+      console.error('Error in home/livescoreModel by DY', err);
       reject({ code: 500, error: err });
     }
   });
@@ -51,7 +52,7 @@ function queryHomeMatches(args) {
           end * 1000 - 1
         }'
 								AND game.ori_league_id = league.ori_league_id
-								AND game.status = '${modules.MATCH_STATUS.INPLAY}'
+								AND game.status = '${leagueUtil.MATCH_STATUS.INPLAY}'
            )
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -70,13 +71,13 @@ function queryHomeMatches(args) {
           end * 1000 - 1
         }'
 								AND game.ori_league_id = league.ori_league_id
-								AND game.status = '${modules.MATCH_STATUS.INPLAY}'
+								AND game.status = '${leagueUtil.MATCH_STATUS.INPLAY}'
            )
 					 ORDER BY scheduled
 					 LIMIT 4
            `,
         {
-          replacements: { leagueID: modules.leagueCodebook(args.league).id },
+          replacements: { leagueID: leagueUtil.leagueCodebook(args.league).id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -101,7 +102,7 @@ function queryHomeMatches(args) {
 										AND game.spread_id = spread.spread_id
 										AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${end * 1000 - 1}'
 										AND game.ori_league_id = league.ori_league_id
-										AND game.status = '${modules.MATCH_STATUS.SCHEDULED}'
+										AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
 							 )
 							 UNION(
 								 SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -118,13 +119,13 @@ function queryHomeMatches(args) {
 										AND game.spread_id IS NULL
 										AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${end * 1000 - 1}'
 										AND game.ori_league_id = league.ori_league_id
-										AND game.status = '${modules.MATCH_STATUS.SCHEDULED}'
+										AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
 							 )
 							 ORDER BY scheduled
 							 LIMIT ${number}
 							 `,
           {
-            replacements: { leagueID: modules.leagueCodebook(args.league).id },
+            replacements: { leagueID: leagueUtil.leagueCodebook(args.league).id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -153,7 +154,7 @@ function queryHomeMatches(args) {
 									AND game.spread_id = spread.spread_id
 									AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${end * 1000 - 1}'
 									AND game.ori_league_id = league.ori_league_id
-									AND game.status = '${modules.MATCH_STATUS.END}'
+									AND game.status = '${leagueUtil.MATCH_STATUS.END}'
 						 )
 						 UNION(
 							 SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -170,13 +171,13 @@ function queryHomeMatches(args) {
 									AND game.spread_id IS NULL
 									AND game.scheduled*1000 BETWEEN '${begin * 1000}' AND '${end * 1000 - 1}'
 									AND game.ori_league_id = league.ori_league_id
-									AND game.status = '${modules.MATCH_STATUS.END}'
+									AND game.status = '${leagueUtil.MATCH_STATUS.END}'
 						 )
 						 ORDER BY scheduled
 						 LIMIT ${number}
 						 `,
           {
-            replacements: { leagueID: modules.leagueCodebook(args.league).id },
+            replacements: { leagueID: leagueUtil.leagueCodebook(args.league).id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -201,7 +202,7 @@ async function repackage(args, matches) {
         id: ele.id,
         league: ele.league_name_ch,
         ori_league: args.league,
-        sport: modules.league2Sport(args.league).sport,
+        sport: leagueUtil.league2Sport(args.league).sport,
         status: ele.status,
         scheduled: ele.scheduled * 1000,
         newest_spread: {
@@ -248,7 +249,7 @@ async function repackage(args, matches) {
       temp = {
         id: ele.id,
         status: ele.status,
-        sport: modules.league2Sport(args.league).sport,
+        sport: leagueUtil.league2Sport(args.league).sport,
         league: ele.league_name_ch,
         ori_league: args.league,
         scheduled: ele.scheduled * 1000,

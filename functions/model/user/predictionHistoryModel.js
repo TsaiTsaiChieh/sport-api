@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
@@ -53,14 +54,14 @@ async function getUserPredictionData(args, userData) {
          ON game.home_id = home.team_id
  INNER JOIN match__teams AS away
          ON game.away_id = away.team_id
- INNER JOIN match__spreads AS spread
+  LEFT JOIN match__spreads AS spread
          ON spread.spread_id = prediction.spread_id
- INNER JOIN match__totals AS totals
+  LEFT JOIN match__totals AS totals
          ON totals.totals_id = prediction.totals_id
       WHERE prediction.uid = '${userData.uid}'
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
-        AND game.status = ${modules.MATCH_STATUS.END}
-        AND game.flag_prematch = ${modules.MATCH_STATUS.VALID};`,
+        AND game.status = ${leagueUtil.MATCH_STATUS.END}
+        AND game.flag_prematch = ${leagueUtil.MATCH_STATUS.VALID};`,
     {
       type: db.sequelize.QueryTypes.SELECT
     }));
@@ -90,7 +91,7 @@ async function repackageReturnData(args, historyData) {
       // "eachLeagueItems" contains each match information,
       // like match id, schedule time, spread id and so on.
       eachLeagueItems.map(async function(match) {
-        league = modules.leagueDecoder(match.league_id);
+        league = leagueUtil.leagueDecoder(match.league_id);
         const matchDate = modules.convertTimezoneFormat(match.scheduled);
         // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);
@@ -149,17 +150,19 @@ async function repackageMatchDate(ele, matchDate) {
         handicap: ele.spread_handicap,
         home_tw: ele.home_tw,
         away_tw: ele.away_tw,
-        option: ele.spread_option,
-        bets: ele.spread_bets,
+        predict: ele.spread_option,
+        ori_bets: ele.spread_bets,
+        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null,
         result: ele.spread_result,
         end: returnSettlement(ele.spread_result_flag)
       },
       totals: {
         id: ele.totals_id,
-        option: ele.totals_option,
         handicap: ele.totals_handicap,
         over_tw: ele.over_tw,
-        bets: ele.totals_bets,
+        predict: ele.totals_option,
+        ori_bets: ele.totals_bets,
+        bets: ele.total_bets !== null ? ele.totals_bets * ele.totals_result_flag : null,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
       }
