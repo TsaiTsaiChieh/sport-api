@@ -8,11 +8,12 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
+const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[user settleWinListModel]', util.format(...args));
+    logger.log('[user settleWinListModel]', util.format(...args));
   }
 }
 
@@ -180,8 +181,8 @@ async function settleWinList(args) {
           season: season
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
+    } catch (e) {logger.warn(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
+    // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinListsHistory.update({
@@ -216,7 +217,7 @@ async function settleWinList(args) {
         }
       }));
       if (err) {
-        console.error('[Error][settleWinListModel][Users_WinListsHistory] ', err);
+        logger.warn('[Error][settleWinListModel][Users_WinListsHistory] ', err);
         throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });
       }
     }
@@ -293,8 +294,8 @@ async function settleWinList(args) {
           this_season_fault_counts: ele.sum_season.fault_counts
         }
       }));
-    } catch (e) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
-    // if (err) {console.error(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
+    } catch (e) {logger.warn(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
+    // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
 
     if (!created) {
       [err, r] = await to(db.Users_WinLists.update({
@@ -325,7 +326,7 @@ async function settleWinList(args) {
         }
       }));
       if (err) {
-        console.error('[Error][settleWinListModel][Users_WinLists] ', err);
+        logger.warn('[Error][settleWinListModel][Users_WinLists] ', err);
         throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
       }
     }
@@ -348,7 +349,7 @@ async function settleWinList(args) {
       }
     }));
     if (err) {
-      console.error('[Error][settleWinListModel][Title] ', err);
+      logger.warn('[Error][settleWinListModel][Title] ', err);
       throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
     }
 
