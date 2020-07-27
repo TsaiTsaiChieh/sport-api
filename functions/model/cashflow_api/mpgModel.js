@@ -4,10 +4,10 @@ const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const request = require('request');
 async function mpgModel(res) {
-  // const exchange = res.body; // request data
-  // const uid = res.token.uid;
-// const exchange = {'coin':1, 'dividend':1};
-//   const uid = '33333'; // 取得登入uid
+  const exchange = res.body; // request data
+  const uid = res.token.uid;
+  // const exchange = {'coin':1, 'dividend':1};
+  //   const uid = '33333'; // 取得登入uid
   return new Promise(async function(resolve, reject) {
     try {
       // const result = await db.PurchaseList.findOne({
@@ -26,32 +26,30 @@ async function mpgModel(res) {
       // if(!result){
       //   reject({'msg':'沒有該項商品'})
       // }
-      
+
       const setting = gash_config.setting.official; // 讀取設定檔(測試/正式)
       exchange.merchant_order_no = neweb_sdk.get_order_no(); // 商品訂單編號
       /* 金流基本參數 */
       const cashflow_url = setting.cashflow_url; // 金流網址
-    
+
       /* 金流-Gash資料 */
-      const serial_number = modules.moment().format('YYYYMMDDHHMMSS');
       createOrder(exchange, uid); // 建立訂單到資料庫
 
-    const trade_arr = {
-        serial_number:serial_number,
+      const trade_arr = {
+        serial_number: serial_number,
         coin: exchange.coin,
         return_url: setting.return_url
-    };
+      };
 
-    request(
+      request(
         {
-        method:'post',
-        url:setting.vm_api_url, 
-        form: trade_arr
-    }, function (error, response, return_data) {
-       const checkout = neweb_sdk.CheckOutGash(cashflow_url, return_data); // 送出資訊到金流網址
-       resolve(checkout);
-    });
-
+          method: 'post',
+          url: setting.vm_api_url,
+          form: trade_arr
+        }, function(error, response, return_data) {
+          const checkout = neweb_sdk.CheckOutGash(cashflow_url, return_data); // 送出資訊到金流網址
+          resolve(checkout);
+        });
     } catch (err) {
       reject(err);
     }

@@ -10,14 +10,12 @@
 // const NotifyURL_ccard = "/cashflow_neweb/ccard_notify"; 	    //信用卡 支付通知網址
 // const ClientBackURL   = "/cashflow_neweb/"; 					//支付取消 返回商店網址
 
-
-
 // const test_url = 'https://dosports.web.app/';
 // const test_api_url = 'https://api-dosports.web.app/';
 // const test_cashflow_url = 'https://ccore.newebpay.com/MPG/mpg_gateway';
 const official_url = 'https://getsports.web.app/';
 const official_api_url = 'https://api-getsports.web.app/';
-const official_vm_api_url       = 'https://test.gets-info.com/Transaction_official.php';
+const official_vm_api_url = 'https://test.gets-info.com/Transaction_official.php';
 const official_cashflow_url = 'https://api.eg.gashplus.com/CP_Module/order.aspx';
 const transaction_return_url = 'https://test.gets-info.com/gash_return_url.php';
 const setting = {
@@ -40,7 +38,7 @@ const setting = {
     // api_url: official_api_url,
     vm_api_url: official_vm_api_url,
     cashflow_url: official_cashflow_url,
-    return_url: transaction_return_url,
+    return_url: transaction_return_url
     // notify_mpg_url: official_api_url + 'cashflow_neweb/mpg_notify',
     // client_back_url: official_url + 'get-points'
   },

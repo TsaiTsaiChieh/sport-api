@@ -2578,7 +2578,7 @@ const UserMission = sequelize.define(
 const invoice_test = sequelize.define(
   'invoice_test',
   {
-    content:{
+    content: {
       type: Sequelize.TEXT
     }
   },

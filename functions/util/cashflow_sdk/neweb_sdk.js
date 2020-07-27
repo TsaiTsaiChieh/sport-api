@@ -64,8 +64,7 @@ function CheckOut(URL = '', MerchantID = '', TradeInfo = '', SHA256 = '', VER = 
   return szHtml;
 }
 
-function CheckOutGash(URL='', data='')
-{
+function CheckOutGash(URL = '', data = '') {
   let szHtml = '<!doctype html>';
   szHtml += '<html>';
   szHtml += '<head>';
@@ -112,7 +111,7 @@ function InvoiceGenerator(URL = '', MerchantID = '', PostData = '', VER = '') {
 /* 取得訂單編號 */
 function get_order_no() {
   /* 需加入預設時區 */
-  const serial_number = moment().format('YYYYMMDDHHMMSS');// 訂單格式
+  const serial_number = moment().format('YYYYMMDDHHMMSS SSS');// 訂單格式
   return serial_number;
 }
 

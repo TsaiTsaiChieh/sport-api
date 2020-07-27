@@ -340,8 +340,6 @@ async function setUserMissionStatus(uid, parms, status, dateUnix = null) {
   // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
 }
 
-
-
 module.exports = {
   findUser,
   getSeason,
