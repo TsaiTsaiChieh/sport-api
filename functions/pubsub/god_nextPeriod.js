@@ -5,10 +5,11 @@ const { zone_tw } = require('../config/env_values');
 const settleGodRank = require('../model/user/settleGodRankModel');
 const { redis } = require('../util/redisUtil');
 
+const logger = require('firebase-functions/lib/logger');
 const util = require('util');
 function log(...args) {
   if (typeof (console) !== 'undefined') {
-    console.log('[pubsub god_nextPeriod]', util.format(...args));
+    logger.log('[pubsub god_nextPeriod]', util.format(...args));
   }
 }
 
