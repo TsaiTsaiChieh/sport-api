@@ -109,8 +109,9 @@ async function settleWinList(args) {
            and matches.flag_prematch = 1
            and matches.status = 0
            and (
-                 spread_result_flag != -2 or totals_result_flag != -2 or 
-                 spread_result_flag != 0 or totals_result_flag != 0
+                   (spread_result_flag != -2 and spread_result_flag != 0)
+                 or 
+                   (totals_result_flag != -2 and totals_result_flag != 0)
                )
       `, {
     replacements: {
