@@ -87,7 +87,12 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
     }
 
     try {
-      if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
+      if (
+        leagueID === 11235 ||
+        leagueID === 347 ||
+        leagueID === 349 ||
+        leagueID === 3939
+      ) {
         await Match.upsert({
           bets_id: betsID,
           home_points: awayScores,
@@ -328,7 +333,12 @@ async function doPBP(parameter) {
           }
           if (keepPBP === 1) {
             if (data.results[0].ss) {
-              if (leagueID === 11235 || leagueID === 347 || leagueID === 349) {
+              if (
+                leagueID === 11235 ||
+                leagueID === 347 ||
+                leagueID === 349 ||
+                leagueID === 3939
+              ) {
                 try {
                   await modules.database
                     .ref(
@@ -375,24 +385,26 @@ async function doPBP(parameter) {
                     await modules.database
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_periods`)
                       .set(`${data.results[0].timer.q - 1}`);
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
-                      )
-                      .set(
-                        `${
-                          data.results[0].scores[data.results[0].timer.q].home
-                        }`
-                      );
-                    await modules.database
-                      .ref(
-                        `${sport}/${league}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
-                      )
-                      .set(
-                        `${
-                          data.results[0].scores[data.results[0].timer.q].away
-                        }`
-                      );
+                    if (data.results[0].scores) {
+                      await modules.database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/home/periods${data.results[0].timer.q}/points`
+                        )
+                        .set(
+                          `${
+                            data.results[0].scores[data.results[0].timer.q].home
+                          }`
+                        );
+                      await modules.database
+                        .ref(
+                          `${sport}/${league}/${betsID}/Summary/info/away/periods${data.results[0].timer.q}/points`
+                        )
+                        .set(
+                          `${
+                            data.results[0].scores[data.results[0].timer.q].away
+                          }`
+                        );
+                    }
                   } else {
                     await modules.database
                       .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)

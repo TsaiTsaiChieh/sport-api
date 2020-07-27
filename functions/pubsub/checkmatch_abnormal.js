@@ -334,17 +334,19 @@ async function pbpHistory(parameterHistory) {
             `${sportName}/${leagueName}/${betsID}/Summary/info/away/Total/points`
           )
           .set(data.results[0].ss.split('-')[0]);
-        for (let inningCount = 1; inningCount < 10; inningCount++) {
-          await modules.database
-            .ref(
-              `${sportName}/${leagueName}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
-            )
-            .set(data.results[0].scores[`${inningCount}`].away);
-          await modules.database
-            .ref(
-              `${sportName}/${leagueName}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
-            )
-            .set(data.results[0].scores[`${inningCount}`].home);
+        if (data.results[0].scores) {
+          for (let inningCount = 1; inningCount < 10; inningCount++) {
+            await modules.database
+              .ref(
+                `${sportName}/${leagueName}/${betsID}/Summary/info/home/Innings${inningCount}/scoring/runs`
+              )
+              .set(data.results[0].scores[`${inningCount}`].away);
+            await modules.database
+              .ref(
+                `${sportName}/${leagueName}/${betsID}/Summary/info/away/Innings${inningCount}/scoring/runs`
+              )
+              .set(data.results[0].scores[`${inningCount}`].home);
+          }
         }
       } catch (err) {
         return reject(
