@@ -3,7 +3,7 @@ const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Token = db.Token;
 const client_id = '645';
-const secret_key = 'kvh20JqGAv7iLvEVg0ijbWCo4RrxIPKzAU5';
+const secret_key = 'hR8gmhwEhMp671cIMjnIDhpnEbi2vVk19jv'; // 正式合約的 key
 
 async function auth_statscore() {
   return new Promise(async function(resolve, reject) {

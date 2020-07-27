@@ -40,6 +40,18 @@ router.get(
   require('../pubsub/checkmatch_statscore_KBO')
 );
 router.get(
+  '/prematch_statscore_CPBL',
+  require('../pubsub/prematch_statscore_CPBL')
+);
+router.get(
+  '/checkmatch_statscore_CPBL',
+  require('../pubsub/checkmatch_statscore_CPBL')
+);
+router.get(
+  '/prematch_statscore_NPB',
+  require('../pubsub/prematch_statscore_NPB')
+);
+router.get(
   '/prematch_statscore_Soccer',
   require('../pubsub/prematch_statscore_Soccer')
 );
@@ -55,7 +67,6 @@ router.get(
   '/checkmatch_statscore_CBA',
   require('../pubsub/checkmatch_statscore_CBA')
 );
-router.get('/forpastevent', require('../pubsub/forpastevent'));
 router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
