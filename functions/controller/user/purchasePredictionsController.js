@@ -1,4 +1,6 @@
-const modules = require('../../util/modules');
+const acceptValues = require('../../config/acceptValues');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/user/purchasePredictionsModel');
 
 async function purchasePredictions(req, res) {
@@ -9,11 +11,11 @@ async function purchasePredictions(req, res) {
     properties: {
       god_uid: {
         type: 'string',
-        pattern: modules.acceptNumberAndLetter
+        pattern: acceptValues.acceptNumberAndLetter
       },
       god_title: {
         type: 'string',
-        enum: modules.acceptLeague
+        enum: acceptValues.acceptLeague
       },
       matches_date: {
         type: 'string',
@@ -25,8 +27,8 @@ async function purchasePredictions(req, res) {
     }
   };
 
-  const valid = modules.ajv.validate(schema, req.body);
-  if (!valid) return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+  const valid = ajv.validate(schema, req.body);
+  if (!valid) return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   // append needed params to args
   const args = {
     now,

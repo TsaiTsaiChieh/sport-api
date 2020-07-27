@@ -1,15 +1,16 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 
 function getClaim(args) {
   return new Promise(async function(resolve, reject) {
     /* step 1: check user if exists */
     try {
-      const userSnapshot = await modules.getSnapshot('users', args.uid);
+      const firestore = firebaseAdmin().firestore();
+      const userSnapshot = await firestore.collection('users').doc(args.uid).get();
       if (!userSnapshot.exists) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
-      const claim = await modules.firebaseAdmin.auth().getUser(args.uid);
+      const claim = await firebaseAdmin().auth().getUser(args.uid);
       resolve(claim.customClaims);
     } catch (err) {
       console.log('error happened...', err);

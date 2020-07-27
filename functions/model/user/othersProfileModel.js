@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
@@ -81,7 +82,7 @@ function repackageReturnData(args, others, followLeague) {
       status: others.otherUserData.status,
       login_boolean: !!args.userUid,
       others_league_id: othersTitleLength ? others.otherUserTitle.league_id : null,
-      others_league_name: othersTitleLength ? modules.leagueDecoder(others.otherUserTitle.league_id) : null,
+      others_league_name: othersTitleLength ? leagueUtil.leagueDecoder(others.otherUserTitle.league_id) : null,
       others_rank: othersTitleLength ? others.otherUserTitle.rank_id : null,
       others_title: othersTitleLength ? modules.getTitles(others.otherUserTitle, others.otherUserTitle.default_title) : null
     };

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const { leagueCodebook, leagueDecoder } = require('../../util/modules');
+const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
 const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
 const { predictionsWinList } = require('../../util/settleModules');
 const { checkUserRight, getSeason } = require('../../util/databaseEngine');

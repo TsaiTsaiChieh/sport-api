@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 const model = require('../../model/livescore/livescorePostCollectModel');
 
 async function postCollect(req, res) {
@@ -10,9 +11,9 @@ async function postCollect(req, res) {
       }
     }
   };
-  const valid = modules.ajv.validate(schema, req.body);
+  const valid = ajv.validate(schema, req.body);
   if (!valid) {
-    return res.status(modules.httpStatus.BAD_REQUEST).json(modules.ajv.errors);
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
   req.body.token = req.token;
   try {

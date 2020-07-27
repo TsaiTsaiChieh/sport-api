@@ -1,4 +1,4 @@
-const { ajv } = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const settleWinListModel = require('../../model/user/settleWinListModel');
 
 async function settleWinList(req, res) {

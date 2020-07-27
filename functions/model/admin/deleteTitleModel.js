@@ -1,4 +1,6 @@
-const modules = require('../../util/modules');
+const { getTitlesPeriod, moment } = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 const dbEngine = require('../../util/databaseEngine');
 
 function deleteTitle(args) {
@@ -7,7 +9,7 @@ function deleteTitle(args) {
       const now = new Date();
       // check if user exists
       await dbEngine.findUser(args.uid);
-      const period = modules.getTitlesPeriod(now).period;
+      const period = getTitlesPeriod(now).period;
       const titlesObj = await getTitleFromUsersTitlesCollection(
         args.uid,
         period
@@ -22,7 +24,7 @@ function deleteTitle(args) {
 }
 function getTitleFromUsersTitlesCollection(uid, period) {
   return new Promise(async function(resolve, reject) {
-    const userTitles = await modules.getSnapshot('users_titles', uid);
+    const userTitles = await firestore.collection('users_titles').doc(uid).get();
     if (!userTitles.exists) {
       return reject({
         code: 404,
@@ -63,7 +65,7 @@ function deleteTitleInUsersTitlesCollection(args, titlesObj, period) {
       return resolve(
         `Delete title ${args.league}_${args.sport}_${args.rank} by admin uid: ${
           args.adminUid
-        } on ${modules.moment().format('MMMM Do YYYY, h:mm:ss a')}`
+        } on ${moment().format('MMMM Do YYYY, h:mm:ss a')}`
       );
     }
   });
@@ -102,25 +104,30 @@ function checkDeleteTitle(titlesObj, args, period) {
 async function updateUserStatus(args, titles, uid) {
   const NORMAL_STATUS = 1;
   const GOD_STATUS = 2;
-  const { customClaims } = await modules.firebaseAdmin.auth().getUser(args.uid);
+  const { customClaims } = await firebaseAdmin().auth().getUser(args.uid);
   if (titles.length === 0) {
-    modules.addDataInCollectionWithId('users', uid, { status: NORMAL_STATUS });
-    modules.firebaseAdmin
-      .auth()
-      .setCustomUserClaims(uid, { role: NORMAL_STATUS });
+    firestore.collection('users').doc(uid).set({ status: NORMAL_STATUS }, { merge: true });
+    firebaseAdmin().auth().setCustomUserClaims(uid, { role: NORMAL_STATUS });
   }
   const userTitles = customClaims.titles;
   userTitles.splice(userTitles.indexOf(args.league), 1); // delete league from userTitle array
-  modules.firebaseAdmin.auth().setCustomUserClaims(args.uid, {
-    role: `${titles.length === 0 ? NORMAL_STATUS : GOD_STATUS}`,
-    titles: userTitles
-  });
+  firebaseAdmin().auth().setCustomUserClaims(
+    args.uid,
+    {
+      role: `${titles.length === 0 ? NORMAL_STATUS : GOD_STATUS}`,
+      titles: userTitles
+    });
 }
 function updateFirestore(uid, titlesObj, period) {
-  modules.addDataInCollectionWithId('users_titles', uid, titlesObj);
-  modules.addDataInCollectionWithId('users', uid, {
-    titles: titlesObj[`${period}_period`].titles,
-    defaultTitle: titlesObj[`${period}_period`].default_title
-  });
+  firestore.collection('users_titles')
+    .doc(uid)
+    .set(titlesObj, { merge: true }).then();
+  firestore.collection('users')
+    .doc(uid)
+    .set(
+      {
+        titles: titlesObj[`${period}_period`].titles,
+        defaultTitle: titlesObj[`${period}_period`].default_title
+      }, { merge: true }).then();
 }
 module.exports = deleteTitle;

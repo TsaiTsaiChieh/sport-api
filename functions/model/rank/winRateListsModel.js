@@ -1,4 +1,5 @@
-const { getTitlesPeriod, leagueCodebook, coreDateInfo, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, to } = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 // const { CacheQuery } = require('../../util/redisUtil');
