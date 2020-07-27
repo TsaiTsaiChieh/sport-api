@@ -304,7 +304,7 @@ async function pbpHistory(parameterHistory) {
       }
     }
 
-    if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB') {
+    if (leagueName === 'KBO' || leagueName === 'CPBL' || leagueName === 'NPB' || leagueName === 'MLB') {
       if (!data.results[0].ss) {
         realtimeData = await modules.database
           .ref(`${sportName}/${leagueName}/${betsID}`)
