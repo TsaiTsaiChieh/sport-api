@@ -2251,6 +2251,9 @@ const CashflowMission = sequelize.define(
     lottery: {
       type: Sequelize.INTEGER
     },
+    issue_timestamp: {
+      type: Sequelize.INTEGER
+    },
     createdAt: {
       type: Sequelize.DATE(3),
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP(3)')
@@ -2572,6 +2575,22 @@ const UserMission = sequelize.define(
   }
 );
 
+const invoice_test = sequelize.define(
+  'invoice_test',
+  {
+    content: {
+      type: Sequelize.TEXT
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['uid', 'content']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2625,7 +2644,8 @@ const dbUtil = {
   MissionItem,
   MissionGod,
   MissionDeposit,
-  UserMission
+  UserMission,
+  invoice_test
 };
 
 module.exports = dbUtil;
