@@ -41,11 +41,11 @@ async function prematch_KBO(req, res) {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
-      // await crawlerTeamBase(season);
-      // await crawlerTeamBaseForL10(season);
-      // await crawlerPitcher(season);
+      await crawlerTeamBase(season);
+      await crawlerTeamBaseForL10(season);
+      await crawlerPitcher(season);
       await crawlerPitcherJerseyId(season);
-      // await crawlerHitting(season);
+      await crawlerHitting(season);
       return resolve(res.json('ok'));
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
