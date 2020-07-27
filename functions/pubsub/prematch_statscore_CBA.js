@@ -151,6 +151,9 @@ function teamTrans(team) {
     case 'Jiangsu Dragons Kentier': {
       return 'Jiangsu Dragons';
     }
+    case 'Shanxi Fenjiu Loongs': {
+      return 'Shanxi Guotou Loongs';
+    }
     default: {
       return team;
     }
