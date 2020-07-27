@@ -25,6 +25,7 @@ const teamStandings = {};
 // team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG (per_R & allow_per_R)
 // 2. 本季投手資訊
 // 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)、背號「未做」
+// 2-1 背號 ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
 // 3. 本季打擊資訊
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
 // 4. 本季球員資訊「未做」
@@ -236,7 +237,6 @@ function decompose_STRK_and_L10(str) {
   return { STRK, L10 };
 }
 function crawlerPitcher(season) {
-  console.log('hello');
   return new Promise(async function(resolve, reject) {
     try {
       for (let i = 0; i < configs.teamNumber; i++) {
