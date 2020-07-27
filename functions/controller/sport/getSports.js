@@ -1,4 +1,5 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
 
 /**
  * @api {get} /sport Get Sport List
@@ -119,7 +120,7 @@ const modules = require('../../util/modules');
 async function getSports(req, res) {
   const returnJson = {};
   try {
-    const snapshot = await modules.firestore.collection('sports').get();
+    const snapshot = await firestore.collection('sports').get();
     snapshot.forEach(function(doc) {
       // console.log("...", doc.id, " => ", doc.data());
       returnJson[doc.id] = doc.data();

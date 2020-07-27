@@ -1,6 +1,6 @@
-const modules = require('../util/modules');
 const verification = require('../util/verification');
-const router = modules.express.Router();
+const express = require('express');
+const router = express.Router();
 /* ------------ 即時比分頁 ------------ */
 router.get('/all', require('../controller/livescore/allController'));
 router.get(
@@ -41,4 +41,7 @@ router.get(
   verification.token_v2,
   require('../controller/livescore/myPredictionsController')
 );
+// 棒球賽前數據
+router.get('/prematch_baseball',
+  require('../controller/livescore/prematchBaseballController'));
 module.exports = router;

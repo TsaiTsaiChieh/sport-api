@@ -1,5 +1,7 @@
 // from https://docs.google.com/document/d/1eLni15nSnqND1-o5nBo1YOy3jT8QnuclzVNDxshewSc/edit#
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
+const axios = require('axios');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
@@ -44,7 +46,7 @@ async function handicap() {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -69,7 +71,7 @@ async function query_event(league) {
         `(
 				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled
 					 FROM matches AS game
-					WHERE game.status = ${modules.MATCH_STATUS.SCHEDULED}
+					WHERE game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${now}') AND UNIX_TIMESTAMP('${tomorrow}')
 						AND game.league_id = '${league}'
 			 )`,

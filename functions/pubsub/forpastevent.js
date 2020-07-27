@@ -1,5 +1,7 @@
 const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
 const db = require('../util/dbUtil');
+const axios = require('axios');
 const AppErrors = require('../util/AppErrors');
 const envValues = require('../config/env_values');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
@@ -128,7 +130,7 @@ async function queryForMatches(date) {
 					SELECT game.bets_id, game.league_id
 					  FROM matches AS game
 					 WHERE game.scheduled < '${date}'
-						 AND status = ${modules.MATCH_STATUS.SCHEDULED}
+						 AND status = ${leagueUtil.MATCH_STATUS.SCHEDULED}
 						 AND home_points is NULL
 				)`,
         {
@@ -144,7 +146,7 @@ async function queryForMatches(date) {
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(new AppErrors.AxiosError(`${err} at pbp_eSoccer by DY`));

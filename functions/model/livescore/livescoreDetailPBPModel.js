@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
@@ -58,7 +58,7 @@ function queryMatch(args) {
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             eventID: args.eventID
           },
           type: db.sequelize.QueryTypes.SELECT
@@ -74,12 +74,12 @@ function queryMatch(args) {
 async function repackage(args, match) {
   try {
     if (args.league === 'NBA') {
-      match.sport = modules.league2Sport(args.league);
+      match.sport = leagueUtil.league2Sport(args.league);
       return match;
     }
 
     if (args.league === 'MLB') {
-      match.sport = modules.league2Sport(args.league);
+      match.sport = leagueUtil.league2Sport(args.league);
 
       return match;
     }
@@ -88,7 +88,7 @@ async function repackage(args, match) {
       const temp = {
         id: ele.id,
         status: ele.status,
-        sport: modules.league2Sport(args.league).sport,
+        sport: leagueUtil.league2Sport(args.league).sport,
         league: args.league,
         ori_league: ele.league_name_ch,
         scheduled: ele.scheduled,

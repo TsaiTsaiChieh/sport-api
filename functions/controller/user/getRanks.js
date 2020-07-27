@@ -1,4 +1,4 @@
-const modules = require('../../util/modules');
+const firebaseAdmin = require('../../util/firebaseUtil');
 
 /**
  * @api {get} /user/getRanks Get Rank List
@@ -34,7 +34,8 @@ const modules = require('../../util/modules');
 async function getRanks(req, res) {
   let returnJson = {};
   try {
-    const snapshot = await modules.firestore.collection('rank').get();
+    const firestore = firebaseAdmin().firestore();
+    const snapshot = await firestore.collection('rank').get();
     returnJson = {};
     snapshot.forEach(function(doc) {
       returnJson[doc.id] = doc.data();

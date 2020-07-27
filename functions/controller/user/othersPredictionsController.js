@@ -1,4 +1,5 @@
-const { ajv, acceptNumberAndLetter } = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
+const { acceptNumberAndLetter } = require('../../config/acceptValues');
 const othersPredicitionsModel = require('../../model/user/othersPredicitionsModel');
 
 async function othersPredicitions(req, res) {

@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 
@@ -63,7 +64,7 @@ function queryAllMatches(args) {
            `,
         {
           replacements: {
-            leagueID: modules.leagueCodebook(args.league).id,
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
             begin: begin * 1000,
             end: end * 1000 - 1
           },
@@ -88,7 +89,7 @@ async function repackage(args, matches) {
         temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,
@@ -136,7 +137,7 @@ async function repackage(args, matches) {
         temp = {
           id: ele.id,
           status: ele.status,
-          sport: modules.league2Sport(args.league).sport,
+          sport: leagueUtil.league2Sport(args.league).sport,
           league: args.league,
           ori_league: ele.league_name_ch,
           scheduled: ele.scheduled,

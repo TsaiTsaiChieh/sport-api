@@ -1,4 +1,8 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
+const firebaseAdmin = require('../../util/firebaseUtil');
+const firestore = firebaseAdmin().firestore();
+const axios = require('axios');
 
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
@@ -8,18 +12,18 @@ module.exports.MLB_PRE = {
     // axios
     const results = [];
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       if (data.results.length) {
         for (let i = 0; i < data.results.length; i++) {
           const ele = data.results[i];
           if (skipTeam(ele.home.id) && skipTeam(ele.away.id)) {
             results.push(
-              modules.firestore
-                .collection(modules.db.baseball_MLB)
+              firestore
+                .collection(leagueUtil.db.baseball_MLB)
                 .doc(ele.id)
                 .set(repackage_bets(ele), { merge: true })
             );
-            console.log(`BetsAPI: ${modules.db.baseball_MLB}(${ele.id})`);
+            console.log(`BetsAPI: ${leagueUtil.db.baseball_MLB}(${ele.id})`);
           }
         }
       }
@@ -51,7 +55,7 @@ module.exports.MLB = {
     const URL = `http://api.sportradar.us/mlb/trial/v6.6/en/games/${_date.year}/${_date.month}/${_date.day}/schedule.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
     console.log(`SportRadar MLB_PRE URL on ${date}: ${URL}`);
     try {
-      const { data } = await modules.axios(URL);
+      const { data } = await axios(URL);
       const querys = await query_MLB('flag.prematch', 0);
       for (let i = 0; i < data.games.length; i++) {
         const ele = data.games[i];
@@ -72,17 +76,17 @@ module.exports.MLB = {
         const ele = querys[i];
         const completeURL = `${URL}/${ele.radar_id}/summary.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
         // eslint-disable-next-line no-await-in-loop
-        const { data } = await modules.axios.get(completeURL);
+        const { data } = await axios.get(completeURL);
         console.log(
-          `${modules.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
+          `${leagueUtil.db.baseball_MLB}(${ele.bets_id}) - ${ele.away.alias_ch}(${
             ele.away.alias
           }):${ele.home.alias_ch}(${ele.home.alias}) at ${modules
             .moment(ele.scheduled._seconds * 1000)
             .utcOffset(8)
             .format('ll')}, URL: ${completeURL}`
         );
-        modules.firestore
-          .collection(modules.db.baseball_MLB)
+        firestore
+          .collection(leagueUtil.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_lineups(data), { merge: true });
       }
@@ -104,13 +108,13 @@ module.exports.MLB = {
       const awayURL = `${URL}/${ele.away.radar_id}/statistics.json?api_key=${modules.sportRadarKeys.BASEBALL_MLB}`;
       try {
         // eslint-disable-next-line no-await-in-loop
-        const homeTeam = await modules.axios.get(homeURL);
+        const homeTeam = await axios.get(homeURL);
         // eslint-disable-next-line no-await-in-loop
-        const awayTeam = await modules.axios.get(awayURL);
+        const awayTeam = await axios.get(awayURL);
         console.log(`SportRadar URL: ${homeURL} on ${new Date()}`);
         console.log(`SportRadar URL: ${awayURL} on ${new Date()}`);
-        modules.firestore
-          .collection(modules.db.baseball_MLB)
+        firestore
+          .collection(leagueUtil.db.baseball_MLB)
           .doc(ele.bets_id)
           .set(repackage_team(homeTeam.data, awayTeam.data), { merge: true });
       } catch (error) {
@@ -164,9 +168,9 @@ function skipTeam(id) {
 
 function repackage_bets(ele) {
   return {
-    update_time: modules.firebaseTimestamp(new Date()),
+    update_time: firebaseAdmin().firestore.Timestamp.fromDate(new Date(new Date())),
     bets_id: ele.id,
-    scheduled: modules.firebaseTimestamp(Number.parseInt(ele.time) * 1000),
+    scheduled: firebaseAdmin().firestore.Timestamp.fromDate(new Date(Number.parseInt(ele.time) * 1000)),
     home: {
       alias: codebook(ele.home.id, ele.home.name).alias,
       alias_ch: codebook(ele.home.id, ele.home.name).alias_ch,
@@ -398,7 +402,7 @@ function codebook(id, name) {
 }
 
 async function query_MLB(flag, value) {
-  const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(leagueUtil.db.baseball_MLB);
   const results = [];
 
   try {
@@ -429,12 +433,12 @@ function integration(query, ele, league) {
         ele.home.abbr.toUpperCase() === query[i].away.alias &&
         ele.away.abbr.toUpperCase() === query[i].home.alias)
     ) {
-      modules.firestore
-        .collection(modules.db.baseball_MLB)
+      firestore
+        .collection(leagueUtil.db.baseball_MLB)
         .doc(query[i].bets_id)
         .set(repackage_sportradar(ele, query[i], league), { merge: true });
       console.log(
-        `SportRadar: ${modules.db.baseball_MLB}(${query[i].bets_id})`
+        `SportRadar: ${leagueUtil.db.baseball_MLB}(${query[i].bets_id})`
       );
     }
   }
@@ -444,7 +448,7 @@ function repackage_sportradar(ele, query, league) {
   const homeFlag = ele.home.abbr.toUpperCase() === query.home.alias;
   const awayFlag = ele.away.abbr.toUpperCase() === query.away.alias;
   return {
-    update_time: modules.firebaseTimestamp(Date.now()),
+    update_time: firebaseAdmin().firestore.Timestamp.fromDate(new Date(Date.now())),
     radar_id: ele.id,
     league: {
       radar_id: league.id
@@ -479,7 +483,7 @@ function repackage_sportradar(ele, query, league) {
 }
 
 async function queryBeforeOneDay(date, flag, value) {
-  const eventsRef = modules.firestore.collection(modules.db.baseball_MLB);
+  const eventsRef = firestore.collection(leagueUtil.db.baseball_MLB);
   const results = [];
   try {
     const querys = await eventsRef
@@ -582,7 +586,7 @@ function repackage_lineups(ele) {
 function repackage_team(homeData, awayData) {
   return {
     stat: {
-      update_time: modules.firebaseTimestamp(new Date()),
+      update_time: firebaseAdmin().firestore.Timestamp.fromDate(new Date(new Date())),
       home: {
         r: homeData.statistics.hitting.overall.runs.total,
         h: homeData.statistics.hitting.overall.onbase.h,

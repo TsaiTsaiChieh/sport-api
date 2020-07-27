@@ -1,11 +1,11 @@
-const modules = require('../../util/modules');
+const acceptValues = require('../../config/acceptValues');
 const AppErrors = require('../../util/AppErrors');
 // const db = require('../../util/dbUtil');
 
 async function acceptLeague() {
   return new Promise(async function(resolve, reject) {
     try {
-      const result = await repackage(modules.acceptLeague);
+      const result = await repackage(acceptValues.acceptLeague);
       resolve(result);
     } catch (err) {
       reject(err);
@@ -37,7 +37,7 @@ async function repackage(acceptLeague) {
 //        `
 //				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status
 //					 FROM matches AS game
-//					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY} OR game.status = ${modules.MATCH_STATUS.END})
+//					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY} OR game.status = ${leagueUtil.MATCH_STATUS.END})
 //						AND game.league_id = ${leagueID}
 //						AND game.scheduled BETWEEN ${date1} AND ${date2}
 //			 `,

@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
@@ -59,8 +60,8 @@ async function getUserPredictionData(args, userData) {
          ON totals.totals_id = prediction.totals_id
       WHERE prediction.uid = '${userData.uid}'
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
-        AND game.status = ${modules.MATCH_STATUS.END}
-        AND game.flag_prematch = ${modules.MATCH_STATUS.VALID};`,
+        AND game.status = ${leagueUtil.MATCH_STATUS.END}
+        AND game.flag_prematch = ${leagueUtil.MATCH_STATUS.VALID};`,
     {
       type: db.sequelize.QueryTypes.SELECT
     }));
@@ -90,7 +91,7 @@ async function repackageReturnData(args, historyData) {
       // "eachLeagueItems" contains each match information,
       // like match id, schedule time, spread id and so on.
       eachLeagueItems.map(async function(match) {
-        league = modules.leagueDecoder(match.league_id);
+        league = leagueUtil.leagueDecoder(match.league_id);
         const matchDate = modules.convertTimezoneFormat(match.scheduled);
         // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);

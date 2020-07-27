@@ -1,5 +1,5 @@
-const modules = require('../../util/modules');
-// const admin = modules.firebaseAdmin;
+const ajv = require('../../util/ajvUtil');
+const firebaseAdmin = require('../../util/firebaseUtil');
 const db = require('../../util/dbUtil');
 async function getUserInfo(uid) {
   return new Promise(async function(resolve, reject) {
@@ -80,9 +80,9 @@ async function accuseMessage(req, res) {
         channelId: { type: 'string' }
       }
     };
-    const valid = modules.ajv.validate(schema, args);
-    if (!valid) return res.status(400).json(modules.ajv.errors);
-    // const accuserSnapshot = await modules.getSnapshot('users', req.token.uid);
+    const valid = ajv.validate(schema, args);
+    if (!valid) return res.status(400).json(ajv.errors);
+    // const accuserSnapshot = await getSnapshot('users', req.token.uid);
     // if (!accuserSnapshot.exists) return res.status(400).send();
     // const accuser = await accuserSnapshot.data();
     // if (accuser.status < 1) return res.status(400).send();
@@ -91,7 +91,8 @@ async function accuseMessage(req, res) {
     if (!mysql_user) return res.status(400).send();
     const accuser = mysql_user; // await accuserSnapshot.data();
     if (accuser.status < 1) return res.status(400).send();
-    const messageSnapshot = await modules.getSnapshot(`chat_${args.channelId}`, args.messageId);
+    const firestore = firebaseAdmin().firestore();
+    const messageSnapshot = await firestore.collection(`chat_${args.channelId}`).doc(args.messageId).get();
     if (!messageSnapshot.exists) return res.status(400).send();
     const message = await messageSnapshot.data();
     if (accuser.uid === message.user.uid) return res.status(400).send();
@@ -115,7 +116,7 @@ async function accuseMessage(req, res) {
     //   defendant: message.user.uid,
     //   status: 0
     // };
-    // modules.firestore.collection('accuse_messages').doc(message.message.messageId).set(event, { merge: true }).then(ref => {
+    // firestore.collection('accuse_messages').doc(message.message.messageId).set(event, { merge: true }).then(ref => {
     //   console.log('Added document with ID: ', ref);
     //   return res.status(200).json({ success: true, result: ref });
     // }).catch(e => {
@@ -123,7 +124,7 @@ async function accuseMessage(req, res) {
     //   return res.status(500).json({ success: false, message: 'update failed' });
     // });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return res.status(500).json({ success: false });
   }
 }

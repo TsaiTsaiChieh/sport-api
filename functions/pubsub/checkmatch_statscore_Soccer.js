@@ -1,4 +1,5 @@
-const modules = require('../util/modules');
+const leagueUtil = require('../util/leagueUtil');
+const firebaseAdmin = require('../util/firebaseUtil');
 const AppErrors = require('../util/AppErrors');
 const Soccerpbp = require('./pbp_statscore_Soccer');
 const SoccerpbpInplay = Soccerpbp.SoccerpbpInplay;
@@ -7,11 +8,12 @@ const db = require('../util/dbUtil');
 const Match = db.Match;
 const sport = 'Soccer';
 const league = 'Soccer';
-const leagueID = modules.leagueCodebook(league).id;
+const leagueID = leagueUtil.leagueCodebook(league).id;
 
 async function checkmatch_statscore_Soccer() {
   return new Promise(async function(resolve, reject) {
     try {
+      const database = firebaseAdmin().database();
       const totalData = await queryForEvents();
       for (let i = 0; i < totalData.length; i++) {
         if (!totalData[i].statscore_id) {
@@ -31,7 +33,7 @@ async function checkmatch_statscore_Soccer() {
                   bets_id: betsID,
                   status: 1
                 });
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
 
@@ -50,7 +52,7 @@ async function checkmatch_statscore_Soccer() {
               }
             } else {
               try {
-                await modules.database
+                await database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
@@ -65,7 +67,7 @@ async function checkmatch_statscore_Soccer() {
           }
           case 1: {
             try {
-              let realtimeData = await modules.database
+              let realtimeData = await database
                 .ref(`${sport}/${league}/${betsID}`)
                 .once('value');
               realtimeData = realtimeData.val();
@@ -116,7 +118,7 @@ async function queryForEvents() {
         `(
 				 SELECT game.bets_id AS bets_id, game.radar_id AS statscore_id,game.scheduled AS scheduled, game.status AS status
 					 FROM matches AS game
-					WHERE (game.status = ${modules.MATCH_STATUS.SCHEDULED} OR game.status = ${modules.MATCH_STATUS.INPLAY})
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
 						AND game.league_id = '${leagueID}'
 			 )`,
         {

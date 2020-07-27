@@ -1,4 +1,3 @@
-// const modules = require('../../util/modules');
 const transferModel = require('../../model/user/transferModel');
 
 async function transfer(req, res) {

@@ -1,6 +1,4 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable prefer-arrow-callback */
-const modules = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
 const messageModel = require('../../model/message/deleteMessageWithId');
 
 function deleteMessageWithId(req, res) {
@@ -19,10 +17,10 @@ function deleteMessageWithId(req, res) {
   args.deleteAction = req.body.deleteAction; // use ajv module, so don't parse int
   args.token = req.token; // get from verification middleware
 
-  const valid = modules.ajv.validate(schema, args);
+  const valid = ajv.validate(schema, args);
 
   if (!valid) {
-    res.status(400).json(modules.ajv.errors);
+    res.status(400).json(ajv.errors);
     return;
   }
   messageModel(args)

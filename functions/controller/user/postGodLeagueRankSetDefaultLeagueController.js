@@ -1,4 +1,5 @@
-const { ajv, acceptLeague } = require('../../util/modules');
+const ajv = require('../../util/ajvUtil');
+const { acceptLeague } = require('../../config/acceptValues');
 const postGodLeagueRankSetDefaultLeagueModel = require('../../model/user/postGodLeagueRankSetDefaultLeagueModel');
 
 async function postGodLeagueRankSetDefaultLeague(req, res) {

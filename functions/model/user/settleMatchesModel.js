@@ -1,4 +1,4 @@
-const { leagueDecoder } = require('../../util/modules');
+const { leagueDecoder } = require('../../util/leagueUtil');
 const {
   settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
   predictionsResultFlag
