@@ -53,7 +53,11 @@ async function prematch_statscore_KBO() {
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[1].name; // KIA Tigers
         for (let j = 0; j < ele.length; j++) {
-          if (startDate === ele[j].scheduled) {
+          const timeOne = new Date(startDate * 1000).toString().split(' ')[2];
+          const timeTwo = new Date(ele[j].scheduled * 1000)
+            .toString()
+            .split(' ')[2];
+          if (timeOne === timeTwo) {
             if (
               homeTeamName === ele[j].home_name &&
               awayTeamName === ele[j].away_name

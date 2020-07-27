@@ -58,7 +58,11 @@ async function prematch_statscore_Soccer() {
             ].participants[1].name
           );
           for (let j = 0; j < ele.length; j++) {
-            if (startDate === ele[j].scheduled) {
+            const timeOne = new Date(startDate * 1000).toString().split(' ')[2];
+            const timeTwo = new Date(ele[j].scheduled * 1000)
+              .toString()
+              .split(' ')[2];
+            if (timeOne === timeTwo) {
               if (
                 homeTeamName === ele[j].home_name &&
                 awayTeamName === ele[j].away_name

@@ -18,7 +18,7 @@ async function checkmatch_another() {
       const date1 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: 0,
+        value: -5,
         unit: 'days'
       });
       const date2 = modules.convertTimezoneFormat(unix, {

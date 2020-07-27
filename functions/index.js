@@ -175,6 +175,11 @@ exports.auth_statscore = functions.pubsub
   .schedule('50 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
+exports.prematch_statscore_MLB = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_MLB'));
+
 exports.prematch_statscore_KBO = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')

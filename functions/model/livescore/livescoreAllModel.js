@@ -42,7 +42,8 @@ function queryAllMatches(args) {
                 AND game.away_id = away.team_id
                 AND game.spread_id = spread.spread_id
                 AND game.scheduled*1000 BETWEEN :begin AND :end
-                AND game.ori_league_id = league.ori_league_id
+								AND game.ori_league_id = league.ori_league_id
+								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}')
            )
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -58,7 +59,8 @@ function queryAllMatches(args) {
                 AND game.away_id = away.team_id
                 AND game.spread_id IS NULL
                 AND game.scheduled*1000 BETWEEN :begin AND :end
-                AND game.ori_league_id = league.ori_league_id
+								AND game.ori_league_id = league.ori_league_id
+								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}')
            )
            ORDER BY scheduled
            `,

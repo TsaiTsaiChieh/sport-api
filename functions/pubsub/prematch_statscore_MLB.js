@@ -1,14 +1,14 @@
 const modules = require('../util/modules');
 const leagueUtil = require('../util/leagueUtil');
-const db = require('../util/dbUtil');
 const axios = require('axios');
+const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5476'; // NPB
-const leagueID = '347';
-const league = 'NPB';
+const competitionID = '5466'; // CPBL
+const leagueID = '3939';
+const league = 'MLB';
 
-async function prematch_statscore_NPB() {
+async function prematch_statscore_MLB() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -52,6 +52,7 @@ async function prematch_statscore_NPB() {
         let awayTeamName =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
             .participants[1].name;
+
         homeTeamName = teamTrans(homeTeamName);
         awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
@@ -72,10 +73,6 @@ async function prematch_statscore_NPB() {
           }
         }
       }
-      // await database
-      //  .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-      //  .set('scheduled');
-      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
@@ -96,49 +93,21 @@ async function axiosForURL(URL) {
     }
   });
 }
+
 function teamTrans(team) {
   switch (team) {
-    case 'Yomiuri Giants': {
-      return 'Yomiuri Giants';
+    case 'Tampa Bay Rays': {
+      return 'Tampa Bay Devil Rays';
     }
-    case 'Tokyo Yakult Swallows': {
-      return 'Yakult Swallows';
-    }
-    case 'Yokohama DeNA BayStars': {
-      return 'Yokohama Bay Stars';
-    }
-    case 'Chunichi Dragons': {
-      return 'Chunichi Dragons';
-    }
-    case 'Hanshin Tigers': {
-      return 'Hanshin Tigers';
-    }
-    case 'Hiroshima Toyo Carp': {
-      return 'Hiroshima Carp';
-    }
-    case 'Hokkaido Nippon-Ham Fighters': {
-      return 'Nippon Ham Fighters';
-    }
-    case 'Tohoku Rakuten Golden Eagles': {
-      return 'Rakuten Eagles';
-    }
-    case 'Saitama Seibu Lions': {
-      return 'Seibu Lions';
-    }
-    case 'Chiba Lotte Marines': {
-      return 'Lotte Marines';
-    }
-    case 'Orix Buffaloes': {
-      return 'Orix Buffaloes';
-    }
-    case 'Fukuoka SoftBank Hawks': {
-      return 'Softbank Hawks';
+    case 'Los Angeles Angels of Anaheim': {
+      return 'Los Angeles Angels';
     }
     default: {
       return team;
     }
   }
 }
+
 async function queryForToken() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -172,7 +141,8 @@ async function queryForMatches(date1, date2) {
 							  match__teams as away
 					WHERE game.league_id = '${leagueID}'
 					  AND game.scheduled between '${date1}' and '${date2}'
-					  AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
+						AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
+						AND game.radar_id IS NULL
 				  	AND home.team_id = game.home_id
 				  	AND away.team_id = game.away_id
 				)`,
@@ -186,4 +156,4 @@ async function queryForMatches(date1, date2) {
     }
   });
 }
-module.exports = prematch_statscore_NPB;
+module.exports = prematch_statscore_MLB;
