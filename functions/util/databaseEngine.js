@@ -4,6 +4,8 @@ const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
 const modules = require('../util/modules');
+const logger = require('firebase-functions/lib/logger');
+
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -40,7 +42,7 @@ function getSeason(league_id) {
 async function checkUserRight(uid, rightArr = [], source = null) {
   const [err, memberInfo] = await to(db.User.findOne({ where: { uid: uid } }));
   if (err) {
-    console.error('[Error][databaseEngine][checkUserRight] ', err);
+    logger.warn('[Error][databaseEngine][checkUserRight] ', err);
     throw errs.dbErrsMsg('500', '500', err);
   };
   if (!memberInfo) return errs.errsMsg('404', '1301');
@@ -58,7 +60,7 @@ async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_uni
     }
   }));
   if (err) {
-    console.error('[Error][databaseEngine][countGodSellPredictionBuyers] ', err);
+    logger.warn('[Error][databaseEngine][countGodSellPredictionBuyers] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -79,7 +81,7 @@ async function checkUidBuyGodSellPrediction(uid, god_uid, league_id, matches_dat
     }
   }));
   if (err) {
-    console.error('[Error][databaseEngine][checkUidBuyGodSellPrediction] ', err);
+    logger.warn('[Error][databaseEngine][checkUidBuyGodSellPrediction] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
@@ -103,7 +105,7 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
     }
   }));
   if (err) {
-    console.error('[Error][databaseEngine][checkGodSellPrediction] ', err);
+    logger.warn('[Error][databaseEngine][checkGodSellPrediction] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
 
