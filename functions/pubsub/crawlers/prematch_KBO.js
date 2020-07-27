@@ -34,10 +34,11 @@ async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
-      await crawlerTeamBase(season);
-      await crawlerTeamBaseForL10(season);
-      await crawlerPitcher(season);
-      await crawlerHitting(season);
+      // await crawlerTeamBase(season);
+      // await crawlerTeamBaseForL10(season);
+      // await crawlerPitcher(season);
+      await crawlerPitcherJerseyId(season);
+      // await crawlerHitting(season);
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
@@ -236,6 +237,7 @@ function decompose_STRK_and_L10(str) {
   const L10 = `${win}-${loss}-${draw}`;
   return { STRK, L10 };
 }
+
 function crawlerPitcher(season) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -355,6 +357,29 @@ function insertPitcherToFirestore(officialData, teamId, season) {
       return resolve();
     } catch (err) {
       return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+function crawlerPitcherJerseyId(season) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const $_PitchersData = await crawler(`${configs.official_URL}/Teams/PlayerSearch.aspx`);
+      const PitchersData = await getPitcherJerseyId($_PitchersData);
+    } catch (err) {
+      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+    }
+  });
+}
+
+function getPitcherJerseyId($) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      $('td').each(function(i) {
+        console.log($(this).text());
+      });
+    } catch (err) {
+
     }
   });
 }
