@@ -8,7 +8,7 @@ router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/handicap_esport', require('../pubsub/handicap_esport'));
-// router.get('/dy', require('../pubsub/dy'));
+router.get('/dy', require('../pubsub/dy'));
 
 router.get(
   '/settlement',
@@ -31,6 +31,10 @@ router.get('/mysql', require('../pubsub/mysql/connection'));
 // router.get('/create_tables', require('../pubsub/mysql/createTables'));
 // test statscore
 router.get('/auth_statscore', require('../pubsub/auth_statscore'));
+router.get(
+  '/prematch_statscore_MLB',
+  require('../pubsub/prematch_statscore_MLB')
+);
 router.get(
   '/prematch_statscore_KBO',
   require('../pubsub/prematch_statscore_KBO')
@@ -67,6 +71,7 @@ router.get(
   '/checkmatch_statscore_CBA',
   require('../pubsub/checkmatch_statscore_CBA')
 );
+
 router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 // 爬蟲專區
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));

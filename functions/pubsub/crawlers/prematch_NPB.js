@@ -6,28 +6,27 @@ const sportName = leagueUtil.league2Sport(leagueName).sport;
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const cheerio = require('cheerio');
-// const perStep = 1000; // 每秒抓一項資訊
-// const timesPerLoop = 9; // 9項數值要抓 隊伍資訊, 隊伍打擊*4, 隊伍投手*4
 const season = '2020';
 const centralTeam = 6;
 const pacificTeam = 6;
 const teamAlias = ['l', 'h', 'e', 'm', 'f', 'b', 'g', 'db', 't', 'c', 'd', 's']; // 西武獅 福岡 樂天 千葉 北海道 歐力士 巨人 橫濱 阪神 東洋 中日 東京
 async function prematch_NPB(req, res) {
-  // const URL;
-  // const countForStatus2 = 0;
-  // const timerForStatus2 = setInterval(async function () {
-  //  countForStatus2 = countForStatus2 + 1;
-  //  if (countForStatus2 > timesPerLoop) {
-  //    console.log('craw NPB success');
-  //    clearInterval(timerForStatus2);
-  //  } else {
-  //    switch (countForStatus2) {
-  //    }
-  //  }
-  // }, perStep);
-
   await getTeams();
   await getPlayer();
+}
+
+async function crawlId(URL) {
+  // 背號
+  const { data } = await axios.get(URL);
+  const $ = cheerio.load(data);
+  const id = $('tr td a');
+  const result = [];
+  id.each(function(index, ele) {
+    if (ele.attribs.href.indexOf('/') >= 0) {
+      result.push(ele.attribs.href.split('/')[3].split('.')[0]);
+    }
+  });
+  return result;
 }
 async function crawl(URL) {
   const { data } = await axios.get(URL);
@@ -57,7 +56,8 @@ function getPlayer() {
         const Hitter = await crawl(URL);
         URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
         const HitterID = await crawl(URL);
-        await upsertHitter(Hitter, HitterID);
+        const HitterUID = await crawlId(URL);
+        await upsertHitter(Hitter, HitterID, HitterUID);
       }
 
       // 投手季戰績
@@ -66,7 +66,8 @@ function getPlayer() {
         const Pitcher = await crawl(URL);
         URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
         const PitcherID = await crawl(URL);
-        await upsertPitcher(Pitcher, PitcherID);
+        const PitcherUID = await crawlId(URL);
+        await upsertPitcher(Pitcher, PitcherID, PitcherUID);
       }
       resolve('ok');
     } catch (err) {
@@ -105,7 +106,7 @@ function getTeams() {
     }
   });
 }
-async function upsertPitcher(result, result2) {
+async function upsertPitcher(result, result2, result3) {
   const playerNumber = [];
   const playerName = [];
   let j = 0;
@@ -115,12 +116,14 @@ async function upsertPitcher(result, result2) {
     playerName[j] = result2[i + 1];
     j = j + 1;
   }
+  let k = 0;
   for (let i = 3; i < result.length - 26; i = i + 26) {
     const docName = result[i];
     let matchNumber;
     for (let j = 0; j < playerName.length; j++) {
       if (docName === playerName[j]) {
-        matchNumber = playerNumber[j];
+        matchNumber = result3[k];
+        k = k + 1;
         break;
       }
     }
@@ -131,7 +134,7 @@ async function upsertPitcher(result, result2) {
       .set(
         {
           [`season_${season}`]: {
-            players: {
+            pitchers: {
               [`${matchNumber}`]: {
                 // AO:,
                 BB: result[i + 15],
@@ -177,7 +180,7 @@ async function upsertPitcher(result, result2) {
   }
 }
 
-async function upsertHitter(result, result2) {
+async function upsertHitter(result, result2, result3) {
   const playerNumber = [];
   const playerName = [];
   let j = 0;
@@ -187,12 +190,14 @@ async function upsertHitter(result, result2) {
     playerName[j] = result2[i + 1];
     j = j + 1;
   }
+  let k = 0;
   for (let i = 2; i < result.length - 24; i = i + 24) {
     const docName = result[i];
     let matchNumber;
     for (let j = 0; j < playerName.length; j++) {
       if (docName === playerName[j]) {
-        matchNumber = playerNumber[j];
+        matchNumber = result3[k];
+        k = k + 1;
         break;
       }
     }
@@ -202,7 +207,7 @@ async function upsertHitter(result, result2) {
       .set(
         {
           [`season_${season}`]: {
-            players: {
+            hitters: {
               [`${matchNumber}`]: {
                 AB: result[i + 3],
                 // AO:result[i + 14],
@@ -582,7 +587,7 @@ function formatRecord(oriString) {
     const win = oriString.split('-')[0];
     const lose = oriString.split('-')[1];
 
-    return `${win}-${draw}-${lose}`;
+    return `${win}-${lose}-${draw}`;
   }
 }
 

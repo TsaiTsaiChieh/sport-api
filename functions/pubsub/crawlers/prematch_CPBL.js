@@ -30,7 +30,6 @@ async function prematch_CPBL(req, res) {
           await getTeamsStandings(URL);
           break;
         }
-        // 取得球員資訊
         case 2: {
           URL = `${CPBL_URL}/web/team_playergrade.php?&team=E02&gameno=01`;
           await getHittersStandings(URL); // 中信兄弟 選手打擊
@@ -197,11 +196,16 @@ function getTeamsStandings(URL) {
       for (let i = 0; i < titles.length; i++) {
         if (titles[i] === '') {
           continue;
+        } else if (titles[i] === '-') {
+          result.push(titles[i].trim());
+          result.push(' ');
         } else {
           result.push(titles[i].trim());
         }
       }
-
+      for (let i = 0; i < result.length; i++) {
+        console.log(i + '    ' + result[i]);
+      }
       for (let i = 1; i <= totalTeam; i++) {
         // await upsertMysqlTeam(i, result);
         await upsertFirestoreTeam(i, result);
@@ -224,10 +228,10 @@ function mapTeam(name) {
       return '329121';
     }
     case '統一7-ELEVEn': {
-      return '224094';
+      return '224095';
     }
     case '富邦': {
-      return '224095';
+      return '224094';
     }
   }
 }
@@ -247,150 +251,300 @@ async function upsertFirestoreTeam(teamNumber, result) {
   const team2 = mapTeam(result[9]);
   const team3 = mapTeam(result[10]);
   const team4 = mapTeam(result[11]);
-  if (teamNumber === 1) {
-    const index = 17;
-    const offsetPitch = 74;
-    const offsetBit = 145;
-    await firestore
-      .collection(`${sportName}_${leagueName}`)
-      .doc(teamID)
-      .set(
-        {
-          [`season_${season}`]: {
-            // 團隊對戰戰績
-            team_base: {
-              G: result[index + 1],
-              Win: result[index + 2].split('-')[0],
-              Draw: result[index + 2].split('-')[1],
-              Lose: result[index + 2].split('-')[2],
-              PCT: result[index + 3],
-              GB: result[index + 4],
-              [`${teamID}VS${team1}`]: result[index + 5],
-              [`${teamID}VS${team2}`]: result[index + 6],
-              [`${teamID}VS${team3}`]: result[index + 7],
-              [`${teamID}VS${team4}`]: result[index + 8],
-              at_home: result[index + 9],
-              at_away: result[index + 10],
-              STRK: change2English(result[index + 11]),
-              L10: result[index + 12],
-              R: result[index + offsetBit + 2],
-              allow_R: result[index + offsetPitch + 9],
-              per_R: (
-                parseFloat(result[index + offsetBit + 2]) /
-                parseFloat(result[index + 1])
-              ).toFixed(3),
-              per_allow_R: (
-                parseFloat(result[index + offsetPitch + 9]) /
-                parseFloat(result[index + 1])
-              ).toFixed(3)
-            },
-            // 團隊投球成績
-            team_pitch: {
-              G: result[index + offsetPitch],
-              BF: result[index + offsetPitch + 1],
-              NP: result[index + offsetPitch + 2],
-              H: result[index + offsetPitch + 3],
-              HR: result[index + offsetPitch + 4],
-              BB: result[index + offsetPitch + 5],
-              SO: result[index + offsetPitch + 6],
-              WP: result[index + offsetPitch + 7],
-              BK: result[index + offsetPitch + 8],
-              R: result[index + offsetPitch + 9],
-              ER: result[index + offsetPitch + 10],
-              WHIP: result[index + offsetPitch + 11],
-              ERA: result[index + offsetPitch + 12]
-            },
-            // 團隊打擊成績
-            team_hit: {
-              G: result[index + offsetBit],
-              AB: result[index + offsetBit + 1],
-              R: result[index + offsetBit + 2],
-              RBI: result[index + offsetBit + 3],
-              H: result[index + offsetBit + 4],
-              HR: result[index + offsetBit + 5],
-              TB: result[index + offsetBit + 6],
-              SO: result[index + offsetBit + 7],
-              BB: result[index + offsetBit + 8],
-              SB: result[index + offsetBit + 9],
-              OBP: result[index + offsetBit + 10],
-              SLG: result[index + offsetBit + 11],
-              AVG: result[index + offsetBit + 12]
-            }
+  const index = 16 + 15 * (teamNumber - 1);
+  const offsetPitch = 76 - teamNumber;
+  const offsetBit = 147 - teamNumber;
+  await firestore
+    .collection(`${sportName}_${leagueName}`)
+    .doc(teamID)
+    .set(
+      {
+        [`season_${season}`]: {
+          // 團隊對戰戰績
+          team_base: {
+            G: result[index + 2],
+            Win: result[index + 3].split('-')[0],
+            Draw: result[index + 3].split('-')[1],
+            Lose: result[index + 3].split('-')[2],
+            PCT: result[index + 4],
+            GB: result[index + 5],
+            [`${teamID}VS${team1}`]:
+              teamID !== team1
+                ? `${result[index + 7].split('-')[0]}-${
+                    result[index + 7].split('-')[2]
+                  }-${result[index + 7].split('-')[1]}`
+                : null,
+            [`${teamID}VS${team2}`]:
+              teamID !== team2
+                ? `${result[index + 8].split('-')[0]}-${
+                    result[index + 8].split('-')[2]
+                  }-${result[index + 8].split('-')[1]}`
+                : null,
+            [`${teamID}VS${team3}`]:
+              teamID !== team3
+                ? `${result[index + 9].split('-')[0]}-${
+                    result[index + 9].split('-')[2]
+                  }-${result[index + 9].split('-')[1]}`
+                : null,
+            [`${teamID}VS${team4}`]:
+              teamID !== team4
+                ? `${result[index + 10].split('-')[0]}-${
+                    result[index + 10].split('-')[2]
+                  }-${result[index + 10].split('-')[1]}`
+                : null,
+            at_home: `${result[index + 11].split('-')[0]}-${
+              result[index + 11].split('-')[2]
+            }-${result[index + 11].split('-')[1]}`,
+            at_away: `${result[index + 12].split('-')[0]}-${
+              result[index + 12].split('-')[2]
+            }-${result[index + 12].split('-')[1]}`,
+            STRK: change2English(result[index + 13]),
+            L10: `${result[index + 14].split('-')[0]}-${
+              result[index + 14].split('-')[2]
+            }-${result[index + 14].split('-')[1]}`,
+            R: result[index + offsetBit + 3],
+            allow_R: result[index + offsetPitch + 10],
+            per_R: (
+              parseFloat(result[index + offsetBit + 3]) /
+              parseFloat(result[index + 2])
+            ).toFixed(3),
+            per_allow_R: (
+              parseFloat(result[index + offsetPitch + 10]) /
+              parseFloat(result[index + 2])
+            ).toFixed(3)
+          },
+          // 團隊投球成績
+          team_pitch: {
+            G: result[index + offsetPitch + 1],
+            BF: result[index + offsetPitch + 2],
+            NP: result[index + offsetPitch + 3],
+            H: result[index + offsetPitch + 4],
+            HR: result[index + offsetPitch + 5],
+            BB: result[index + offsetPitch + 6],
+            SO: result[index + offsetPitch + 7],
+            WP: result[index + offsetPitch + 8],
+            BK: result[index + offsetPitch + 9],
+            R: result[index + offsetPitch + 10],
+            ER: result[index + offsetPitch + 11],
+            WHIP: result[index + offsetPitch + 12],
+            ERA: result[index + offsetPitch + 13]
+          },
+          // 團隊打擊成績
+          team_hit: {
+            G: result[index + offsetBit + 1],
+            AB: result[index + offsetBit + 2],
+            R: result[index + offsetBit + 3],
+            RBI: result[index + offsetBit + 4],
+            H: result[index + offsetBit + 5],
+            HR: result[index + offsetBit + 6],
+            TB: result[index + offsetBit + 7],
+            SO: result[index + offsetBit + 8],
+            BB: result[index + offsetBit + 9],
+            SB: result[index + offsetBit + 10],
+            OBP: result[index + offsetBit + 11],
+            SLG: result[index + offsetBit + 12],
+            AVG: result[index + offsetBit + 13]
           }
-        },
-        { merge: true }
-      );
-  } else {
-    const index = teamNumber * 15 + 1;
-    const offsetPitch = 76 - teamNumber;
-    const offsetBit = 147 - teamNumber;
-    await firestore
-      .collection(`${sportName}_${leagueName}`)
-      .doc(teamID)
-      .set(
-        {
-          [`season_${season}`]: {
-            team_base: {
-              G: result[index + 1],
-              Win: result[index + 2].split('-')[0],
-              Draw: result[index + 2].split('-')[1],
-              Lose: result[index + 2].split('-')[2],
-              PCT: result[index + 3],
-              GB: result[index + 4],
-              [`${teamID}VS${team1}`]: result[index + 6],
-              [`${teamID}VS${team2}`]: result[index + 7],
-              [`${teamID}VS${team3}`]: result[index + 8],
-              [`${teamID}VS${team4}`]: result[index + 9],
-              at_home: result[index + 10],
-              at_away: result[index + 11],
-              STRK: change2English(result[index + 12]),
-              L10: result[index + 13],
-              R: result[index + offsetBit + 2],
-              allow_R: result[index + offsetPitch + 9],
-              per_R: (
-                parseFloat(result[index + offsetBit + 2]) /
-                parseFloat(result[index + 1])
-              ).toFixed(3),
-              per_allow_R: (
-                parseFloat(result[index + offsetPitch + 9]) /
-                parseFloat(result[index + 1])
-              ).toFixed(3)
-            },
-            // 團隊投球成績
-            team_pitch: {
-              BF: result[index + offsetPitch + 1],
-              NP: result[index + offsetPitch + 2],
-              H: result[index + offsetPitch + 3],
-              HR: result[index + offsetPitch + 4],
-              BB: result[index + offsetPitch + 5],
-              SO: result[index + offsetPitch + 6],
-              WP: result[index + offsetPitch + 7],
-              BK: result[index + offsetPitch + 8],
-              R: result[index + offsetPitch + 9],
-              ER: result[index + offsetPitch + 10],
-              WHIP: result[index + offsetPitch + 11],
-              ERA: result[index + offsetPitch + 12]
-            },
-            // 團隊打擊成績
-            team_hit: {
-              AB: result[index + offsetBit + 1],
-              R: result[index + offsetBit + 2],
-              RBI: result[index + offsetBit + 3],
-              H: result[index + offsetBit + 4],
-              HR: result[index + offsetBit + 5],
-              TB: result[index + offsetBit + 6],
-              SO: result[index + offsetBit + 7],
-              BB: result[index + offsetBit + 8],
-              SB: result[index + offsetBit + 9],
-              OBP: result[index + offsetBit + 10],
-              SLG: result[index + offsetBit + 11],
-              AVG: result[index + offsetBit + 12]
-            }
-          }
-        },
-        { merge: true }
-      );
-  }
+        }
+      },
+      { merge: true }
+    );
+  // if (teamNumber === 1) {
+  //  const index = 17;
+  //  const offsetPitch = 74;
+  //  const offsetBit = 145;
+  //  await firestore
+  //    .collection(`${sportName}_${leagueName}`)
+  //    .doc(teamID)
+  //    .set(
+  //      {
+  //        [`season_${season}`]: {
+  //          // 團隊對戰戰績
+  //          team_base: {
+  //            G: result[index + 1],
+  //            Win: result[index + 2].split('-')[0],
+  //            Draw: result[index + 2].split('-')[1],
+  //            Lose: result[index + 2].split('-')[2],
+  //            PCT: result[index + 3],
+  //            GB: result[index + 4],
+  //            [`${teamID}VS${team1}`]:
+  //              teamID !== team1
+  //                ? `${result[index + 5].split('-')[0]}-${
+  //                    result[index + 5].split('-')[2]
+  //                  }-${result[index + 5].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team2}`]:
+  //              teamID !== team2
+  //                ? `${result[index + 6].split('-')[0]}-${
+  //                    result[index + 6].split('-')[2]
+  //                  }-${result[index + 6].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team3}`]:
+  //              teamID !== team3
+  //                ? `${result[index + 7].split('-')[0]}-${
+  //                    result[index + 7].split('-')[2]
+  //                  }-${result[index + 7].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team4}`]:
+  //              teamID !== team4
+  //                ? `${result[index + 8].split('-')[0]}-${
+  //                    result[index + 8].split('-')[2]
+  //                  }-${result[index + 8].split('-')[1]}`
+  //                : null,
+  //            at_home: `${result[index + 9].split('-')[0]}-${
+  //              result[index + 9].split('-')[2]
+  //            }-${result[index + 9].split('-')[1]}`,
+  //            at_away: `${result[index + 10].split('-')[0]}-${
+  //              result[index + 10].split('-')[2]
+  //            }-${result[index + 10].split('-')[1]}`,
+  //            STRK: change2English(result[index + 11]),
+  //            L10: `${result[index + 12].split('-')[0]}-${
+  //              result[index + 12].split('-')[2]
+  //            }-${result[index + 12].split('-')[1]}`,
+  //            R: result[index + offsetBit + 2],
+  //            allow_R: result[index + offsetPitch + 9],
+  //            per_R: (
+  //              parseFloat(result[index + offsetBit + 2]) /
+  //              parseFloat(result[index + 1])
+  //            ).toFixed(3),
+  //            per_allow_R: (
+  //              parseFloat(result[index + offsetPitch + 9]) /
+  //              parseFloat(result[index + 1])
+  //            ).toFixed(3)
+  //          },
+  //          // 團隊投球成績
+  //          team_pitch: {
+  //            G: result[index + offsetPitch],
+  //            BF: result[index + offsetPitch + 1],
+  //            NP: result[index + offsetPitch + 2],
+  //            H: result[index + offsetPitch + 3],
+  //            HR: result[index + offsetPitch + 4],
+  //            BB: result[index + offsetPitch + 5],
+  //            SO: result[index + offsetPitch + 6],
+  //            WP: result[index + offsetPitch + 7],
+  //            BK: result[index + offsetPitch + 8],
+  //            R: result[index + offsetPitch + 9],
+  //            ER: result[index + offsetPitch + 10],
+  //            WHIP: result[index + offsetPitch + 11],
+  //            ERA: result[index + offsetPitch + 12]
+  //          },
+  //          // 團隊打擊成績
+  //          team_hit: {
+  //            G: result[index + offsetBit],
+  //            AB: result[index + offsetBit + 1],
+  //            R: result[index + offsetBit + 2],
+  //            RBI: result[index + offsetBit + 3],
+  //            H: result[index + offsetBit + 4],
+  //            HR: result[index + offsetBit + 5],
+  //            TB: result[index + offsetBit + 6],
+  //            SO: result[index + offsetBit + 7],
+  //            BB: result[index + offsetBit + 8],
+  //            SB: result[index + offsetBit + 9],
+  //            OBP: result[index + offsetBit + 10],
+  //            SLG: result[index + offsetBit + 11],
+  //            AVG: result[index + offsetBit + 12]
+  //          }
+  //        }
+  //      },
+  //      {merge: true}
+  //    );
+  // } else {
+  //  const index = teamNumber * 15 + 1;
+  //  const offsetPitch = 76 - teamNumber;
+  //  const offsetBit = 147 - teamNumber;
+  //  await firestore
+  //    .collection(`${sportName}_${leagueName}`)
+  //    .doc(teamID)
+  //    .set(
+  //      {
+  //        [`season_${season}`]: {
+  //          team_base: {
+  //            G: result[index + 1],
+  //            Win: result[index + 2].split('-')[0],
+  //            Draw: result[index + 2].split('-')[1],
+  //            Lose: result[index + 2].split('-')[2],
+  //            PCT: result[index + 3],
+  //            GB: result[index + 4],
+  //            [`${teamID}VS${team1}`]:
+  //              teamID !== team1
+  //                ? `${result[index + 6].split('-')[0]}-${
+  //                    result[index + 6].split('-')[2]
+  //                  }-${result[index + 6].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team2}`]:
+  //              teamID !== team2
+  //                ? `${result[index + 7].split('-')[0]}-${
+  //                    result[index + 7].split('-')[2]
+  //                  }-${result[index + 7].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team3}`]:
+  //              teamID !== team3
+  //                ? `${result[index + 8].split('-')[0]}-${
+  //                    result[index + 8].split('-')[2]
+  //                  }-${result[index + 8].split('-')[1]}`
+  //                : null,
+  //            [`${teamID}VS${team4}`]:
+  //              teamID !== team4
+  //                ? `${result[index + 9].split('-')[0]}-${
+  //                    result[index + 9].split('-')[2]
+  //                  }-${result[index + 9].split('-')[1]}`
+  //                : null,
+  //            at_home: `${result[index + 10].split('-')[0]}-${
+  //              result[index + 10].split('-')[2]
+  //            }-${result[index + 10].split('-')[1]}`,
+  //            at_away: `${result[index + 11].split('-')[0]}-${
+  //              result[index + 11].split('-')[2]
+  //            }-${result[index + 11].split('-')[1]}`,
+  //            STRK: change2English(result[index + 12]),
+  //            L10: `${result[index + 13].split('-')[0]}-${
+  //              result[index + 13].split('-')[2]
+  //            }-${result[index + 13].split('-')[1]}`,
+  //            R: result[index + offsetBit + 2],
+  //            allow_R: result[index + offsetPitch + 9],
+  //            per_R: (
+  //              parseFloat(result[index + offsetBit + 2]) /
+  //              parseFloat(result[index + 1])
+  //            ).toFixed(3),
+  //            per_allow_R: (
+  //              parseFloat(result[index + offsetPitch + 9]) /
+  //              parseFloat(result[index + 1])
+  //            ).toFixed(3)
+  //          },
+  //          // 團隊投球成績
+  //          team_pitch: {
+  //            BF: result[index + offsetPitch + 1],
+  //            NP: result[index + offsetPitch + 2],
+  //            H: result[index + offsetPitch + 3],
+  //            HR: result[index + offsetPitch + 4],
+  //            BB: result[index + offsetPitch + 5],
+  //            SO: result[index + offsetPitch + 6],
+  //            WP: result[index + offsetPitch + 7],
+  //            BK: result[index + offsetPitch + 8],
+  //            R: result[index + offsetPitch + 9],
+  //            ER: result[index + offsetPitch + 10],
+  //            WHIP: result[index + offsetPitch + 11],
+  //            ERA: result[index + offsetPitch + 12]
+  //          },
+  //          // 團隊打擊成績
+  //          team_hit: {
+  //            AB: result[index + offsetBit + 1],
+  //            R: result[index + offsetBit + 2],
+  //            RBI: result[index + offsetBit + 3],
+  //            H: result[index + offsetBit + 4],
+  //            HR: result[index + offsetBit + 5],
+  //            TB: result[index + offsetBit + 6],
+  //            SO: result[index + offsetBit + 7],
+  //            BB: result[index + offsetBit + 8],
+  //            SB: result[index + offsetBit + 9],
+  //            OBP: result[index + offsetBit + 10],
+  //            SLG: result[index + offsetBit + 11],
+  //            AVG: result[index + offsetBit + 12]
+  //          }
+  //        }
+  //      },
+  //      {merge: true}
+  //    );
+  // }
 }
 function upsertFirestoreHitter(result, totalPlayer, playerID) {
   const teamID = mapTeam(result[33]);
@@ -403,10 +557,10 @@ function upsertFirestoreHitter(result, totalPlayer, playerID) {
       .set(
         {
           [`season_${season}`]: {
-            players: {
+            hitters: {
               // 背號＋姓名
               [`${playerID[i]}`]: {
-                player_id: result[start + i * offset],
+                jersey_id: result[start + i * offset],
                 ori_name: result[start + 1 + i * offset], // 原文
                 name: result[start + 1 + i * offset], // 英文
                 name_ch: result[start + 1 + i * offset], // 中文
@@ -458,10 +612,10 @@ function upsertFirestorePitcher(result, totalPlayer, playerID) {
       .set(
         {
           [`season_${season}`]: {
-            players: {
+            pitchers: {
               // 背號＋姓名
               [`${playerID[i]}`]: {
-                player_id: result[start + i * offset],
+                jersey_id: result[start + i * offset],
                 ori_name: result[start + 1 + i * offset], // 原文
                 name: result[start + 1 + i * offset], // 英文
                 name_ch: result[start + 1 + i * offset], // 中文
