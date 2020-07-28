@@ -42,7 +42,7 @@ async function checkmatch_statscore_KBO() {
                 await KBOpbpInplay(parameter);
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
+                  new AppErrors.MysqlError(
                     `${err} at checkmatch_statscore_KBO by DY`
                   )
                 );
@@ -54,7 +54,7 @@ async function checkmatch_statscore_KBO() {
                   .set('scheduled');
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
+                  new AppErrors.MysqlError(
                     `${err} at checkmatch_statscore_KBO by DY`
                   )
                 );
@@ -125,9 +125,7 @@ async function queryForEvents() {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.PBPEsoccerError(
-          `${err} at checkmatch_statscore_KBO by DY`
-        )
+        new AppErrors.MysqlError(`${err} at checkmatch_statscore_KBO by DY`)
       );
     }
   });

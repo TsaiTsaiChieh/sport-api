@@ -125,7 +125,7 @@ async function queryForEvents() {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.PBPEsoccerError(
+        new AppErrors.MysqlError(
           `${err} at checkmatch_statscore_${league} by DY`
         )
       );
