@@ -56,10 +56,11 @@ async function prematch_statscore_MLB() {
         homeTeamName = teamTrans(homeTeamName);
         awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
-          const timeOne = new Date(startDate * 1000).toString().split(' ')[2];
+          const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
             .toString()
-            .split(' ')[2];
+            .split(':')[0];
+
           if (timeOne === timeTwo) {
             if (
               homeTeamName === ele[j].home_name &&

@@ -8,8 +8,6 @@ const Match = db.Match;
 const sport = 'basketball';
 const league = 'CBA';
 
-// let memberHomeNow = 0;
-// let memberAwayNow = 0;
 async function CBApbpInplay(parameter) {
   let eventNow = 0;
   let eventOrderNow = 0;
@@ -78,12 +76,19 @@ async function CBApbpHistory(parameter) {
       const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
 
       const data = await axiosForURL(pbpURL);
+      // 若沒分數值，給 -99 分讓結算知道是異常
       const homeScores =
         data.api.data.competition.season.stage.group.event.participants[0]
-          .results[2].value;
+          .results.length > 0
+          ? data.api.data.competition.season.stage.group.event.participants[0]
+            .results[2].value
+          : -99;
       const awayScores =
         data.api.data.competition.season.stage.group.event.participants[1]
-          .results[2].value;
+          .results.length > 0
+          ? data.api.data.competition.season.stage.group.event.participants[1]
+            .results[2].value
+          : -99;
       try {
         await Match.upsert({
           bets_id: betsID,
@@ -145,29 +150,64 @@ async function doPBP(parameter) {
     let first = parameter.first;
     let pbpFlag = 1;
     const data = await axiosForURL(pbpURL);
-    if (
-      data.api.data.competition.season.stage.group.event.status_type ===
-      'finished'
-    ) {
-      try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('closed');
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseCollectError(
-            `${err} at doPBP of status on ${betsID} by DY`
-          )
-        );
-      }
-    } else if (
-      data.api.data.competition.season.stage.group.event.status_type === 'live'
-    ) {
-      if (realtimeData.Summary.status !== 'inprogress') {
+    if (data.api.data.competition.season.stage.group.event.status_type) {
+      if (
+        data.api.data.competition.season.stage.group.event.status_type ===
+        'finished'
+      ) {
         try {
           await database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
-            .set('inprogress');
+            .set('closed');
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseCollectError(
+              `${err} at doPBP of status on ${betsID} by DY`
+            )
+          );
+        }
+      } else if (
+        data.api.data.competition.season.stage.group.event.status_type ===
+        'live'
+      ) {
+        if (realtimeData.Summary.status !== 'inprogress') {
+          try {
+            await database
+              .ref(`${sport}/${league}/${betsID}/Summary/status`)
+              .set('inprogress');
+          } catch (err) {
+            return reject(
+              new AppErrors.FirebaseRealtimeError(
+                `${err} at doPBP of status on ${betsID} by DY`
+              )
+            );
+          }
+          try {
+            await Match.upsert({
+              bets_id: betsID,
+              status: 1
+            });
+          } catch (err) {
+            return reject(
+              new AppErrors.MysqlError(
+                `${err} at doPBP of status on ${betsID} by DY`
+              )
+            );
+          }
+        }
+      } else if (
+        data.api.data.competition.season.stage.group.event.status_type ===
+        'Postponed'
+      ) {
+        try {
+          await database
+            .ref(`${sport}/${league}/${betsID}/Summary/status`)
+            .set('postponed');
+          await Match.upsert({
+            bets_id: betsID,
+            status: -2
+          });
+          pbpFlag = 0;
         } catch (err) {
           return reject(
             new AppErrors.FirebaseRealtimeError(
@@ -175,75 +215,43 @@ async function doPBP(parameter) {
             )
           );
         }
+      } else if (
+        data.api.data.competition.season.stage.group.event.status_type ===
+        'Cancelled'
+      ) {
         try {
+          await database
+            .ref(`${sport}/${league}/${betsID}/Summary/status`)
+            .set('cancelled');
           await Match.upsert({
             bets_id: betsID,
-            status: 1
+            status: -3
           });
+          pbpFlag = 0;
         } catch (err) {
           return reject(
-            new AppErrors.MysqlError(
+            new AppErrors.FirebaseRealtimeError(
               `${err} at doPBP of status on ${betsID} by DY`
             )
           );
         }
-      }
-    } else if (
-      data.api.data.competition.season.stage.group.event.status_type ===
-      'Postponed'
-    ) {
-      try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('postponed');
-        await Match.upsert({
-          bets_id: betsID,
-          status: -2
-        });
-        pbpFlag = 0;
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at doPBP of status on ${betsID} by DY`
-          )
-        );
-      }
-    } else if (
-      data.api.data.competition.season.stage.group.event.status_type ===
-      'Cancelled'
-    ) {
-      try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('cancelled');
-        await Match.upsert({
-          bets_id: betsID,
-          status: -3
-        });
-        pbpFlag = 0;
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at doPBP of status on ${betsID} by DY`
-          )
-        );
-      }
-    } else {
-      try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('tobefixed');
-        await Match.upsert({
-          bets_id: betsID,
-          status: -1
-        });
-        pbpFlag = 0;
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at doPBP of status on ${betsID} by DY`
-          )
-        );
+      } else {
+        try {
+          await database
+            .ref(`${sport}/${league}/${betsID}/Summary/status`)
+            .set('tobefixed');
+          await Match.upsert({
+            bets_id: betsID,
+            status: -1
+          });
+          pbpFlag = 0;
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP of status on ${betsID} by DY`
+            )
+          );
+        }
       }
     }
     if (first === 1) {
@@ -251,14 +259,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(
-          betsID,
-          realtimeData,
-          data,
-          eventNow,
-          eventOrderNow,
-          periodNow
-        );
+        await writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow);
       }
     }
 
@@ -310,12 +311,18 @@ async function initRealtime(betsID, data) {
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+            : null
         );
       await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+            : null
         );
     } catch (err) {
       return reject(
@@ -434,57 +441,88 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(
-  betsID,
-  realtimeData,
-  data,
-  eventNow,
-  eventOrderNow,
-  periodNow
-) {
+async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow) {
   return new Promise(async function(resolve, reject) {
-    const homeID =
-      data.api.data.competition.season.stage.group.event.participants[0].id;
+    const homeID = data.api.data.competition.season.stage.group.event
+      .participants[0].id
+      ? data.api.data.competition.season.stage.group.event.participants[0].id
+      : null;
     try {
       await database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
         .set({
           points:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .results[2].value,
+              .results.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].results[2].value
+              : null,
           two_point_attempts:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[3].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[3].value
+              : null,
           two_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[4].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[4].value
+              : null,
           two_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[5].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[5].value
+              : null,
           three_point_attempts:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[6].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[6].value
+              : null,
           three_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[7].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[7].value
+              : null,
           three_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[8].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[8].value
+              : null,
           ft_point_attempts:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[9].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[9].value
+              : null,
           ft_point_scored:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[10].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[10].value
+              : null,
           ft_point_percent:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[11].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[11].value
+              : null,
           rebounds:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[12].value,
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[12].value
+              : null,
           fouls:
             data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[13].value
+              .stats.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[13].value
+              : null
         });
 
       await database
@@ -492,40 +530,65 @@ async function writeRealtime(
         .set({
           points:
             data.api.data.competition.season.stage.group.event.participants[1]
-              .results[2].value,
-          two_point_attempts:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[3].value,
-          two_point_scored:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[4].value,
-          two_point_percent:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[5].value,
-          three_point_attempts:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[6].value,
-          three_point_scored:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[7].value,
-          three_point_percent:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[8].value,
-          ft_point_attempts:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[9].value,
-          ft_point_scored:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[10].value,
-          ft_point_percent:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[11].value,
-          rebounds:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[12].value,
-          fouls:
-            data.api.data.competition.season.stage.group.event.participants[1]
+              .results.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[1].results[2].value
+              : null,
+          two_point_attempts: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[3].value
+            : null,
+          two_point_scored: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[4].value
+            : null,
+          two_point_percent: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[5].value
+            : null,
+          three_point_attempts: data.api.data.competition.season.stage.group
+            .event.participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[6].value
+            : null,
+          three_point_scored: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[7].value
+            : null,
+          three_point_percent: data.api.data.competition.season.stage.group
+            .event.participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[8].value
+            : null,
+          ft_point_attempts: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[9].value
+            : null,
+          ft_point_scored: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[10].value
+            : null,
+          ft_point_percent: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[11].value
+            : null,
+          rebounds: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[12].value
+            : null,
+          fouls: data.api.data.competition.season.stage.group.event
+            .participants[1].stats.length
+            ? data.api.data.competition.season.stage.group.event.participants[1]
               .stats[13].value
+            : null
         });
     } catch (err) {
       return reject(
@@ -628,7 +691,6 @@ async function writeRealtime(
               `${sport}/${league}/${betsID}/Summary/periods${periodNow}/events${eventOrderNow}`
             )
             .set({
-              // 待翻譯
               description:
                 teamTrans(
                   data.api.data.competition.season.stage.group.event
@@ -674,7 +736,10 @@ async function writeRealtime(
           )
           .set(
             data.api.data.competition.season.stage.group.event.participants[1]
-              .results[5 + parseInt(periodNow)].value
+              .results.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[1].results[5 + parseInt(periodNow)].value
+              : null
           );
         await database
           .ref(
@@ -682,7 +747,10 @@ async function writeRealtime(
           )
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
-              .results[5 + parseInt(periodNow)].value
+              .results.length > 0
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].results[5 + parseInt(periodNow)].value
+              : null
           );
       } catch (err) {
         return reject(
