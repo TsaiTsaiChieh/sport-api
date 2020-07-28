@@ -37,7 +37,7 @@ const configs = {
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
 // 4. 本季球員資訊「未做」
 
-async function prematch_KBO(req, res) {
+async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
@@ -46,7 +46,8 @@ async function prematch_KBO(req, res) {
       await crawlerPitcher(season);
       await crawlerPitcherJerseyId(season);
       await crawlerHitting(season);
-      return resolve(res.json('ok'));
+      return resolve();
+      // return resolve(res.json('ok'));
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
@@ -71,7 +72,7 @@ function crawlerTeamBase(season) {
       const today = modules.convertTimezoneFormat(Math.floor(Date.now() / 1000), { format: 'YYYY-MM-DD' });
       // const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-25`);
       const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=${today}`);
-      console.log(today);
+      // console.log(today);
       const officialData = await getTeamStandingsFromOfficial($_officialData);
       repackageTeamStandingsFromOfficial(officialData, season);
       return resolve();
@@ -92,6 +93,18 @@ function crawler(URL) {
     }
   });
 }
+
+// function crawlerPostMethod(URL) {
+//   return new Promise(async function(resolve, reject) {
+//     try {
+//       const { data } = await axios.post(URL);
+//       const $ = cheerio.load(data); // load in the HTML
+//       return resolve($);
+//     } catch (err) {
+//       return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+//     }
+//   });
+// }
 
 function getTeamStandingsFromOfficial($) {
   return new Promise(async function(resolve, reject) {
