@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  STRK field in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#297](https://github.com/gets-info/sports-api/pull/297)
 -  sport, league, ori_league, spread and total field in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#292](https://github.com/gets-info/sports-api/pull/292)
 #### Fix:
+-  predictionsWinList 勝注勝率計算 異常情況修正 ***by alangets*** [#299](https://github.com/gets-info/sports-api/pull/299)
 -  update_time field error due to firebase modules separation ***by TsaiTsaiChieh*** [#298](https://github.com/gets-info/sports-api/pull/298)
 -  when normal user delete own predictions error in user/predictions API ***by TsaiTsaiChieh*** [#296](https://github.com/gets-info/sports-api/pull/296)
 -  solve eslint warning in pubsub/crawlers/prematch_KBO.js ***by TsaiTsaiChieh*** [#295](https://github.com/gets-info/sports-api/pull/295)
