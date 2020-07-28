@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  sport, league, ori_league, spread and total field in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#292](https://github.com/gets-info/sports-api/pull/292)
 #### Fix:
+-  solve eslint warning in pubsub/crawlers/prematch_KBO.js ***by TsaiTsaiChieh*** [#295](https://github.com/gets-info/sports-api/pull/295)
 #### Removed:
 #### DB:
 ***
