@@ -1,10 +1,9 @@
 const modules = require('../../util/modules');
-const leagueUtil = require('../../util/leagueUtil');
+const { MATCH_STATUS, USER_SELL, leagueCodebook } = require('../../util/leagueUtil');
 const AppErrors = require('../../util/AppErrors');
 const httpStatus = require('http-status');
 const db = require('../../util/dbUtil');
-const scheduledStatus = 2;
-const NORMAL_USER_SELL = -1;
+const logger = require('firebase-functions/lib/logger');
 
 function deletePredictions(args) {
   return new Promise(async function(resolve, reject) {
@@ -23,9 +22,14 @@ function deletePredictions(args) {
 // 非為該聯盟的大神才能刪除
 function isGodBelongsToLeague(args) {
   return new Promise(function(resolve, reject) {
-    !args.token.titles.includes(args.league)
-      ? resolve()
-      : reject(new AppErrors.OnlyAcceptUserDoesNotBelongsToCertainLeague());
+    try {
+      if (!args.token.titles) args.token.titles = [];
+      if (!args.token.titles.includes(args.league)) return resolve();
+      else return reject(new AppErrors.OnlyAcceptUserDoesNotBelongsToCertainLeague());
+    } catch (err) {
+      logger.error(err.stack);
+      return reject(new AppErrors.DeleteOwnPredictionsError(err.stack));
+    }
   });
 }
 
@@ -61,7 +65,7 @@ function isMatchValid(args, ele, filter) {
                 match__teams AS home,
                 match__teams AS away
           WHERE game.bets_id = :id
-            AND game.league_id = ${leagueUtil.leagueCodebook(args.league).id}
+            AND game.league_id = ${leagueCodebook(args.league).id}
             AND game.home_id = home.team_id
             AND game.away_id = away.team_id`,
         {
@@ -77,7 +81,7 @@ function isMatchValid(args, ele, filter) {
         filter.failed.push(ele);
       } else {
         addTeamInformation(args, ele, result[0]);
-        if (result[0].status !== scheduledStatus) {
+        if (result[0].status !== MATCH_STATUS.SCHEDULED) {
           ele.code = httpStatus.FORBIDDEN;
           ele.error = `Match id: ${ele.id} in ${args.league} already started or ended`;
           filter.failed.push(ele);
@@ -85,7 +89,8 @@ function isMatchValid(args, ele, filter) {
       }
       resolve(filter);
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      logger.error(err.stack);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -101,7 +106,7 @@ function addTeamInformation(args, ele, result) {
     alias: result.away_alias,
     alias_ch: result.away_alias_ch
   };
-  ele.league_id = leagueUtil.leagueCodebook(args.league).id;
+  ele.league_id = leagueCodebook(args.league).id;
 }
 // 檢查盤口是否存在在該使用者的預測單裡
 function isHandicapExist(args, i, filter) {
@@ -116,14 +121,13 @@ function isHandicapExist(args, i, filter) {
           WHERE uid = '${args.token.uid}'
             AND bets_id = :id
             AND ${handicapType}_id = '${handicapId}'
-            AND sell = ${NORMAL_USER_SELL}
-            AND league_id = ${leagueUtil.leagueCodebook(args.league).id}`,
+            AND sell = ${USER_SELL.NORMAL}
+            AND league_id = ${leagueCodebook(args.league).id}`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { id: ele.id }
         }
       );
-
       if (!result.length) {
         const error = {
           code: modules.NOT_FOUND,
@@ -133,7 +137,8 @@ function isHandicapExist(args, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      logger.error(err.stack);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -183,7 +188,8 @@ function updatePredictions(args, filter) {
       }
       return resolve(filter);
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      logger.error(err.stack);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -201,12 +207,13 @@ function deletePredictionsWhichAreNull(uid, league) {
             AND league_id = :league_id`,
         {
           type: db.sequelize.QueryTypes.DELETE,
-          replacements: { uid, league_id: leagueUtil.leagueCodebook(league).id, raw: true }
+          replacements: { uid, league_id: leagueCodebook(league).id, raw: true }
         }
       );
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      logger.error(err.stack);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }

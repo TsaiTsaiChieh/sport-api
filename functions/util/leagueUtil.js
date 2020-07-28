@@ -1,5 +1,6 @@
 const AppErrors = require('./AppErrors');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
+const USER_SELL = { NORMAL: -1, GOD_FREE: 0, GOD_SELL: 1 };
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
@@ -245,6 +246,7 @@ function leagueDecoder(leagueID) {
 
 module.exports = {
   MATCH_STATUS,
+  USER_SELL,
   league2Sport,
   leagueCodebook,
   leagueDecoder,
