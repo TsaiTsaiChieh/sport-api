@@ -220,8 +220,7 @@ function repackageTeamStandingsFromMyKBO(myKBOData, season) {
           const teamId = teamsMapping.KBO_teamName2id(teamName);
           const { STRK, L10 } = decompose_STRK_and_L10(myKBOData[i + 6]);
           // add create time & update time to debug
-          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
-          // await addDataToFirestore({ create_time }, teamId, season, 'team_base');
+          const update_time = firebaseAdmin().firestore.Timestamp.now();
           await setDataToFirestore({ STRK, L10, update_time }, teamId, season, 'team_base');
           j++;
         }
@@ -343,7 +342,7 @@ function repackagePitcherDataForPage2(pitchingStats, titles, season) {
           const WHIP = pitcherStats[i + 13];
           const OAVG = pitcherStats[i + 14];
           const QS = pitcherStats[i + 15];
-          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
+          const update_time = firebaseAdmin().firestore.Timestamp.now();
           data[pitcherId] = { SAC, SF, BB, IBB, HBP, SO, WP, BK, R, ER, BS, WHIP, OAVG, QS, update_time };
           j++;
         }
@@ -424,7 +423,6 @@ function repackagePitchersData(data, season) {
           const HT_WT = pitchersData[i + 3];
           temp[pitcherId] = { jersey_id, born, HT_WT };
           j++;
-          console.log(temp);
           await insertPitcherToFirestore(temp, teamId, season);
         }
       }
@@ -518,7 +516,7 @@ function repackageHittingData(hittingStats, titles, season) {
           const OPS = teamHittingStatsForPage2[i + 29];
           const RISP = teamHittingStatsForPage2[i + 30];
           const PH = teamHittingStatsForPage2[i + 31];
-          const update_time = modules.firebaseAdmin.firestore.Timestamp.now();
+          const update_time = firebaseAdmin().firestore.Timestamp.now();
           await setDataToFirestore({ BB, IBB, HBP, SO, GIDP, SLG, OBP, E, SBPCT, BB_per_K, XBH_per_H, MH, OPS, RISP, PH, update_time }, teamId, season, 'team_hit');
         }
       }
