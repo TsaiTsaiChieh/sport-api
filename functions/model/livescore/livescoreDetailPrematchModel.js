@@ -71,14 +71,7 @@ function queryMatch(args) {
 async function repackage(args, match) {
   try {
     if (match.length > 0) {
-      if (args.league === 'NBA') {
-        match.sport = leagueUtil.league2Sport(args.league);
-        return match;
-      } else if (args.league === 'MLB') {
-        match.sport = leagueUtil.league2Sport(args.league);
-
-        return match;
-      } else if (args.league === 'eSoccer') {
+      if (args.league === 'eSoccer') {
         const ele = match[0];
         const temp = {
           id: ele.id,
@@ -184,7 +177,7 @@ async function repackage(args, match) {
         return temp;
       }
     } else {
-      return [];
+      return {};
     }
   } catch (err) {
     console.error(`${err.stack} by DY`);
