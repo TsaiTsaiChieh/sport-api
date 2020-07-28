@@ -8,12 +8,15 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    logger.log('[user settleWinListModel]', util.format(...args));
+    isEmulator
+      ? console.log(util.format(...args))
+      : logger.log('[user settleWinListModel]', util.format(...args));
   }
 }
 
@@ -186,7 +189,10 @@ async function settleWinList(args) {
     // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13327', { addMsg: err.parent.code });}
 
     if (!created) {
-      [err, r] = await to(db.Users_WinListsHistory.update({
+      // 這裡可以再多加判斷，不是"新增"的情況下，更新前先看 "新舊資料" 有差異才更新，減少DB的寫入的壓力
+      const oldArr = [];
+      const newArr = [];
+      const kv = {
         win_bets: data.win_bets,
         win_rate: data.win_rate,
         matches_count: data.matches_count,
@@ -204,19 +210,27 @@ async function settleWinList(args) {
         totals_fault_bets: data.totals_fault_bets,
         spread_win_bets: data.spread_win_bets,
         totals_win_bets: data.totals_win_bets
-      }, {
-        where: {
-          uid: data.uid,
-          league_id: data.league_id,
-          date_timestamp: begin,
-          day_of_year: dayOfYear,
-          period: period,
-          week_of_period: weekOfPeriod,
-          week: week,
-          month: month,
-          season: season
-        }
-      }));
+      };
+      for (const [key, value] of Object.entries(kv)) {
+        oldArr.push(winListsHistory.dataValues[key]);
+        newArr.push(value);
+      };
+      if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
+        d('Users_WinListsHistory need update!');
+        [err, r] = await to(db.Users_WinListsHistory.update(kv, {
+          where: {
+            uid: data.uid,
+            league_id: data.league_id,
+            date_timestamp: begin,
+            day_of_year: dayOfYear,
+            period: period,
+            week_of_period: weekOfPeriod,
+            week: week,
+            month: month,
+            season: season
+          }
+        }));
+      }
       if (err) {
         logger.warn('[Error][settleWinListModel][Users_WinListsHistory] ', err);
         throw errs.dbErrsMsg('404', '13330', { addMsg: err.parent.code });
@@ -299,7 +313,10 @@ async function settleWinList(args) {
     // if (err) {logger.warn(err); throw errs.dbErrsMsg('404', '13433', { addMsg: err.parent.code });}
 
     if (!created) {
-      [err, r] = await to(db.Users_WinLists.update({
+      // 這裡可以再多加判斷，不是"新增"的情況下，更新前先看 "新舊資料" 有差異才更新，減少DB的寫入的壓力
+      const oldArr = [];
+      const newArr = [];
+      const kv = {
         this_week_win_rate: this_week_win_rate,
         this_week_win_bets: ele.sum_week.win_bets,
         this_week_correct_counts: ele.sum_week.correct_counts,
@@ -320,15 +337,23 @@ async function settleWinList(args) {
         this_season_win_bets: ele.sum_season.win_bets,
         this_season_correct_counts: ele.sum_season.correct_counts,
         this_season_fault_counts: ele.sum_season.fault_counts
-      }, {
-        where: {
-          uid: data.uid,
-          league_id: data.league_id
+      };
+      for (const [key, value] of Object.entries(kv)) {
+        oldArr.push(winLists.dataValues[key]);
+        newArr.push(value);
+      };
+      if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
+        d('Users_WinLists need update!');
+        [err, r] = await to(db.Users_WinLists.update(kv, {
+          where: {
+            uid: data.uid,
+            league_id: data.league_id
+          }
+        }));
+        if (err) {
+          logger.warn('[Error][settleWinListModel][Users_WinLists] ', err);
+          throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
         }
-      }));
-      if (err) {
-        logger.warn('[Error][settleWinListModel][Users_WinLists] ', err);
-        throw errs.dbErrsMsg('404', '13436', { addMsg: err.parent.code });
       }
     }
 
@@ -361,7 +386,7 @@ async function settleWinList(args) {
   }
 
   const e = new Date().getTime();
-  console.log(`${colors.bg.Blue}${colors.fg.Crimson}settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
+  console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
   return result;
 }
@@ -390,9 +415,9 @@ async function winBetsRateTotalCount(uid, league_id,
   });
 
   d('\n');
-  d(`${colors.fg.Green} %o %o %o ${colors.Reset}`, uid, league_id, season);
-  d(`${colors.fg.Magenta} day_of_year: %o  week: %o  period: %o  week_of_period: %o  month: %o${colors.Reset}`,
-    day_of_year, week, period, week_of_period, month);
+  d(' %o %o %o ', uid, league_id, season); // ${colors.fg.Green} ${colors.Reset}
+  d(' day_of_year: %o  week: %o  period: %o  week_of_period: %o  month: %o ',
+    day_of_year, week, period, week_of_period, month); // ${colors.fg.Magenta} ${colors.Reset}
 
   return {
     sum_day_of_year: groupSum(uid_league_histories, { day_of_year: day_of_year }, needSumFileld),
@@ -434,7 +459,7 @@ function groupSum(arr, filterField, groupByField) {
 
   // 開始處理
   d('\n');
-  d(`${colors.fg.Magenta} Filter: %o %o ${colors.Reset}`, sumName, sumValue);
+  d(' Filter: %o %o ', sumName, sumValue); // ${colors.fg.Magenta} ${colors.Reset}
   const counts = filtered_arr.reduce((p, c) => {
     if (!Object.prototype.hasOwnProperty.call(p, sumName)) { // 初始化欄位
       p = initCounts;
@@ -442,7 +467,7 @@ function groupSum(arr, filterField, groupByField) {
     }
 
     if (c[sumName] === sumValue) { // 進行累計
-      d(`${colors.fg.Yellow}  %o uid_league_histories id ${colors.Reset}`, c.id);
+      d('  %o uid_league_histories id ', c.id); // ${colors.fg.Yellow} ${colors.Reset}
       groupByField.forEach((key) => {
         p[sumName][key] = NP.plus(p[sumName][key], c[key]); // p[sumName][key] += c[key];
         d('    GroupBy: %o Sum: %o BeSum: %o', key, p[sumName][key], c[key]);
@@ -457,7 +482,7 @@ function groupSum(arr, filterField, groupByField) {
 }
 
 function num1RateSum(num1, num2, f = 2) {
-  // console.log('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
+  // logger.log('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
   NP.enableBoundaryChecking(false);
   return isNotANumber(num1) || isNotANumber(num2) || NP.plus(num1, num2) === 0 // 不是數字 且 避免分母是0
     ? 0
@@ -468,6 +493,8 @@ function num1RateSum(num1, num2, f = 2) {
 const toNumber = str => +str;
 const isNumber = value => !isNaN(parseFloat(value)) && isFinite(value);
 const isNotANumber = value => !isNumber(value);
+const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const isNotEqual = (a, b) => !isEqual(a, b);
 
 const colors = {
   Reset: '\x1b[0m',

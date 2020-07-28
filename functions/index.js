@@ -238,8 +238,9 @@ exports.god_settleWinList_A = functions
 //   .timeZone('Asia/Taipei')
 //   .onRun(require('./pubsub/god_1OfMonth'));
 // 5. `每天``清晨 5:00` 大神預測牌組結算
-exports.god_settlePrediction = functions.pubsub
-  .schedule('0 5 * * *')
+exports.god_settlePrediction = functions
+  .runWith({ timeoutSeconds: 540 })
+  .pubsub.schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_settlePrediction'));
 
