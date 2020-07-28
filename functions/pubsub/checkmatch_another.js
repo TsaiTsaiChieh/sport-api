@@ -65,7 +65,7 @@ async function checkmatch_another() {
                   );
                 } catch (err) {
                   return reject(
-                    new AppErrors.PBPEsoccerError(
+                    new AppErrors.MysqlError(
                       `${err} at checkmatch_Another by DY`
                     )
                   );

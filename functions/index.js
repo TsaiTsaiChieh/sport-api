@@ -175,6 +175,11 @@ exports.auth_statscore = functions.pubsub
   .schedule('50 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
+exports.prematch_statscore_MLB = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_MLB'));
+
 exports.prematch_statscore_KBO = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
@@ -226,19 +231,21 @@ exports.god_settleWinList_A = functions
   .pubsub.schedule('0 17 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_settleWinList_A'));
-// 3. `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
-exports.god_1OfWeek = functions.pubsub
-  .schedule('0 17 * * 1')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/god_1OfWeek'));
-// 4. `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
-exports.god_1OfMonth = functions.pubsub
-  .schedule('0 17 1 * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/god_1OfMonth'));
+// 將 3. 4. 部份移到 2. 賽事勝注勝率計算 `A部份 之前執行
+// // 3. `下午5點` `這個星期的星期一日期` 更新 `上星期` 並清空 `本星期` 設為 0
+// exports.god_1OfWeek = functions.pubsub
+//   .schedule('0 17 * * 1')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/god_1OfWeek'));
+// // 4. `下午5點` `這個月第一天日期` 更新 ` 上個月`記錄，並清空 `本月`記錄 設為 0
+// exports.god_1OfMonth = functions.pubsub
+//   .schedule('0 17 1 * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/god_1OfMonth'));
 // 5. `每天``清晨 5:00` 大神預測牌組結算
-exports.god_settlePrediction = functions.pubsub
-  .schedule('0 5 * * *')
+exports.god_settlePrediction = functions
+  .runWith({ timeoutSeconds: 540 })
+  .pubsub.schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/god_settlePrediction'));
 

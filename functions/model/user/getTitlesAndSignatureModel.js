@@ -1,7 +1,9 @@
 const modules = require('../../util/modules');
+const logger = require('firebase-functions/lib/logger');
 const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
+const { leagueDecoder } = require('../../util/leagueUtil');
 const GOD_STATUS = 2;
 
 function getTitlesAndSignature(args) {
@@ -33,7 +35,8 @@ function getGodAllTitles(args, userData) {
         return resolve(result);
       }
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by Tsai-Chieh`));
+      logger.error(err.stack);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -53,17 +56,18 @@ function repackageReturnData(userData, titles) {
     };
     return data;
   } catch (err) {
-    console.error(`${err.stack} by TsaiChieh`);
-    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    logger.error(err.stack);
+    throw new AppErrors.RepackageError(err.stack);
   }
 }
 
 function defaultTitle(userData, titles) {
   for (let i = 0; i < titles.length; i++) {
     const ele = titles[i];
+    ele.league_name = leagueDecoder(ele.league_id);
     if (ele.league_id === userData.default_god_league_rank) return ele;
   }
-  return { league_id: '0', rank_id: 0 };
+  return { league_id: '0', league_name: null, rank_id: 0 };
 }
 
 module.exports = getTitlesAndSignature;

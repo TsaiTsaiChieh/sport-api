@@ -125,9 +125,7 @@ async function queryForEvents() {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.PBPEsoccerError(
-          `${err} at checkmatch_statscore_CPBL by DY`
-        )
+        new AppErrors.MysqlError(`${err} at checkmatch_statscore_CPBL by DY`)
       );
     }
   });

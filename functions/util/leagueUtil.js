@@ -1,5 +1,6 @@
 const AppErrors = require('./AppErrors');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
+const USER_SELL = { NORMAL: -1, GOD_FREE: 0, GOD_SELL: 1 };
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
@@ -24,13 +25,57 @@ const db = {
 
 function league2Sport(league) {
   switch (league) {
+    case 'MLB':
+      return {
+        sport: 'baseball'
+      };
+    case 'CPBL':
+      return {
+        sport: 'baseball'
+      };
+    case 'KBO':
+      return {
+        sport: 'baseball'
+      };
+    case 'NPB':
+      return {
+        sport: 'baseball'
+      };
+    case 'ABL':
+      return {
+        sport: 'baseball'
+      };
+    case 'LMB':
+      return {
+        sport: 'baseball'
+      };
     case 'NBA':
       return {
         sport: 'basketball'
       };
-    case 'MLB':
+    case 'SBL':
       return {
-        sport: 'baseball'
+        sport: 'basketball'
+      };
+    case 'WNBA':
+      return {
+        sport: 'basketball'
+      };
+    case 'NBL':
+      return {
+        sport: 'basketball'
+      };
+    case 'KBL':
+      return {
+        sport: 'basketball'
+      };
+    case 'CBA':
+      return {
+        sport: 'basketball'
+      };
+    case 'BJL':
+      return {
+        sport: 'basketball'
       };
     case 'NHL':
       return {
@@ -39,22 +84,6 @@ function league2Sport(league) {
     case 'Soccer':
       return {
         sport: 'soccer'
-      };
-    case 'KBO':
-      return {
-        sport: 'baseball'
-      };
-    case 'CPBL':
-      return {
-        sport: 'baseball'
-      };
-    case 'NPB':
-      return {
-        sport: 'baseball'
-      };
-    case 'CBA':
-      return {
-        sport: 'basketball'
       };
     case 'eSoccer':
       return {
@@ -217,6 +246,7 @@ function leagueDecoder(leagueID) {
 
 module.exports = {
   MATCH_STATUS,
+  USER_SELL,
   league2Sport,
   leagueCodebook,
   leagueDecoder,

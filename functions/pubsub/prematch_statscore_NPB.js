@@ -55,7 +55,11 @@ async function prematch_statscore_NPB() {
         homeTeamName = teamTrans(homeTeamName);
         awayTeamName = teamTrans(awayTeamName);
         for (let j = 0; j < ele.length; j++) {
-          if (startDate === ele[j].scheduled) {
+          const timeOne = new Date(startDate * 1000).toString().split(':')[0];
+          const timeTwo = new Date(ele[j].scheduled * 1000)
+            .toString()
+            .split(':')[0];
+          if (timeOne === timeTwo) {
             if (
               homeTeamName === ele[j].home_name &&
               awayTeamName === ele[j].away_name

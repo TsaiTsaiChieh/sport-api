@@ -8,12 +8,15 @@ const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 const floatNumber = 4;
 
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    logger.log('[user settleGodTitleModel]', util.format(...args));
+    isEmulator
+      ? console.log(util.format(...args))
+      : logger.log('[user settleGodTitleModel]', util.format(...args));
   }
 }
 
@@ -114,23 +117,23 @@ async function settleGodTitle(args) {
   // 依 使用者-聯盟 進行 稱號判斷
 
   s2_123 = new Date().getTime();
-  d(`${colors.fg.Red}%s${colors.Reset}`, '2.1 2.2 2.3');
+  d('%s', '2.1 2.2 2.3'); // ${colors.fg.Red} ${colors.Reset}
   reformatHistory.forEach(function(uid_league_data) {
     d('\n');
-    d(`${colors.fg.Green}uid: %o   league_id: %o ${colors.Reset}\n`, uid_league_data.uid, uid_league_data.league_id);
+    d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id); // ${colors.fg.Green} ${colors.Reset}
 
     //
     // 2.1. 連贏Ｎ天 continue
     //
     d('\n');
-    d(`${colors.fg.Yellow}%s${colors.Reset}`, '  2.1. 連贏Ｎ天 continue');
+    d('%s', '  2.1. 連贏Ｎ天 continue'); // ${colors.fg.Yellow} ${colors.Reset}
     const winContinueN = continueN(uid_league_data);
 
     //
     // 2.2. 勝注連過 Ｎ日 win_bets_continue
     //
     d('\n');
-    d(`${colors.fg.Yellow}%s${colors.Reset}`, '  2.2. 勝注連過 Ｎ日 win_bets_continue');
+    d('%s', '  2.2. 勝注連過 Ｎ日 win_bets_continue'); // ${colors.fg.Yellow} ${colors.Reset}
     const winBetsContinueN = winBetsContinue(uid_league_data);
 
     //
@@ -138,15 +141,15 @@ async function settleGodTitle(args) {
     // acc 累計
     //
     d('\n');
-    d(`${colors.fg.Yellow}%s${colors.Reset}`, '  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場');
+    d('%s', '  2.3. 近 Ｎ日 Ｎ過 Ｎ 和 近 Ｎ日 過 Ｎ  predict_rate1, predict_rate2, predict_rate3  >= 第五場'); // ${colors.fg.Yellow} ${colors.Reset}
     const { predictRateN1, predictRateN2, predictRateN3 } = nnPassN(uid_league_data);
 
     //
     // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
     //
     d('\n');
-    d(`${colors.fg.Magenta}continue: %o  win_bets_continue: %o ${colors.Reset}`, winContinueN, winBetsContinueN);
-    d(`${colors.fg.Magenta}predict_rate NNN NN: %o  %o  %o ${colors.Reset}\n`, predictRateN1, predictRateN2, predictRateN3);
+    d('continue: %o  win_bets_continue: %o ', winContinueN, winBetsContinueN); // ${colors.fg.Magenta} ${colors.Reset}
+    d('predict_rate NNN NN: %o  %o  %o \n', predictRateN1, predictRateN2, predictRateN3); // ${colors.fg.Magenta} ${colors.Reset}
 
     mixAll = mergeDeep(mixAll, {
       [uid_league_data.uid]: {
@@ -177,8 +180,9 @@ async function settleGodTitle(args) {
            and prediction.league_id = title_user.league_id
           -- and prediction.match_scheduled between :begin and :end
            and (
-                 spread_result_flag != -2 or totals_result_flag != -2 or 
-                 spread_result_flag != 0 or totals_result_flag != 0
+                   (spread_result_flag != -2 and spread_result_flag != 0)
+                 or 
+                   (totals_result_flag != -2 or totals_result_flag != 0)
                )
       `, {
     replacements: {
@@ -193,31 +197,31 @@ async function settleGodTitle(args) {
   reformatPrediction = groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
   s2_45 = new Date().getTime();
-  d(`${colors.fg.Red}%s${colors.Reset}`, '### 2.4 2.5');
+  d('%s', '### 2.4 2.5'); // ${colors.fg.Red} ${colors.Reset}
   reformatPrediction.forEach(function(uid_league_data) {
     d('\n');
-    d(`${colors.fg.Green}uid: %o   league_id: %o ${colors.Reset}\n`, uid_league_data.uid, uid_league_data.league_id);
+    d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id); // ${colors.fg.Green} ${colors.Reset}
     //
     // 2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場
     // acc 累計
     //
     d('\n');
-    d(`${colors.fg.Yellow}%s${colors.Reset}`, '  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場');
+    d('%s', '  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場'); // ${colors.fg.Yellow} ${colors.Reset}
     const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
 
     //
     // 2.5. 連贏Ｎ場 matches_continue
     //
     d('\n');
-    d(`${colors.fg.Yellow}%s${colors.Reset}`, '  2.5. 連贏Ｎ場 matches_continue');
+    d('%s', '  2.5. 連贏Ｎ場 matches_continue'); // ${colors.fg.Yellow} ${colors.Reset}
     const matchesContinueN = matchesContinue(uid_league_data);
 
     //
     // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
     //
     d('\n');
-    d(`${colors.fg.Magenta}matches_rate: %o  %o${colors.Reset}`, matchesRateN1, matchesRateN2);
-    d(`${colors.fg.Magenta}matches_continue: %o \n${colors.Reset}`, matchesContinueN);
+    d('matches_rate: %o  %o', matchesRateN1, matchesRateN2); // ${colors.fg.Magenta} ${colors.Reset}
+    d('matches_continue: %o \n', matchesContinueN); // ${colors.fg.Magenta} ${colors.Reset}
 
     mixAll = mergeDeep(mixAll, {
       [uid_league_data.uid]: {
@@ -231,12 +235,12 @@ async function settleGodTitle(args) {
   });
 
   s3_u = new Date().getTime();
-  d(`${colors.fg.Red}%s${colors.Reset}`, '### update titles \n');
+  d('%s', '### update titles \n'); // ${colors.fg.Red} ${colors.Reset}
   // 把 所有計算出來的資料寫入 Title
   for (const [uid, value] of Object.entries(mixAll)) {
-    d(`${colors.fg.Green}uid: %o ${colors.Reset}`, uid);
+    d('uid: %o ', uid); // ${colors.fg.Green} ${colors.Reset}
     for (const [league_id, value2] of Object.entries(value)) {
-      d(`${colors.fg.Green}league_id: %o ${colors.Reset}`, league_id);
+      d('league_id: %o ', league_id); // ${colors.fg.Green} ${colors.Reset}
       d('value2: %O \n', value2);
       const [err, r] = await to(db.Title.update({
         continue: value2.continue,

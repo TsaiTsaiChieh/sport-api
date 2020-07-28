@@ -495,6 +495,17 @@ class GetSeasonError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class DeleteOwnPredictionsError extends ExtendableError {
+  constructor(
+    message = '個人刪除預測單時發生錯誤',
+    status = 1524,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -539,5 +550,6 @@ module.exports = {
   PredictionHistoryModelError,
   CrawlersError,
   KBO_CrawlersError,
-  GetSeasonError
+  GetSeasonError,
+  DeleteOwnPredictionsError
 };

@@ -45,7 +45,7 @@ async function checkmatch_statscore_Soccer() {
                 await SoccerpbpInplay(parameter);
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
+                  new AppErrors.MysqlError(
                     `${err} at checkmatch_statscore_${league} by DY`
                   )
                 );
@@ -57,7 +57,7 @@ async function checkmatch_statscore_Soccer() {
                   .set('scheduled');
               } catch (err) {
                 return reject(
-                  new AppErrors.PBPEsoccerError(
+                  new AppErrors.MysqlError(
                     `${err} at checkmatch_statscore_${league} by DY`
                   )
                 );
@@ -128,7 +128,7 @@ async function queryForEvents() {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.PBPEsoccerError(
+        new AppErrors.MysqlError(
           `${err} at checkmatch_statscore_${league} by DY`
         )
       );
