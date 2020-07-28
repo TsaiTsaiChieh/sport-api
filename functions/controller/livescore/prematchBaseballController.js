@@ -10,7 +10,7 @@ async function prematchBaseball(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['KBO', 'CPBL', 'NPB']
+        enum: ['KBO', 'CPBL', 'NPB', 'MLB']
       },
       event_id: {
         type: 'string',
