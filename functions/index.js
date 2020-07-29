@@ -269,14 +269,14 @@ exports.cashflow_dividendExpire1 = functions.pubsub
 
 // prematch_baseball 排程
 exports.prematch_crawler_KBO = functions.pubsub
-  .schedule('0 23 * * *')
+  .schedule('35 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/crawlers/prematch_KBO'));
 exports.prematch_crawler_CPBL = functions.pubsub
-  .schedule('0 23 * * *')
+  .schedule('35 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/crawlers/prematch_CPBL'));
 exports.prematch_crawler_NPB = functions.pubsub
-  .schedule('0 23 * * *')
+  .schedule('35 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/crawlers/prematch_NPB'));
