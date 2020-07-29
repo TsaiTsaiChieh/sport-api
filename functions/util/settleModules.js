@@ -199,7 +199,7 @@ function predictionsWinList(data) {
     reLeagues.forEach(function(ele) {
       // cur.spread_bets !== null or cur.totals_bets !== null 主要是確認是否有下注的情況，有可能有盤口結果，但使用者該盤口未下注
       // cur.spread_result_flag > 0 or cur.totals_result_flag > 0 主要是用來判斷 猜對
-      // cur.spread_result_flag < 0 or cur.totals_result_flag < 0 主要是用來判斷 猜錯
+      // cur.spread_result_flag >= -1 & < 0 or cur.totals_result_flag >=- 1 & < 0 主要是用來判斷 猜錯
       // 整理上述 有下注猜對，有下注猜錯 這兩種情況才會計算 場數 和 注數
       // 注數計算需要特別注意，如果 result_flag 為 null 會產生計算錯誤，正常情況下 result_flag 是不會產生 null 情況
 
@@ -215,11 +215,11 @@ function predictionsWinList(data) {
       const predictCorrectCounts = NP.plus(predictSpreadCorrectCounts, predictTotalsCorrectCounts);
 
       const predictSpreadFaultCounts = ele.reduce(
-        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag < 0 ? ++acc : acc), // fault.includes(cur.spread_result_flag)
+        (acc, cur) => (cur.spread_bets !== null && cur.spread_result_flag >= -1 && cur.spread_result_flag < 0 ? ++acc : acc), // fault.includes(cur.spread_result_flag)
         0
       );
       const predictTotalsFaultCounts = ele.reduce(
-        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag < 0 ? ++acc : acc), // fault.includes(cur.totals_result_flag)
+        (acc, cur) => (cur.totals_bets !== null && cur.totals_result_flag >= -1 && cur.totals_result_flag < 0 ? ++acc : acc), // fault.includes(cur.totals_result_flag)
         0
       );
       const predictFaultCounts = NP.plus(predictSpreadFaultCounts, predictTotalsFaultCounts);
@@ -266,14 +266,14 @@ function predictionsWinList(data) {
 
       const predictSpreadFaultBets = ele.reduce( // fault.includes(cur.spread_result_flag)
         (acc, cur) =>
-          cur.spread_bets !== null && cur.spread_result_flag < 0
+          cur.spread_bets !== null && cur.spread_result_flag >= -1 && cur.spread_result_flag < 0
             ? NP.plus(NP.times(cur.spread_result_flag, cur.spread_bets), acc)
             : acc,
         0
       );
       const predictTotalsFaultBets = ele.reduce( // fault.includes(cur.totals_result_flag)
         (acc, cur) =>
-          cur.totals_bets !== null && cur.totals_result_flag < 0
+          cur.totals_bets !== null && cur.totals_result_flag >= -1 && cur.totals_result_flag < 0
             ? NP.plus(NP.times(cur.totals_result_flag, cur.totals_bets), acc)
             : acc,
         0

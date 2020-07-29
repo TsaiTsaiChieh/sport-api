@@ -7,6 +7,7 @@ const cheerio = require('cheerio');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const teamsMapping = require('../../util/teamsMapping');
+const logger = require('firebase-functions/lib/logger');
 const teamStandings = {};
 const configs = {
   league: 'KBO',
@@ -29,15 +30,19 @@ const configs = {
 // TODO crawler KBO prematch information:
 // 1. 隊伍資訊 ex: team_base, team_hit
 // team_base: 近十場戰績 L10，（本季）戰績 W-L-D，（本季）主客隊戰績 at_home/at_away，（本季）平均得分/失分 RG/-RG (per_R & allow_per_R)
+// ref from http://eng.koreabaseball.com/Standings/TeamStandings.aspx
+// and https://mykbostats.com/
 // 2. 本季投手資訊
 // 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)、背號「未做」
+// ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
 // TODO 作全隊
 // 2-1 背號 ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
 // 3. 本季打擊資訊
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
+// ref from http://eng.koreabaseball.com/Stats/TeamStats.aspx -[Team Batting Stats] table
 // 4. 本季球員資訊「未做」
 
-async function prematch_KBO(req, res) {
+async function prematch_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
       const season = await getSeason(configs.league);
@@ -46,7 +51,8 @@ async function prematch_KBO(req, res) {
       await crawlerPitcher(season);
       await crawlerPitcherJerseyId(season);
       await crawlerHitting(season);
-      return resolve(res.json('ok'));
+      return resolve();
+      // return resolve(res.json('ok'));
     } catch (err) {
       return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
@@ -58,7 +64,7 @@ function getSeason(league) {
     try {
       return resolve(await dbEngine.getSeason(leagueUtil.leagueCodebook(league).id));
     } catch (err) {
-      return reject(new AppErrors.GetSeasonError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.GetSeasonError(err.stack));
     }
   });
 }
@@ -71,12 +77,12 @@ function crawlerTeamBase(season) {
       const today = modules.convertTimezoneFormat(Math.floor(Date.now() / 1000), { format: 'YYYY-MM-DD' });
       // const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=2020-07-25`);
       const $_officialData = await crawler(`${configs.official_URL}Standings/TeamStandings.aspx?searchDate=${today}`);
-      console.log(today);
+      // console.log(today);
       const officialData = await getTeamStandingsFromOfficial($_officialData);
       repackageTeamStandingsFromOfficial(officialData, season);
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
   });
 }
@@ -88,7 +94,7 @@ function crawler(URL) {
       const $ = cheerio.load(data); // load in the HTML
       return resolve($);
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -108,7 +114,7 @@ function getTeamStandingsFromOfficial($) {
       });
       return resolve({ upperTable, lowerTable });
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -153,7 +159,7 @@ function repackageTeamStandingsFromOfficial(officialData, season) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.RepackageError(err.stack));
     }
   });
 }
@@ -161,10 +167,10 @@ function repackageTeamStandingsFromOfficial(officialData, season) {
 function insertTeamNameToFirestore(data, teamId) {
   return new Promise(async function(resolve, reject) {
     try {
-      await modules.firestore.collection(configs.collectionName).doc(teamId).set({ alias: data }, { merge: true });
+      await firestore.collection(configs.collectionName).doc(teamId).set({ alias: data }, { merge: true });
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.FirebaseCollectError(err.stack));
     }
   });
 }
@@ -178,7 +184,7 @@ function setDataToFirestore(data, teamId, season, subLayerName) {
       await firestore.collection(configs.collectionName).doc(teamId).set(temp, { merge: true });
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.FirebaseCollectError(err.stack));
     }
   });
 }
@@ -191,7 +197,7 @@ function crawlerTeamBaseForL10(season) {
       repackageTeamStandingsFromMyKBO(myKBOData, season);
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
   });
 }
@@ -205,7 +211,7 @@ function getTeamStandingsFromMyKBO($) {
       });
       return resolve(myKBOData);
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -227,7 +233,7 @@ function repackageTeamStandingsFromMyKBO(myKBOData, season) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.RepackageError(err.stack));
     }
   });
 }
@@ -262,7 +268,7 @@ function crawlerPitcher(season) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
   });
 }
@@ -281,7 +287,7 @@ function getPitchingStatsFromOfficial($, titles) {
       });
       return resolve({ pitcherStats, pitcherIds });
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -290,7 +296,8 @@ function repackagePitcherDataForPage1(pitchingStats, titles, season) {
   const { pitcherStats, pitcherIds } = pitchingStats;
   let j = 0;
   const data = {};
-  const teamId = teamsMapping.KBO_teamName2id(pitcherStats[1]);
+  const teamName = pitcherStats[1];
+  const teamId = teamsMapping.KBO_teamName2id(teamName);
   for (let i = 0; i < pitcherStats.length; i++) {
     if (i % titles.length === 0) {
       const name = pitcherStats[i];
@@ -350,7 +357,7 @@ function repackagePitcherDataForPage2(pitchingStats, titles, season) {
       insertPitcherToFirestore(data, teamId, season);
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.RepackageError(err.stack));
     }
   });
 }
@@ -364,7 +371,7 @@ function insertPitcherToFirestore(officialData, teamId, season) {
       await firestore.collection(configs.collectionName).doc(teamId).set(data, { merge: true });
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.FirebaseCollectError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.FirebaseCollectError(err.stack));
     }
   });
 }
@@ -382,7 +389,7 @@ function crawlerPitcherJerseyId(season) {
       // }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
   });
 }
@@ -403,7 +410,7 @@ function getPitcherJerseyId($) {
       });
       return resolve({ pitchersData, pitcherIds });
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -443,7 +450,7 @@ function crawlerHitting(season) {
       repackageHittingData(teamHittingStatsData, { teamBattingStatsPage1Titles, teamBattingStatsPage2Titles }, season);
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.KBO_CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.KBO_CrawlersError(err.stack));
     }
   });
 }
@@ -465,7 +472,7 @@ function getTeamHittingFromOfficial($) {
       });
       return resolve({ teamHittingStatsForPage1, teamHittingStatsForPage2 });
     } catch (err) {
-      return reject(new AppErrors.CrawlersError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.CrawlersError(err.stack));
     }
   });
 }
@@ -475,9 +482,11 @@ function repackageHittingData(hittingStats, titles, season) {
     try {
       const { teamHittingStatsForPage1, teamHittingStatsForPage2 } = hittingStats;
       const { teamBattingStatsPage1Titles, teamBattingStatsPage2Titles } = titles;
+
       for (let i = 0; i < teamHittingStatsForPage1.length; i++) {
         if (i % teamBattingStatsPage1Titles.length === 0) {
-          const teamId = teamsMapping.KBO_teamName2id(teamHittingStatsForPage1[i]);
+          const teamName = teamHittingStatsForPage1[i];
+          const teamId = teamsMapping.KBO_teamName2id(teamName);
           const AVG = teamHittingStatsForPage1[i + 1];
           const G = teamHittingStatsForPage1[i + 2];
           const PA = teamHittingStatsForPage1[i + 3];
@@ -497,34 +506,38 @@ function repackageHittingData(hittingStats, titles, season) {
           await setDataToFirestore({ AVG, G, PA, AB, R, H, one_B, two_B, three_B, HR, TB, RBI, SB, CS, SAC, SF }, teamId, season, 'team_hit');
         }
       }
-
       for (let i = 0; i < teamHittingStatsForPage2.length; i++) {
         if (i % teamBattingStatsPage2Titles.length === 0) {
-          const teamId = teamsMapping.KBO_teamName2id(teamHittingStatsForPage2[i]);
-          const BB = teamHittingStatsForPage2[i + 17];
-          const IBB = teamHittingStatsForPage2[i + 18];
-          const HBP = teamHittingStatsForPage2[i + 19];
-          const SO = teamHittingStatsForPage2[i + 20];
-          const GIDP = teamHittingStatsForPage2[i + 21];
-          const SLG = teamHittingStatsForPage2[i + 22];
-          const OBP = teamHittingStatsForPage2[i + 23];
-          const E = teamHittingStatsForPage2[i + 24];
-          const SBPCT = teamHittingStatsForPage2[i + 25];
-          const BB_per_K = teamHittingStatsForPage2[i + 26];
-          const XBH_per_H = teamHittingStatsForPage2[i + 27];
-          const MH = teamHittingStatsForPage2[i + 28];
-          const OPS = teamHittingStatsForPage2[i + 29];
-          const RISP = teamHittingStatsForPage2[i + 30];
-          const PH = teamHittingStatsForPage2[i + 31];
+          const teamName = teamHittingStatsForPage2[i];
+          const teamId = teamsMapping.KBO_teamName2id(teamName);
+          const BB = teamHittingStatsForPage2[i + 1];
+          const IBB = teamHittingStatsForPage2[i + 2];
+          const HBP = teamHittingStatsForPage2[i + 3];
+          const SO = teamHittingStatsForPage2[i + 4];
+          const GIDP = teamHittingStatsForPage2[i + 5];
+          const SLG = teamHittingStatsForPage2[i + 6];
+          const OBP = teamHittingStatsForPage2[i + 7];
+          const E = teamHittingStatsForPage2[i + 8];
+          const SBPCT = teamHittingStatsForPage2[i + 9];
+          const BB_per_K = teamHittingStatsForPage2[i + 10];
+          const XBH_per_H = teamHittingStatsForPage2[i + 11];
+          const MH = teamHittingStatsForPage2[i + 12];
+          const OPS = teamHittingStatsForPage2[i + 13];
+          const RISP = teamHittingStatsForPage2[i + 14];
+          const PH = teamHittingStatsForPage2[i + 15];
           const update_time = firebaseAdmin().firestore.Timestamp.now();
           await setDataToFirestore({ BB, IBB, HBP, SO, GIDP, SLG, OBP, E, SBPCT, BB_per_K, XBH_per_H, MH, OPS, RISP, PH, update_time }, teamId, season, 'team_hit');
+          debugLogger(teamId, teamHittingStatsForPage2[i], 'team_hit');
         }
       }
       resolve();
     } catch (err) {
-      return reject(new AppErrors.RepackageError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.RepackageError(err.stack));
     }
   });
 }
 
+function debugLogger(teamId, teamName, fieldName) {
+  logger.debug(`棒球 ${configs.league} 更新 ${fieldName}：隊伍 ${teamName}(${teamId}) 完成`);
+}
 module.exports = prematch_KBO;
