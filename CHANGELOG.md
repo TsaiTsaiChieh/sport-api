@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  MLB league skip logic when query data from Firstore in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#306](https://github.com/gets-info/sports-api/pull/306)
 -  baseball crawler scheduler and tune KBO crawler ***by TsaiTsaiChieh*** [#304](https://github.com/gets-info/sports-api/pull/304)
 #### Fix:
 -  all_titles should also return the league_name in user/getTitlesAndSignature API ***by TsaiTsaiChieh*** [#305](https://github.com/gets-info/sports-api/pull/305)
