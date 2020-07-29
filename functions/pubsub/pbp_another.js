@@ -116,17 +116,17 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
         )
       );
     }
-    try {
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/status`)
-        .set('closed');
-    } catch (err) {
-      return reject(
-        new AppErrors.FirebaseRealtimeError(
-          `${err} at pbpAbnormal of status on ${betsID} by DY`
-        )
-      );
-    }
+    // try {
+    //  await database
+    //    .ref(`${sport}/${league}/${betsID}/Summary/status`)
+    //    .set('closed');
+    // } catch (err) {
+    //  return reject(
+    //    new AppErrors.FirebaseRealtimeError(
+    //      `${err} at pbpAbnormal of status on ${betsID} by DY`
+    //    )
+    //  );
+    // }
     try {
       await settleMatchesModel({
         token: {
@@ -136,13 +136,13 @@ async function AnotherpbpHistory(parameter, sport, league, leagueID) {
       });
     } catch (err) {
       console.log(
-        'Error in pubsub/pbp_eSoccer on YuHsien by DY:  %o : %o',
+        'Error in pubsub/pbp_another on YuHsien by DY:  %o : %o',
         err,
         betsID
       );
       return reject(
-        new AppErrors.PBPEsoccerError(
-          `${err} at pbpESoccer of yuhsien on ${betsID} by DY`
+        new AppErrors.MysqlError(
+          `${err} at pbpAnother of yuhsien on ${betsID} by DY`
         )
       );
     }

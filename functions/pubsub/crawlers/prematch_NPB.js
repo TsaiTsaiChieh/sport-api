@@ -581,7 +581,7 @@ function formatRecord(oriString) {
     const win = oriString.split('(')[0].split('-')[0];
     const lose = oriString.split('(')[0].split('-')[1];
 
-    return `${win}-${draw}-${lose}`;
+    return `${win}-${lose}-${draw}`;
   } else {
     const draw = 0;
     const win = oriString.split('-')[0];

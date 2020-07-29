@@ -6,9 +6,9 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
-const league = 'NPB';
+const league = 'MLB';
 
-async function NPBpbpInplay(parameter) {
+async function MLBpbpInplay(parameter) {
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
@@ -78,7 +78,7 @@ async function NPBpbpInplay(parameter) {
   }, perStep);
 }
 
-async function NPBpbpHistory(parameter) {
+async function MLBpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
@@ -1232,43 +1232,97 @@ function changeInning(inning, now_innings) {
 
 function mapTeam(team) {
   switch (team) {
-    case 'Orix Buffaloes': {
-      return '歐力士猛牛';
+    case 'Los Angeles Angels of Anaheim': {
+      return '天使';
     }
-    case 'Hokkaido Nippon-Ham Fighters': {
-      return '日本火腿鬥士';
+    case 'Houston Astros': {
+      return '太空人';
     }
-    case 'Tohoku Rakuten Golden Eagles': {
-      return '樂天金鷹';
+    case 'Texas Rangers': {
+      return '遊騎兵';
     }
-    case 'Chiba Lotte Marines': {
-      return '羅德海洋';
+    case 'New York Yankees': {
+      return '洋基';
     }
-    case 'Chunichi Dragons': {
-      return '中日龍';
+    case 'Los Angeles Dodgers': {
+      return '道奇';
     }
-    case 'Hiroshima Toyo Carp': {
-      return '廣島東洋鯉魚';
+    case 'San Francisco Giants': {
+      return '巨人';
     }
-    case 'Yokohama DeNA BayStars': {
-      return '橫濱海灣之星';
+    case 'New York Mets': {
+      return '大都會';
     }
-    case 'Yomiuri Giants': {
-      return '讀賣巨人';
+    case 'Atlanta Braves': {
+      return '勇士';
     }
-    case 'Saitama Seibu Lions': {
-      return '西武獅';
+    case 'Cincinnati Reds': {
+      return '紅人';
     }
-    case 'Fukuoka SoftBank Hawks': {
-      return '軟體銀行鷹';
+    case 'Washington Nationals': {
+      return '國民';
     }
-    case 'Hanshin Tigers': {
-      return '阪神虎';
+    case 'Detroit Tigers': {
+      return '老虎';
     }
-    case 'Tokyo Yakult Swallows': {
-      return '養樂多燕子';
+    case 'Tampa Bay Rays': {
+      return '光芒';
+    }
+    case 'Toronto Blue Jays': {
+      return '藍鳥';
+    }
+    case 'Arizona Diamondbacks': {
+      return '響尾蛇';
+    }
+    case 'Colorado Rockies': {
+      return '落磯';
+    }
+    case 'St. Louis Cardinals': {
+      return '紅雀';
+    }
+    case 'San Diego Padres': {
+      return '教士';
+    }
+    case 'Philadelphia Phillies': {
+      return '費城人';
+    }
+    case 'Miami Marlins': {
+      return '馬林魚';
+    }
+    case 'Baltimore Orioles': {
+      return '金鶯';
+    }
+    case 'Oakland Athletics': {
+      return '運動家';
+    }
+    case 'Cleveland Indians': {
+      return '印地安人';
+    }
+    case 'Kansas City Royals': {
+      return '皇家';
+    }
+    case 'Seattle Mariners': {
+      return '水手';
+    }
+    case 'Chicago White Sox': {
+      return '白襪';
+    }
+    case 'Minnesota Twins': {
+      return '雙城';
+    }
+    case 'Boston Red Sox': {
+      return '紅襪';
+    }
+    case 'Pittsburgh Pirates': {
+      return '海盜';
+    }
+    case 'Milwaukee Brewers': {
+      return '釀酒人';
+    }
+    case 'Chicago Cubs': {
+      return '小熊';
     }
   }
 }
 
-module.exports = { NPBpbpInplay, NPBpbpHistory };
+module.exports = { MLBpbpInplay, MLBpbpHistory };

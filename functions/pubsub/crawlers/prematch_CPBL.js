@@ -203,9 +203,6 @@ function getTeamsStandings(URL) {
           result.push(titles[i].trim());
         }
       }
-      for (let i = 0; i < result.length; i++) {
-        console.log(i + '    ' + result[i]);
-      }
       for (let i = 1; i <= totalTeam; i++) {
         // await upsertMysqlTeam(i, result);
         await upsertFirestoreTeam(i, result);

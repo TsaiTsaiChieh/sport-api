@@ -8,7 +8,7 @@ router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/handicap_esport', require('../pubsub/handicap_esport'));
-router.get('/dy', require('../pubsub/dy'));
+// router.get('/dy', require('../pubsub/dy'));
 
 router.get(
   '/settlement',
@@ -36,6 +36,10 @@ router.get(
   require('../pubsub/prematch_statscore_MLB')
 );
 router.get(
+  '/checkmatch_statscore_MLB',
+  require('../pubsub/checkmatch_statscore_MLB')
+);
+router.get(
   '/prematch_statscore_KBO',
   require('../pubsub/prematch_statscore_KBO')
 );
@@ -54,6 +58,10 @@ router.get(
 router.get(
   '/prematch_statscore_NPB',
   require('../pubsub/prematch_statscore_NPB')
+);
+router.get(
+  '/checkmatch_statscore_NPB',
+  require('../pubsub/checkmatch_statscore_NPB')
 );
 router.get(
   '/prematch_statscore_Soccer',
