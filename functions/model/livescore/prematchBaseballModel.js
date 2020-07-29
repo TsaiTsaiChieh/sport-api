@@ -209,7 +209,7 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           at_home: !homeDataIsNull ? homeData.team_base.at_home : null,
           at_away: !homeDataIsNull ? homeData.team_base.at_away : null,
           per_R: !homeDataIsNull ? homeData.team_base.per_R : null,
-          allow_per_R: !homeDataIsNull ? homeData.team_base.per_allow_R : null
+          per_allow_R: !homeDataIsNull ? homeData.team_base.per_allow_R : null
           // L10: homeData.team_base.L10,
           // STRK: homeData.team_base.STRK,
           // Win: homeData.team_base.Win,
@@ -254,7 +254,7 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           at_home: !awayDataIsNull ? awayData.team_base.at_home : null,
           at_away: !awayDataIsNull ? awayData.team_base.at_away : null,
           per_R: !awayDataIsNull ? awayData.team_base.per_R : null,
-          allow_per_R: !awayDataIsNull ? awayData.team_base.allow_per_R : null
+          per_allow_R: !awayDataIsNull ? awayData.team_base.per_allow_R : null
           // L10: awayData.team_base.L10,
           // STRK: awayData.team_base.STRK,
           // Win: awayData.team_base.Win,
