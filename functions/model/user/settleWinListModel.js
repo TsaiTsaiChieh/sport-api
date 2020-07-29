@@ -8,15 +8,19 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
+const allLogs = [];
+let logT = {};
+let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    isEmulator
-      ? console.log(util.format(...args))
-      : logger.log('[user settleWinListModel]', util.format(...args));
+    if (isEmulator) { console.log(util.format(...args)); return; }
+    if (util.format(...args) === '\n g') { logNum++; logT = {};} // log group 收集起點(起算點)
+    logT[Object.keys(logT).length] = util.format(...args).replace(/\'/g, '');
+    allLogs[logNum] = logT;
   }
 }
 
@@ -385,6 +389,7 @@ async function settleWinList(args) {
     if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
   }
 
+  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
@@ -414,9 +419,9 @@ async function winBetsRateTotalCount(uid, league_id,
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  d('\n');
-  d(' %o %o %o ', uid, league_id, season); // ${colors.fg.Green} ${colors.Reset}
-  d(' day_of_year: %o  week: %o  period: %o  week_of_period: %o  month: %o ',
+  d('\n g');
+  d(' uid %o %o %o ', uid, league_id, season); // ${colors.fg.Green} ${colors.Reset}
+  d(' day_of_year %o  week: %o  period: %o  week_of_period: %o  month: %o ',
     day_of_year, week, period, week_of_period, month); // ${colors.fg.Magenta} ${colors.Reset}
 
   return {
@@ -458,8 +463,8 @@ function groupSum(arr, filterField, groupByField) {
   if (filtered_arr.length === 0) return initCounts[sumName]; // 過瀘後沒有筆數的話，直接回傳 初始結構
 
   // 開始處理
-  d('\n');
-  d(' Filter: %o %o ', sumName, sumValue); // ${colors.fg.Magenta} ${colors.Reset}
+  d('\n gS');
+  d(' Filter %o %o ', sumName, sumValue); // ${colors.fg.Magenta} ${colors.Reset}
   const counts = filtered_arr.reduce((p, c) => {
     if (!Object.prototype.hasOwnProperty.call(p, sumName)) { // 初始化欄位
       p = initCounts;
@@ -467,7 +472,7 @@ function groupSum(arr, filterField, groupByField) {
     }
 
     if (c[sumName] === sumValue) { // 進行累計
-      d('  %o uid_league_histories id ', c.id); // ${colors.fg.Yellow} ${colors.Reset}
+      d('  uid_league_histories id %o ', c.id); // ${colors.fg.Yellow} ${colors.Reset}
       groupByField.forEach((key) => {
         p[sumName][key] = NP.plus(p[sumName][key], c[key]); // p[sumName][key] += c[key];
         d('    GroupBy: %o Sum: %o BeSum: %o', key, p[sumName][key], c[key]);

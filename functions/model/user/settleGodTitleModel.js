@@ -8,15 +8,19 @@ const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 const floatNumber = 4;
 
+const allLogs = [];
+let logT = {};
+let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
 const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    isEmulator
-      ? console.log(util.format(...args))
-      : logger.log('[user settleGodTitleModel]', util.format(...args));
+    if (isEmulator) { console.log(util.format(...args)); return; }
+    if (util.format(...args) === '\n g') { logNum++; logT = {};} // log group 收集起點(起算點)
+    logT[Object.keys(logT).length] = util.format(...args).replace(/\'/g, '');
+    allLogs[logNum] = logT;
   }
 }
 
@@ -117,6 +121,7 @@ async function settleGodTitle(args) {
   // 依 使用者-聯盟 進行 稱號判斷
 
   s2_123 = new Date().getTime();
+  d('\n g');
   d('%s', '2.1 2.2 2.3'); // ${colors.fg.Red} ${colors.Reset}
   reformatHistory.forEach(function(uid_league_data) {
     d('\n');
@@ -266,6 +271,7 @@ async function settleGodTitle(args) {
     };
   };
 
+  if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson}settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
