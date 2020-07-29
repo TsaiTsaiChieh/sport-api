@@ -461,13 +461,13 @@ async function writeRealtime(betsID, data, baseballParameter) {
       }
     }
 
-    // 文字直播
     const totalEvent =
       data.api.data.competition.season.stage.group.event.events_incidents
         .length;
 
     const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
+      const tempHalf = halfNow;
       if (
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -490,41 +490,45 @@ async function writeRealtime(betsID, data, baseballParameter) {
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
-            ? data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 504 &&
+          ].incident_id === 503 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2527 &&
+            ].incident_id === 504 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2522 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 2525 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 559
-              ? '1'
-              : '0'
+            ].incident_id === 2530
+            ? tempHalf
             : data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 504 &&
+            ].participant_id === homeID
+              ? data.api.data.competition.season.stage.group.event.events_incidents[
+                eventCount
+              ].incident_id === 2527 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2527 &&
+            ].incident_id === 2522 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2522 &&
+            ].incident_id === 554 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 2525 &&
+            ].incident_id === 559
+                ? '0'
+                : '1'
+              : data.api.data.competition.season.stage.group.event.events_incidents[
+                eventCount
+              ].incident_id === 2527 ||
             data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 559
-              ? '0'
-              : '1';
+            ].incident_id === 2522 ||
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].incident_id === 554 ||
+            data.api.data.competition.season.stage.group.event.events_incidents[
+              eventCount
+            ].incident_id === 559
+                ? '1'
+                : '0';
       if (
         inningNow !==
         changeInning(
@@ -950,7 +954,7 @@ function translateNormal(half, data, name, event) {
       string_ch = '教練上投手丘';
       break;
     }
-    case 'run': {
+    case 'Run': {
       string_ch = '得分';
       break;
     }
