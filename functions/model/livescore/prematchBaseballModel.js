@@ -697,8 +697,4 @@ function repackageTenFights(args, events) {
   }
 }
 
-// function skipLeague() {
-
-// }
-
 module.exports = prematchBaseball;
