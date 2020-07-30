@@ -17,15 +17,15 @@ const configs = {
   officialTeamStandingsUpperTitles: ['RK', 'TEAM', 'GAMES', 'W', 'L', 'D', 'PCT', 'GB', 'STREAK', 'HOME', 'AWAY'],
   officialTeamStandingsLowerTitles: ['RK', 'TEAM', 'AVG', 'ERA', 'RUNS', 'RUNS ALLOWED', 'HR'],
   teamStandingsFromMyKBO: ['Rank / Team', 'W', 'L', 'D', 'PCT', 'GB', 'STRK/LAST 10G'],
-  pitcherByTeamPage1Titles: ['PLAYER', 'TEAM', 'ERA',	'G',	'CG', 'SHO', 'W', 'L', 'SV', 'HLD', 'PCT', 'PA', 'NP', 'IP', 'H', '2B', '3B', 'HR'],
-  pitcherByTeamPage2Titles: ['PLAYER', 'TEAM', 'SAC', 'SF', 'BB', 'IBB', 'HBP', 'SO', 'WP', 'BK', 'R', 'ER', 'BS', 'WHIP', 'OAVG', 'QS'],
+  pitcherPage1Titles: ['PLAYER', 'TEAM', 'ERA',	'G',	'CG', 'SHO', 'W', 'L', 'SV', 'HLD', 'PCT', 'PA', 'NP', 'IP', 'H', '2B', '3B', 'HR'],
+  pitcherPage2Titles: ['PLAYER', 'TEAM', 'SAC', 'SF', 'BB', 'IBB', 'HBP', 'SO', 'WP', 'BK', 'R', 'ER', 'BS', 'WHIP', 'OAVG', 'QS'],
   hitterPage1Titles: ['PLAYER', 'TEAM', 'AVG', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B', 'HR', 'TB', 'RBI', 'SB', 'CS', 'SAC', 'SF'],
   hitterPage2Titles: ['PLAYER', 'TEAM', 'BB', 'IBB', 'HBP', 'SO', 'GIDP', 'SLG', 'OBP', 'E', 'SBPCT', 'BB/K', 'XBH/H', 'MH', 'OPS', 'RISP', 'PH'],
   pitcherSearchTitles: ['PLAYER', 'No.', 'POSITION', 'BORN', 'HT, WT'],
   teamBattingStatsPage1Titles: ['TEAM', 'AVG', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B', 'HR', 'TB', 'RBI', 'SB', 'CS', 'SAC', 'SF'],
   teamBattingStatsPage2Titles: ['TEAM', 'BB', 'IBB', 'HBP', 'SO', 'GIDP', 'SLG', 'OBP', 'E', 'SBPCT', 'BB/K', 'XBH/H', 'MH', 'OPS', 'RISP', 'PH'],
   teamNumber: 10,
-  collectionName: 'baseball_KBO',
+  collectionName: 'baseball_KBO_2',
   // DOOSAN, KIWOOM, SK, LG, NC, KT, KIA, SAMSUNG, HANWHA, LOTTE
   teamCode: ['OB', 'WO', 'SK', 'LG', 'NC', 'KT', 'HT', 'SS', 'HH', 'LT']
 };
@@ -37,12 +37,11 @@ const configs = {
 // 2. 本季投手資訊
 // 勝敗(pitcher-Win, Loss)，防禦率(pitcher-EAR)，三振數(pitcher-SO)、背號「未做」
 // ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
-// TODO 作全隊
 // 2-1 背號 ref from http://eng.koreabaseball.com/Teams/PlayerSearch.aspx
 // 3. 本季打擊資訊
 // team_hit: 得分 R，安打 H，全壘打數 HR，打擊率 AVG，上壘率 OBP，長打率 SLG
 // ref from http://eng.koreabaseball.com/Stats/TeamStats.aspx -[Team Batting Stats] table
-// 4. 本季球員資訊「未做」
+// 4. 本季球員資訊 Done
 // ref from http://eng.koreabaseball.com/Stats/BattingByTeams.aspx
 
 async function prematch_KBO() {
@@ -260,19 +259,18 @@ function crawlerPlayer(season) {
       for (let i = 0; i < configs.teamNumber; i++) {
         const teamCode = configs.teamCode[i];
         // pitcher page1
-        console.log(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
         const $_pitchingStatsForPage1 = await crawler(`${configs.official_URL}Stats/PitchingByTeams.aspx?codeTeam=${teamCode}`);
-        const pitchingStatsDataForPage1 = await getPlayerStats($_pitchingStatsForPage1, configs.pitcherByTeamPage1Titles, 'pitcher');
-        repackagePitcherDataForPage1(pitchingStatsDataForPage1, configs.pitcherByTeamPage1Titles, season);
+        const pitchingStatsDataForPage1 = await getPlayerStats($_pitchingStatsForPage1, configs.pitcherPage1Titles, 'pitcher');
+        repackagePitcherDataForPage1(pitchingStatsDataForPage1, configs.pitcherPage1Titles, season);
         // pitcher page 2
         const $_pitchingStatsForPage2 = await crawler(`${configs.official_URL}Stats/PitchingByTeams02.aspx?codeTeam=${teamCode}`);
-        const pitchingStatsDataForPage2 = await getPlayerStats($_pitchingStatsForPage2, configs.pitcherByTeamPage2Titles, 'pitcher');
-        repackagePitcherDataForPage2(pitchingStatsDataForPage2, configs.pitcherByTeamPage2Titles, season);
+        const pitchingStatsDataForPage2 = await getPlayerStats($_pitchingStatsForPage2, configs.pitcherPage2Titles, 'pitcher');
+        repackagePitcherDataForPage2(pitchingStatsDataForPage2, configs.pitcherPage2Titles, season);
         // hitter page 1
         const $_hitterStatsForPage1 = await crawler(`${configs.official_URL}Stats/BattingByTeams.aspx?codeTeam=${teamCode}`);
         const hitterStatsForPage1 = await getPlayerStats($_hitterStatsForPage1, configs.hitterPage1Titles, 'hitter');
         repackageHitterDataForPage1(hitterStatsForPage1, configs.hitterPage1Titles, season);
-         // hitter page 2
+        // hitter page 2
         const $_hitterStatsForPage2 = await crawler(`${configs.official_URL}Stats/BattingByTeams02.aspx?codeTeam=${teamCode}`);
         const hitterStatsForPage2 = await getPlayerStats($_hitterStatsForPage2, configs.hitterPage2Titles, 'hitter');
         repackageHitterDataForPage2(hitterStatsForPage2, configs.hitterPage2Titles, season);
@@ -304,7 +302,7 @@ function getPlayerStats($, titles, playerType) {
 }
 
 function repackagePitcherDataForPage1(pitchingStats, titles, season) {
-  return promise(async function(resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const { playerStats, playerIds } = pitchingStats;
       let j = 0;
