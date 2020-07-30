@@ -506,6 +506,17 @@ class DeleteOwnPredictionsError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class MLB_CrawlersError extends ExtendableError {
+  constructor(
+    message = 'MLB 爬蟲賽前排程錯誤',
+    status = 1525,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
@@ -551,5 +562,6 @@ module.exports = {
   CrawlersError,
   KBO_CrawlersError,
   GetSeasonError,
-  DeleteOwnPredictionsError
+  DeleteOwnPredictionsError,
+  MLB_CrawlersError
 };
