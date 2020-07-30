@@ -44,7 +44,7 @@ async function checkUnique(req, res) {
       required: ['type', 'value'],
       properties: {
         eventID: {
-          type: { type: 'string', enum: ['uniqueName', 'uniquePhone'] },
+          type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
           value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
         }
       }
