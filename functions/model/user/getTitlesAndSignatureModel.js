@@ -51,7 +51,7 @@ function repackageReturnData(userData, titles) {
       signature: userData.signature,
       default_title: defaultTitle(userData, titles),
       all_titles: {
-        titles
+        titles: repackageTitles(titles)
       }
     };
     return data;
@@ -64,10 +64,17 @@ function repackageReturnData(userData, titles) {
 function defaultTitle(userData, titles) {
   for (let i = 0; i < titles.length; i++) {
     const ele = titles[i];
-    ele.league_name = leagueDecoder(ele.league_id);
     if (ele.league_id === userData.default_god_league_rank) return ele;
   }
   return { league_id: '0', league_name: null, rank_id: 0 };
+}
+
+function repackageTitles(titles) {
+  for (let i = 0; i < titles.length; i++) {
+    const ele = titles[i];
+    ele.league_name = leagueDecoder(ele.league_id);
+  }
+  return titles;
 }
 
 module.exports = getTitlesAndSignature;

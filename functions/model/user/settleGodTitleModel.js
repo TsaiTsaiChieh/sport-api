@@ -178,7 +178,7 @@ async function settleGodTitle(args) {
                ) title_user
          where prediction.uid = title_user.uid
            and prediction.league_id = title_user.league_id
-          -- and prediction.match_scheduled between :begin and :end
+           and prediction.match_scheduled between :begin and :end
            and (
                    (spread_result_flag != -2 and spread_result_flag != 0)
                  or 

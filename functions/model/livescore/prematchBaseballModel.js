@@ -61,6 +61,8 @@ function getHomeAndAwayTeamFromMySQL(args) {
 function getPrematchFromFirestore(args, matchData) {
   return new Promise(async function(resolve, reject) {
     try {
+      // FIXME 目前針對 MLB 聯盟作 skip
+      if (args.league === 'MLB') return resolve({ homeData: null, awayData: null });
       const { home_id, away_id, season } = matchData;
       const homeData = await firestore.collection(`baseball_${args.league}`).doc(home_id).get();
       const awayData = await firestore.collection(`baseball_${args.league}`).doc(away_id).get();
@@ -164,6 +166,10 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   const rate = repackagePassRate(events);
   const tenFights = repackageTenFights(args, fights);
 
+  // FIXME 目前針對 MLB 聯盟作 null 判斷
+  const homeDataIsNull = homeData === null;
+  const awayDataIsNull = awayData === null;
+
   try {
     const data = {
       season: teamsFromMySQL.season,
@@ -195,23 +201,38 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         team_base: {
           spread_rate: rate.home_spread_rate,
           totals_rate: rate.home_totals_rate,
-          L10: homeData.team_base.L10,
-          STRK: homeData.team_base.STRK,
-          Win: homeData.team_base.Win,
-          Loss: homeData.team_base.Loss,
-          Draw: homeData.team_base.Draw,
-          at_home: homeData.team_base.at_home,
-          at_away: homeData.team_base.at_away,
-          per_R: homeData.team_base.per_R,
-          allow_per_R: homeData.team_base.per_allow_R
+          L10: !homeDataIsNull ? homeData.team_base.L10 : null,
+          STRK: !homeDataIsNull ? homeData.team_base.STRK : null,
+          Win: !homeDataIsNull ? homeData.team_base.Win : null,
+          Loss: !homeDataIsNull ? homeData.team_base.Loss : null,
+          Draw: !homeDataIsNull ? homeData.team_base.Draw : null,
+          at_home: !homeDataIsNull ? homeData.team_base.at_home : null,
+          at_away: !homeDataIsNull ? homeData.team_base.at_away : null,
+          per_R: !homeDataIsNull ? homeData.team_base.per_R : null,
+          per_allow_R: !homeDataIsNull ? homeData.team_base.per_allow_R : null
+          // L10: homeData.team_base.L10,
+          // STRK: homeData.team_base.STRK,
+          // Win: homeData.team_base.Win,
+          // Loss: homeData.team_base.Loss,
+          // Draw: homeData.team_base.Draw,
+          // at_home: homeData.team_base.at_home,
+          // at_away: homeData.team_base.at_away,
+          // per_R: homeData.team_base.per_R,
+          // allow_per_R: homeData.team_base.per_allow_R
         },
         team_hit: {
-          R: homeData.team_hit.R,
-          H: homeData.team_hit.H,
-          HR: homeData.team_hit.HR,
-          AVG: homeData.team_hit.AVG,
-          OBP: homeData.team_hit.OBP,
-          SLG: homeData.team_hit.SLG
+          R: !homeDataIsNull ? homeData.team_hit.R : null,
+          H: !homeDataIsNull ? homeData.team_hit.H : null,
+          HR: !homeDataIsNull ? homeData.team_hit.HR : null,
+          AVG: !homeDataIsNull ? homeData.team_hit.AVG : null,
+          OBP: !homeDataIsNull ? homeData.team_hit.OBP : null,
+          SLG: !homeDataIsNull ? homeData.team_hit.SLG : null
+          // R: homeData.team_hit.R,
+          // H: homeData.team_hit.H,
+          // HR: homeData.team_hit.HR,
+          // AVG: homeData.team_hit.AVG,
+          // OBP: homeData.team_hit.OBP,
+          // SLG: homeData.team_hit.SLG
         }
       },
       away: {
@@ -225,23 +246,38 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         team_base: {
           spread_rate: rate.away_spread_rate,
           totals_rate: rate.away_totals_rate,
-          L10: awayData.team_base.L10,
-          STRK: awayData.team_base.STRK,
-          Win: awayData.team_base.Win,
-          Loss: awayData.team_base.Loss,
-          Draw: awayData.team_base.Draw,
-          at_home: awayData.team_base.at_home,
-          at_away: awayData.team_base.at_away,
-          per_R: awayData.team_base.per_R,
-          allow_per_R: awayData.team_base.allow_per_R
+          L10: !awayDataIsNull ? awayData.team_base.L10 : null,
+          STRK: !awayDataIsNull ? awayData.team_base.STRK : null,
+          Win: !awayDataIsNull ? awayData.team_base.Win : null,
+          Loss: !awayDataIsNull ? awayData.team_base.Loss : null,
+          Draw: !awayDataIsNull ? awayData.team_base.Draw : null,
+          at_home: !awayDataIsNull ? awayData.team_base.at_home : null,
+          at_away: !awayDataIsNull ? awayData.team_base.at_away : null,
+          per_R: !awayDataIsNull ? awayData.team_base.per_R : null,
+          per_allow_R: !awayDataIsNull ? awayData.team_base.per_allow_R : null
+          // L10: awayData.team_base.L10,
+          // STRK: awayData.team_base.STRK,
+          // Win: awayData.team_base.Win,
+          // Loss: awayData.team_base.Loss,
+          // Draw: awayData.team_base.Draw,
+          // at_home: awayData.team_base.at_home,
+          // at_away: awayData.team_base.at_away,
+          // per_R: awayData.team_base.per_R,
+          // allow_per_R: awayData.team_base.allow_per_R
         },
         team_hit: {
-          R: awayData.team_hit.R,
-          H: awayData.team_hit.H,
-          HR: awayData.team_hit.HR,
-          AVG: awayData.team_hit.AVG,
-          OBP: awayData.team_hit.OBP,
-          SLG: awayData.team_hit.SLG
+          R: !awayDataIsNull ? awayData.team_hit.R : null,
+          H: !awayDataIsNull ? awayData.team_hit.H : null,
+          HR: !awayDataIsNull ? awayData.team_hit.HR : null,
+          AVG: !awayDataIsNull ? awayData.team_hit.AVG : null,
+          OBP: !awayDataIsNull ? awayData.team_hit.OBP : null,
+          SLG: !awayDataIsNull ? awayData.team_hit.SLG : null
+          // R: awayData.team_hit.R,
+          // H: awayData.team_hit.H,
+          // HR: awayData.team_hit.HR,
+          // AVG: awayData.team_hit.AVG,
+          // OBP: awayData.team_hit.OBP,
+          // SLG: awayData.team_hit.SLG
         }
       },
       L10_record: tenFights
@@ -563,7 +599,6 @@ function queryTenFightEvent(args) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-
       return resolve(await queries);
     } catch (err) {
       return reject(new AppErrors.MysqlError(`${err.stack} by DY`));
