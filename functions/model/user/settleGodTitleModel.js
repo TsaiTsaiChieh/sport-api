@@ -12,7 +12,7 @@ const allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
-const logger = require('firebase-functions/lib/logger');
+const logger2 = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
@@ -264,16 +264,16 @@ async function settleGodTitle(args) {
         }
       }));
       if (err) {
-        logger.warn('[Error][settleGodTitleModel][Title] ', err);
+        logger2.warn('[Error][settleGodTitleModel][Title] ', err);
         throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });
       }
       if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
     };
   };
 
-  if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+  if (!isEmulator) logger2.log('[user settleGodTitleModel]', allLogs);
   const e = new Date().getTime();
-  console.log(`${colors.bg.Blue}${colors.fg.Crimson}settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
+  console.log(`${colors.bg.Blue}${colors.fg.Crimson} settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
   return result;
   // });
@@ -339,12 +339,12 @@ function nnPassN(uid_league_data) {
     allRecords.push(item);
   });
 
-  if (d.enabled) {
-    allRecords.forEach(function(r) {
-      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
-        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
-    });
-  }
+  // if (d.enabled) {
+  allRecords.forEach(function(r) {
+    d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+      r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+  });
+  // }
 
   // !! 不知道為何沒有 sort 後沒有 stable，理論上 v8 2019年後已支援 sort stable
   // 所以 當勝率相同時，以 days 大 -> 小
@@ -392,12 +392,12 @@ function matchesRate(uid_league_data) {
     allRecords.push(r2.item);
   });
 
-  if (d.enabled) {
-    allRecords.forEach(function(r) {
-      d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
-        r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
-    });
-  }
+  // if (d.enabled) {
+  allRecords.forEach(function(r) {
+    d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+      r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
+  });
+  // }
 
   allRecords.sort(fieldSorter(['-winRateAcc']));
 
@@ -459,12 +459,12 @@ function matchesContinue(uid_league_data) {
   // 開賽時間 大->小  過盤 大(過盤 1) -> 小(不過盤 0, -1)
   allRecords2.sort(fieldSorter(['-match_scheduled', '-correctMark']));
 
-  if (d.enabled) {
-    allRecords2.forEach(function(r2) {
-      d('  days: %o match_scheduled: %o correctMark: %o',
-        r2.days, r2.match_scheduled, r2.correctMark);
-    });
-  }
+  // if (d.enabled) {
+  allRecords2.forEach(function(r2) {
+    d('  days: %o match_scheduled: %o correctMark: %o',
+      r2.days, r2.match_scheduled, r2.correctMark);
+  });
+  // }
 
   allRecords2.every(function(data, index) {
     matches_continue = index;

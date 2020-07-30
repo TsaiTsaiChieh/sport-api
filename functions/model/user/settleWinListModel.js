@@ -24,14 +24,6 @@ function d(...args) {
   }
 }
 
-// 當要判斷細部計算是否正確，可以打開此 pdLog 模式，顯示更清楚計算細節
-// const isProgramDebug = false;
-// const pdLog = function() {
-//   if (isProgramDebug) {
-//     console.log.apply(this, arguments);
-//   }
-// };
-
 async function settleWinList(args) {
   // 1. 管理者才能進行 API 呼叫
   // 2. 需要另一支排程進行
@@ -463,7 +455,7 @@ function groupSum(arr, filterField, groupByField) {
   if (filtered_arr.length === 0) return initCounts[sumName]; // 過瀘後沒有筆數的話，直接回傳 初始結構
 
   // 開始處理
-  d('\n gS');
+  d('\n');
   d(' Filter %o %o ', sumName, sumValue); // ${colors.fg.Magenta} ${colors.Reset}
   const counts = filtered_arr.reduce((p, c) => {
     if (!Object.prototype.hasOwnProperty.call(p, sumName)) { // 初始化欄位
@@ -532,5 +524,13 @@ const colors = {
     Crimson: '\x1b[48m'
   }
 };
+
+// 當要判斷細部計算是否正確，可以打開此 pdLog 模式，顯示更清楚計算細節
+// const isProgramDebug = false;
+// const pdLog = function() {
+//   if (isProgramDebug) {
+//     console.log.apply(this, arguments);
+//   }
+// };
 
 module.exports = settleWinList;
