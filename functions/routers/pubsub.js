@@ -76,4 +76,5 @@ router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
 router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 router.get('/NPB_crawler', require('../pubsub/crawlers/prematch_NPB'));
+router.get('/MLB_crawler', require('../pubsub/crawlers/prematch_MLB'));
 module.exports = router;
