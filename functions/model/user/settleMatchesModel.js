@@ -167,8 +167,8 @@ async function settleMatchesModel(args) {
     if (settleTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
-    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult);
-    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult);
+    const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult, data.spread_rate);
+    const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult, data.totals_rate);
     d(bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({
