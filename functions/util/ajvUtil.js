@@ -9,11 +9,6 @@ const preventInjection = new RegExp("[_'`%\./‘”“’]");
 const email2 = new RegExp('^[A-Za-z0-9_.-]+@[A-Za-z0-9.-]+$');
 // const email2 = new RegExp('/A[a-zA-Z0-9.!#$%&\'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*z/');
 
-// URI::MailTo::EMAIL_REGEXP
-//
-// => /\A[a-zA-Z0-9.!\#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\z/
-//
-
 const imgURL = new RegExp((`^https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}`));
 
 module.exports = new Ajv({ allErrors: true, useDefaults: true })
