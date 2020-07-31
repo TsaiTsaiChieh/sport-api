@@ -30,31 +30,3 @@ module.exports = new Ajv({ allErrors: true, useDefaults: true })
     validate: (string) => email2.test(string)
   })
 ;
-// const schema = {
-//   required: ['eventID'],
-//   properties: {
-//     eventID: {
-//       type: 'string'
-//     }
-//   }
-// };
-
-// const valid = ajv.validate(schema, req.query);
-// if (!valid) {
-//   return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
-// }
-// channelId: { type: 'string', enum: ['public'] },
-// const schema = {
-//   type: 'object',
-//   required: ['display_name', 'name', 'phone', 'email', 'birthday'],
-//   properties: {
-//     display_name: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
-//     name: { type: 'string', minLength: 2, maxLength: 10, format: 'generalString' },
-//     country_code: { type: 'string', minLength: 2, maxLength: 4, format: 'generalString' },
-//     phone: { type: 'string', minLength: 9, maxLength: 10, format: 'generalString' },
-//     email: { type: 'string', format: 'email' },
-//     birthday: { type: 'integer' },
-//     avatar: { type: 'string', format: 'imgURL' },
-//     signature: { type: 'string', maxLength: 20, format: 'preventInjection' }
-//   }
-// };
