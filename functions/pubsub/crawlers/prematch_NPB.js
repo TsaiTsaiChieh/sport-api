@@ -1,5 +1,4 @@
 const axios = require('axios');
-const AppErrors = require('../../util/AppErrors');
 const leagueName = 'NPB';
 const leagueUtil = require('../../util/leagueUtil');
 const sportName = leagueUtil.league2Sport(leagueName).sport;
@@ -10,24 +9,70 @@ const season = '2020';
 const centralTeam = 6;
 const pacificTeam = 6;
 const teamAlias = ['l', 'h', 'e', 'm', 'f', 'b', 'g', 'db', 't', 'c', 'd', 's']; // 西武獅 福岡 樂天 千葉 北海道 歐力士 巨人 橫濱 阪神 東洋 中日 東京
-async function prematch_NPB(req, res) {
-  await getTeams();
-  await getPlayer();
+async function prematch_NPB() {
+  // 中央球隊的投手季戰績
+  let URL = `https://npb.jp/bis/${season}/stats/tmp_c.html`;
+  const teamPitcherC = await crawl(URL);
+  upsertPitcherTeamC(teamPitcherC);
+
+  // 太平洋球隊的投手季戰績
+  URL = `https://npb.jp/bis/${season}/stats/tmp_p.html`;
+  const teamPitcherP = await crawl(URL);
+  upsertPitcherTeamP(teamPitcherP);
+
+  // 中央球隊的基本季戰績
+  URL = `https://npb.jp/bis/${season}/stats/std_c.html`;
+  const teamStatC = await crawl(URL);
+  upsertTeambaseTeamC(teamStatC);
+
+  // 太平洋球隊基本季戰績
+  URL = `https://npb.jp/bis/${season}/stats/std_p.html`;
+  const teamStatP = await crawl(URL);
+  upsertTeambaseTeamP(teamStatP);
+
+  // 中央球隊的打擊季戰績
+  URL = `https://npb.jp/bis/${season}/stats/tmb_c.html`;
+  const teamHitterC = await crawl(URL);
+  upsertHitterTeamC(teamHitterC);
+
+  // 太平洋球隊的打擊季戰績
+  URL = `https://npb.jp/bis/${season}/stats/tmb_p.html`;
+  const teamHitterP = await crawl(URL);
+  upsertHitterTeamP(teamHitterP);
+
+  // 選手季戰績
+  for (let teamCount = 0; teamCount < teamAlias.length; teamCount++) {
+    URL = `https://npb.jp/bis/2020/stats/idb1_${teamAlias[teamCount]}.html`;
+    const Hitter = await crawl(URL);
+    URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
+    const [HitterID, HitterUID] = await crawlId(URL);
+    upsertHitter(Hitter, HitterID, HitterUID);
+    URL = `https://npb.jp/bis/2020/stats/idp1_${teamAlias[teamCount]}.html`;
+    const Pitcher = await crawl(URL);
+    URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
+    const [PitcherID, PitcherUID] = await crawlId(URL);
+    upsertPitcher(Pitcher, PitcherID, PitcherUID);
+  }
 }
 
 async function crawlId(URL) {
   // 背號
   const { data } = await axios.get(URL);
   const $ = cheerio.load(data);
-  const id = $('tr td a');
   const result = [];
+  $('td').each(function(i) {
+    result.push($(this).text());
+  });
+  const id = $('tr td a');
+  const result2 = [];
   id.each(function(index, ele) {
     if (ele.attribs.href.indexOf('/') >= 0) {
-      result.push(ele.attribs.href.split('/')[3].split('.')[0]);
+      result2.push(ele.attribs.href.split('/')[3].split('.')[0]);
     }
   });
-  return result;
+  return [result, result2];
 }
+
 async function crawl(URL) {
   const { data } = await axios.get(URL);
   const $ = cheerio.load(data);
@@ -37,75 +82,7 @@ async function crawl(URL) {
   });
   return result;
 }
-function getPlayer() {
-  return new Promise(async function(resolve, reject) {
-    try {
-      // 中央球隊的投手季戰績
-      let URL = `https://npb.jp/bis/${season}/stats/tmp_c.html`;
-      const teamPitcherC = await crawl(URL);
-      await upsertPitcherTeamC(teamPitcherC);
 
-      // 太平洋球隊的投手季戰績
-      URL = `https://npb.jp/bis/${season}/stats/tmp_p.html`;
-      const teamPitcherP = await crawl(URL);
-      await upsertPitcherTeamP(teamPitcherP);
-
-      // 打擊手季戰績
-      for (let teamCount = 0; teamCount < teamAlias.length; teamCount++) {
-        URL = `https://npb.jp/bis/2020/stats/idb1_${teamAlias[teamCount]}.html`;
-        const Hitter = await crawl(URL);
-        URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
-        const HitterID = await crawl(URL);
-        const HitterUID = await crawlId(URL);
-        await upsertHitter(Hitter, HitterID, HitterUID);
-      }
-
-      // 投手季戰績
-      for (let teamCount = 0; teamCount < teamAlias.length; teamCount++) {
-        URL = `https://npb.jp/bis/2020/stats/idp1_${teamAlias[teamCount]}.html`;
-        const Pitcher = await crawl(URL);
-        URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
-        const PitcherID = await crawl(URL);
-        const PitcherUID = await crawlId(URL);
-        await upsertPitcher(Pitcher, PitcherID, PitcherUID);
-      }
-      resolve('ok');
-    } catch (err) {
-      console.error(err, '=-----');
-      return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
-    }
-  });
-}
-function getTeams() {
-  return new Promise(async function(resolve, reject) {
-    try {
-      // 中央球隊的基本季戰績
-      let URL = `https://npb.jp/bis/${season}/stats/std_c.html`;
-      const teamStatC = await crawl(URL);
-      await upsertTeambaseTeamC(teamStatC);
-
-      // 太平洋球隊基本季戰績
-      URL = `https://npb.jp/bis/${season}/stats/std_p.html`;
-      const teamStatP = await crawl(URL);
-      await upsertTeambaseTeamP(teamStatP);
-
-      // 中央球隊的打擊季戰績
-      URL = `https://npb.jp/bis/${season}/stats/tmb_c.html`;
-      const teamHitterC = await crawl(URL);
-      await upsertHitterTeamC(teamHitterC);
-
-      // 太平洋球隊的打擊季戰績
-      URL = `https://npb.jp/bis/${season}/stats/tmb_p.html`;
-      const teamHitterP = await crawl(URL);
-      await upsertHitterTeamP(teamHitterP);
-
-      resolve('ok');
-    } catch (err) {
-      console.error(err, '=-----');
-      return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
-    }
-  });
-}
 async function upsertPitcher(result, result2, result3) {
   const playerNumber = [];
   const playerName = [];
@@ -127,7 +104,6 @@ async function upsertPitcher(result, result2, result3) {
         break;
       }
     }
-
     await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
@@ -418,7 +394,6 @@ async function upsertHitterTeamP(result) {
   const index = 1;
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
-
     await firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
