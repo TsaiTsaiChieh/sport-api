@@ -4,9 +4,11 @@ const ajv = require('../../util/ajvUtil');
 const db = require('../../util/dbUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const envValues = require('../../config/env_values');
+const httpStatus = require('http-status');
 
 async function modifyUserProfile(req, res) {
-  const uid = req.token.uid;
+  // const uid = req.token.uid;
+  const uid = 'testuid';
   const userSnapshot = await db.sequelize.query(
     `
       SELECT *
@@ -20,43 +22,39 @@ async function modifyUserProfile(req, res) {
   const userStatus = userSnapshot != null ? userSnapshot.status : 0;
   const data = {};
   const nowTimeStamp = modules.moment().unix();
-  data.display_name = req.body.display_name;
-  data.name = req.body.name;
-  data.country_code = req.body.country_code;
-  data.phone = req.body.phone;
-  data.email = req.body.email;
-  data.birthday = req.body.birthday;
   data.uid = uid;
   switch (userStatus) {
     case 0: // 新會員
     {
+      data.display_name = req.body.display_name;
+      data.name = req.body.name;
+      data.country_code = req.body.country_code;
+      data.phone = req.body.phone;
+      data.email = req.body.email;
+      data.birthday = req.body.birthday;
       const schema = {
         type: 'object',
-        required: ['display_name', 'name', 'phone', 'email', 'birthday'],
+        required: ['display_name', 'name', 'country_code', 'phone', 'email', 'birthday'],
         properties: {
-          display_name: { type: 'string', minLength: 2, maxLength: 15 },
-          name: { type: 'string', minLength: 2, maxLength: 10 },
-          country_code: { type: 'string', minLength: 2, maxLength: 4 },
-          phone: { type: 'string', minLength: 9, maxLength: 10 },
-          email: { type: 'string', format: 'email' },
-          birthday: { type: 'integer' },
-          avatar: { type: 'string', format: 'url' },
-          signature: { type: 'string', maxLength: 20 }
+          display_name: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
+          name: { type: 'string', minLength: 2, maxLength: 10, format: 'generalString' },
+          country_code: { type: 'string', minLength: 2, maxLength: 4, format: 'generalString' },
+          phone: { type: 'string', minLength: 9, maxLength: 10, format: 'generalString' },
+          email: { type: 'string', format: 'email2' },
+          birthday: { type: 'integer' }
         }
       };
       const valid = ajv.validate(schema, data);
-      data.birthday_tw = modules.moment.unix(data.birthday).subtract(1, 'days').format('YYYY-MM-DD');
 
       // if (!valid) return res.status(400).json(ajv.errors);
       if (!valid) {
-        res.status(400).json(ajv.errors);
-        return;
+        return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
       }
 
       if (!data.avatar) {
         data.avatar = `${envValues.productURL}statics/default-profile-avatar.jpg`;
       }
-
+      data.birthday_tw = modules.moment.unix(data.birthday).subtract(1, 'days').format('YYYY-MM-DD');
       data.status = 1;
       data.signature = '';
 
@@ -106,6 +104,20 @@ async function modifyUserProfile(req, res) {
   if (req.body.signature) data.signature = req.body.signature;
   // if (req.body.title) data.defaultTitle = req.body.title;//移到另外API
   data.updateTime = nowTimeStamp;
+
+  const schema2 = {
+    type: 'object',
+    properties: {
+      avatar: { type: 'string', format: 'imgURL' },
+      signature: { type: 'string', maxLength: 20, format: 'preventInjection' }
+    }
+  };
+  const valid2 = ajv.validate(schema2, data);
+
+  // if (!valid) return res.status(400).json(ajv.errors);
+  if (!valid2) {
+    return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
+  }
 
   // 推薦碼（停用)
   // const refCode = req.body.refCode;

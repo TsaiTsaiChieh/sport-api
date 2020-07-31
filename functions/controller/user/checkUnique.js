@@ -1,5 +1,6 @@
 const userUtils = require('../../util/userUtil');
-
+const ajv = require('../../util/ajvUtil');
+const httpStatus = require('http-status');
 /**
  * @api {get} /user/checkUnique Check Unique profile
  * @apiVersion 1.0.0
@@ -38,9 +39,34 @@ async function checkUnique(req, res) {
   try {
     const collection = req.body.type;
     const value = req.body.value;
-    if (!collection || !value) return res.status(400).json({ success: false });
-    const collections = ['uniqueName', 'uniqueEmail', 'uniquePhone'];
-    if (collections.indexOf(collection) < 0) return res.status(400).json({ success: false });
+    let schema;
+    if (collection.type === 'uniqueEmail') {
+      schema = {
+        type: 'object',
+        required: ['type', 'value'],
+        properties: {
+          eventID: {
+            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+            value: { type: 'string', minLength: 5, maxLength: 50, format: 'email2' }
+          }
+        }
+      };
+    } else {
+      schema = {
+        type: 'object',
+        required: ['type', 'value'],
+        properties: {
+          eventID: {
+            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+            value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
+          }
+        }
+      };
+    }
+    const valid = ajv.validate(schema, req.query);
+    if (!valid) {
+      return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
+    }
     return res.json(await userUtils.checkUniqueCollection(collection, value));
   } catch (e) {
     console.log(e);
