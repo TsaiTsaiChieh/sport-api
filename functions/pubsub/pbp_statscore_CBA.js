@@ -235,6 +235,31 @@ async function doPBP(parameter) {
             )
           );
         }
+      } else if (
+        data.api.data.competition.season.stage.group.event.status_type ===
+        'scheduled'
+      ) {
+        if (
+          data.api.data.competition.season.stage.group.event.status_name ===
+          'Postponed'
+        ) {
+          try {
+            await database
+              .ref(`${sport}/${league}/${betsID}/Summary/status`)
+              .set('postponed');
+            await Match.upsert({
+              bets_id: betsID,
+              status: -2
+            });
+            pbpFlag = 0;
+          } catch (err) {
+            return reject(
+              new AppErrors.FirebaseRealtimeError(
+                `${err} at doPBP of status on ${betsID} by DY`
+              )
+            );
+          }
+        }
       } else {
         try {
           await database

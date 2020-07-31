@@ -4,13 +4,14 @@ const axios = require('axios');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const Match = db.Match;
-const competitionID = '5466'; // CPBL
+const competitionID = '5466';
 const leagueID = '3939';
 const league = 'MLB';
 
 async function prematch_statscore_MLB() {
   return new Promise(async function(resolve, reject) {
     try {
+      const token = await queryForToken();
       const unix = Math.floor(Date.now() / 1000);
       const date2 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
@@ -24,14 +25,9 @@ async function prematch_statscore_MLB() {
         value: -1,
         unit: 'days'
       });
-      const token = await queryForToken();
-
       const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
       const data = await axiosForURL(URL);
-      const ele = await queryForMatches(
-        modules.convertTimezone(date1),
-        modules.convertTimezone(date2)
-      );
+      const ele = await queryForMatches();
 
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
@@ -130,7 +126,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
@@ -141,7 +137,6 @@ async function queryForMatches(date1, date2) {
 						    match__teams as home,
 							  match__teams as away
 					WHERE game.league_id = '${leagueID}'
-					  AND game.scheduled between '${date1}' and '${date2}'
 						AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
 						AND game.radar_id IS NULL
 				  	AND home.team_id = game.home_id

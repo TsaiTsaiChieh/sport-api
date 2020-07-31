@@ -5,6 +5,10 @@ auth/
 .BAK
 .env
 pubsub/dy.js
+pubsub/lineup_statscore_CPBL.js
+pubsub/lineup_statscore_KBO.js
+pubsub/lineup_statscore_MLB.js
+pubsub/lineup_statscore_NPB.js
 #www/
 #vue-ssr-client-manifest.json
 #server/

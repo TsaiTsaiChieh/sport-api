@@ -8,7 +8,7 @@ router.get('/prematch', require('../pubsub/prematch'));
 router.get('/prematch_esport', require('../pubsub/prematch_esport'));
 router.get('/handicap', require('../pubsub/handicap'));
 router.get('/handicap_esport', require('../pubsub/handicap_esport'));
-
+// router.get('/dy', require('../pubsub/dy'));
 router.get(
   '/settlement',
   require('../pubsub/handicap/settlementAccordingMatch')
@@ -35,6 +35,10 @@ router.get(
   require('../pubsub/prematch_statscore_MLB')
 );
 router.get(
+  '/checkmatch_statscore_MLB',
+  require('../pubsub/checkmatch_statscore_MLB')
+);
+router.get(
   '/prematch_statscore_KBO',
   require('../pubsub/prematch_statscore_KBO')
 );
@@ -53,6 +57,10 @@ router.get(
 router.get(
   '/prematch_statscore_NPB',
   require('../pubsub/prematch_statscore_NPB')
+);
+router.get(
+  '/checkmatch_statscore_NPB',
+  require('../pubsub/checkmatch_statscore_NPB')
 );
 router.get(
   '/prematch_statscore_Soccer',
@@ -76,4 +84,10 @@ router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
 router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 router.get('/NPB_crawler', require('../pubsub/crawlers/prematch_NPB'));
+
+// 更新先發名單
+// router.get('/lineup_CPBL', require('../pubsub/lineup_statscore_CPBL'));
+// router.get('/lineup_MLB', require('../pubsub/lineup_statscore_MLB'));
+// router.get('/lineup_KBO', require('../pubsub/lineup_statscore_KBO'));
+// router.get('/lineup_NPB', require('../pubsub/lineup_statscore_NPB'));
 module.exports = router;
