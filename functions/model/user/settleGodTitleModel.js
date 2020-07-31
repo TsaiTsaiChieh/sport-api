@@ -8,17 +8,18 @@ const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 const floatNumber = 4;
 
-const allLogs = [];
+let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
-const logger2 = require('firebase-functions/lib/logger');
+const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
     if (isEmulator) { console.log(util.format(...args)); return; }
-    if (util.format(...args) === '\n g') { logNum++; logT = {};} // log group 收集起點(起算點)
+    if (util.format(...args) === '\n g') { logNum++; logT = {}; return;} // log group 收集起點(起算點)
+    if (util.format(...args) === '\n gs') { logNum = 0; allLogs = []; logT = {}; return;} // log group 切斷點(實際logger結束)
     logT[Object.keys(logT).length] = util.format(...args).replace(/\'/g, '');
     allLogs[logNum] = logT;
   }
@@ -167,6 +168,9 @@ async function settleGodTitle(args) {
         }
       }
     });
+
+    if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+    d('\n gs');
   });
 
   s21 = new Date().getTime();
@@ -202,6 +206,7 @@ async function settleGodTitle(args) {
   reformatPrediction = groupsByOrdersLimit(usersPrediction, ['uid', 'league_id'], ['-match_scheduled']);
 
   s2_45 = new Date().getTime();
+  d('\n g');
   d('%s', '### 2.4 2.5'); // ${colors.fg.Red} ${colors.Reset}
   reformatPrediction.forEach(function(uid_league_data) {
     d('\n');
@@ -213,14 +218,12 @@ async function settleGodTitle(args) {
     d('\n');
     d('%s', '  2.4. 近 Ｎ 場過 Ｎ 場  matches_rate1, matches_rate2  >= 第五場'); // ${colors.fg.Yellow} ${colors.Reset}
     const { matchesRateN1, matchesRateN2 } = matchesRate(uid_league_data);
-
     //
     // 2.5. 連贏Ｎ場 matches_continue
     //
     d('\n');
     d('%s', '  2.5. 連贏Ｎ場 matches_continue'); // ${colors.fg.Yellow} ${colors.Reset}
     const matchesContinueN = matchesContinue(uid_league_data);
-
     //
     // 將結果合併到 mixAll  依uid、league_id、 整個戰績名稱
     //
@@ -237,6 +240,9 @@ async function settleGodTitle(args) {
         }
       }
     });
+
+    if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+    d('\n gs');
   });
 
   s3_u = new Date().getTime();
@@ -264,16 +270,16 @@ async function settleGodTitle(args) {
         }
       }));
       if (err) {
-        logger2.warn('[Error][settleGodTitleModel][Title] ', err);
+        logger.warn('[Error][settleGodTitleModel][Title] ', err);
         throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });
       }
       if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
     };
   };
 
-  if (!isEmulator) logger2.log('[user settleGodTitleModel]', allLogs);
+  if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
   const e = new Date().getTime();
-  console.log(`${colors.bg.Blue}${colors.fg.Crimson} settleGodTitleModel 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
+  console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleGodTitleModel] 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
   return result;
   // });
@@ -394,7 +400,7 @@ function matchesRate(uid_league_data) {
 
   // if (d.enabled) {
   allRecords.forEach(function(r) {
-    d('  days: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
+    d('  match spread total: %o totalsCountAcc: %o correctCountsAcc: %o winRateAcc: %o',
       r.days, r.totalsCountAcc, r.correctCountsAcc, r.winRateAcc);
   });
   // }
@@ -461,7 +467,7 @@ function matchesContinue(uid_league_data) {
 
   // if (d.enabled) {
   allRecords2.forEach(function(r2) {
-    d('  days: %o match_scheduled: %o correctMark: %o',
+    d('  match spread total: %o match_scheduled: %o correctMark: %o',
       r2.days, r2.match_scheduled, r2.correctMark);
   });
   // }

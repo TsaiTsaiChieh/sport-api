@@ -104,6 +104,8 @@ const errorCodeLists = {
 
   50010: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
   50011: { msg: ['排程 更新 WinList 錯誤'], backend: ['排程 更新 WinList 錯誤', ''] },
+  50015: { msg: ['取得賽季年度 錯誤'], backend: ['排程 更新 WinList 錯誤 getSeason 產生異常', ''] },
+  50016: { msg: ['取得賽季年度 錯誤'], backend: ['排程 更新 WinList 錯誤 getSeason 產生異常', ''] },
 
   50110: { msg: ['排程 更新 UserBuy 錯誤'], backend: ['排程 更新 UserBuy 錯誤', ''] },
   50111: { msg: ['查詢 購牌記錄 錯誤'], backend: ['查詢 購牌記錄 錯誤', ''] },

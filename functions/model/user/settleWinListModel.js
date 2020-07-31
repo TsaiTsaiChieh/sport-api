@@ -8,7 +8,7 @@ const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
-const allLogs = [];
+let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR;
@@ -18,7 +18,8 @@ const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
     if (isEmulator) { console.log(util.format(...args)); return; }
-    if (util.format(...args) === '\n g') { logNum++; logT = {};} // log group 收集起點(起算點)
+    if (util.format(...args) === '\n g') { logNum++; logT = {}; return;} // log group 收集起點(起算點)
+    if (util.format(...args) === '\n gs') { logNum = -1; allLogs = []; logT = {}; return;} // log group 切斷點(實際logger結束)
     logT[Object.keys(logT).length] = util.format(...args).replace(/\'/g, '');
     allLogs[logNum] = logT;
   }
@@ -130,8 +131,9 @@ async function settleWinList(args) {
 
   for (const data of resultWinList) {
     let r = {};
-    let err, winListsHistory, created;
-    const season = await getSeason(data.league_id);
+    let err, winListsHistory, created, season;
+    [err, season] = await to(getSeason(data.league_id));
+    if (err) { logger.error(err); throw errs.dbErrsMsg('404', '50015', { addMsg: err }); }
 
     // 精確小數位數修正
     data.win_bets = NP.round(data.win_bets, floatNumber);
@@ -245,7 +247,8 @@ async function settleWinList(args) {
   for (const data of resultWinList) {
     const uid = data.uid;
     const league_id = data.league_id;
-    const season = await getSeason(data.league_id);
+    const [errGetSeason, season] = await to(getSeason(data.league_id));
+    if (errGetSeason) { logger.error(errGetSeason); throw errs.dbErrsMsg('404', '50016', { addMsg: errGetSeason }); }
 
     const allTotalCount = await winBetsRateTotalCount(uid, league_id,
       dayOfYear, week, month, season, period);
@@ -383,7 +386,7 @@ async function settleWinList(args) {
 
   if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
   const e = new Date().getTime();
-  console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] settleWinListModel 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
+  console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
   return result;
 }
@@ -416,7 +419,7 @@ async function winBetsRateTotalCount(uid, league_id,
   d(' day_of_year %o  week: %o  period: %o  week_of_period: %o  month: %o ',
     day_of_year, week, period, week_of_period, month); // ${colors.fg.Magenta} ${colors.Reset}
 
-  return {
+  const result = {
     sum_day_of_year: groupSum(uid_league_histories, { day_of_year: day_of_year }, needSumFileld),
     sum_week: groupSum(uid_league_histories, { week: week }, needSumFileld),
     sum_month: groupSum(uid_league_histories, { month: month }, needSumFileld),
@@ -424,6 +427,10 @@ async function winBetsRateTotalCount(uid, league_id,
     sum_week1_of_period: groupSum(uid_league_histories, { week_of_period: week_of_period, period: period }, needSumFileld),
     sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld)
   };
+
+  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
+  d('\n gs');
+  return result;
 }
 
 // 把 array 進行 group Sum 群組計算
