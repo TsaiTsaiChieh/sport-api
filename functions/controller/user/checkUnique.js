@@ -45,10 +45,8 @@ async function checkUnique(req, res) {
         type: 'object',
         required: ['type', 'value'],
         properties: {
-          eventID: {
-            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
-            value: { type: 'string', minLength: 5, maxLength: 50, format: 'email2' }
-          }
+          type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+          value: { type: 'string', minLength: 5, maxLength: 50, format: 'email2' }
         }
       };
     } else {
@@ -56,14 +54,13 @@ async function checkUnique(req, res) {
         type: 'object',
         required: ['type', 'value'],
         properties: {
-          eventID: {
-            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
-            value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
-          }
+          type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+          value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' }
         }
       };
     }
-    const valid = ajv.validate(schema, req.query);
+    console.log(req.body);
+    const valid = ajv.validate(schema, req.body);
     if (!valid) {
       return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
     }
