@@ -7,8 +7,7 @@ const envValues = require('../../config/env_values');
 const httpStatus = require('http-status');
 
 async function modifyUserProfile(req, res) {
-  // const uid = req.token.uid;
-  const uid = 'testuid';
+  const uid = req.token.uid;
   const userSnapshot = await db.sequelize.query(
     `
       SELECT *
