@@ -34,7 +34,7 @@ async function predictionHistory(args) {
 
 async function getUserPredictionData(args, userData) {
   args.begin = modules.moment(args.now).unix();
-  const beforeDate = modules.convertTimezoneFormat(args.begin, { op: 'subtract', value: TWO_WEEKS, unit: 'days' });
+  const beforeDate = modules.convertTimezoneFormat(args.begin, { op: 'subtract', value: TWO_WEEKS - 1, unit: 'days' });
   // before will be 00:00:00 GMT+0800
   args.before = modules.convertTimezone(beforeDate);
 
@@ -61,12 +61,12 @@ async function getUserPredictionData(args, userData) {
       WHERE prediction.uid = '${userData.uid}'
         AND game.scheduled BETWEEN ${args.before} and ${args.begin}
         AND game.status = ${leagueUtil.MATCH_STATUS.END}
-        AND game.flag_prematch = ${leagueUtil.MATCH_STATUS.VALID};`,
+        AND game.flag_prematch = ${leagueUtil.MATCH_STATUS.VALID}`,
     {
       type: db.sequelize.QueryTypes.SELECT
     }));
 
-  if (err) throw new AppErrors.MysqlError(`${err.stack} by TsaiChieh`);
+  if (err) throw new AppErrors.MysqlError(err.stack);
   return results;
 }
 
@@ -96,12 +96,12 @@ async function repackageReturnData(args, historyData) {
         // Get the match date unix time
         const matchUnix = modules.convertTimezone(matchDate);
         const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
+
         if (matchUnix === addOneDayUnix) {
           // XXX error handling should be more careful
           const [err, result] = await modules.to(repackageMatchDate(match, matchDate));
-          if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+          if (err) throw new AppErrors.RepackageError(err.stack);
           tempArray.push(result);
-          // tempArray.push(repackageMatchDate(match, matchDate));
         }
       });
       pastPredictions[i] = tempArray;
