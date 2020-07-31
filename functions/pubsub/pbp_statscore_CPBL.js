@@ -94,6 +94,12 @@ async function CPBLpbpHistory(parameter) {
       const awayScores =
         data.api.data.competition.season.stage.group.event.participants[1]
           .results[2].value;
+      await database
+        .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+        .set(awayScores);
+      await database
+        .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+        .set(homeScores);
       try {
         await Match.upsert({
           bets_id: betsID,
@@ -230,21 +236,26 @@ async function doPBP(parameter) {
       data.api.data.competition.season.stage.group.event.status_type ===
       'scheduled'
     ) {
-      try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('scheduled');
-        await Match.upsert({
-          bets_id: betsID,
-          status: 2
-        });
-        pbpFlag = 0;
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at doPBP of status on ${betsID} by DY`
-          )
-        );
+      if (
+        data.api.data.competition.season.stage.group.event.status_name ===
+        'Postponed'
+      ) {
+        try {
+          await database
+            .ref(`${sport}/${league}/${betsID}/Summary/status`)
+            .set('postponed');
+          await Match.upsert({
+            bets_id: betsID,
+            status: -2
+          });
+          pbpFlag = 0;
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP of status on ${betsID} by DY`
+            )
+          );
+        }
       }
     } else {
       try {
@@ -491,45 +502,13 @@ async function writeRealtime(betsID, data, baseballParameter) {
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].incident_id === 503 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 504 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 2530
+          ].incident_id !== 563
             ? tempHalf
             : data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
             ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event.events_incidents[
-                eventCount
-              ].incident_id === 2527 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 2522 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 554 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 559
-                ? '0'
-                : '1'
-              : data.api.data.competition.season.stage.group.event.events_incidents[
-                eventCount
-              ].incident_id === 2527 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 2522 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 554 ||
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id === 559
-                ? '1'
-                : '0';
+              ? '1'
+              : '0';
       if (
         inningNow !==
         changeInning(
@@ -776,6 +755,9 @@ async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
 
 function translateCommon(event) {
   switch (event) {
+    case 'Start delayed': {
+      return '比賽延遲開始';
+    }
     case '1st inning started': {
       return '第一局開始';
     }
@@ -859,6 +841,10 @@ function translateNormal(half, data, name, event) {
   let string_ch;
 
   switch (event) {
+    case 'Start delayed': {
+      string_ch = '比賽延遲開始';
+      break;
+    }
     case 'Not started': {
       string_ch = '比賽尚未開始';
       break;
@@ -959,6 +945,10 @@ function translateNormal(half, data, name, event) {
       string_ch = '得分';
       break;
     }
+    case 'Caught stealing': {
+      string_ch = '盜壘失敗';
+      break;
+    }
     default: {
       string_ch = '';
       break;
@@ -971,7 +961,7 @@ function translateNormal(half, data, name, event) {
         name !== ''
           ? name
           : mapTeam(
-            data.api.data.competition.season.stage.group.event.participants[1]
+            data.api.data.competition.season.stage.group.event.participants[0]
               .name
           );
       out = temp + ' ' + string_ch;
@@ -980,7 +970,7 @@ function translateNormal(half, data, name, event) {
         name !== ''
           ? name
           : mapTeam(
-            data.api.data.competition.season.stage.group.event.participants[0]
+            data.api.data.competition.season.stage.group.event.participants[1]
               .name
           );
       out = temp + ' ' + string_ch;
@@ -996,14 +986,15 @@ function translateNormal(half, data, name, event) {
     event === 'Triple' ||
     event === 'Home run' ||
     event === 'Sacrifice hit' ||
-    event === 'run'
+    event === 'Run' ||
+    event === 'Caught stealing'
   ) {
     if (half === '0') {
       const temp =
         name !== ''
           ? name
           : mapTeam(
-            data.api.data.competition.season.stage.group.event.participants[0]
+            data.api.data.competition.season.stage.group.event.participants[1]
               .name
           );
       out = temp + ' ' + string_ch;
@@ -1012,7 +1003,7 @@ function translateNormal(half, data, name, event) {
         name !== ''
           ? name
           : mapTeam(
-            data.api.data.competition.season.stage.group.event.participants[1]
+            data.api.data.competition.season.stage.group.event.participants[0]
               .name
           );
       out = temp + ' ' + string_ch;
@@ -1044,6 +1035,10 @@ function changeInning(inning, now_innings) {
   let inningNow = 0;
   switch (inning) {
     case 'Not started': {
+      inningNow = 1;
+      break;
+    }
+    case 'Start delayed': {
       inningNow = 1;
       break;
     }
