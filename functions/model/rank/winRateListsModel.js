@@ -132,7 +132,7 @@ function repackage(ele, rangstr) {
 function rangeWinRateCodebook(range) {
   switch (range) {
     case 'this_period':
-      return 'this_period_win_bets';
+      return 'this_period_win_rate';
     case 'this_week':
       return 'this_week_win_rate';
     case 'last_week':
