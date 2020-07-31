@@ -3,6 +3,7 @@ const httpStatus = require('http-status');
 const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const db = require('../util/dbUtil');
+const UNREGISTER = 0;
 const NORMAL_USER = 1;
 const GOD_USER = 2;
 const ADMIN_USER = 9;
@@ -173,6 +174,7 @@ async function getRoleAndTitles(uid) {
     where: { uid },
     attributes: ['status']
   });
+  if (!userResults) return { role: UNREGISTER, titles: [] };
   switch (userResults.status) {
     case NORMAL_USER:
       return { role: NORMAL_USER, titles: [] };

@@ -39,16 +39,30 @@ async function checkUnique(req, res) {
   try {
     const collection = req.body.type;
     const value = req.body.value;
-    const schema = {
-      type: 'object',
-      required: ['type', 'value'],
-      properties: {
-        eventID: {
-          type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
-          value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
+    let schema;
+    if (collection.type === 'uniqueEmail') {
+      schema = {
+        type: 'object',
+        required: ['type', 'value'],
+        properties: {
+          eventID: {
+            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+            value: { type: 'string', minLength: 5, maxLength: 50, format: 'email2' }
+          }
         }
-      }
-    };
+      };
+    } else {
+      schema = {
+        type: 'object',
+        required: ['type', 'value'],
+        properties: {
+          eventID: {
+            type: { type: 'string', enum: ['uniqueName', 'uniquePhone', 'uniqueEmail'] },
+            value: { type: 'string', minLength: 2, maxLength: 15, format: 'generalString' },
+          }
+        }
+      };
+    }
     const valid = ajv.validate(schema, req.query);
     if (!valid) {
       return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
