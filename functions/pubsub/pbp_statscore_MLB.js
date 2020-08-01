@@ -23,7 +23,7 @@ async function MLBpbpInplay(parameter) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 18000;
-    timesPerLoop = 3; // 一分鐘2次
+    timesPerLoop = 4; // 一分鐘3次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -94,10 +94,10 @@ async function MLBpbpHistory(parameter) {
       const awayScores =
         data.api.data.competition.season.stage.group.event.participants[1]
           .results[2].value;
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
         .set(awayScores);
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
         .set(homeScores);
       try {
@@ -154,7 +154,7 @@ async function doPBP(parameter) {
       'finished'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -169,7 +169,7 @@ async function doPBP(parameter) {
     ) {
       if (realtimeData.Summary.status !== 'inprogress') {
         try {
-          await database
+          database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('inprogress');
         } catch (err) {
@@ -180,7 +180,7 @@ async function doPBP(parameter) {
           );
         }
         try {
-          await Match.upsert({
+          Match.upsert({
             bets_id: betsID,
             status: 1
           });
@@ -197,10 +197,10 @@ async function doPBP(parameter) {
       'Postponed'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('postponed');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -2
         });
@@ -217,10 +217,10 @@ async function doPBP(parameter) {
       'Cancelled'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('cancelled');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -3
         });
@@ -243,10 +243,10 @@ async function doPBP(parameter) {
           'Not started'
       ) {
         try {
-          await database
+          database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('postponed');
-          await Match.upsert({
+          Match.upsert({
             bets_id: betsID,
             status: -2
           });
@@ -261,10 +261,10 @@ async function doPBP(parameter) {
       }
     } else {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -1
         });
@@ -329,13 +329,13 @@ async function queryForToken() {
 async function initRealtime(betsID, data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
         );
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -349,16 +349,10 @@ async function initRealtime(betsID, data) {
       );
     }
     try {
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-        .set('0');
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
-        .set(1);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
-        .set(0);
-      await database
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`).set('0');
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_innings`).set(1);
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_event`).set(0);
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(0);
     } catch (err) {
@@ -381,45 +375,41 @@ async function writeRealtime(betsID, data, baseballParameter) {
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
-        .set({
-          points:
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .results[2].value,
-          hits:
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .stats.length > 0
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats[0].value
-              : null,
-          errors:
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .stats.length > 0
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats[1].value
-              : null
-        });
+      database.ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`).set({
+        points:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .results[2].value,
+        hits:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .stats[0].value
+            : null,
+        errors:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .stats[1].value
+            : null
+      });
 
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`)
-        .set({
-          points:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .results[2].value,
-          hits:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats.length > 0
-              ? data.api.data.competition.season.stage.group.event
-                .participants[1].stats[0].value
-              : null,
-          errors:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats.length > 0
-              ? data.api.data.competition.season.stage.group.event
-                .participants[1].stats[1].value
-              : null
-        });
+      database.ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`).set({
+        points:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .results[2].value,
+        hits:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[0].value
+            : null,
+        errors:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[1].value
+            : null
+      });
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -433,7 +423,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
           data.api.data.competition.season.stage.group.event.participants[0]
             .results[count].value !== ''
         ) {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/home/Innings${
                 count - 2
@@ -451,7 +441,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
           data.api.data.competition.season.stage.group.event.participants[1]
             .results[count].value !== ''
         ) {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/info/away/Innings${
                 count - 2
@@ -544,7 +534,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
       }
       try {
         if (half === 'common') {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${halfNow}/event${eventOrderNow}`
             )
@@ -567,7 +557,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                   .events_incidents[eventCount].id
             });
         } else {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${half}/event${eventOrderNow}`
             )
@@ -601,10 +591,10 @@ async function writeRealtime(betsID, data, baseballParameter) {
         );
       }
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
           .set(inningNow);
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_strikes`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -627,7 +617,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[17].value
                 : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_outs`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -650,7 +640,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[18].value
                 : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_balls`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -673,7 +663,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[19].value
                 : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -696,7 +686,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[20].value
                 : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_secondbase`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -719,7 +709,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[21].value
                 : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_thirdbase`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -749,8 +739,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
           )
         );
       }
-      await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
     }
+    await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
     resolve('ok');
   });
 }
@@ -758,13 +748,13 @@ async function writeRealtime(betsID, data, baseballParameter) {
 async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
   return new Promise(async function(resolve, reject) {
     try {
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
         .set(parseInt(eventNow));
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(parseInt(eventOrderNow));
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
         .set(halfNow);
     } catch (err) {
