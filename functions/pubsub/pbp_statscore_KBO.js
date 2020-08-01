@@ -22,8 +22,8 @@ async function KBOpbpInplay(parameter) {
     perStep = 30000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
-    perStep = 14000;
-    timesPerLoop = 4; // 一分鐘3次
+    perStep = 18000;
+    timesPerLoop = 3; // 一分鐘2次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -238,7 +238,9 @@ async function doPBP(parameter) {
     ) {
       if (
         data.api.data.competition.season.stage.group.event.status_name ===
-        'Postponed'
+          'Postponed' ||
+        data.api.data.competition.season.stage.group.event.status_name ===
+          'Not started'
       ) {
         try {
           await database
@@ -605,115 +607,139 @@ async function writeRealtime(betsID, data, baseballParameter) {
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_strikes`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats.length > 0
-                ? data.api.data.competition.season.stage.group.event
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
                   .participants[0].stats[17].value
-                : null
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[17].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[17].value
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[17].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[17].value
                 : null
           );
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_outs`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats > 0
-                ? data.api.data.competition.season.stage.group.event
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
                   .participants[0].stats[18].value
-                : null
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[18].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats > 0
-                ? data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[18].value
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[18].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[18].value
                 : null
           );
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_balls`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats > 0
-                ? data.api.data.competition.season.stage.group.event
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
                   .participants[0].stats[19].value
-                : null
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[19].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats > 0
-                ? data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[19].value
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[19].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[19].value
                 : null
           );
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats > 0
-                ? parseFloat(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[20].value
-                )
-                : null
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[20].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[20].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats > 0
-                ? parseFloat(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[20].value
                 )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[20].value
                 : null
           );
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_secondbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats.length > 0
-                ? parseFloat(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[21].value
-                )
-                : null
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[21].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[21].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? parseFloat(
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[21].value
                 )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[21].value
                 : null
           );
         await database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_thirdbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats.length > 0
-                ? parseFloat(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[22].value
-                )
-                : null
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[23].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[23].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? parseFloat(
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[22].value
+                    .participants[1].stats[23].value
                 )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[23].value
                 : null
           );
       } catch (err) {

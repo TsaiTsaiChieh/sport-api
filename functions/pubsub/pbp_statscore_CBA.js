@@ -842,10 +842,10 @@ function teamTrans(id) {
       return '浙江稠洲銀行';
     }
     case '1946': {
-      return '浙江廣廈控股';
+      return '浙江廣廈';
     }
     case '1942': {
-      return '深圳馬可波羅';
+      return '深圳領航者';
     }
     case '2485': {
       return '四川金強';
@@ -854,28 +854,28 @@ function teamTrans(id) {
       return '天津先行者';
     }
     case '1937': {
-      return '新疆伊力特';
+      return '新疆廣匯飛虎';
     }
     case '1943': {
-      return '時代中國廣州';
+      return '廣州龍獅';
     }
     case '1948': {
-      return '九台農商銀行';
+      return '吉林東北虎';
     }
     case '1949': {
-      return '遼寧本鋼';
+      return '遼寧衡潤飛豹';
     }
     case '2703': {
-      return '南京同曦宙光';
+      return '南京大聖';
     }
     case '1950': {
-      return '青島國信雙星';
+      return '青島雙星雄鷹';
     }
     case '1951': {
       return '山東西王';
     }
     case '1952': {
-      return '上海久事';
+      return '上海大鯊魚';
     }
     case '2704': {
       return '北京紫禁勇士';
@@ -884,13 +884,13 @@ function teamTrans(id) {
       return '北京首鋼';
     }
     case '1944': {
-      return '福建豹發力';
+      return '福建鱘潯興';
     }
     case '1945': {
-      return '廣東東莞銀行';
+      return '廣東宏遠';
     }
     case '1940': {
-      return '八一南昌';
+      return '八一火箭';
     }
     case '1953': {
       return '山西汾酒猛龍';
