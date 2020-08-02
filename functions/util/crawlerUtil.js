@@ -14,4 +14,15 @@ function crawler(URL) {
   });
 }
 
-module.exports = { crawler };
+function getDataByAxios(URL) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { data } = await axios.get(URL);
+      return resolve(data);
+    } catch (err) {
+      return reject(new AppErrors.AxiosError(err.stack));
+    }
+  });
+}
+
+module.exports = { crawler, getDataByAxios };
