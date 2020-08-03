@@ -1,13 +1,17 @@
 const db = require('../util/dbUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
+const logger = require('firebase-functions/lib/logger');
 
 // https://developers.line.biz/zh-hant/docs/line-login/integrate-line-login/#verify-id-token
 exports.getFirebaseUser = async function(accessToken) {
   const sub = accessToken.sub.toString();
   // const email = accessToken.email.toString();
+  logger.warn(JSON.stringify(accessToken));
   try {
-    const userRecord = await firebaseAdmin().auth().getUser(sub);
-    console.error(JSON.stringify(userRecord));
+    const userRecord = accessToken.email
+      ? await firebaseAdmin().auth().getUserByEmail(accessToken.email)
+      : await firebaseAdmin().auth().getUser(sub);
+    logger.warn(JSON.stringify(userRecord));
     return userRecord;
   } catch (e) {
     if (e.code === 'auth/user-not-found') {
@@ -20,7 +24,7 @@ exports.getFirebaseUser = async function(accessToken) {
       };
       return await firebaseAdmin().auth().createUser(userJson);
     } else {
-      console.error('firebaseUser error code ' + e.code);
+      logger.error('firebaseUser error code ' + e.code);
       return null;
     }
   }
