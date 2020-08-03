@@ -46,6 +46,7 @@ async function mpgModel(res) {
           method: 'post',
           url: setting.vm_api_url,
           form: trade_arr
+          // eslint-disable-next-line handle-callback-err
         }, function(error, response, return_data) {
           const checkout = neweb_sdk.CheckOutGash(cashflow_url, return_data); // 送出資訊到金流網址
           resolve(checkout);

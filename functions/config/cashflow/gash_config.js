@@ -13,8 +13,8 @@
 // const test_url = 'https://dosports.web.app/';
 // const test_api_url = 'https://api-dosports.web.app/';
 // const test_cashflow_url = 'https://ccore.newebpay.com/MPG/mpg_gateway';
-const official_url = 'https://getsports.web.app/';
-const official_api_url = 'https://api-getsports.web.app/';
+// const official_url = 'https://getsports.web.app/';
+// const official_api_url = 'https://api-getsports.web.app/';
 const official_vm_api_url = 'https://test.gets-info.com/Transaction_official.php';
 const official_cashflow_url = 'https://api.eg.gashplus.com/CP_Module/order.aspx';
 const transaction_return_url = 'https://test.gets-info.com/gash_return_url.php';

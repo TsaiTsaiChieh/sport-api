@@ -1,4 +1,3 @@
-/* eslint-disable promise/always-return */
 const db = require('../../../util/dbUtil');
 function dbEdit(uid, insertData) {
   return new Promise(async function(resolve, reject) {

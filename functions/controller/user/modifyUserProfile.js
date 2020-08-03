@@ -7,8 +7,7 @@ const envValues = require('../../config/env_values');
 const httpStatus = require('http-status');
 
 async function modifyUserProfile(req, res) {
-  // const uid = req.token.uid;
-  const uid = 'testuid';
+  const uid = req.token.uid;
   const userSnapshot = await db.sequelize.query(
     `
       SELECT *
@@ -70,9 +69,11 @@ async function modifyUserProfile(req, res) {
       data.block_count = 0;
       data.accuse_credit = 20; // 檢舉信用值預設20，limit 100
       firebaseAdmin().auth().updateUser(uid, {
-        // email: req.body.email,
-        // phoneNumber: req.body.phone,
-        display_name: req.body.display_name
+        email: data.email,
+        phoneNumber: `+${data.country_code}${data.phone}`,
+        emailVerified: true,
+        displayName: data.display_name,
+        photoURL: data.avatar
       });
       firebaseAdmin().auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
