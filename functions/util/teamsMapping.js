@@ -57,12 +57,14 @@ function MLB_teamName2id(name) {
       return { statId: '140', id: '1311' };
     case 'new york yankees':
     case 'nya':
+    case 'nyy':
       return { statId: '147', id: '1121' };
     case 'baltimore orioles':
     case 'bal':
       return { statId: '110', id: '1120' };
     case 'tampa bay rays':
     case 'tba':
+    case 'tb':
       return { statId: '139', id: '1216' };
     case 'toronto blue jays':
     case 'tor':
@@ -81,6 +83,8 @@ function MLB_teamName2id(name) {
       return { statId: '114', id: '1310' };
     case 'chicago white sox':
     case 'cha':
+    case 'chs':
+    case 'cws':
       return { statId: '145', id: '1203' };
     case 'kansas city royals':
     case 'kca':
@@ -108,6 +112,7 @@ function MLB_teamName2id(name) {
       return { statId: '115', id: '1146' };
     case 'los angeles dodgers':
     case 'lan':
+    case 'lad':
       return { statId: '119', id: '1369' };
     case 'san diego padres':
     case 'sdn':
@@ -130,6 +135,7 @@ function MLB_teamName2id(name) {
     case 'washington nationals':
     case 'was':
     case 'wah':
+    case 'wsh':
       return { statId: '120', id: '1147' };
     case 'philadelphia phillies':
     case 'phi':
