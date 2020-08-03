@@ -62,7 +62,7 @@ async function prematch_statscore_MLB() {
               homeTeamName === ele[j].home_name &&
               awayTeamName === ele[j].away_name
             ) {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: ele[j].id,
                 radar_id: eventID
               });

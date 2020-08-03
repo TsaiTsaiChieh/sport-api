@@ -7,8 +7,10 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
 const league = 'MLB';
+const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function MLBpbpInplay(parameter) {
+async function MLBpbpInplay(parameter, Data) {
+  const firestoreData = Data;
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
@@ -73,7 +75,7 @@ async function MLBpbpInplay(parameter) {
       console.log(`${betsID} : pbp_statscore_${league} success`);
       clearInterval(timerForStatus2);
     } else {
-      await doPBP(parameterPBP);
+      await doPBP(parameterPBP, firestoreData);
     }
   }, perStep);
 }
@@ -115,7 +117,7 @@ async function MLBpbpHistory(parameter) {
         );
       }
       try {
-        await settleMatchesModel({
+        settleMatchesModel({
           token: {
             uid: '999'
           },
@@ -139,7 +141,7 @@ async function MLBpbpHistory(parameter) {
   });
 }
 
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
@@ -282,7 +284,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, data, baseballParameter);
+        await writeRealtime(betsID, data, baseballParameter, firestoreData);
       }
     }
 
@@ -366,7 +368,7 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, data, baseballParameter) {
+async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     let eventNow = parseInt(baseballParameter.eventNow);
     let eventOrderNow = baseballParameter.eventOrderNow;
@@ -738,6 +740,28 @@ async function writeRealtime(betsID, data, baseballParameter) {
             `${err} at doPBP on ${betsID} by DY`
           )
         );
+      }
+      const sportInfo = {
+        sport: sport,
+        inningNow: inningNow,
+        half: halfNow
+      };
+      if (firestoreData !== null) {
+        if (firestoreData.length > 0) {
+          for (let fi = 0; fi < firestoreData.length; fi++) {
+            if (firestoreData[fi].bets_id === betsID) {
+              pbpOnHome.pbpOnHome(
+                betsID,
+                sportInfo,
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].results[2].value,
+                data.api.data.competition.season.stage.group.event
+                  .participants[1].results[2].value
+              );
+              break;
+            }
+          }
+        }
       }
     }
     await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);

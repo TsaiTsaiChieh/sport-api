@@ -84,7 +84,7 @@ async function getPitchersStandings(URL) {
           );
         }
       });
-      await upsertFirestorePitcher(result, totalPlayer, playerID);
+      upsertFirestorePitcher(result, totalPlayer, playerID);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -135,7 +135,7 @@ async function getHittersStandings(URL) {
         }
       });
 
-      await upsertFirestoreHitter(result, totalPlayer, playerID);
+      upsertFirestoreHitter(result, totalPlayer, playerID);
     } catch (err) {
       console.error(err, '=-----');
       return reject(new AppErrors.CrawlersError(`${err.stack} by DY`));
@@ -169,7 +169,7 @@ async function getTeamsStandings(URL) {
         }
       }
       for (let i = 1; i <= totalTeam; i++) {
-        await upsertFirestoreTeam(i, result);
+        upsertFirestoreTeam(i, result);
       }
 
       resolve('ok');
@@ -215,7 +215,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
   const index = 16 + 15 * (teamNumber - 1);
   const offsetPitch = 76 - teamNumber;
   const offsetBit = 147 - teamNumber;
-  await firestore
+  firestore
     .collection(`${sportName}_${leagueName}`)
     .doc(teamID)
     .set(
@@ -317,7 +317,7 @@ async function upsertFirestoreHitter(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -372,7 +372,7 @@ async function upsertFirestorePitcher(result, totalPlayer, playerID) {
   const start = 31;
   const offset = 32; // 一循環
   for (let i = 0; i < totalPlayer; i++) {
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(

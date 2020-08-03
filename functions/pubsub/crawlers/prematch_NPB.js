@@ -13,32 +13,32 @@ async function prematch_NPB() {
   // 中央球隊的投手季戰績
   let URL = `https://npb.jp/bis/${season}/stats/tmp_c.html`;
   const teamPitcherC = await crawl(URL);
-  upsertPitcherTeamC(teamPitcherC);
+  await upsertPitcherTeamC(teamPitcherC);
 
   // 太平洋球隊的投手季戰績
   URL = `https://npb.jp/bis/${season}/stats/tmp_p.html`;
   const teamPitcherP = await crawl(URL);
-  upsertPitcherTeamP(teamPitcherP);
+  await upsertPitcherTeamP(teamPitcherP);
 
   // 中央球隊的基本季戰績
   URL = `https://npb.jp/bis/${season}/stats/std_c.html`;
   const teamStatC = await crawl(URL);
-  upsertTeambaseTeamC(teamStatC);
+  await upsertTeambaseTeamC(teamStatC);
 
   // 太平洋球隊基本季戰績
   URL = `https://npb.jp/bis/${season}/stats/std_p.html`;
   const teamStatP = await crawl(URL);
-  upsertTeambaseTeamP(teamStatP);
+  await upsertTeambaseTeamP(teamStatP);
 
   // 中央球隊的打擊季戰績
   URL = `https://npb.jp/bis/${season}/stats/tmb_c.html`;
   const teamHitterC = await crawl(URL);
-  upsertHitterTeamC(teamHitterC);
+  await upsertHitterTeamC(teamHitterC);
 
   // 太平洋球隊的打擊季戰績
   URL = `https://npb.jp/bis/${season}/stats/tmb_p.html`;
   const teamHitterP = await crawl(URL);
-  upsertHitterTeamP(teamHitterP);
+  await upsertHitterTeamP(teamHitterP);
 
   // 選手季戰績
   for (let teamCount = 0; teamCount < teamAlias.length; teamCount++) {
@@ -46,12 +46,12 @@ async function prematch_NPB() {
     const Hitter = await crawl(URL);
     URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
     const [HitterID, HitterUID] = await crawlId(URL);
-    upsertHitter(Hitter, HitterID, HitterUID);
+    await upsertHitter(Hitter, HitterID, HitterUID);
     URL = `https://npb.jp/bis/2020/stats/idp1_${teamAlias[teamCount]}.html`;
     const Pitcher = await crawl(URL);
     URL = `https://npb.jp/bis/teams/rst_${teamAlias[teamCount]}.html`;
     const [PitcherID, PitcherUID] = await crawlId(URL);
-    upsertPitcher(Pitcher, PitcherID, PitcherUID);
+    await upsertPitcher(Pitcher, PitcherID, PitcherUID);
   }
 }
 
@@ -104,7 +104,7 @@ async function upsertPitcher(result, result2, result3) {
         break;
       }
     }
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -177,7 +177,7 @@ async function upsertHitter(result, result2, result3) {
         break;
       }
     }
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -265,7 +265,7 @@ async function upsertPitcherTeamC(result) {
   const index = 1;
   for (let i = 0; i < centralTeam; i++) {
     const teamID = team[i];
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -310,7 +310,7 @@ async function upsertPitcherTeamP(result) {
   const index = 1;
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -354,7 +354,7 @@ async function upsertHitterTeamC(result) {
     const teamID = team[i];
     const offset = 23;
     const index = 1;
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -394,7 +394,7 @@ async function upsertHitterTeamP(result) {
   const index = 1;
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -435,7 +435,7 @@ async function upsertTeambaseTeamC(result) {
   const offset = 17;
   for (let i = 0; i < centralTeam; i++) {
     const teamID = team[i];
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
@@ -499,7 +499,7 @@ async function upsertTeambaseTeamP(result) {
   for (let i = 0; i < pacificTeam; i++) {
     const teamID = team[i];
 
-    await firestore
+    firestore
       .collection(`${sportName}_${leagueName}`)
       .doc(teamID)
       .set(
