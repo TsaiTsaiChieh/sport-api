@@ -716,20 +716,20 @@ async function writeRealtime(betsID, data, baseballParameter) {
               .stats.length > 0
               ? isNaN(
                 data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[23].value
+                  .participants[0].stats[22].value
               )
                 ? null
                 : data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[23].value
+                  .participants[0].stats[22].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
                 ? isNaN(
                   data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[23].value
+                    .participants[1].stats[22].value
                 )
                   ? null
                   : data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[23].value
+                    .participants[1].stats[22].value
                 : null
           );
       } catch (err) {
