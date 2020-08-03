@@ -74,7 +74,7 @@ async function settleMatchesModel(args) {
       spreadHomeOdd: data.home_odd,
       spreadAwayOdd: data.away_odd,
       totalsHandicap: data.totals_handicap,
-      totalRate: data.totals_rate,
+      totalsRate: data.totals_rate,
       totalsOverOdd: data.over_odd,
       totalsUnderOdd: data.under_odd
     };
