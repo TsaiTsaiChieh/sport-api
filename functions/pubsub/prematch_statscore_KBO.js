@@ -11,6 +11,7 @@ const league = 'KBO';
 async function prematch_statscore_KBO() {
   return new Promise(async function(resolve, reject) {
     try {
+      const token = await queryForToken();
       const unix = Math.floor(Date.now() / 1000);
       const date2 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
@@ -24,14 +25,9 @@ async function prematch_statscore_KBO() {
         value: -1,
         unit: 'days'
       });
-      const token = await queryForToken();
-
       const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
       const data = await axiosForURL(URL);
-      const ele = await queryForMatches(
-        modules.convertTimezone(date1),
-        modules.convertTimezone(date2)
-      );
+      const ele = await queryForMatches();
 
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
@@ -62,7 +58,7 @@ async function prematch_statscore_KBO() {
               homeTeamName === ele[j].home_name &&
               awayTeamName === ele[j].away_name
             ) {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: ele[j].id,
                 radar_id: eventID
               });
@@ -127,8 +123,8 @@ async function queryForMatches(date1, date2) {
 						    match__teams as home,
 							  match__teams as away
 					WHERE game.league_id = '${leagueID}'
-					  AND game.scheduled between '${date1}' and '${date2}'
-					  AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
+						AND game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}'
+						AND game.radar_id IS NULL
 				  	AND home.team_id = game.home_id
 				  	AND away.team_id = game.away_id
 				)`,

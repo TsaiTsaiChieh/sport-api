@@ -373,39 +373,39 @@ function spreadCalculator(handicapObj, sport) {
               if (handicapObj.handicap >= 0) {
                 // 主讓客
                 if (handicapObj.home_odd > handicapObj.away_odd) {
-                  // 主賠率>客賠率 顯示 +
+                  // 主賠率 > 客賠率 顯示 +
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.home_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}+50`;
                   handicapObj.away_tw = null;
-                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = 50;
                 } else {
                   // 主賠率<客賠率 顯示 -
+                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.home_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
                   handicapObj.away_tw = null;
-                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = -50;
                 }
               } else {
                 // 客讓主
                 if (handicapObj.home_odd > handicapObj.away_odd) {
                   // 主賠率>客賠率 顯示 -
+                  handicapObj.handicap = `${Math.ceil(handicapObj.handicap)}`;
                   handicapObj.home_tw = null;
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}-50`;
-                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = -50;
                 } else {
                   // 主賠率<客賠率 顯示 +
+                  handicapObj.handicap = `${Math.ceil(handicapObj.handicap)}`;
                   handicapObj.home_tw = null;
                   handicapObj.away_tw = `${Math.floor(
                     Math.abs(handicapObj.handicap)
                   )}+50`;
-                  handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
                   handicapObj.rate = 50;
                 }
               }
@@ -578,6 +578,7 @@ function spreadCalculator(handicapObj, sport) {
             // 相同賠率
             if (handicapObj.handicap >= 0) {
               // 主讓客
+              handicapObj.handicap = `${Math.floor(handicapObj.handicap)}`;
               handicapObj.home_tw = `${Math.floor(
                 Math.abs(handicapObj.handicap)
               )}-50`;
@@ -585,6 +586,7 @@ function spreadCalculator(handicapObj, sport) {
               handicapObj.rate = -50;
             } else {
               // 客讓主
+              handicapObj.handicap = `${Math.ceil(handicapObj.handicap)}`;
               handicapObj.home_tw = null;
               handicapObj.away_tw = `${Math.floor(
                 Math.abs(handicapObj.handicap)

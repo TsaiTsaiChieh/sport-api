@@ -1,25 +1,20 @@
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
-const leagueUtil = require('../util/leagueUtil');
 const axios = require('axios');
 const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
-const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
-let keepPBP = 1;
+const pbpOnHome = require('../model/home/pbpOnHomeModel');
 const Match = db.Match;
-// let leagueID;
-let leagueName;
-let firestoreData;
+const sport = 'esports';
+const league = 'eSoccer';
 async function ESoccerpbpInplay(parameter, Data) {
-  leagueName = await leagueOnLivescore();
-  // leagueID = leagueUtil.leagueCodebook(leagueName).id;
-  firestoreData = Data;
-  // 50 秒一次
-  const perStep = 50000;
-  // 一分鐘1次
-  const timesPerLoop = 2;
+  const firestoreData = Data;
+  // 14 秒一次
+  const perStep = 14000;
+  // 一分鐘3次
+  const timesPerLoop = 4;
   const betsID = parameter.betsID;
   let realtimeData;
   if (parameter.realtimeData) {
@@ -45,6 +40,7 @@ async function ESoccerpbpInplay(parameter, Data) {
     }
   }, perStep);
 }
+
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -55,106 +51,7 @@ async function axiosForURL(URL) {
     }
   });
 }
-async function write2HomeLivescore(betsID, timer, homeScores, awayScores) {
-  return new Promise(async function(resolve, reject) {
-    let flag = 0;
-    let index = 0;
-    // 寫到realtime
-    for (let i = 0; i < firestoreData.length; i++) {
-      if (betsID === firestoreData[i].bets_id) {
-        flag = 1;
-        index = i;
-      }
-    }
-    if (flag === 1) {
-      try {
-        await database
-          .ref(`home_livescore/${firestoreData[index].bets_id}`)
-          .set({
-            id: firestoreData[index].bets_id,
-            league: leagueName,
-            ori_league: firestoreData[index].league_name_ch,
-            sport: leagueUtil.league2Sport(leagueName).sport,
-            status: firestoreData[index].status,
-            scheduled: firestoreData[index].scheduled,
-            spread: {
-              handicap:
-                firestoreData[index].handicap === null
-                  ? null
-                  : firestoreData[index].handicap,
-              home_tw:
-                firestoreData[index].home_tw === null
-                  ? null
-                  : firestoreData[index].home_tw,
-              away_tw:
-                firestoreData[index].away_tw === null
-                  ? null
-                  : firestoreData[index].away_tw
-            },
-            home: {
-              teamname:
-                firestoreData[index].home_alias_ch.indexOf('(') > 0
-                  ? firestoreData[index].home_alias_ch.split('(')[0].trim()
-                  : firestoreData[index].home_alias_ch,
-              player_name:
-                firestoreData[index].home_name.indexOf('(') > 0
-                  ? firestoreData[index].home_name
-                    .split('(')[1]
-                    .replace(')', '')
-                    .trim()
-                  : null,
-              name: firestoreData[index].home_name,
-              alias: firestoreData[index].home_alias,
-              alias_ch:
-                firestoreData[index].home_alias_ch.indexOf('(') > 0
-                  ? firestoreData[index].home_alias_ch.split('(')[0].trim()
-                  : firestoreData[index].home_alias_ch,
-              image_id: firestoreData[index].home_image_id
-            },
-            away: {
-              teamname:
-                firestoreData[index].away_alias_ch.indexOf('(') > 0
-                  ? firestoreData[index].away_alias_ch.split('(')[0].trim()
-                  : firestoreData[index].away_alias_ch,
-              player_name:
-                firestoreData[index].away_name.indexOf('(') > 0
-                  ? firestoreData[index].away_name
-                    .split('(')[1]
-                    .replace(')', '')
-                    .trim()
-                  : null,
-              name: firestoreData[index].away_name,
-              alias: firestoreData[index].away_alias,
-              alias_ch:
-                firestoreData[index].away_alias_ch.indexOf('(') > 0
-                  ? firestoreData[index].away_alias_ch.split('(')[0].trim()
-                  : firestoreData[index].away_alias_ch,
-              image_id: firestoreData[index].away_image_id
-            },
-            Now_clock: timer,
-            Summary: {
-              info: {
-                home: {
-                  Total: { points: homeScores }
-                },
-                away: {
-                  Total: { points: awayScores }
-                }
-              }
-            }
-          });
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at pbpESoccer of doPBP on ${betsID} by DY`
-          )
-        );
-      }
-    } else {
-      await database.ref(`home_livescore/${betsID}`).set(null);
-    }
-  });
-}
+
 async function ESoccerpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
@@ -174,7 +71,7 @@ async function ESoccerpbpHistory(parameter) {
     let awayScores = null;
     if (!data.results[0].ss) {
       realtimeData = await database
-        .ref(`esports/eSoccer/${betsID}`)
+        .ref(`${sport}/${league}/${betsID}`)
         .once('value');
       realtimeData = realtimeData.val();
       data = realtimeData;
@@ -240,7 +137,7 @@ async function ESoccerpbpHistory(parameter) {
     }
     try {
       await database
-        .ref(`esports/eSoccer/${betsID}/Summary/status`)
+        .ref(`${sport}/${league}/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {
       return reject(
@@ -250,7 +147,7 @@ async function ESoccerpbpHistory(parameter) {
       );
     }
     try {
-      await settleMatchesModel({
+      settleMatchesModel({
         token: {
           uid: '999'
         },
@@ -272,8 +169,9 @@ async function ESoccerpbpHistory(parameter) {
     return resolve('ok');
   });
 }
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
+    let keepPBP = 1;
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -292,8 +190,8 @@ async function doPBP(parameter) {
         if (data.results[0].time_status) {
           if (data.results[0].time_status === '5') {
             try {
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('cancelled');
             } catch (err) {
               return reject(
@@ -303,7 +201,7 @@ async function doPBP(parameter) {
               );
             }
             try {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: betsID,
                 status: -3
               });
@@ -318,8 +216,8 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '4') {
             try {
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('postponed');
             } catch (err) {
               return reject(
@@ -329,7 +227,7 @@ async function doPBP(parameter) {
               );
             }
             try {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: betsID,
                 status: -2
               });
@@ -345,8 +243,8 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '3') {
             try {
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('closed');
             } catch (err) {
               return reject(
@@ -360,8 +258,8 @@ async function doPBP(parameter) {
 
           if (data.results[0].time_status === '2') {
             try {
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
               return reject(
@@ -371,7 +269,7 @@ async function doPBP(parameter) {
               );
             }
             try {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: betsID,
                 status: -1
               });
@@ -388,8 +286,8 @@ async function doPBP(parameter) {
             if (realtimeData !== null) {
               if (realtimeData.Summary.status !== 'inprogress') {
                 try {
-                  await database
-                    .ref(`esports/eSoccer/${betsID}/Summary/status`)
+                  database
+                    .ref(`${sport}/${league}/${betsID}/Summary/status`)
                     .set('inprogress');
                 } catch (err) {
                   return reject(
@@ -399,7 +297,7 @@ async function doPBP(parameter) {
                   );
                 }
                 try {
-                  await Match.upsert({
+                  Match.upsert({
                     bets_id: betsID,
                     status: 1
                   });
@@ -412,8 +310,8 @@ async function doPBP(parameter) {
                 }
 
                 try {
-                  await database
-                    .ref(`esports/eSoccer/${betsID}/Summary/league`)
+                  database
+                    .ref(`${sport}/${league}/${betsID}/Summary/league`)
                     .set({
                       name: data.results[0].league.name,
                       id: data.results[0].league.id
@@ -431,8 +329,8 @@ async function doPBP(parameter) {
           }
           if (data.results[0].time_status === '0') {
             try {
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/status`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/status`)
                 .set('tobefixed');
             } catch (err) {
               return reject(
@@ -442,7 +340,7 @@ async function doPBP(parameter) {
               );
             }
             try {
-              await Match.upsert({
+              Match.upsert({
                 bets_id: betsID,
                 status: -1
               });
@@ -504,8 +402,8 @@ async function doPBP(parameter) {
                 data.results[0].timer.tm,
                 data.results[0].timer.ts
               );
-              await database
-                .ref(`esports/eSoccer/${betsID}/Summary/Now_clock`)
+              database
+                .ref(`${sport}/${league}/${betsID}/Summary/Now_clock`)
                 .set(timer);
             } catch (err) {
               return reject(
@@ -517,40 +415,38 @@ async function doPBP(parameter) {
 
             try {
               if (data.results[0].ss !== 'no data') {
-                await database
-                  .ref(`esports/eSoccer/${betsID}/Summary/info`)
-                  .set({
-                    home: {
-                      name: data.results[0].home.name,
-                      Total: {
-                        points: homeScores,
-                        attacks: data.results[0].stats.attacks[0],
-                        ball_safe: data.results[0].stats.ball_safe[0],
-                        corners: data.results[0].stats.corners[0],
-                        dangerous_attacks:
-                          data.results[0].stats.dangerous_attacks[0],
-                        off_target: data.results[0].stats.off_target[0],
-                        on_target: data.results[0].stats.on_target[0],
-                        yellowcards: data.results[0].stats.yellowcards[0],
-                        redcards: data.results[0].stats.redcards[0]
-                      }
-                    },
-                    away: {
-                      name: data.results[0].away.name,
-                      Total: {
-                        points: awayScores,
-                        attacks: data.results[0].stats.attacks[1],
-                        ball_safe: data.results[0].stats.ball_safe[1],
-                        corners: data.results[0].stats.corners[1],
-                        dangerous_attacks:
-                          data.results[0].stats.dangerous_attacks[1],
-                        off_target: data.results[0].stats.off_target[1],
-                        on_target: data.results[0].stats.on_target[1],
-                        yellowcards: data.results[0].stats.yellowcards[1],
-                        redcards: data.results[0].stats.redcards[1]
-                      }
+                database.ref(`${sport}/${league}/${betsID}/Summary/info`).set({
+                  home: {
+                    name: data.results[0].home.name,
+                    Total: {
+                      points: homeScores,
+                      attacks: data.results[0].stats.attacks[0],
+                      ball_safe: data.results[0].stats.ball_safe[0],
+                      corners: data.results[0].stats.corners[0],
+                      dangerous_attacks:
+                        data.results[0].stats.dangerous_attacks[0],
+                      off_target: data.results[0].stats.off_target[0],
+                      on_target: data.results[0].stats.on_target[0],
+                      yellowcards: data.results[0].stats.yellowcards[0],
+                      redcards: data.results[0].stats.redcards[0]
                     }
-                  });
+                  },
+                  away: {
+                    name: data.results[0].away.name,
+                    Total: {
+                      points: awayScores,
+                      attacks: data.results[0].stats.attacks[1],
+                      ball_safe: data.results[0].stats.ball_safe[1],
+                      corners: data.results[0].stats.corners[1],
+                      dangerous_attacks:
+                        data.results[0].stats.dangerous_attacks[1],
+                      off_target: data.results[0].stats.off_target[1],
+                      on_target: data.results[0].stats.on_target[1],
+                      yellowcards: data.results[0].stats.yellowcards[1],
+                      redcards: data.results[0].stats.redcards[1]
+                    }
+                  }
+                });
               }
             } catch (err) {
               return reject(
@@ -559,8 +455,24 @@ async function doPBP(parameter) {
                 )
               );
             }
-            if (leagueName === 'eSoccer') {
-              await write2HomeLivescore(betsID, timer, homeScores, awayScores);
+            const sportInfo = {
+              sport: sport,
+              timer: timer
+            };
+            if (firestoreData !== null) {
+              if (firestoreData.length > 0) {
+                for (let fi = 0; fi < firestoreData.length; fi++) {
+                  if (firestoreData[fi].bets_id === betsID) {
+                    pbpOnHome.pbpOnHome(
+                      betsID,
+                      sportInfo,
+                      homeScores,
+                      awayScores
+                    );
+                    break;
+                  }
+                }
+              }
             }
           }
         }
@@ -568,8 +480,8 @@ async function doPBP(parameter) {
     } else {
       // api error
       try {
-        await database
-          .ref(`esports/eSoccer/${betsID}/Summary/status`)
+        database
+          .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
       } catch (err) {
         return reject(
@@ -579,7 +491,7 @@ async function doPBP(parameter) {
         );
       }
       try {
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -1
         });

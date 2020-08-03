@@ -43,11 +43,11 @@ function createMessage(req, res) {
           properties: {
             message: {
               type: 'string',
-              format: 'url'
+              format: 'imgURL'
             },
             thumbURL: {
               type: 'string',
-              format: 'url'
+              format: 'imgURL'
             }
           }
         }

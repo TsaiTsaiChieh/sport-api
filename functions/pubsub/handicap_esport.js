@@ -217,6 +217,7 @@ async function write2MysqlOfMatchTotals(odd, ele, league) {
 }
 
 function spreadCalculator(handicapObj) {
+  handicapObj.handicap = -handicapObj.handicap;
   if (handicapObj.handicap) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
@@ -313,7 +314,6 @@ function spreadCalculator(handicapObj) {
           }
         } else {
           // 客讓主
-          handicapObj.handicap = Math.abs(handicapObj.handicap);
           const str = handicapObj.handicap.toString();
           const str1 = str.split('.')[0];
           const str2 = str.split('.')[1];
