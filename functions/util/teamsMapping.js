@@ -79,9 +79,9 @@ function MLB_teamName2id(name) {
     case 'cleveland indians':
     case 'cle':
       return { statId: '114', id: '1310' };
-    case 'Chicago white sox':
+    case 'chicago white sox':
     case 'cha':
-      return { statId: '145', id: '1091' };
+      return { statId: '145', id: '1203' };
     case 'kansas city royals':
     case 'kca':
     case 'kc':
