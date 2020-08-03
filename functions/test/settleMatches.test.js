@@ -481,12 +481,11 @@ describe('測試 足球/電子足球', () => {
     });
   });
 
-
   // ======================================================
   describe('測試 讓分 球頭(handicap) 為 小數 .5 盤口', () => {
     it('讓分 球頭 .5 主隊 0分  客隊 0分 ', () => {
       const data = {
-        spreadHandicap: .5,
+        spreadHandicap: 0.5,
         homePoints: 0,
         awayPoints: 0
       };
@@ -500,7 +499,7 @@ describe('測試 足球/電子足球', () => {
 
     it('讓分 球頭 .5 主隊 1分  客隊 0分 ', () => {
       const data = {
-        spreadHandicap: .5,
+        spreadHandicap: 0.5,
         homePoints: 1,
         awayPoints: 0
       };
@@ -514,7 +513,7 @@ describe('測試 足球/電子足球', () => {
 
     it('讓分 球頭 .5 主隊 0分  客隊 1分 ', () => {
       const data = {
-        spreadHandicap: .5,
+        spreadHandicap: 0.5,
         homePoints: 0,
         awayPoints: 1
       };
@@ -528,7 +527,7 @@ describe('測試 足球/電子足球', () => {
 
     it('讓分 球頭 .5 主隊 1分  客隊 1分 ', () => {
       const data = {
-        spreadHandicap: .5,
+        spreadHandicap: 0.5,
         homePoints: 1,
         awayPoints: 1
       };
@@ -542,7 +541,7 @@ describe('測試 足球/電子足球', () => {
 
     it('讓分 球頭 .5 主隊 2分  客隊 0分 ', () => {
       const data = {
-        spreadHandicap: .5,
+        spreadHandicap: 0.5,
         homePoints: 2,
         awayPoints: 1
       };
@@ -830,7 +829,7 @@ describe('測試 足球/電子足球', () => {
       expect(resultFlag('away', settleResult)).toBe(1); // 0.95
     });
   });
-  
+
 
   // ======================================================
   // ======================================================
@@ -1290,6 +1289,6 @@ describe('測試 足球/電子足球', () => {
       expect(resultFlag('under', settleResult)).toBe(-1);
     });
   });
-  
+
 
 });
