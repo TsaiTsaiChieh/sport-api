@@ -55,7 +55,7 @@ function MLB_teamName2id(name) {
     case 'texas rangers':
     case 'tex':
       return { statId: '140', id: '1311' };
-    case 'New York Yankees':
+    case 'new york yankees':
     case 'nya':
       return { statId: '147', id: '1121' };
     case 'baltimore orioles':
@@ -64,7 +64,7 @@ function MLB_teamName2id(name) {
     case 'tampa bay rays':
     case 'tba':
       return { statId: '139', id: '1216' };
-    case 'tronto blue jays':
+    case 'toronto blue jays':
     case 'tor':
       return { statId: '141', id: '1089' };
     case 'boston red sox':
@@ -79,7 +79,7 @@ function MLB_teamName2id(name) {
     case 'cleveland indians':
     case 'cle':
       return { statId: '114', id: '1310' };
-    case 'Chicago White Sox':
+    case 'Chicago white sox':
     case 'cha':
       return { statId: '145', id: '1091' };
     case 'kansas city royals':
