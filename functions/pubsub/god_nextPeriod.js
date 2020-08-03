@@ -22,7 +22,7 @@ async function god_nextPeriod() {
   const nowHHmm = nowInfo.mdate.format('HHmm');
   const period = getTitlesPeriod(Date.now());
   const nextPeriod = getTitlesNextPeriod(Date.now());
-  const nextPeriodStartDateUnix = moment.tz(nextPeriod.end, 'YYYYMMDD', zone_tw).add(1, 'days').unix();
+  const nextPeriodStartDateUnix = moment.tz(period.end, 'YYYYMMDD', zone_tw).add(1, 'days').unix();
   const nowYYYYMMDD = nowInfo.dateYYYYMMDD;
   const nowDayOfWeek = nowInfo.mdate.isoWeekday();
   const nowDayOfMonth = nowInfo.mdate.format('DD');
