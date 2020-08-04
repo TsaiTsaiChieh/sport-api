@@ -53,8 +53,8 @@ module.exports.pbpOnHome = async function(
         .set(homeScores);
       database
         .ref(`home_livescore/${betsID}/Summary/info/away/Total/points`)
-				.set(awayScores);
-			database
+        .set(awayScores);
+      database
         .ref(`home_livescore/${betsID}/status`)
         .set(1);
       switch (sportInfo.sport) {

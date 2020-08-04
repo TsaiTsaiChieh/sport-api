@@ -750,7 +750,7 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
         if (firestoreData.length > 0) {
           for (let fi = 0; fi < firestoreData.length; fi++) {
             if (firestoreData[fi].bets_id === betsID) {
-               pbpOnHome.pbpOnHome(
+              pbpOnHome.pbpOnHome(
                 betsID,
                 sportInfo,
                 data.api.data.competition.season.stage.group.event

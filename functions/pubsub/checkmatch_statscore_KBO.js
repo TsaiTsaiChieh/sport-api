@@ -60,7 +60,7 @@ async function checkmatch_statscore_KBO() {
                   statscoreID: statscoreID,
                   first: 1
                 };
-                await KBOpbpInplay(parameter,firestoreData);
+                await KBOpbpInplay(parameter, firestoreData);
               } catch (err) {
                 return reject(
                   new AppErrors.MysqlError(
@@ -95,7 +95,7 @@ async function checkmatch_statscore_KBO() {
                   statscoreID: statscoreID,
                   first: 0
                 };
-                await KBOpbpInplay(parameter,firestoreData);
+                await KBOpbpInplay(parameter, firestoreData);
               }
 
               if (realtimeData.Summary.status === 'closed') {

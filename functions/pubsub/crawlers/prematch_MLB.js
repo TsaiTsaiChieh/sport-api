@@ -1,7 +1,7 @@
 const AppErrors = require('../../util/AppErrors');
 const { getSeason } = require('../../util/databaseEngine');
 const { leagueCodebook } = require('../../util/leagueUtil');
-const { getDataByAxios, setDataToFirestore, insertTeamNameToFirestore, insertPlayerToFirestore, debugLogger } = require('../../util/crawlerUtil');
+const { getDataByAxios, setDataToFirestore, insertTeamNameToFirestore, insertPlayerToFirestore } = require('../../util/crawlerUtil');
 const { MLB_teamName2id } = require('../../util/teamsMapping');
 const firebaseAdmin = require('../../util/firebaseUtil');
 

@@ -9,8 +9,8 @@ const sport = 'baseball';
 const league = 'NPB';
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function NPBpbpInplay(parameter) {
-  const firestoreData = Data;
+async function NPBpbpInplay(parameter, data) {
+  const firestoreData = data;
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
@@ -665,7 +665,7 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
                     .participants[1].stats[19].value
                 : null
           );
-					database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
