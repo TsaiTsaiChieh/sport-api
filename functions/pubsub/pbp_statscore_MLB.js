@@ -25,7 +25,7 @@ async function MLBpbpInplay(parameter, Data) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 18000;
-    timesPerLoop = 4; // 一分鐘3次
+    timesPerLoop = 3; // 一分鐘2次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -744,13 +744,13 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
       const sportInfo = {
         sport: sport,
         inningNow: inningNow,
-        half: halfNow
+        halfNow: halfNow
       };
       if (firestoreData !== null) {
         if (firestoreData.length > 0) {
           for (let fi = 0; fi < firestoreData.length; fi++) {
             if (firestoreData[fi].bets_id === betsID) {
-              pbpOnHome.pbpOnHome(
+               pbpOnHome.pbpOnHome(
                 betsID,
                 sportInfo,
                 data.api.data.competition.season.stage.group.event
