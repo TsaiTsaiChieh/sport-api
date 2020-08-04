@@ -116,6 +116,7 @@ async function mpgModel(data) {
           method: 'post',
           url: php_sdk_url,
           form: post_data
+          // eslint-disable-next-line handle-callback-err
         }, function(error, response, body) {
           db.sequelize.query('INSERT INTO invoice_tests (content) VALUES (\'invoice5\')');
           const trade_arr = {
@@ -127,6 +128,7 @@ async function mpgModel(data) {
               method: 'post',
               url: cashflow_url,
               form: trade_arr
+              // eslint-disable-next-line handle-callback-err
             }, function(error, response, checkout) {
               const res1 = JSON.stringify(checkout);
               db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${res1}')`);

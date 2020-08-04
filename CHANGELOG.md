@@ -7,10 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  pre-commit with Eslint ***by rex-getsinfo*** [#324](https://github.com/gets-info/sports-api/pull/324)
 -  get hitters functions ***by TsaiTsaiChieh*** [#311](https://github.com/gets-info/sports-api/pull/311)
 -  MLB league skip logic when query data from Firstore in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#306](https://github.com/gets-info/sports-api/pull/306)
 -  baseball crawler scheduler and tune KBO crawler ***by TsaiTsaiChieh*** [#304](https://github.com/gets-info/sports-api/pull/304)
 #### Fix:
+-  Page 首頁即時比分轉成 MLB，CPBL, NPB 爬蟲排程調整，statscore系列文字直播調整 ***by page40316*** [#327](https://github.com/gets-info/sports-api/pull/327)
+-  line login with email or uid ***by rex-getsinfo*** [#325](https://github.com/gets-info/sports-api/pull/325)
+-  盤口大小計算 totalRate -> TotalsRate 導致 大小計算錯誤，修正 ***by alangets*** [#322](https://github.com/gets-info/sports-api/pull/322)
+-  line login without email issue & adjust firebase updateUser contents. ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/321)
+-  產生當天會是下一期區間，需要抓上一期的最後一天 +1 來計算 ***by alangets*** [#319](https://github.com/gets-info/sports-api/pull/319)
+-  would not return today already ended matches in user/prediction_history API ***by TsaiTsaiChieh*** [#318](https://github.com/gets-info/sports-api/pull/318)
+-  Page 排程：CPBL, NPB 爬蟲修正 Bug、棒球文字直播測試站測試 ***by page40316*** [#317](https://github.com/gets-info/sports-api/pull/317)
+-  處理 gcp logger 產生的錯誤 ***by alangets*** [#316](https://github.com/gets-info/sports-api/pull/316)
+-  security risks , SQL injection ***by rex-getsinfo*** [#315](https://github.com/gets-info/sports-api/pull/315)
+-  settle Spread, Totals rate為100, -100情況 ***by alangets*** [#313](https://github.com/gets-info/sports-api/pull/313)
+- 本期資料抓錯欄位 ***by alangets*** [#312](https://github.com/gets-info/sports-api/pull/312)
 -  per_allow_R field in away team and rename allow_per_R to per_allow_R ***by TsaiTsaiChieh*** [#310](https://github.com/gets-info/sports-api/pull/310)
 -  RepackageError in season_2020.team_hit.BB field (team_id=2405) and add updating logger to debug ***by TsaiTsaiChieh*** [#309](https://github.com/gets-info/sports-api/pull/309)
 -  TransferRecord Change the rule & text ***by gsihenry*** [#308](https://github.com/gets-info/sports-api/pull/308)

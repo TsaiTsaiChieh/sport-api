@@ -175,42 +175,56 @@ exports.auth_statscore = functions.pubsub
   .schedule('50 23 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/auth_statscore'));
+
 exports.prematch_statscore_MLB = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_MLB'));
 
+exports.pbp_statscore_MLB = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_MLB'));
+
 exports.prematch_statscore_KBO = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_KBO'));
-// exports.pbp_statscore_KBO = functions
-//  .runWith(runtimeOpts)
-//  .pubsub.schedule('* * * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
+
+exports.pbp_statscore_KBO = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_KBO'));
+
 exports.prematch_statscore_NPB = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_NPB'));
-// exports.pbp_statscore_NPB = functions
-//  .runWith(runtimeOpts)
-//  .pubsub.schedule('* * * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
+
+exports.pbp_statscore_NPB = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_NPB'));
+
 exports.prematch_statscore_CPBL = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_CPBL'));
-// exports.pbp_statscore_CPBL = functions
-//  .runWith(runtimeOpts)
-//  .pubsub.schedule('* * * * *')
-//  .timeZone('Asia/Taipei')
-//  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+
+exports.pbp_statscore_CPBL = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/checkmatch_statscore_CPBL'));
+
 exports.prematch_statscore_CBA = functions.pubsub
   .schedule('5 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_CBA'));
+
 exports.pbp_statscore_CBA = functions
   .runWith(env_values.runtimeOpts)
   .pubsub.schedule('* * * * *')

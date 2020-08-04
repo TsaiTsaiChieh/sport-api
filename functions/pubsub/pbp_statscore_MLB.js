@@ -6,9 +6,11 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
-const league = 'CPBL';
+const league = 'MLB';
+const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function CPBLpbpInplay(parameter) {
+async function MLBpbpInplay(parameter, Data) {
+  const firestoreData = Data;
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
@@ -73,12 +75,12 @@ async function CPBLpbpInplay(parameter) {
       console.log(`${betsID} : pbp_statscore_${league} success`);
       clearInterval(timerForStatus2);
     } else {
-      await doPBP(parameterPBP);
+      await doPBP(parameterPBP, firestoreData);
     }
   }, perStep);
 }
 
-async function CPBLpbpHistory(parameter) {
+async function MLBpbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
@@ -115,7 +117,7 @@ async function CPBLpbpHistory(parameter) {
         );
       }
       try {
-        await settleMatchesModel({
+        settleMatchesModel({
           token: {
             uid: '999'
           },
@@ -139,7 +141,7 @@ async function CPBLpbpHistory(parameter) {
   });
 }
 
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
@@ -282,7 +284,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, data, baseballParameter);
+        await writeRealtime(betsID, data, baseballParameter, firestoreData);
       }
     }
 
@@ -366,7 +368,7 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, data, baseballParameter) {
+async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     let eventNow = parseInt(baseballParameter.eventNow);
     let eventOrderNow = baseballParameter.eventOrderNow;
@@ -738,6 +740,28 @@ async function writeRealtime(betsID, data, baseballParameter) {
             `${err} at doPBP on ${betsID} by DY`
           )
         );
+      }
+      const sportInfo = {
+        sport: sport,
+        inningNow: inningNow,
+        half: halfNow
+      };
+      if (firestoreData !== null) {
+        if (firestoreData.length > 0) {
+          for (let fi = 0; fi < firestoreData.length; fi++) {
+            if (firestoreData[fi].bets_id === betsID) {
+              pbpOnHome.pbpOnHome(
+                betsID,
+                sportInfo,
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].results[2].value,
+                data.api.data.competition.season.stage.group.event
+                  .participants[1].results[2].value
+              );
+              break;
+            }
+          }
+        }
       }
     }
     await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
@@ -1247,19 +1271,97 @@ function changeInning(inning, now_innings) {
 
 function mapTeam(team) {
   switch (team) {
-    case 'Rakuten Monkeys': {
-      return '樂天桃猿';
+    case 'Los Angeles Angels of Anaheim': {
+      return '天使';
     }
-    case 'Chinatrust Brothers': {
-      return '中信兄弟';
+    case 'Houston Astros': {
+      return '太空人';
     }
-    case 'Fubon Guardians': {
-      return '富邦悍將';
+    case 'Texas Rangers': {
+      return '遊騎兵';
     }
-    case 'Uni-President Lions': {
-      return '統一獅';
+    case 'New York Yankees': {
+      return '洋基';
+    }
+    case 'Los Angeles Dodgers': {
+      return '道奇';
+    }
+    case 'San Francisco Giants': {
+      return '巨人';
+    }
+    case 'New York Mets': {
+      return '大都會';
+    }
+    case 'Atlanta Braves': {
+      return '勇士';
+    }
+    case 'Cincinnati Reds': {
+      return '紅人';
+    }
+    case 'Washington Nationals': {
+      return '國民';
+    }
+    case 'Detroit Tigers': {
+      return '老虎';
+    }
+    case 'Tampa Bay Rays': {
+      return '光芒';
+    }
+    case 'Toronto Blue Jays': {
+      return '藍鳥';
+    }
+    case 'Arizona Diamondbacks': {
+      return '響尾蛇';
+    }
+    case 'Colorado Rockies': {
+      return '落磯';
+    }
+    case 'St. Louis Cardinals': {
+      return '紅雀';
+    }
+    case 'San Diego Padres': {
+      return '教士';
+    }
+    case 'Philadelphia Phillies': {
+      return '費城人';
+    }
+    case 'Miami Marlins': {
+      return '馬林魚';
+    }
+    case 'Baltimore Orioles': {
+      return '金鶯';
+    }
+    case 'Oakland Athletics': {
+      return '運動家';
+    }
+    case 'Cleveland Indians': {
+      return '印地安人';
+    }
+    case 'Kansas City Royals': {
+      return '皇家';
+    }
+    case 'Seattle Mariners': {
+      return '水手';
+    }
+    case 'Chicago White Sox': {
+      return '白襪';
+    }
+    case 'Minnesota Twins': {
+      return '雙城';
+    }
+    case 'Boston Red Sox': {
+      return '紅襪';
+    }
+    case 'Pittsburgh Pirates': {
+      return '海盜';
+    }
+    case 'Milwaukee Brewers': {
+      return '釀酒人';
+    }
+    case 'Chicago Cubs': {
+      return '小熊';
     }
   }
 }
 
-module.exports = { CPBLpbpInplay, CPBLpbpHistory };
+module.exports = { MLBpbpInplay, MLBpbpHistory };
