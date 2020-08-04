@@ -218,7 +218,7 @@ async function write2MysqlOfMatchTotals(odd, ele, league) {
 
 function spreadCalculator(handicapObj) {
   handicapObj.handicap = -handicapObj.handicap;
-  if (handicapObj.handicap) {
+  if (handicapObj.handicap === 0 || handicapObj.handicap !== null) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
       // 有兩個以上盤口
@@ -276,7 +276,7 @@ function spreadCalculator(handicapObj) {
       handicapObj.handicap = parseFloat(handicapObj.handicap);
       if (handicapObj.handicap === 0) {
         // 讓 0 分
-        handicapObj.home_tw = 'pk';
+        handicapObj.home_tw = 'PK';
         handicapObj.away_tw = null;
         handicapObj.rate = 0;
       } else if (handicapObj.handicap % 1 === 0) {
