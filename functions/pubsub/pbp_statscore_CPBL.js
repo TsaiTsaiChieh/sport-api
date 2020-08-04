@@ -10,7 +10,7 @@ const league = 'CPBL';
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
 async function CPBLpbpInplay(parameter, data) {
-  const firestoreData = Data;
+  const firestoreData = data;
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
