@@ -72,6 +72,10 @@ async function settleGodTitle(args) {
       1: {
         msg: '大神 稱號資料更新成功！',
         lists: []
+      },
+      2: {
+        msg: '異常更新 大神 稱號資料 2筆以上！',
+        lists: []
       }
     }
   };
@@ -274,6 +278,7 @@ async function settleGodTitle(args) {
         throw errs.dbErrsMsg('404', '13503', { addMsg: err.parent.code });
       }
       if (r[0] === 1) result.status['1'].lists.push({ uid: uid, league: league_id, period: period });
+      if (r[0] > 1) result.status['2'].lists.push({ uid: uid, league: league_id, period: period });
     };
   };
 
