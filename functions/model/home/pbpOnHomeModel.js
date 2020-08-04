@@ -27,17 +27,17 @@ module.exports.matchesOnHome = async function(totalData) {
           // 補充頁面
           if (
             !realtimeHome[`${result[i].bets_id}`].away ||
-            !realtimeHome[`${result[i].bets_id}`].home
+						!realtimeHome[`${result[i].bets_id}`].home ||
+						result[i].status === 0
           ) {
             write2HomeLivescore(result[i]);
           }
         }
       }
-
       for (let j = 0; j < Object.keys(realtimeHome).length; j++) {
-        if (idArray.indexOf(realtimeHome[j]) === -1) {
+        if (idArray.indexOf(Object.keys(realtimeHome)[j]) === -1) {
           // 從頁面中刪除
-          database.ref(`home_livescore/${realtimeHome[j]}`).set(null);
+          database.ref(`home_livescore/${Object.keys(realtimeHome)[j]}`).set(null);
         }
       }
 
@@ -106,6 +106,7 @@ module.exports.pbpOnHome = async function(
 
 async function write2HomeLivescore(firestoreData) {
   return new Promise(async function(resolve, reject) {
+    console.log(firestoreData.bets_id);
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({
