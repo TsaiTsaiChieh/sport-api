@@ -172,18 +172,19 @@ async function generateGSC(period, period_date, ele) {
       GROUP BY league_id
     `,
     {
-      bind: { period: period, uid: uid, league_id: ele.league_id },
+      bind: { period: period, league_id: ele.league_id },
       type: db.sequelize.QueryTypes.SELECT
     });
 
   gsc.forEach(function(items) {
-    gsc_list.push(repackageGSC(period, period_date, uid, currentSeason, currentMonth, items));
+    gsc_list.push(repackageGSC(period, period_date, items));
   });
 // });
 }
 
 /* 寫入大神歷史戰績 */
 function insertTitle(rank_id, ele, period, period_date) {
+  const test = '';
   const next_period = period;
   const uids = ele.uids.toString();
   const uids_array = uids.split(',');

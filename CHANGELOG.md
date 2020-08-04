@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.0.6] - 2020-08-03
+
+## [v1.0.7] - 2020-08-04
 #### Add:
 -  Add rate field in spread & totals object in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#333](https://github.com/gets-info/sports-api/pull/333)
 -  getting team_base & hitters data in MLB crawler ***by TsaiTsaiChieh*** [#329](https://github.com/gets-info/sports-api/pull/329)
@@ -14,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  輸出當更新大神 Title 時，一次有兩筆以上，代表大神有同聯盟兩個 rank 異常 ***by alangets*** [#335](https://github.com/gets-info/sports-api/pull/335)
 -  盤口計算邏輯與顯示修改、新增首頁即時比分區按聯盟顯示（目前全天為 MLB） ***by page40316*** [#331](https://github.com/gets-info/sports-api/pull/331)
 #### Removed:
-#### DB:
+- 排程 god_nextPeriod 暫時取消
 ***
 
 ## [v1.0.6] - 2020-08-03

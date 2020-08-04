@@ -234,11 +234,11 @@ exports.pbp_statscore_CBA = functions
 
 // 大神
 // 1. 清晨 12:00` `下期第一天` 產生大神
-exports.god_nextPeriod = functions
-  .runWith({ timeoutSeconds: 540 })
-  .pubsub.schedule('0 0 * * *')
-  .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/god_nextPeriod'));
+// exports.god_nextPeriod = functions
+//   .runWith({ timeoutSeconds: 540 })
+//   .pubsub.schedule('0 0 * * *')
+//   .timeZone('Asia/Taipei')
+//   .onRun(require('./pubsub/god_nextPeriod'));
 // 2. `每天` `下午5點` 賽事勝注勝率計算 `A部份`
 exports.god_settleWinList_A = functions
   .runWith({ timeoutSeconds: 540 })
