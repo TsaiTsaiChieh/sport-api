@@ -4,28 +4,37 @@ const firebaseAdmin = require('../../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const AppErrors = require('../../util/AppErrors');
 
-module.exports.matchesOnHome = async function(totalData) {
-  return new Promise(async function(resolve, reject) {
+module.exports.matchesOnHome = async function (totalData) {
+  return new Promise(async function (resolve, reject) {
     try {
       // 需要播放的四場
       const result = await livescore(totalData);
       // 目前頁面上的四場
       let realtimeHome = await database.ref('home_livescore/').once('value');
       realtimeHome = realtimeHome.val();
-
-      realtimeHome = realtimeHome !== null ? Object.keys(realtimeHome) : [];
+      realtimeHome = realtimeHome !== null ? realtimeHome : [];
       const idArray = [];
       for (let i = 0; i < result.length; i++) {
         idArray.push(result[i].bets_id);
         if (realtimeHome === []) {
           write2HomeLivescore(result[i]);
-        } else if (realtimeHome.indexOf(result[i].bets_id) === -1) {
+        } else if (
+          Object.keys(realtimeHome).indexOf(result[i].bets_id) === -1
+        ) {
           // 加入頁面
           write2HomeLivescore(result[i]);
+        } else if (Object.keys(realtimeHome).indexOf(result[i].bets_id) >= 0) {
+          // 補充頁面
+          if (
+            !realtimeHome[`${result[i].bets_id}`].away ||
+            !realtimeHome[`${result[i].bets_id}`].home
+          ) {
+            write2HomeLivescore(result[i]);
+          }
         }
       }
 
-      for (let j = 0; j < realtimeHome.length; j++) {
+      for (let j = 0; j < Object.keys(realtimeHome).length; j++) {
         if (idArray.indexOf(realtimeHome[j]) === -1) {
           // 從頁面中刪除
           database.ref(`home_livescore/${realtimeHome[j]}`).set(null);
@@ -35,36 +44,34 @@ module.exports.matchesOnHome = async function(totalData) {
       return resolve(result);
     } catch (err) {
       console.error('Error in home/livescoreModel by DY', err);
-      reject({ code: 500, error: err });
+      reject({code: 500, error: err});
     }
   });
 };
 
-module.exports.pbpOnHome = async function(
+module.exports.pbpOnHome = async function (
   betsID,
   sportInfo,
   homeScores,
   awayScores
 ) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       database
         .ref(`home_livescore/${betsID}/Summary/info/home/Total/points`)
         .set(homeScores);
       database
         .ref(`home_livescore/${betsID}/Summary/info/away/Total/points`)
-				.set(awayScores);
-			database
-        .ref(`home_livescore/${betsID}/status`)
-        .set(1);
+        .set(awayScores);
+      database.ref(`home_livescore/${betsID}/status`).set(1);
       switch (sportInfo.sport) {
         case 'baseball': {
           database
             .ref(`home_livescore/${betsID}/Now_innings`)
-            .set((sportInfo.inningNow).toString());
+            .set(sportInfo.inningNow.toString());
           database
             .ref(`home_livescore/${betsID}/Now_halfs`)
-            .set((sportInfo.halfNow).toString());
+            .set(sportInfo.halfNow.toString());
           break;
         }
         case 'basketball': {
@@ -92,13 +99,13 @@ module.exports.pbpOnHome = async function(
       resolve('ok');
     } catch (err) {
       console.error('Error in home/livescoreModel by DY', err);
-      reject({ code: 500, error: err });
+      reject({code: 500, error: err});
     }
   });
 };
 
 async function write2HomeLivescore(firestoreData) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({
