@@ -4,6 +4,7 @@ const {
 const { zone_tw } = require('../config/env_values');
 const settleGodRank = require('../model/user/settleGodRankModel');
 const settleWinList = require('../model/user/settleWinListModel');
+const settleGodTitle = require('../model/user/settleGodTitleModel');
 const { redis } = require('../util/redisUtil');
 
 const logger = require('firebase-functions/lib/logger');
@@ -51,6 +52,8 @@ async function god_nextPeriod() {
     await settleWinList({ token: { uid: '999' }, date: nowYYYYMMDD });
     log('產生大神 run');
     await settleGodRank({ token: { uid: '999' } });
+    log('產生大神成就 run');
+    await settleGodTitle({ token: { uid: '999' }, period: period.period });
     log('清空 titles Redis Cache run');
     await redis.specialDel('*titles*', 100);
   }
