@@ -14,8 +14,6 @@ function prematchBaseball(args) {
       const awayEvents = await queryAwayEvents(args);
       const tenFightData = await queryTenFightEvent(args);
       return resolve(repackagePrematch(args, teamsDataFromFirestore, teamsDataFromMySQL, { homeEvents, awayEvents }, tenFightData));
-
-      
     } catch (err) {
       return reject(err);
     }
@@ -184,14 +182,14 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
       spread: {
         id: teamsFromMySQL.spread_id,
         handicap: teamsFromMySQL.spread_handicap,
-        rate: teamsFromMySQL.spread_rate > 0?`+${teamsFromMySQL.spread_rate}`: String(teamsFromMySQL.spread_rate),
+        rate: teamsFromMySQL.spread_rate > 0 ? `+${teamsFromMySQL.spread_rate}` : String(teamsFromMySQL.spread_rate),
         home_tw: teamsFromMySQL.home_tw,
-        away_tw: teamsFromMySQL.away_tw, 
+        away_tw: teamsFromMySQL.away_tw
       },
       totals: {
         id: teamsFromMySQL.totals_id,
         handicap: teamsFromMySQL.totals_handicap,
-        rate: teamsFromMySQL.totals_rate > 0 ?`+${teamsFromMySQL.totals_rate}`: String(teamsFromMySQL.totals_rate),
+        rate: teamsFromMySQL.totals_rate > 0 ? `+${teamsFromMySQL.totals_rate}` : String(teamsFromMySQL.totals_rate),
         over_tw: teamsFromMySQL.over_tw
       },
       home: {
