@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add team_hit & pitchers crawler function and scheduler ***by TsaiTsaiChieh*** [#342](https://github.com/gets-info/sports-api/pull/342)
 #### Fix:
 -  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
 -  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
