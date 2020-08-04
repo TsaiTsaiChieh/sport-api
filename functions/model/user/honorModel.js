@@ -29,8 +29,8 @@ function honorModel(req) {
                     uwl.this_period_win_bets,
                     uwl.this_month_win_rate,
                     uwl.this_month_win_bets,
-                    this_week1_of_period_correct_counts,
-                    this_period_correct_counts,
+                    this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
+                    this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
                     (
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
