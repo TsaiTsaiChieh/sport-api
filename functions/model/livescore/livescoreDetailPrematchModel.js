@@ -87,7 +87,7 @@ async function repackage(args, match) {
                 : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
+            rate: ele.rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
           },
           totals: {
             handicap:
@@ -95,7 +95,7 @@ async function repackage(args, match) {
                 ? ele.total_handicap
                 : null,
             over_tw: ele.total_over_tw ? ele.total_over_tw : null,
-            rate: ele.totals_rate <= 0 ? ele.totals_rate.toString() : ele.totals_rate > 0 ? '+' + ele.totals_rate.toString() : null
+            rate: ele.rate === null ? null : ele.totals_rate <= 0 ? ele.totals_rate.toString() : ele.totals_rate > 0 ? '+' + ele.totals_rate.toString() : null
           },
           home: {
             team_name:
@@ -151,7 +151,7 @@ async function repackage(args, match) {
                 : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
+            rate: ele.rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
           },
           totals: {
             handicap:
@@ -159,7 +159,7 @@ async function repackage(args, match) {
                 ? ele.total_handicap
                 : null,
             over_tw: ele.total_over_tw ? ele.total_over_tw : null,
-            rate: ele.total_rate <= 0 ? ele.total_rate.toString() : ele.total_rate > 0 ? '+' + ele.total_rate.toString() : null
+            rate: ele.rate === null ? null : ele.total_rate <= 0 ? ele.total_rate.toString() : ele.total_rate > 0 ? '+' + ele.total_rate.toString() : null
           },
           home: {
             team_name: ele.home_alias_ch,
