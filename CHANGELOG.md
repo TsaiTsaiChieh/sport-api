@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.0.7] - 2020-08-04
 #### Add:
+#### Fix:
+-  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
+-  limit 條件放錯地方 ***by alangets*** [#338](https://github.com/gets-info/sports-api/pull/338)
+#### Removed:
+#### DB:
+***
+
+## [v1.0.7] - 2020-08-04
+#### Add:
 -  Add rate field in spread & totals object in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#333](https://github.com/gets-info/sports-api/pull/333)
 -  getting team_base & hitters data in MLB crawler ***by TsaiTsaiChieh*** [#329](https://github.com/gets-info/sports-api/pull/329)
 #### Fix:

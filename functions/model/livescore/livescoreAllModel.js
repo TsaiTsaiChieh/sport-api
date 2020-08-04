@@ -99,7 +99,7 @@ async function repackage(args, matches) {
             handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
+            rate: ele.rate === null ? null : ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
           },
           home: {
             team_name:
@@ -148,7 +148,7 @@ async function repackage(args, matches) {
             handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
+            rate: ele.rate === null ? null : ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
           },
           home: {
             team_name: ele.home_alias_ch,

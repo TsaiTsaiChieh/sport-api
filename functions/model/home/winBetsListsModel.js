@@ -40,15 +40,8 @@ async function winBetsLists() {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate
-                              from users__win__lists,
-                                   ( 
-                                     select league_id 
-                                       from view__leagues
-                                       where league_id = :league_id
-                                   ) leagues
-                             where users__win__lists.league_id = leagues.league_id
-                             order by ${order} desc
-                             limit ${limit}
+                              from users__win__lists
+                             where league_id = :league_id
                           ) winlist,
                           (
                             select * 
@@ -62,6 +55,7 @@ async function winBetsLists() {
              and winlist.league_id = titles.league_id
              and titles.period = :period
            order by ${order} desc
+           limit ${limit}
       `, {
       replacements: {
         league_id: league_id,

@@ -267,7 +267,7 @@ async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
 }
 
 function spreadCalculator(handicapObj, sport) {
-  if (handicapObj.handicap) {
+  if (handicapObj.handicap === 0 || handicapObj.handicap !== null) {
     if (sport === 17 || sport === 18) {
       // 籃球等主客正常的
       handicapObj.handicap = -parseFloat(handicapObj.handicap);
@@ -663,7 +663,7 @@ function spreadCalculator(handicapObj, sport) {
         handicapObj.handicap = parseFloat(handicapObj.handicap);
         if (handicapObj.handicap === 0) {
           // 讓 0 分
-          handicapObj.home_tw = 'pk';
+          handicapObj.home_tw = 'PK';
           handicapObj.away_tw = null;
           handicapObj.rate = 0;
         } else if (handicapObj.handicap % 1 === 0) {
@@ -729,7 +729,7 @@ function totalsCalculator(handicapObj, sport) {
   handicapObj.handicap = parseFloat(handicapObj.handicap);
   handicapObj.over_odd = parseFloat(handicapObj.over_od);
   handicapObj.under_odd = parseFloat(handicapObj.under_od);
-  if (handicapObj.handicap) {
+  if (handicapObj.handicap === 0 || handicapObj.handicap !== null) {
     if (sport === 17 || sport === 18) {
       // 籃球或冰球
       if (handicapObj.handicap % 1 === 0) {

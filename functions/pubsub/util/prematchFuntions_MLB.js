@@ -3,7 +3,6 @@ const leagueUtil = require('../../util/leagueUtil');
 const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const axios = require('axios');
-
 module.exports.MLB_PRE = {
   upcoming: async function(date) {
     const _date = modules.dateFormat(date);
