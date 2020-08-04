@@ -84,10 +84,11 @@ router.get('/checkmatch_another', require('../pubsub/checkmatch_another'));
 router.get('/KBO_crawler', require('../pubsub/crawlers/prematch_KBO'));
 router.get('/CPBL_crawler', require('../pubsub/crawlers/prematch_CPBL'));
 router.get('/NPB_crawler', require('../pubsub/crawlers/prematch_NPB'));
-
+router.get('/MLB_crawler', require('../pubsub/crawlers/prematch_MLB'));
 // 更新先發名單
 // router.get('/lineup_CPBL', require('../pubsub/lineup_statscore_CPBL'));
 // router.get('/lineup_MLB', require('../pubsub/lineup_statscore_MLB'));
 // router.get('/lineup_KBO', require('../pubsub/lineup_statscore_KBO'));
 // router.get('/lineup_NPB', require('../pubsub/lineup_statscore_NPB'));
+
 module.exports = router;
