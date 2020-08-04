@@ -184,7 +184,7 @@ async function write2MysqlOfMatchSpread(odd, ele, league) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err.stack} at handicap_esports of MatchSpread ${ele.bets_id} by DY`
+          `${err.stack} at handicap_esports of MatchSpread ${ele.bets_id} at ${odd.id} by DY`
         )
       );
     }

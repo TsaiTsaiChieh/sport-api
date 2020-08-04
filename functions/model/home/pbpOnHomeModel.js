@@ -12,23 +12,32 @@ module.exports.matchesOnHome = async function(totalData) {
       // 目前頁面上的四場
       let realtimeHome = await database.ref('home_livescore/').once('value');
       realtimeHome = realtimeHome.val();
-
-      realtimeHome = realtimeHome !== null ? Object.keys(realtimeHome) : [];
+      realtimeHome = realtimeHome !== null ? realtimeHome : [];
       const idArray = [];
       for (let i = 0; i < result.length; i++) {
         idArray.push(result[i].bets_id);
         if (realtimeHome === []) {
           write2HomeLivescore(result[i]);
-        } else if (realtimeHome.indexOf(result[i].bets_id) === -1) {
+        } else if (
+          Object.keys(realtimeHome).indexOf(result[i].bets_id) === -1
+        ) {
           // 加入頁面
           write2HomeLivescore(result[i]);
+        } else if (Object.keys(realtimeHome).indexOf(result[i].bets_id) >= 0) {
+          // 補充頁面
+          if (
+            !realtimeHome[`${result[i].bets_id}`].away ||
+						!realtimeHome[`${result[i].bets_id}`].home ||
+						result[i].status === 0
+          ) {
+            write2HomeLivescore(result[i]);
+          }
         }
       }
-
-      for (let j = 0; j < realtimeHome.length; j++) {
-        if (idArray.indexOf(realtimeHome[j]) === -1) {
+      for (let j = 0; j < Object.keys(realtimeHome).length; j++) {
+        if (idArray.indexOf(Object.keys(realtimeHome)[j]) === -1) {
           // 從頁面中刪除
-          database.ref(`home_livescore/${realtimeHome[j]}`).set(null);
+          database.ref(`home_livescore/${Object.keys(realtimeHome)[j]}`).set(null);
         }
       }
 
@@ -54,14 +63,15 @@ module.exports.pbpOnHome = async function(
       database
         .ref(`home_livescore/${betsID}/Summary/info/away/Total/points`)
         .set(awayScores);
+      database.ref(`home_livescore/${betsID}/status`).set(1);
       switch (sportInfo.sport) {
         case 'baseball': {
           database
             .ref(`home_livescore/${betsID}/Now_innings`)
-            .set(sportInfo.inningNow);
+            .set(sportInfo.inningNow.toString());
           database
             .ref(`home_livescore/${betsID}/Now_halfs`)
-            .set(sportInfo.halfNow);
+            .set(sportInfo.halfNow.toString());
           break;
         }
         case 'basketball': {
@@ -96,6 +106,7 @@ module.exports.pbpOnHome = async function(
 
 async function write2HomeLivescore(firestoreData) {
   return new Promise(async function(resolve, reject) {
+    console.log(firestoreData.bets_id);
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({
