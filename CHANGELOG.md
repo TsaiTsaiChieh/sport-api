@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add rate field in spread & totals object in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#333](https://github.com/gets-info/sports-api/pull/333)
 -  getting team_base & hitters data in MLB crawler ***by TsaiTsaiChieh*** [#329](https://github.com/gets-info/sports-api/pull/329)
 #### Fix:
 -  盤口計算邏輯與顯示修改、新增首頁即時比分區按聯盟顯示（目前全天為 MLB） ***by page40316*** [#331](https://github.com/gets-info/sports-api/pull/331)
