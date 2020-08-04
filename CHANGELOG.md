@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  Add rate field in spread & totals object in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#333](https://github.com/gets-info/sports-api/pull/333)
 -  getting team_base & hitters data in MLB crawler ***by TsaiTsaiChieh*** [#329](https://github.com/gets-info/sports-api/pull/329)
 #### Fix:
+-  在產生大神完畢後，要再計算大神成就 ***by alangets*** [#336](https://github.com/gets-info/sports-api/pull/336)
 -  輸出當更新大神 Title 時，一次有兩筆以上，代表大神有同聯盟兩個 rank 異常 ***by alangets*** [#335](https://github.com/gets-info/sports-api/pull/335)
 -  盤口計算邏輯與顯示修改、新增首頁即時比分區按聯盟顯示（目前全天為 MLB） ***by page40316*** [#331](https://github.com/gets-info/sports-api/pull/331)
 #### Removed:
