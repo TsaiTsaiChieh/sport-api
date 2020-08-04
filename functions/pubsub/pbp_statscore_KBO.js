@@ -7,8 +7,10 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
 const league = 'KBO';
+const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
 async function KBOpbpInplay(parameter) {
+	const firestoreData = Data;
   let eventNow = 0;
   let eventOrderNow = 0;
   let inningNow = 1;
@@ -23,7 +25,7 @@ async function KBOpbpInplay(parameter) {
     timesPerLoop = 2; // 一分鐘1次
   } else {
     perStep = 18000;
-    timesPerLoop = 4; // 一分鐘3次
+    timesPerLoop = 3; // 一分鐘3次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -73,7 +75,7 @@ async function KBOpbpInplay(parameter) {
       console.log(`${betsID} : pbp_statscore_${league} success`);
       clearInterval(timerForStatus2);
     } else {
-      await doPBP(parameterPBP);
+      await doPBP(parameterPBP, firestoreData);
     }
   }, perStep);
 }
@@ -115,7 +117,7 @@ async function KBOpbpHistory(parameter) {
         );
       }
       try {
-        await settleMatchesModel({
+        settleMatchesModel({
           token: {
             uid: '999'
           },
@@ -139,7 +141,7 @@ async function KBOpbpHistory(parameter) {
   });
 }
 
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
@@ -282,7 +284,7 @@ async function doPBP(parameter) {
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, data, baseballParameter);
+        await writeRealtime(betsID, data, baseballParameter, firestoreData);
       }
     }
 
@@ -366,7 +368,7 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, data, baseballParameter) {
+async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     let eventNow = parseInt(baseballParameter.eventNow);
     let eventOrderNow = baseballParameter.eventOrderNow;
@@ -663,7 +665,7 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[19].value
                 : null
           );
-        database
+					database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
@@ -673,8 +675,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                   .participants[0].stats[20].value
               )
                 ? null
-                : data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[20].value
+                : parseInt(data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[20].value)
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
                 ? isNaN(
@@ -682,8 +684,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[20].value
                 )
                   ? null
-                  : data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[20].value
+                  : parseInt(data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[20].value)
                 : null
           );
         database
@@ -696,8 +698,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                   .participants[0].stats[21].value
               )
                 ? null
-                : data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[21].value
+                : parseInt(data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[21].value)
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
                 ? isNaN(
@@ -705,8 +707,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[21].value
                 )
                   ? null
-                  : data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[21].value
+                  : parseInt(data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[21].value)
                 : null
           );
         database
@@ -719,8 +721,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                   .participants[0].stats[22].value
               )
                 ? null
-                : data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[22].value
+                : parseInt(data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[22].value)
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
                 ? isNaN(
@@ -728,8 +730,8 @@ async function writeRealtime(betsID, data, baseballParameter) {
                     .participants[1].stats[22].value
                 )
                   ? null
-                  : data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[22].value
+                  : parseInt(data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[22].value)
                 : null
           );
       } catch (err) {
@@ -738,6 +740,28 @@ async function writeRealtime(betsID, data, baseballParameter) {
             `${err} at doPBP on ${betsID} by DY`
           )
         );
+      }
+      const sportInfo = {
+        sport: sport,
+        inningNow: inningNow,
+        halfnow: halfNow
+      };
+      if (firestoreData !== null) {
+        if (firestoreData.length > 0) {
+          for (let fi = 0; fi < firestoreData.length; fi++) {
+            if (firestoreData[fi].bets_id === betsID) {
+              pbpOnHome.pbpOnHome(
+                betsID,
+                sportInfo,
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].results[2].value,
+                data.api.data.competition.season.stage.group.event
+                  .participants[1].results[2].value
+              );
+              break;
+            }
+          }
+        }
       }
     }
     await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
