@@ -17,25 +17,25 @@ const leagueID = leagueUtil.leagueCodebook(league).id;
 async function checkmatch_statscore_NPB() {
   return new Promise(async function(resolve, reject) {
     try {
-				const unix = Math.floor(Date.now() / 1000);
-				const date2 = modules.convertTimezoneFormat(unix, {
-					format: 'YYYY-MM-DD 00:00:00',
-					op: 'add',
-					value: 1,
-					unit: 'days'
-				});
-				const date1 = modules.convertTimezoneFormat(unix, {
-					format: 'YYYY-MM-DD 00:00:00',
-					op: 'add',
-					value: 0,
-					unit: 'days'
-				});
-				const totalData = await queryForEvents(date1, date2);
-				const leagueName = await leagueOnLivescore();
-				let firestoreData = null;
-				if (leagueName === league) {
-					firestoreData = await pbpOnHome.matchesOnHome(totalData, league);
-				}
+      const unix = Math.floor(Date.now() / 1000);
+      const date2 = modules.convertTimezoneFormat(unix, {
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: 1,
+        unit: 'days'
+      });
+      const date1 = modules.convertTimezoneFormat(unix, {
+        format: 'YYYY-MM-DD 00:00:00',
+        op: 'add',
+        value: 0,
+        unit: 'days'
+      });
+      const totalData = await queryForEvents(date1, date2);
+      const leagueName = await leagueOnLivescore();
+      let firestoreData = null;
+      if (leagueName === league) {
+        firestoreData = await pbpOnHome.matchesOnHome(totalData, league);
+      }
       for (let i = 0; i < totalData.length; i++) {
         const betsID = totalData[i].bets_id;
         const statscoreID = totalData[i].statscore_id;
@@ -60,7 +60,7 @@ async function checkmatch_statscore_NPB() {
                   statscoreID: statscoreID,
                   first: 1
                 };
-                await NPBpbpInplay(parameter,firestoreData);
+                await NPBpbpInplay(parameter, firestoreData);
               } catch (err) {
                 return reject(
                   new AppErrors.FirebaseRealtimeError(
@@ -95,7 +95,7 @@ async function checkmatch_statscore_NPB() {
                   statscoreID: statscoreID,
                   first: 0
                 };
-                await NPBpbpInplay(parameter,firestoreData);
+                await NPBpbpInplay(parameter, firestoreData);
               }
 
               if (realtimeData.Summary.status === 'closed') {
