@@ -33,7 +33,7 @@ async function MLBpbpInplay(parameter, data) {
   const token = await queryForToken();
   const pbpURL = `https://api.statscore.com/v2/events/${statscoreID}?token=${token[0].token}`;
   let countForStatus2 = 0;
-  const timerForStatus2 = setInterval(async function () {
+  const timerForStatus2 = setInterval(async function() {
     let realtimeData = await database
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
@@ -81,7 +81,7 @@ async function MLBpbpInplay(parameter, data) {
 }
 
 async function MLBpbpHistory(parameter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
       const statscoreID = parameter.statscoreID;
@@ -142,7 +142,7 @@ async function MLBpbpHistory(parameter) {
 }
 
 async function doPBP(parameter, firestoreData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
     const realtimeData = parameter.realtimeData;
@@ -293,9 +293,9 @@ async function doPBP(parameter, firestoreData) {
 }
 
 async function axiosForURL(URL) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
-      const {data} = await axios(URL);
+      const { data } = await axios(URL);
       return resolve(data);
     } catch (err) {
       return reject(
@@ -308,7 +308,7 @@ async function axiosForURL(URL) {
 }
 
 async function queryForToken() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
         // take 169 ms
@@ -329,7 +329,7 @@ async function queryForToken() {
 }
 
 async function initRealtime(betsID, data) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
@@ -369,7 +369,7 @@ async function initRealtime(betsID, data) {
 }
 
 async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     let eventNow = parseInt(baseballParameter.eventNow);
     let eventOrderNow = baseballParameter.eventOrderNow;
     let inningNow = baseballParameter.inningNow;
@@ -385,13 +385,13 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-                .stats[0].value
+              .stats[0].value
             : null,
         errors:
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-                .stats[1].value
+              .stats[1].value
             : null
       });
 
@@ -403,13 +403,13 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           data.api.data.competition.season.stage.group.event.participants[1]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[1]
-                .stats[0].value
+              .stats[0].value
             : null,
         errors:
           data.api.data.competition.season.stage.group.event.participants[1]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[1]
-                .stats[1].value
+              .stats[1].value
             : null
       });
     } catch (err) {
@@ -495,14 +495,14 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
         ].participant_id === null
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 563
-          ? tempHalf
-          : data.api.data.competition.season.stage.group.event.events_incidents[
+            eventCount
+          ].incident_id !== 563
+            ? tempHalf
+            : data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
             ].participant_id === homeID
-          ? '1'
-          : '0';
+              ? '1'
+              : '0';
       if (
         inningNow !==
         changeInning(
@@ -602,22 +602,22 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[17].value
-                )
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[17].value
+              )
                 ? null
                 : data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[17].value
+                  .participants[0].stats[17].value
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[17].value
                 )
-                ? null
-                : data.api.data.competition.season.stage.group.event
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[17].value
-              : null
+                : null
           );
         database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_outs`)
@@ -625,22 +625,22 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[18].value
-                )
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[18].value
+              )
                 ? null
                 : data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[18].value
+                  .participants[0].stats[18].value
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[18].value
                 )
-                ? null
-                : data.api.data.competition.season.stage.group.event
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[18].value
-              : null
+                : null
           );
         database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_balls`)
@@ -648,22 +648,22 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[19].value
-                )
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[19].value
+              )
                 ? null
                 : data.api.data.competition.season.stage.group.event
-                    .participants[0].stats[19].value
+                  .participants[0].stats[19].value
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[19].value
                 )
-                ? null
-                : data.api.data.competition.season.stage.group.event
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[19].value
-              : null
+                : null
           );
         database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
@@ -671,26 +671,26 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[20].value
+              )
+                ? null
+                : parseInt(
                   data.api.data.competition.season.stage.group.event
                     .participants[0].stats[20].value
                 )
-                ? null
-                : parseInt(
-                    data.api.data.competition.season.stage.group.event
-                      .participants[0].stats[20].value
-                  )
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[20].value
                 )
-                ? null
-                : parseInt(
+                  ? null
+                  : parseInt(
                     data.api.data.competition.season.stage.group.event
                       .participants[1].stats[20].value
                   )
-              : null
+                : null
           );
         database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_secondbase`)
@@ -698,26 +698,26 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[21].value
+              )
+                ? null
+                : parseInt(
                   data.api.data.competition.season.stage.group.event
                     .participants[0].stats[21].value
                 )
-                ? null
-                : parseInt(
-                    data.api.data.competition.season.stage.group.event
-                      .participants[0].stats[21].value
-                  )
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[21].value
                 )
-                ? null
-                : parseInt(
+                  ? null
+                  : parseInt(
                     data.api.data.competition.season.stage.group.event
                       .participants[1].stats[21].value
                   )
-              : null
+                : null
           );
         database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_thirdbase`)
@@ -725,26 +725,26 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
               ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[22].value
+              )
+                ? null
+                : parseInt(
                   data.api.data.competition.season.stage.group.event
                     .participants[0].stats[22].value
                 )
-                ? null
-                : parseInt(
-                    data.api.data.competition.season.stage.group.event
-                      .participants[0].stats[22].value
-                  )
               : data.api.data.competition.season.stage.group.event
-                  .participants[1].stats.length > 0
-              ? isNaN(
+                .participants[1].stats.length > 0
+                ? isNaN(
                   data.api.data.competition.season.stage.group.event
                     .participants[1].stats[22].value
                 )
-                ? null
-                : parseInt(
+                  ? null
+                  : parseInt(
                     data.api.data.competition.season.stage.group.event
                       .participants[1].stats[22].value
                   )
-              : null
+                : null
           );
       } catch (err) {
         return reject(
@@ -782,7 +782,7 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
 }
 
 async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
@@ -1012,18 +1012,18 @@ function translateNormal(half, data, name, event) {
         name !== ''
           ? name
           : mapTeam(
-              data.api.data.competition.season.stage.group.event.participants[0]
-                .name
-            );
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
       out = temp + ' ' + string_ch;
     } else {
       const temp =
         name !== ''
           ? name
           : mapTeam(
-              data.api.data.competition.season.stage.group.event.participants[1]
-                .name
-            );
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
       out = temp + ' ' + string_ch;
     }
   } else if (
@@ -1045,18 +1045,18 @@ function translateNormal(half, data, name, event) {
         name !== ''
           ? name
           : mapTeam(
-              data.api.data.competition.season.stage.group.event.participants[1]
-                .name
-            );
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
       out = temp + ' ' + string_ch;
     } else {
       const temp =
         name !== ''
           ? name
           : mapTeam(
-              data.api.data.competition.season.stage.group.event.participants[0]
-                .name
-            );
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
       out = temp + ' ' + string_ch;
     }
   } else if (
@@ -1075,9 +1075,9 @@ function translateNormal(half, data, name, event) {
       name !== ''
         ? name
         : mapTeam(
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .name
-          );
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .name
+        );
     out = temp + ' ' + string_ch;
   }
   return out;
@@ -1376,4 +1376,4 @@ function mapTeam(team) {
   }
 }
 
-module.exports = {MLBpbpInplay, MLBpbpHistory};
+module.exports = { MLBpbpInplay, MLBpbpHistory };

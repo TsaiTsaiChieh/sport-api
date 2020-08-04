@@ -4,8 +4,8 @@ const firebaseAdmin = require('../../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const AppErrors = require('../../util/AppErrors');
 
-module.exports.matchesOnHome = async function (totalData) {
-  return new Promise(async function (resolve, reject) {
+module.exports.matchesOnHome = async function(totalData) {
+  return new Promise(async function(resolve, reject) {
     try {
       // 需要播放的四場
       const result = await livescore(totalData);
@@ -44,18 +44,18 @@ module.exports.matchesOnHome = async function (totalData) {
       return resolve(result);
     } catch (err) {
       console.error('Error in home/livescoreModel by DY', err);
-      reject({code: 500, error: err});
+      reject({ code: 500, error: err });
     }
   });
 };
 
-module.exports.pbpOnHome = async function (
+module.exports.pbpOnHome = async function(
   betsID,
   sportInfo,
   homeScores,
   awayScores
 ) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       database
         .ref(`home_livescore/${betsID}/Summary/info/home/Total/points`)
@@ -99,13 +99,13 @@ module.exports.pbpOnHome = async function (
       resolve('ok');
     } catch (err) {
       console.error('Error in home/livescoreModel by DY', err);
-      reject({code: 500, error: err});
+      reject({ code: 500, error: err });
     }
   });
 };
 
 async function write2HomeLivescore(firestoreData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({
