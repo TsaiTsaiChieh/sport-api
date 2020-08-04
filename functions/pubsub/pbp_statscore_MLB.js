@@ -102,6 +102,42 @@ async function MLBpbpHistory(parameter) {
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
         .set(homeScores);
+      for (let count = 3; count < 26; count++) {
+        if (
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .results[count].value !== ''
+        ) {
+          database
+            .ref(
+										`${sport}/${league}/${betsID}/Summary/info/home/Innings${
+											count - 2
+										}`
+            )
+            .set({
+              scoring: {
+                runs:
+										data.api.data.competition.season.stage.group.event.participants[0].results[count].value
+              }
+            });
+        }
+        if (
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .results[count].value !== ''
+        ) {
+          database
+            .ref(
+										`${sport}/${league}/${betsID}/Summary/info/away/Innings${
+											count - 2
+										}`
+            )
+            .set({
+              scoring: {
+                runs:
+									data.api.data.competition.season.stage.group.event.participants[1].results[count].value
+              }
+            });
+        }
+      }
       try {
         await Match.upsert({
           bets_id: betsID,

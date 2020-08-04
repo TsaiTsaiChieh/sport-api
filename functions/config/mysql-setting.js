@@ -16,6 +16,7 @@ const dialectOptions = isEmulator
 const setting = {
   db_name: {
     dev: 'dosport'
+    // dev: 'Page'
   },
   db_user: 'root',
   db_password: 'dosportsSQL',
