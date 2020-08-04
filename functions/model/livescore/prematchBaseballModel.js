@@ -28,8 +28,8 @@ function getHomeAndAwayTeamFromMySQL(args) {
         `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
                 home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
                 away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
-                spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, 
-                totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw
+                spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, spread.rate AS spread_rate, 
+                totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw, totals.rate AS totals_rate
           FROM (
                   SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, season.season
                     FROM matches
@@ -182,12 +182,14 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
       spread: {
         id: teamsFromMySQL.spread_id,
         handicap: teamsFromMySQL.spread_handicap,
+        rate: teamsFromMySQL.spread_rate > 0 ? `+${teamsFromMySQL.spread_rate}` : String(teamsFromMySQL.spread_rate),
         home_tw: teamsFromMySQL.home_tw,
         away_tw: teamsFromMySQL.away_tw
       },
       totals: {
         id: teamsFromMySQL.totals_id,
         handicap: teamsFromMySQL.totals_handicap,
+        rate: teamsFromMySQL.totals_rate > 0 ? `+${teamsFromMySQL.totals_rate}` : String(teamsFromMySQL.totals_rate),
         over_tw: teamsFromMySQL.over_tw
       },
       home: {
