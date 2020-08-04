@@ -55,6 +55,20 @@ function insertTeamNameToFirestore(data, configs) {
   });
 }
 
+function insertPlayerToFirestore(data, configs) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { playerType, collectionName, teamId, season } = configs;
+      const temp = {};
+      temp[`season_${season}`] = {};
+      temp[`season_${season}`][playerType] = data;
+      await firestore.collection(collectionName).doc(teamId).set(temp, { merge: true });
+      return resolve();
+    } catch (err) {
+      return reject(new AppErrors.FirebaseCollectError(err.stack));
+    }
+  });
+}
 function debugLogger(configs) {
   const { league, teamId, teamName, fieldName } = configs;
   logger.debug(`棒球 ${league} 更新 ${fieldName}：隊伍 ${teamName}(${teamId}) 完成`);
@@ -65,5 +79,6 @@ module.exports = {
   getDataByAxios,
   setDataToFirestore,
   insertTeamNameToFirestore,
+  insertPlayerToFirestore,
   debugLogger
 };
