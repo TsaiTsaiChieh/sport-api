@@ -10,6 +10,7 @@ const CPBL_functions = require('./util/prematchFunctions_CPBL');
 const MLB_functions = require('./util/prematchFunctions_MLB');
 // BASKETBALL
 const CBA_functions = require('./util/prematchFunctions_CBA');
+const NBA_functions = require('./util/prematchFunctions_NBA');
 // SOCCER
 const Soccer_functions = require('./util/prematchFunctions_Soccer');
 // upcomming is BetsAPI, prematch is for sportradar
@@ -24,20 +25,22 @@ async function prematch() {
     const now = modules.convertTimezoneFormat(unix);
     try {
       // BASEBALL
-      await KBO_functions.KBO.upcoming(now);
-      await KBO_functions.KBO.upcoming(tomorrow);
-      await NPB_functions.NPB.upcoming(now);
-      await NPB_functions.NPB.upcoming(tomorrow);
-      await CPBL_functions.CPBL.upcoming(now);
-      await CPBL_functions.CPBL.upcoming(tomorrow);
-      await MLB_functions.MLB.upcoming(now);
-      await MLB_functions.MLB.upcoming(tomorrow);
+      KBO_functions.KBO.upcoming(now);
+      KBO_functions.KBO.upcoming(tomorrow);
+      NPB_functions.NPB.upcoming(now);
+      NPB_functions.NPB.upcoming(tomorrow);
+      CPBL_functions.CPBL.upcoming(now);
+      CPBL_functions.CPBL.upcoming(tomorrow);
+      MLB_functions.MLB.upcoming(now);
+      MLB_functions.MLB.upcoming(tomorrow);
       // BASKETBALL
-      await CBA_functions.CBA.upcoming(now);
-      await CBA_functions.CBA.upcoming(tomorrow);
+      CBA_functions.CBA.upcoming(now);
+      CBA_functions.CBA.upcoming(tomorrow);
+      NBA_functions.NBA.upcoming(now);
+      NBA_functions.NBA.upcoming(tomorrow);
       // SOCCER
-      await Soccer_functions.Soccer.upcoming(now);
-      await Soccer_functions.Soccer.upcoming(tomorrow);
+      Soccer_functions.Soccer.upcoming(now);
+      Soccer_functions.Soccer.upcoming(tomorrow);
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }

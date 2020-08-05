@@ -187,7 +187,7 @@ async function upsertHitter(result, result2, result3) {
               [`${matchNumber}`]: {
                 AB: result[i + 3],
                 // AO:result[i + 14],
-                AVG: result[i + 20],
+                AVG: '0' + result[i + 20],
                 BB: result[i + 15],
                 CS: result[i + 12],
                 G: result[i + 1],
@@ -197,7 +197,7 @@ async function upsertHitter(result, result2, result3) {
                 HBP: result[i + 17],
                 HR: result[i + 8],
                 IBB: result[i + 16],
-                OBP: result[i + 22],
+                OBP: '0' + result[i + 22],
                 PA: result[i + 2],
                 R: result[i + 4],
                 RBI: result[i + 10],
@@ -209,7 +209,7 @@ async function upsertHitter(result, result2, result3) {
                   ? '0'
                   : result[i + 11] / (result[i + 11] + result[i + 12]),
                 SF: result[i + 14],
-                SLG: result[i + 21],
+                SLG: '0' + result[i + 21],
                 SO: result[i + 18],
                 SSA: isNaN(
                   result[i + 20] * 1000 +
@@ -362,17 +362,17 @@ async function upsertHitterTeamC(result) {
           [`season_${season}`]: {
             team_hit: {
               AB: result[index + i * offset + 3],
-              AVG: result[index + i * offset], // 1
+              AVG: '0' + result[index + i * offset], // 1
               BB:
                 result[index + i * offset + 15] +
                 result[index + i * offset + 16],
               H: result[index + i * offset + 5],
               HR: result[index + i * offset + 8],
-              OBP: result[index + i * offset + 21],
+              OBP: '0' + result[index + i * offset + 21],
               R: result[index + i * offset + 4],
               RBI: result[index + i * offset + 10],
               SB: result[index + i * offset + 11],
-              SLG: result[index + i * offset + 20],
+              SLG: '0' + result[index + i * offset + 20],
               SO: result[index + i * offset + 18],
               TB: result[index + i * offset + 9]
             }
@@ -402,17 +402,17 @@ async function upsertHitterTeamP(result) {
           [`season_${season}`]: {
             team_hit: {
               AB: result[index + i * offset + 3],
-              AVG: result[index + i * offset], // 1
+              AVG: '0' + result[index + i * offset], // 1
               BB:
                 result[index + i * offset + 15] +
                 result[index + i * offset + 16],
               H: result[index + i * offset + 5],
               HR: result[index + i * offset + 8],
-              OBP: result[index + i * offset + 21],
+              OBP: '0' + result[index + i * offset + 21],
               R: result[index + i * offset + 4],
               RBI: result[index + i * offset + 10],
               SB: result[index + i * offset + 11],
-              SLG: result[index + i * offset + 20],
+              SLG: '0' + result[index + i * offset + 20],
               SO: result[index + i * offset + 18],
               TB: result[index + i * offset + 9]
             }
@@ -446,7 +446,7 @@ async function upsertTeambaseTeamC(result) {
               G: result[index + i * offset],
               Win: result[index + i * offset + 1],
               Draw: result[index + i * offset + 3],
-              Lose: result[index + i * offset + 2],
+              Loss: result[index + i * offset + 2],
               PCT: result[index + i * offset + 4],
               GB:
                 result[index + i * offset + 5] === '--'
@@ -510,7 +510,7 @@ async function upsertTeambaseTeamP(result) {
               G: result[index + i * offset],
               Win: result[index + i * offset + 1],
               Draw: result[index + i * offset + 3],
-              Lose: result[index + i * offset + 2],
+              Loss: result[index + i * offset + 2],
               PCT: result[index + i * offset + 4],
               GB:
                 result[index + i * offset + 5] === '--'
@@ -554,15 +554,15 @@ function formatRecord(oriString) {
   if (oriString.indexOf('(') >= 0) {
     const draw = oriString.split('(')[1].replace(')', '');
     const win = oriString.split('(')[0].split('-')[0];
-    const lose = oriString.split('(')[0].split('-')[1];
+    const loss = oriString.split('(')[0].split('-')[1];
 
-    return `${win}-${lose}-${draw}`;
+    return `${win}-${loss}-${draw}`;
   } else {
     const draw = 0;
     const win = oriString.split('-')[0];
-    const lose = oriString.split('-')[1];
+    const loss = oriString.split('-')[1];
 
-    return `${win}-${lose}-${draw}`;
+    return `${win}-${loss}-${draw}`;
   }
 }
 
