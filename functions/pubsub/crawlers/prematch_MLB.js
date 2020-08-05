@@ -76,11 +76,7 @@ function repackageTeamBase(season, data) {
           const allow_R = String(teamData.runsAllowed);
           const per_allow_R = String((Number(allow_R) / Number(G)).toFixed(1));
           const STRK = teamData.streak.streakCode;
-          // FIXME splitRecords index is not always at 8, should use type: lastTen
-          const L10_win = String(teamData.records.splitRecords[8].wins);
-          const L10_loss = String(teamData.records.splitRecords[8].losses);
-          const L10 = String(`${L10_win}-${L10_loss}`);
-          // console.log(teamData.team.shortName, L10);
+          const L10 = await getL10(teamData.records.splitRecords);
           const at_home = `${teamData.records.splitRecords[0].wins}-${teamData.records.splitRecords[0].losses}`;
           const at_away = `${teamData.records.splitRecords[1].wins}-${teamData.records.splitRecords[1].losses}`;
           // add create time & update time to debug
@@ -90,6 +86,23 @@ function repackageTeamBase(season, data) {
         }
       }
       return resolve();
+    } catch (err) {
+      return reject(new AppErrors.RepackageError(err.stack));
+    }
+  });
+}
+
+function getL10(data) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      for (let i = 0; i < data.length; i++) {
+        const ele = data[i];
+        if (ele.type === 'lastTen') {
+          const L10 = `${ele.wins}-${ele.losses}`;
+          return resolve(L10);
+        }
+      }
+      return resolve('0-0');
     } catch (err) {
       return reject(new AppErrors.RepackageError(err.stack));
     }
