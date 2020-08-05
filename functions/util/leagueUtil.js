@@ -26,53 +26,20 @@ const db = {
 function league2Sport(league) {
   switch (league) {
     case 'MLB':
-      return {
-        sport: 'baseball'
-      };
     case 'CPBL':
-      return {
-        sport: 'baseball'
-      };
     case 'KBO':
-      return {
-        sport: 'baseball'
-      };
     case 'NPB':
-      return {
-        sport: 'baseball'
-      };
     case 'ABL':
-      return {
-        sport: 'baseball'
-      };
     case 'LMB':
       return {
         sport: 'baseball'
       };
     case 'NBA':
-      return {
-        sport: 'basketball'
-      };
     case 'SBL':
-      return {
-        sport: 'basketball'
-      };
     case 'WNBA':
-      return {
-        sport: 'basketball'
-      };
     case 'NBL':
-      return {
-        sport: 'basketball'
-      };
     case 'KBL':
-      return {
-        sport: 'basketball'
-      };
     case 'CBA':
-      return {
-        sport: 'basketball'
-      };
     case 'BJL':
       return {
         sport: 'basketball'

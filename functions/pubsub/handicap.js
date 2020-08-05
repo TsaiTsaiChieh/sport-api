@@ -9,6 +9,7 @@ const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const sports = [
   // 籃球
   18,
+  18,
   // 棒球
   16,
   16,
@@ -21,6 +22,7 @@ const sports = [
 const leagueUniteIDArray = [
   // 籃球
   2319, // 中國職籃
+  2274, // NBA
   // 棒球
   347, // 日職
   349, // 韓職
@@ -38,7 +40,7 @@ async function handicap() {
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
     if (querysForEvent.length > 0) {
-      await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
+      upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
   }
   console.log('handicap success');
@@ -121,8 +123,8 @@ async function upsertHandicap(querysForEvent, sport, league) {
                 ) {
                   newest_spread = spread_odds[spcount];
                   newest_spread = spreadCalculator(newest_spread, sport);
-                  await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-                  await write2MysqlOfMatchSpread(newest_spread, ele, league);
+                  write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+                  write2MysqlOfMatchSpread(newest_spread, ele, league);
                   break;
                 }
               }
@@ -140,8 +142,8 @@ async function upsertHandicap(querysForEvent, sport, league) {
                 ) {
                   newest_totals = totals_odds[tocount];
                   newest_totals = totalsCalculator(newest_totals, sport);
-                  await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-                  await write2MysqlOfMatchTotals(newest_totals, ele, league);
+                  write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+                  write2MysqlOfMatchTotals(newest_totals, ele, league);
                   break;
                 }
               }
@@ -159,7 +161,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   return new Promise(async function(resolve, reject) {
     try {
-      await Match.upsert({
+      Match.upsert({
         bets_id: ele.bets_id,
         spread_id: newest_spread.id
       });
@@ -174,7 +176,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
   return new Promise(async function(resolve, reject) {
     try {
-      await Match.upsert({
+      Match.upsert({
         bets_id: ele.bets_id,
         totals_id: newest_totals.id
       });
@@ -196,7 +198,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
       leagueUniteID === '3939'
     ) {
       try {
-        await MatchSpread.upsert({
+        MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
           league_id: leagueUniteID,
@@ -218,7 +220,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
       }
     } else {
       try {
-        await MatchSpread.upsert({
+        MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
           league_id: leagueUniteID,
@@ -244,7 +246,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
 async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
-      await MatchTotals.upsert({
+      MatchTotals.upsert({
         totals_id: odd.id,
         match_id: ele.bets_id,
         league_id: leagueUniteID,

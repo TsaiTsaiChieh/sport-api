@@ -276,3 +276,17 @@ router.post(
   require('../controller/user/postGodLeagueRankReceiveBackController')
 );
 module.exports = router;
+
+
+//未讀訊息
+router.post(
+  '/unread',
+  verification.token,
+  require('../controller/user/unreadController')
+);
+//新增未讀訊息
+router.put(
+  '/unread',
+  verification.token,
+  require('../controller/user/unreadController')
+);

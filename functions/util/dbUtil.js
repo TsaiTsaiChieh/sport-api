@@ -104,6 +104,9 @@ const User = sequelize.define(
     block_count: {
       type: Sequelize.INTEGER
     },
+    unread_count: {
+      type: Sequelize.INTEGER
+    },
     block_message: {
       type: Sequelize.DATE
     },
@@ -1652,6 +1655,9 @@ const News = sequelize.define(
     },
     status: {
       type: Sequelize.INTEGER
+    },
+    match_scheduled_tw: {
+      type: Sequelize.DATE
     },
     active: {
       type: Sequelize.INTEGER,
