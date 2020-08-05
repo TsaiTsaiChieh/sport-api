@@ -635,19 +635,15 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[17].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[17].value === ''
                 ? null
                 : data.api.data.competition.season.stage.group.event
                   .participants[0].stats[17].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[17].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[17].value === ''
                   ? null
                   : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[17].value
@@ -658,19 +654,15 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[18].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[18].value === ''
                 ? null
                 : data.api.data.competition.season.stage.group.event
                   .participants[0].stats[18].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[18].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[18].value === ''
                   ? null
                   : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[18].value
@@ -681,19 +673,15 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[19].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[19].value === ''
                 ? null
                 : data.api.data.competition.season.stage.group.event
                   .participants[0].stats[19].value
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[19].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[19].value === ''
                   ? null
                   : data.api.data.competition.season.stage.group.event
                     .participants[1].stats[19].value
@@ -704,10 +692,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[20].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[20].value === ''
                 ? null
                 : parseInt(
                   data.api.data.competition.season.stage.group.event
@@ -715,10 +701,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
                 )
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[20].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[20].value === ''
                   ? null
                   : parseInt(
                     data.api.data.competition.season.stage.group.event
@@ -731,10 +715,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[21].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[21].value === ''
                 ? null
                 : parseInt(
                   data.api.data.competition.season.stage.group.event
@@ -742,10 +724,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
                 )
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[21].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[21].value === ''
                   ? null
                   : parseInt(
                     data.api.data.competition.season.stage.group.event
@@ -758,10 +738,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
           .set(
             data.api.data.competition.season.stage.group.event.participants[0]
               .stats.length > 0
-              ? isNaN(
-                data.api.data.competition.season.stage.group.event
-                  .participants[0].stats[22].value
-              )
+              ? data.api.data.competition.season.stage.group.event
+                .participants[0].stats[22].value === ''
                 ? null
                 : parseInt(
                   data.api.data.competition.season.stage.group.event
@@ -769,10 +747,8 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
                 )
               : data.api.data.competition.season.stage.group.event
                 .participants[1].stats.length > 0
-                ? isNaN(
-                  data.api.data.competition.season.stage.group.event
-                    .participants[1].stats[22].value
-                )
+                ? data.api.data.competition.season.stage.group.event
+                  .participants[1].stats[22].value === ''
                   ? null
                   : parseInt(
                     data.api.data.competition.season.stage.group.event
