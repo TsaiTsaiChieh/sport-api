@@ -370,7 +370,7 @@ async function settleWinList(args) {
       where: {
         uid: uid,
         league_id: league_id,
-        period: period
+        period: period - 1
       }
     }));
     if (err) {
