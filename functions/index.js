@@ -302,5 +302,8 @@ exports.prematch_crawler_CPBL = functions.pubsub
   .onRun(require('./pubsub/crawlers/prematch_CPBL'));
 exports.prematch_crawler_NPB = functions.pubsub
   .schedule('35 23 * * *')
+  .timeZone('Asia/Taipei');
+exports.prematch_crawler_MLB = functions.pubsub
+  .schedule('0 3,14 * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/crawlers/prematch_NPB'));
+  .onRun(require('./pubsub/crawlers/prematch_MLB'));

@@ -1653,6 +1653,9 @@ const News = sequelize.define(
     status: {
       type: Sequelize.INTEGER
     },
+    match_scheduled_tw: {
+      type: Sequelize.DATE
+    },
     active: {
       type: Sequelize.INTEGER,
       defaultValue: 1,

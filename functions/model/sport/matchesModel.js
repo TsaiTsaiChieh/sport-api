@@ -1,9 +1,8 @@
 const modules = require('../../util/modules');
-const leagueUtil = require('../../util/leagueUtil');
+const { leagueCodebook, league2Sport, MATCH_STATUS, USER_SELL } = require('../../util/leagueUtil');
+const { SCHEDULED, INPLAY, END, VALID } = MATCH_STATUS;
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const { SCHEDULED, INPLAY, END } = leagueUtil.MATCH_STATUS;
-const flag_prematch = 1;
 const ignoreLeagueId = '22000';
 
 function getMatches(args) {
@@ -49,9 +48,9 @@ function getMatchesWithDate(args) {
                   FROM matches AS game, 
                        match__teams AS home, 
                        match__teams AS away
-                 WHERE game.flag_prematch = ${flag_prematch}
+                 WHERE game.flag_prematch = ${VALID}
                    AND scheduled BETWEEN ${begin} AND ${end}
-                   AND game.league_id = '${leagueUtil.leagueCodebook(league).id}'
+                   AND game.league_id = '${leagueCodebook(league).id}'
                    AND game.home_id = home.team_id 
                    AND game.away_id = away.team_id
                    AND (game.status = ${SCHEDULED} OR game.status = ${INPLAY} OR game.status = ${END})
@@ -87,7 +86,7 @@ function returnGodUserPrediction(args) {
            FROM user__predictions
           WHERE uid = :uid 
             AND match_scheduled BETWEEN ${begin} AND ${end}
-            AND league_id = '${leagueUtil.leagueCodebook(args.league).id}'`,
+            AND league_id = '${leagueCodebook(args.league).id}'`,
         {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { uid: args.token.uid }
@@ -110,7 +109,7 @@ function isGodBelongToLeague(args) {
 
 function repackageMatches(results, args, godPredictions) {
   const data = {
-    sell: -1,
+    sell: USER_SELL.NORMAL,
     scheduled: [],
     inplay: [],
     end: []
@@ -124,6 +123,7 @@ function repackageMatches(results, args, godPredictions) {
       scheduled: ele.scheduled,
       scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
       status: ele.status,
+      sport: league2Sport(args.league).sport,
       league: args.league,
       league_ch: ele.name_ch,
       league_id: ele.league_id,
