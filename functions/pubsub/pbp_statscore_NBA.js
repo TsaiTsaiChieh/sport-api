@@ -6,10 +6,10 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'basketball';
-const league = 'CBA';
+const league = 'NBA';
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function CBApbpInplay(parameter, data) {
+async function NBApbpInplay(parameter, data) {
   const firestoreData = data;
   let eventNow = 0;
   let eventOrderNow = 0;
@@ -69,7 +69,7 @@ async function CBApbpInplay(parameter, data) {
   }, perStep);
 }
 
-async function CBApbpHistory(parameter) {
+async function NBApbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
@@ -1393,4 +1393,4 @@ function changePeriod(period, now_periods) {
   return periodNow;
 }
 
-module.exports = { CBApbpInplay, CBApbpHistory };
+module.exports = { NBApbpInplay, NBApbpHistory };

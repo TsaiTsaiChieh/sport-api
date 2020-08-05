@@ -91,11 +91,9 @@ async function MLBpbpHistory(parameter) {
       const data = await axiosForURL(pbpURL);
 
       const homeScores =
-        data.api.data.competition.season.stage.group.event.participants[0]
-          .results[2].value;
+			data.api.data.competition.season.stage.group.event.participants[0].results.length > 0 ? data.api.data.competition.season.stage.group.event.participants[0].results[2].value : -99;
       const awayScores =
-        data.api.data.competition.season.stage.group.event.participants[1]
-          .results[2].value;
+			data.api.data.competition.season.stage.group.event.participants[1].results.length > 0 ? data.api.data.competition.season.stage.group.event.participants[1].results[2].value : -99;
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
         .set(awayScores);
@@ -372,12 +370,16 @@ async function initRealtime(betsID, data) {
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .name : null
         );
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .name : null
         );
     } catch (err) {
       return reject(

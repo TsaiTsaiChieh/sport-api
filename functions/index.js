@@ -230,6 +230,16 @@ exports.pbp_statscore_CBA = functions
   .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_statscore_CBA'));
+
+exports.prematch_statscore_NBA = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/prematch_statscore_NBA'));
+
+exports.pbp_statscore_NBA = functions.pubsub
+  .schedule('5 5 * * *')
+  .timeZone('Asia/Taipei')
+  .onRun(require('./pubsub/pbp_statscore_NBA'));
 // -------- statscore 專區 --------
 
 // 大神

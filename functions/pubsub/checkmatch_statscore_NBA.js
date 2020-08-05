@@ -3,18 +3,18 @@ const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const AppErrors = require('../util/AppErrors');
-const CBApbp = require('./pbp_statscore_CBA');
-const CBApbpInplay = CBApbp.CBApbpInplay;
-const CBApbpHistory = CBApbp.CBApbpHistory;
+const NBApbp = require('./pbp_statscore_NBA');
+const NBApbpInplay = NBApbp.NBApbpInplay;
+const NBApbpHistory = NBApbp.NBApbpHistory;
 const db = require('../util/dbUtil');
 const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 const Match = db.Match;
 const sport = 'basketball';
-const league = 'CBA';
+const league = 'NBA';
 const leagueID = leagueUtil.leagueCodebook(league).id;
 
-async function checkmatch_statscore_CBA() {
+async function checkmatch_statscore_NBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -60,7 +60,7 @@ async function checkmatch_statscore_CBA() {
                   statscoreID: statscoreID,
                   first: 1
                 };
-                await CBApbpInplay(parameter, firestoreData);
+                await NBApbpInplay(parameter, firestoreData);
               } catch (err) {
                 return reject(
                   new AppErrors.MysqlError(
@@ -96,7 +96,7 @@ async function checkmatch_statscore_CBA() {
                   first: 0,
                   realtimeData
                 };
-                await CBApbpInplay(parameter, firestoreData);
+                await NBApbpInplay(parameter, firestoreData);
               }
 
               if (realtimeData.Summary.status === 'closed') {
@@ -104,7 +104,7 @@ async function checkmatch_statscore_CBA() {
                   betsID: betsID,
                   statscoreID: statscoreID
                 };
-                await CBApbpHistory(parameter);
+                await NBApbpHistory(parameter);
               }
             } catch (err) {
               return reject(
@@ -179,10 +179,10 @@ async function queryForEvents(date1, date2) {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at checkmatch_statscore_CBA by DY`)
+        new AppErrors.MysqlError(`${err} at checkmatch_statscore_NBA by DY`)
       );
     }
   });
 }
 
-module.exports = checkmatch_statscore_CBA;
+module.exports = checkmatch_statscore_NBA;
