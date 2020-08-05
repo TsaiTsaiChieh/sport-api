@@ -267,6 +267,7 @@ function isGodSellConsistent(args, i, filter) {
 }
 
 function sendPrediction(args, filter) {
+  // console.log(args);
   return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
@@ -330,7 +331,7 @@ async function createNewsDB(insertData, needed) {
       const period = modules.getTitlesPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
-      if (sell === 0 || sell === 1) {
+      if (sell === 0 || sell === 1 ) {
         const price_data = await db.sequelize.query(`
             SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
         `,
@@ -343,7 +344,18 @@ async function createNewsDB(insertData, needed) {
         insertData.title = price;
         insertData.scheduled = modules.moment().unix();
         insertData.sort = 2;// 售牌
-        await db.sequelize.models.user__new.create(insertData);
+        insertData.match_scheduled_tw = insertData.matches[0].match_scheduled_tw;
+        const record = await db.sequelize.models.user__new.findOne({
+          where: {
+            league: insertData.league,
+            uid   : insertData.uid,
+            match_scheduled_tw: insertData.match_scheduled_tw
+          },
+          raw: true
+        });
+        if(record){
+          await db.sequelize.models.user__new.create(insertData);
+        }
       }
       return resolve({ news_status: 'success' });
     } catch (err) {
