@@ -22,7 +22,7 @@ function favoritePlayerModel(args) {
                         vl.name,
                         vl.league_id,
                         uwl.this_month_win_rate,
-                        uwl.this_month_win_bet
+                        uwl.this_month_win_bets
           FROM user__favoriteplayers uf
          INNER JOIN users u ON uf.god_uid = u.uid
          INNER JOIN view__leagues vl ON vl.name = uf.league

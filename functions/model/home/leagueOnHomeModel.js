@@ -3,6 +3,6 @@
 // const db = require('../../util/dbUtil');
 
 async function leagueOnHome(args) {
-  return 'eSoccer';
+  return 'MLB';
 }
 module.exports = leagueOnHome;

@@ -30,7 +30,7 @@ function queryAllMatches(args) {
         `(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
                     home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
-                    spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS handicap,
+                    spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS handicap, spread.rate AS rate,
                     league.name_ch AS league_name_ch
                FROM matches AS game,
                     match__teams AS home,
@@ -48,7 +48,7 @@ function queryAllMatches(args) {
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
                     home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
-                    NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS handicap,
+                    NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS handicap, NULL AS rate,
                     league.name_ch AS league_name_ch
                FROM matches AS game,
                     match__teams AS home,
@@ -98,7 +98,8 @@ async function repackage(args, matches) {
           spread: {
             handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
-            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
+            rate: ele.rate === null ? null : ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
           },
           home: {
             team_name:
@@ -146,7 +147,8 @@ async function repackage(args, matches) {
           spread: {
             handicap: ele.handicap || ele.handicap === 0 ? ele.handicap : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
-            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null
+            away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
+            rate: ele.rate === null ? null : ele.rate <= 0 ? ele.rate.toString() : ele.rate > 0 ? '+' + ele.rate.toString() : null
           },
           home: {
             team_name: ele.home_alias_ch,

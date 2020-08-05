@@ -3,18 +3,18 @@ const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const database = firebaseAdmin().database();
 const AppErrors = require('../util/AppErrors');
-const CPBLpbp = require('./pbp_statscore_CPBL');
-const CPBLpbpInplay = CPBLpbp.CPBLpbpInplay;
-const CPBLpbpHistory = CPBLpbp.CPBLpbpHistory;
+const MLBpbp = require('./pbp_statscore_MLB');
+const MLBpbpInplay = MLBpbp.MLBpbpInplay;
+const MLBpbpHistory = MLBpbp.MLBpbpHistory;
 const db = require('../util/dbUtil');
 const leagueOnLivescore = require('../model/home/leagueOnLivescoreModel');
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 const Match = db.Match;
 const sport = 'baseball';
-const league = 'CPBL';
+const league = 'MLB';
 const leagueID = leagueUtil.leagueCodebook(league).id;
 
-async function checkmatch_statscore_CPBL() {
+async function checkmatch_statscore_MLB() {
   return new Promise(async function(resolve, reject) {
     try {
       const unix = Math.floor(Date.now() / 1000);
@@ -47,11 +47,11 @@ async function checkmatch_statscore_CPBL() {
           case 2: {
             if (gameTime <= nowTime) {
               try {
-                await Match.upsert({
+                Match.upsert({
                   bets_id: betsID,
                   status: 1
                 });
-                await database
+                database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('inprogress');
 
@@ -60,23 +60,23 @@ async function checkmatch_statscore_CPBL() {
                   statscoreID: statscoreID,
                   first: 1
                 };
-                await CPBLpbpInplay(parameter, firestoreData);
+                await MLBpbpInplay(parameter, firestoreData);
               } catch (err) {
                 return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at checkmatch_statscore_CPBL by DY`
+                  new AppErrors.MysqlError(
+                    `${err} at checkmatch_statscore_MLB by DY`
                   )
                 );
               }
             } else {
               try {
-                await database
+                database
                   .ref(`${sport}/${league}/${betsID}/Summary/status`)
                   .set('scheduled');
               } catch (err) {
                 return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at checkmatch_statscore_CPBL by DY`
+                  new AppErrors.MysqlError(
+                    `${err} at checkmatch_statscore_MLB by DY`
                   )
                 );
               }
@@ -95,7 +95,7 @@ async function checkmatch_statscore_CPBL() {
                   statscoreID: statscoreID,
                   first: 0
                 };
-                await CPBLpbpInplay(parameter, firestoreData);
+                await MLBpbpInplay(parameter, firestoreData);
               }
 
               if (realtimeData.Summary.status === 'closed') {
@@ -103,12 +103,12 @@ async function checkmatch_statscore_CPBL() {
                   betsID: betsID,
                   statscoreID: statscoreID
                 };
-                await CPBLpbpHistory(parameter);
+                await MLBpbpHistory(parameter);
               }
             } catch (err) {
               return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} checkmatch_statscore_CPBL by DY`
+                new AppErrors.FirebaseCollectError(
+                  `${err} checkmatch_statscore_MLB by DY`
                 )
               );
             }
@@ -120,8 +120,8 @@ async function checkmatch_statscore_CPBL() {
       }
     } catch (err) {
       return reject(
-        new AppErrors.FirebaseRealtimeError(
-          `${err} at checkmatch_statscore_CPBL by DY`
+        new AppErrors.FirebaseCollectError(
+          `${err} at checkmatch_statscore_MLB by DY`
         )
       );
     }
@@ -134,42 +134,42 @@ async function queryForEvents(date1, date2) {
     try {
       const queries = await db.sequelize.query(
         `
-         SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status, game.league_id AS league_id, game.radar_id AS statscore_id,
+				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status, game.league_id AS league_id, game.radar_id AS statscore_id,
+				        home.name AS home_name,home.alias_ch AS home_alias_ch,home.image_id AS home_image_id, home.alias AS home_alias,
+				        away.name AS away_name,away.alias_ch AS away_alias_ch,away.image_id AS away_image_id, away.alias AS away_alias,
+								spread.handicap AS handicap, spread.home_tw AS home_tw,spread.away_tw AS away_tw,
+								league.name_ch AS league_name_ch
+					 FROM matches AS game,
+					      match__teams AS home,
+								match__teams AS away,
+								match__spreads AS spread,
+								match__leagues AS league
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
+						AND game.league_id = ${leagueID}
+						AND game.home_id = home.team_id
+						AND game.away_id = away.team_id
+						AND game.spread_id= spread.spread_id
+						AND game.ori_league_id = league.ori_league_id
+						AND game.scheduled BETWEEN UNIX_TIMESTAMP('${date1}') AND UNIX_TIMESTAMP('${date2}')
+					UNION(
+				 SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status, game.league_id AS league_id, game.radar_id AS statscore_id,
                 home.name AS home_name,home.alias_ch AS home_alias_ch,home.image_id AS home_image_id, home.alias AS home_alias,
                 away.name AS away_name,away.alias_ch AS away_alias_ch,away.image_id AS away_image_id, away.alias AS away_alias,
-                spread.handicap AS handicap, spread.home_tw AS home_tw,spread.away_tw AS away_tw,
-                league.name_ch AS league_name_ch
-           FROM matches AS game,
-                match__teams AS home,
-                match__teams AS away,
-                match__spreads AS spread,
-                match__leagues AS league
-          WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
-            AND game.league_id = ${leagueID}
-            AND game.home_id = home.team_id
-            AND game.away_id = away.team_id
-            AND game.spread_id= spread.spread_id
-            AND game.ori_league_id = league.ori_league_id
-            AND game.scheduled BETWEEN UNIX_TIMESTAMP('${date1}') AND UNIX_TIMESTAMP('${date2}')
-          UNION(
-         SELECT game.bets_id AS bets_id, game.scheduled AS scheduled, game.status AS status, game.league_id AS league_id, game.radar_id AS statscore_id,
-                home.name AS home_name,home.alias_ch AS home_alias_ch,home.image_id AS home_image_id, home.alias AS home_alias,
-                away.name AS away_name,away.alias_ch AS away_alias_ch,away.image_id AS away_image_id, away.alias AS away_alias,
-                NULL AS handicap, NULL AS home_tw,NULL AS away_tw,
-                league.name_ch AS league_name_ch
-           FROM matches AS game,
-                match__teams AS home,
-                match__teams AS away,
-                match__leagues AS league
-          WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
-                AND game.league_id = ${leagueID}
-                AND game.home_id = home.team_id
-                AND game.away_id = away.team_id
-                AND game.spread_id is NULL	
-                AND game.ori_league_id = league.ori_league_id
-                AND game.scheduled BETWEEN UNIX_TIMESTAMP('${date1}') AND UNIX_TIMESTAMP('${date2}')			
-              )
-       `,
+								NULL AS handicap, NULL AS home_tw,NULL AS away_tw,
+								league.name_ch AS league_name_ch
+					 FROM matches AS game,
+					      match__teams AS home,
+								match__teams AS away,
+								match__leagues AS league
+					WHERE (game.status = ${leagueUtil.MATCH_STATUS.SCHEDULED} OR game.status = ${leagueUtil.MATCH_STATUS.INPLAY})
+								AND game.league_id = ${leagueID}
+								AND game.home_id = home.team_id
+								AND game.away_id = away.team_id
+								AND game.spread_id is NULL	
+								AND game.ori_league_id = league.ori_league_id
+								AND game.scheduled BETWEEN UNIX_TIMESTAMP('${date1}') AND UNIX_TIMESTAMP('${date2}')			
+					    )
+			 `,
         {
           type: db.sequelize.QueryTypes.SELECT
         }
@@ -177,10 +177,10 @@ async function queryForEvents(date1, date2) {
       return resolve(queries);
     } catch (err) {
       return reject(
-        new AppErrors.MysqlError(`${err} at checkmatch_statscore_CPBL by DY`)
+        new AppErrors.MysqlError(`${err} at checkmatch_statscore_MLB by DY`)
       );
     }
   });
 }
 
-module.exports = checkmatch_statscore_CPBL;
+module.exports = checkmatch_statscore_MLB;

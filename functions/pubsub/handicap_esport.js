@@ -184,7 +184,7 @@ async function write2MysqlOfMatchSpread(odd, ele, league) {
     } catch (err) {
       return reject(
         new AppErrors.MysqlError(
-          `${err.stack} at handicap_esports of MatchSpread ${ele.bets_id} by DY`
+          `${err.stack} at handicap_esports of MatchSpread ${ele.bets_id} at ${odd.id} by DY`
         )
       );
     }
@@ -217,7 +217,8 @@ async function write2MysqlOfMatchTotals(odd, ele, league) {
 }
 
 function spreadCalculator(handicapObj) {
-  if (handicapObj.handicap) {
+  handicapObj.handicap = -handicapObj.handicap;
+  if (handicapObj.handicap === 0 || handicapObj.handicap !== null) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
       // 有兩個以上盤口
@@ -275,7 +276,7 @@ function spreadCalculator(handicapObj) {
       handicapObj.handicap = parseFloat(handicapObj.handicap);
       if (handicapObj.handicap === 0) {
         // 讓 0 分
-        handicapObj.home_tw = 'pk';
+        handicapObj.home_tw = 'PK';
         handicapObj.away_tw = null;
         handicapObj.rate = 0;
       } else if (handicapObj.handicap % 1 === 0) {
@@ -313,7 +314,6 @@ function spreadCalculator(handicapObj) {
           }
         } else {
           // 客讓主
-          handicapObj.handicap = Math.abs(handicapObj.handicap);
           const str = handicapObj.handicap.toString();
           const str1 = str.split('.')[0];
           const str2 = str.split('.')[1];

@@ -7,44 +7,26 @@ const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'baseball';
 const league = 'CPBL';
+const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function CPBLpbpInplay(parameter) {
+async function CPBLpbpInplay(parameter, data) {
+  const firestoreData = data;
   let eventNow = 0;
   let eventOrderNow = 0;
-  let hitterHomeNow = 0;
-  let hitterAwayNow = 0;
-  let pitcherHomeNow = 0;
-  let pitcherAwayNow = 0;
   let inningNow = 1;
   let halfNow = '0';
-  let memberHomeNow = 0;
-  let memberAwayNow = 0;
-  let pitcherHomeBalls = 0;
-  let pitcherHomeStrikes = 0;
-  let pitcherHomeER = 0;
-  let pitcherHomeH = 0;
-  let pitcherHomeK = 0;
-  let pitcherAwayBalls = 0;
-  let pitcherAwayStrikes = 0;
-  let pitcherAwayER = 0;
-  let pitcherAwayH = 0;
-  let pitcherAwayK = 0;
-  const hitterHomeAB = 0;
-  const hitterHomeH = 0;
-  let hitterAwayAB = 0;
-  let hitterAwayH = 0;
+
   // 14 秒一次
   let perStep;
   let timesPerLoop;
   if (parameter.first === 1) {
     // 最一開始需要初始化所以較長時間
-    perStep = 50000;
+    perStep = 30000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
-    perStep = 14000;
-    timesPerLoop = 4; // 一分鐘3次
+    perStep = 18000;
+    timesPerLoop = 3; // 一分鐘3次
   }
-
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
 
@@ -56,6 +38,7 @@ async function CPBLpbpInplay(parameter) {
       .ref(`${sport}/${league}/${betsID}`)
       .once('value');
     realtimeData = realtimeData.val();
+
     if (parameter.first === 0) {
       if (realtimeData.Summary.info) {
         if (realtimeData.Summary.Now_event) {
@@ -70,118 +53,14 @@ async function CPBLpbpInplay(parameter) {
         if (realtimeData.Summary.Now_halfs) {
           halfNow = realtimeData.Summary.Now_halfs;
         }
-        if (realtimeData.Summary.Now_hitter_home) {
-          hitterHomeNow = realtimeData.Summary.Now_hitter_home;
-        }
-        if (realtimeData.Summary.Now_pitcher_home) {
-          pitcherHomeNow = realtimeData.Summary.Now_pitcher_home;
-        }
-        if (realtimeData.Summary.Now_hitter_away) {
-          hitterAwayNow = realtimeData.Summary.Now_hitter_away;
-        }
-        if (realtimeData.Summary.Now_pitcher_away) {
-          pitcherAwayNow = realtimeData.Summary.Now_pitcher_away;
-        }
-        if (realtimeData.Summary.Now_member_home) {
-          memberHomeNow = realtimeData.Summary.Now_member_home;
-        }
-        if (realtimeData.Summary.Now_member_away) {
-          memberAwayNow = realtimeData.Summary.Now_member_away;
-        }
-        if (realtimeData.Summary.info.away) {
-          if (realtimeData.Summary.Now_hitter_away !== 0) {
-            hitterAwayAB =
-              realtimeData.Summary.info.away.Now_lineup[
-                `lineup${realtimeData.Summary.Now_hitter_away}`
-              ].ab;
-            hitterAwayH =
-              realtimeData.Summary.info.away.Now_lineup[
-                `lineup${realtimeData.Summary.Now_hitter_away}`
-              ].h;
-          }
-          pitcherAwayBalls =
-            realtimeData.Summary.info.away.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_away}`
-            ].balls;
-          pitcherAwayStrikes =
-            realtimeData.Summary.info.away.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_away}`
-            ].strikes;
-          pitcherAwayER =
-            realtimeData.Summary.info.away.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_away}`
-            ].ER;
-          pitcherAwayH =
-            realtimeData.Summary.info.away.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_away}`
-            ].h;
-          pitcherAwayK =
-            realtimeData.Summary.info.away.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_away}`
-            ].k;
-        }
-        if (realtimeData.Summary.info.home) {
-          if (realtimeData.Summary.Now_hitter_home !== 0) {
-            hitterAwayAB =
-              realtimeData.Summary.info.home.Now_lineup[
-                `lineup${realtimeData.Summary.Now_hitter_home}`
-              ].ab;
-
-            hitterAwayH =
-              realtimeData.Summary.info.home.Now_lineup[
-                `lineup${realtimeData.Summary.Now_hitter_home}`
-              ].h;
-          }
-
-          pitcherHomeBalls =
-            realtimeData.Summary.info.home.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_home}`
-            ].balls;
-
-          pitcherHomeStrikes =
-            realtimeData.Summary.info.home.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_home}`
-            ].strikes;
-          pitcherHomeER =
-            realtimeData.Summary.info.home.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_home}`
-            ].er;
-          pitcherHomeH =
-            realtimeData.Summary.info.home.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_home}`
-            ].h;
-          pitcherHomeK =
-            realtimeData.Summary.info.home.Now_lineup[
-              `lineup${realtimeData.Summary.Now_pitcher_home}`
-            ].k;
-        }
       }
     }
+
     const baseballParameter = {
       eventNow: eventNow,
       eventOrderNow: eventOrderNow,
-      hitterHomeNow: hitterHomeNow,
-      hitterAwayNow: hitterAwayNow,
-      pitcherHomeNow: pitcherHomeNow,
-      pitcherAwayNow: pitcherAwayNow,
       inningNow: inningNow,
-      halfNow: halfNow,
-      memberHomeNow: memberHomeNow,
-      memberAwayNow: memberAwayNow,
-      pitcherHomeBalls: pitcherHomeBalls,
-      pitcherHomeStrikes: pitcherHomeStrikes,
-      pitcherHomeER: pitcherHomeER,
-      pitcherHomeH: pitcherHomeH,
-      pitcherHomeK: pitcherHomeK,
-      pitcherAwayBalls: pitcherAwayBalls,
-      pitcherAwayStrikes: pitcherAwayStrikes,
-      pitcherAwayER: pitcherAwayER,
-      pitcherAwayH: pitcherAwayH,
-      pitcherAwayK: pitcherAwayK,
-      hitterHomeAB: hitterHomeAB,
-      hitterHomeH: hitterHomeH,
-      hitterAwayAB: hitterAwayAB,
-      hitterAwayH: hitterAwayH
+      halfNow: halfNow
     };
     const parameterPBP = {
       betsID: betsID,
@@ -196,7 +75,7 @@ async function CPBLpbpInplay(parameter) {
       console.log(`${betsID} : pbp_statscore_${league} success`);
       clearInterval(timerForStatus2);
     } else {
-      await doPBP(parameterPBP);
+      await doPBP(parameterPBP, firestoreData);
     }
   }, perStep);
 }
@@ -217,6 +96,48 @@ async function CPBLpbpHistory(parameter) {
       const awayScores =
         data.api.data.competition.season.stage.group.event.participants[1]
           .results[2].value;
+      database
+        .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
+        .set(awayScores);
+      database
+        .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total/points`)
+        .set(homeScores);
+      for (let count = 3; count < 26; count++) {
+        if (
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .results[count].value !== ''
+        ) {
+          database
+            .ref(
+										`${sport}/${league}/${betsID}/Summary/info/home/Innings${
+											count - 2
+										}`
+            )
+            .set({
+              scoring: {
+                runs:
+										data.api.data.competition.season.stage.group.event.participants[0].results[count].value
+              }
+            });
+        }
+        if (
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .results[count].value !== ''
+        ) {
+          database
+            .ref(
+										`${sport}/${league}/${betsID}/Summary/info/away/Innings${
+											count - 2
+										}`
+            )
+            .set({
+              scoring: {
+                runs:
+									data.api.data.competition.season.stage.group.event.participants[1].results[count].value
+              }
+            });
+        }
+      }
       try {
         await Match.upsert({
           bets_id: betsID,
@@ -232,18 +153,7 @@ async function CPBLpbpHistory(parameter) {
         );
       }
       try {
-        await database
-          .ref(`${sport}/${league}/${betsID}/Summary/status`)
-          .set('closed');
-      } catch (err) {
-        return reject(
-          new AppErrors.FirebaseRealtimeError(
-            `${err} at pbp${league} of status on ${betsID} by DY`
-          )
-        );
-      }
-      try {
-        await settleMatchesModel({
+        settleMatchesModel({
           token: {
             uid: '999'
           },
@@ -267,7 +177,7 @@ async function CPBLpbpHistory(parameter) {
   });
 }
 
-async function doPBP(parameter) {
+async function doPBP(parameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
     const betsID = parameter.betsID;
     const pbpURL = parameter.pbpURL;
@@ -275,7 +185,6 @@ async function doPBP(parameter) {
     const baseballParameter = parameter.baseballParameter;
     let first = parameter.first;
     let pbpFlag = 1;
-
     const data = await axiosForURL(pbpURL);
     // check status of match
     if (
@@ -283,7 +192,7 @@ async function doPBP(parameter) {
       'finished'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('closed');
       } catch (err) {
@@ -298,7 +207,7 @@ async function doPBP(parameter) {
     ) {
       if (realtimeData.Summary.status !== 'inprogress') {
         try {
-          await database
+          database
             .ref(`${sport}/${league}/${betsID}/Summary/status`)
             .set('inprogress');
         } catch (err) {
@@ -309,7 +218,7 @@ async function doPBP(parameter) {
           );
         }
         try {
-          await Match.upsert({
+          Match.upsert({
             bets_id: betsID,
             status: 1
           });
@@ -326,10 +235,10 @@ async function doPBP(parameter) {
       'Postponed'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('postponed');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -2
         });
@@ -346,10 +255,10 @@ async function doPBP(parameter) {
       'Cancelled'
     ) {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('cancelled');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -3
         });
@@ -361,12 +270,39 @@ async function doPBP(parameter) {
           )
         );
       }
+    } else if (
+      data.api.data.competition.season.stage.group.event.status_type ===
+      'scheduled'
+    ) {
+      if (
+        data.api.data.competition.season.stage.group.event.status_name ===
+          'Postponed' ||
+        data.api.data.competition.season.stage.group.event.status_name ===
+          'Not started'
+      ) {
+        try {
+          database
+            .ref(`${sport}/${league}/${betsID}/Summary/status`)
+            .set('postponed');
+          Match.upsert({
+            bets_id: betsID,
+            status: -2
+          });
+          pbpFlag = 0;
+        } catch (err) {
+          return reject(
+            new AppErrors.FirebaseRealtimeError(
+              `${err} at doPBP of status on ${betsID} by DY`
+            )
+          );
+        }
+      }
     } else {
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/status`)
           .set('tobefixed');
-        await Match.upsert({
+        Match.upsert({
           bets_id: betsID,
           status: -1
         });
@@ -379,16 +315,12 @@ async function doPBP(parameter) {
         );
       }
     }
-    // check the event is home or away
-
-    // initial the realtime database
-
     if (first === 1) {
       await initRealtime(betsID, data);
       first = 0;
     } else {
       if (pbpFlag === 1) {
-        await writeRealtime(betsID, realtimeData, data, baseballParameter);
+        await writeRealtime(betsID, data, baseballParameter, firestoreData);
       }
     }
 
@@ -435,13 +367,13 @@ async function queryForToken() {
 async function initRealtime(betsID, data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/home/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
         );
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -454,172 +386,13 @@ async function initRealtime(betsID, data) {
         )
       );
     }
-    if (
-      data.api.data.competition.season.stage.group.event.participants[0].lineups
-        .length > 0
-    ) {
-      // 有lineup
-      const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-        function(a, b) {
-          return a.id > b.id ? 1 : -1;
-        }
-      );
-      const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-        function(a, b) {
-          return a.id > b.id ? 1 : -1;
-        }
-      );
-      // ori for (let playercount = 0; playercount < 9; playercount++)
-      for (let playercount = 1; playercount < 10; playercount++) {
-        try {
-          await database
-            .ref(
-              // ori
-              // `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${
-              //  playercount + 1
-              // }`
-              `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${playercount}`
-            )
-            .set({
-              ab: 0,
-              h: 0,
-              name: homeLineup[playercount - 1].participant_name,
-              jersey_number: homeLineup[playercount - 1].shirt_nr,
-              // ori
-              // order: playercount + 1,
-              order: playercount,
-              id: homeLineup[playercount].id,
-              start: 1
-            });
-          await database
-            .ref(
-              // ori
-              // `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${
-              //  playercount + 1
-              // }`
-              `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${playercount}`
-            )
-            .set({
-              ab: 0,
-              h: 0,
-              name: awayLineup[playercount - 1].participant_name,
-              jersey_number: awayLineup[playercount - 1].shirt_nr,
-              // ori
-              // order: playercount + 1,
-              order: playercount,
-              id: awayLineup[playercount].id,
-              start: 1
-            });
-        } catch (err) {
-          return reject(
-            new AppErrors.FirebaseRealtimeError(
-              `${err} at doPBP on ${betsID} by DY`
-            )
-          );
-        }
-      }
-      // 投手
-      await database
-        .ref(
-          `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup10`
-        )
-        .set({
-          strikes: 0,
-          balls: 0,
-          er: 0,
-          h: 0,
-          ip: 0,
-          k: 0,
-          // ori
-          name: homeLineup[9].participant_name,
-          jersey_number: homeLineup[9].shirt_nr,
-          id: homeLineup[9].id,
-          // name: homeLineup[0].participant_name,
-          // jersey_number: homeLineup[0].shirt_nr,
-          // id: homeLineup[0].id,
-          order: 10,
-          start: 1
-        });
-      await database
-        .ref(
-          `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup10`
-        )
-        .set({
-          strikes: 0,
-          balls: 0,
-          er: 0,
-          h: 0,
-          ip: 0,
-          k: 0,
-          // ori
-          name: awayLineup[9].participant_name,
-          jersey_number: awayLineup[9].shirt_nr,
-          id: awayLineup[9].id,
-          // name: awayLineup[0].participant_name,
-          // jersey_number: awayLineup[0].shirt_nr,
-          // id: awayLineup[0].id,
-          order: 10,
-          start: 1
-        });
-      // 教練
-      await database
-        .ref(
-          `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup0`
-        )
-        .set({
-          name: homeLineup[10].participant_name
-        });
-      await database
-        .ref(
-          `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup0`
-        )
-        .set({
-          name: awayLineup[10].participant_name
-        });
-    }
     try {
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-        .set('0');
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
-        .set(1);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
-        .set(0);
-      await database
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`).set('0');
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_innings`).set(1);
+      database.ref(`${sport}/${league}/${betsID}/Summary/Now_event`).set(0);
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
         .set(0);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_home`)
-        .set(0);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_home`)
-        .set(1);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_home`)
-        .set(2);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_away`)
-        .set(0);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_away`)
-        .set(1);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_away`)
-        .set(2);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_member_home`)
-        .set(11);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_member_away`)
-        .set(11);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_home`)
-        .set(10);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_away`)
-        .set(10);
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -631,63 +404,50 @@ async function initRealtime(betsID, data) {
   });
 }
 
-async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
+async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
   return new Promise(async function(resolve, reject) {
-    let eventNow = baseballParameter.eventNow;
+    let eventNow = parseInt(baseballParameter.eventNow);
     let eventOrderNow = baseballParameter.eventOrderNow;
-    let hitterHomeNow = baseballParameter.hitterHomeNow;
-    let hitterAwayNow = baseballParameter.hitterAwayNow;
-    const pitcherHomeNow = baseballParameter.pitcherHomeNow;
-    const pitcherAwayNow = baseballParameter.pitcherAwayNow;
     let inningNow = baseballParameter.inningNow;
     let halfNow = baseballParameter.halfNow;
-    let memberHomeNow = baseballParameter.memberHomeNow;
-    let memberAwayNow = baseballParameter.memberAwayNow;
-    let pitcherHomeBalls = baseballParameter.pitcherHomeBalls;
-    let pitcherHomeStrikes = baseballParameter.pitcherHomeStrikes;
-    let pitcherHomeER = baseballParameter.pitcherHomeER;
-    let pitcherHomeH = baseballParameter.pitcherHomeH;
-    let pitcherHomeK = baseballParameter.pitcherHomeK;
-    let pitcherAwayBalls = baseballParameter.pitcherAwayBalls;
-    let pitcherAwayStrikes = baseballParameter.pitcherAwayStrikes;
-    let pitcherAwayER = baseballParameter.pitcherAwayER;
-    let pitcherAwayH = baseballParameter.pitcherAwayH;
-    let pitcherAwayK = baseballParameter.pitcherAwayK;
-    let hitterHomeAB = baseballParameter.hitterHomeAB;
-    let hitterHomeH = baseballParameter.hitterHomeH;
-    let hitterAwayAB = baseballParameter.hitterAwayAB;
-    let hitterAwayH = baseballParameter.hitterAwayH;
-
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`)
-        .set({
-          points:
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .results[2].value,
-          hits:
-            data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[0].value,
-          errors:
-            data.api.data.competition.season.stage.group.event.participants[0]
+      database.ref(`${sport}/${league}/${betsID}/Summary/info/home/Total`).set({
+        points:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .results[2].value,
+        hits:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .stats[0].value
+            : null,
+        errors:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
               .stats[1].value
-        });
+            : null
+      });
 
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`)
-        .set({
-          points:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .results[2].value,
-          hits:
-            data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[0].value,
-          errors:
-            data.api.data.competition.season.stage.group.event.participants[1]
+      database.ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`).set({
+        points:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .results[2].value,
+        hits:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[0].value
+            : null,
+        errors:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
               .stats[1].value
-        });
+            : null
+      });
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -701,15 +461,15 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           data.api.data.competition.season.stage.group.event.participants[0]
             .results[count].value !== ''
         ) {
-          await database
+          database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/home/period${
+              `${sport}/${league}/${betsID}/Summary/info/home/Innings${
                 count - 2
               }`
             )
             .set({
               scoring: {
-                points:
+                runs:
                   data.api.data.competition.season.stage.group.event
                     .participants[0].results[count].value
               }
@@ -719,15 +479,15 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           data.api.data.competition.season.stage.group.event.participants[1]
             .results[count].value !== ''
         ) {
-          await database
+          database
             .ref(
-              `${sport}/${league}/${betsID}/Summary/info/away/period${
+              `${sport}/${league}/${betsID}/Summary/info/away/Innings${
                 count - 2
               }`
             )
             .set({
               scoring: {
-                points:
+                runs:
                   data.api.data.competition.season.stage.group.event
                     .participants[1].results[count].value
               }
@@ -741,6 +501,7 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
         );
       }
     }
+
     // 文字直播
     const totalEvent =
       data.api.data.competition.season.stage.group.event.events_incidents
@@ -748,6 +509,7 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
 
     const eventEnd = totalEvent > eventNow + 10 ? eventNow + 10 : totalEvent;
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
+      const tempHalf = halfNow;
       if (
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -759,12 +521,10 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           eventCount
         ].incident_id === 562
       ) {
-        eventNow = eventNow + 1;
+        eventNow = parseInt(eventNow) + 1;
         continue;
       }
-
-      eventNow = eventNow + 1;
-
+      eventNow = parseInt(eventNow) + 1;
       const half =
         data.api.data.competition.season.stage.group.event.events_incidents[
           eventCount
@@ -772,30 +532,13 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           ? 'common'
           : data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
-          ].participant_id === homeID
-            ? data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 504 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 2527 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 2522
-              ? '1'
-              : '0'
+          ].incident_id !== 563
+            ? tempHalf
             : data.api.data.competition.season.stage.group.event.events_incidents[
               eventCount
-            ].incident_id !== 504 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 2527 &&
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].incident_id !== 2522
-              ? '0'
-              : '1';
-
+            ].participant_id === homeID
+              ? '1'
+              : '0';
       if (
         inningNow !==
         changeInning(
@@ -805,13 +548,19 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           inningNow
         )
       ) {
-        eventOrderNow = 0;
+        eventOrderNow = 1;
         inningNow = changeInning(
           data.api.data.competition.season.stage.group.event.events_incidents[
             eventCount
           ].event_status_name,
           inningNow
         );
+        // 換局
+        halfNow = '0';
+      } else if (halfNow !== half && half !== 'common') {
+        // 換節
+        eventOrderNow = 1;
+        halfNow = half;
       } else {
         eventOrderNow = eventOrderNow + 1;
         inningNow = changeInning(
@@ -823,7 +572,7 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
       }
       try {
         if (half === 'common') {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${halfNow}/event${eventOrderNow}`
             )
@@ -846,12 +595,11 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
                   .events_incidents[eventCount].id
             });
         } else {
-          await database
+          database
             .ref(
               `${sport}/${league}/${betsID}/Summary/Innings${inningNow}/halfs${half}/event${eventOrderNow}`
             )
             .set({
-              // 待翻譯
               description:
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].participant_name +
@@ -860,13 +608,11 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
                   .events_incidents[eventCount].incident_name,
               description_ch: translateNormal(
                 half,
-                realtimeData,
+                data,
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].participant_name,
                 data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].incident_name,
-                hitterAwayNow,
-                hitterHomeNow
+                  .events_incidents[eventCount].incident_name
               ),
               Inning: inningNow,
               Half: half,
@@ -883,86 +629,158 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
         );
       }
       try {
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_innings`)
           .set(inningNow);
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_strikes`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats[17].value
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[17].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[17].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats[17].value
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[17].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[17].value
+                : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_outs`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats[18].value
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[18].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[18].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats[18].value
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[18].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[18].value
+                : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_balls`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? data.api.data.competition.season.stage.group.event
-                .participants[0].stats[19].value
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[19].value
+              )
+                ? null
+                : data.api.data.competition.season.stage.group.event
+                  .participants[0].stats[19].value
               : data.api.data.competition.season.stage.group.event
-                .participants[1].stats[19].value
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[19].value
+                )
+                  ? null
+                  : data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[19].value
+                : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_firstbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? parseFloat(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
                 data.api.data.competition.season.stage.group.event
                   .participants[0].stats[20].value
               )
-              : parseFloat(
-                data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[20].value
-              )
+                ? null
+                : parseInt(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[0].stats[20].value
+                )
+              : data.api.data.competition.season.stage.group.event
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[20].value
+                )
+                  ? null
+                  : parseInt(
+                    data.api.data.competition.season.stage.group.event
+                      .participants[1].stats[20].value
+                  )
+                : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_secondbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? parseFloat(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
                 data.api.data.competition.season.stage.group.event
                   .participants[0].stats[21].value
               )
-              : parseFloat(
-                data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[21].value
-              )
+                ? null
+                : parseInt(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[0].stats[21].value
+                )
+              : data.api.data.competition.season.stage.group.event
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[21].value
+                )
+                  ? null
+                  : parseInt(
+                    data.api.data.competition.season.stage.group.event
+                      .participants[1].stats[21].value
+                  )
+                : null
           );
-        await database
+        database
           .ref(`${sport}/${league}/${betsID}/Summary/Now_thirdbase`)
           .set(
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-              ? parseFloat(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .stats.length > 0
+              ? isNaN(
                 data.api.data.competition.season.stage.group.event
                   .participants[0].stats[22].value
               )
-              : parseFloat(
-                data.api.data.competition.season.stage.group.event
-                  .participants[1].stats[22].value
-              )
+                ? null
+                : parseInt(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[0].stats[22].value
+                )
+              : data.api.data.competition.season.stage.group.event
+                .participants[1].stats.length > 0
+                ? isNaN(
+                  data.api.data.competition.season.stage.group.event
+                    .participants[1].stats[22].value
+                )
+                  ? null
+                  : parseInt(
+                    data.api.data.competition.season.stage.group.event
+                      .participants[1].stats[22].value
+                  )
+                : null
           );
       } catch (err) {
         return reject(
@@ -971,996 +789,46 @@ async function writeRealtime(betsID, realtimeData, data, baseballParameter) {
           )
         );
       }
-
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 563
-      ) {
-        let resetFlag = 0;
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-        ) {
-          try {
-            hitterHomeNow =
-              hitterHomeNow + 1 === 9 ? 9 : (hitterHomeNow + 1) % 9;
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_home`)
-              .set(hitterHomeNow);
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_home`)
-              .set(hitterHomeNow + 1 === 9 ? 9 : (hitterHomeNow + 1) % 9);
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_home`)
-              .set(hitterHomeNow + 2 === 9 ? 9 : (hitterHomeNow + 2) % 9);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_name !== ''
-          ) {
-            // 有人名
-            if (
-              data.api.data.competition.season.stage.group.event
-                .events_incidents[eventCount].participant_name !==
-              realtimeData.Summary.info.home.Now_lineup[
-                `lineup${hitterHomeNow}`
-              ].name
-            ) {
-              resetFlag = 1;
-              // 主隊有代打情況
-              // 需再額外判斷api是否錯誤
-              for (let pc = 1; pc < 10; pc++) {
-                if (
-                  data.api.data.competition.season.stage.group.event
-                    .events_incidents[eventCount].participant_name ===
-                  realtimeData.Summary.info.home.Now_lineup[`lineup${pc}`].name
-                ) {
-                  resetFlag = 0;
-                  break;
-                }
-              }
-              if (resetFlag === 1) {
-                const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-                  function(a, b) {
-                    return a.id > b.id ? 1 : -1;
-                  }
-                );
-                try {
-                  await database
-                    .ref(
-                      `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}}`
-                    )
-                    .set(
-                      realtimeData.Summary.info.home.Now_lineup[
-                        `lineup${hitterHomeNow}`
-                      ]
-                    );
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-                // 將新的打擊手移到目前的order上
-                try {
-                  await database
-                    .ref(
-                      `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}`
-                    )
-                    .set({
-                      ab: 0,
-                      h: 0,
-                      id: homeLineup[memberHomeNow].id,
-                      jersey_number: homeLineup[memberHomeNow].shirt_nr,
-                      name: homeLineup[memberHomeNow].participant_name,
-                      order: hitterHomeNow,
-                      start: 0
-                    });
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-                memberHomeNow = memberHomeNow + 1;
-                hitterHomeH = 0;
-                hitterHomeAB = 0;
-              }
-            }
-            if (resetFlag === 0) {
-              try {
-                hitterHomeAB =
-                  realtimeData.Summary.info.home.Now_lineup[
-                    `lineup${hitterHomeNow}`
-                  ].ab;
-                hitterHomeAB = hitterHomeAB + 1;
-                await database
-                  .ref(
-                    `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-                  )
-                  .set(hitterHomeAB);
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-            } else {
-              hitterHomeAB = hitterHomeAB + 1;
-              try {
-                await database
-                  .ref(
-                    `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-                  )
-                  .set(hitterHomeAB);
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-            }
-          }
-        } else {
-          // 客隊
-          hitterAwayNow = hitterAwayNow + 1 === 9 ? 9 : (hitterAwayNow + 1) % 9;
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_away`)
-              .set(hitterAwayNow);
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Next1_hitter_away`)
-              .set(hitterAwayNow + 1 === 9 ? 9 : (hitterAwayNow + 1) % 9);
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Next2_hitter_away`)
-              .set(hitterAwayNow + 2 === 9 ? 9 : (hitterAwayNow + 2) % 9);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_name !== ''
-          ) {
-            // 有人名
-            if (
-              data.api.data.competition.season.stage.group.event
-                .events_incidents[eventCount].participant_name !==
-              realtimeData.Summary.info.away.Now_lineup[
-                `lineup${hitterAwayNow}`
-              ].name
-            ) {
-              resetFlag = 1;
-              for (let pc = 1; pc < 10; pc++) {
-                if (
-                  data.api.data.competition.season.stage.group.event
-                    .events_incidents[eventCount].participant_name ===
-                  realtimeData.Summary.info.away.Now_lineup[`lineup${pc}`].name
-                ) {
-                  resetFlag = 0;
-                  break;
-                }
-              }
-              if (resetFlag === 1) {
-                const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-                  function(a, b) {
-                    return a.id > b.id ? 1 : -1;
-                  }
-                );
-                try {
-                  await database
-                    .ref(
-                      `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
-                    )
-                    .set(
-                      realtimeData.Summary.info.away.Now_lineup[
-                        `lineup${hitterAwayNow}`
-                      ]
-                    );
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-                try {
-                  await database
-                    .ref(
-                      `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}`
-                    )
-                    .set({
-                      ab: 0,
-                      h: 0,
-                      id: awayLineup[memberAwayNow].id,
-                      jersey_number: awayLineup[memberAwayNow].shirt_nr,
-                      name: awayLineup[memberAwayNow].participant_name,
-                      order: hitterAwayNow,
-                      start: 0
-                    });
-                } catch (err) {
-                  return reject(
-                    new AppErrors.FirebaseRealtimeError(
-                      `${err} at doPBP on ${betsID} by DY`
-                    )
-                  );
-                }
-                memberAwayNow = memberAwayNow + 1;
-                hitterAwayH = 0;
-                hitterAwayAB = 0;
-              }
-            }
-            if (resetFlag === 0) {
-              try {
-                hitterAwayAB =
-                  realtimeData.Summary.info.away.Now_lineup[
-                    `lineup${hitterAwayNow}`
-                  ].ab;
-                hitterAwayAB = hitterAwayAB + 1;
-                await database
-                  .ref(
-                    `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                  )
-                  .set(hitterAwayAB);
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-            } else {
-              try {
-                hitterAwayAB = hitterAwayAB + 1;
-                await database
-                  .ref(
-                    `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                  )
-                  .set(hitterAwayAB);
-              } catch (err) {
-                return reject(
-                  new AppErrors.FirebaseRealtimeError(
-                    `${err} at doPBP on ${betsID} by DY`
-                  )
-                );
-              }
-            }
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 554
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          // 有 lineup
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            hitterAwayAB = hitterAwayAB - 1;
-            await database
-              .ref(
-                `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-              )
-              .set(hitterAwayAB);
-          } else {
-            hitterHomeAB = hitterHomeAB - 1;
-            await database
-              .ref(
-                `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-              )
-              .set(hitterHomeAB);
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 553 ||
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 2528
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              hitterHomeAB = hitterHomeAB - 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/ab`
-                )
-                .set(hitterHomeAB);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
+      const sportInfo = {
+        sport: sport,
+        inningNow: inningNow,
+        halfNow: halfNow
+      };
+      if (firestoreData !== null) {
+        if (firestoreData.length > 0) {
+          for (let fi = 0; fi < firestoreData.length; fi++) {
+            if (firestoreData[fi].bets_id === betsID) {
+              pbpOnHome.pbpOnHome(
+                betsID,
+                sportInfo,
+                data.api.data.competition.season.stage.group.event
+                  .participants[0].results[2].value,
+                data.api.data.competition.season.stage.group.event
+                  .participants[1].results[2].value
               );
-            }
-          } else {
-            try {
-              hitterAwayAB = hitterAwayAB - 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/ab`
-                )
-                .set(hitterAwayAB);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 559
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              await database
-                .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_home`)
-                .set(memberHomeNow);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            const homeLineup = await data.api.data.competition.season.stage.group.event.participants[0].lineups.sort(
-              function(a, b) {
-                return a.id > b.id ? 1 : -1;
-              }
-            );
-            try {
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${memberHomeNow}`
-                )
-                .set({
-                  balls: 0,
-                  er: 0,
-                  h: 0,
-                  id: homeLineup[memberHomeNow].id,
-                  ip: 0,
-                  jersey_number: homeLineup[memberHomeNow].shirt_nr,
-                  k: 0,
-                  name: homeLineup[memberHomeNow].participant_name,
-                  order: memberHomeNow,
-                  start: 0,
-                  strikes: 0
-                });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            memberHomeNow = memberHomeNow + 1;
-            pitcherHomeBalls = 0;
-            pitcherHomeStrikes = 0;
-            pitcherHomeER = 0;
-            pitcherHomeH = 0;
-            pitcherHomeK = 0;
-          } else {
-            try {
-              await database
-                .ref(`${sport}/${league}/${betsID}/Summary/Now_pitcher_away`)
-                .set(memberAwayNow);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            const awayLineup = await data.api.data.competition.season.stage.group.event.participants[1].lineups.sort(
-              function(a, b) {
-                return a.id > b.id ? 1 : -1;
-              }
-            );
-            try {
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${memberAwayNow}`
-                )
-                .set({
-                  balls: 0,
-                  er: 0,
-                  h: 0,
-                  id: awayLineup[memberAwayNow].id,
-                  ip: 0,
-                  jersey_number: awayLineup[memberAwayNow].shirt_nr,
-                  k: 0,
-                  name: awayLineup[memberAwayNow].participant_name,
-                  order: memberAwayNow,
-                  start: 0,
-                  strikes: 0
-                });
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            memberAwayNow = memberAwayNow + 1;
-            pitcherAwayBalls = 0;
-            pitcherAwayStrikes = 0;
-            pitcherAwayER = 0;
-            pitcherAwayH = 0;
-            pitcherAwayK = 0;
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 501
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              pitcherAwayER =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].er;
-              pitcherAwayER = pitcherAwayER + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/er`
-                )
-                .set(pitcherAwayER);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              // 主隊投手er+1
-              pitcherHomeER =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].er;
-              pitcherHomeER = pitcherHomeER + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/er`
-                )
-                .set(pitcherHomeER);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          }
-        }
-      }
-
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 520
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              pitcherAwayK =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].k;
-              pitcherAwayK = pitcherAwayK + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/k`
-                )
-                .set(pitcherAwayK);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              pitcherHomeK =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherHomeNow}`
-                ].k;
-              pitcherHomeK = pitcherHomeK + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/k`
-                )
-                .set(pitcherHomeK);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 562
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              hitterHomeH =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${hitterHomeNow}`
-                ].h;
-              hitterHomeH = hitterHomeH + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${hitterHomeNow}/h`
-                )
-                .set(hitterHomeH);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            try {
-              pitcherAwayH =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].h;
-              pitcherAwayH = pitcherAwayH + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/h`
-                )
-                .set(pitcherAwayH);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              hitterAwayH =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${hitterAwayNow}`
-                ].h;
-              hitterAwayH = hitterAwayH + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${hitterAwayNow}/h`
-                )
-                .set(hitterAwayH);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-            try {
-              pitcherHomeH =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherHomeNow}`
-                ].h;
-              pitcherHomeH = pitcherHomeH + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/h`
-                )
-                .set(pitcherHomeH);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 503 ||
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 520
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '1'
-            : '0';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              pitcherAwayStrikes =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].strikes;
-              pitcherAwayStrikes = pitcherAwayStrikes + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/strikes`
-                )
-                .set(pitcherAwayStrikes);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              pitcherHomeStrikes =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherHomeNow}`
-                ].strikes;
-              pitcherHomeStrikes = pitcherHomeStrikes + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/strikes`
-                )
-                .set(pitcherHomeStrikes);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          }
-        }
-      }
-      if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_id === 504
-      ) {
-        halfNow =
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_id === homeID
-            ? '0'
-            : '1';
-        if (halfNow !== realtimeData.Summary.Now_halfs) {
-          try {
-            await database
-              .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
-              .set(halfNow);
-          } catch (err) {
-            return reject(
-              new AppErrors.FirebaseRealtimeError(
-                `${err} at doPBP on ${betsID} by DY`
-              )
-            );
-          }
-        }
-        if (
-          data.api.data.competition.season.stage.group.event.events_incidents[
-            eventCount
-          ].participant_name !== ''
-        ) {
-          if (
-            data.api.data.competition.season.stage.group.event.events_incidents[
-              eventCount
-            ].participant_id === homeID
-          ) {
-            try {
-              pitcherHomeBalls =
-                realtimeData.Summary.info.home.Now_lineup[
-                  `lineup${pitcherHomeNow}`
-                ].balls;
-              pitcherHomeBalls = pitcherHomeBalls + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/home/Now_lineup/lineup${pitcherHomeNow}/balls`
-                )
-                .set(pitcherHomeBalls);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
-            }
-          } else {
-            try {
-              pitcherAwayBalls =
-                realtimeData.Summary.info.away.Now_lineup[
-                  `lineup${pitcherAwayNow}`
-                ].balls;
-              pitcherAwayBalls = pitcherAwayBalls + 1;
-              await database
-                .ref(
-                  `${sport}/${league}/${betsID}/Summary/info/away/Now_lineup/lineup${pitcherAwayNow}/balls`
-                )
-                .set(pitcherAwayBalls);
-            } catch (err) {
-              return reject(
-                new AppErrors.FirebaseRealtimeError(
-                  `${err} at doPBP on ${betsID} by DY`
-                )
-              );
+              break;
             }
           }
         }
       }
     }
-    await writeBacktoReal(
-      betsID,
-      eventNow,
-      eventOrderNow,
-      memberHomeNow,
-      memberAwayNow
-    );
+    await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
     resolve('ok');
   });
 }
 
-async function writeBacktoReal(
-  betsID,
-  eventNow,
-  eventOrderNow,
-  memberHomeNow,
-  memberAwayNow
-) {
+async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
   return new Promise(async function(resolve, reject) {
     try {
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event`)
-        .set(eventNow);
-      await database
+        .set(parseInt(eventNow));
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_event_order`)
-        .set(eventOrderNow);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_member_home`)
-        .set(memberHomeNow);
-      await database
-        .ref(`${sport}/${league}/${betsID}/Summary/Now_member_away`)
-        .set(memberAwayNow);
+        .set(parseInt(eventOrderNow));
+      database
+        .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
+        .set(halfNow);
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
@@ -1974,6 +842,9 @@ async function writeBacktoReal(
 
 function translateCommon(event) {
   switch (event) {
+    case 'Start delayed': {
+      return '比賽延遲開始';
+    }
     case '1st inning started': {
       return '第一局開始';
     }
@@ -2043,24 +914,24 @@ function translateCommon(event) {
     case '23th inning started': {
       return '第二十三局開始';
     }
+    case 'Finished regular time': {
+      return '比賽結束';
+    }
     default: {
       return '通用';
     }
   }
 }
 
-function translateNormal(
-  half,
-  realtimeData,
-  name,
-  event,
-  hitterAwayNow,
-  hitterHomeNow
-) {
+function translateNormal(half, data, name, event) {
   let out;
   let string_ch;
 
   switch (event) {
+    case 'Start delayed': {
+      string_ch = '比賽延遲開始';
+      break;
+    }
     case 'Not started': {
       string_ch = '比賽尚未開始';
       break;
@@ -2157,6 +1028,14 @@ function translateNormal(
       string_ch = '教練上投手丘';
       break;
     }
+    case 'Run': {
+      string_ch = '得分';
+      break;
+    }
+    case 'Caught stealing': {
+      string_ch = '盜壘失敗';
+      break;
+    }
     default: {
       string_ch = '';
       break;
@@ -2165,19 +1044,23 @@ function translateNormal(
 
   if (event === 'Ball' || event === 'Strike' || event === 'Pickoff attempt') {
     if (half === '0') {
-      out =
-        realtimeData.Summary.info.away.Now_lineup[
-          `lineup${realtimeData.Summary.Now_pitcher_away}`
-        ].name +
-        ' ' +
-        string_ch;
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp + ' ' + string_ch;
     } else {
-      out =
-        realtimeData.Summary.info.home.Now_lineup[
-          `lineup${realtimeData.Summary.Now_pitcher_home}`
-        ].name +
-        ' ' +
-        string_ch;
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp + ' ' + string_ch;
     }
   } else if (
     event === 'Batter in the box' ||
@@ -2189,38 +1072,28 @@ function translateNormal(
     event === 'Double' ||
     event === 'Triple' ||
     event === 'Home run' ||
-    event === 'Sacrifice hit'
+    event === 'Sacrifice hit' ||
+    event === 'Run' ||
+    event === 'Caught stealing'
   ) {
     if (half === '0') {
-      if (hitterAwayNow === 0) {
-        out =
-          realtimeData.Summary.info.away.Now_lineup[
-            `lineup${hitterAwayNow + 1}`
-          ].name +
-          ' ' +
-          string_ch;
-      } else {
-        out =
-          realtimeData.Summary.info.away.Now_lineup[`lineup${hitterAwayNow}`]
-            .name +
-          ' ' +
-          string_ch;
-      }
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp + ' ' + string_ch;
     } else {
-      if (hitterHomeNow === 0) {
-        out =
-          realtimeData.Summary.info.home.Now_lineup[
-            `lineup${hitterHomeNow + 1}`
-          ].name +
-          ' ' +
-          string_ch;
-      } else {
-        out =
-          realtimeData.Summary.info.home.Now_lineup[`lineup${hitterHomeNow}`]
-            .name +
-          ' ' +
-          string_ch;
-      }
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp + ' ' + string_ch;
     }
   } else if (
     event === 'Stolen base' ||
@@ -2234,13 +1107,28 @@ function translateNormal(
   ) {
     out = string_ch;
   } else {
-    out = name + ' ' + string_ch;
+    const temp =
+      name !== ''
+        ? name
+        : mapTeam(
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .name
+        );
+    out = temp + ' ' + string_ch;
   }
   return out;
 }
 function changeInning(inning, now_innings) {
   let inningNow = 0;
   switch (inning) {
+    case 'Not started': {
+      inningNow = 1;
+      break;
+    }
+    case 'Start delayed': {
+      inningNow = 1;
+      break;
+    }
     case '1st inning': {
       inningNow = 1;
       break;
@@ -2428,4 +1316,22 @@ function changeInning(inning, now_innings) {
   }
   return inningNow;
 }
+
+function mapTeam(team) {
+  switch (team) {
+    case 'Rakuten Monkeys': {
+      return '樂天桃猿';
+    }
+    case 'Chinatrust Brothers': {
+      return '中信兄弟';
+    }
+    case 'Fubon Guardians': {
+      return '富邦悍將';
+    }
+    case 'Uni-President Lions': {
+      return '統一獅';
+    }
+  }
+}
+
 module.exports = { CPBLpbpInplay, CPBLpbpHistory };

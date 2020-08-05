@@ -32,7 +32,7 @@ function getSeason(league_id) {
       });
       return resolve(results.season);
     } catch (err) {
-      return reject(new AppError.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppError.GetSeasonError(err.stack));
     }
   });
 }

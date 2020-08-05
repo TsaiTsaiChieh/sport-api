@@ -7,13 +7,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Remove teamBase API date parameter and add some missing field ***by TsaiTsaiChieh*** [#350](https://github.com/gets-info/sports-api/pull/350)
+-  Add sport field in sport/matches API ***by TsaiTsaiChieh*** [#345](https://github.com/gets-info/sports-api/pull/345)
+-  Add MLB data about team statistics ***by TsaiTsaiChieh*** [#344](https://github.com/gets-info/sports-api/pull/344)
+-  Refactor code ***by TsaiTsaiChieh*** [#343](https://github.com/gets-info/sports-api/pull/343)
+-  Add team_hit & pitchers crawler function and scheduler ***by TsaiTsaiChieh*** [#342](https://github.com/gets-info/sports-api/pull/342)
+#### Fix:
+-  更新 大神成就勝注勝率，要使用本期，不能下一期 ***by alangets*** [#347](https://github.com/gets-info/sports-api/pull/347)
+-  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
+-  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
+-  limit 條件放錯地方 ***by alangets*** [#338](https://github.com/gets-info/sports-api/pull/338)
+#### Removed:
+#### DB:
+***
+
+## [v1.0.7] - 2020-08-04
+#### Add:
+-  Add rate field in spread & totals object in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#333](https://github.com/gets-info/sports-api/pull/333)
+-  getting team_base & hitters data in MLB crawler ***by TsaiTsaiChieh*** [#329](https://github.com/gets-info/sports-api/pull/329)
+#### Fix:
+-  修正首頁即時比分區塊，比賽結束時寫入的邏輯。新增即時比分頁 API (all & detail/prematch) 的 rate 欄位。 ***by page40316*** [#337](https://github.com/gets-info/sports-api/pull/337)
+-  在產生大神完畢後，要再計算大神成就 ***by alangets*** [#336](https://github.com/gets-info/sports-api/pull/336)
+-  輸出當更新大神 Title 時，一次有兩筆以上，代表大神有同聯盟兩個 rank 異常 ***by alangets*** [#335](https://github.com/gets-info/sports-api/pull/335)
+-  盤口計算邏輯與顯示修改、新增首頁即時比分區按聯盟顯示（目前全天為 MLB） ***by page40316*** [#331](https://github.com/gets-info/sports-api/pull/331)
+#### Removed:
+- 排程 god_nextPeriod 暫時取消
+***
+
+## [v1.0.6] - 2020-08-03
+#### Add:
+-  pre-commit with Eslint ***by rex-getsinfo*** [#324](https://github.com/gets-info/sports-api/pull/324)
+-  get hitters functions ***by TsaiTsaiChieh*** [#311](https://github.com/gets-info/sports-api/pull/311)
+-  MLB league skip logic when query data from Firstore in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#306](https://github.com/gets-info/sports-api/pull/306)
 -  baseball crawler scheduler and tune KBO crawler ***by TsaiTsaiChieh*** [#304](https://github.com/gets-info/sports-api/pull/304)
 #### Fix:
+-  Page 首頁即時比分轉成 MLB，CPBL, NPB 爬蟲排程調整，statscore系列文字直播調整 ***by page40316*** [#327](https://github.com/gets-info/sports-api/pull/327)
+-  line login with email or uid ***by rex-getsinfo*** [#325](https://github.com/gets-info/sports-api/pull/325)
+-  盤口大小計算 totalRate -> TotalsRate 導致 大小計算錯誤，修正 ***by alangets*** [#322](https://github.com/gets-info/sports-api/pull/322)
+-  line login without email issue & adjust firebase updateUser contents. ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/321)
+-  產生當天會是下一期區間，需要抓上一期的最後一天 +1 來計算 ***by alangets*** [#319](https://github.com/gets-info/sports-api/pull/319)
+-  would not return today already ended matches in user/prediction_history API ***by TsaiTsaiChieh*** [#318](https://github.com/gets-info/sports-api/pull/318)
+-  Page 排程：CPBL, NPB 爬蟲修正 Bug、棒球文字直播測試站測試 ***by page40316*** [#317](https://github.com/gets-info/sports-api/pull/317)
+-  處理 gcp logger 產生的錯誤 ***by alangets*** [#316](https://github.com/gets-info/sports-api/pull/316)
+-  security risks , SQL injection ***by rex-getsinfo*** [#315](https://github.com/gets-info/sports-api/pull/315)
+-  settle Spread, Totals rate為100, -100情況 ***by alangets*** [#313](https://github.com/gets-info/sports-api/pull/313)
+- 本期資料抓錯欄位 ***by alangets*** [#312](https://github.com/gets-info/sports-api/pull/312)
+-  per_allow_R field in away team and rename allow_per_R to per_allow_R ***by TsaiTsaiChieh*** [#310](https://github.com/gets-info/sports-api/pull/310)
+-  RepackageError in season_2020.team_hit.BB field (team_id=2405) and add updating logger to debug ***by TsaiTsaiChieh*** [#309](https://github.com/gets-info/sports-api/pull/309)
+-  add statement with transfer record ***by gsihenry*** [#349](https://github.com/gets-info/sports-api/pull/349)
+-  1. news add predict date、2. repeat prediction news into the same data、3. add league column with news api ***by gsihenry*** [#348](https://github.com/gets-info/sports-api/pull/348)
+-  TransferRecord Change the rule & text ***by gsihenry*** [#308](https://github.com/gets-info/sports-api/pull/308)
+-  Favorite Player column adjust ***by gsihenry*** [#307](https://github.com/gets-info/sports-api/pull/307)
 -  all_titles should also return the league_name in user/getTitlesAndSignature API ***by TsaiTsaiChieh*** [#305](https://github.com/gets-info/sports-api/pull/305)
 -  Page 即時比分頁 API 調整、prematch_statscore 系列時間比對改成年月日時 ***by page40316*** [#300](https://github.com/gets-info/sports-api/pull/300)
 #### Removed:
 -  router:pubsub/dy ***by rex-getsinfo*** [#303](https://github.com/gets-info/sports-api/pull/303)
 #### DB:
+***
+
+## [v1.0.5] - 2020-07-30
+#### Add:
+-  get hitters functions ***by TsaiTsaiChieh*** [#311](https://github.com/gets-info/sports-api/pull/311)
+-  MLB league skip logic when query data from Firstore in livescore/prematch_baseball API ***by TsaiTsaiChieh*** [#306](https://github.com/gets-info/sports-api/pull/306)
+-  baseball crawler scheduler and tune KBO crawler ***by TsaiTsaiChieh*** [#304](https://github.com/gets-info/sports-api/pull/304)
+#### Fix:
+-  settle Spread, Totals rate為100, -100情況 ***by alangets*** [#313](https://github.com/gets-info/sports-api/pull/313)
+- 本期資料抓錯欄位 ***by alangets*** [#312](https://github.com/gets-info/sports-api/pull/312)
+-  per_allow_R field in away team and rename allow_per_R to per_allow_R ***by TsaiTsaiChieh*** [#310](https://github.com/gets-info/sports-api/pull/310)
+-  RepackageError in season_2020.team_hit.BB field (team_id=2405) and add updating logger to debug ***by TsaiTsaiChieh*** [#309](https://github.com/gets-info/sports-api/pull/309)
+-  TransferRecord Change the rule & text ***by gsihenry*** [#308](https://github.com/gets-info/sports-api/pull/308)
+-  Favorite Player column adjust ***by gsihenry*** [#307](https://github.com/gets-info/sports-api/pull/307)
+-  all_titles should also return the league_name in user/getTitlesAndSignature API ***by TsaiTsaiChieh*** [#305](https://github.com/gets-info/sports-api/pull/305)
+-  Page 即時比分頁 API 調整、prematch_statscore 系列時間比對改成年月日時 ***by page40316*** [#300](https://github.com/gets-info/sports-api/pull/300)
+#### Removed:
+-  router:pubsub/dy ***by rex-getsinfo*** [#303](https://github.com/gets-info/sports-api/pull/303)
 ***
 
 ## [v1.0.4] - 2020-07-28
