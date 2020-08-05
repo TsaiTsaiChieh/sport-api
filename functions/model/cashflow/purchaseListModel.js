@@ -7,9 +7,9 @@ async function purchaseListModel(args) {
         'coin',
         'dividend'
       ],
-      where:{
-        official_active:1
-      }, 
+      where: {
+        official_active: 1
+      },
       order: [
         ['official_sort', 'ASC']
       ],
