@@ -446,7 +446,7 @@ async function upsertTeambaseTeamC(result) {
               G: result[index + i * offset],
               Win: result[index + i * offset + 1],
               Draw: result[index + i * offset + 3],
-              Lose: result[index + i * offset + 2],
+              Loss: result[index + i * offset + 2],
               PCT: result[index + i * offset + 4],
               GB:
                 result[index + i * offset + 5] === '--'
@@ -510,7 +510,7 @@ async function upsertTeambaseTeamP(result) {
               G: result[index + i * offset],
               Win: result[index + i * offset + 1],
               Draw: result[index + i * offset + 3],
-              Lose: result[index + i * offset + 2],
+              Loss: result[index + i * offset + 2],
               PCT: result[index + i * offset + 4],
               GB:
                 result[index + i * offset + 5] === '--'
@@ -554,15 +554,15 @@ function formatRecord(oriString) {
   if (oriString.indexOf('(') >= 0) {
     const draw = oriString.split('(')[1].replace(')', '');
     const win = oriString.split('(')[0].split('-')[0];
-    const lose = oriString.split('(')[0].split('-')[1];
+    const loss = oriString.split('(')[0].split('-')[1];
 
-    return `${win}-${lose}-${draw}`;
+    return `${win}-${loss}-${draw}`;
   } else {
     const draw = 0;
     const win = oriString.split('-')[0];
-    const lose = oriString.split('-')[1];
+    const loss = oriString.split('-')[1];
 
-    return `${win}-${lose}-${draw}`;
+    return `${win}-${loss}-${draw}`;
   }
 }
 
