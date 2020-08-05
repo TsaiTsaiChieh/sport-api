@@ -610,12 +610,11 @@ function spreadCalculator(handicapObj, sport) {
       handicapObj.handicap = handicapObj.handicap.toString();
       if (handicapObj.handicap.indexOf(',') !== -1) {
         // 有兩個以上盤口
-        const firstHandicap = Math.abs(
-          parseFloat(handicapObj.handicap.split(',')[0])
-        );
-        const secondHandicap = Math.abs(
-          parseFloat(handicapObj.handicap.split(',')[1])
-        );
+        const firstHandicap =
+          parseFloat(handicapObj.handicap.split(',')[0]);
+        const secondHandicap =
+          parseFloat(handicapObj.handicap.split(',')[1]);
+
         if (firstHandicap % 1 !== 0) {
           // 第一盤口為小數
           if (firstHandicap >= 0 && secondHandicap >= 0) {

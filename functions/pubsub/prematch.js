@@ -25,22 +25,22 @@ async function prematch() {
     const now = modules.convertTimezoneFormat(unix);
     try {
       // BASEBALL
-      KBO_functions.KBO.upcoming(now);
-      KBO_functions.KBO.upcoming(tomorrow);
-      NPB_functions.NPB.upcoming(now);
-      NPB_functions.NPB.upcoming(tomorrow);
-      CPBL_functions.CPBL.upcoming(now);
-      CPBL_functions.CPBL.upcoming(tomorrow);
-      MLB_functions.MLB.upcoming(now);
-      MLB_functions.MLB.upcoming(tomorrow);
+      await KBO_functions.KBO.upcoming(now);
+      await KBO_functions.KBO.upcoming(tomorrow);
+      await NPB_functions.NPB.upcoming(now);
+      await NPB_functions.NPB.upcoming(tomorrow);
+      await CPBL_functions.CPBL.upcoming(now);
+      await CPBL_functions.CPBL.upcoming(tomorrow);
+      await MLB_functions.MLB.upcoming(now);
+      await MLB_functions.MLB.upcoming(tomorrow);
       // BASKETBALL
-      CBA_functions.CBA.upcoming(now);
-      CBA_functions.CBA.upcoming(tomorrow);
-      NBA_functions.NBA.upcoming(now);
-      NBA_functions.NBA.upcoming(tomorrow);
+      await CBA_functions.CBA.upcoming(now);
+      await CBA_functions.CBA.upcoming(tomorrow);
+      await NBA_functions.NBA.upcoming(now);
+      await NBA_functions.NBA.upcoming(tomorrow);
       // SOCCER
-      Soccer_functions.Soccer.upcoming(now);
-      Soccer_functions.Soccer.upcoming(tomorrow);
+      await Soccer_functions.Soccer.upcoming(now);
+      await Soccer_functions.Soccer.upcoming(tomorrow);
     } catch (err) {
       return reject(new AppErrors.PBPKBOError(`${err} at prematch by DY`));
     }

@@ -237,9 +237,9 @@ exports.prematch_statscore_NBA = functions.pubsub
   .onRun(require('./pubsub/prematch_statscore_NBA'));
 
 exports.pbp_statscore_NBA = functions.pubsub
-  .schedule('5 5 * * *')
+  .schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/pbp_statscore_NBA'));
+  .onRun(require('./pubsub/checkmatch_statscore_NBA'));
 // -------- statscore 專區 --------
 
 // 大神

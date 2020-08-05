@@ -641,10 +641,10 @@ function mapTeam(name) {
       return '8025';
     }
     case 'ロッテ': {
-      return '5438';
+      return '6650';
     }
     case '千葉ロッテマリーンズ': {
-      return '5438';
+      return '6650';
     }
     case '日本ハム': {
       return '10078';

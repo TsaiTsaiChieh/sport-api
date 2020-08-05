@@ -267,9 +267,7 @@ async function doPBP(parameter, firestoreData) {
       ) {
         if (
           data.api.data.competition.season.stage.group.event.status_name ===
-          'Postponed' ||
-					data.api.data.competition.season.stage.group.event.status_name ===
-						'Not started'
+          'Postponed'
         ) {
           try {
             database
