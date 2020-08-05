@@ -9,7 +9,7 @@ const configs = {
   league: 'MLB',
   collectionName: 'baseball_MLB',
   // TODO season query params should be dynamic
-  teamBaseAPI: 'https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=2020&date=2020-09-27&standingsTypes=regularSeason&hydrate=division,conference,sport,league,team(nextSchedule(team,gameType=%5BR,F,D,L,W,C%5D,inclusive=false),previousSchedule(team,gameType=%5BR,F,D,L,W,C%5D,inclusive=true))',
+  teamBaseAPI: 'https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=2020&standingsTypes=regularSeason&hydrate=division,conference,sport,league,team(nextSchedule(team,gameType=%5BR,F,D,L,W,C%5D,inclusive=false),previousSchedule(team,gameType=%5BR,F,D,L,W,C%5D,inclusive=true))',
   teamHitAPI: 'https://bdfed.stitch.mlbinfra.com/bdfed/stats/team?stitch_env=prod&sportId=1&gameType=R&group=hitting&order=desc&sortStat=onBasePlusSlugging&stats=season&season=2020&limit=30&offset=0',
   pitchersAPI: 'https://bdfed.stitch.mlbinfra.com/bdfed/stats/player?stitch_env=prod&season=2020&sportId=1&stats=season&group=pitching&gameType=R&limit=1000&offset=0&sortStat=earnedRunAverage&order=asc',
   hitterAPI: 'https://bdfed.stitch.mlbinfra.com/bdfed/stats/player?stitch_env=prod&season=2020&sportId=1&stats=season&group=hitting&gameType=R&limit=1000&offset=0&sortStat=onBasePlusSlugging&order=desc&playerPool=ALL',
@@ -76,12 +76,17 @@ function repackageTeamBase(season, data) {
           const allow_R = String(teamData.runsAllowed);
           const per_allow_R = String((Number(allow_R) / Number(G)).toFixed(1));
           const STRK = teamData.streak.streakCode;
+          // FIXME splitRecords index is not always at 8, should use type: lastTen
+          const L10_win = String(teamData.records.splitRecords[8].wins);
+          const L10_loss = String(teamData.records.splitRecords[8].losses);
+          const L10 = String(`${L10_win}-${L10_loss}`);
+          // console.log(teamData.team.shortName, L10);
           const at_home = `${teamData.records.splitRecords[0].wins}-${teamData.records.splitRecords[0].losses}`;
           const at_away = `${teamData.records.splitRecords[1].wins}-${teamData.records.splitRecords[1].losses}`;
           // add create time & update time to debug
           const update_time = firebaseAdmin().firestore.Timestamp.now();
           await insertTeamNameToFirestore(teamAlias, { collectionName: configs.collectionName, teamId });
-          await setDataToFirestore({ Win, Loss, G, PCT, GB, R, per_R, allow_R, per_allow_R, STRK, at_home, at_away, update_time }, { season, fieldName: 'team_base', collectionName: configs.collectionName, teamId });
+          await setDataToFirestore({ Win, Loss, G, PCT, GB, R, per_R, allow_R, per_allow_R, STRK, L10, at_home, at_away, update_time }, { season, fieldName: 'team_base', collectionName: configs.collectionName, teamId });
         }
       }
       return resolve();
@@ -114,8 +119,18 @@ function repackageTeamHit(season, data) {
         const CS = String(ele.caughtStealing);
         const SAC = String(ele.sacBunts);
         const SF = String(ele.sacFlies);
+        const BB = String(ele.baseOnBalls);
+        const IBB = String(ele.intentionalWalks);
+        const HBP = String(ele.hitByPitch);
+        const SO = String(ele.strikeOuts);
+        const GIDP = String(ele.groundIntoDoublePlay);
+        const SLG = checkIsNaN(ele.slg);
+        const OBP = checkIsNaN(ele.obp);
+        const SBPCT = checkIsNaN(ele.stolenBasePercentage);
+        const BB_per_K = checkIsNaN(ele.walksPerStrikeout);
+        const OPS = checkIsNaN(ele.ops);
         const update_time = firebaseAdmin().firestore.Timestamp.now();
-        await setDataToFirestore({ AVG, G, PA, AB, R, H, one_B, two_B, three_B, HR, TB, RBI, SB, CS, SAC, SF, update_time }, { season, fieldName: 'team_hit', collectionName: configs.collectionName, teamId });
+        await setDataToFirestore({ AVG, G, PA, AB, R, H, one_B, two_B, three_B, HR, TB, RBI, SB, CS, SAC, SF, BB, IBB, HBP, SO, GIDP, SLG, OBP, SBPCT, BB_per_K, OPS, update_time }, { season, fieldName: 'team_hit', collectionName: configs.collectionName, teamId });
       }
       return resolve();
     } catch (err) {
