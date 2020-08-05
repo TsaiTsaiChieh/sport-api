@@ -61,8 +61,6 @@ function getHomeAndAwayTeamFromMySQL(args) {
 function getPrematchFromFirestore(args, matchData) {
   return new Promise(async function(resolve, reject) {
     try {
-      // FIXME 目前針對 MLB 聯盟作 skip
-      if (args.league === 'MLB') return resolve({ homeData: null, awayData: null });
       const { home_id, away_id, season } = matchData;
       const homeData = await firestore.collection(`baseball_${args.league}`).doc(home_id).get();
       const awayData = await firestore.collection(`baseball_${args.league}`).doc(away_id).get();
