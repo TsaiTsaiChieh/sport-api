@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  修正 prematch 加上 await，各聯盟依序執行。修正 index 中 pbp_statscore_NBA 的參數。 ***by page40316*** [#355](https://github.com/gets-info/sports-api/pull/355)
 #### Removed:
 #### DB:
 ***
