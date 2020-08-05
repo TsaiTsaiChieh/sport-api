@@ -331,6 +331,7 @@ async function createNewsDB(insertData, needed) {
       const period = modules.getTitlesPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
+
       if (sell === 0 || sell === 1) {
         const price_data = await db.sequelize.query(`
             SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
@@ -344,6 +345,11 @@ async function createNewsDB(insertData, needed) {
         insertData.title = price;
         insertData.scheduled = modules.moment().unix();
         insertData.sort = 2;// 售牌
+
+        if (sell === 0) {
+          insertData.title = 0;
+        }
+
         insertData.match_scheduled_tw = insertData.matches[0].match_scheduled_tw;
         const record = await db.sequelize.models.user__new.findOne({
           where: {
@@ -356,6 +362,17 @@ async function createNewsDB(insertData, needed) {
         if (record) {
           await db.sequelize.models.user__new.create(insertData);
         }
+
+        /* 最愛大神加入未讀訊息 */
+        const favoriteplayer = await db.User_FavoriteGod.findAll({
+          where: {
+            uid: insertData.uid
+          },
+          raw: true
+        });
+        favoriteplayer.forEach(function(player) {
+          db.User.increment('unread_count', { where: { uid: player.god_uid } });
+        });
       }
       return resolve({ news_status: 'success' });
     } catch (err) {

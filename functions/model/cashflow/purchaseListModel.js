@@ -7,6 +7,12 @@ async function purchaseListModel(args) {
         'coin',
         'dividend'
       ],
+      where: {
+        official_active: 1
+      },
+      order: [
+        ['official_sort', 'ASC']
+      ],
       raw: true
     });
     resolve(purchase_list);

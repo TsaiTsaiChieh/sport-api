@@ -104,6 +104,9 @@ const User = sequelize.define(
     block_count: {
       type: Sequelize.INTEGER
     },
+    unread_count: {
+      type: Sequelize.INTEGER
+    },
     block_message: {
       type: Sequelize.DATE
     },
@@ -2288,6 +2291,18 @@ const PurchaseList = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER,
       primaryKey: true
+    },
+    official_active: {
+      type: Sequelize.INTEGER
+    },
+    official_sort: {
+      type: Sequelize.INTEGER
+    },
+    test_active: {
+      type: Sequelize.INTEGER
+    },
+    test_sort: {
+      type: Sequelize.INTEGER
     },
     createdAt: {
       type: Sequelize.DATE(3),
