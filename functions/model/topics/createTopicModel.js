@@ -23,7 +23,16 @@ function dbNewsCreate(insertData, article) {
       insertData.scheduled = moment().unix();
       insertData.sort = 1;// 發文
       insertData.sort_id = article;
-      await db.sequelize.models.user__new.create(insertData);
+      await db.News.create(insertData);
+      const favoriteplayer = await db.User_FavoriteGod.findAll({
+        where: {
+          uid: insertData.uid
+        },
+        raw: true
+      });
+      favoriteplayer.forEach(function(player) {
+        db.User.increment('unread_count', { where: { uid: player.god_uid } });
+      });
       resolve({ news_status: 'success' });
     } catch (error) {
       console.error(error);
