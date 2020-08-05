@@ -104,6 +104,9 @@ const User = sequelize.define(
     block_count: {
       type: Sequelize.INTEGER
     },
+    unread_count: {
+      type: Sequelize.INTEGER
+    },
     block_message: {
       type: Sequelize.DATE
     },
