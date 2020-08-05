@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.9] - 2020-08-05
+#### Add:
+-  Page 開啟 acceptleague 中 NBA 權限，新增 NBA 賽程、盤口與文字直播待測試站測試。更改 CPBL, NPB 爬蟲 Lose 欄位改為 Loss。 ***by page40316*** [#351](https://github.com/gets-info/sports-api/pull/351)
+-  Remove teamBase API date parameter and add some missing field ***by TsaiTsaiChieh*** [#350](https://github.com/gets-info/sports-api/pull/350)
+-  Unread api ***by gsihenry*** [#352](https://github.com/gets-info/sports-api/pull/352)
+-  Add sport field in sport/matches API ***by TsaiTsaiChieh*** [#345](https://github.com/gets-info/sports-api/pull/345)
+-  Add MLB data about team statistics ***by TsaiTsaiChieh*** [#344](https://github.com/gets-info/sports-api/pull/344)
+-  Refactor code ***by TsaiTsaiChieh*** [#343](https://github.com/gets-info/sports-api/pull/343)
+-  Add team_hit & pitchers crawler function and scheduler ***by TsaiTsaiChieh*** [#342](https://github.com/gets-info/sports-api/pull/342)
+#### Fix:
+-  更新 大神成就勝注勝率，要使用本期，不能下一期 ***by alangets*** [#347](https://github.com/gets-info/sports-api/pull/347)
+-  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
+-  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
+-  limit 條件放錯地方 ***by alangets*** [#338](https://github.com/gets-info/sports-api/pull/338)
+***
+
 ## [v1.0.8] - 2020-08-04
 #### Fix:
 -  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
