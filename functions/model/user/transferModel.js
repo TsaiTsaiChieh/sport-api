@@ -67,35 +67,49 @@ async function transferModel(method, args, uid) {
            FROM cashflow_buys cb, match__leagues ml, users u
           WHERE cb.league_id = ml.league_id
             AND cb.uid = u.uid
+            AND cb.uid = :uid
             AND cb.status = 1
+            AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, 0 as dividend, "賽事無效退費(處理中)" as title, "dividend_expire" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_buys
           WHERE status=-1
+            AND uid = :uid
+            AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, 0 as dividend, "賽事注數小於0退費(處理中)" as title, "dividend_expire" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_buys
           WHERE status=0
+            AND uid = :uid
+            AND scheduled BETWEEN :begin AND :end
           UNION 
          SELECT 0 as ingot, cb.coin, cb.dividend, "購牌退費" as title, "buy" as en_title, ml.name, ml.name_ch, display_name, NULL as article_title, scheduled
            FROM cashflow_buys cb, match__leagues ml, users u
           WHERE cb.league_id = ml.league_id
             AND cb.uid = u.uid
             AND cb.status = -2
+            AND cb.uid = :uid
+            AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT cs.ingot, 0 as coin, 0 as dividend, "售牌收入" as title, "sell" as en_title, NULL as name, name_ch, display_name, NULL as article_title, cs.scheduled
            FROM cashflow_sells cs, cashflow_buys cb, users u, match__leagues ml
           WHERE cs.buy_id = cb.buy_id
             AND ml.league_id = cb.league_id
             AND cs.uid = u.uid
+            AND cs.uid = :uid
+            AND cs.scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, expire_points as dividend, "消費紅利回饋" as title, "dividend_refund" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_dividends
           WHERE status=1
+            AND uid = :uid
+            AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, expire_points as dividend, "紅利過期紀錄" as title, "dividend_expire" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_dividends
           WHERE status=0
+            AND uid = :uid
+            AND scheduled BETWEEN :begin AND :end
          ) transfer
         ORDER BY scheduled DESC
          
