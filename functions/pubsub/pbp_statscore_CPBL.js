@@ -15,7 +15,7 @@ async function CPBLpbpInplay(parameter, data) {
   let eventOrderNow = 0;
   let inningNow = 1;
   let halfNow = '0';
-
+  let hitterNameNow = '';
   // 14 秒一次
   let perStep;
   let timesPerLoop;
@@ -24,8 +24,8 @@ async function CPBLpbpInplay(parameter, data) {
     perStep = 30000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
-    perStep = 18000;
-    timesPerLoop = 3; // 一分鐘3次
+    perStep = 9000;
+    timesPerLoop = 7; // 一分鐘6次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;
@@ -53,6 +53,9 @@ async function CPBLpbpInplay(parameter, data) {
         if (realtimeData.Summary.Now_halfs) {
           halfNow = realtimeData.Summary.Now_halfs;
         }
+        if (realtimeData.Summary.Now_hitter_name) {
+          hitterNameNow = realtimeData.Summary.Now_hitter_name;
+        }
       }
     }
 
@@ -60,7 +63,9 @@ async function CPBLpbpInplay(parameter, data) {
       eventNow: eventNow,
       eventOrderNow: eventOrderNow,
       inningNow: inningNow,
-      halfNow: halfNow
+      halfNow: halfNow,
+      hitterNameNow: hitterNameNow
+
     };
     const parameterPBP = {
       betsID: betsID,
@@ -91,11 +96,9 @@ async function CPBLpbpHistory(parameter) {
       const data = await axiosForURL(pbpURL);
 
       const homeScores =
-        data.api.data.competition.season.stage.group.event.participants[0]
-          .results[2].value;
+			data.api.data.competition.season.stage.group.event.participants[0].results.length > 0 ? data.api.data.competition.season.stage.group.event.participants[0].results[2].value : -99;
       const awayScores =
-        data.api.data.competition.season.stage.group.event.participants[1]
-          .results[2].value;
+			data.api.data.competition.season.stage.group.event.participants[1].results.length > 0 ? data.api.data.competition.season.stage.group.event.participants[1].results[2].value : -99;
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/Total/points`)
         .set(awayScores);
@@ -370,12 +373,16 @@ async function initRealtime(betsID, data) {
         .set(
           data.api.data.competition.season.stage.group.event.participants[0]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .name : null
         );
       database
         .ref(`${sport}/${league}/${betsID}/Summary/info/away/name`)
         .set(
           data.api.data.competition.season.stage.group.event.participants[1]
             .name
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .name : null
         );
     } catch (err) {
       return reject(
@@ -408,6 +415,7 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
     let eventOrderNow = baseballParameter.eventOrderNow;
     let inningNow = baseballParameter.inningNow;
     let halfNow = baseballParameter.halfNow;
+    let hitterNameNow = baseballParameter.hitterNameNow;
     const homeID =
       data.api.data.competition.season.stage.group.event.participants[0].id;
     try {
@@ -522,6 +530,13 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
         eventNow = parseInt(eventNow) + 1;
         continue;
       }
+      if (data.api.data.competition.season.stage.group.event.events_incidents[
+        eventCount
+      ].incident_id === 563) {
+        hitterNameNow = data.api.data.competition.season.stage.group.event.events_incidents[
+          eventCount
+        ].participant_name;
+      }
       eventNow = parseInt(eventNow) + 1;
       const half =
         data.api.data.competition.season.stage.group.event.events_incidents[
@@ -609,6 +624,7 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
                 data,
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].participant_name,
+                hitterNameNow,
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
@@ -897,7 +913,7 @@ function translateCommon(event) {
   }
 }
 
-function translateNormal(half, data, name, event) {
+function translateNormal(half, data, name, hitterName, event) {
   let out;
   let string_ch;
 
@@ -1050,6 +1066,11 @@ function translateNormal(half, data, name, event) {
     event === 'Run' ||
     event === 'Caught stealing'
   ) {
+    if (name === '') {
+      if (hitterName !== '') {
+        name = hitterName;
+      }
+    }
     if (half === '0') {
       const temp =
         name !== ''
