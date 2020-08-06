@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [v1.0.10] - 2020-08-06
+#### Add:
+-  handicap 排程補上 await。新增棒球排程打擊手資料於文字直播。 ***by page40316*** [#361](https://github.com/gets-info/sports-api/pull/361)
+#### Fix:
+-  勝注勝率計算最後更新大神成就勝率勝注 ***by alangets*** [#358](https://github.com/gets-info/sports-api/pull/358)
+-  修正即時比分頁 detail/prematch 邏輯（api 導致賽事為空）、修正 prematch_statscore 系列分頁問題、籃球文字直播新增球員姓名 ***by page40316*** [#356](https://github.com/gets-info/sports-api/pull/356)
+-  修正 prematch 加上 await，各聯盟依序執行。修正 index 中 pbp_statscore_NBA 的參數。 ***by page40316*** [#355](https://github.com/gets-info/sports-api/pull/355)
+***
+
 ## [v1.0.9] - 2020-08-05
 #### Add:
 -  Page 開啟 acceptleague 中 NBA 權限，新增 NBA 賽程、盤口與文字直播待測試站測試。更改 CPBL, NPB 爬蟲 Lose 欄位改為 Loss。 ***by page40316*** [#351](https://github.com/gets-info/sports-api/pull/351)

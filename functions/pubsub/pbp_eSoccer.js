@@ -9,12 +9,12 @@ const pbpOnHome = require('../model/home/pbpOnHomeModel');
 const Match = db.Match;
 const sport = 'esports';
 const league = 'eSoccer';
-async function ESoccerpbpInplay(parameter, Data) {
-  const firestoreData = Data;
+async function ESoccerpbpInplay(parameter, data) {
+  const firestoreData = data;
   // 14 秒一次
   const perStep = 14000;
   // 一分鐘3次
-  const timesPerLoop = 4;
+  const timesPerLoop = 2;
   const betsID = parameter.betsID;
   let realtimeData;
   if (parameter.realtimeData) {
@@ -136,7 +136,7 @@ async function ESoccerpbpHistory(parameter) {
       );
     }
     try {
-      await database
+      database
         .ref(`${sport}/${league}/${betsID}/Summary/status`)
         .set('closed');
     } catch (err) {

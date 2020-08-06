@@ -268,11 +268,11 @@ async function upsertFirestoreTeam(teamNumber, result) {
             per_R: (
               parseFloat(result[index + offsetBit + 3]) /
               parseFloat(result[index + 2])
-            ).toFixed(3),
+            ).toFixed(1),
             per_allow_R: (
               parseFloat(result[index + offsetPitch + 10]) /
               parseFloat(result[index + 2])
-            ).toFixed(3)
+            ).toFixed(1)
           },
           // 團隊投球成績
           team_pitch: {

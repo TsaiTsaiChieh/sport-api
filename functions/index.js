@@ -1,6 +1,4 @@
 const functions = require('firebase-functions');
-const logger = require('firebase-functions/lib/logger');
-
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -111,16 +109,6 @@ app.use('/invoice_ezpay', require('./routers/invoice_ezpay')); // 電子發票�
 // keep firebase cloud function :API awake
 app.use('/mission', require('./routers/mission'));
 app.get('/awakeAPI', (req, res) => {
-  // functions.logger.log('awakeAPI log test');
-  // functions.logger.debug('awakeAPI debug log test');
-  // functions.logger.info('awakeAPI info log test');
-  // functions.logger.warn('awakeAPI warn log test');
-  // functions.logger.error('awakeAPI err log test');
-  logger.log('awakeAPI log test 1');
-  logger.debug('awakeAPI debug log test 2');
-  logger.info('awakeAPI info log test 3');
-  logger.warn('awakeAPI warn log test 4');
-  logger.error('awakeAPI err log test 5');
   res.status(200).json(functions.config());
 });
 
@@ -130,20 +118,24 @@ exports.api = functions.runWith(env_values.runtimeOpts).https.onRequest(app);
 exports.admin = functions.runWith(env_values.runtimeOpts).https.onRequest(adminapp);
 
 // 各聯盟API排程
-exports.prematch = functions.pubsub
-  .schedule('0 5 * * *')
+exports.prematch = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
-exports.prematch_esport = functions.pubsub
-  .schedule('0 */1 * * *')
+exports.prematch_esport = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
-exports.handicap = functions.pubsub
-  .schedule('0 */1 * * *')
+exports.handicap = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
-exports.handicap_esport = functions.pubsub
-  .schedule('*/30 * * * *')
+exports.handicap_esport = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub
@@ -237,9 +229,9 @@ exports.prematch_statscore_NBA = functions.pubsub
   .onRun(require('./pubsub/prematch_statscore_NBA'));
 
 exports.pbp_statscore_NBA = functions.pubsub
-  .schedule('5 5 * * *')
+  .schedule('* * * * *')
   .timeZone('Asia/Taipei')
-  .onRun(require('./pubsub/pbp_statscore_NBA'));
+  .onRun(require('./pubsub/checkmatch_statscore_NBA'));
 // -------- statscore 專區 --------
 
 // 大神

@@ -25,7 +25,7 @@ async function prematch_statscore_KBO() {
         value: -1,
         unit: 'days'
       });
-      const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}`;
+      const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID}&limit=100`;
       const data = await axiosForURL(URL);
       const ele = await queryForMatches();
 

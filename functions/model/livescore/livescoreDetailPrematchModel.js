@@ -50,9 +50,44 @@ function queryMatch(args) {
                 AND game.bets_id = :eventID
                 AND game.home_id = home.team_id
                 AND game.away_id = away.team_id
-                AND (game.spread_id IS NULL OR game.totals_id IS NULL)
+								AND game.spread_id IS NULL 
+							  AND game.totals_id IS NULL
                 AND game.ori_league_id = league.ori_league_id
-           )
+					 )
+					 UNION(
+						SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+									 spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS spread_handicap, spread.rate AS spread_rate, NULL AS total_over_tw, NULL AS total_handicap, NULL AS total_rate,
+									 league.name_ch AS league_name_ch
+							FROM matches AS game,
+									 match__teams AS home,
+									 match__teams AS away,
+									 match__spreads AS spread,
+									 match__leagues AS league
+						 WHERE game.league_id = :leagueID
+							 AND game.bets_id = :eventID
+							 AND game.home_id = home.team_id
+							 AND game.away_id = away.team_id
+							 AND game.spread_id = spread.spread_id
+							 AND game.ori_league_id = league.ori_league_id
+					)
+					UNION(
+						SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
+									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+									 NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_handicap, NULL AS spread_rate, total.over_tw AS total_over_tw, total.handicap AS total_handicap, total.rate AS total_rate,
+									 league.name_ch AS league_name_ch
+							FROM matches AS game,
+									 match__teams AS home,
+									 match__teams AS away,
+									 match__totals AS total,
+									 match__leagues AS league
+						 WHERE game.league_id = :leagueID
+							 AND game.bets_id = :eventID
+							 AND game.home_id = home.team_id
+							 AND game.away_id = away.team_id
+							 AND game.totals_id = total.totals_id
+							 AND game.ori_league_id = league.ori_league_id
+					)
            `,
         {
           replacements: {
@@ -87,7 +122,7 @@ async function repackage(args, match) {
                 : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
+            rate: ele.spread_rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
           },
           totals: {
             handicap:
@@ -95,7 +130,7 @@ async function repackage(args, match) {
                 ? ele.total_handicap
                 : null,
             over_tw: ele.total_over_tw ? ele.total_over_tw : null,
-            rate: ele.rate === null ? null : ele.totals_rate <= 0 ? ele.totals_rate.toString() : ele.totals_rate > 0 ? '+' + ele.totals_rate.toString() : null
+            rate: ele.total_rate === null ? null : ele.totals_rate <= 0 ? ele.totals_rate.toString() : ele.totals_rate > 0 ? '+' + ele.totals_rate.toString() : null
           },
           home: {
             team_name:
@@ -151,7 +186,7 @@ async function repackage(args, match) {
                 : null,
             home_tw: ele.spread_home_tw ? ele.spread_home_tw : null,
             away_tw: ele.spread_away_tw ? ele.spread_away_tw : null,
-            rate: ele.rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
+            rate: ele.spread_rate === null ? null : ele.spread_rate <= 0 ? ele.spread_rate.toString() : ele.spread_rate > 0 ? '+' + ele.spread_rate.toString() : null
           },
           totals: {
             handicap:
@@ -159,7 +194,7 @@ async function repackage(args, match) {
                 ? ele.total_handicap
                 : null,
             over_tw: ele.total_over_tw ? ele.total_over_tw : null,
-            rate: ele.rate === null ? null : ele.total_rate <= 0 ? ele.total_rate.toString() : ele.total_rate > 0 ? '+' + ele.total_rate.toString() : null
+            rate: ele.total_rate === null ? null : ele.total_rate <= 0 ? ele.total_rate.toString() : ele.total_rate > 0 ? '+' + ele.total_rate.toString() : null
           },
           home: {
             team_name: ele.home_alias_ch,
