@@ -130,20 +130,24 @@ exports.api = functions.runWith(env_values.runtimeOpts).https.onRequest(app);
 exports.admin = functions.runWith(env_values.runtimeOpts).https.onRequest(adminapp);
 
 // 各聯盟API排程
-exports.prematch = functions.pubsub
-  .schedule('0 5 * * *')
+exports.prematch = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 5 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch'));
-exports.prematch_esport = functions.pubsub
-  .schedule('0 */1 * * *')
+exports.prematch_esport = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_esport'));
-exports.handicap = functions.pubsub
-  .schedule('0 */1 * * *')
+exports.handicap = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('0 */1 * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap'));
-exports.handicap_esport = functions.pubsub
-  .schedule('*/30 * * * *')
+exports.handicap_esport = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('*/30 * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/handicap_esport'));
 // exports.lineups = functions.pubsub

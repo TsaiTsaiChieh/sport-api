@@ -22,8 +22,8 @@ async function CBApbpInplay(parameter, data) {
     perStep = 30000;
     timesPerLoop = 2; // 一分鐘1次
   } else {
-    perStep = 14000;
-    timesPerLoop = 4; // 一分鐘3次
+    perStep = 9000;
+    timesPerLoop = 7; // 一分鐘6次
   }
   const betsID = parameter.betsID;
   const statscoreID = parameter.statscoreID;

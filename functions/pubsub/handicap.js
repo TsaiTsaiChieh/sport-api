@@ -40,7 +40,7 @@ async function handicap() {
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
     if (querysForEvent.length > 0) {
-      upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
+      await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
   }
   console.log('handicap success');
@@ -112,40 +112,36 @@ async function upsertHandicap(querysForEvent, sport, league) {
 
             let newest_spread;
             if (spread_odds.length > 0) {
-              for (let spcount = 0; spcount < spread_odds.length; spcount++) {
-                if (
-                  spread_odds[spcount].home_od !== null &&
+              const spcount = spread_odds.length - 1;
+              if (
+                spread_odds[spcount].home_od !== null &&
                   spread_odds[spcount].handicap !== null &&
                   spread_odds[spcount].away_od !== null &&
                   spread_odds[spcount].home_od !== '-' &&
                   spread_odds[spcount].away_od !== '-' &&
                   spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
-                ) {
-                  newest_spread = spread_odds[spcount];
-                  newest_spread = spreadCalculator(newest_spread, sport);
-                  write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-                  write2MysqlOfMatchSpread(newest_spread, ele, league);
-                  break;
-                }
+              ) {
+                newest_spread = spread_odds[spcount];
+                newest_spread = spreadCalculator(newest_spread, sport);
+                write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+                write2MysqlOfMatchSpread(newest_spread, ele, league);
               }
             }
             let newest_totals;
             if (totals_odds.length > 0) {
-              for (let tocount = 0; tocount < totals_odds.length; tocount++) {
-                if (
-                  totals_odds[tocount].over_od !== null &&
+              const tocount = totals_odds.length - 1;
+              if (
+                totals_odds[tocount].over_od !== null &&
                   totals_odds[tocount].handicap !== null &&
                   totals_odds[tocount].under_od !== null &&
                   totals_odds[tocount].over_od !== '-' &&
                   totals_odds[tocount].under_od !== '-' &&
                   totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
-                ) {
-                  newest_totals = totals_odds[tocount];
-                  newest_totals = totalsCalculator(newest_totals, sport);
-                  write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-                  write2MysqlOfMatchTotals(newest_totals, ele, league);
-                  break;
-                }
+              ) {
+                newest_totals = totals_odds[tocount];
+                newest_totals = totalsCalculator(newest_totals, sport);
+                write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+                write2MysqlOfMatchTotals(newest_totals, ele, league);
               }
             }
           }
@@ -192,10 +188,11 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     if (
-      leagueUniteID === '11235' ||
-      leagueUniteID === '347' ||
-      leagueUniteID === '349' ||
-      leagueUniteID === '3939'
+      leagueUniteID === '11235' || // 中華職棒
+      leagueUniteID === '347' || // 日本棒球
+      leagueUniteID === '349' || // 韓國棒球
+			leagueUniteID === '3939' ||// 美國棒球
+			leagueUniteID === '2274'// 美國籃球
     ) {
       try {
         MatchSpread.upsert({
