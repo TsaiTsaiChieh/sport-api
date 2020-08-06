@@ -366,7 +366,8 @@ async function createNewsDB(insertData, needed) {
         /* 最愛大神加入未讀訊息 */
         const favoriteplayer = await db.User_FavoriteGod.findAll({
           where: {
-            uid: insertData.uid
+            uid: insertData.uid,
+            league: insertData.league
           },
           raw: true
         });
