@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, fieldSorter, to, NP } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -20,19 +20,24 @@ async function godlists() {
   // 依 聯盟 取出是 大神資料 且 有販售
   // 將來有排序條件，可以orderBy，但會和下面的order衝突
   const [err, godListsQuery] = await to(CacheQuery(db.sequelize, `
-    select titles.uid, users.avatar, users.display_name,
-          titles.rank_id, titles.default_title, titles.win_rate, titles.continue,
-          titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
-          titles.matches_rate1, titles.matches_rate2, titles.matches_continue
+    select titles.uid, users.avatar, users.display_name,titles.rank_id, titles.default_title, 
+           titles.win_rate, 
+           uwl.last_month_win_rate,
+           titles.continue,
+           titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
+           titles.matches_rate1, titles.matches_rate2, titles.matches_continue
       from titles,
-          (
-            select * 
-              from users
+           (
+             select * 
+               from users
               where status = 2
-          ) users
-    where titles.uid = users.uid
-      and titles.league_id = :league_id
-      and titles.period = :period
+           ) users,
+           users__win__lists uwl
+     where titles.uid = users.uid
+       and titles.uid = uwl.uid
+       and titles.league_id = uwl.league_id
+       and titles.league_id = :league_id
+       and titles.period = :period
   `, {
     replacements: {
       league_id: league_id,
@@ -77,6 +82,7 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   const goldArr = [];
   const silverArr = [];
   const copperArr = [];
+  const wants = 1; // 隨機取幾個
 
   sortedArr.forEach(async function(data) { // 把資料進行 鑽 金 銀 銅 分類
     switch (data.rank_id) { // 大神等級分類
@@ -86,8 +92,6 @@ function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
       case 4: copperArr.push(data); break;
     }
   });
-
-  const wants = 1; // 隨機取幾個
 
   for (let i = 1; i <= wants; i++) {
     [diamondArr, goldArr, silverArr, copperArr].forEach(function(arr) { // 鑽 金 銀 銅 依序產生
@@ -113,7 +117,8 @@ function repackage(league, ele) { // 實際資料輸出格式
   data.league_win_lists[league] = { // 聯盟 戰績表
     rank: `${ele.rank_id}`,
     default_title: ele.default_title,
-    win_rate: ele.win_rate,
+    win_rate: ele.win_rate === null ? 0 : ele.win_rate,
+    last_month_win_rate: ele.last_month_win_rate === null ? 0 : NP.round(NP.times(ele.last_month_win_rate, 100), 0),
     continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
