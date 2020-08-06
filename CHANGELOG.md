@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  勝注勝率計算最後更新大神成就勝率勝注 ***by alangets*** [#358](https://github.com/gets-info/sports-api/pull/358)
 -  修正即時比分頁 detail/prematch 邏輯（api 導致賽事為空）、修正 prematch_statscore 系列分頁問題、籃球文字直播新增球員姓名 ***by page40316*** [#356](https://github.com/gets-info/sports-api/pull/356)
 -  修正 prematch 加上 await，各聯盟依序執行。修正 index 中 pbp_statscore_NBA 的參數。 ***by page40316*** [#355](https://github.com/gets-info/sports-api/pull/355)
 #### Removed:
