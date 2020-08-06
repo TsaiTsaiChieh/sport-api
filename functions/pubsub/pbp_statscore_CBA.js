@@ -771,6 +771,9 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
                   ].participant_id.toString()
                 ),
                 data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].participant_name
+                ,
+                data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
               Period: periodNow,
@@ -1047,7 +1050,7 @@ function translateCommon(event) {
   }
 }
 
-async function translateNormal(name, event) {
+async function translateNormal(teamName, playerName, event) {
   let out;
   let string_ch;
 
@@ -1322,7 +1325,11 @@ async function translateNormal(name, event) {
   ) {
     out = string_ch;
   } else {
-    out = name + ' ' + string_ch;
+    if (playerName !== '') {
+      out = playerName + ' ' + string_ch;
+    } else {
+      out = teamName + ' ' + string_ch;
+    }
   }
 
   return out;
