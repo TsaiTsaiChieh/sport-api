@@ -1,14 +1,13 @@
 const modules = require('../util/modules');
 const leagueUtil = require('../util/leagueUtil');
-const axios = require('axios');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
+const axios = require('axios');
 const Match = db.Match;
-const competitionID = '5466';
-const leagueID = '3939';
-const league = 'MLB';
-
-async function prematch_statscore_MLB() {
+const competitionID = '101'; // NBA
+const leagueID = '2274';
+const league = 'NBA';
+async function prematch_statscore_NBA() {
   return new Promise(async function(resolve, reject) {
     try {
       const token = await queryForToken();
@@ -32,6 +31,7 @@ async function prematch_statscore_MLB() {
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
           .length;
+      // eventLength
       for (let i = 0; i < eventLength; i++) {
         const eventID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
@@ -56,7 +56,6 @@ async function prematch_statscore_MLB() {
           const timeTwo = new Date(ele[j].scheduled * 1000)
             .toString()
             .split(':')[0];
-
           if (timeOne === timeTwo) {
             if (
               homeTeamName === ele[j].home_name &&
@@ -70,6 +69,8 @@ async function prematch_statscore_MLB() {
           }
         }
       }
+
+      return resolve('ok');
     } catch (err) {
       return reject(
         new AppErrors.AxiosError(`${err} at prematchFunctions_${league} by DY`)
@@ -93,11 +94,95 @@ async function axiosForURL(URL) {
 
 function teamTrans(team) {
   switch (team) {
-    case 'Tampa Bay Rays': {
-      return 'Tampa Bay Devil Rays';
+    case 'Houston Rockets': {
+      return 'Houston Rockets';
     }
-    case 'Los Angeles Angels of Anaheim': {
-      return 'Los Angeles Angels';
+    case 'Oklahoma City Thunder': {
+      return 'Oklahoma City Thunder';
+    }
+    case 'Milwaukee Bucks': {
+      return 'Milwaukee Bucks';
+    }
+    case 'Chicago Bulls': {
+      return 'Chicago Bulls';
+    }
+    case 'Los Angeles Clippers': {
+      return 'Los Angeles Clippers';
+    }
+    case 'Golden State Warriors': {
+      return 'Golden State Warriors';
+    }
+    case 'Toronto Raptors': {
+      return 'Toronto Raptors';
+    }
+    case 'Washington Wizards': {
+      return 'Washington Wizards';
+    }
+    case 'Philadelphia 76ers': {
+      return 'Philadelphia 76ers';
+    }
+    case 'Denver Nuggets': {
+      return 'Denver Nuggets';
+    }
+    case 'Los Angeles Lakers': {
+      return 'Los Angeles Lakers';
+    }
+    case 'Brooklyn Nets': {
+      return 'Brooklyn Nets';
+    }
+    case 'New York Knicks': {
+      return 'New York Knicks';
+    }
+    case 'Indiana Pacers': {
+      return 'Indiana Pacers';
+    }
+    case 'New Orleans Pelicans': {
+      return 'New Orleans Pelicans';
+    }
+    case 'Cleveland Cavaliers': {
+      return 'Cleveland Cavaliers';
+    }
+    case 'Atlanta Hawks': {
+      return 'Atlanta Hawks';
+    }
+    case 'Utah Jazz': {
+      return 'Utah Jazz';
+    }
+    case 'Sacramento Kings': {
+      return 'Sacramento Kings';
+    }
+    case 'Portland Trail Blazers': {
+      return 'Portland Trail Blazers';
+    }
+    case 'San Antonio Spurs': {
+      return 'San Antonio Spurs';
+    }
+    case 'Orlando Magic': {
+      return 'Orlando Magic';
+    }
+    case 'Phoenix Suns': {
+      return 'Phoenix Suns';
+    }
+    case 'Boston Celtics': {
+      return 'Boston Celtics';
+    }
+    case 'Detroit Pistons': {
+      return 'Detroit Pistons';
+    }
+    case 'Miami Heat': {
+      return 'Miami Heat';
+    }
+    case 'Memphis Grizzlies': {
+      return 'Memphis Grizzlies';
+    }
+    case 'Minnesota Timberwolves': {
+      return 'Minnesota Timberwolves';
+    }
+    case 'Charlotte Hornets': {
+      return 'Charlotte Hornets';
+    }
+    case 'Dallas Mavericks': {
+      return 'Dallas Mavericks';
     }
     default: {
       return team;
@@ -126,7 +211,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches() {
+async function queryForMatches(date1, date2) {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
@@ -152,4 +237,4 @@ async function queryForMatches() {
     }
   });
 }
-module.exports = prematch_statscore_MLB;
+module.exports = prematch_statscore_NBA;

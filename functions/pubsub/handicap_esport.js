@@ -81,40 +81,36 @@ async function upsertHandicap(querysForEvent, sport, league) {
         let newest_spread;
 
         if (spread_odds.length > 0) {
-          for (let spcount = 0; spcount < spread_odds.length; spcount++) {
-            if (
-              spread_odds[spcount].home_od !== null &&
+          const spcount = spread_odds.length - 1;
+          if (
+            spread_odds[spcount].home_od !== null &&
               spread_odds[spcount].handicap !== null &&
               spread_odds[spcount].away_od !== null &&
               spread_odds[spcount].home_od !== '-' &&
               spread_odds[spcount].away_od !== '-' &&
               spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
-            ) {
-              newest_spread = spread_odds[spcount];
-              newest_spread = spreadCalculator(newest_spread);
-              await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-              await write2MysqlOfMatchSpread(newest_spread, ele, league);
-              break;
-            }
+          ) {
+            newest_spread = spread_odds[spcount];
+            newest_spread = spreadCalculator(newest_spread);
+            await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+            await write2MysqlOfMatchSpread(newest_spread, ele, league);
           }
         }
         let newest_totals;
         if (totals_odds.length > 0) {
-          for (let tocount = 0; tocount < totals_odds.length; tocount++) {
-            if (
-              totals_odds[tocount].over_od !== null &&
+          const tocount = totals_odds.length - 1;
+          if (
+            totals_odds[tocount].over_od !== null &&
               totals_odds[tocount].handicap !== null &&
               totals_odds[tocount].under_od !== null &&
               totals_odds[tocount].over_od !== '-' &&
               totals_odds[tocount].under_od !== '-' &&
               totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
-            ) {
-              newest_totals = totals_odds[tocount];
-              newest_totals = totalsCalculator(newest_totals);
-              await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-              await write2MysqlOfMatchTotals(newest_totals, ele, league);
-              break;
-            }
+          ) {
+            newest_totals = totals_odds[tocount];
+            newest_totals = totalsCalculator(newest_totals);
+            await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+            await write2MysqlOfMatchTotals(newest_totals, ele, league);
           }
         }
       }
@@ -222,12 +218,11 @@ function spreadCalculator(handicapObj) {
     handicapObj.handicap = handicapObj.handicap.toString();
     if (handicapObj.handicap.indexOf(',') !== -1) {
       // 有兩個以上盤口
-      const firstHandicap = Math.abs(
-        parseFloat(handicapObj.handicap.split(',')[0])
-      );
-      const secondHandicap = Math.abs(
-        parseFloat(handicapObj.handicap.split(',')[1])
-      );
+      const firstHandicap =
+        parseFloat(handicapObj.handicap.split(',')[0]);
+      const secondHandicap =
+        parseFloat(handicapObj.handicap.split(',')[1]);
+
       if (firstHandicap % 1 !== 0) {
         // 第一盤口為小數
         if (firstHandicap >= 0 && secondHandicap >= 0) {

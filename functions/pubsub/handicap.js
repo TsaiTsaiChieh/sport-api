@@ -9,6 +9,7 @@ const oddsURL = 'https://api.betsapi.com/v2/event/odds';
 const sports = [
   // 籃球
   18,
+  18,
   // 棒球
   16,
   16,
@@ -21,6 +22,7 @@ const sports = [
 const leagueUniteIDArray = [
   // 籃球
   2319, // 中國職籃
+  2274, // NBA
   // 棒球
   347, // 日職
   349, // 韓職
@@ -110,40 +112,36 @@ async function upsertHandicap(querysForEvent, sport, league) {
 
             let newest_spread;
             if (spread_odds.length > 0) {
-              for (let spcount = 0; spcount < spread_odds.length; spcount++) {
-                if (
-                  spread_odds[spcount].home_od !== null &&
+              const spcount = spread_odds.length - 1;
+              if (
+                spread_odds[spcount].home_od !== null &&
                   spread_odds[spcount].handicap !== null &&
                   spread_odds[spcount].away_od !== null &&
                   spread_odds[spcount].home_od !== '-' &&
                   spread_odds[spcount].away_od !== '-' &&
                   spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
-                ) {
-                  newest_spread = spread_odds[spcount];
-                  newest_spread = spreadCalculator(newest_spread, sport);
-                  await write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
-                  await write2MysqlOfMatchSpread(newest_spread, ele, league);
-                  break;
-                }
+              ) {
+                newest_spread = spread_odds[spcount];
+                newest_spread = spreadCalculator(newest_spread, sport);
+                write2MysqlOfMatchAboutNewestSpread(ele, newest_spread);
+                write2MysqlOfMatchSpread(newest_spread, ele, league);
               }
             }
             let newest_totals;
             if (totals_odds.length > 0) {
-              for (let tocount = 0; tocount < totals_odds.length; tocount++) {
-                if (
-                  totals_odds[tocount].over_od !== null &&
+              const tocount = totals_odds.length - 1;
+              if (
+                totals_odds[tocount].over_od !== null &&
                   totals_odds[tocount].handicap !== null &&
                   totals_odds[tocount].under_od !== null &&
                   totals_odds[tocount].over_od !== '-' &&
                   totals_odds[tocount].under_od !== '-' &&
                   totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
-                ) {
-                  newest_totals = totals_odds[tocount];
-                  newest_totals = totalsCalculator(newest_totals, sport);
-                  await write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
-                  await write2MysqlOfMatchTotals(newest_totals, ele, league);
-                  break;
-                }
+              ) {
+                newest_totals = totals_odds[tocount];
+                newest_totals = totalsCalculator(newest_totals, sport);
+                write2MysqlOfMatchAboutNewestTotals(ele, newest_totals);
+                write2MysqlOfMatchTotals(newest_totals, ele, league);
               }
             }
           }
@@ -159,7 +157,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
 async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
   return new Promise(async function(resolve, reject) {
     try {
-      await Match.upsert({
+      Match.upsert({
         bets_id: ele.bets_id,
         spread_id: newest_spread.id
       });
@@ -174,7 +172,7 @@ async function write2MysqlOfMatchAboutNewestSpread(ele, newest_spread) {
 async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
   return new Promise(async function(resolve, reject) {
     try {
-      await Match.upsert({
+      Match.upsert({
         bets_id: ele.bets_id,
         totals_id: newest_totals.id
       });
@@ -190,13 +188,14 @@ async function write2MysqlOfMatchAboutNewestTotals(ele, newest_totals) {
 async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     if (
-      leagueUniteID === '11235' ||
-      leagueUniteID === '347' ||
-      leagueUniteID === '349' ||
-      leagueUniteID === '3939'
+      leagueUniteID === '11235' || // 中華職棒
+      leagueUniteID === '347' || // 日本棒球
+      leagueUniteID === '349' || // 韓國棒球
+			leagueUniteID === '3939' ||// 美國棒球
+			leagueUniteID === '2274'// 美國籃球
     ) {
       try {
-        await MatchSpread.upsert({
+        MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
           league_id: leagueUniteID,
@@ -218,7 +217,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
       }
     } else {
       try {
-        await MatchSpread.upsert({
+        MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,
           league_id: leagueUniteID,
@@ -244,7 +243,7 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
 async function write2MysqlOfMatchTotals(odd, ele, leagueUniteID) {
   return new Promise(async function(resolve, reject) {
     try {
-      await MatchTotals.upsert({
+      MatchTotals.upsert({
         totals_id: odd.id,
         match_id: ele.bets_id,
         league_id: leagueUniteID,
@@ -608,12 +607,11 @@ function spreadCalculator(handicapObj, sport) {
       handicapObj.handicap = handicapObj.handicap.toString();
       if (handicapObj.handicap.indexOf(',') !== -1) {
         // 有兩個以上盤口
-        const firstHandicap = Math.abs(
-          parseFloat(handicapObj.handicap.split(',')[0])
-        );
-        const secondHandicap = Math.abs(
-          parseFloat(handicapObj.handicap.split(',')[1])
-        );
+        const firstHandicap =
+          parseFloat(handicapObj.handicap.split(',')[0]);
+        const secondHandicap =
+          parseFloat(handicapObj.handicap.split(',')[1]);
+
         if (firstHandicap % 1 !== 0) {
           // 第一盤口為小數
           if (firstHandicap >= 0 && secondHandicap >= 0) {

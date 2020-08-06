@@ -274,7 +274,7 @@ async function settleWinList(args) {
     // c.
     // day_of_year 目前未使用
     // 回寫結果 到 users__win__lists
-    let r = {}; let r2 = {};
+    let r = {}; // let r2 = {};
     let err, winLists, created;
 
     try {
@@ -359,30 +359,39 @@ async function settleWinList(args) {
     // if (r) return reject(errs.errsMsg('404', '13420')); // 更新筆數異常
 
     result.status['2'].lists.push({ uid: data.uid, league: data.league_id });
-
-    s23 = new Date().getTime();
-    // d.
-    // 回寫 win_bets、win_rate 到 titles
-    [err, r2] = await to(db.Title.update({
-      win_bets: ele.sum_period.win_bets,
-      win_rate: NP.round(NP.times(this_period_win_rate, 100), floatNumber)
-    }, {
-      where: {
-        uid: uid,
-        league_id: league_id,
-        period: period - 1
-      }
-    }));
-    if (err) {
-      logger.warn('[Error][settleWinListModel][Title] ', err);
-      throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
-    }
-
-    // 有可能不是大神，無更新筆數
-    // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
-
-    if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period });
   }
+
+  s23 = new Date().getTime();
+  // d.
+  // 回寫 win_bets、win_rate 到 titles， win_bets、win_rate 為 本月
+  d('\n gs');
+  d('\n g');
+  d(`Update Titles winBets, WinRate! period: ${period - 1}`);
+  const [err, r] = await to(db.sequelize.query(`
+      update titles,
+             ( select uid, league_id, this_month_win_rate, this_month_win_bets from users__win__lists ) src
+         set
+             titles.win_bets = src.this_month_win_bets,
+             titles.win_rate = src.this_month_win_rate
+       where titles.uid = src.uid
+         and titles.league_id = src.league_id
+         and titles.period = :period
+    `, {
+    replacements: {
+      period: period - 1
+    },
+    type: db.sequelize.QueryTypes.UPDATE
+  }));
+
+  if (err) {
+    logger.warn('[Error][settleWinListModel][Title] ', err);
+    throw errs.dbErrsMsg('404', '13539', { addMsg: err.parent.code });
+  }
+  d('Update Titles winBets, WinRate! Update record: ', r);
+
+  // 有可能不是大神，無更新筆數
+  // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
+  // if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period - 1 });
 
   if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
   const e = new Date().getTime();

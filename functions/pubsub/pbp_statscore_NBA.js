@@ -6,10 +6,10 @@ const AppErrors = require('../util/AppErrors');
 const settleMatchesModel = require('../model/user/settleMatchesModel');
 const Match = db.Match;
 const sport = 'basketball';
-const league = 'CBA';
+const league = 'NBA';
 const pbpOnHome = require('../model/home/pbpOnHomeModel');
 
-async function CBApbpInplay(parameter, data) {
+async function NBApbpInplay(parameter, data) {
   const firestoreData = data;
   let eventNow = 0;
   let eventOrderNow = 0;
@@ -69,7 +69,7 @@ async function CBApbpInplay(parameter, data) {
   }, perStep);
 }
 
-async function CBApbpHistory(parameter) {
+async function NBApbpHistory(parameter) {
   return new Promise(async function(resolve, reject) {
     try {
       const betsID = parameter.betsID;
@@ -771,8 +771,7 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
                   ].participant_id.toString()
                 ),
                 data.api.data.competition.season.stage.group.event
-                  .events_incidents[eventCount].participant_name
-                ,
+                  .events_incidents[eventCount].participant_name,
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
@@ -907,62 +906,95 @@ async function writeBacktoReal(betsID, eventNow, eventOrderNow) {
 
 function teamTrans(id) {
   switch (id) {
-    case '1938': {
-      return '浙江稠洲銀行';
+    case '1256': {
+      return '火箭';
     }
-    case '1946': {
-      return '浙江廣廈';
+    case '1283': {
+      return '雷霆';
     }
-    case '1942': {
-      return '深圳領航者';
+    case '1064': {
+      return '公鹿';
     }
-    case '2485': {
-      return '四川金強';
+    case '1393': {
+      return '公牛';
     }
-    case '1939': {
-      return '天津先行者';
+    case '1195': {
+      return '快艇';
     }
-    case '1937': {
-      return '新疆廣匯飛虎';
+    case '1376': {
+      return '勇士';
     }
-    case '1943': {
-      return '廣州龍獅';
+    case '1106': {
+      return '暴龍';
     }
-    case '1948': {
-      return '吉林東北虎';
+    case '1495': {
+      return '巫師';
     }
-    case '1949': {
-      return '遼寧衡潤飛豹';
+    case '1040': {
+      return '76人';
     }
-    case '2703': {
-      return '南京大聖';
+    case '1233': {
+      return '金塊';
     }
-    case '1950': {
-      return '青島雙星雄鷹';
+    case '1293': {
+      return '湖人';
     }
-    case '1951': {
-      return '山東西王';
+    case '1675': {
+      return '籃網';
     }
-    case '1952': {
-      return '上海大鯊魚';
+    case '1177': {
+      return '尼克';
     }
-    case '2704': {
-      return '北京紫禁勇士';
+    case '1431': {
+      return '溜馬';
     }
-    case '1941': {
-      return '北京首鋼';
+    case '1412': {
+      return '鵜鶘';
     }
-    case '1944': {
-      return '福建鱘潯興';
+    case '1198': {
+      return '騎士';
     }
-    case '1945': {
-      return '廣東宏遠';
+    case '1176': {
+      return '老鷹';
     }
-    case '1940': {
-      return '八一火箭';
+    case '1383': {
+      return '爵士';
     }
-    case '1953': {
-      return '山西汾酒猛龍';
+    case '1560': {
+      return '國王';
+    }
+    case '1093': {
+      return '拓荒者';
+    }
+    case '1460': {
+      return '馬刺';
+    }
+    case '1534': {
+      return '魔術';
+    }
+    case '1253': {
+      return '太陽';
+    }
+    case '1549': {
+      return '塞爾提克';
+    }
+    case '1541': {
+      return '活塞';
+    }
+    case '1201': {
+      return '熱火';
+    }
+    case '1036': {
+      return '灰熊';
+    }
+    case '1354': {
+      return '灰狼';
+    }
+    case '1120': {
+      return '黃蜂';
+    }
+    case '1131': {
+      return '獨行俠';
     }
     default: {
       return id;
@@ -1386,4 +1418,4 @@ function changePeriod(period, now_periods) {
   return periodNow;
 }
 
-module.exports = { CBApbpInplay, CBApbpHistory };
+module.exports = { NBApbpInplay, NBApbpHistory };

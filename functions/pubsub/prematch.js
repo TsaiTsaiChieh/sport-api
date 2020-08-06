@@ -10,6 +10,7 @@ const CPBL_functions = require('./util/prematchFunctions_CPBL');
 const MLB_functions = require('./util/prematchFunctions_MLB');
 // BASKETBALL
 const CBA_functions = require('./util/prematchFunctions_CBA');
+const NBA_functions = require('./util/prematchFunctions_NBA');
 // SOCCER
 const Soccer_functions = require('./util/prematchFunctions_Soccer');
 // upcomming is BetsAPI, prematch is for sportradar
@@ -35,6 +36,8 @@ async function prematch() {
       // BASKETBALL
       await CBA_functions.CBA.upcoming(now);
       await CBA_functions.CBA.upcoming(tomorrow);
+      await NBA_functions.NBA.upcoming(now);
+      await NBA_functions.NBA.upcoming(tomorrow);
       // SOCCER
       await Soccer_functions.Soccer.upcoming(now);
       await Soccer_functions.Soccer.upcoming(tomorrow);

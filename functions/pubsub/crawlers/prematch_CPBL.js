@@ -226,7 +226,7 @@ async function upsertFirestoreTeam(teamNumber, result) {
             G: result[index + 2],
             Win: result[index + 3].split('-')[0],
             Draw: result[index + 3].split('-')[1],
-            Lose: result[index + 3].split('-')[2],
+            Loss: result[index + 3].split('-')[2],
             PCT: result[index + 4],
             GB: result[index + 5],
             [`${teamID}VS${team1}`]:
@@ -268,11 +268,11 @@ async function upsertFirestoreTeam(teamNumber, result) {
             per_R: (
               parseFloat(result[index + offsetBit + 3]) /
               parseFloat(result[index + 2])
-            ).toFixed(3),
+            ).toFixed(1),
             per_allow_R: (
               parseFloat(result[index + offsetPitch + 10]) /
               parseFloat(result[index + 2])
-            ).toFixed(3)
+            ).toFixed(1)
           },
           // 團隊投球成績
           team_pitch: {
