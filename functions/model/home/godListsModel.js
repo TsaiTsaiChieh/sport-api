@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, fieldSorter, to, NP } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -118,7 +118,7 @@ function repackage(league, ele) { // 實際資料輸出格式
     rank: `${ele.rank_id}`,
     default_title: ele.default_title,
     win_rate: ele.win_rate === null ? 0 : ele.win_rate,
-    last_month_win_rate: ele.last_month_win_rate === null ? 0 : NP.round(NP.times(ele.last_month_win_rate, 100), 0),
+    last_month_win_rate: ele.last_month_win_rate === null ? 0 : ele.last_month_win_rate,
     continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N
     predict_rate2: [ele.predict_rate1, ele.predict_rate3], // 近N日過 N
