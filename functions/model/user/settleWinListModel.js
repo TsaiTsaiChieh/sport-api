@@ -372,7 +372,7 @@ async function settleWinList(args) {
              ( select uid, league_id, this_month_win_rate, this_month_win_bets from users__win__lists ) src
          set
              titles.win_bets = src.this_month_win_bets,
-             titles.win_rate = round(src.this_month_win_rate * 100)
+             titles.win_rate = src.this_month_win_rate
        where titles.uid = src.uid
          and titles.league_id = src.league_id
          and titles.period = :period
