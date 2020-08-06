@@ -40,7 +40,7 @@ async function handicap() {
   for (let i = 0; i < sports.length; i++) {
     const querysForEvent = await query_event(leagueUniteIDArray[i]);
     if (querysForEvent.length > 0) {
-      upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
+      await upsertHandicap(querysForEvent, sports[i], leagueUniteIDArray[i]);
     }
   }
   console.log('handicap success');
