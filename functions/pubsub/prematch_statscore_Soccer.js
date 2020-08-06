@@ -26,7 +26,7 @@ async function prematch_statscore_Soccer() {
         unit: 'days'
       });
       for (let i = 0; i < competitionID.length; i++) {
-        const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID[i]}`;
+        const URL = `https://api.statscore.com/v2/events?token=${token[0].token}&date_from=${date1}&date_to=${date2}&competition_id=${competitionID[i]}&limit=100`;
         const data = await axiosForURL(URL);
         const ele = await queryForMatches();
 

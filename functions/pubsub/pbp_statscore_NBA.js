@@ -562,16 +562,26 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[12].value
+              .stats[14].value
             : null,
+        turnovers:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .stats[15].value
+            : null,
+        blocks: data.api.data.competition.season.stage.group.event.participants[0]
+          .stats.length > 0
+          ? data.api.data.competition.season.stage.group.event.participants[0]
+            .stats[16].value
+          : null,
         fouls:
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[13].value
+              .stats[17].value
             : null
       });
-
       database.ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`).set({
         points:
           data.api.data.competition.season.stage.group.event.participants[1]
@@ -624,16 +634,29 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
           ? data.api.data.competition.season.stage.group.event.participants[1]
             .stats[11].value
           : null,
-        rebounds: data.api.data.competition.season.stage.group.event
-          .participants[1].stats.length
+        rebounds:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[14].value
+            : null,
+        turnovers:
+          data.api.data.competition.season.stage.group.event.participants[1]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[1]
+              .stats[15].value
+            : null,
+        blocks: data.api.data.competition.season.stage.group.event.participants[1]
+          .stats.length > 0
           ? data.api.data.competition.season.stage.group.event.participants[1]
-            .stats[12].value
+            .stats[16].value
           : null,
-        fouls: data.api.data.competition.season.stage.group.event
-          .participants[1].stats.length
-          ? data.api.data.competition.season.stage.group.event.participants[1]
-            .stats[13].value
-          : null
+        fouls:
+          data.api.data.competition.season.stage.group.event.participants[0]
+            .stats.length > 0
+            ? data.api.data.competition.season.stage.group.event.participants[0]
+              .stats[17].value
+            : null
       });
     } catch (err) {
       return reject(
@@ -653,12 +676,9 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
     for (let eventCount = eventNow; eventCount < eventEnd; eventCount++) {
       eventNow = eventNow + 1;
       if (
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].incident_name === '1st quarter started' &&
-        data.api.data.competition.season.stage.group.event.events_incidents[
-          eventCount
-        ].event_status_name === 'Break after 1st quarter'
+        data.api.data.competition.season.stage.group.event.events_incidents[eventCount].incident_name === '1st quarter started' ||
+        data.api.data.competition.season.stage.group.event.events_incidents[eventCount].event_status_name === 'Break after 1st quarter' ||
+				data.api.data.competition.season.stage.group.event.events_incidents[eventCount].incident_name === 'Break after'
       ) {
         continue;
       }
@@ -750,6 +770,8 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
                     eventCount
                   ].participant_id.toString()
                 ),
+                data.api.data.competition.season.stage.group.event
+                  .events_incidents[eventCount].participant_name,
                 data.api.data.competition.season.stage.group.event
                   .events_incidents[eventCount].incident_name
               ),
@@ -845,6 +867,7 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
     }
   });
 }
+
 function changeTime(oriTime, periodNow) {
   // 從12分鐘倒數
   const nowTime =
@@ -1059,7 +1082,7 @@ function translateCommon(event) {
   }
 }
 
-async function translateNormal(name, event) {
+async function translateNormal(teamName, playerName, event) {
   let out;
   let string_ch;
 
@@ -1334,7 +1357,11 @@ async function translateNormal(name, event) {
   ) {
     out = string_ch;
   } else {
-    out = name + ' ' + string_ch;
+    if (playerName !== '') {
+      out = playerName + ' ' + string_ch;
+    } else {
+      out = teamName + ' ' + string_ch;
+    }
   }
 
   return out;
