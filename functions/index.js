@@ -240,8 +240,9 @@ exports.prematch_statscore_NBA = functions.pubsub
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/prematch_statscore_NBA'));
 
-exports.pbp_statscore_NBA = functions.pubsub
-  .schedule('* * * * *')
+exports.pbp_statscore_NBA = functions
+  .runWith(env_values.runtimeOpts)
+  .pubsub.schedule('* * * * *')
   .timeZone('Asia/Taipei')
   .onRun(require('./pubsub/checkmatch_statscore_NBA'));
 // -------- statscore 專區 --------

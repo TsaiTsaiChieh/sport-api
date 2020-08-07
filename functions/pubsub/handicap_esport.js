@@ -81,7 +81,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
         let newest_spread;
 
         if (spread_odds.length > 0) {
-          const spcount = spread_odds.length - 1;
+          const spcount = 0;
           if (
             spread_odds[spcount].home_od !== null &&
               spread_odds[spcount].handicap !== null &&
@@ -98,7 +98,7 @@ async function upsertHandicap(querysForEvent, sport, league) {
         }
         let newest_totals;
         if (totals_odds.length > 0) {
-          const tocount = totals_odds.length - 1;
+          const tocount = 0;
           if (
             totals_odds[tocount].over_od !== null &&
               totals_odds[tocount].handicap !== null &&

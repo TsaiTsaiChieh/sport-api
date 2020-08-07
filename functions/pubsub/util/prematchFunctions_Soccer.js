@@ -34,8 +34,8 @@ module.exports.Soccer.upcoming = async function(date) {
         if (data.results) {
           for (let j = 0; j < data.results.length; j++) {
             const ele = data.results[j];
-            await write2realtime(ele);
-            await write2MysqlOfMatch(ele);
+            await write2realtime(ele, 'scheduled');
+            await write2MysqlOfMatch(ele, 2);
           }
         } else {
           console.log(leagueID + 'has no upcoming event now');
@@ -50,6 +50,34 @@ module.exports.Soccer.upcoming = async function(date) {
     }
   });
 };
+
+module.exports.Soccer.ended = async function(date) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      for (let i = 0; i < leagueArray.length; i++) {
+        const leagueID = leagueArray[i];
+        const URL = `https://api.betsapi.com/v2/events/ended?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
+        const data = await axiosForURL(URL);
+        if (data.results) {
+          for (let j = 0; j < data.results.length; j++) {
+            const ele = data.results[j];
+            await write2realtime(ele, 'postponed');
+            await write2MysqlOfMatch(ele, -2);
+          }
+        } else {
+          console.log(leagueID + 'has no upcoming event now');
+        }
+      }
+      console.log('soccer scheduled success');
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.MysqlError(`${err} at prematchFunctions_Soccer by DY`)
+      );
+    }
+  });
+};
+
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -63,13 +91,13 @@ async function axiosForURL(URL) {
   });
 }
 
-async function write2realtime(ele) {
+async function write2realtime(ele, status) {
   return new Promise(async function(resolve, reject) {
     try {
       const database = firebaseAdmin().database();
       await database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-        .set('scheduled');
+        .set(status);
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -80,7 +108,7 @@ async function write2realtime(ele) {
     }
   });
 }
-async function write2MysqlOfMatch(ele) {
+async function write2MysqlOfMatch(ele, status) {
   return new Promise(async function(resolve, reject) {
     try {
       const dataEvent = {
@@ -94,7 +122,7 @@ async function write2MysqlOfMatch(ele) {
         scheduled: Number.parseInt(ele.time),
         scheduled_tw: Number.parseInt(ele.time) * 1000,
         flag_prematch: 1,
-        status: 2
+        status: status
       };
       await Match.upsert(dataEvent);
       return resolve('ok');
