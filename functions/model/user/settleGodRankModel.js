@@ -1,14 +1,24 @@
-/* eslint-disable no-unused-vars */
-const {
-  getTitlesPeriod, moment
-} = require('../../util/modules');
-
+const { getTitlesPeriod, groupsByOrdersLimit } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 
-/* 鑽石、金、銀、銅 對應表 */
-const related = ['diamond', 'gold', 'silver', 'copper'];
+let allLogs = [];
+let logT = {};
+let logNum = -1;
+const isEmulator = process.env.FUNCTIONS_EMULATOR;
+const logger = require('firebase-functions/lib/logger');
+// const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
+const util = require('util');
+function d(...args) {
+  if (typeof (console) !== 'undefined') {
+    if (isEmulator) { console.log(util.format(...args)); return; }
+    if (util.format(...args) === '\n g') { logNum++; logT = {}; return;} // log group 收集起點(起算點)
+    if (util.format(...args) === '\n gs') { logNum = -1; allLogs = []; logT = {}; return;} // log group 切斷點(實際logger結束)
+    logT[Object.keys(logT).length] = util.format(...args).replace(/\'/g, '');
+    allLogs[logNum] = logT;
+  }
+}
 
-async function settleGodRank(args) {
+async function settleGodRank() {
   // 兩週審核一次 , 週一更新  周日早上 00:00 計算
   // 同時在同一聯盟得到鑽石大神及金銀銅大神，以鑽石大神為主
   // 鑽大神 5位
@@ -26,256 +36,205 @@ async function settleGodRank(args) {
   // 4. 再有相同者, 以該聯盟 下注總注數 為排名判斷
   // 5. 再有相同者, 該聯盟注數正負相加之總和排名
   // 6. 預防再有重複，新增最後一筆下注時間判斷?
-  const uid = args.token.uid;
-  const league_id = args.body.league_id;
+
   const now = new Date();
-  const currentSeason = moment().year();
-  const currentMonth = moment().month();
-  const period = getTitlesPeriod(now).period;
-  const period_date = getTitlesPeriod(now).date;
-
-  /* 重置大神為一般玩家 */
-  await resetGod2Player();
-
-  /* common calculate & diamond calculate */
-  const diamond = await db.sequelize.query(
-      `
-        SELECT  league_id, 
-                substring_index(group_concat(DISTINCT rank.uid ORDER BY rank.this_period_win_bets DESC, rank.this_period_win_handicap DESC  SEPARATOR ","), ',', 10) as uids,
-                this_period_win_bets,
-                this_period_win_rate
-        FROM
-        (
-            SELECT
-              uid,
-              league_id,
-              this_period_win_bets,
-              this_period_win_rate,
-              (
-                  SELECT SUM(correct_counts+fault_counts)
-                    FROM users__win__lists__histories uwlh
-                    WHERE uwl.league_id = uwlh.league_id
-                      AND season = $currentSeason
-                      AND MONTH  = $currentMonth
-                ) first_week_win_handicap,
-                (
-                  SELECT SUM(correct_counts+fault_counts)
-                    FROM users__win__lists__histories uwlh
-                    WHERE uwl.league_id = uwlh.league_id
-                      AND season = $currentSeason
-                      AND MONTH  = $currentMonth
-                ) this_period_win_handicap,
-                (
-                    SELECT SUM(correct_counts+fault_counts)
-                    FROM users__win__lists__histories uwlh
-                    WHERE uwl.league_id = uwlh.league_id
-                ) this_league_win_handicap 
-                FROM users__win__lists uwl
-                GROUP BY uid, league_id
-                ORDER BY uwl.league_id ASC
-        ) rank
-        WHERE rank.first_week_win_handicap >=10
-          AND rank.this_period_win_handicap >=30
-          AND rank.this_period_win_bets >=5
-        GROUP BY league_id
-      `,
-      {
-        bind: { period: period, uid: uid, league_id: league_id, currentSeason: currentSeason, currentMonth: currentMonth },
-        type: db.sequelize.QueryTypes.SELECT
-      }
-  );
-  const diamond_list = [];
-  diamond.forEach(function(items) { // 這裡有順序性
-    diamond_list.push(repackage(period, period_date, uid, currentSeason, currentMonth, items));
-    generateGSC(period, period_date, uid, currentSeason, currentMonth, items);/* 產生金銀銅大神 */
-  });
-}
-/* 整理鑽石大神資料 */
-function repackage(period, period_date, uid, currentSeason, currentMonth, ele) {
-  const data = {
-    type: 'diamond',
-    league_id: ele.league_id,
-    uids: ele.uids
+  const period = getTitlesPeriod(now).period - 1;
+  // const period_date = getTitlesPeriod(now).date;
+  const diamondList = [];
+  const goldList = [];
+  const sliverList = [];
+  const copperList = [];
+  const Limit = {
+    Diamond: {
+      num: 5, // 錄取幾位
+      WinBetsLimit: 5 // 錄取條件
+    },
+    Gold: {
+      num: 10,
+      WinRateLimit: 0.6
+    },
+    Sliver: {
+      num: 10,
+      WinRateLimit: 0.6
+    },
+    Copper: {
+      num: 10,
+      WinRateLimit: 0.6
+    }
   };
-  updateGod('1', 'rank1', ele);// 更新大神狀態
-  insertTitle('1', ele, period, period_date);// 寫入大神歷史戰績(鑽石)
-  updateWins(ele);// 本期勝率/勝注移到上期、本期勝率/勝注清空
+  const godLeagueLimit = [
+    { league_id: 11235, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 1298, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 1714, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 1926, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 2148, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 22000, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 2274, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 2319, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 244, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 2759, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 347, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 349, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 3939, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 4412, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 8, first_week_win_handicap: 10, this_period_win_handicap: 30 },
+    { league_id: 8251, first_week_win_handicap: 10, this_period_win_handicap: 30 }
+  ];
 
-  return data;
-}
-/* 整理金銀銅大神資料 */
-function repackageGSC(period, period_date, uid, currentSeason, currentMonth, ele) {
-  /* uids(comma) transfer into array */
-  const uids_array = ele.uids.split(',');
-  /* 金牌 銀牌 銅牌大神寫入 */
-  const related = ['gold', 'silver', 'copper'];
-  for (var i = 2; i <= 4; i++) {
-    const range = 5;/* 取多少個uid為一個大神範圍 */
-    const from = (i - 2) * range;/* 計算開始uid */
-    const to = (i - 1) * range;/* 計算結尾uid */
-    const rank = 'rank' + i;
-    const god = {
-      type: related[i],
-      league_id: ele.league_id,
-      uids: uids_array.slice(from, to)
-    };
+  // const limitMin = getMin(godLeagueLimit);
+  // d('limitMin: ===========', limitMin);
 
-    updateGod(i, rank, god);// 更新大神狀態
-    insertTitle(i, god, period, period_date);// 寫入大神歷史戰績(金、銀、銅)
-  }
-  // const data = {
-  //   'gold':god[1],
-  //   'silver':god[2],
-  //   'copper':god[3]
-  // };
-  // return god;
-}
-/* 產生金銀銅大神 */
-async function generateGSC(period, period_date, uid, currentSeason, currentMonth, ele) {
-// await ele_list.forEach(function(ele) {
-  /* gold silver copper calculate */
-  const gsc_list = [];
-  const gsc = await db.sequelize.query(
-    `
-    SELECT  
-        uid, 
-        league_id, 
-        this_period_win_bets, 
-        this_period_win_rate, 
-        first_week_win_handicap, 
-        this_period_win_handicap, 
-        this_league_win_handicap, 
-        league_id,  
-        substring_index(group_concat(uid SEPARATOR ","), ',', 10) as uids
-    FROM
-    (
-    SELECT
-      uid,
-      league_id,
-      this_period_win_bets,
-      this_period_win_rate,
-      (
-          SELECT SUM(correct_counts+fault_counts)
-            FROM users__win__lists__histories uwlh
-            WHERE uwl.league_id = uwlh.league_id
-            
-        ) first_week_win_handicap,
-        (
-          SELECT SUM(correct_counts+fault_counts)
-            FROM users__win__lists__histories uwlh
-            WHERE uwl.league_id = uwlh.league_id
-              
-        ) this_period_win_handicap,
-        (
-            SELECT SUM(correct_counts+fault_counts)
-            FROM users__win__lists__histories uwlh
-            WHERE uwl.league_id = uwlh.league_id
-        ) this_league_win_handicap 
-        FROM users__win__lists uwl
-        GROUP BY uid, league_id
-        ORDER BY uwl.league_id, uwl.this_period_win_bets, this_period_win_handicap DESC
-    ) rank
-    WHERE rank.first_week_win_handicap >=10
-    AND rank.this_period_win_handicap >=30
-    AND rank.this_period_win_bets >=0.6
-    AND rank.league_id = $league_id
-    GROUP BY league_id
-    `,
-    {
-      bind: { period: period, uid: uid, league_id: ele.league_id, currentSeason: currentSeason, currentMonth: currentMonth },
-      type: db.sequelize.QueryTypes.SELECT
-    });
-
-  gsc.forEach(function(items) {
-    gsc_list.push(repackageGSC(period, period_date, uid, currentSeason, currentMonth, items));
+  // 依照各聯盟大神 該期第一星期盤數 和 該期盤數 且 限制產生對應的 SQL條件
+  // ( league_id = '11235' and first_week_win_handicap >= 10 and this_period_win_handicap >= 30 ) OR
+  const limitArr = [];
+  godLeagueLimit.forEach(function(data) {
+    limitArr.push(` ( league_id = '${data.league_id}' and first_week_win_handicap >= ${data.first_week_win_handicap} and this_period_win_handicap >= ${data.this_period_win_handicap} ) `);
   });
-// });
+  const limitSQL = limitArr.join(' OR ');
+
+  let preGods = await db.sequelize.query(`
+    select *
+      from (
+              SELECT uid, league_id, this_period_win_bets, this_period_win_rate,
+                     (
+                        SELECT SUM(correct_counts + fault_counts)
+                          FROM users__win__lists__histories uwlh
+                         WHERE uwl.league_id = uwlh.league_id
+                           AND uwlh.uid = uwl.uid
+                           AND period  = :period
+                           AND week_of_period = 1
+                     ) first_week_win_handicap,
+                     (
+                        SELECT SUM(correct_counts + fault_counts)
+                          FROM users__win__lists__histories uwlh
+                         WHERE uwl.league_id = uwlh.league_id
+                           AND uwlh.uid = uwl.uid
+                           AND period  = :period
+                     ) this_period_win_handicap,
+                     (
+                        SELECT SUM(correct_counts + fault_counts)
+                          FROM users__win__lists__histories uwlh
+                         WHERE uwl.league_id = uwlh.league_id
+                           AND uwlh.uid = uwl.uid
+                     ) this_league_win_handicap 
+                FROM users__win__lists uwl
+               GROUP BY uid, league_id
+           ) pregod
+     where ( this_period_win_bets >= :diamondWinBetsLimit or this_period_win_rate >= :gscWinRateLimit )
+       and ( ${limitSQL} )
+     ORDER BY league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap ASC
+  `, {
+    replacements: {
+      period: period,
+      diamondWinBetsLimit: Limit.Diamond.WinBetsLimit,
+      gscWinRateLimit: Limit.Gold.WinRateLimit
+    },
+    type: db.sequelize.QueryTypes.SELECT,
+    logging: true
+  });
+
+  // 使用假大神合格資料進行開發測試，假大神資料可以先在 正式 DB 執行上面的 SQL，取得資料後修改 FakePreGods 內容
+  // 計算後判斷是否符合規則
+  const FakePreGods = [
+    { uid: '3XWpTIWxwCQOHO4eOj3C8lu3ja03', league_id: 22000, this_period_win_bets: 29.5, this_period_win_rate: 0.65, first_week_win_handicap: 15, this_period_win_handicap: 54, this_league_win_handicap: 54 },
+    { uid: 'BL0XzpN0tHNl6mr94Dmil6MEHpJ3', league_id: 22000, this_period_win_bets: 6, this_period_win_rate: 0.59, first_week_win_handicap: 46, this_period_win_handicap: 46, this_league_win_handicap: 58 },
+    { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 5, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '1pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 3, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '2pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 4, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '3pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '4pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '5pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '6pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 192, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '7pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '8pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 437, this_league_win_handicap: 681 },
+    { uid: '9pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.61, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '10pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '11pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '12pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.72, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: '13pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.73, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+    { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: 349, this_period_win_bets: 7.5, this_period_win_rate: 0.58, first_week_win_handicap: 20, this_period_win_handicap: 36, this_league_win_handicap: 36 }
+  ];
+
+  preGods = FakePreGods;
+  // ---------- 以上 假大神合格資料 ----------
+
+  //
+  // 依聯盟 鑽石 依序處理
+  //
+  d('[鑽石大神] 開始處理');
+  processGod(preGods, diamondList, godLeagueLimit, Limit, 'Diamond',
+    ['-this_period_win_bets', '-first_week_win_handicap', '-this_period_win_handicap', '-this_league_win_handicap']);
+  d('鑽石大神 diamondList: ', diamondList);
+  d('[鑽石大神] 結束');
+
+  //
+  // 依聯盟 金銀銅 依序處理
+  //
+  d('[金銀銅大神] 開始處理');
+  d('[金] 開始處理');
+  processGod(preGods, goldList, godLeagueLimit, Limit, 'Gold',
+    ['-this_period_win_rate', '-first_week_win_handicap', '-this_period_win_handicap', '-this_league_win_handicap']);
+  d('金大神 goldList: ', goldList);
+
+  d('[銀] 開始處理');
+  processGod(preGods, sliverList, godLeagueLimit, Limit, 'Sliver',
+    ['-this_period_win_rate', '-first_week_win_handicap', '-this_period_win_handicap', '-this_league_win_handicap']);
+  d('銀大神 sliverList: ', sliverList);
+
+  d('[銅] 開始處理');
+  processGod(preGods, copperList, godLeagueLimit, Limit, 'Copper',
+    ['-this_period_win_rate', '-first_week_win_handicap', '-this_period_win_handicap', '-this_league_win_handicap']);
+  d('銅大神 copperList: ', copperList);
+
+  d('[金銀銅大神] 結束');
+  d('最終未錄選大神人員: ', preGods);
+
+  if (!isEmulator) logger.log('[user settleGodRankModel]', allLogs);
 }
 
-/* 寫入大神歷史戰績 */
-function insertTitle(rank_id, ele, period, period_date) {
-  const next_period = period;
-  const uids = ele.uids.toString();
-  const uids_array = uids.split(',');
-  const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
-  uids_array.forEach(function(uid) {
-    if (uid !== '') {
-      db.sequelize.query(
-        `
-          INSERT INTO titles ( uid, period, period_date, league_id, rank_id, createdAt, updatedAt)
-          VALUES
-          (:uid, :period, :period_date, :league_id, :rank_id, :updatedAt, :updatedAt);
-        `,
-        {
-          replacements: { uid: uid, period: next_period, period_date: period_date, league_id: ele.league_id, rank_id: rank_id, updatedAt: updatedAt },
-          type: db.sequelize.QueryTypes.INSERT
-        }
-      );
+// preGods: 需要處理的資料  num: 該rank取幾位  list: 儲存rank array
+// godLeagueLimit: 大神-聯盟 錄取條件 該期第一星期盤數 和 該期總盤數
+// rank: 鑽金銀銅大神  order: 排序條件
+function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
+  const reformatPreGods = groupsByOrdersLimit(preGods, ['league_id'], order, 100);
+  d(JSON.stringify(order));
+  d('reformatPreGods Ori: ', reformatPreGods);
+
+  reformatPreGods.forEach(function(godList) { // 這裡有順序性
+    const limitObj = godLeagueLimit.find(o => o.league_id === godList.league_id); // 取得該聯盟的 limit
+    d('God league limit: ', limitObj);
+    d('God league godList.lists length: ', godList.lists.length);
+
+    for (const [index, god] of Object.entries(godList.lists)) {
+      // d('limit[rank]: ', (list.length < limit[rank].num), index, rank, limit[rank], god.this_period_win_bets, limit[rank].WinBetsLimit);
+      if (list.length > limit[rank].num - 1) break; // 取得預定人數 就停止錄取
+      if (rank === 'Diamond' && god.this_period_win_bets < limit[rank].WinBetsLimit) continue;
+      if (rank === 'Gold' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
+      if (rank === 'Sliver' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
+      if (rank === 'Copper' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
+
+      d('錄取 i : ', index, godList.league_id, god.uid);
+      god.rank = rank;
+      list.push(god);
+
+      // 移除 preGods 符合 鑽石人員，避免 金銀銅 再次計算
+      const removeIndex = preGods.findIndex(o => o.league_id === godList.league_id && o.uid === god.uid);
+      preGods.splice(removeIndex, 1); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
     }
   });
 }
-/* 把全部這期資料移到上一期 */
-function updateWins(ele) {
-  const last_period_win_bets = ele.this_period_win_bets;
-  const last_period_win_rate = ele.this_period_win_rate;
-  const league_id = ele.league_id;
-  const uids_array = ele.uids.toString().split(',');
-  uids_array.forEach(function(uid) {
-    db.sequelize.query(
-      `
-      UPDATE users__win__lists 
-         SET 
-             last_period_win_bets = $last_period_win_bets,
-             last_period_win_rate = $last_period_win_rate,
-             this_period_win_bets = NULL,
-             this_period_win_rate = NULL
-       WHERE uid = $uid
-         AND league_id = $league_id
-      `,
-      {
-        logging: true,
-        bind: { last_period_win_bets: last_period_win_bets, last_period_win_rate: last_period_win_rate, league_id: league_id, uid: uid },
-        type: db.sequelize.QueryTypes.UPDATE
-      }
-    );
-  });
-}
-/* 大神更新 */
-async function updateGod(i, god_type, ele) {
-  /* uids(comma) to string then array */
-  const uids_array = ele.uids.toString().split(',');
-  uids_array.forEach(function(uid) {
-    /* 預防uid是空值 */
-    if (uid !== '') {
-      db.sequelize.query(
-        `
-          UPDATE users 
-            SET status=2,
-                default_god_league_rank=:league_id,
-                ${god_type}_count=rank${i}_count+1
-          WHERE 
-                uid = '${uid}'
-        `,
-        {
-          logging: true,
-          replacements: { league_id: ele.league_id },
-          type: db.sequelize.QueryTypes.UPDATE
-        });
-    }
-  });
-  return 1;
-}
 
-/* 重置大神為一般使用者 */
-function resetGod2Player() {
-  /* 將所有使用者及大神重置為一般使用者暨預設聯盟的大神為NULL，排除管理者(status=9) */
-  db.sequelize.query(
-    `
-      UPDATE users SET status=1, default_god_league_rank=NULL WHERE status != 9
-    `,
-    {
-      type: db.sequelize.QueryTypes.UPDATE
-    });
-}
+// https://1loc.dev/
+// const pluck = (objs, property) => objs.map(obj => obj[property]);
+
+// function getMin(obj) {
+//   const arr = Object.values(obj);
+//   const min_first_week_win_handicap = Math.min(...pluck(arr, 'first_week_win_handicap'));
+//   const min_this_period_win_handicap = Math.min(...pluck(arr, 'this_period_win_handicap'));
+//   return {
+//     first_week_win_handicap: min_first_week_win_handicap,
+//     this_period_win_handicap: min_this_period_win_handicap
+//   };
+// }
 
 module.exports = settleGodRank;
