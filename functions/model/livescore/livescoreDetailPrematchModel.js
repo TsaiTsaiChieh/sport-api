@@ -20,7 +20,7 @@ function queryMatch(args) {
         // take 169 ms
         `(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
-                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,home.team_id AS home_team_id, away.team_id AS away_team_id,
                     spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS spread_handicap, spread.rate AS spread_rate, total.over_tw AS total_over_tw, total.handicap AS total_handicap, total.rate AS total_rate,
                     league.name_ch AS league_name_ch
                FROM matches AS game,
@@ -39,7 +39,7 @@ function queryMatch(args) {
            )
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
-                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+                    home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,home.team_id AS home_team_id, away.team_id AS away_team_id,
                     NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_handicap, NULL AS total_over_tw, NULL AS total_handicap, NULL AS spread_rate, NULL AS total_rate,
                     league.name_ch AS league_name_ch
                FROM matches AS game,
@@ -56,7 +56,7 @@ function queryMatch(args) {
 					 )
 					 UNION(
 						SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
-									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,home.team_id AS home_team_id, away.team_id AS away_team_id,
 									 spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, spread.handicap AS spread_handicap, spread.rate AS spread_rate, NULL AS total_over_tw, NULL AS total_handicap, NULL AS total_rate,
 									 league.name_ch AS league_name_ch
 							FROM matches AS game,
@@ -73,7 +73,7 @@ function queryMatch(args) {
 					)
 					UNION(
 						SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
-									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,
+									 home.name AS home_name, away.name AS away_name, home.alias AS home_alias,home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, home.image_id AS home_image_id, away.image_id AS away_image_id,home.team_id AS home_team_id, away.team_id AS away_team_id,
 									 NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS spread_handicap, NULL AS spread_rate, total.over_tw AS total_over_tw, total.handicap AS total_handicap, total.rate AS total_rate,
 									 league.name_ch AS league_name_ch
 							FROM matches AS game,
@@ -147,7 +147,8 @@ async function repackage(args, match) {
               ele.home_alias_ch.indexOf('(') > 0
                 ? ele.home_alias_ch.split('(')[0].trim()
                 : ele.home_alias_ch,
-            image_id: ele.home_image_id
+            image_id: ele.home_image_id,
+            team_id: ele.home_team_id
           },
           away: {
             team_name:
@@ -164,7 +165,8 @@ async function repackage(args, match) {
               ele.away_alias_ch.indexOf('(') > 0
                 ? ele.away_alias_ch.split('(')[0].trim()
                 : ele.away_alias_ch,
-            image_id: ele.away_image_id
+            image_id: ele.away_image_id,
+            team_id: ele.away_team_id
           }
         };
 
@@ -202,7 +204,8 @@ async function repackage(args, match) {
             name: ele.home_name,
             alias: ele.home_alias,
             alias_ch: ele.home_alias_ch,
-            image_id: ele.home_image_id
+            image_id: ele.home_image_id,
+            team_id: ele.home_team_id
           },
           away: {
             team_name: ele.away_alias_ch,
@@ -210,7 +213,8 @@ async function repackage(args, match) {
             name: ele.away_name,
             alias: ele.away_alias,
             alias_ch: ele.away_alias_ch,
-            image_id: ele.away_image_id
+            image_id: ele.away_image_id,
+            team_id: ele.away_team_id
           }
         };
         return temp;
