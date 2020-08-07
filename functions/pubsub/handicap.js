@@ -6,6 +6,10 @@ const envValues = require('../config/env_values');
 const db = require('../util/dbUtil');
 const AppErrors = require('../util/AppErrors');
 const oddsURL = 'https://api.betsapi.com/v2/event/odds';
+
+// 注意 統一 leagueID 與 各自的 league_id 可能會有差異
+// ex: MLB 統一 ID 為 3939，MLB 例行賽的 ID 為225
+
 const sports = [
   // 籃球
   18,
@@ -92,7 +96,6 @@ async function upsertHandicap(querysForEvent, sport, league) {
     try {
       for (let i = 0; i < querysForEvent.length; i++) {
         const ele = querysForEvent[i];
-
         const URL = `${oddsURL}?token=${envValues.betsToken}&event_id=${ele.bets_id}&odds_market=2,3`;
         const data = await axiosForURL(URL);
         let spread_odds = [];
@@ -112,14 +115,14 @@ async function upsertHandicap(querysForEvent, sport, league) {
 
             let newest_spread;
             if (spread_odds.length > 0) {
-              const spcount = spread_odds.length - 1;
+              const spcount = 0;
               if (
                 spread_odds[spcount].home_od !== null &&
-                  spread_odds[spcount].handicap !== null &&
-                  spread_odds[spcount].away_od !== null &&
-                  spread_odds[spcount].home_od !== '-' &&
-                  spread_odds[spcount].away_od !== '-' &&
-                  spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
+                spread_odds[spcount].handicap !== null &&
+                spread_odds[spcount].away_od !== null &&
+                spread_odds[spcount].home_od !== '-' &&
+                spread_odds[spcount].away_od !== '-' &&
+                spread_odds[spcount].add_time * 1000 <= ele.scheduled * 1000
               ) {
                 newest_spread = spread_odds[spcount];
                 newest_spread = spreadCalculator(newest_spread, sport);
@@ -129,14 +132,14 @@ async function upsertHandicap(querysForEvent, sport, league) {
             }
             let newest_totals;
             if (totals_odds.length > 0) {
-              const tocount = totals_odds.length - 1;
+              const tocount = 0;
               if (
                 totals_odds[tocount].over_od !== null &&
-                  totals_odds[tocount].handicap !== null &&
-                  totals_odds[tocount].under_od !== null &&
-                  totals_odds[tocount].over_od !== '-' &&
-                  totals_odds[tocount].under_od !== '-' &&
-                  totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
+                totals_odds[tocount].handicap !== null &&
+                totals_odds[tocount].under_od !== null &&
+                totals_odds[tocount].over_od !== '-' &&
+                totals_odds[tocount].under_od !== '-' &&
+                totals_odds[tocount].add_time * 1000 <= ele.scheduled * 1000
               ) {
                 newest_totals = totals_odds[tocount];
                 newest_totals = totalsCalculator(newest_totals, sport);
@@ -191,10 +194,14 @@ async function write2MysqlOfMatchSpread(odd, ele, leagueUniteID) {
       leagueUniteID === '11235' || // 中華職棒
       leagueUniteID === '347' || // 日本棒球
       leagueUniteID === '349' || // 韓國棒球
+			leagueUniteID === '225' ||// 美國棒球
 			leagueUniteID === '3939' ||// 美國棒球
 			leagueUniteID === '2274'// 美國籃球
     ) {
       try {
+        if (leagueUniteID === '225') {
+          leagueUniteID = '3939';
+        }
         MatchSpread.upsert({
           spread_id: odd.id,
           match_id: ele.bets_id,

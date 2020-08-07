@@ -21,7 +21,8 @@ function queryForSeasonDate(args) {
 						FROM matches AS game,
 						     match__seasons AS season
 					 WHERE game.bets_id = :id
-					   AND season.league_id = game.ori_league_id
+						 AND season.league_id = game.league_id
+						 AND season.current = '1'
          )`,
         {
           replacements: {

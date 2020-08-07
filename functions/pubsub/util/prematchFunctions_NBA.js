@@ -18,9 +18,9 @@ module.exports.NBA.upcoming = async function(date) {
       if (data.results) {
         for (let j = 0; j < data.results.length; j++) {
           const ele = data.results[j];
-          write2realtime(ele);
+          await write2realtime(ele, 'scheduled');
           const change = await checkTheHandicap(ele);
-          write2MysqlOfMatch(ele, change);
+          await write2MysqlOfMatch(ele, change, 2);
         }
       } else {
         console.log(leagueID + 'has no upcoming event now');
@@ -34,6 +34,33 @@ module.exports.NBA.upcoming = async function(date) {
     }
   });
 };
+
+module.exports.NBA.ended = async function(date) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const leagueID = 2274;
+      const URL = `https://api.betsapi.com/v2/events/ended?sport_id=${sportID}&token=${envValues.betsToken}&league_id=${leagueID}&day=${date}`;
+      const data = await axiosForURL(URL);
+      if (data.results) {
+        for (let j = 0; j < data.results.length; j++) {
+          const ele = data.results[j];
+          await write2realtime(ele, 'postponed');
+          const change = await checkTheHandicap(ele);
+          await write2MysqlOfMatch(ele, change, -2);
+        }
+      } else {
+        console.log(leagueID + 'has no upcoming event now');
+      }
+      console.log(`${league} scheduled success`);
+      return resolve('ok');
+    } catch (err) {
+      return reject(
+        new AppErrors.PBPKBOError(`${err} at prematchFunctions by DY`)
+      );
+    }
+  });
+};
+
 async function axiosForURL(URL) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -61,13 +88,13 @@ async function checkTheHandicap(ele) {
   return changeFlag;
 }
 
-async function write2realtime(ele) {
+async function write2realtime(ele, status) {
   return new Promise(async function(resolve, reject) {
     try {
       const database = firebaseAdmin().database();
       database
         .ref(`${sport}/${league}/${ele.id}/Summary/status`)
-        .set('scheduled');
+        .set(status);
       return resolve('ok');
     } catch (err) {
       return reject(
@@ -79,7 +106,7 @@ async function write2realtime(ele) {
   });
 }
 
-async function write2MysqlOfMatch(ele, change) {
+async function write2MysqlOfMatch(ele, change, status) {
   return new Promise(async function(resolve, reject) {
     try {
       if (change === 0) {
@@ -94,9 +121,9 @@ async function write2MysqlOfMatch(ele, change) {
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
-          status: 2
+          status: status
         };
-        Match.upsert(dataEvent);
+        await Match.upsert(dataEvent);
       } else {
         const dataEvent = {
           bets_id: ele.id,
@@ -109,9 +136,9 @@ async function write2MysqlOfMatch(ele, change) {
           scheduled: Number.parseInt(ele.time),
           scheduled_tw: Number.parseInt(ele.time) * 1000,
           flag_prematch: 1,
-          status: 2
+          status: status
         };
-        Match.upsert(dataEvent);
+        await Match.upsert(dataEvent);
       }
       return resolve('ok');
     } catch (err) {

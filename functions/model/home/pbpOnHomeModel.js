@@ -106,7 +106,6 @@ module.exports.pbpOnHome = async function(
 
 async function write2HomeLivescore(firestoreData) {
   return new Promise(async function(resolve, reject) {
-    console.log(firestoreData.bets_id);
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({
@@ -141,7 +140,8 @@ async function write2HomeLivescore(firestoreData) {
               firestoreData.home_alias_ch.indexOf('(') > 0
                 ? firestoreData.home_alias_ch.split('(')[0].trim()
                 : firestoreData.home_alias_ch,
-            image_id: firestoreData.home_image_id
+            image_id: firestoreData.home_image_id,
+            team_id: firestoreData.home_team_id
           },
           away: {
             teamname:
@@ -158,7 +158,8 @@ async function write2HomeLivescore(firestoreData) {
               firestoreData.away_alias_ch.indexOf('(') > 0
                 ? firestoreData.away_alias_ch.split('(')[0].trim()
                 : firestoreData.away_alias_ch,
-            image_id: firestoreData.away_image_id
+            image_id: firestoreData.away_image_id,
+            team_id: firestoreData.away_team_id
           },
           Summary: {
             info: {
@@ -208,7 +209,8 @@ async function write2HomeLivescore(firestoreData) {
               firestoreData.home_alias_ch.indexOf('(') > 0
                 ? firestoreData.home_alias_ch.split('(')[0].trim()
                 : firestoreData.home_alias_ch,
-            image_id: firestoreData.home_image_id
+            image_id: firestoreData.home_image_id,
+            team_id: firestoreData.home_team_id
           },
           away: {
             teamname:
@@ -225,7 +227,8 @@ async function write2HomeLivescore(firestoreData) {
               firestoreData.away_alias_ch.indexOf('(') > 0
                 ? firestoreData.away_alias_ch.split('(')[0].trim()
                 : firestoreData.away_alias_ch,
-            image_id: firestoreData.away_image_id
+            image_id: firestoreData.away_image_id,
+            team_id: firestoreData.away_team_id
           }
         });
       }

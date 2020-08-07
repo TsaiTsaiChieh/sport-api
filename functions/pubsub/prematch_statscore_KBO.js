@@ -42,12 +42,14 @@ async function prematch_statscore_KBO() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        const homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name; // KT wiz
-        const awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name; // KIA Tigers
+            .participants[1].id;
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -91,6 +93,44 @@ async function axiosForURL(URL) {
   });
 }
 
+function teamTrans(team) {
+  switch (team) {
+    case 154864: {
+      return 'SK Wyverns';
+    }
+    case 154868: {
+      return 'KIA Tigers';
+    }
+    case 154865: {
+      return 'Samsung Lions';
+    }
+    case 155182: {
+      return 'KT Wiz';
+    }
+    case 155120: {
+      return 'NC Dinos';
+    }
+    case 154870: {
+      return 'Kiwoom Heroes';
+    }
+    case 154867: {
+      return 'Lotte Giants';
+    }
+    case 154869: {
+      return 'LG Twins';
+    }
+    case 154866: {
+      return 'Doosan Bears';
+    }
+    case 154871: {
+      return 'Hanwha Eagles';
+    }
+    default: {
+      return team;
+    }
+  }
+}
+
 async function queryForToken() {
   return new Promise(async function(resolve, reject) {
     try {
@@ -112,7 +152,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(

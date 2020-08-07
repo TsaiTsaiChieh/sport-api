@@ -42,14 +42,14 @@ async function prematch_statscore_NPB() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        let homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name;
-        let awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name;
-        homeTeamName = teamTrans(homeTeamName);
-        awayTeamName = teamTrans(awayTeamName);
+            .participants[1].id;
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -94,40 +94,40 @@ async function axiosForURL(URL) {
 }
 function teamTrans(team) {
   switch (team) {
-    case 'Yomiuri Giants': {
+    case 154854: {
       return 'Yomiuri Giants';
     }
-    case 'Tokyo Yakult Swallows': {
+    case 154855: {
       return 'Yakult Swallows';
     }
-    case 'Yokohama DeNA BayStars': {
+    case 154857: {
       return 'Yokohama Bay Stars';
     }
-    case 'Chunichi Dragons': {
+    case 154852: {
       return 'Chunichi Dragons';
     }
-    case 'Hanshin Tigers': {
+    case 154853: {
       return 'Hanshin Tigers';
     }
-    case 'Hiroshima Toyo Carp': {
+    case 154856: {
       return 'Hiroshima Carp';
     }
-    case 'Hokkaido Nippon-Ham Fighters': {
+    case 154861: {
       return 'Nippon Ham Fighters';
     }
-    case 'Tohoku Rakuten Golden Eagles': {
+    case 154863: {
       return 'Rakuten Eagles';
     }
-    case 'Saitama Seibu Lions': {
+    case 154859: {
       return 'Seibu Lions';
     }
-    case 'Chiba Lotte Marines': {
+    case 154860: {
       return 'Lotte Marines';
     }
-    case 'Orix Buffaloes': {
+    case 154862: {
       return 'Orix Buffaloes';
     }
-    case 'Fukuoka SoftBank Hawks': {
+    case 154858: {
       return 'Softbank Hawks';
     }
     default: {
@@ -156,7 +156,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(

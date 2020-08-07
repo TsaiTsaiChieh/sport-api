@@ -42,14 +42,14 @@ async function prematch_statscore_CPBL() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        let homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name; // KT wiz
-        let awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name; // KIA Tigers
-        homeTeamName = teamTrans(homeTeamName);
-        awayTeamName = teamTrans(awayTeamName);
+            .participants[1].id;
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -95,16 +95,16 @@ async function axiosForURL(URL) {
 
 function teamTrans(team) {
   switch (team) {
-    case 'Chinatrust Brothers': {
+    case 154885: {
       return 'CTBC Brothers';
     }
-    case 'Rakuten Monkeys': {
+    case 154886: {
       return 'Rakuten Monkeys';
     }
-    case 'Fubon Guardians': {
+    case 154887: {
       return 'Fubon Guardians';
     }
-    case 'Uni-President Lions': {
+    case 154888: {
       return 'Uni-President Lions';
     }
     default: {
@@ -134,7 +134,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(

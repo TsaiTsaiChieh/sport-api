@@ -42,15 +42,14 @@ async function prematch_statscore_NBA() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        let homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name;
-        let awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name;
-
-        homeTeamName = teamTrans(homeTeamName);
-        awayTeamName = teamTrans(awayTeamName);
+            .participants[1].id;
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -94,94 +93,94 @@ async function axiosForURL(URL) {
 
 function teamTrans(team) {
   switch (team) {
-    case 'Houston Rockets': {
+    case 1256: {
       return 'Houston Rockets';
     }
-    case 'Oklahoma City Thunder': {
+    case 1283: {
       return 'Oklahoma City Thunder';
     }
-    case 'Milwaukee Bucks': {
+    case 1064: {
       return 'Milwaukee Bucks';
     }
-    case 'Chicago Bulls': {
+    case 1393: {
       return 'Chicago Bulls';
     }
-    case 'Los Angeles Clippers': {
+    case 1195: {
       return 'Los Angeles Clippers';
     }
-    case 'Golden State Warriors': {
+    case 1376: {
       return 'Golden State Warriors';
     }
-    case 'Toronto Raptors': {
+    case 1106: {
       return 'Toronto Raptors';
     }
-    case 'Washington Wizards': {
+    case 1495: {
       return 'Washington Wizards';
     }
-    case 'Philadelphia 76ers': {
+    case 1040: {
       return 'Philadelphia 76ers';
     }
-    case 'Denver Nuggets': {
+    case 1233: {
       return 'Denver Nuggets';
     }
-    case 'Los Angeles Lakers': {
+    case 1293: {
       return 'Los Angeles Lakers';
     }
-    case 'Brooklyn Nets': {
+    case 1675: {
       return 'Brooklyn Nets';
     }
-    case 'New York Knicks': {
+    case 1177: {
       return 'New York Knicks';
     }
-    case 'Indiana Pacers': {
+    case 1431: {
       return 'Indiana Pacers';
     }
-    case 'New Orleans Pelicans': {
+    case 1412: {
       return 'New Orleans Pelicans';
     }
-    case 'Cleveland Cavaliers': {
+    case 1198: {
       return 'Cleveland Cavaliers';
     }
-    case 'Atlanta Hawks': {
+    case 1176: {
       return 'Atlanta Hawks';
     }
-    case 'Utah Jazz': {
+    case 1383: {
       return 'Utah Jazz';
     }
-    case 'Sacramento Kings': {
+    case 1560: {
       return 'Sacramento Kings';
     }
-    case 'Portland Trail Blazers': {
+    case 1093: {
       return 'Portland Trail Blazers';
     }
-    case 'San Antonio Spurs': {
+    case 1460: {
       return 'San Antonio Spurs';
     }
-    case 'Orlando Magic': {
+    case 1534: {
       return 'Orlando Magic';
     }
-    case 'Phoenix Suns': {
+    case 1253: {
       return 'Phoenix Suns';
     }
-    case 'Boston Celtics': {
+    case 1549: {
       return 'Boston Celtics';
     }
-    case 'Detroit Pistons': {
+    case 1541: {
       return 'Detroit Pistons';
     }
-    case 'Miami Heat': {
+    case 1201: {
       return 'Miami Heat';
     }
-    case 'Memphis Grizzlies': {
+    case 1036: {
       return 'Memphis Grizzlies';
     }
-    case 'Minnesota Timberwolves': {
+    case 1354: {
       return 'Minnesota Timberwolves';
     }
-    case 'Charlotte Hornets': {
+    case 1120: {
       return 'Charlotte Hornets';
     }
-    case 'Dallas Mavericks': {
+    case 1131: {
       return 'Dallas Mavericks';
     }
     default: {
@@ -211,7 +210,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
