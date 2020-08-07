@@ -802,12 +802,12 @@ async function writeRealtime(betsID, data, baseballParameter, firestoreData) {
         }
       }
     }
-    await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow);
+    await writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow, hitterNameNow);
     resolve('ok');
   });
 }
 
-async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
+async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow, hitterNameNow) {
   return new Promise(async function(resolve, reject) {
     try {
       database
@@ -819,6 +819,9 @@ async function writeBacktoReal(betsID, eventNow, eventOrderNow, halfNow) {
       database
         .ref(`${sport}/${league}/${betsID}/Summary/Now_halfs`)
         .set(halfNow);
+      database
+        .ref(`${sport}/${league}/${betsID}/Summary/Now_hitter_name`)
+        .set(hitterNameNow);
     } catch (err) {
       return reject(
         new AppErrors.FirebaseRealtimeError(
