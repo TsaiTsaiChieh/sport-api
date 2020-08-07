@@ -562,24 +562,13 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[14].value
+              .stats[12].value
             : null,
-        turnovers:
-          data.api.data.competition.season.stage.group.event.participants[0]
-            .stats.length > 0
-            ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[15].value
-            : null,
-        blocks: data.api.data.competition.season.stage.group.event.participants[0]
-          .stats.length > 0
-          ? data.api.data.competition.season.stage.group.event.participants[0]
-            .stats[16].value
-          : null,
         fouls:
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[17].value
+              .stats[13].value
             : null
       });
       database.ref(`${sport}/${league}/${betsID}/Summary/info/away/Total`).set({
@@ -638,24 +627,13 @@ async function writeRealtime(betsID, data, eventNow, eventOrderNow, periodNow, f
           data.api.data.competition.season.stage.group.event.participants[1]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[14].value
+              .stats[12].value
             : null,
-        turnovers:
-          data.api.data.competition.season.stage.group.event.participants[1]
-            .stats.length > 0
-            ? data.api.data.competition.season.stage.group.event.participants[1]
-              .stats[15].value
-            : null,
-        blocks: data.api.data.competition.season.stage.group.event.participants[1]
-          .stats.length > 0
-          ? data.api.data.competition.season.stage.group.event.participants[1]
-            .stats[16].value
-          : null,
         fouls:
           data.api.data.competition.season.stage.group.event.participants[0]
             .stats.length > 0
             ? data.api.data.competition.season.stage.group.event.participants[0]
-              .stats[17].value
+              .stats[13].value
             : null
       });
     } catch (err) {
