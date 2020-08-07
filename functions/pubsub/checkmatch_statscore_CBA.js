@@ -27,7 +27,7 @@ async function checkmatch_statscore_CBA() {
       const date1 = modules.convertTimezoneFormat(unix, {
         format: 'YYYY-MM-DD 00:00:00',
         op: 'add',
-        value: 0,
+        value: -1,
         unit: 'days'
       });
       const totalData = await queryForEvents(date1, date2);
