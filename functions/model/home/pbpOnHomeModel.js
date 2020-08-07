@@ -106,7 +106,6 @@ module.exports.pbpOnHome = async function(
 
 async function write2HomeLivescore(firestoreData) {
   return new Promise(async function(resolve, reject) {
-    console.log(firestoreData.bets_id);
     try {
       if (firestoreData.status === 0) {
         database.ref(`home_livescore/${firestoreData.bets_id}`).set({

@@ -998,15 +998,15 @@ function translateNormal(half, data, name, hitterName, event) {
       break;
     }
     case 'Pitcher change': {
-      string_ch = '投手交換';
+      string_ch = '交換投手';
       break;
     }
     case 'Double play': {
-      string_ch = '雙殺';
+      string_ch = '遭雙殺';
       break;
     }
     case 'Triple play': {
-      string_ch = '三殺';
+      string_ch = '遭三殺';
       break;
     }
     case 'Wild pitch': {
@@ -1055,7 +1055,10 @@ function translateNormal(half, data, name, hitterName, event) {
           );
       out = temp + ' ' + string_ch;
     }
-  } else if (event === 'Walk') {
+  } else if (
+    event === 'Walk' ||
+		event === 'Strikeout'
+  ) {
     name = hitterName;
     if (half === '0') {
       const temp =
@@ -1079,7 +1082,6 @@ function translateNormal(half, data, name, hitterName, event) {
   } else if (
     event === 'Batter in the box' ||
     event === 'Swing and miss' ||
-    event === 'Strikeout' ||
     event === 'Out' ||
     event === 'Single' ||
     event === 'Double' ||
@@ -1115,21 +1117,84 @@ function translateNormal(half, data, name, hitterName, event) {
     }
   } else if (
     event === 'Stolen base' ||
-    event === 'Foul' ||
-    event === 'Not started' ||
-    event === 'Pitcher change' ||
     event === 'Double play' ||
-    event === 'Triple play' ||
+    event === 'Triple play'
+  ) {
+    if (half === '0') {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    } else {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    }
+  } else if (event === 'Pitcher change') {
+    if (half === '0') {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp === name ? mapTeam(
+        data.api.data.competition.season.stage.group.event.participants[0]
+          .name
+      ) + ' ' + string_ch + '，由' + temp + '擔任投手' : temp + ' ' + string_ch;
+    } else {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp === name ? mapTeam(
+        data.api.data.competition.season.stage.group.event.participants[1]
+          .name
+      ) + ' ' + string_ch + '，由 ' + temp + ' 擔任投手' : temp + ' ' + string_ch;
+    }
+  } else if (
+    event === 'Foul' ||
     event === 'Wild pitch' ||
     event === 'Coach visit the mound'
   ) {
-    out = string_ch;
+    if (half === '0') {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    } else {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    }
   } else {
     const temp =
       name !== ''
         ? name
         : mapTeam(
-          data.api.data.competition.season.stage.group.event.participants[0]
+          data.api.data.competition.season.stage.group.event.participants[half]
             .name
         );
     out = temp + ' ' + string_ch;
