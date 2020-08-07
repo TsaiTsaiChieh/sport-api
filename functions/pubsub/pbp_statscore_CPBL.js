@@ -1055,9 +1055,29 @@ function translateNormal(half, data, name, hitterName, event) {
           );
       out = temp + ' ' + string_ch;
     }
+  } else if (event === 'Walk') {
+    name = hitterName;
+    if (half === '0') {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[1]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    } else {
+      const temp =
+        name !== ''
+          ? name
+          : mapTeam(
+            data.api.data.competition.season.stage.group.event.participants[0]
+              .name
+          );
+      out = temp + ' ' + string_ch;
+    }
   } else if (
     event === 'Batter in the box' ||
-    event === 'Walk' ||
     event === 'Swing and miss' ||
     event === 'Strikeout' ||
     event === 'Out' ||
