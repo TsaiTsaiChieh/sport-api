@@ -42,15 +42,14 @@ async function prematch_statscore_MLB() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        let homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name;
-        let awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name;
-
-        homeTeamName = teamTrans(homeTeamName);
-        awayTeamName = teamTrans(awayTeamName);
+            .participants[1].id;
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -93,11 +92,95 @@ async function axiosForURL(URL) {
 
 function teamTrans(team) {
   switch (team) {
-    case 'Tampa Bay Rays': {
+    case 154695: {
+      return 'Boston Red Sox';
+    }
+    case 154702: {
+      return 'Kansas City Royals';
+    }
+    case 154721: {
+      return 'Los Angeles Dodgers';
+    }
+    case 154716: {
+      return 'Chicago Cubs';
+    }
+    case 154723: {
+      return 'Arizona Diamondbacks';
+    }
+    case 154713: {
+      return 'Cincinnati Reds';
+    }
+    case 154720: {
+      return 'San Francisco Giants';
+    }
+    case 154708: {
+      return 'Atlanta Braves';
+    }
+    case 154704: {
+      return 'Texas Rangers';
+    }
+    case 154703: {
+      return 'Cleveland Indians';
+    }
+    case 154714: {
+      return 'St. Louis Cardinals';
+    }
+    case 154706: {
+      return 'Oakland Athletics';
+    }
+    case 154717: {
+      return 'Houston Astros';
+    }
+    case 154696: {
       return 'Tampa Bay Devil Rays';
     }
-    case 'Los Angeles Angels of Anaheim': {
+    case 154701: {
+      return 'Chicago White Sox';
+    }
+    case 154707: {
+      return 'Seattle Mariners';
+    }
+    case 154715: {
+      return 'Milwaukee Brewers';
+    }
+    case 154718: {
+      return 'Pittsburgh Pirates';
+    }
+    case 154712: {
+      return 'Washington Nationals';
+    }
+    case 154722: {
+      return 'Colorado Rockies';
+    }
+    case 154694: {
+      return 'New York Yankees';
+    }
+    case 154698: {
+      return 'Baltimore Orioles';
+    }
+    case 154709: {
+      return 'New York Mets';
+    }
+    case 154710: {
+      return 'Philadelphia Phillies';
+    }
+    case 154711: {
+      return 'Miami Marlins';
+    }
+    case 154719: {
+      return 'San Diego Padres';
+    }
+    case 154700: {
+      return 'Detroit Tigers';
+    }
+    case 154705: {
       return 'Los Angeles Angels';
+    }
+    case 154697: {
+      return 'Toronto Blue Jays';
+    }
+    case 154699: {
+      return 'Minnesota Twins';
     }
     default: {
       return team;

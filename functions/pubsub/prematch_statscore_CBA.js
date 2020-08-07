@@ -31,6 +31,7 @@ async function prematch_statscore_CBA() {
       const eventLength =
         data.api.data.competitions[0].seasons[0].stages[0].groups[0].events
           .length;
+
       // eventLength
       for (let i = 0; i < eventLength; i++) {
         const eventID =
@@ -42,15 +43,16 @@ async function prematch_statscore_CBA() {
               i
             ].start_date
           ) + 28800; // 加八個小時
-        let homeTeamName =
+        const homeTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[0].name;
-        let awayTeamName =
+            .participants[0].id;
+        const awayTeamID =
           data.api.data.competitions[0].seasons[0].stages[0].groups[0].events[i]
-            .participants[1].name;
+            .participants[1].id;
 
-        homeTeamName = teamTrans(homeTeamName);
-        awayTeamName = teamTrans(awayTeamName);
+        const homeTeamName = teamTrans(homeTeamID);
+        const awayTeamName = teamTrans(awayTeamID);
+
         for (let j = 0; j < ele.length; j++) {
           const timeOne = new Date(startDate * 1000).toString().split(':')[0];
           const timeTwo = new Date(ele[j].scheduled * 1000)
@@ -94,64 +96,64 @@ async function axiosForURL(URL) {
 
 function teamTrans(team) {
   switch (team) {
-    case 'Bayi Rockets': {
+    case 1940: {
       return 'Bayi Nanchang Rockets';
     }
-    case 'Beijing Royal Fighters': {
+    case 2704: {
       return 'Beijing Royal Fighters';
     }
-    case 'Shougang Beijing Ducks': {
+    case 1941: {
       return 'Beijing Ducks';
     }
-    case 'Fujian SBS Xunxing Sturgeons': {
+    case 1944: {
       return 'Fujian Sturgeons';
     }
-    case 'Guangdong Hongyuan Southern Tigers': {
+    case 1945: {
       return 'Guangdong Southern Tigers';
     }
-    case 'Jilin Tonggang Northeast Tigers': {
+    case 1948: {
       return 'Jilin Northeast Tigers';
     }
-    case 'Liaoning Flying Leopards': {
+    case 1949: {
       return 'Liaoning Dinosaurs';
     }
-    case 'Nanjing Tongxi Monkey King': {
+    case 2703: {
       return 'NanJing TongXi DaSheng';
     }
-    case 'Qingdao DoubleStar Eagles': {
+    case 1950: {
       return 'Qingdao Double Star Eagle';
     }
-    case 'Shandong Heroes': {
+    case 1951: {
       return 'Shangdong Golden Stars';
     }
-    case 'Shanghai Bilibili Sharks': {
+    case 1952: {
       return 'Shanghai Sharks';
     }
-    case 'Shenzhen Aviators': {
+    case 1942: {
       return 'Shenzhen Aviators';
     }
-    case 'Guangzhou Long-Lions': {
+    case 1943: {
       return 'Guangzhou Long-Lions';
     }
-    case 'Sichuan Jinqiang Blue Whales': {
+    case 2485: {
       return 'Sichuan Whales';
     }
-    case 'Tianjin Ronggang Gold Lions': {
+    case 1939: {
       return 'Tianjin Pioneers';
     }
-    case 'Xinjiang Guanghui Flying Tigers': {
+    case 1937: {
       return 'Xinjiang Flying Tigers';
     }
-    case 'Zhejiang Chouzhou Bank Golden Bulls': {
+    case 1938: {
       return 'Zhejiang Golden Bulls';
     }
-    case 'Zhejiang Guangsha Lions': {
+    case 1946: {
       return 'Zhejiang Lions';
     }
-    case 'Jiangsu Dragons Kentier': {
+    case 1947: {
       return 'Jiangsu Dragons';
     }
-    case 'Shanxi Fenjiu Loongs': {
+    case 1953: {
       return 'Shanxi Guotou Loongs';
     }
     default: {
@@ -181,7 +183,7 @@ async function queryForToken() {
   });
 }
 
-async function queryForMatches(date1, date2) {
+async function queryForMatches() {
   return new Promise(async function(resolve, reject) {
     try {
       const queries = await db.sequelize.query(
