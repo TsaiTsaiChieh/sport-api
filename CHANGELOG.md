@@ -4,15 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.0.10] - 2020-08-06
+#### Add:
+-  handicap 排程補上 await。新增棒球排程打擊手資料於文字直播。 ***by page40316*** [#361](https://github.com/gets-info/sports-api/pull/361)
 #### Fix:
 -  勝注勝率計算最後更新大神成就勝率勝注 ***by alangets*** [#358](https://github.com/gets-info/sports-api/pull/358)
 -  修正即時比分頁 detail/prematch 邏輯（api 導致賽事為空）、修正 prematch_statscore 系列分頁問題、籃球文字直播新增球員姓名 ***by page40316*** [#356](https://github.com/gets-info/sports-api/pull/356)
 -  修正 prematch 加上 await，各聯盟依序執行。修正 index 中 pbp_statscore_NBA 的參數。 ***by page40316*** [#355](https://github.com/gets-info/sports-api/pull/355)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.0.9] - 2020-08-05
@@ -28,6 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  強制再修改一次 totalRate -> totalsRate 發佈到 develop ***by alangets*** [#354](https://github.com/gets-info/sports-api/pull/354)
 -  adjust the purchase list ***by gsihenry*** [#352](https://github.com/gets-info/sports-api/pull/353)
 -  更新 大神成就勝注勝率，要使用本期，不能下一期 ***by alangets*** [#347](https://github.com/gets-info/sports-api/pull/347)
+-  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
+-  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
+-  limit 條件放錯地方 ***by alangets*** [#338](https://github.com/gets-info/sports-api/pull/338)
+***
+
+## [v1.0.8] - 2020-08-04
+#### Fix:
 -  即時比分頁 API 修正 ( all & detail/prematch )，盤口排程 ( handicap / handicap_esport ) 修正 ***by page40316*** [#341](https://github.com/gets-info/sports-api/pull/341)
 -  榮譽戰績 正確盤數 -> 正確盤數 + 錯誤盤數 ***by alangets*** [#340](https://github.com/gets-info/sports-api/pull/340)
 -  limit 條件放錯地方 ***by alangets*** [#338](https://github.com/gets-info/sports-api/pull/338)
@@ -66,8 +78,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 本期資料抓錯欄位 ***by alangets*** [#312](https://github.com/gets-info/sports-api/pull/312)
 -  per_allow_R field in away team and rename allow_per_R to per_allow_R ***by TsaiTsaiChieh*** [#310](https://github.com/gets-info/sports-api/pull/310)
 -  RepackageError in season_2020.team_hit.BB field (team_id=2405) and add updating logger to debug ***by TsaiTsaiChieh*** [#309](https://github.com/gets-info/sports-api/pull/309)
--  add statement with transfer record ***by gsihenry*** [#349](https://github.com/gets-info/sports-api/pull/349)
--  1. news add predict date、2. repeat prediction news into the same data、3. add league column with news api ***by gsihenry*** [#348](https://github.com/gets-info/sports-api/pull/348)
 -  TransferRecord Change the rule & text ***by gsihenry*** [#308](https://github.com/gets-info/sports-api/pull/308)
 -  Favorite Player column adjust ***by gsihenry*** [#307](https://github.com/gets-info/sports-api/pull/307)
 -  all_titles should also return the league_name in user/getTitlesAndSignature API ***by TsaiTsaiChieh*** [#305](https://github.com/gets-info/sports-api/pull/305)
@@ -106,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  update_time field error due to firebase modules separation ***by TsaiTsaiChieh*** [#298](https://github.com/gets-info/sports-api/pull/298)
 -  when normal user delete own predictions error in user/predictions API ***by TsaiTsaiChieh*** [#296](https://github.com/gets-info/sports-api/pull/296)
 -  solve eslint warning in pubsub/crawlers/prematch_KBO.js ***by TsaiTsaiChieh*** [#295](https://github.com/gets-info/sports-api/pull/295)
+***
 
 ## [v1.0.3] - 2020-07-27
 #### Add:
@@ -115,7 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - pub/sub god_nextPeriod 調整大神產生前需要再次計算勝注勝率 ***by alangets*** [#290](https://github.com/gets-info/sports-api/pull/290)
 - 勝注勝率計算 sql過瀘 result_flag -2 情況有異常  ***by alangets*** [#290](https://github.com/gets-info/sports-api/pull/291)
 - refactor modules.js ***by rex-getsinfo*** [#284](https://github.com/gets-info/sports-api/pull/284)
-
+***
 <!--
 ## [Unreleased]
 #### Add:

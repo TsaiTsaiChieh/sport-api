@@ -134,8 +134,7 @@ function newsModel(method, args, uid) {
             `
               UPDATE user__news 
                  SET active=0
-               WHERE uid='${uid}'
-                 AND news_id in (${del_join})
+               WHERE news_id in (${del_join})
                  AND status=0
             `,
             {

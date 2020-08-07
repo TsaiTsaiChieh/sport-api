@@ -23,10 +23,12 @@ function dbNewsCreate(insertData, article) {
       insertData.scheduled = moment().unix();
       insertData.sort = 1;// 發文
       insertData.sort_id = article;
+      
       await db.News.create(insertData);
       const favoriteplayer = await db.User_FavoriteGod.findAll({
         where: {
-          uid: insertData.uid
+          uid: insertData.uid,
+          league: insertData.league
         },
         raw: true
       });
