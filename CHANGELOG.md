@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  盤口排程修正抓最新盤口。history/getSeason 多判斷 current 欄位。prematch 新增 ended 明日賽程撈取。prematch_statscore 系列改為比對 ID，相對比對姓名穩定。.優化棒球文字直播。即時比分頁與首頁新增team_id欄位。 ***by page40316*** [#364](https://github.com/gets-info/sports-api/pull/364)
 #### Removed:
 #### DB:
 ***
