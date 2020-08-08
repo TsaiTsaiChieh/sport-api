@@ -87,8 +87,8 @@ app.listen(port, () => {
   console.log(process.env);
   console.log(',,,,,,,,,');
   console.log(process.env.NODE_ENV);
-  console.log(process.env.PORT)
-  console.log(process.env.development)
-  console.log(process.env.production)
+  console.log(process.env.PORT);
+  console.log(process.env.development);
+  console.log(process.env.production);
   console.log(`Example app listening at http://localhost:${port}`);
-})
+});
