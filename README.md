@@ -1,5 +1,6 @@
 # 正式版 deploy 後網址 https://chat-api.doinfo.cc
-
+gcloud app deploy -q
+export SQL_USER,SQL_PASSWORD,SQL_DATABASE values
 - `firebase use project`
 - modify env_values.js : exports variables to "sport19y0715-dev" settings
 - modify firebase.json : hosting site to "sport19y0715"
