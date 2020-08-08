@@ -1,0 +1,22 @@
+runtime: nodejs
+env: flex
+
+# This sample incurs costs to run on the App Engine flexible environment.
+# The settings below are to reduce costs during testing and are not appropriate
+# for production use. For more information, see:
+# https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml
+manual_scaling:
+  instances: 1
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10
+vpc_access_connector:
+  name: 'projects/sportslottery-test/locations/us-central/connectors/dosportsapi-redis01'
+env_variables:
+  SQL_USER: 'root'
+  SQL_PASSWORD: 'dosportsSQL'
+  SQL_DATABASE: 'dosport'
+  INSTANCE_CONNECTION_NAME: 'sportslottery-test:us-central1:do-sports'
+beta_settings:
+  cloud_sql_instances: 'sportslottery-test:us-central1:do-sports'

@@ -17,7 +17,7 @@
 
 `firebase deploy --only hostring`
 
-請注意後端 cookie 要設定 index.js 裡的 CORS 白名單
+請注意後端 cookie 要設定 app.js 裡的 CORS 白名單
 
 ---
 

@@ -1,13 +1,69 @@
 {
   "name": "sports-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "description": "Cloud Functions for Firebase",
   "scripts": {
-    "lint": "eslint --ext .jsx,.js ./functions/ --fix ./functions --cache"
+    "serve": "firebase serve",
+    "start": "node app.js",
+    "deploy": "firebase deploy",
+    "api": "firebase deploy --only functions:api",
+    "admin": "firebase deploy --only functions:admin",
+    "product-api": "firebase deploy -P product --only functions:api",
+    "product-admin": "firebase deploy -P product --only functions:admin",
+    "logs": "firebase functions:log",
+    "grunt": "grunt",
+    "test": "jest src/test --testTimeout=30000",
+    "lint": "eslint --ext .jsx,.js . --fix . --cache"
   },
-  "pre-commit": [
-    "lint"
-  ],
+  "engines": {
+    "node": "10",
+    "npm": "6.9.0"
+  },
+  "dependencies": {
+    "@k3rn31p4nic/google-translate-api": "github:k3rn31p4nic/google-translate-api",
+    "ajv": "6.10.2",
+    "await-to-js": "2.1.1",
+    "axios": "0.18.1",
+    "body-parser": "1.19.0",
+    "cheerio": "1.0.0-rc.3",
+    "chinese-simple-tradition-translator": "0.1.0",
+    "compression": "1.7.4",
+    "cookie": "0.4.0",
+    "cookie-parser": "1.4.4",
+    "cookie-session": "1.4.0",
+    "cors": "2.8.5",
+    "crypto-js": "4.0.0",
+    "express": "4.17.1",
+    "firebase": "7.16.1",
+    "firebase-admin": "9.0.0",
+    "firebase-functions": "3.8.0",
+    "firestore-export-import": "0.3.3",
+    "fs": "0.0.1-security",
+    "helmet": "3.21.2",
+    "http-build-query": "0.7.0",
+    "http-status": "1.4.2",
+    "ioredis": "4.17.3",
+    "js-sha256": "0.9.0",
+    "jsonwebtoken": "8.5.1",
+    "line-login": "1.0.14",
+    "moment": "2.24.0",
+    "moment-range": "4.0.2",
+    "moment-timezone": "0.5.28",
+    "morgan": "1.10.0",
+    "mysql2": "2.1.0",
+    "number-precision": "1.4.0",
+    "request": "2.88.2",
+    "sanitize-html": "1.23.0",
+    "sequelize": "5.21.6"
+  },
   "devDependencies": {
+    "bufferutil": "4.0.1",
+    "canvas": "2.6.1",
+    "grunt": "1.0.4",
+    "grunt-apidoc": "0.11.0",
+    "jest": "25.2.0",
+    "supertest": "4.0.2",
+    "utf-8-validate": "5.0.2",
     "eslint": "6.8.0",
     "eslint-config-standard": "14.1.1",
     "eslint-plugin-import": "2.20.2",
@@ -15,5 +71,15 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-standard": "4.0.1",
     "pre-commit": "1.2.2"
-  }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "private": true
 }
