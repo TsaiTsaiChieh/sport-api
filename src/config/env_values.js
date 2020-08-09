@@ -1,5 +1,5 @@
 // 正式站 getsports-gsi
-// exports.apiURL = 'https://api-getsports.web.app/';
+// exports.apiURL = 'https://api-dot-getsports-gsi.uc.r.appspot.com/';
 // exports.productURL = 'https://getsport.cc/';
 // exports.cert = require('../auth/getsports-gsi-firebase-adminsdk.json');
 // exports.firebaseConfig = {
@@ -16,11 +16,13 @@
 //   REDISHOST: process.env.REDISHOST || '10.170.59.179',
 //   REDISPORT: process.env.REDISPORT || 6379
 // };
-// exports.mySqlInstance = 'getsports-gsi:us-central1:getsports-cloudsql';
 // exports.corsList = [
 //   'https://getsports.cc',
 //   'https://getsport.cc',
-//   'https://api-getsports.web.app/'
+//   'https://www.getsports.cc',
+//   'https://www.getsport.cc',
+//   'https://api-getsports.web.app/',
+//   'https://getsports-gsi.uc.r.appspot.com'
 // ];
 // exports.runtimeOpts = {
 //   timeoutSeconds: 300,
@@ -29,7 +31,6 @@
 // ***以上正式站***
 
 // 測試版 sportslottery-test-adminsdk
-// const isEmulator = process.env.FUNCTIONS_EMULATOR;
 exports.apiURL = 'https://api-dosports.web.app/';
 exports.productURL = 'https://dosports.web.app/';
 exports.cert = require('../auth/sportslottery-test-adminsdk.json');
@@ -55,7 +56,6 @@ if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production
     REDISPORT: 6379
   };
 }
-// exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
 exports.corsList = [
   'http://localhost:5000',
   'http://127.0.0.1:5000',
@@ -71,10 +71,6 @@ exports.corsList = [
   'https://www.getsports.cc',
   'https://sportslottery-test.appspot.com'
 ];
-exports.runtimeOpts = {
-  timeoutSeconds: 300,
-  memory: '2GB'
-};
 // 以上測式站
 
 exports.cookieOptions = {
