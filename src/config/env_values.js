@@ -55,7 +55,7 @@ if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production
     REDISPORT: 6379
   };
 }
-exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
+// exports.mySqlInstance = 'sportslottery-test:us-central1:do-sports';
 exports.corsList = [
   'http://localhost:5000',
   'http://127.0.0.1:5000',
@@ -65,7 +65,11 @@ exports.corsList = [
   'https://dosports.web.app',
   'https://api-dosports.web.app',
   'https://admin-dosports.web.app',
-  'https://frontend-dot-sportslottery-test.appspot.com'
+  'https://frontend-dot-sportslottery-test.appspot.com',
+  'https://front.gets-info.com',
+  'https://getsports.cc',
+  'https://www.getsports.cc',
+  'https://sportslottery-test.appspot.com'
 ];
 exports.runtimeOpts = {
   timeoutSeconds: 300,

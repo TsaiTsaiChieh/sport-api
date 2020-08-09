@@ -68,7 +68,7 @@ app.use('/cashflow_neweb', require('./src/routers/cashflow_neweb')); // 金流�
 app.use('/invoice_ezpay', require('./src/routers/invoice_ezpay')); // 電子發票介接(ezpay)
 app.use('/mission', require('./src/routers/mission'));
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json(process.env.GCLOUD_PROJECT);
+  res.status(200).json(process.env);
 });
 
 // API cloud function
