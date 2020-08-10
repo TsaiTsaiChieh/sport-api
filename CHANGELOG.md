@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.0] - 2020-08-10
+### Deploy to google app engine 
+#### Fix:
+-  refactor for google app engine ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/367)
+-  CBA 即時比分欄位與 NBA 不同，需特別處理，刪除 pbp_statscore_CBA 中多餘欄位。 ***by page40316*** [#365](https://github.com/gets-info/sports-api/pull/365)
+-  盤口排程修正抓最新盤口。history/getSeason 多判斷 current 欄位。prematch 新增 ended 明日賽程撈取。prematch_statscore 系列改為比對 ID，相對比對姓名穩定。.優化棒球文字直播。即時比分頁與首頁新增team_id欄位。 ***by page40316*** [#364](https://github.com/gets-info/sports-api/pull/364)
+***
 
 ## [v1.0.10] - 2020-08-06
 #### Add:
