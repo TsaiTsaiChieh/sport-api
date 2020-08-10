@@ -2,11 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const setting = {
   db_name: {
-    dev: process.env.SQL_DATABASE
+    dev: 'dosport'
     // dev: 'Page'
   },
-  db_user: process.env.SQL_USER,
-  db_password: process.env.SQL_PASSWORD,
+  db_user: 'root',
+  db_password: 'dosportsSQL',
   dialect: 'mysql',
   pool: {
     max: 3000,
