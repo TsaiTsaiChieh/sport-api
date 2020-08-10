@@ -69,7 +69,8 @@ exports.corsList = [
   'https://front.gets-info.com',
   'https://getsports.cc',
   'https://www.getsports.cc',
-  'https://sportslottery-test.appspot.com'
+  'https://sportslottery-test.appspot.com',
+  'http://getsport.gets-info.com/'
 ];
 // 以上測式站
 
