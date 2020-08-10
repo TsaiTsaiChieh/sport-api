@@ -1,4 +1,5 @@
-/functions/auth
-/functions/Deprecated
-/functions/test
-/functions/node_modules
+/src/auth
+/src/Deprecated
+/src/test
+/src/node_modules
+/node_modules

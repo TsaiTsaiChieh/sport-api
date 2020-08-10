@@ -1,5 +1,6 @@
 # 正式版 deploy 後網址 https://chat-api.doinfo.cc
-
+gcloud app deploy -q
+export SQL_USER,SQL_PASSWORD,SQL_DATABASE values
 - `firebase use project`
 - modify env_values.js : exports variables to "sport19y0715-dev" settings
 - modify firebase.json : hosting site to "sport19y0715"
@@ -17,7 +18,7 @@
 
 `firebase deploy --only hostring`
 
-請注意後端 cookie 要設定 index.js 裡的 CORS 白名單
+請注意後端 cookie 要設定 app.js 裡的 CORS 白名單
 
 ---
 
