@@ -52,6 +52,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+app.use('/test', require('./src/routers/test'));
 app.use('/auth', require('./src/routers/authentication'));
 app.use('/user', require('./src/routers/user'));
 app.use('/messages', require('./src/routers/messages'));
