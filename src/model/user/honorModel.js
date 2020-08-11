@@ -1,4 +1,5 @@
 const modules = require('../../util/modules');
+const { leagueCodebook } = require('../../util/leagueUtil.js');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
@@ -66,35 +67,36 @@ function honorModel(req) {
         };
         resolve(honorList);
       } else if (type === 'record') {
-        const rewards = await db.sequelize.query(
-        `
-          SELECT 
-              sum(case rank_id when '1' then 1 else 0 END) AS diamond, 
-              sum(case rank_id when '2' then 1 else 0 END) AS gold, 
-              sum(case rank_id when '3' then 1 else 0 END) AS silver, 
-              sum(case rank_id when '4' then 1 else 0 END) AS copper
-            FROM user__honor__boards
-           WHERE uid = $uid
-        `,
-        {
-          bind: { uid: uid },
+        const rewards = await db.sequelize.query(`
+          SELECT rank1_count AS diamond, 
+                 rank2_count AS gold, 
+                 rank3_count AS silver, 
+                 rank4_count AS copper
+            FROM users
+           WHERE uid = :uid
+        `, {
+          replacements: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
-        }
-        );
+        });
 
-        const event = await db.sequelize.query(
-        `
-          SELECT hb.honor_id, hb.rank_id, hb.updatedAt, ml.name as name, ml.name_ch as name_ch, hb.period as period, r.name as rank_name
-          FROM user__honor__boards hb, match__leagues ml, user__ranks r
-         WHERE hb.uid = $uid
-           AND hb.league_id = ml.league_id
-           AND hb.rank_id = r.rank_id
-       `,
-        {
-          bind: { uid: uid },
+        const event = await db.sequelize.query(`
+          SELECT distinct titles.id, titles.period, 
+                 titles.rank_id, ur.name as rank_name, titles.updatedAt,
+                 ml.name
+            FROM titles, user__ranks ur, match__leagues ml
+           WHERE titles.uid = :uid
+             AND titles.league_id = ml.league_id
+             AND titles.rank_id = ur.rank_id
+           order by period desc, rank_id
+        `, {
+          replacements: { uid: uid },
           type: db.sequelize.QueryTypes.SELECT
-        }
-        );
+        });
+
+        for (const [index, data] of Object.entries(event)) {
+          event[index].name_ch = leagueCodebook(data.name).name_ch;
+        };
+
         const honorList = {
           rewards: rewards,
           event: event
