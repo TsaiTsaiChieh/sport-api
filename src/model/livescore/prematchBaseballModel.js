@@ -3,6 +3,7 @@ const firebaseAdmin = require('../../util/firebaseUtil');
 const firestore = firebaseAdmin().firestore();
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
+const { logger } = require('firebase-functions');
 const limit = 10;
 
 function prematchBaseball(args) {
@@ -25,13 +26,13 @@ function getHomeAndAwayTeamFromMySQL(args) {
     try {
       const result = await db.sequelize.query(
         // index is const, except match__seasons, match__spreads, match__totals table is ref, taking 170ms
-        `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
+        `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled, game.home_player, game.away_player, 
                 home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, home.team_id AS home_team_id, 
                 away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, away.team_id AS away_team_id, 
                 spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, spread.rate AS spread_rate, 
                 totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw, totals.rate AS totals_rate
           FROM (
-                  SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, season.season
+                  SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, matches.home_player, matches.away_player, season.season
                     FROM matches
                LEFT JOIN match__seasons AS season ON season.league_id = matches.league_id
                    WHERE matches.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
@@ -53,7 +54,7 @@ function getHomeAndAwayTeamFromMySQL(args) {
 
       !result.length ? reject(new AppErrors.MatchNotFound()) : resolve(result[0]);
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -68,7 +69,7 @@ function getPrematchFromFirestore(args, matchData) {
       if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
       return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
     } catch (err) {
-      return reject(new AppErrors.FirestoreQueryError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.FirestoreQueryError(err.stack));
     }
   });
 }
@@ -109,9 +110,9 @@ function queryHomeEvents(args) {
         }
       );
 
-      return resolve(await queries);
+      return resolve(queries);
     } catch (err) {
-      return reject(`${err.stack} by DY`);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -152,9 +153,9 @@ function queryAwayEvents(args) {
         }
       );
 
-      return resolve(await queries);
+      return resolve(queries);
     } catch (err) {
-      return reject(`${err.stack} by DY`);
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -167,6 +168,7 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   // FIXME 目前針對 MLB 聯盟作 null 判斷
   const homeDataIsNull = homeData === null;
   const awayDataIsNull = awayData === null;
+  const { homePlayer, awayPlayer, homePlayerIsNull, awayPlayerIsNull } = checkPlayer(teamsFromMySQL);
 
   try {
     const data = {
@@ -200,8 +202,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         name_ch: teamsFromMySQL.home_name_ch,
         image_id: teamsFromMySQL.home_image_id,
         team_base: {
-          spread_rate: rate.home_spread_rate,
-          totals_rate: rate.home_totals_rate,
+          spread_rate: Number((rate.home_spread_rate).toFixed(2)),
+          totals_rate: Number((rate.home_totals_rate).toFixed(2)),
           L10: !homeDataIsNull ? homeData.team_base.L10 : null,
           STRK: !homeDataIsNull ? homeData.team_base.STRK : null,
           Win: !homeDataIsNull ? homeData.team_base.Win : null,
@@ -220,6 +222,14 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           // at_away: homeData.team_base.at_away,
           // per_R: homeData.team_base.per_R,
           // allow_per_R: homeData.team_base.per_allow_R
+        },
+        pitcher: {
+          id: homePlayerIsNull ? null : homePlayer.pitchers.id,
+          Win: homePlayerIsNull ? null : homePlayer.pitchers.Win,
+          Loss: homePlayerIsNull ? null : homePlayer.pitchers.Loss,
+          ERA: homePlayerIsNull ? null : homePlayer.pitchers.ERA,
+          SO: homePlayerIsNull ? null : homePlayer.pitchers.SO,
+          jersey_id: homePlayerIsNull ? null : homePlayer.pitchers.jersey_id
         },
         team_hit: {
           R: !homeDataIsNull ? homeData.team_hit.R : null,
@@ -246,8 +256,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         name_ch: teamsFromMySQL.away_name_ch,
         image_id: teamsFromMySQL.away_image_id,
         team_base: {
-          spread_rate: rate.away_spread_rate,
-          totals_rate: rate.away_totals_rate,
+          spread_rate: Number((rate.away_spread_rate).toFixed(2)),
+          totals_rate: Number((rate.away_totals_rate).toFixed(2)),
           L10: !awayDataIsNull ? awayData.team_base.L10 : null,
           STRK: !awayDataIsNull ? awayData.team_base.STRK : null,
           Win: !awayDataIsNull ? awayData.team_base.Win : null,
@@ -267,6 +277,14 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           // per_R: awayData.team_base.per_R,
           // allow_per_R: awayData.team_base.allow_per_R
         },
+        pitcher: {
+          id: awayPlayerIsNull ? null : awayPlayer.pitchers.id,
+          Win: awayPlayerIsNull ? null : awayPlayer.pitchers.Win,
+          Loss: awayPlayerIsNull ? null : awayPlayer.pitchers.Loss,
+          ERA: awayPlayerIsNull ? null : awayPlayer.pitchers.ERA,
+          SO: awayPlayerIsNull ? null : awayPlayer.pitchers.SO,
+          jersey_id: awayPlayerIsNull ? null : awayPlayer.pitchers.jersey_id
+        },
         team_hit: {
           R: !awayDataIsNull ? awayData.team_hit.R : null,
           H: !awayDataIsNull ? awayData.team_hit.H : null,
@@ -283,13 +301,32 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         }
       },
       L10_record: tenFights
-
     };
     return data;
   } catch (err) {
-    console.error(err);
-    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(err.stack);
   }
+}
+
+function checkPlayer(teamsFromMySQL) {
+  const homePlayer = JSON.parse(teamsFromMySQL.home_player);
+  const awayPlayer = JSON.parse(teamsFromMySQL.away_player);
+  let homePlayerIsNull = true;
+  let awayPlayerIsNull = true;
+
+  if (homePlayer) {
+    homePlayerIsNull = homePlayer.pitchers === null;
+    if (homePlayer.pitchers) {
+      if (homePlayer.pitchers.id === 0) homePlayerIsNull = true;
+    }
+  }
+  if (awayPlayer) {
+    awayPlayerIsNull = awayPlayer.pitchers === null;
+    if (awayPlayer.pitchers) {
+      if (awayPlayer.pitchers.id === 0) awayPlayerIsNull = true;
+    }
+  }
+  return { homePlayer, awayPlayer, homePlayerIsNull, awayPlayerIsNull };
 }
 
 function repackagePassRate(events) {
@@ -601,9 +638,9 @@ function queryTenFightEvent(args) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-      return resolve(await queries);
+      return resolve(queries);
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by DY`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -694,8 +731,8 @@ function repackageTenFights(args, events) {
 
     return data;
   } catch (err) {
-    console.error(`${err.stack} by DY`);
-    throw new AppErrors.RepackageError(`${err.stack} by DY`);
+    logger.error(err.stack);
+    throw new AppErrors.RepackageError(err.stack);
   }
 }
 
