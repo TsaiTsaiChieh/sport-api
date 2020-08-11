@@ -67,6 +67,7 @@ function honorModel(req) {
         };
         resolve(honorList);
       } else if (type === 'record') {
+        // users 本來就有計算 rank count 相關資料
         const rewards = await db.sequelize.query(`
           SELECT rank1_count AS diamond, 
                  rank2_count AS gold, 
@@ -79,6 +80,8 @@ function honorModel(req) {
           type: db.sequelize.QueryTypes.SELECT
         });
 
+        // titles 已經有記錄 使用者 各聯盟 鑽金銀銅大神，可以直接取得
+        // 取得真正聯盟 name_ch 不是直接從 matc__leagues
         const event = await db.sequelize.query(`
           SELECT distinct titles.id, titles.period, 
                  titles.rank_id, ur.name as rank_name, titles.updatedAt,
@@ -93,15 +96,15 @@ function honorModel(req) {
           type: db.sequelize.QueryTypes.SELECT
         });
 
+        // 取得真正聯盟 name_ch 從 leagueCodebook
         for (const [index, data] of Object.entries(event)) {
           event[index].name_ch = leagueCodebook(data.name).name_ch;
         };
 
-        const honorList = {
+        resolve({
           rewards: rewards,
           event: event
-        };
-        resolve(honorList);
+        });
       } else {
         console.log("you don't input have any type.");
       }
