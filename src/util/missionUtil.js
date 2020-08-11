@@ -47,6 +47,7 @@ async function addUserMissionStatus(uid, parms, trans = null) {
   let err, r, created;
 
   try {
+    // eslint-disable-next-line no-unused-vars
     [err, [r, created]] = await to(db.UserMission.findOrCreate({
       where: whereSql,
       defaults: defaultSql,
