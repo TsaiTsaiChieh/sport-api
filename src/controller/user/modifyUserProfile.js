@@ -68,13 +68,6 @@ async function modifyUserProfile(req, res) {
       data.point = 0;
       data.block_count = 0;
       data.accuse_credit = 20; // 檢舉信用值預設20，limit 100
-      firebaseAdmin().auth().updateUser(uid, {
-        email: data.email,
-        phoneNumber: `+${data.country_code}${data.phone}`,
-        emailVerified: true,
-        displayName: data.display_name,
-        photoURL: data.avatar
-      });
       firebaseAdmin().auth().setCustomUserClaims(uid, { role: 1, titles: [] });
       break;
     }
@@ -93,6 +86,7 @@ async function modifyUserProfile(req, res) {
     default:
       return res.status(401).json({ success: false, message: 'user status error' });
   }
+
   if (req.body.avatar) {
     data.avatar = req.body.avatar;
     firebaseAdmin().auth().updateUser(uid, {
@@ -109,7 +103,7 @@ async function modifyUserProfile(req, res) {
   const schema2 = {
     type: 'object',
     properties: {
-      avatar: { type: 'string', format: 'imgURL' },
+      avatar: { type: 'string', maxLength: 255, format: 'imgURL' },
       signature: { type: 'string', maxLength: 20, format: 'preventInjection' }
     }
   };
@@ -119,6 +113,14 @@ async function modifyUserProfile(req, res) {
   if (!valid2) {
     return res.status(httpStatus.BAD_REQUEST).json(ajv.errors);
   }
+
+  firebaseAdmin().auth().updateUser(uid, {
+    email: data.email,
+    phoneNumber: `+${data.country_code}${data.phone}`,
+    emailVerified: true,
+    displayName: data.display_name,
+    photoURL: data.avatar
+  });
 
   // 推薦碼（停用)
   // const refCode = req.body.refCode;
