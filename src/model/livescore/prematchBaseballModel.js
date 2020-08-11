@@ -498,10 +498,11 @@ function repackagePassRate(events) {
       }
     }
     return {
-      home_spread_rate: homeAtGivePass / 10,
-      home_totals_rate: homeAtOverPass / 10,
-      away_spread_rate: awayAtGivePass / 10,
-      away_totals_rate: awayAtOverPass / 10
+      // here
+      home_spread_rate: homeAtGivePass / homeEvents.length,
+      home_totals_rate: homeAtOverPass / homeEvents.length,
+      away_spread_rate: awayAtGivePass / awayEvents.length,
+      away_totals_rate: awayAtOverPass / awayEvents.length
     };
   } catch (err) {
     console.error(err);
