@@ -21,7 +21,7 @@ async function mpgNotifyModel(res) {
     /* 判斷發票是否開立成功，成功即發放抽獎券 */
     if (issue_lottery.status) {
       const nowUnix = modules.moment().unix();
-      const mission = await mission_util.activityDepositsCheckStatusReturnReward(uid, nowUnix);
+      const mission = await mission_util.activityDepositsCheckStatusReturnReward(update_order.uid, nowUnix);
       const param = {
         type: 2,
         activity_type: 'deposit',
@@ -30,7 +30,7 @@ async function mpgNotifyModel(res) {
         uid: update_order.uid,
         type_id: mission.mission_deposit_id
       };
-      const cashflow_issue = await cashflow_util.cashflow_issue(param);
+      await cashflow_util.cashflow_issue(param);
     } else {
       /* 開立失敗，回傳錯誤訊息 */
     }
