@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  修正計算近十場過盤率，未滿十場卻還是除以10的問題 ***by page40316*** [#370](https://github.com/gets-info/sports-api/pull/370)
 -  Fix getTitlesPeriod always dynamic calculate problem, import periods.json file instead ***by TsaiTsaiChieh*** [#369](https://github.com/gets-info/sports-api/pull/369)
 -  refactor for google app engine ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/367)
 -  CBA 即時比分欄位與 NBA 不同，需特別處理，刪除 pbp_statscore_CBA 中多餘欄位。 ***by page40316*** [#365](https://github.com/gets-info/sports-api/pull/365)
