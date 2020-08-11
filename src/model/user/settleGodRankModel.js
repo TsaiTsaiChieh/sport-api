@@ -58,7 +58,8 @@ async function settleGodRank() {
   const now = new Date();
   const lastPeriod = getTitlesPeriod(now).period; // 上一期期數
   const lastPeriod_date = getTitlesPeriod(now).date; // 上一期開始日期
-  // const last2Period = lastPeriod - 1; // 上上期期數
+  const last2Period = lastPeriod - 1; // 上上期期數
+  const nowPeriod = lastPeriod + 1;
   const diamondList = [];
   const goldList = [];
   const sliverList = [];
@@ -81,24 +82,17 @@ async function settleGodRank() {
       WinRateLimit: 0.6
     }
   };
-  const godLeagueLimit = [
-    { league_id: 11235, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 1298, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 1714, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 1926, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 2148, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 22000, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 2274, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 2319, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 244, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 2759, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 347, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 349, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 3939, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 4412, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 8, first_week_win_handicap: 10, this_period_win_handicap: 30 },
-    { league_id: 8251, first_week_win_handicap: 10, this_period_win_handicap: 30 }
-  ];
+
+  const godLeagueLimit = await db.sequelize.query(`
+    select league_id, first_week_win_handicap, this_period_win_handicap
+      from god_limits
+     where period = :period
+  `, {
+    replacements: {
+      period: nowPeriod
+    },
+    type: db.sequelize.QueryTypes.SELECT
+  });
 
   // const limitMin = getMin(godLeagueLimit);
   // d('limitMin: ===========', limitMin);
@@ -138,7 +132,7 @@ async function settleGodRank() {
                 from users__win__lists__histories uwlh
                where period = :period
                group by uid, league_id, period
-               having ( this_period_win_bets >= :diamondWinBetsLimit or this_period_win_rate >= :gscWinRateLimit )
+              having ( this_period_win_bets >= :diamondWinBetsLimit or this_period_win_rate >= :gscWinRateLimit )
            ) pregod
      where ( ${limitSQL} )
      -- order by league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap
@@ -211,6 +205,26 @@ async function settleGodRank() {
   d('新增 大神歷史戰績 開始');
   await createTitlesGod(diamondList, goldList, sliverList, copperList, lastPeriod, lastPeriod_date);
   d('新增 大神歷史戰績 結束');
+
+  // 重置 Users status 上期大神 2 改為 一般玩家 1
+  d('重置上一期大神 使用者狀態 還原為 一般玩家 開始');
+  await resetGod2Player(last2Period);
+  d('重置上一期大神 使用者狀態 還原為 一般玩家 結束');
+
+  // 更新 這期大神 使用者狀態 及 累計大神計數
+  d('更新 這期大神 使用者狀態 及 累計大神計數 開始');
+  await updateGodInfo(lastPeriod);
+  d('更新 這期大神 使用者狀態 及 累計大神計數 結束');
+
+  // // 本期勝率/勝注移到上期、本期勝率/勝注清空
+  // d('新增 本期勝率/勝注移到上期、本期勝率/勝注清空 開始');
+  // await updateWins();
+  // d('新增 本期勝率/勝注移到上期、本期勝率/勝注清空 結束');
+
+  // // 大神計算合格條件 複制上一期條件到本期
+  // d('新增 大神計算合格條件 複制上一期條件到本期 開始');
+  // await insertGodLimit(lastPeriod, nowPeriod);
+  // d('新增 大神計算合格條件 複制上一期條件到本期 結束');
 
   if (!isEmulator) logger.info('[user settleGodRankModel]', allLogs);
   return { status: 'ok' };
@@ -299,6 +313,70 @@ async function createTitlesGod(diamondList, goldList, sliverList, copperList, pe
      where titles.uid = src.uid
        and titles.league_id = src.league_id
        and titles.period = :period
+  `, {
+    replacements: {
+      period: period
+    },
+    type: db.sequelize.QueryTypes.UPDATE
+  });
+}
+
+// 重置 Users status 上期大神 2 改為 一般玩家 1
+async function resetGod2Player(period) {
+  // 將上期大神 重置為 一般使用者 和 預設聯盟為 NULL  // 不使用這方式：原本為直接把所有人都改1 排除管理者(status=9)
+  await db.sequelize.query(`
+      UPDATE users, ( select distinct uid from titles where period = :period ) titles 
+         SET status = 1, default_god_league_rank = NULL 
+       WHERE users.uid = titles.uid
+  `, {
+    replacements: {
+      period: period
+    },
+    type: db.sequelize.QueryTypes.UPDATE
+  });
+}
+
+// 更新 這期大神 使用者狀態 及 累計大神計數
+async function updateGodInfo(period) {
+  // const merageList = [...new Set([...diamondList, ...goldList, ...sliverList, ...copperList])];
+  // d('merageList: ', merageList);
+
+  // 更新所有人的大神榮譽戰績 SQL
+  //   update users,
+  //        (
+  //          select uid,
+  //                 (select count(uid) from titles where uid = users.uid and rank_id = 1) rank1,
+  //                 (select count(uid) from titles where uid = users.uid and rank_id = 2) rank2,
+  //                 (select count(uid) from titles where uid = users.uid and rank_id = 3) rank3,
+  //                 (select count(uid) from titles where uid = users.uid and rank_id = 4) rank4
+  //            from users
+  //        ) ranks
+  //    set users.rank1_count = ranks.rank1,
+  //        users.rank2_count = ranks.rank2,
+  //        users.rank3_count = ranks.rank3,
+  //        users.rank4_count = ranks.rank4
+  //  where users.uid = ranks.uid
+  // ;
+
+  // 更新 有在 titles 當過大神的才會更新 使用者狀態 及 累計大神計數
+  await db.sequelize.query(`
+    update users,
+           (
+              select distinct titles.uid,
+                     (select count(uid) from titles where uid = users.uid and rank_id = 1) rank1,
+                     (select count(uid) from titles where uid = users.uid and rank_id = 2) rank2,
+                     (select count(uid) from titles where uid = users.uid and rank_id = 3) rank3,
+                     (select count(uid) from titles where uid = users.uid and rank_id = 4) rank4
+                from users, titles
+               where users.uid = titles.uid
+                 and titles.period = :period
+           ) ranks
+       set users.status = 2,
+           users.rank1_count = ranks.rank1,
+           users.rank2_count = ranks.rank2,
+           users.rank3_count = ranks.rank3,
+           users.rank4_count = ranks.rank4
+     where users.uid = ranks.uid
   `, {
     replacements: {
       period: period
