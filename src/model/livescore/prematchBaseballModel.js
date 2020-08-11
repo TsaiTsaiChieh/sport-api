@@ -498,7 +498,6 @@ function repackagePassRate(events) {
       }
     }
     return {
-      // here
       home_spread_rate: homeAtGivePass / homeEvents.length,
       home_totals_rate: homeAtOverPass / homeEvents.length,
       away_spread_rate: awayAtGivePass / awayEvents.length,
