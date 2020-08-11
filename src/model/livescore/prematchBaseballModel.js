@@ -26,8 +26,8 @@ function getHomeAndAwayTeamFromMySQL(args) {
       const result = await db.sequelize.query(
         // index is const, except match__seasons, match__spreads, match__totals table is ref, taking 170ms
         `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled,
-                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
-                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
+                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, home.team_id AS home_team_id, 
+                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, away.team_id AS away_team_id, 
                 spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, spread.rate AS spread_rate, 
                 totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw, totals.rate AS totals_rate
           FROM (
@@ -80,7 +80,7 @@ function queryHomeEvents(args) {
         // take 169 ms
         `(
           SELECT game.home_id AS aim_home_id, game.away_id AS aim_away_id,
-                 historygame.bets_id AS id, historygame.scheduled AS scheduled,  historygame.home_id AS history_home_id, historygame.away_id AS history_away_id,
+                 historygame.bets_id AS id, historygame.scheduled AS scheduled, historygame.home_id AS history_home_id, historygame.away_id AS history_away_id,
                  historygame.spread_result AS history_spread_result, historygame.totals_result AS history_totals_result, spread.handicap AS spread_handicap, totals.handicap AS totals_handicap
             FROM matches AS game,
                  matches AS historygame,
@@ -195,6 +195,7 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         alias: teamsFromMySQL.home_alias,
         alias_ch: teamsFromMySQL.home_alias_ch,
         team_name: teamsFromMySQL.home_alias_ch,
+        team_id: teamsFromMySQL.home_team_id,
         name: teamsFromMySQL.home_name,
         name_ch: teamsFromMySQL.home_name_ch,
         image_id: teamsFromMySQL.home_image_id,
@@ -240,6 +241,7 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         alias: teamsFromMySQL.away_alias,
         alias_ch: teamsFromMySQL.away_alias_ch,
         team_name: teamsFromMySQL.away_alias_ch,
+        team_id: teamsFromMySQL.away_team_id,
         name: teamsFromMySQL.away_name,
         name_ch: teamsFromMySQL.away_name_ch,
         image_id: teamsFromMySQL.away_image_id,
