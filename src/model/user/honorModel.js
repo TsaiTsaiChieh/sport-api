@@ -61,6 +61,19 @@ function honorModel(req) {
           }
         );
 
+        // 取出這期大神-聯盟-本期第一周和本期盤數
+        const godLeagueLimit = await db.sequelize.query(`
+          select league_id, first_week_win_handicap, this_period_win_handicap
+            from god_limits
+           where period = :period
+        `, {
+          replacements: {
+            period: period.period
+          },
+          type: db.sequelize.QueryTypes.SELECT
+        });
+        next.limit = godLeagueLimit;
+
         const honorList = {
           next: next,
           wins: wins
