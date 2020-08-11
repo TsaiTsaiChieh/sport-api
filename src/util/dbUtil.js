@@ -2233,9 +2233,6 @@ const CashflowMission = sequelize.define(
     uid: {
       type: Sequelize.STRING
     },
-    mission_id: {
-      type: Sequelize.INTEGER
-    },
     mission_item_id: {
       type: Sequelize.INTEGER
     },
