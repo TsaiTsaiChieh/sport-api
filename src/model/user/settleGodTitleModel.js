@@ -12,7 +12,17 @@ let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
-const logger = require('firebase-functions/lib/logger');
+// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
+const winston = require('winston');
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+const loggingWinston = new LoggingWinston();
+const logger = winston.createLogger({
+  level: 'debug',
+  transports: [
+    new winston.transports.Console(),
+    loggingWinston
+  ]
+});
 // const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
@@ -173,7 +183,7 @@ async function settleGodTitle(args) {
       }
     });
 
-    if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+    if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
     d('\n gs');
   });
 
@@ -245,7 +255,7 @@ async function settleGodTitle(args) {
       }
     });
 
-    if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+    if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
     d('\n gs');
   });
 
@@ -282,7 +292,7 @@ async function settleGodTitle(args) {
     };
   };
 
-  if (!isEmulator) logger.log('[user settleGodTitleModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleGodTitleModel] 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);

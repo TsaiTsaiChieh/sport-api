@@ -12,7 +12,17 @@ let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
-const logger = require('firebase-functions/lib/logger');
+// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
+const winston = require('winston');
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+const loggingWinston = new LoggingWinston();
+const logger = winston.createLogger({
+  level: 'debug',
+  transports: [
+    new winston.transports.Console(),
+    loggingWinston
+  ]
+});
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
@@ -393,7 +403,7 @@ async function settleWinList(args) {
   // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
   // if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period - 1 });
 
-  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleWinListModel]', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
@@ -437,7 +447,7 @@ async function winBetsRateTotalCount(uid, league_id,
     sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld)
   };
 
-  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleWinListModel]', allLogs);
   d('\n gs');
   return result;
 }
@@ -495,7 +505,7 @@ function groupSum(arr, filterField, groupByField) {
 }
 
 function num1RateSum(num1, num2, f = 2) {
-  // logger.log('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
+  // logger.info('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
   NP.enableBoundaryChecking(false);
   return isNotANumber(num1) || isNotANumber(num2) || NP.plus(num1, num2) === 0 // 不是數字 且 避免分母是0
     ? 0
