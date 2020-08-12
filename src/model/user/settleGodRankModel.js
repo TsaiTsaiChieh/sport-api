@@ -108,7 +108,7 @@ async function settleGodRank() {
   // this_period_win_bets 和 this_period_win_rate 改成使用 users__win__lists__histories，不再讀 users__win__lists
   // 避免無法重算，因為 users__win__lists 的 this_period_win_bets、this_period_win_rate 會被移到 last_period_win_bets、
   // last_period_win_rate，然後被清空掉，這樣就無法重算
-  let preGods = await db.sequelize.query(`
+  const preGods = await db.sequelize.query(`
     select *
       from (
               select uid, league_id,
@@ -145,31 +145,31 @@ async function settleGodRank() {
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  // 使用假大神合格資料進行開發測試，假大神資料可以先在 正式 DB 執行上面的 SQL，取得資料後修改 FakePreGods 內容
-  // 計算後判斷是否符合規則
-  const FakePreGods = [
-    { uid: '3XWpTIWxwCQOHO4eOj3C8lu3ja03', league_id: '22000', this_period_win_bets: 29.5, this_period_win_rate: 0.65, first_week_win_handicap: 15, this_period_win_handicap: 54, this_league_win_handicap: 54 },
-    { uid: 'BL0XzpN0tHNl6mr94Dmil6MEHpJ3', league_id: '22000', this_period_win_bets: 6, this_period_win_rate: 0.59, first_week_win_handicap: 46, this_period_win_handicap: 46, this_league_win_handicap: 58 },
-    { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 5, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '1pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 3, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '2pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 4, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '3pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '4pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '5pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '6pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 680 },
-    { uid: '7pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '8pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 437, this_league_win_handicap: 681 },
-    { uid: '9pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.61, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '10pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '11pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '12pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.72, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '13pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.73, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: '349', this_period_win_bets: 7.5, this_period_win_rate: 0.58, first_week_win_handicap: 20, this_period_win_handicap: 36, this_league_win_handicap: 36 },
-    { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 50, this_period_win_rate: 0.6753, first_week_win_handicap: 56, this_period_win_handicap: 154, this_league_win_handicap: 319 }
-  ];
+  // // 使用假大神合格資料進行開發測試，假大神資料可以先在 正式 DB 執行上面的 SQL，取得資料後修改 FakePreGods 內容
+  // // 計算後判斷是否符合規則
+  // const FakePreGods = [
+  //   { uid: '3XWpTIWxwCQOHO4eOj3C8lu3ja03', league_id: '22000', this_period_win_bets: 29.5, this_period_win_rate: 0.65, first_week_win_handicap: 15, this_period_win_handicap: 54, this_league_win_handicap: 54 },
+  //   { uid: 'BL0XzpN0tHNl6mr94Dmil6MEHpJ3', league_id: '22000', this_period_win_bets: 6, this_period_win_rate: 0.59, first_week_win_handicap: 46, this_period_win_handicap: 46, this_league_win_handicap: 58 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 5, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '1pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 3, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '2pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 4, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '3pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '4pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '5pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '6pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 680 },
+  //   { uid: '7pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '8pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 437, this_league_win_handicap: 681 },
+  //   { uid: '9pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.61, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '10pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '11pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '12pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.72, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '13pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.73, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: '349', this_period_win_bets: 7.5, this_period_win_rate: 0.58, first_week_win_handicap: 20, this_period_win_handicap: 36, this_league_win_handicap: 36 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 50, this_period_win_rate: 0.6753, first_week_win_handicap: 56, this_period_win_handicap: 154, this_league_win_handicap: 319 }
+  // ];
 
-  preGods = FakePreGods;
-  // ---------- 以上 假大神合格資料 ----------
+  // preGods = FakePreGods;
+  // // ---------- 以上 假大神合格資料 ----------
 
   //
   // 依聯盟 鑽石 依序處理
