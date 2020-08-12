@@ -36,7 +36,7 @@ router.get(
 
 /* test */
 router.post(
-  '/test',
-  require('../controller/cashflow/testController')
+  '/lottery',
+  require('../controller/cashflow/LotteryController')
 );
 module.exports = router;

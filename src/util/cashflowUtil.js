@@ -6,7 +6,6 @@ async function cashflow_issue(param, trans = null) {
   const insideTrans = trans || await db.sequelize.transaction();
   const type = param.type;// 任務類型  0: 每日  1: 進階  2: 活動
   const activity_type = param.activity_type;// 活動類型  god: 大神  deposit: 儲值  predict: 預測
-  const mission_id = param.mission_id;
   const reward_type = param.reward_type; // 獎勵類型 ingot coin dividend lottery
   const reward_value = param.reward_value; // 獎勵值
   const uid = param.uid; // 使用者
@@ -48,7 +47,6 @@ async function cashflow_issue(param, trans = null) {
     dividend: dividend,
     lottery: lottery,
     uid: uid,
-    mission_id: mission_id,
     mission_god_id: mission_god_id,
     mission_deposit_id: mission_deposit_id,
     mission_item_id: mission_item_id,
