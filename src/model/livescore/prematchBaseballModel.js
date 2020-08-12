@@ -85,15 +85,12 @@ function queryHomeEvents(args) {
                  historygame.spread_result AS history_spread_result, historygame.totals_result AS history_totals_result, spread.handicap AS spread_handicap, totals.handicap AS totals_handicap
             FROM matches AS game,
                  matches AS historygame,
-                 match__seasons AS season,
                  match__spreads AS spread,
                  match__totals AS totals
            WHERE game.bets_id = :event_id
              AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
-             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND historygame.bets_id = spread.match_id
              AND historygame.spread_id = spread.spread_id
              AND historygame.bets_id = totals.match_id
@@ -128,15 +125,12 @@ function queryAwayEvents(args) {
                historygame.spread_result AS history_spread_result, historygame.totals_result AS history_totals_result, spread.handicap AS spread_handicap, totals.handicap AS totals_handicap
           FROM matches AS game,
                matches AS historygame,
-               match__seasons AS season,
                match__spreads AS spread,
                match__totals AS totals
          WHERE game.bets_id = :event_id
            AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
            AND game.league_id = :leagueID
-           AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
-           AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
            AND historygame.bets_id = spread.match_id
            AND historygame.spread_id = spread.spread_id
            AND historygame.bets_id = totals.match_id
