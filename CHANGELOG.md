@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  有榮譽戰績部份，需要先行合并 ***by alangets*** [#371](https://github.com/gets-info/sports-api/pull/371)
 -  修正計算近十場過盤率，未滿十場卻還是除以10的問題 ***by page40316*** [#370](https://github.com/gets-info/sports-api/pull/370)
 -  Fix getTitlesPeriod always dynamic calculate problem, import periods.json file instead ***by TsaiTsaiChieh*** [#369](https://github.com/gets-info/sports-api/pull/369)
 -  refactor for google app engine ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/367)
