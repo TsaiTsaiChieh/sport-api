@@ -11,7 +11,7 @@ const to = require('await-to-js').default;
 let allLogs = [];
 let logT = {};
 let logNum = -1;
-const isEmulator = process.env.FUNCTIONS_EMULATOR;
+const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
 const logger = require('firebase-functions/lib/logger');
 // const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
 const util = require('util');
