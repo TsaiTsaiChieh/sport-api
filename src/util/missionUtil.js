@@ -8,7 +8,6 @@ const {
 const { date3UnixInfo } = require('./modules');
 const { CacheQuery, redis } = require('./redisUtil');
 const logger = require('firebase-functions/lib/logger');
-
 //
 // 任務
 //
