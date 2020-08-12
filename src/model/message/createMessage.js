@@ -6,9 +6,10 @@ const AppErrors = require('../../util/AppErrors');
 const { getTitlesPeriod } = require('../../util/modules');
 const { findUser } = require('../../util/databaseEngine');
 const { leagueDecoder, league2Sport, USER_STATUS } = require('../../util/leagueUtil');
-const DELETION = {
+const MESSAGE_STATUS = {
   RETRACT: 0, // 使用者自行刪除，所以全部人皆看不到
-  DELETE: 1 // 使用者不想看到自己或別人的訊息，只有該使用者看不到，其他人看得到
+  DELETE: 1, // 使用者不想看到自己或別人的訊息，只有該使用者看不到，其他人看得到
+  DEFAULT: 2 // 訊息初始狀態
 };
 
 function createMessage(args) {
@@ -83,10 +84,10 @@ function replyMessage(args) {
         const messageData = messageSnapshot.data();
         // message object did not exist return error
         // second condition is soft delete logic: if -1 (admin delete) or 0 (user retract) return error
-        if (!messageData || messageData.message.softDelete <= DELETION.RETRACT) return reject(new AppErrors.MessageNotFound());
+        if (!messageData || messageData.message.softDelete <= MESSAGE_STATUS.RETRACT) return reject(new AppErrors.MessageNotFound());
 
         // deny user reply the message which deleted by user himself/herself
-        if (args.token.uid === messageData.user.uid && messageData.message.softDelete === DELETION.DELETE) return reject(new AppErrors.MessageNotFound());
+        if (args.token.uid === messageData.user.uid && messageData.message.softDelete === MESSAGE_STATUS.DELETE) return reject(new AppErrors.MessageNotFound());
         const reply = repackageReplyMessageData(messageData);
         return resolve(reply);
       } else return resolve();
@@ -144,7 +145,7 @@ function repackageMessageObject(args, messageId, user) {
           message: args.message.message,
           type: args.message.type,
           messageId: messageId,
-          softDelete: 2 // 2 is default and normal
+          softDelete: MESSAGE_STATUS.DEFAULT
         },
         user: {
           uid: user.userData.uid,
