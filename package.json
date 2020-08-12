@@ -20,7 +20,7 @@
     "npm": "6.9.0"
   },
   "dependencies": {
-    "@google-cloud/logging-winston": "^4.0.0",
+    "@google-cloud/logging-winston": "4.0.0",
     "@k3rn31p4nic/google-translate-api": "github:k3rn31p4nic/google-translate-api",
     "ajv": "6.10.2",
     "await-to-js": "2.1.1",
