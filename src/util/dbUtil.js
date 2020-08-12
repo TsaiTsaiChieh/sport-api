@@ -2606,6 +2606,32 @@ const invoice_test = sequelize.define(
   }
 );
 
+const godLimit = sequelize.define(
+  'god_limit',
+  {
+    league_id: {
+      type: Sequelize.STRING
+    },
+    period: {
+      type: Sequelize.INTEGER
+    },
+    first_week_win_handicap: {
+      type: Sequelize.FLOAT
+    },
+    this_period_win_handicap: {
+      type: Sequelize.FLOAT
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['league_id', 'period']
+      }
+    ]
+  }
+);
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2660,7 +2686,8 @@ const dbUtil = {
   MissionGod,
   MissionDeposit,
   UserMission,
-  invoice_test
+  invoice_test,
+  godLimit
 };
 
 module.exports = dbUtil;
