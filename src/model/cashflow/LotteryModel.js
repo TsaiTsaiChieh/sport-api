@@ -11,7 +11,7 @@ async function LotteryModel(args) {
     param.type_id = mission[0].mission_deposit_id;
     param.reward_type = mission[0].reward_type;
     param.reward_value = mission[0].reward_num;
-    
+
     const cashflow_issue = await cashflow_util.cashflow_issue(param);
 
     resolve(cashflow_issue);
