@@ -1,7 +1,7 @@
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/message/createMessage');
 const httpStatus = require('http-status');
-const { logger } = require('firebase-functions');
+const logger = require('../../util/loggerUtil');
 
 async function createMessage(req, res) {
   const now = new Date();
@@ -72,7 +72,7 @@ async function createMessage(req, res) {
   try {
     res.json(await model(req.body));
   } catch (err) {
-    logger.debug(err.stack);
+    logger.error(err.stack);
     res
       .status(err.code)
       .json(
