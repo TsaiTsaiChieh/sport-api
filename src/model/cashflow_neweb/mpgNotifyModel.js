@@ -40,7 +40,7 @@ async function mpgNotifyModel(res) {
 /* 繳款成功後，更新訂單狀態 */
 async function updateOrder(res) {
   const exchange = res.body; // request data
-  const setting = neweb_config.setting.official; // 讀取設定檔(測試/正式)
+  const setting = neweb_config.setting.test; // 讀取設定檔(測試/正式)
 
   /* 金流基本參數 */
   const HashKey = setting.hash_key; // hash key
