@@ -76,6 +76,8 @@ async function updateOrder(res) {
     attributes: ['uid', 'coin', 'dividend'],
     raw: true
   });
+  const purse_str = JSON.stringify(purse_deposit);
+  await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${purse_str}')`);
   // 檢查資料庫是否有資料
   const purse_self = await db.User.findOne({
     where: { uid: purse_deposit.uid },
