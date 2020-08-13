@@ -27,8 +27,8 @@ function getHomeAndAwayTeamFromMySQL(args) {
       const result = await db.sequelize.query(
         // index is const, except match__seasons, match__spreads, match__totals table is ref, taking 170ms
         `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled, game.home_player, game.away_player, 
-                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, home.team_id AS home_team_id, 
-                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, away.team_id AS away_team_id, 
+                home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
+                away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id,
                 spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, spread.rate AS spread_rate, 
                 totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw, totals.rate AS totals_rate
           FROM (
@@ -85,15 +85,12 @@ function queryHomeEvents(args) {
                  historygame.spread_result AS history_spread_result, historygame.totals_result AS history_totals_result, spread.handicap AS spread_handicap, totals.handicap AS totals_handicap
             FROM matches AS game,
                  matches AS historygame,
-                 match__seasons AS season,
                  match__spreads AS spread,
                  match__totals AS totals
            WHERE game.bets_id = :event_id
              AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
-             AND season.league_id = :leagueID
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
-             AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND historygame.bets_id = spread.match_id
              AND historygame.spread_id = spread.spread_id
              AND historygame.bets_id = totals.match_id
@@ -128,15 +125,12 @@ function queryAwayEvents(args) {
                historygame.spread_result AS history_spread_result, historygame.totals_result AS history_totals_result, spread.handicap AS spread_handicap, totals.handicap AS totals_handicap
           FROM matches AS game,
                matches AS historygame,
-               match__seasons AS season,
                match__spreads AS spread,
                match__totals AS totals
          WHERE game.bets_id = :event_id
            AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
            AND game.league_id = :leagueID
-           AND season.league_id = :leagueID
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
-           AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
            AND historygame.bets_id = spread.match_id
            AND historygame.spread_id = spread.spread_id
            AND historygame.bets_id = totals.match_id
@@ -189,12 +183,11 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         over_tw: teamsFromMySQL.over_tw
       },
       home: {
-        id: teamsFromMySQL.home_id,
+        team_id: teamsFromMySQL.home_id,
+        team_name: teamsFromMySQL.home_alias_ch,
+        name: teamsFromMySQL.home_name,
         alias: teamsFromMySQL.home_alias,
         alias_ch: teamsFromMySQL.home_alias_ch,
-        team_name: teamsFromMySQL.home_alias_ch,
-        team_id: teamsFromMySQL.home_team_id,
-        name: teamsFromMySQL.home_name,
         name_ch: teamsFromMySQL.home_name_ch,
         image_id: teamsFromMySQL.home_image_id,
         team_base: {
@@ -212,6 +205,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         },
         pitcher: {
           id: homePlayerIsNull ? null : homePlayer.pitchers.id,
+          name: homePlayerIsNull ? null : homePlayer.pitchers.name,
+          ori_name: homePlayerIsNull ? null : homePlayer.pitchers.ori_name,
           Win: homePlayerIsNull ? null : homePlayer.pitchers.Win,
           Loss: homePlayerIsNull ? null : homePlayer.pitchers.Loss,
           ERA: homePlayerIsNull ? null : homePlayer.pitchers.ERA,
@@ -228,12 +223,11 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         }
       },
       away: {
-        id: teamsFromMySQL.away_id,
+        team_id: teamsFromMySQL.away_id,
+        team_name: teamsFromMySQL.away_alias_ch,
+        name: teamsFromMySQL.away_name,
         alias: teamsFromMySQL.away_alias,
         alias_ch: teamsFromMySQL.away_alias_ch,
-        team_name: teamsFromMySQL.away_alias_ch,
-        team_id: teamsFromMySQL.away_team_id,
-        name: teamsFromMySQL.away_name,
         name_ch: teamsFromMySQL.away_name_ch,
         image_id: teamsFromMySQL.away_image_id,
         team_base: {
@@ -251,6 +245,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         },
         pitcher: {
           id: awayPlayerIsNull ? null : awayPlayer.pitchers.id,
+          name: awayPlayerIsNull ? null : awayPlayer.pitchers.name,
+          ori_name: awayPlayerIsNull ? null : awayPlayer.pitchers.ori_name,
           Win: awayPlayerIsNull ? null : awayPlayer.pitchers.Win,
           Loss: awayPlayerIsNull ? null : awayPlayer.pitchers.Loss,
           ERA: awayPlayerIsNull ? null : awayPlayer.pitchers.ERA,
