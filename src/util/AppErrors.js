@@ -96,6 +96,23 @@ class GodUserNotFound extends ExtendableError {
   }
 }
 
+class MessageNotFound extends ExtendableError {
+  /**
+   * Creates an API error.
+   * @param {string} message - error message
+   * @param {number} status - HTTP status code of error
+   * @param {boolean} isPublic - whether the message should be visible to user or not
+   */
+  constructor(
+    message = '找不到此訊息或檔案',
+    status = 1311,
+    isPublic = true,
+    code = httpStatus.NOT_FOUND
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
+
 class TeamInformationNotFound extends ExtendableError {
   /**
    * Creates an API error.
@@ -207,7 +224,16 @@ class CoinOrDividendNotEnough extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
-
+class CouldNotBuyOwnPredictions extends ExtendableError {
+  constructor(
+    message = '無法購買自己的預測',
+    status = 1211,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 class PurchaseTimeShouldBeforeLastMatch extends ExtendableError {
   constructor(
     message = '已開賽，無法購買',
@@ -219,10 +245,10 @@ class PurchaseTimeShouldBeforeLastMatch extends ExtendableError {
   }
 }
 
-class CouldNotBuyOwnPredictions extends ExtendableError {
+class UserHadBeenMuted extends ExtendableError {
   constructor(
-    message = '無法購買自己的預測',
-    status = 1211,
+    message = '使用者已被禁言',
+    status = 1213,
     isPublic = true,
     code = httpStatus.FORBIDDEN
   ) {
@@ -517,11 +543,23 @@ class MLB_CrawlersError extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class CreateMessageError extends ExtendableError {
+  constructor(
+    message = '傳送訊息發生錯誤',
+    status = 1527,
+    isPublic = true,
+    code = httpStatus.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 module.exports = {
   UserNotFound,
   UserCouldNotSell,
   MatchNotFound,
   GodUserNotFound,
+  MessageNotFound,
   TeamInformationNotFound,
   GodSellInconsistent,
   GodSellStatusWrong,
@@ -533,6 +571,7 @@ module.exports = {
   CoinOrDividendNotEnough,
   PurchaseTimeShouldBeforeLastMatch,
   CouldNotBuyOwnPredictions,
+  UserHadBeenMuted,
   UserPredictFailed,
   DeletePredictionsFailed,
   UserPredictSomeFailed,
@@ -563,5 +602,6 @@ module.exports = {
   KBO_CrawlersError,
   GetSeasonError,
   DeleteOwnPredictionsError,
-  MLB_CrawlersError
+  MLB_CrawlersError,
+  CreateMessageError
 };
