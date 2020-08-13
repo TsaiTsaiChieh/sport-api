@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add spread & total disable logic when the match is invalid ***by TsaiTsaiChieh*** [#380](https://github.com/gets-info/sports-api/pull/380)
 -  Add team_id, pitcher name and ori_name field ***by TsaiTsaiChieh*** [#378](https://github.com/gets-info/sports-api/pull/378)
 -  Add five percent dividend  ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
 -  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
