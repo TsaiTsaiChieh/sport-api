@@ -40,7 +40,7 @@ async function mpgNotifyModel(res) {
 /* 繳款成功後，更新訂單狀態 */
 async function updateOrder(res) {
   const exchange = res.body; // request data
-  const setting = neweb_config.setting.official; // 讀取設定檔(測試/正式)
+  const setting = neweb_config.setting.test; // 讀取設定檔(測試/正式)
 
   /* 金流基本參數 */
   const HashKey = setting.hash_key; // hash key
@@ -71,8 +71,7 @@ async function updateOrder(res) {
   /* 1.更新錢包資料 2.判斷重新觸發不會重複給搞幣問題 */
   const purse_deposit = await db.CashflowDeposit.findOne({
     where: {
-      serial_number: rdata.Result.MerchantOrderNo,
-      order_status: 0
+      serial_number: rdata.Result.MerchantOrderNo
     },
     attributes: ['uid', 'coin', 'dividend'],
     raw: true
