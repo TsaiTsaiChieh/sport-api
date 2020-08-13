@@ -1,24 +1,10 @@
-# 正式版 deploy 後網址 https://chat-api.doinfo.cc
-gcloud app deploy -q
-export SQL_USER,SQL_PASSWORD,SQL_DATABASE values
-- `firebase use project`
-- modify env_values.js : exports variables to "sport19y0715-dev" settings
-- modify firebase.json : hosting site to "sport19y0715"
-
 # 測式版 deploy 後網址 https://api-dosports.web.app/
+- local run : `npm run dev`
+- deploy command : `npm run api`
+- check logs : `npm run logs`
 
-- `firebase use test`
-- modify env_values.js : exports variables to "sportslottery-test-adminsdk" settings
-- modify firebase.json : hosting site to "api-dosports"
-
-後端要 deploy 請執行
-`firebase deploy --only functions:api`
-
-# Deploy static files
-
-`firebase deploy --only hostring`
-
-請注意後端 cookie 要設定 app.js 裡的 CORS 白名單
+# 正式版 deploy 後網址 https://api-dot-getsports-gsi.uc.r.appspot.com/
+- deploy command : `npm run product-api`
 
 ---
 

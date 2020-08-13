@@ -10,10 +10,10 @@ function findUser(uid) {
     try {
       // index is const, taking 165ms
       const result = await db.User.findOne({ where: { uid }, raw: true });
-      if (!result) return reject(new AppError.UserNotFound('by TsaiChieh'));
+      if (!result) return reject(new AppError.UserNotFound());
       return resolve(result); // else return user data
     } catch (err) {
-      return reject(new AppError.UserNotFound(`${err.stack} by TsaiChieh`));
+      return reject(new AppError.UserNotFound(err.stack));
     }
   });
 }
