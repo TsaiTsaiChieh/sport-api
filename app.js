@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const env_values = require('./src/config/env_values');
 const compression = require('compression');
-
 const app = express();
 app.use(compression());
 app.disable('x-powered-by');
@@ -70,7 +69,8 @@ app.use('/cashflow_neweb', require('./src/routers/cashflow_neweb')); // 金流�
 app.use('/invoice_ezpay', require('./src/routers/invoice_ezpay')); // 電子發票介接(ezpay)
 app.use('/mission', require('./src/routers/mission'));
 app.get('/awakeAPI', (req, res) => {
-  res.status(200).json(process.env);
+  const { name, version } = require('./package');
+  res.status(200).json({ [name]: version });
 });
 
 // API cloud function
