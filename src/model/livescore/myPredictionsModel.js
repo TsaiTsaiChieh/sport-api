@@ -15,8 +15,7 @@ function myPredictions(args) {
       const predictions = await getUserTodayPredictionsInformation(args);
       return resolve(repackageData(args, predictions));
     } catch (err) {
-      console.log(err);
-      return reject({ code: err.code, error: err });
+      return reject(err);
     }
   });
 }
@@ -42,7 +41,7 @@ function getUserTodayPredictionsInformation(args) {
       LEFT JOIN match__totals AS totals ON (prediction.bets_id = totals.match_id AND prediction.totals_id = totals.totals_id)
      INNER JOIN match__leagues AS league ON game.ori_league_id = league.ori_league_id
           WHERE prediction.uid = :uid
-            AND prediction.league_id = ':league_id'
+            AND prediction.league_id = :league_id
             AND prediction.match_scheduled BETWEEN ${args.begin} AND ${args.end}
        ORDER BY game.scheduled`,
         {
@@ -52,7 +51,7 @@ function getUserTodayPredictionsInformation(args) {
         });
       return resolve(result);
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -120,7 +119,7 @@ function repackageData(args, predictions) {
     return data;
   } catch (err) {
     console.error(`${err.stack} by TsaiChieh`);
-    throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
+    throw new AppErrors.RepackageError(err.stack);
   }
 }
 
