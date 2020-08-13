@@ -205,6 +205,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         },
         pitcher: {
           id: homePlayerIsNull ? null : homePlayer.pitchers.id,
+          name: homePlayerIsNull ? null : homePlayer.pitchers.name,
+          ori_name: homePlayerIsNull ? null : homePlayer.pitchers.ori_name,
           Win: homePlayerIsNull ? null : homePlayer.pitchers.Win,
           Loss: homePlayerIsNull ? null : homePlayer.pitchers.Loss,
           ERA: homePlayerIsNull ? null : homePlayer.pitchers.ERA,
@@ -243,6 +245,8 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         },
         pitcher: {
           id: awayPlayerIsNull ? null : awayPlayer.pitchers.id,
+          name: awayPlayerIsNull ? null : awayPlayer.pitchers.name,
+          ori_name: awayPlayerIsNull ? null : awayPlayer.pitchers.ori_name,
           Win: awayPlayerIsNull ? null : awayPlayer.pitchers.Win,
           Loss: awayPlayerIsNull ? null : awayPlayer.pitchers.Loss,
           ERA: awayPlayerIsNull ? null : awayPlayer.pitchers.ERA,
