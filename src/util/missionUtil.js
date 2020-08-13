@@ -5,19 +5,8 @@ const {
   topicCheckByDateBetween, predictHandicapCheckByDateBetween,
   predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
-const { date3UnixInfo } = require('./modules');
+const { date3UnixInfo, logger } = require('./modules');
 const { CacheQuery, redis } = require('./redisUtil');
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
 
 //
 // 任務
@@ -403,14 +392,22 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
     if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
 
     // 是否首次大神
-    const titlesCount = await db.Title.count({
-      where: {
+    const titlesCount = await db.sequelize.query(`
+      select count(*) count
+        from (
+                select distinct period
+                  from titles
+                 where uid = :uid
+             ) a
+    `, {
+      replacements: {
         uid: uid
-      }
+      },
+      type: db.sequelize.QueryTypes.SELECT
     });
 
     // true: 有活動, 有效
-    if (!data.um_mission_god_id && titlesCount === 0) { // 必需是 沒有領取過 且 首次為大神 才會出現
+    if (!data.um_mission_god_id && titlesCount[0].count === 1) { // 必需是 沒有領取過 且 首次為大神 才會出現
       result.push({
         mission_god_id: data.mission_god_id,
         reward_type: data.reward_type,
