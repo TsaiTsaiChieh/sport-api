@@ -8,7 +8,8 @@ const loggingWinston = new LoggingWinston();
 // Create a Winston logger that streams to Stackdriver Logging
 // Logs will be written to: "projects/YOUR_PROJECT_ID/logs/winston_log"
 const logger = winston.createLogger({
-  level: 'info',
+  level: 'debug',
+  format: winston.format.combine(winston.format.json()),
   transports: [
     new winston.transports.Console(),
     // Add Stackdriver Logging
