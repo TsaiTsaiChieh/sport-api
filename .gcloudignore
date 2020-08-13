@@ -13,5 +13,4 @@ apidoc.json
 CHANGELOG.md
 Gruntfile.js
 README.md
-./src/auth
 ./src/test
