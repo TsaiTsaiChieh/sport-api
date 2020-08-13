@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
 -  Add getting pitchers data from MySQL and tune some log ***by TsaiTsaiChieh*** [#372](https://github.com/gets-info/sports-api/pull/372)
 #### Fix:
+-  edit .gcloudignore ***by rex-getsinfo*** [#382](https://github.com/gets-info/sports-api/pull/382)
+-  edit configs to environment variable, access from process.env i… ***by rex-getsinfo*** [#381](https://github.com/gets-info/sports-api/pull/381)
 -  Fix ':league_id' to league_id in MySQL query due to the returning id of leagueCodebook function and tune some 'to' module ***by TsaiTsaiChieh*** [#379](https://github.com/gets-info/sports-api/pull/379)
 -  Refactor and fix the response did not contain default title field ***by TsaiTsaiChieh*** [#377](https://github.com/gets-info/sports-api/pull/377)
 -  原本只有本期上期為錯誤 ***by alangets*** [#376](https://github.com/gets-info/sports-api/pull/376)

@@ -1,9 +1,16 @@
 .gcloudignore
-# If you would like to upload your .git directory, .gitignore file or files
-# from your .gitignore file, remove the corresponding line
-# below: 
-.git 
+
+apidoc.json
+.git
 .gitignore
-./src/test
 .env
+.eslintignore
+.eslintrc.js
 .eslintcache
+.github
+.idea
+
+CHANGELOG.md
+Gruntfile.js
+README.md
+./src/test
