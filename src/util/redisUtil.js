@@ -1,16 +1,7 @@
 const { Sequelize } = require('sequelize');
 const to = require('await-to-js').default;
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
+const { logger } = require('./modules');
+
 const { redisConfig } = require('../config/env_values');
 const Redis = require('ioredis');
 const redis = new Redis(redisConfig.REDISPORT, redisConfig.REDISHOST, {

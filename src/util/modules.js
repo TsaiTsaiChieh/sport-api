@@ -10,6 +10,27 @@ const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
 const periods = require('../config/periods.json');
 
+const winston = require('winston');
+const useFormat = winston.format.combine(
+  winston.format((info) => { // winston.format((info, opts)
+    let level = info.level.toUpperCase();
+    if (level === 'VERBOSE') { level = 'DEBUG'; }
+    info.severity = level;
+    delete info.level;
+    return info;
+  })(),
+  winston.format.json());
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+const loggingWinston = new LoggingWinston();
+const logger = winston.createLogger({
+  level: 'debug',
+  format: useFormat,
+  transports: [
+    new winston.transports.Console(),
+    loggingWinston
+  ]
+});
+
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
   date: 2020-07-01 or 20200701
@@ -495,5 +516,6 @@ module.exports = {
   to,
   godUserPriceTable,
   validateProperty,
-  NP
+  NP,
+  logger
 };
