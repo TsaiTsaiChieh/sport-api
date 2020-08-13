@@ -3,7 +3,17 @@ const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
-const logger = require('firebase-functions/lib/logger');
+// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
+const winston = require('winston');
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+const loggingWinston = new LoggingWinston();
+const logger = winston.createLogger({
+  level: 'debug',
+  transports: [
+    new winston.transports.Console(),
+    loggingWinston
+  ]
+});
 const { setUserMissionStatus } = require('../../util/missionUtil');
 
 async function missionRewardReceive(args) {
