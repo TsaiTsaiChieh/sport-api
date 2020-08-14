@@ -204,7 +204,10 @@ function repackageMatches(results, args, godPredictions) {
 }
 
 function blockInvalidMatch(ele) {
-  if (ele.spread_result || ele.totals_result) return { spreadFlag: true, totalsFlag: true };
+  if ((ele.spread_result || ele.totals_result)) return { spreadFlag: true, totalsFlag: true };
+  else if (!ele.spread_result && !ele.totals_result) return { spreadFlag: true, totalsFlag: true };
+  else if (!ele.spread_result && ele.totals_result) return { spreadFlag: false, totalsFlag: true };
+  else if (ele.spread_result && !ele.totals_result) return { spreadFlag: true, totalsFlag: false };
   else return { spreadFlag: false, totalsFlag: false };
 }
 
