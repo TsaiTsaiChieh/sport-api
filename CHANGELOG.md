@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
 -  Add getting pitchers data from MySQL and tune some log ***by TsaiTsaiChieh*** [#372](https://github.com/gets-info/sports-api/pull/372)
 #### Fix:
+-  Cashflow-Purchase Coin ***by gsihenry*** [#384](https://github.com/gets-info/sports-api/pull/384)
 -  首次大神 SQL 和 首次儲值 判斷條件修改 ***by alangets*** [#383](https://github.com/gets-info/sports-api/pull/383)
 -  edit .gcloudignore ***by rex-getsinfo*** [#382](https://github.com/gets-info/sports-api/pull/382)
 -  edit configs to environment variable, access from process.env i… ***by rex-getsinfo*** [#381](https://github.com/gets-info/sports-api/pull/381)
