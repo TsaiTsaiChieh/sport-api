@@ -24,7 +24,7 @@ async function transferModel(method, args, uid) {
          SELECT 0 as ingot, coin, dividend, CONCAT("儲值搞幣", coin, "(已繳款)") as title, "buy_coin" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
            FROM cashflow_deposits
           WHERE uid = :uid
-            AND status=0
+            AND status=1
             AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT ingot, coin, 0 AS dividend, "搞錠兌換搞幣" as title, "ingot2coin" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled 
