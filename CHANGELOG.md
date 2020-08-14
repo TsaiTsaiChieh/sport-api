@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
 -  Add getting pitchers data from MySQL and tune some log ***by TsaiTsaiChieh*** [#372](https://github.com/gets-info/sports-api/pull/372)
 #### Fix:
+-  change neweb、gash、ezpay to official ***by gsihenry*** [#388](https://github.com/gets-info/sports-api/pull/388)
 -  logger 獨立 loggerUtil 及相關修改 ***by alangets*** [#387](https://github.com/gets-info/sports-api/pull/387)
 -  edit configs ***by rex-getsinfo*** [#386](https://github.com/gets-info/sports-api/pull/386)
 -  Cashflow-Purchase Coin ***by gsihenry*** [#384](https://github.com/gets-info/sports-api/pull/384)
