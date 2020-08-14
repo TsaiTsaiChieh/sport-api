@@ -20,7 +20,7 @@ env_variables:
   INSTANCE_CONNECTION_NAME: 'sportslottery-test:us-central1:do-sports'
   REDISHOST: '10.128.16.3'
   REDISPORT: 6379
-  apiURL: 'https://api-dosports.web.app/'
+  apiURL: 'https://api-dot-sportslottery-test.appspot.com/'
   productURL: 'https://sportslottery-test.appspot.com/'
   FIREBASE_CONFIG: '{"apiKey":"AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE","authDomain":"sportslottery-test.firebaseapp.com","databaseURL":"https://sportslottery-test.firebaseio.com","storageBucket":"sportslottery-test.appspot.com","projectId":"sportslottery-test"}'
   firebaseApiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE'

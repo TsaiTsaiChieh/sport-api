@@ -4,10 +4,10 @@
   "description": "Cloud Functions for Firebase",
   "scripts": {
     "start": "node app.js",
-    "dev": "gcloud config set project sportslottery-test && node app.js",
+    "dev": "gcloud config set project sportslottery-test && nodemon app.js",
     "logs": "gcloud app logs tail -s api",
-    "api" : "gcloud config set project sportslottery-test && gcloud app deploy api.yaml",
-    "product-api" : "gcloud config set project getsports-gsi && gcloud app deploy api-getsport.yaml",
+    "api": "gcloud config set project sportslottery-test && gcloud app deploy api.yaml",
+    "product-api": "gcloud config set project getsports-gsi && gcloud app deploy api-getsport.yaml",
     "grunt": "grunt",
     "test": "jest src/test --testTimeout=30000",
     "lint": "eslint --ext .jsx,.js . --fix . --cache"
