@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 const to = require('await-to-js').default;
-const logger = require('firebase-functions/lib/logger');
+const { logger } = require('./loggerUtil');
+
 const { redisConfig } = require('../config/env_values');
 const Redis = require('ioredis');
 const redis = new Redis(redisConfig.REDISPORT, redisConfig.REDISHOST, {

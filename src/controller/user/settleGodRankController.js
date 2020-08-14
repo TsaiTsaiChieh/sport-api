@@ -1,14 +1,12 @@
 // const modules = require('../../util/modules');
 const settleGodRankModel = require('../../model/user/settleGodRankModel');
 
-function settleGodRank(req, res) {
-  const returnJson = {};
+async function settleGodRank(req, res) {
   try {
-    res.json(settleGodRankModel(req));
+    res.status(200).json(await settleGodRankModel(req));
   } catch (e) {
-    console.log(e);
-    return res.status(500);
+    console.error(e);
+    return res.status(500).send(e);
   }
-  res.status(200).json(returnJson);
 }
 module.exports = settleGodRank;

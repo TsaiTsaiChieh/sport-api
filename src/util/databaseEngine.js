@@ -3,18 +3,18 @@ const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
+const { logger } = require('./loggerUtil');
 const modules = require('../util/modules');
-const logger = require('firebase-functions/lib/logger');
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     try {
       // index is const, taking 165ms
       const result = await db.User.findOne({ where: { uid }, raw: true });
-      if (!result) return reject(new AppError.UserNotFound('by TsaiChieh'));
+      if (!result) return reject(new AppError.UserNotFound());
       return resolve(result); // else return user data
     } catch (err) {
-      return reject(new AppError.UserNotFound(`${err.stack} by TsaiChieh`));
+      return reject(new AppError.UserNotFound(err.stack));
     }
   });
 }

@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.1] - 2020-08-14
+#### Add:
+-  Add spread & total disable logic when the match is invalid ***by TsaiTsaiChieh*** [#380](https://github.com/gets-info/sports-api/pull/380)
+-  Add team_id, pitcher name and ori_name field ***by TsaiTsaiChieh*** [#378](https://github.com/gets-info/sports-api/pull/378)
+-  Add five percent dividend  ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
+-  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
+-  Add getting pitchers data from MySQL and tune some log ***by TsaiTsaiChieh*** [#372](https://github.com/gets-info/sports-api/pull/372)
+#### Fix:
+-  home/hottpics return articles in 24 hours from now ***by rex-getsinfo*** [#389](https://github.com/gets-info/sports-api/pull/389)
+-  change neweb、gash、ezpay to official ***by gsihenry*** [#388](https://github.com/gets-info/sports-api/pull/388)
+-  logger 獨立 loggerUtil 及相關修改 ***by alangets*** [#387](https://github.com/gets-info/sports-api/pull/387)
+-  edit configs ***by rex-getsinfo*** [#386](https://github.com/gets-info/sports-api/pull/386)
+-  Cashflow-Purchase Coin ***by gsihenry*** [#384](https://github.com/gets-info/sports-api/pull/384)
+-  首次大神 SQL 和 首次儲值 判斷條件修改 ***by alangets*** [#383](https://github.com/gets-info/sports-api/pull/383)
+-  edit .gcloudignore ***by rex-getsinfo*** [#382](https://github.com/gets-info/sports-api/pull/382)
+-  edit configs to environment variable, access from process.env i… ***by rex-getsinfo*** [#381](https://github.com/gets-info/sports-api/pull/381)
+-  Fix ':league_id' to league_id in MySQL query due to the returning id of leagueCodebook function and tune some 'to' module ***by TsaiTsaiChieh*** [#379](https://github.com/gets-info/sports-api/pull/379)
+-  Refactor and fix the response did not contain default title field ***by TsaiTsaiChieh*** [#377](https://github.com/gets-info/sports-api/pull/377)
+-  原本只有本期上期為錯誤 ***by alangets*** [#376](https://github.com/gets-info/sports-api/pull/376)
+-  有榮譽戰績部份，需要先行合并 ***by alangets*** [#371](https://github.com/gets-info/sports-api/pull/371)
+-  修正計算近十場過盤率，未滿十場卻還是除以10的問題 ***by page40316*** [#370](https://github.com/gets-info/sports-api/pull/370)
+-  Fix getTitlesPeriod always dynamic calculate problem, import periods.json file instead ***by TsaiTsaiChieh*** [#369](https://github.com/gets-info/sports-api/pull/369)
+***
+
 ## [v1.1.0] - 2020-08-10
 ### Deploy to google app engine 
 #### Fix:

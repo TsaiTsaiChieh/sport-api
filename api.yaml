@@ -20,5 +20,16 @@ env_variables:
   INSTANCE_CONNECTION_NAME: 'sportslottery-test:us-central1:do-sports'
   REDISHOST: '10.128.16.3'
   REDISPORT: 6379
+  apiURL: 'https://api-dot-sportslottery-test.appspot.com/'
+  productURL: 'https://sportslottery-test.appspot.com/'
+  FIREBASE_CONFIG: '{"apiKey":"AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE","authDomain":"sportslottery-test.firebaseapp.com","databaseURL":"https://sportslottery-test.firebaseio.com","storageBucket":"sportslottery-test.appspot.com","projectId":"sportslottery-test"}'
+  firebaseApiKey: 'AIzaSyByoBAdesDJHNpT-d31y08UYcOwt5KeaBE'
+  firebaseAuthDomain: 'sportslottery-test.firebaseapp.com'
+  firebaseDatabaseURL: 'https://sportslottery-test.firebaseio.com'
+  firebaseStorageBucket: 'sportslottery-test.appspot.com'
+  firebaseMessagingSenderId: '969081540385'
+  firebaseAppId: '1:969081540385:web:da08ff289d0bec4ca9b860'
+  firebaseMeasurementId: 'G-WRP22SQG9M'
+  corsList: 'http://localhost:5000,http://127.0.0.1:5000,http://localhost:8080,http://localhost:8081,http://localhost:9528,https://dosports.web.app,https://api-dosports.web.app,https://admin-dosports.web.app,https://frontend-dot-sportslottery-test.appspot.com,https://front.gets-info.com,https://getsports.cc,https://www.getsports.cc,https://sportslottery-test.appspot.com,http://getsport.gets-info.com'
 beta_settings:
   cloud_sql_instances: 'sportslottery-test:us-central1:do-sports'

@@ -20,5 +20,16 @@ env_variables:
   INSTANCE_CONNECTION_NAME: 'getsports-gsi:us-central1:getsports-cloudsql'
   REDISHOST: '10.170.59.179'
   REDISPORT: 6379
+  apiURL: 'https://api-dot-getsports-gsi.uc.r.appspot.com/'
+  productURL: 'https://getsport.cc/'
+  FIREBASE_CONFIG: '{"apiKey":"AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo","authDomain":"getsports-gsi.firebaseapp.com","databaseURL":"https://getsports-gsi.firebaseio.com","storageBucket":"getsports-gsi.appspot.com","projectId":"getsports-gsi"}'
+  firebaseApiKey: 'AIzaSyDkFcK7PGierF7zuMA1d-uT4gaHNPnhFjo'
+  firebaseAuthDomain: 'getsports-gsi.firebaseapp.com'
+  firebaseDatabaseURL: 'https://getsports-gsi.firebaseio.com'
+  firebaseStorageBucket: 'getsports-gsi.appspot.com'
+  firebaseMessagingSenderId: '605990362975'
+  firebaseAppId: '1:605990362975:web:6ce4a3172117dfc36ea0ea'
+  firebaseMeasurementId: 'G-KJ81TH7PPS'
+  corsList: 'https://getsports.cc,https://getsport.cc,https://www.getsports.cc,https://www.getsport.cc,https://getsports-gsi.uc.r.appspot.com'
 beta_settings:
   cloud_sql_instances: 'getsports-gsi:us-central1:getsports-cloudsql'

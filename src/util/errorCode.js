@@ -85,6 +85,8 @@ const errorCodeLists = {
   15014: { msg: ['更新 使用者任務狀態 失敗'], backend: ['輸入 parms 參數內容錯誤，至少要有一個 mission_ooxx_id 才正確。', ''] },
   15015: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 更新結果 0 筆，應該至少一筆。', ''] },
   150151: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive 呼叫 setUserMissionStatus 有異常發生。', ''] },
+  150152: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive type mission_god 或 mission_deposit 尚未開放', ''] },
+  150153: { msg: ['領取獎勵異常!'], backend: ['missionRewardRecive missionStatusUpdateParms 必需要值才行', ''] },
   15016: { msg: ['新增 使用者任務狀態 失敗'], backend: ['addUserMissionStatus 更新 UserMission.update 產生錯誤。', ''] },
   15110: { msg: ['新增 使用者任務 失敗'], backend: ['missionDaily 新增 UserMission.addUserMissionStatus 產生錯誤。', ''] },
 
@@ -111,7 +113,9 @@ const errorCodeLists = {
   50111: { msg: ['查詢 購牌記錄 錯誤'], backend: ['查詢 購牌記錄 錯誤', ''] },
   50112: { msg: ['排程 createData buy 錯誤'], backend: ['排程 新增 購牌退款資料  createData buy 錯誤', ''] },
   50114: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌資料 和 售牌退款資料  createData sell 錯誤', ''] },
-  50116: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌退款資料  createData sell 錯誤', ''] }
+  50116: { msg: ['排程 createData sell 錯誤'], backend: ['排程 新增 售牌退款資料  createData sell 錯誤', ''] },
+
+  50210: { msg: ['排程 god_nextPeriod 新增 使用者任務 失敗'], backend: ['god_nextPeriod 新增 UserMission.addUserMissionStatus 產生錯誤。', ''] }
 };
 
 const isError = e => e && e.stack && e.message;

@@ -4,16 +4,15 @@ const {
   predictionsResultFlag
 } = require('../../util/settleModules');
 const { checkUserRight } = require('../../util/databaseEngine');
+const { logger } = require('../../util/loggerUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
-const logger = require('firebase-functions/lib/logger');
-// const d = require('debug')('user:settleMatchesModel'); // firebase 升級後廢掉了
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    logger.log('[user settleMatchesModel]', util.format(...args));
+    logger.info('[user settleMatchesModel] ...', util.format(...args));
   }
 }
 

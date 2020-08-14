@@ -71,12 +71,13 @@ async function updateOrder(res) {
   /* 1.更新錢包資料 2.判斷重新觸發不會重複給搞幣問題 */
   const purse_deposit = await db.CashflowDeposit.findOne({
     where: {
-      serial_number: rdata.Result.MerchantOrderNo,
-      order_status: 0
+      serial_number: rdata.Result.MerchantOrderNo
     },
     attributes: ['uid', 'coin', 'dividend'],
     raw: true
   });
+  const purse_str = JSON.stringify(purse_deposit);
+  await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${purse_str}')`);
   // 檢查資料庫是否有資料
   const purse_self = await db.User.findOne({
     where: { uid: purse_deposit.uid },
