@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.1] - 2020-08-14
 #### Add:
+#### Fix:
+-  修正 eslint 錯誤 ***by alangets*** [#395](https://github.com/gets-info/sports-api/pull/395)
+-  fix the transfer statement ***by gsihenry*** [#394](https://github.com/gets-info/sports-api/pull/394)
+-  Fix when matches are scheduled and the handicap did not exist, the spread.disable & totals.disable return false problem ***by TsaiTsaiChieh*** [#392](https://github.com/gets-info/sports-api/pull/392)
+-  edit firebase-admin cert path to environment variable ***by rex-getsinfo*** [#391](https://github.com/gets-info/sports-api/pull/391)
+#### Removed:
+-  blockInvalidMatch function ***by TsaiTsaiChieh*** [#393](https://github.com/gets-info/sports-api/pull/393)
+#### DB:
+***
+
+## [v1.1.1] - 2020-08-14
+#### Add:
 -  Add spread & total disable logic when the match is invalid ***by TsaiTsaiChieh*** [#380](https://github.com/gets-info/sports-api/pull/380)
 -  Add team_id, pitcher name and ori_name field ***by TsaiTsaiChieh*** [#378](https://github.com/gets-info/sports-api/pull/378)
 -  Add five percent dividend  ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)

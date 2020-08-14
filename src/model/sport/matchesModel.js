@@ -185,9 +185,9 @@ function repackageMatches(results, args, godPredictions) {
     }
     if (ele.status === SCHEDULED) {
       // FIXME -- 由於 betsAPI 會有已開盤，但賽事狀態又改為未開打的情況。未來若導入 statScore API 無此情況發生可移除此邏輯
-      const disableFlag = blockInvalidMatch(ele);
-      temp.spread.disable = disableFlag.spreadFlag;
-      temp.totals.disable = disableFlag.totalsFlag;
+      // const disableFlag = blockInvalidMatch(ele);
+      // temp.spread.disable = disableFlag.spreadFlag;
+      // temp.totals.disable = disableFlag.totalsFlag;
       // --
       data.scheduled.push(temp);
     } else if (ele.status === INPLAY) {
@@ -203,10 +203,13 @@ function repackageMatches(results, args, godPredictions) {
   return data;
 }
 
-function blockInvalidMatch(ele) {
-  if (ele.spread_result || ele.totals_result) return { spreadFlag: true, totalsFlag: true };
-  else return { spreadFlag: false, totalsFlag: false };
-}
+// function blockInvalidMatch(ele) {
+//   if ((ele.spread_result || ele.totals_result)) return { spreadFlag: true, totalsFlag: true };
+//   else if (!ele.spread_result && !ele.totals_result) return { spreadFlag: true, totalsFlag: true };
+//   else if (!ele.spread_result && ele.totals_result) return { spreadFlag: false, totalsFlag: true };
+//   else if (ele.spread_result && !ele.totals_result) return { spreadFlag: true, totalsFlag: false };
+//   else return { spreadFlag: false, totalsFlag: false };
+// }
 
 // 將大神預測單的資料作顯示上的處理
 function isHandicapDisable(ele, temp, predictions) {

@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
@@ -76,7 +75,7 @@ async function missionRewardReceive(args) {
 
   if (!check1) throw errs.dbErrsMsg('404', '150152'); // chekc1 無值情況，代表 type 為 mission_god 或 mission_deposit，目前不會有這種情況，需要中斷
 
-  let missionStatusUpdateParms, check2, err;
+  let missionStatusUpdateParms; //, check2, err;
 
   // 取得 mission type 0: 每日  1: 進階  2: 活動
   if (check1[0].type === 0) { // 每日 daily
@@ -99,7 +98,7 @@ async function missionRewardReceive(args) {
   // Transaction Start
   const trans = await db.sequelize.transaction();
 
-  [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
+  const [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
   if (err) {
     logger.warn('[Error][missionRewardReciveModel][setUserMissionStatus] ', err);
     await trans.rollback();

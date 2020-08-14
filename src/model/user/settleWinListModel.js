@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
+// const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
 const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
 const { logger } = require('../../util/loggerUtil');
 const { predictionsWinList } = require('../../util/settleModules');
@@ -130,7 +129,7 @@ async function settleWinList(args) {
   // !!!! season_year 取得從 league_id leagueCodeBook 取得
 
   for (const data of resultWinList) {
-    let r = {};
+    // let r = {};
     let err, winListsHistory, created, season;
     [err, season] = await to(getSeason(data.league_id));
     if (err) { logger.error(err); throw errs.dbErrsMsg('404', '50015', { addMsg: err }); }
@@ -215,7 +214,7 @@ async function settleWinList(args) {
       };
       if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
         d('Users_WinListsHistory need update!');
-        [err, r] = await to(db.Users_WinListsHistory.update(kv, {
+        [err] = await to(db.Users_WinListsHistory.update(kv, { // [err, r]
           where: {
             uid: data.uid,
             league_id: data.league_id,
@@ -274,7 +273,7 @@ async function settleWinList(args) {
     // c.
     // day_of_year 目前未使用
     // 回寫結果 到 users__win__lists
-    let r = {}; // let r2 = {};
+    // let r = {}; // let r2 = {};
     let err, winLists, created;
 
     try {
@@ -343,7 +342,7 @@ async function settleWinList(args) {
       };
       if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
         d('Users_WinLists need update!');
-        [err, r] = await to(db.Users_WinLists.update(kv, {
+        [err] = await to(db.Users_WinLists.update(kv, { // [err, r]
           where: {
             uid: data.uid,
             league_id: data.league_id
