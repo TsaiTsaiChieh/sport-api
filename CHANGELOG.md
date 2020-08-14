@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  榮譽戰績 next_god_date 為下一期的第一天 ***by alangets*** [#390](https://github.com/gets-info/sports-api/pull/390)
 #### Removed:
 #### DB:
 ***
