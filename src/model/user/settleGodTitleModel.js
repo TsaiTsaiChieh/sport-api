@@ -1,6 +1,7 @@
 const {
   convertDateYMDToGTM0Unix, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
 } = require('../../util/modules');
+const { logger } = require('../../util/loggerUtil');
 const { checkUserRight } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
@@ -12,18 +13,7 @@ let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
-// const d = require('debug')('user:settleGodTitleModel'); // firebase 升級後廢掉了
+
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
@@ -137,7 +127,7 @@ async function settleGodTitle(args) {
 
   s2_123 = new Date().getTime();
   d('\n g');
-  d('%s', '2.1 2.2 2.3'); // ${colors.fg.Red} ${colors.Reset}
+  d('%s', '### 2.1 2.2 2.3'); // ${colors.fg.Red} ${colors.Reset}
   reformatHistory.forEach(function(uid_league_data) {
     d('\n');
     d('uid: %o   league_id: %o \n', uid_league_data.uid, uid_league_data.league_id); // ${colors.fg.Green} ${colors.Reset}
@@ -183,7 +173,10 @@ async function settleGodTitle(args) {
       }
     });
 
-    if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
+    if (!isEmulator) {
+      logger.info(`[user settleGodTitleModel] ### 2.1 2.2 2.3 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id}`,
+        allLogs);
+    }
     d('\n gs');
   });
 
@@ -255,7 +248,10 @@ async function settleGodTitle(args) {
       }
     });
 
-    if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
+    if (!isEmulator) {
+      logger.info(`[user settleGodTitleModel] ### 2.4 2.5 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id}`,
+        allLogs);
+    }
     d('\n gs');
   });
 
@@ -292,7 +288,7 @@ async function settleGodTitle(args) {
     };
   };
 
-  if (!isEmulator) logger.info('[user settleGodTitleModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleGodTitleModel] ### update titles ...', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleGodTitleModel] 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
