@@ -5,7 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [v1.1.2] - 2020-08-14
-#### Add:
 #### Fix:
 -  修正 eslint 錯誤 ***by alangets*** [#395](https://github.com/gets-info/sports-api/pull/395)
 -  fix the transfer statement ***by gsihenry*** [#394](https://github.com/gets-info/sports-api/pull/394)
@@ -13,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  edit firebase-admin cert path to environment variable ***by rex-getsinfo*** [#391](https://github.com/gets-info/sports-api/pull/391)
 #### Removed:
 -  blockInvalidMatch function ***by TsaiTsaiChieh*** [#393](https://github.com/gets-info/sports-api/pull/393)
-#### DB:
 ***
 
 ## [v1.1.1] - 2020-08-14
