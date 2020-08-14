@@ -53,7 +53,7 @@ async function mpgModel(data) {
 
       // console.log(data);
       /* 金流基本參數 */
-      const setting = ezpay_config.setting.test; // 讀取設定檔(測試/正式)
+      const setting = ezpay_config.setting.official; // 讀取設定檔(測試/正式)
       const common = ezpay_config.setting.common;
 
       const merchant_id = setting.merchant_id;
