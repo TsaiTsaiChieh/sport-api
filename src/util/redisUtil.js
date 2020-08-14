@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const to = require('await-to-js').default;
-const { logger } = require('./modules');
+const { logger } = require('../../util/loggerUtil');
 
 const { redisConfig } = require('../config/env_values');
 const Redis = require('ioredis');

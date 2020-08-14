@@ -1,6 +1,7 @@
 const {
-  convertDateYMDToGTM0Unix, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP, logger
+  convertDateYMDToGTM0Unix, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
 } = require('../../util/modules');
+const { logger } = require('../../util/loggerUtil');
 const { checkUserRight } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');

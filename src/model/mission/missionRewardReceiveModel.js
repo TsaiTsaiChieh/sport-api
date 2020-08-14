@@ -1,8 +1,9 @@
 /* eslint-disable prefer-const */
-const { date3UnixInfo, logger } = require('../../util/modules');
+const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
+const { logger } = require('../../util/loggerUtil');
 
 const { setUserMissionStatus } = require('../../util/missionUtil');
 

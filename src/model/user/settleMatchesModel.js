@@ -4,7 +4,7 @@ const {
   predictionsResultFlag
 } = require('../../util/settleModules');
 const { checkUserRight } = require('../../util/databaseEngine');
-const { logger } = require('../../util/modules');
+const { logger } = require('../../util/loggerUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;

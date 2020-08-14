@@ -1,5 +1,6 @@
-const { getTitlesPeriod, groupsByOrdersLimit, logger } = require('../../util/modules');
+const { getTitlesPeriod, groupsByOrdersLimit } = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const { logger } = require('../../util/loggerUtil');
 
 let allLogs = [];
 let logT = {};
