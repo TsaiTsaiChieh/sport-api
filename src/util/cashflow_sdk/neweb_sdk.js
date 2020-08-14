@@ -111,7 +111,7 @@ function InvoiceGenerator(URL = '', MerchantID = '', PostData = '', VER = '') {
 /* 取得訂單編號 */
 function get_order_no() {
   /* 需加入預設時區 */
-  const serial_number = moment().format('YYYYMMDDHHMMSS SSS');// 訂單格式
+  const serial_number = moment().format('YYYYMMDDHHMMSS');// 訂單格式
   return serial_number;
 }
 
