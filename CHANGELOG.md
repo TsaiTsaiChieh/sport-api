@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.1] - 2020-08-14
+#### Add:
 -  Add spread & total disable logic when the match is invalid ***by TsaiTsaiChieh*** [#380](https://github.com/gets-info/sports-api/pull/380)
 -  Add team_id, pitcher name and ori_name field ***by TsaiTsaiChieh*** [#378](https://github.com/gets-info/sports-api/pull/378)
 -  Add five percent dividend  ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
@@ -26,11 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  有榮譽戰績部份，需要先行合并 ***by alangets*** [#371](https://github.com/gets-info/sports-api/pull/371)
 -  修正計算近十場過盤率，未滿十場卻還是除以10的問題 ***by page40316*** [#370](https://github.com/gets-info/sports-api/pull/370)
 -  Fix getTitlesPeriod always dynamic calculate problem, import periods.json file instead ***by TsaiTsaiChieh*** [#369](https://github.com/gets-info/sports-api/pull/369)
+***
+
+## [v1.1.0] - 2020-08-10
+### Deploy to google app engine 
+#### Fix:
 -  refactor for google app engine ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/367)
 -  CBA 即時比分欄位與 NBA 不同，需特別處理，刪除 pbp_statscore_CBA 中多餘欄位。 ***by page40316*** [#365](https://github.com/gets-info/sports-api/pull/365)
 -  盤口排程修正抓最新盤口。history/getSeason 多判斷 current 欄位。prematch 新增 ended 明日賽程撈取。prematch_statscore 系列改為比對 ID，相對比對姓名穩定。.優化棒球文字直播。即時比分頁與首頁新增team_id欄位。 ***by page40316*** [#364](https://github.com/gets-info/sports-api/pull/364)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.0.10] - 2020-08-06
@@ -46,8 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Page 開啟 acceptleague 中 NBA 權限，新增 NBA 賽程、盤口與文字直播待測試站測試。更改 CPBL, NPB 爬蟲 Lose 欄位改為 Loss。 ***by page40316*** [#351](https://github.com/gets-info/sports-api/pull/351)
 -  Remove teamBase API date parameter and add some missing field ***by TsaiTsaiChieh*** [#350](https://github.com/gets-info/sports-api/pull/350)
--  cashflow missions ***by gsihenry*** [#375](https://github.com/gets-info/sports-api/pull/375)
--  five percent dividend ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
 -  Unread api ***by gsihenry*** [#352](https://github.com/gets-info/sports-api/pull/352)
 -  Add sport field in sport/matches API ***by TsaiTsaiChieh*** [#345](https://github.com/gets-info/sports-api/pull/345)
 -  Add MLB data about team statistics ***by TsaiTsaiChieh*** [#344](https://github.com/gets-info/sports-api/pull/344)
