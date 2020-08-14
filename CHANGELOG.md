@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  修正 eslint 錯誤 ***by alangets*** [#395](https://github.com/gets-info/sports-api/pull/395)
 -  fix the transfer statement ***by gsihenry*** [#394](https://github.com/gets-info/sports-api/pull/394)
 -  Fix when matches are scheduled and the handicap did not exist, the spread.disable & totals.disable return false problem ***by TsaiTsaiChieh*** [#392](https://github.com/gets-info/sports-api/pull/392)
 -  edit firebase-admin cert path to environment variable ***by rex-getsinfo*** [#391](https://github.com/gets-info/sports-api/pull/391)
