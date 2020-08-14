@@ -6,7 +6,7 @@ const {
   predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
 const { date3UnixInfo } = require('./modules');
-const { logger } = require('../../util/loggerUtil');
+const { logger } = require('./loggerUtil');
 const { CacheQuery, redis } = require('./redisUtil');
 
 //

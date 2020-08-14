@@ -3,7 +3,7 @@ const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
-const { logger } = require('../../util/loggerUtil');
+const { logger } = require('./loggerUtil');
 const modules = require('../util/modules');
 
 function findUser(uid) {
