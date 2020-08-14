@@ -217,7 +217,7 @@ async function settleGodRank() {
   await insertGodLimit(lastPeriod, nowPeriod);
   d('新增 大神計算合格條件 複制上一期條件到本期 結束');
 
-  if (!isEmulator) logger.info('[user settleGodRankModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleGodRankModel] ...', allLogs);
   return { status: 'ok' };
 }
 

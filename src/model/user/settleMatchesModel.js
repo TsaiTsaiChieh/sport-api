@@ -12,7 +12,7 @@ const to = require('await-to-js').default;
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    logger.info('[user settleMatchesModel]', util.format(...args));
+    logger.info('[user settleMatchesModel] ...', util.format(...args));
   }
 }
 

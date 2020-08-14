@@ -393,7 +393,7 @@ async function settleWinList(args) {
   // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
   // if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period - 1 });
 
-  if (!isEmulator) logger.info('[user settleWinListModel] Update Titles winBets, WinRate!', allLogs);
+  if (!isEmulator) logger.info('[user settleWinListModel] Update Titles winBets, WinRate! ...', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
@@ -437,7 +437,7 @@ async function winBetsRateTotalCount(uid, league_id,
     sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld)
   };
 
-  if (!isEmulator) logger.info(`[user settleWinListModel] uid ${uid} ${league_id} ${season}`, allLogs);
+  if (!isEmulator) logger.info(`[user settleWinListModel] uid ${uid} ${league_id} ${season} ...`, allLogs);
   d('\n gs');
   return result;
 }

@@ -288,7 +288,7 @@ async function settleGodTitle(args) {
     };
   };
 
-  if (!isEmulator) logger.info('[user settleGodTitleModel] ### update titles', allLogs);
+  if (!isEmulator) logger.info('[user settleGodTitleModel] ### update titles ...', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleGodTitleModel] 1# %o ms   20# %o ms   2_123# %o ms   21# %o ms   2_45# %o ms  3_u# %o ms ${colors.Reset}`,
     s20 - s1, s2_123 - s20, s21 - s2_123, s2_45 - s21, s3_u - s2_45, e - s3_u);
