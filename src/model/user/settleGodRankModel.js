@@ -1,22 +1,12 @@
 const { getTitlesPeriod, groupsByOrdersLimit } = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const { logger } = require('../../util/loggerUtil');
 
 let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
-// const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
+
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
@@ -227,7 +217,7 @@ async function settleGodRank() {
   await insertGodLimit(lastPeriod, nowPeriod);
   d('新增 大神計算合格條件 複制上一期條件到本期 結束');
 
-  if (!isEmulator) logger.info('[user settleGodRankModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleGodRankModel] ...', allLogs);
   return { status: 'ok' };
 }
 

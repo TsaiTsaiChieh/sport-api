@@ -9,6 +9,7 @@ function honorModel(req) {
       const uid = req.body.uid;
       const type = req.body.type;
       const league_id = req.body.league_id;
+
       if (type === 'performance') {
         const now = new Date();
         const period = await modules.getTitlesNextPeriod(now, 'YYYY-MM-DD');
@@ -16,7 +17,7 @@ function honorModel(req) {
         const currentMonth = modules.moment().month();
 
         const next = {
-          next_god_date: period.end,
+          next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
           next_period_date: {
             begin: period.date,
             end: period.end

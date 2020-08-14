@@ -3,18 +3,8 @@ const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
 const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
+const { logger } = require('./loggerUtil');
 const modules = require('../util/modules');
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
 
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
