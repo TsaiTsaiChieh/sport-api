@@ -70,6 +70,7 @@ async function winBetsLists(args) {
                     group by uid
                  ) prediction
               on titles.uid = prediction.uid
+             and titles.league_id = prediction.league_id
            order by ${rangeWinBetsCodebook(range)} desc
       `, {
       replacements: {
