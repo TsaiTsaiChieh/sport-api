@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Add getTitlesPeriod throw error logic ***by TsaiTsaiChieh*** [#399](https://github.com/gets-info/sports-api/pull/399)
 #### Fix:
+-  依榮譽戰績顯示需求 ***by alangets*** [#401](https://github.com/gets-info/sports-api/pull/401)
 -  Fix endUnix logic ***by TsaiTsaiChieh*** [#400](https://github.com/gets-info/sports-api/pull/400)
 -  大神計算人數 要區分各聯盟 ***by alangets*** [#398](https://github.com/gets-info/sports-api/pull/398)
 -  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
