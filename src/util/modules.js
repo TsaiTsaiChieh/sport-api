@@ -183,7 +183,7 @@ function getTitlesPeriod(date) {
       const endUnix = ele.end.unix;
       const middleUnix = ele.middle.unix;
 
-      if (beginUnix <= now && now <= endUnix) {
+      if (beginUnix <= now && now <= endUnix + oneDayMinusOneUnix) {
         const lastPeriod = periods[i - 1];
         return {
           period: lastPeriod.period,
