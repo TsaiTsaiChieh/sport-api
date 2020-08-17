@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+
+## [v1.1.3] - 2020-08-17
+#### Add:
 -  Add getTitlesPeriod throw error logic ***by TsaiTsaiChieh*** [#399](https://github.com/gets-info/sports-api/pull/399)
 #### Fix:
 -  修正結算賽事 settleMatch logger 不正確情況 ***by alangets*** [#406](https://github.com/gets-info/sports-api/pull/406)
@@ -17,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  大神計算人數 要區分各聯盟 ***by alangets*** [#398](https://github.com/gets-info/sports-api/pull/398)
 -  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
 -  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.2] - 2020-08-14
