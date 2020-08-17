@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Add getTitlesPeriod throw error logic ***by TsaiTsaiChieh*** [#399](https://github.com/gets-info/sports-api/pull/399)
 #### Fix:
+-  修正結算賽事 settleMatch logger 不正確情況 ***by alangets*** [#406](https://github.com/gets-info/sports-api/pull/406)
 -  大神是否賣牌，多補上 聯盟判斷 ***by alangets*** [#405](https://github.com/gets-info/sports-api/pull/405)
 -  目前先改成 全部大神隨機取4位 ***by alangets*** [#403](https://github.com/gets-info/sports-api/pull/403)
 -  adjust transfer log statement ***by gsihenry*** [#402](https://github.com/gets-info/sports-api/pull/402)
