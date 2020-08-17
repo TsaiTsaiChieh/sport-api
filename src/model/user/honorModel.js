@@ -97,9 +97,9 @@ function honorModel(req) {
         // titles 已經有記錄 使用者 各聯盟 鑽金銀銅大神，可以直接取得
         // 取得真正聯盟 name_ch 不是直接從 matc__leagues
         const event = await db.sequelize.query(`
-          SELECT distinct titles.id, titles.period, 
+          SELECT distinct titles.id, titles.period,
                  titles.rank_id, ur.name as rank_name, titles.updatedAt,
-                 ml.name
+                 titles.league_id, ml.name
             FROM titles, user__ranks ur, match__leagues ml
            WHERE titles.uid = :uid
              AND titles.league_id = ml.league_id
