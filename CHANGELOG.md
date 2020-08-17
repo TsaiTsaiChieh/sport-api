@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
 -  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
 #### Removed:
 #### DB:
