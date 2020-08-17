@@ -318,21 +318,21 @@ async function createTitlesGod(diamondList, goldList, sliverList, copperList, pe
     }
   };
 
-  // // 統一更新 這期大神 本月 win_bet、win_rate
-  // await db.sequelize.query(`
-  //   update titles,
-  //          ( select uid, league_id, this_month_win_rate, this_month_win_bets from users__win__lists ) src
-  //      set titles.win_bets = src.this_month_win_bets,
-  //          titles.win_rate = src.this_month_win_rate
-  //    where titles.uid = src.uid
-  //      and titles.league_id = src.league_id
-  //      and titles.period = :period
-  // `, {
-  //   replacements: {
-  //     period: period
-  //   },
-  //   type: db.sequelize.QueryTypes.UPDATE
-  // });
+  // 統一更新 這期大神 本月 win_bet、win_rate
+  await db.sequelize.query(`
+    update titles,
+           ( select uid, league_id, this_month_win_rate, this_month_win_bets from users__win__lists ) src
+       set titles.win_bets = src.this_month_win_bets,
+           titles.win_rate = src.this_month_win_rate
+     where titles.uid = src.uid
+       and titles.league_id = src.league_id
+       and titles.period = :period
+  `, {
+    replacements: {
+      period: period
+    },
+    type: db.sequelize.QueryTypes.UPDATE
+  });
 }
 
 // 重置 Users status 上期大神 2 改為 一般玩家 1
