@@ -79,7 +79,7 @@ async function settleGodRank() {
      where period = :period
   `, {
     replacements: {
-      period: nowPeriod
+      period: lastPeriod
     },
     type: db.sequelize.QueryTypes.SELECT
   });
@@ -125,7 +125,7 @@ async function settleGodRank() {
               having ( this_period_win_bets >= :diamondWinBetsLimit or this_period_win_rate >= :gscWinRateLimit )
            ) pregod
      where ( ${limitSQL} )
-     -- order by league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap
+    -- order by league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap
   `, {
     replacements: {
       period: lastPeriod,
