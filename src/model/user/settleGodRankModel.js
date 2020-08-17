@@ -50,10 +50,10 @@ async function settleGodRank() {
   const lastPeriod_date = getTitlesPeriod(now).date; // 上一期開始日期
   const last2Period = lastPeriod - 1; // 上上期期數
   const nowPeriod = lastPeriod + 1;
-  const diamondList = [];
-  const goldList = [];
-  const sliverList = [];
-  const copperList = [];
+  const diamondList = {};
+  const goldList = {};
+  const sliverList = {};
+  const copperList = {};
   const Limit = {
     Diamond: {
       num: 5, // 錄取幾位
@@ -158,6 +158,20 @@ async function settleGodRank() {
   //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 50, this_period_win_rate: 0.6753, first_week_win_handicap: 56, this_period_win_handicap: 154, this_league_win_handicap: 319 }
   // ];
 
+  // 12期
+  // const FakePreGods = [
+  //   { uid: 'lQ8saEZ8X6RAbyMw47PvnnijxPn1', league_id: '3939', this_period_win_bets: 19.5, this_period_win_rate: 0.5868, first_week_win_handicap: 40, this_period_win_handicap: 121, this_league_win_handicap: 138 },
+  //   { uid: 'mkIKkSsfbIVj7vP5ScGtwxI7Och1', league_id: '349', this_period_win_bets: 7.5, this_period_win_rate: 0.5000, first_week_win_handicap: 16, this_period_win_handicap: 52, this_league_win_handicap: 52 },
+  //   { uid: 'mkIKkSsfbIVj7vP5ScGtwxI7Och1', league_id: '3939', this_period_win_bets: 10.5, this_period_win_rate: 0.6471, first_week_win_handicap: 11, this_period_win_handicap: 34, this_league_win_handicap: 34 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '2274', this_period_win_bets: 8, this_period_win_rate: 0.6111, first_week_win_handicap: 16, this_period_win_handicap: 36, this_league_win_handicap: 36 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '347', this_period_win_bets: 12.5, this_period_win_rate: 0.6275, first_week_win_handicap: 23, this_period_win_handicap: 51, this_league_win_handicap: 51 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '3939', this_period_win_bets: 8, this_period_win_rate: 0.5385, first_week_win_handicap: 57, this_period_win_handicap: 117, this_league_win_handicap: 142 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 11.5, this_period_win_rate: 0.5228, first_week_win_handicap: 256, this_period_win_handicap: 681, this_league_win_handicap: 1225 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 12, this_period_win_rate: 0.5224, first_week_win_handicap: 127, this_period_win_handicap: 268, this_league_win_handicap: 449 },
+  //   { uid: 's5gNFdKiVscxqm3P0BINoV4SxCd2', league_id: '349', this_period_win_bets: 8.5, this_period_win_rate: 0.5690, first_week_win_handicap: 21, this_period_win_handicap: 58, this_league_win_handicap: 58 },
+  //   { uid: 'Ucdf3ee92a0ea38b034a00dc10506521e', league_id: '3939', this_period_win_bets: 7.5, this_period_win_rate: 0.5325, first_week_win_handicap: 13, this_period_win_handicap: 77, this_league_win_handicap: 88 },
+  //   { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: '3939', this_period_win_bets: 8, this_period_win_rate: 0.5556, first_week_win_handicap: 44, this_period_win_handicap: 72, this_league_win_handicap: 125 }
+  // ];
   // preGods = FakePreGods;
   // // ---------- 以上 假大神合格資料 ----------
 
@@ -236,7 +250,7 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
     for (const [index, god] of Object.entries(godList.lists)) {
       // d('limit[rank]: ', (list.length < limit[rank].num), index, rank, limit[rank], god.this_period_win_bets, limit[rank].WinBetsLimit);
-      if (list.length > limit[rank].num - 1) break; // 取得預定人數 就停止錄取
+      if (list[godList.league_id] && list[godList.league_id].length > limit[rank].num - 1) break; // 取得預定人數 就停止錄取
       if (rank === 'Diamond' && god.this_period_win_bets < limit[rank].WinBetsLimit) continue;
       if (rank === 'Gold' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
       if (rank === 'Sliver' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
@@ -244,7 +258,8 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
       d('錄取 i : ', index, godList.league_id, god.uid);
       god.rank = rank;
-      list.push(god);
+      if (!list[godList.league_id]) list[godList.league_id] = []; // 第一次該聯盟產生大神，初始化 []
+      list[godList.league_id].push(god);
 
       // 移除 preGods 錄取人員，避免重覆錄取
       const removeIndex = preGods.findIndex(o => o.league_id === godList.league_id && o.uid === god.uid);
@@ -255,44 +270,52 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
 // 新增 大神歷史戰績 並 更新 本月 win_bet、win_rate
 async function createTitlesGod(diamondList, goldList, sliverList, copperList, period, period_date) {
-  for (const data of Object.values(diamondList)) {
-    await db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 1
-    });
+  for (const datas of Object.values(diamondList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 1
+      });
+    }
   };
 
-  for (const data of Object.values(goldList)) {
-    await db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 2
-    });
+  for (const datas of Object.values(goldList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 2
+      });
+    }
   };
 
-  for (const data of Object.values(sliverList)) {
-    await db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 3
-    });
+  for (const datas of Object.values(sliverList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 3
+      });
+    }
   };
 
-  for (const data of Object.values(copperList)) {
-    await db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 4
-    });
+  for (const datas of Object.values(copperList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 4
+      });
+    }
   };
 
   // 統一更新 這期大神 本月 win_bet、win_rate
