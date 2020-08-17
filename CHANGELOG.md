@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
 #### Removed:
 #### DB:
 ***
