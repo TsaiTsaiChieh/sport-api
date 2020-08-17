@@ -3,16 +3,18 @@ const {
   settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
   predictionsResultFlag
 } = require('../../util/settleModules');
-const { checkUserRight } = require('../../util/databaseEngine');
+// const { checkUserRight } = require('../../util/databaseEngine');
 const { logger } = require('../../util/loggerUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const to = require('await-to-js').default;
 
+const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
-    logger.info('[user settleMatchesModel] ...', util.format(...args));
+    if (isEmulator) { console.log(util.format(...args)); return; }
+    logger.info(util.format(...args));
   }
 }
 
@@ -22,7 +24,7 @@ async function settleMatchesModel(args) {
   // 3. 該場賽事-使用者有下預測單結算
   // !! 比賽結束跨日，結算要判斷 執行日期 不同 開賽日期，意謂 跨日比賽結束，要重算前天勝率、勝注
 
-  const userUid = args.token.uid;
+  // const userUid = args.token.uid;
   const bets_id = args.bets_id;
 
   const result = {};
@@ -30,8 +32,8 @@ async function settleMatchesModel(args) {
   const s1 = new Date().getTime();
   // 1.
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130810');
-  if (checkResult.code) throw checkResult;
+  // const checkResult = await checkUserRight(userUid, [1, 2, 9], '130810');
+  // if (checkResult.code) throw checkResult;
 
   const s2 = new Date().getTime();
   // 2.
@@ -88,7 +90,7 @@ async function settleMatchesModel(args) {
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
     if (settleTotalsResult === '') throw errs.errsMsg('404', '13112'); // 賽事結算大小 結果不應該為空白
 
-    d(bets_id, settleSpreadResult, settleTotalsResult);
+    d('[user settleMatchesModel] 賽事 ', bets_id, settleSpreadResult, settleTotalsResult, data);
 
     // 回寫結果
     if (settleSpreadResult !== null || settleTotalsResult !== null) {
@@ -168,7 +170,7 @@ async function settleMatchesModel(args) {
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
     const spreadResultFlag = (data.spread_handicap == null) ? -2 : predictionsResultFlag(data.spread_option, settleSpreadResult, data.spread_rate);
     const totalsResultFlag = (data.totals_handicap == null) ? -2 : predictionsResultFlag(data.totals_option, settleTotalsResult, data.totals_rate);
-    d(bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag);
+    d('[user settleMatchesModel] 使用者預測單 ', bets_id, settleSpreadResult, settleTotalsResult, spreadResultFlag, totalsResultFlag, data);
     // 回寫結果
     const [err, r] = await to(db.Prediction.update({
       spread_result: settleSpreadResult,

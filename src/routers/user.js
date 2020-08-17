@@ -4,7 +4,7 @@ const verification = require('../util/verification');
 
 router.get('/getRanks/', require('../controller/user/getRanks'));
 
-router.post(
+router.get(
   '/getUserProfile',
   verification.token,
   require('../controller/user/getUserProfile')

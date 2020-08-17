@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.3] - 2020-08-17
+#### Add:
+-  Add getTitlesPeriod throw error logic ***by TsaiTsaiChieh*** [#399](https://github.com/gets-info/sports-api/pull/399)
+#### Fix:
+-  修正結算賽事 settleMatch logger 不正確情況 ***by alangets*** [#406](https://github.com/gets-info/sports-api/pull/406)
+-  大神是否賣牌，多補上 聯盟判斷 ***by alangets*** [#405](https://github.com/gets-info/sports-api/pull/405)
+-  目前先改成 全部大神隨機取4位 ***by alangets*** [#403](https://github.com/gets-info/sports-api/pull/403)
+-  adjust transfer log statement ***by gsihenry*** [#402](https://github.com/gets-info/sports-api/pull/402)
+-  依榮譽戰績顯示需求 ***by alangets*** [#401](https://github.com/gets-info/sports-api/pull/401)
+-  Fix endUnix logic ***by TsaiTsaiChieh*** [#400](https://github.com/gets-info/sports-api/pull/400)
+-  大神計算人數 要區分各聯盟 ***by alangets*** [#398](https://github.com/gets-info/sports-api/pull/398)
+-  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
+-  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
+***
+
+
 ## [v1.1.2] - 2020-08-14
 #### Fix:
 -  修正 eslint 錯誤 ***by alangets*** [#395](https://github.com/gets-info/sports-api/pull/395)
