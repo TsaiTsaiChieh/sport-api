@@ -173,27 +173,32 @@ function dateFormat(date) {
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
  */
-function getTitlesPeriod(date, format = 'YYYYMMDD') {
+function getTitlesPeriod(date) {
   const now = moment(date).utcOffset(UTF8).unix();
-  for (let i = 0; i < periods.length; i++) {
-    const ele = periods[i];
-    const beginUnix = ele.begin.unix;
-    const endUnix = ele.end.unix;
-    const middleUnix = ele.middle.unix;
+  if (typeof now !== 'number') throw new Error('Input not acceptable');
+  try {
+    for (let i = 0; i < periods.length; i++) {
+      const ele = periods[i];
+      const beginUnix = ele.begin.unix;
+      const endUnix = ele.end.unix;
+      const middleUnix = ele.middle.unix;
 
-    if (beginUnix <= now && now <= endUnix) {
-      const lastPeriod = periods[i - 1];
-      return {
-        period: lastPeriod.period,
-        date: lastPeriod.begin.format,
-        end: lastPeriod.end.format,
-        weekPeriod: now < middleUnix ? 1 : 2,
-        periodBeginDateBeginUnix: lastPeriod.begin.unix,
-        periodBeginDateEndUnix: lastPeriod.begin.unix + oneDayMinusOneUnix,
-        periodEndDateBeginUnix: lastPeriod.end.unix,
-        periodEndDateEndUnix: lastPeriod.end.unix + oneDayMinusOneUnix
-      };
-    };
+      if (beginUnix <= now && now <= endUnix) {
+        const lastPeriod = periods[i - 1];
+        return {
+          period: lastPeriod.period,
+          date: lastPeriod.begin.format,
+          end: lastPeriod.end.format,
+          weekPeriod: now < middleUnix ? 1 : 2,
+          periodBeginDateBeginUnix: lastPeriod.begin.unix,
+          periodBeginDateEndUnix: lastPeriod.begin.unix + oneDayMinusOneUnix,
+          periodEndDateBeginUnix: lastPeriod.end.unix,
+          periodEndDateEndUnix: lastPeriod.end.unix + oneDayMinusOneUnix
+        };
+      }
+    }
+  } catch (err) {
+    throw new Error(`Input is ${date}, throw error: ${err.stack}`);
   }
 }
 
