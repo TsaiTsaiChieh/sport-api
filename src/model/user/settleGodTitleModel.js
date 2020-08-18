@@ -2,7 +2,7 @@ const {
   convertDateYMDToGTM0Unix, moment, groupsByOrdersLimit, mergeDeep, fieldSorter, NP
 } = require('../../util/modules');
 const { logger } = require('../../util/loggerUtil');
-const { checkUserRight } = require('../../util/databaseEngine');
+// const { checkUserRight } = require('../../util/databaseEngine');
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -58,7 +58,7 @@ async function settleGodTitle(args) {
   // }
   //= ==============
 
-  const userUid = args.token.uid;
+  // const userUid = args.token.uid;
   const period = args.period;
   const days = 30;
 
@@ -83,8 +83,8 @@ async function settleGodTitle(args) {
   const s1 = new Date().getTime();
   // 1.
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130820');
-  if (checkResult.code) throw checkResult;
+  // const checkResult = await checkUserRight(userUid, [1, 2, 9], '130820');
+  // if (checkResult.code) throw checkResult;
 
   let s20 = 0;
   let s2_123 = 0;
