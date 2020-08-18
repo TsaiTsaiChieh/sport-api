@@ -161,10 +161,12 @@ async function settleMatchesModel(args) {
     // null 代表 沒有handicap  -99 代表 延遲轉結束，上面的 sql 有過瀘了
     const settleSpreadResult = (data.spread_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleSpreadSoccer(countData) : settleSpread(countData);
+    if (settleSpreadResult === null) throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為 Snull
     if (settleSpreadResult === '') throw errs.errsMsg('404', '13215'); // 賽事結算讓分 結果不應該為空白
 
     const settleTotalsResult = (data.totals_handicap == null) ? null
       : ['Soccer', 'eSoccer'].includes(league) ? settleTotalsSoccer(countData) : settleTotals(countData);
+    if (settleTotalsResult === null) throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為 null
     if (settleTotalsResult === '') throw errs.errsMsg('404', '13216'); // 賽事結算大小 結果不應該為空白
 
     // 計算 讓分開盤結果(spread_result_flag)、大小分開盤結果(totals_result_flag)
