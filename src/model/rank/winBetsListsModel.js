@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -10,8 +10,9 @@ async function winBetsLists(args) {
   const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
+  const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
-  const endUnix = nowInfo.dateEndUnix;
+  const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
   const winBetsLists = {};
   winBetsLists[league] = [];
@@ -64,12 +65,13 @@ async function winBetsLists(args) {
              and titles.period = :period
             left join 
                  (
-                   select uid, max(sell) sell
+                   select uid, league_id, max(sell) sell
                      from user__predictions
                     where match_scheduled between :begin and :end
                     group by uid
                  ) prediction
               on titles.uid = prediction.uid
+             and titles.league_id = prediction.league_id
            order by ${rangeWinBetsCodebook(range)} desc
       `, {
       replacements: {

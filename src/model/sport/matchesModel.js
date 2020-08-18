@@ -13,9 +13,9 @@ function getMatches(args) {
       if (isGodBelongToLeague(args)) {
         godPredictions = await returnGodUserPrediction(args);
       }
-      return resolve(repackageMatches(matches, args, godPredictions));
+      return resolve(await repackageMatches(matches, args, godPredictions));
     } catch (err) {
-      return reject({ code: err.code, error: err });
+      return reject(err);
     }
   });
 }
@@ -108,99 +108,103 @@ function isGodBelongToLeague(args) {
 }
 
 function repackageMatches(results, args, godPredictions) {
-  const data = {
-    sell: USER_SELL.NORMAL,
-    scheduled: [],
-    inplay: [],
-    end: []
-  };
-
-  for (let i = 0; i < results.length; i++) {
-    const ele = results[i];
-
-    const temp = {
-      id: ele.id,
-      scheduled: ele.scheduled,
-      scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
-      status: ele.status,
-      sport: league2Sport(args.league).sport,
-      league: args.league,
-      league_ch: ele.name_ch,
-      league_id: ele.league_id,
-      ori_league_id: ele.ori_league_id,
-      home: {
-        id: ele.home_id,
-        team_name: ele.home_alias,
-        alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
-        alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
-        player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
-        image_id: ele.home_image_id
-      },
-      away: {
-        id: ele.away_id,
-        team_name: ele.away_alias,
-        alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
-        alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
-        player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
-        image_id: ele.away_image_id
-      },
-      spread: {
-        id: ele.spread_id,
-        handicap: ele.spread_handicap,
-        home_tw: ele.spread_home_tw,
-        away_tw: ele.spread_away_tw,
-        disable: !!((ele.spread_id === null || ele.spread_handicap === null))
-      },
-      totals: {
-        id: ele.totals_id,
-        handicap: ele.totals_handicap,
-        over_tw: ele.totals_over_tw,
-        disable: !!((ele.totals_id === null || ele.totals_handicap === null))
-      }
+  try {
+    const data = {
+      sell: USER_SELL.NORMAL,
+      scheduled: [],
+      inplay: [],
+      end: []
     };
 
-    // ignore eSoccer league when spread & totals are null
-    if (temp.league_id === ignoreLeagueId && !temp.spread.id && !temp.totals.id) continue;
+    for (let i = 0; i < results.length; i++) {
+      const ele = results[i];
 
-    if (godPredictions.length) {
-      data.sell = godPredictions[0].sell;
-      isHandicapDisable(ele, temp, godPredictions);
+      const temp = {
+        id: ele.id,
+        scheduled: ele.scheduled,
+        scheduled_tw: modules.convertTimezoneFormat(ele.scheduled, { format: 'hh:mm A' }),
+        status: ele.status,
+        sport: league2Sport(args.league).sport,
+        league: args.league,
+        league_ch: ele.name_ch,
+        league_id: ele.league_id,
+        ori_league_id: ele.ori_league_id,
+        home: {
+          id: ele.home_id,
+          team_name: ele.home_alias,
+          alias: modules.sliceTeamAndPlayer(ele.home_alias).team,
+          alias_ch: modules.sliceTeamAndPlayer(ele.home_alias_ch).team,
+          player_name: modules.sliceTeamAndPlayer(ele.home_alias).player_name,
+          image_id: ele.home_image_id
+        },
+        away: {
+          id: ele.away_id,
+          team_name: ele.away_alias,
+          alias: modules.sliceTeamAndPlayer(ele.away_alias).team,
+          alias_ch: modules.sliceTeamAndPlayer(ele.away_alias_ch).team,
+          player_name: modules.sliceTeamAndPlayer(ele.away_alias).player_name,
+          image_id: ele.away_image_id
+        },
+        spread: {
+          id: ele.spread_id,
+          handicap: ele.spread_handicap,
+          home_tw: ele.spread_home_tw,
+          away_tw: ele.spread_away_tw,
+          disable: !!((ele.spread_id === null || ele.spread_handicap === null))
+        },
+        totals: {
+          id: ele.totals_id,
+          handicap: ele.totals_handicap,
+          over_tw: ele.totals_over_tw,
+          disable: !!((ele.totals_id === null || ele.totals_handicap === null))
+        }
+      };
+
+      // ignore eSoccer league when spread & totals are null
+      if (temp.league_id === ignoreLeagueId && !temp.spread.id && !temp.totals.id) continue;
+
+      if (godPredictions.length) {
+        data.sell = godPredictions[0].sell;
+        isHandicapDisable(ele, temp, godPredictions);
+      }
+      if (ele.home_points || ele.home_points === 0) temp.home.points = ele.home_points;
+      if (ele.away_points || ele.away_points === 0) temp.away.points = ele.away_points;
+      // 中分洞要亮原本顯示的盤口，否則亮過盤結果
+      if (ele.spread_result) {
+        if (ele.spread_result === 'fair2') {
+          temp.spread.result = ele.spread_result;
+          if (ele.spread_home_tw) temp.spread.result = 'home';
+          else if (ele.spread_away_tw) temp.spread.result = 'away';
+        } else if (ele.spread_result === 'fair|home') temp.spread.result = 'home';
+        else if (ele.spread_result === 'fair|away') temp.spread.result = 'away';
+        else temp.spread.result = ele.spread_result;
+      }
+      if (ele.totals_result) {
+        if (ele.totals_result === 'fair2' || ele.totals_result === 'fair|over') temp.totals.result = 'over';
+        else if (ele.totals_result === 'fair|under') temp.totals.result = 'under';
+        else temp.totals.result = ele.totals_result;
+      }
+      if (ele.status === SCHEDULED) {
+        // FIXME -- 由於 betsAPI 會有已開盤，但賽事狀態又改為未開打的情況。未來若導入 statScore API 無此情況發生可移除此邏輯
+        // const disableFlag = blockInvalidMatch(ele);
+        // temp.spread.disable = disableFlag.spreadFlag;
+        // temp.totals.disable = disableFlag.totalsFlag;
+        // --
+        data.scheduled.push(temp);
+      } else if (ele.status === INPLAY) {
+        temp.spread.disable = true;
+        temp.totals.disable = true;
+        data.inplay.push(temp);
+      } else if (ele.status === END) {
+        temp.spread.disable = true;
+        temp.totals.disable = true;
+        data.end.push(temp);
+      }
     }
-    if (ele.home_points || ele.home_points === 0) temp.home.points = ele.home_points;
-    if (ele.away_points || ele.away_points === 0) temp.away.points = ele.away_points;
-    // 中分洞要亮原本顯示的盤口，否則亮過盤結果
-    if (ele.spread_result) {
-      if (ele.spread_result === 'fair2') {
-        temp.spread.result = ele.spread_result;
-        if (ele.spread_home_tw) temp.spread.result = 'home';
-        else if (ele.spread_away_tw) temp.spread.result = 'away';
-      } else if (ele.spread_result === 'fair|home') temp.spread.result = 'home';
-      else if (ele.spread_result === 'fair|away') temp.spread.result = 'away';
-      else temp.spread.result = ele.spread_result;
-    }
-    if (ele.totals_result) {
-      if (ele.totals_result === 'fair2' || ele.totals_result === 'fair|over') temp.totals.result = 'over';
-      else if (ele.totals_result === 'fair|under') temp.totals.result = 'under';
-      else temp.totals.result = ele.totals_result;
-    }
-    if (ele.status === SCHEDULED) {
-      // FIXME -- 由於 betsAPI 會有已開盤，但賽事狀態又改為未開打的情況。未來若導入 statScore API 無此情況發生可移除此邏輯
-      // const disableFlag = blockInvalidMatch(ele);
-      // temp.spread.disable = disableFlag.spreadFlag;
-      // temp.totals.disable = disableFlag.totalsFlag;
-      // --
-      data.scheduled.push(temp);
-    } else if (ele.status === INPLAY) {
-      temp.spread.disable = true;
-      temp.totals.disable = true;
-      data.inplay.push(temp);
-    } else if (ele.status === END) {
-      temp.spread.disable = true;
-      temp.totals.disable = true;
-      data.end.push(temp);
-    }
+    return data;
+  } catch (err) {
+    throw new AppErrors.RepackageError(err.stack);
   }
-  return data;
 }
 
 // function blockInvalidMatch(ele) {
