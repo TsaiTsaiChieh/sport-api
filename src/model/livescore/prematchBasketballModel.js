@@ -418,7 +418,8 @@ function repackageTenFights(args, events) {
   }
 }
 
-function repackagePassRate(homeEvents, awayEvents) {
+function repackagePassRate(result) {
+  const { homeEvents, awayEvents } = result;
   try {
     let homeAtGivePass = 0;
     let homeAtGiveFail = 0;
