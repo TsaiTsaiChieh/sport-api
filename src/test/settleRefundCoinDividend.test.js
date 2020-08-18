@@ -1,15 +1,16 @@
 require('dotenv').config();
-const { settleRefundCoinDividend, settleIngot, settleRefundIngot } = require('../util/settleModules');
+const { settleRefundCoinDividend } = require('../util/settleModules');
+// settleIngot, settleRefundIngot
 
 describe('結算退款 搞幣紅利', () => {
   describe('鑽石大神', () => {
     it('鑽石大神 179 89 80 99', () => {
       const diamondData =
         {
-          price: '179', 
+          price: '179',
           sub_price: '89',
-          coin: '80', 
-          dividend: '99' 
+          coin: '80',
+          dividend: '99'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -24,10 +25,10 @@ describe('結算退款 搞幣紅利', () => {
     it('鑽石大神 179 89 99 80', () => {
       const diamondData =
         {
-          price: '179', 
+          price: '179',
           sub_price: '89',
-          coin: '99', 
-          dividend: '80' 
+          coin: '99',
+          dividend: '80'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -42,10 +43,10 @@ describe('結算退款 搞幣紅利', () => {
     it('鑽石大神 179 89 179 0', () => {
       const diamondData =
         {
-          price: '179', 
+          price: '179',
           sub_price: '89',
-          coin: '179', 
-          dividend: '0' 
+          coin: '179',
+          dividend: '0'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -60,10 +61,10 @@ describe('結算退款 搞幣紅利', () => {
     it('鑽石大神 179 89 0 179', () => {
       const diamondData =
         {
-          price: '179', 
+          price: '179',
           sub_price: '89',
-          coin: '0', 
-          dividend: '179' 
+          coin: '0',
+          dividend: '179'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -80,10 +81,10 @@ describe('結算退款 搞幣紅利', () => {
     it('金大神 169 79 100 69', () => {
       const diamondData =
         {
-          price: '169', 
+          price: '169',
           sub_price: '79',
-          coin: '100', 
-          dividend: '69' 
+          coin: '100',
+          dividend: '69'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -98,10 +99,10 @@ describe('結算退款 搞幣紅利', () => {
     it('金大神 169 79 69 100', () => {
       const diamondData =
         {
-          price: '169', 
+          price: '169',
           sub_price: '79',
-          coin: '69', 
-          dividend: '100' 
+          coin: '69',
+          dividend: '100'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -116,10 +117,10 @@ describe('結算退款 搞幣紅利', () => {
     it('金大神 169 79 169 0', () => {
       const diamondData =
         {
-          price: '169', 
+          price: '169',
           sub_price: '79',
-          coin: '169', 
-          dividend: '0' 
+          coin: '169',
+          dividend: '0'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -134,10 +135,10 @@ describe('結算退款 搞幣紅利', () => {
     it('金大神 169 79 0 169', () => {
       const diamondData =
         {
-          price: '169', 
+          price: '169',
           sub_price: '79',
-          coin: '0', 
-          dividend: '169' 
+          coin: '0',
+          dividend: '169'
         };
 
       const settleResult = settleRefundCoinDividend(diamondData.price, diamondData.sub_price,
@@ -149,5 +150,4 @@ describe('結算退款 搞幣紅利', () => {
       expect(settleResult).toHaveProperty('dividend', 90);
     });
   });
-
 });
