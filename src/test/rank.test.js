@@ -2,7 +2,7 @@
 const moment = require('moment');
 const request = require('supertest');
 
-const localhost = 'localhost:5000';
+const localhost = 'localhost:3000';
 const sportslottery_test = 'https://us-central1-sportslottery-test.cloudfunctions.net/api';
 const apidosports = 'https://api-dosports.web.app';
 

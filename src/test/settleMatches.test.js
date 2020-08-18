@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { settleSpread, settleSpreadSoccer, settleTotals, settleTotalsSoccer,
   predictionsResultFlag } = require('../util/settleModules');
 

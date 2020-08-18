@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { predictionsWinList } = require('../util/settleModules');
 
 describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
