@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  test程式錯誤 ***by alangets*** [#413](https://github.com/gets-info/sports-api/pull/413)
 -  adjust the setting of gash vm server ***by gsihenry*** [#412](https://github.com/gets-info/sports-api/pull/412)
 -  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
 -  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
