@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { predictionsWinList } = require('../util/settleModules');
 
 describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
@@ -42,7 +43,6 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[0]).toHaveProperty('totals_fault_bets', -1);
     expect(settleResult[0]).toHaveProperty('spread_win_bets', 0);
     expect(settleResult[0]).toHaveProperty('totals_win_bets', -1);
-
 
     expect(settleResult[1]).toHaveProperty('uid', '2WMRgHyUwvTLyHpLoANk7gWADZn1');
     expect(settleResult[1]).toHaveProperty('win_rate', 0.5);
@@ -133,7 +133,6 @@ describe('計算 使用者 擁有預測單 合計 勝率、勝注', () => {
     expect(settleResult[1]).toHaveProperty('spread_win_bets', -1);
     expect(settleResult[1]).toHaveProperty('totals_win_bets', 2);
   });
-
 
   it('兩個人 1人一筆 1人二筆 flag 有小數', () => {
     const data =
