@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
 -  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
 -  執行長需求賣牌要明天也包含 ***by alangets*** [#409](https://github.com/gets-info/sports-api/pull/409)
 #### Removed:
