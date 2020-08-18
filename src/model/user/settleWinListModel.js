@@ -2,7 +2,7 @@
 const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
 const { logger } = require('../../util/loggerUtil');
 const { predictionsWinList } = require('../../util/settleModules');
-const { checkUserRight, getSeason } = require('../../util/databaseEngine');
+const { getSeason } = require('../../util/databaseEngine'); // checkUserRight
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -51,7 +51,7 @@ async function settleWinList(args) {
 
   // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
-  const userUid = args.token.uid;
+  // const userUid = args.token.uid;
   const datInfo = date3YMDInfo(args.date);
   const begin = datInfo.dateBeginUnix;
   const end = datInfo.dateEndUnix;
@@ -87,8 +87,8 @@ async function settleWinList(args) {
   const s1 = new Date().getTime();
   // 1.
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130815');
-  if (checkResult.code) throw checkResult;
+  // const checkResult = await checkUserRight(userUid, [1, 2, 9], '130815');
+  // if (checkResult.code) throw checkResult;
 
   const s2 = new Date().getTime();
   let s21 = 0;
