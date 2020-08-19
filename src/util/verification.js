@@ -13,23 +13,45 @@ const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = httpStatus;
 
 async function admin(req, res, next) {
   try {
-    const result = await db.sequelize.models.user.findOne({
-      where: {
-        uid: req.token.uid
-      },
-      raw: true
-    });
-    if (result.status >= ADMIN_USER) {
-      req.admin = true;
-      req.adminUid = req.token.uid;
-      return next();
+    const bearerHeader = req.headers.authorization;
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+      const decodedIdToken = await firebaseAdmin()
+        .auth()
+        .verifySessionCookie(bearerToken, true);
+      const emailDomain = new RegExp('^[A-Za-z0-9._%+-]+@gets-info.com$');
+      if (!emailDomain.test(decodedIdToken.email)) {
+        return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: 'Unauthorized admin' });
+      }
+      const result = await db.sequelize.models.user.findOne({
+        attributes: [
+          'uid',
+          'status',
+          'email'
+        ],
+        where: {
+          uid: decodedIdToken.uid
+        },
+        raw: true
+      });
+      if (result.status >= ADMIN_USER && result.email === decodedIdToken.email) {
+        req.admin = true;
+        req.adminLevel = result.status;
+        req.adminUid = decodedIdToken.uid;
+        return next();
+      } else {
+        return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: 'Unauthorized admin' });
+      }
     } else {
-      return res.status(UNAUTHORIZED).json({ code: UNAUTHORIZED, error: 'Unauthorized admin' });
+      return res.sendStatus(UNAUTHORIZED);
     }
   } catch (err) {
+    console.error(`admin verification error, ${err}`);
     res.status(INTERNAL_SERVER_ERROR).json({ code: INTERNAL_SERVER_ERROR, error: 'check admin error' });
   }
 }
+
 async function adminlog(req, res, next) {
   try {
     const user = await db.sequelize.models.user.findOne({

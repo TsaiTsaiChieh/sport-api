@@ -1,22 +1,12 @@
 const { getTitlesPeriod, groupsByOrdersLimit } = require('../../util/modules');
 const db = require('../../util/dbUtil');
+const { logger } = require('../../util/loggerUtil');
 
 let allLogs = [];
 let logT = {};
 let logNum = -1;
 const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
-// const logger = require('firebase-functions/lib/logger'); // 改用 GAE 後，這個癈掉了
-const winston = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-    loggingWinston
-  ]
-});
-// const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
+
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
@@ -60,10 +50,10 @@ async function settleGodRank() {
   const lastPeriod_date = getTitlesPeriod(now).date; // 上一期開始日期
   const last2Period = lastPeriod - 1; // 上上期期數
   const nowPeriod = lastPeriod + 1;
-  const diamondList = [];
-  const goldList = [];
-  const sliverList = [];
-  const copperList = [];
+  const diamondList = {};
+  const goldList = {};
+  const sliverList = {};
+  const copperList = {};
   const Limit = {
     Diamond: {
       num: 5, // 錄取幾位
@@ -89,7 +79,7 @@ async function settleGodRank() {
      where period = :period
   `, {
     replacements: {
-      period: nowPeriod
+      period: lastPeriod
     },
     type: db.sequelize.QueryTypes.SELECT
   });
@@ -108,7 +98,7 @@ async function settleGodRank() {
   // this_period_win_bets 和 this_period_win_rate 改成使用 users__win__lists__histories，不再讀 users__win__lists
   // 避免無法重算，因為 users__win__lists 的 this_period_win_bets、this_period_win_rate 會被移到 last_period_win_bets、
   // last_period_win_rate，然後被清空掉，這樣就無法重算
-  let preGods = await db.sequelize.query(`
+  const preGods = await db.sequelize.query(`
     select *
       from (
               select uid, league_id,
@@ -135,7 +125,7 @@ async function settleGodRank() {
               having ( this_period_win_bets >= :diamondWinBetsLimit or this_period_win_rate >= :gscWinRateLimit )
            ) pregod
      where ( ${limitSQL} )
-     -- order by league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap
+    -- order by league_id, first_week_win_handicap, this_period_win_handicap, this_league_win_handicap
   `, {
     replacements: {
       period: lastPeriod,
@@ -145,30 +135,45 @@ async function settleGodRank() {
     type: db.sequelize.QueryTypes.SELECT
   });
 
-  // 使用假大神合格資料進行開發測試，假大神資料可以先在 正式 DB 執行上面的 SQL，取得資料後修改 FakePreGods 內容
-  // 計算後判斷是否符合規則
-  const FakePreGods = [
-    { uid: '3XWpTIWxwCQOHO4eOj3C8lu3ja03', league_id: 22000, this_period_win_bets: 29.5, this_period_win_rate: 0.65, first_week_win_handicap: 15, this_period_win_handicap: 54, this_league_win_handicap: 54 },
-    { uid: 'BL0XzpN0tHNl6mr94Dmil6MEHpJ3', league_id: 22000, this_period_win_bets: 6, this_period_win_rate: 0.59, first_week_win_handicap: 46, this_period_win_handicap: 46, this_league_win_handicap: 58 },
-    { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 5, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '1pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 3, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '2pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 4, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '3pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '4pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '5pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '6pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 680 },
-    { uid: '7pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '8pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 437, this_league_win_handicap: 681 },
-    { uid: '9pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.61, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '10pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '11pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '12pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.72, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: '13pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: 22000, this_period_win_bets: 2, this_period_win_rate: 0.73, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
-    { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: 349, this_period_win_bets: 7.5, this_period_win_rate: 0.58, first_week_win_handicap: 20, this_period_win_handicap: 36, this_league_win_handicap: 36 }
-  ];
+  // // 使用假大神合格資料進行開發測試，假大神資料可以先在 正式 DB 執行上面的 SQL，取得資料後修改 FakePreGods 內容
+  // // 計算後判斷是否符合規則
+  // const FakePreGods = [
+  //   { uid: '3XWpTIWxwCQOHO4eOj3C8lu3ja03', league_id: '22000', this_period_win_bets: 29.5, this_period_win_rate: 0.65, first_week_win_handicap: 15, this_period_win_handicap: 54, this_league_win_handicap: 54 },
+  //   { uid: 'BL0XzpN0tHNl6mr94Dmil6MEHpJ3', league_id: '22000', this_period_win_bets: 6, this_period_win_rate: 0.59, first_week_win_handicap: 46, this_period_win_handicap: 46, this_league_win_handicap: 58 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 5, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '1pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 3, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '2pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 4, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '3pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '4pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '5pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '6pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 680 },
+  //   { uid: '7pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '8pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.62, first_week_win_handicap: 193, this_period_win_handicap: 437, this_league_win_handicap: 681 },
+  //   { uid: '9pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.61, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '10pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '11pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.52, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '12pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.72, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: '13pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 2, this_period_win_rate: 0.73, first_week_win_handicap: 191, this_period_win_handicap: 436, this_league_win_handicap: 681 },
+  //   { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: '349', this_period_win_bets: 7.5, this_period_win_rate: 0.58, first_week_win_handicap: 20, this_period_win_handicap: 36, this_league_win_handicap: 36 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 50, this_period_win_rate: 0.6753, first_week_win_handicap: 56, this_period_win_handicap: 154, this_league_win_handicap: 319 }
+  // ];
 
-  preGods = FakePreGods;
-  // ---------- 以上 假大神合格資料 ----------
+  // 12期
+  // const FakePreGods = [
+  //   { uid: 'lQ8saEZ8X6RAbyMw47PvnnijxPn1', league_id: '3939', this_period_win_bets: 19.5, this_period_win_rate: 0.5868, first_week_win_handicap: 40, this_period_win_handicap: 121, this_league_win_handicap: 138 },
+  //   { uid: 'mkIKkSsfbIVj7vP5ScGtwxI7Och1', league_id: '349', this_period_win_bets: 7.5, this_period_win_rate: 0.5000, first_week_win_handicap: 16, this_period_win_handicap: 52, this_league_win_handicap: 52 },
+  //   { uid: 'mkIKkSsfbIVj7vP5ScGtwxI7Och1', league_id: '3939', this_period_win_bets: 10.5, this_period_win_rate: 0.6471, first_week_win_handicap: 11, this_period_win_handicap: 34, this_league_win_handicap: 34 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '2274', this_period_win_bets: 8, this_period_win_rate: 0.6111, first_week_win_handicap: 16, this_period_win_handicap: 36, this_league_win_handicap: 36 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '347', this_period_win_bets: 12.5, this_period_win_rate: 0.6275, first_week_win_handicap: 23, this_period_win_handicap: 51, this_league_win_handicap: 51 },
+  //   { uid: 'oAX4PJGdbYRdPtchSrhEjQzBrXY2', league_id: '3939', this_period_win_bets: 8, this_period_win_rate: 0.5385, first_week_win_handicap: 57, this_period_win_handicap: 117, this_league_win_handicap: 142 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '22000', this_period_win_bets: 11.5, this_period_win_rate: 0.5228, first_week_win_handicap: 256, this_period_win_handicap: 681, this_league_win_handicap: 1225 },
+  //   { uid: 'pjFuLyI9Q9Wu4VZ4ZPUFXdvNpGn1', league_id: '3939', this_period_win_bets: 12, this_period_win_rate: 0.5224, first_week_win_handicap: 127, this_period_win_handicap: 268, this_league_win_handicap: 449 },
+  //   { uid: 's5gNFdKiVscxqm3P0BINoV4SxCd2', league_id: '349', this_period_win_bets: 8.5, this_period_win_rate: 0.5690, first_week_win_handicap: 21, this_period_win_handicap: 58, this_league_win_handicap: 58 },
+  //   { uid: 'Ucdf3ee92a0ea38b034a00dc10506521e', league_id: '3939', this_period_win_bets: 7.5, this_period_win_rate: 0.5325, first_week_win_handicap: 13, this_period_win_handicap: 77, this_league_win_handicap: 88 },
+  //   { uid: 'vHuF5pYEpRSmdGYOjdCMf6LDsR52', league_id: '3939', this_period_win_bets: 8, this_period_win_rate: 0.5556, first_week_win_handicap: 44, this_period_win_handicap: 72, this_league_win_handicap: 125 }
+  // ];
+  // preGods = FakePreGods;
+  // // ---------- 以上 假大神合格資料 ----------
 
   //
   // 依聯盟 鑽石 依序處理
@@ -211,22 +216,22 @@ async function settleGodRank() {
   await resetGod2Player(last2Period);
   d('重置上一期大神 使用者狀態 還原為 一般玩家 結束');
 
-  // 更新 這期大神 使用者狀態 及 累計大神計數
-  d('更新 這期大神 使用者狀態 及 累計大神計數 開始');
+  // 更新 這期大神 使用者狀態 及 累計大神計數 及 預設大神成就顯示聯盟
+  d('更新 這期大神 使用者狀態 及 累計大神計數 及 預設大神成就顯示聯盟 開始');
   await updateGodInfo(lastPeriod);
-  d('更新 這期大神 使用者狀態 及 累計大神計數 結束');
+  d('更新 這期大神 使用者狀態 及 累計大神計數 及 預設大神成就顯示聯盟 結束');
 
-  // // 本期勝率/勝注移到上期、本期勝率/勝注清空
-  // d('新增 本期勝率/勝注移到上期、本期勝率/勝注清空 開始');
-  // await updateWins();
-  // d('新增 本期勝率/勝注移到上期、本期勝率/勝注清空 結束');
+  // 本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 移到上期，本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數
+  d('更新 本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 移到上期，本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 開始');
+  await updateWins();
+  d('更新 本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 移到上期，本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 結束');
 
-  // // 大神計算合格條件 複制上一期條件到本期
-  // d('新增 大神計算合格條件 複制上一期條件到本期 開始');
-  // await insertGodLimit(lastPeriod, nowPeriod);
-  // d('新增 大神計算合格條件 複制上一期條件到本期 結束');
+  // 大神計算合格條件 複制上一期條件到本期
+  d('新增 大神計算合格條件 複制上一期條件到本期 開始');
+  await insertGodLimit(lastPeriod, nowPeriod);
+  d('新增 大神計算合格條件 複制上一期條件到本期 結束');
 
-  if (!isEmulator) logger.info('[user settleGodRankModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleGodRankModel] ...', allLogs);
   return { status: 'ok' };
 }
 
@@ -245,7 +250,7 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
     for (const [index, god] of Object.entries(godList.lists)) {
       // d('limit[rank]: ', (list.length < limit[rank].num), index, rank, limit[rank], god.this_period_win_bets, limit[rank].WinBetsLimit);
-      if (list.length > limit[rank].num - 1) break; // 取得預定人數 就停止錄取
+      if (list[godList.league_id] && list[godList.league_id].length > limit[rank].num - 1) break; // 取得預定人數 就停止錄取
       if (rank === 'Diamond' && god.this_period_win_bets < limit[rank].WinBetsLimit) continue;
       if (rank === 'Gold' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
       if (rank === 'Sliver' && god.this_period_win_rate < limit[rank].WinRateLimit) continue;
@@ -253,7 +258,8 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
       d('錄取 i : ', index, godList.league_id, god.uid);
       god.rank = rank;
-      list.push(god);
+      if (!list[godList.league_id]) list[godList.league_id] = []; // 第一次該聯盟產生大神，初始化 []
+      list[godList.league_id].push(god);
 
       // 移除 preGods 錄取人員，避免重覆錄取
       const removeIndex = preGods.findIndex(o => o.league_id === godList.league_id && o.uid === god.uid);
@@ -264,44 +270,52 @@ function processGod(preGods, list, godLeagueLimit, limit, rank, order) {
 
 // 新增 大神歷史戰績 並 更新 本月 win_bet、win_rate
 async function createTitlesGod(diamondList, goldList, sliverList, copperList, period, period_date) {
-  for (const data of Object.values(diamondList)) {
-    await db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 1
-    });
+  for (const datas of Object.values(diamondList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 1
+      });
+    }
   };
 
-  for (const data of Object.values(goldList)) {
-    db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 2
-    });
+  for (const datas of Object.values(goldList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 2
+      });
+    }
   };
 
-  for (const data of Object.values(sliverList)) {
-    db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 3
-    });
+  for (const datas of Object.values(sliverList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 3
+      });
+    }
   };
 
-  for (const data of Object.values(copperList)) {
-    db.Title.create({
-      uid: data.uid,
-      league_id: data.league_id,
-      period: period,
-      period_date: period_date,
-      rank_id: 4
-    });
+  for (const datas of Object.values(copperList)) {
+    for (const data of Object.values(datas)) {
+      await db.Title.create({
+        uid: data.uid,
+        league_id: data.league_id,
+        period: period,
+        period_date: period_date,
+        rank_id: 4
+      });
+    }
   };
 
   // 統一更新 這期大神 本月 win_bet、win_rate
@@ -358,11 +372,11 @@ async function updateGodInfo(period) {
   //  where users.uid = ranks.uid
   // ;
 
-  // 更新 有在 titles 當過大神的才會更新 使用者狀態 及 累計大神計數
+  // 更新 有在 titles 當過大神的才會更新 使用者狀態 及 累計大神計數 及 預設大神成就顯示聯盟
   await db.sequelize.query(`
     update users,
            (
-              select distinct titles.uid,
+              select distinct titles.uid, league_id,
                      (select count(uid) from titles where uid = users.uid and rank_id = 1) rank1,
                      (select count(uid) from titles where uid = users.uid and rank_id = 2) rank2,
                      (select count(uid) from titles where uid = users.uid and rank_id = 3) rank3,
@@ -372,6 +386,7 @@ async function updateGodInfo(period) {
                  and titles.period = :period
            ) ranks
        set users.status = 2,
+           users.default_god_league_rank = ranks.league_id, 
            users.rank1_count = ranks.rank1,
            users.rank2_count = ranks.rank2,
            users.rank3_count = ranks.rank3,
@@ -382,6 +397,86 @@ async function updateGodInfo(period) {
       period: period
     },
     type: db.sequelize.QueryTypes.UPDATE
+  });
+}
+
+// 本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 移到上期，本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數
+async function updateWins() {
+  // 底下 SQL 為出錯後，還原"本期"資料的方式  期數要設正確
+  // 實際上更新資料眾多，底下只是 本期 的範例，可自行改成 this_week, this_month
+  // 需要注意，當 src 沒有資料筆數 join 該 uid, league_id 無法更新該值，請閱下面的 SQL
+  // update users__win__lists, (
+  //        select uid, league_id,
+  //               sum(win_bets) this_period_win_bets,
+  //               round(sum(correct_counts) / sum(correct_counts + fault_counts), 2) this_period_win_rate
+  //          from users__win__lists__histories uwlh
+  //         where period = 11
+  //         group by uid, league_id, period
+  //        ) src
+  //    set this_period_win_bets = src.this_period_win_bets,
+  //        this_period_win_rate = src.this_period_win_rate
+  //        -- last_period_win_bets = src.this_period_win_bets,
+  //        -- last_period_win_rate = src.this_period_win_rate
+  //  where uid = src.uid
+  //    and league_id = src.league_id;
+
+  // 該 week、month、period 都沒下預測時，需要特別另外處理， week、month、period 自行替換
+  // 主要使用在 last_week, last_month, last_period 資料異常時的處理
+  // select uwl.uid, uwl.league_id, count(uwlh.uid) count
+  //   from users__win__lists uwl
+  //   left join users__win__lists__histories uwlh
+  //     on uwl.uid = uwlh.uid
+  //    and uwl.league_id = uwlh.league_id
+  //    and uwlh.week = 31
+  //  where uwl.uid = 'iUk8O3q13sPmCfvTLcgnX8f4S7e2'
+  //  group by uid, league_id;
+
+  // select uwl.uid, uwl.league_id, count(uwlh.uid) count
+  //   from users__win__lists uwl
+  //   left join users__win__lists__histories uwlh
+  //     on uwl.uid = uwlh.uid
+  //    and uwl.league_id = uwlh.league_id
+  //    and uwlh.week = 33
+  //  group by uid, league_id
+  // having count = 0
+
+  await db.sequelize.query(`
+    update users__win__lists
+       set last_period_win_bets = this_period_win_bets,
+           last_period_win_rate = this_period_win_rate,
+           last_period_correct_counts = this_period_correct_counts,
+           last_period_fault_counts = this_period_fault_counts,
+           last_week1_of_period_win_bets = this_week1_of_period_win_bets,
+           last_week1_of_period_win_rate = this_week1_of_period_win_rate,
+           last_week1_of_period_correct_counts = this_week1_of_period_correct_counts,
+           last_week1_of_period_fault_counts = this_week1_of_period_fault_counts,
+           this_period_win_bets = NULL,
+           this_period_win_rate = NULL,
+           this_period_correct_counts = NULL,
+           this_period_fault_counts = NULL,
+           this_week1_of_period_win_bets = NULL,
+           this_week1_of_period_win_rate = NULL,
+           this_week1_of_period_correct_counts = NULL,
+           this_week1_of_period_fault_counts = NULL
+  `, {
+    type: db.sequelize.QueryTypes.UPDATE
+  });
+}
+
+// 新增 大神計算合格條件 複制上一期條件到本期
+async function insertGodLimit(lastPeriod, nowPeriod) {
+  await db.sequelize.query(`
+    insert into god_limits (league_id, period, first_week_win_handicap, this_period_win_handicap, createdAt, updatedAt)
+      select league_id, :nowPeriod, first_week_win_handicap, this_period_win_handicap, now(), now()
+        from god_limits
+       where period = :lastPeriod
+  `, {
+    replacements: {
+      lastPeriod: lastPeriod,
+      nowPeriod: nowPeriod
+    },
+    logging: true,
+    type: db.sequelize.QueryTypes.INSERT
   });
 }
 

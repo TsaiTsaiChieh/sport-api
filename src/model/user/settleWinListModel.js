@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
-const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
+// const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
 const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
+const { logger } = require('../../util/loggerUtil');
 const { predictionsWinList } = require('../../util/settleModules');
-const { checkUserRight, getSeason } = require('../../util/databaseEngine');
+const { getSeason } = require('../../util/databaseEngine'); // checkUserRight
 
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -11,9 +11,8 @@ const to = require('await-to-js').default;
 let allLogs = [];
 let logT = {};
 let logNum = -1;
-const isEmulator = process.env.FUNCTIONS_EMULATOR;
-const logger = require('firebase-functions/lib/logger');
-// const d = require('debug')('user:settleWinListModel'); // firebase 升級後廢掉了
+const isEmulator = process.env.FUNCTIONS_EMULATOR || process.env.NODE_ENV !== 'production';
+
 const util = require('util');
 function d(...args) {
   if (typeof (console) !== 'undefined') {
@@ -52,7 +51,7 @@ async function settleWinList(args) {
 
   // 勝率的計算比較特別，需要 總勝數(勝數+敗數) 和 勝數
 
-  const userUid = args.token.uid;
+  // const userUid = args.token.uid;
   const datInfo = date3YMDInfo(args.date);
   const begin = datInfo.dateBeginUnix;
   const end = datInfo.dateEndUnix;
@@ -88,8 +87,8 @@ async function settleWinList(args) {
   const s1 = new Date().getTime();
   // 1.
   // !!!! 記得改成 9
-  const checkResult = await checkUserRight(userUid, [1, 2, 9], '130815');
-  if (checkResult.code) throw checkResult;
+  // const checkResult = await checkUserRight(userUid, [1, 2, 9], '130815');
+  // if (checkResult.code) throw checkResult;
 
   const s2 = new Date().getTime();
   let s21 = 0;
@@ -130,7 +129,7 @@ async function settleWinList(args) {
   // !!!! season_year 取得從 league_id leagueCodeBook 取得
 
   for (const data of resultWinList) {
-    let r = {};
+    // let r = {};
     let err, winListsHistory, created, season;
     [err, season] = await to(getSeason(data.league_id));
     if (err) { logger.error(err); throw errs.dbErrsMsg('404', '50015', { addMsg: err }); }
@@ -215,7 +214,7 @@ async function settleWinList(args) {
       };
       if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
         d('Users_WinListsHistory need update!');
-        [err, r] = await to(db.Users_WinListsHistory.update(kv, {
+        [err] = await to(db.Users_WinListsHistory.update(kv, { // [err, r]
           where: {
             uid: data.uid,
             league_id: data.league_id,
@@ -274,7 +273,7 @@ async function settleWinList(args) {
     // c.
     // day_of_year 目前未使用
     // 回寫結果 到 users__win__lists
-    let r = {}; // let r2 = {};
+    // let r = {}; // let r2 = {};
     let err, winLists, created;
 
     try {
@@ -343,7 +342,7 @@ async function settleWinList(args) {
       };
       if (isNotEqual(oldArr, newArr)) { // 新舊值不一樣才更新
         d('Users_WinLists need update!');
-        [err, r] = await to(db.Users_WinLists.update(kv, {
+        [err] = await to(db.Users_WinLists.update(kv, { // [err, r]
           where: {
             uid: data.uid,
             league_id: data.league_id
@@ -393,7 +392,7 @@ async function settleWinList(args) {
   // if (r[0] !== 1) return reject(errs.errsMsg('404', '13524')); // 更新筆數異常
   // if (r2[0] === 1) result.status['3'].lists.push({ uid: uid, league: league_id, period: period - 1 });
 
-  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
+  if (!isEmulator) logger.info('[user settleWinListModel] Update Titles winBets, WinRate! ...', allLogs);
   const e = new Date().getTime();
   console.log(`${colors.bg.Blue}${colors.fg.Crimson} [user settleWinListModel] 1# %o ms   2# %o ms   21# %o ms   22# %o ms   23# %o ms ${colors.Reset}`,
     s2 - s1, s21 - s2, s22 - s21, s23 - s22, e - s23);
@@ -437,7 +436,7 @@ async function winBetsRateTotalCount(uid, league_id,
     sum_season: groupSum(uid_league_histories, { season: season }, needSumFileld)
   };
 
-  if (!isEmulator) logger.log('[user settleWinListModel]', allLogs);
+  if (!isEmulator) logger.info(`[user settleWinListModel] uid ${uid} ${league_id} ${season} ...`, allLogs);
   d('\n gs');
   return result;
 }
@@ -495,7 +494,7 @@ function groupSum(arr, filterField, groupByField) {
 }
 
 function num1RateSum(num1, num2, f = 2) {
-  // logger.log('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
+  // logger.info('num1RateSum: %o / %o', Number(num1), (Number(num1) + Number(num2)));
   NP.enableBoundaryChecking(false);
   return isNotANumber(num1) || isNotANumber(num2) || NP.plus(num1, num2) === 0 // 不是數字 且 避免分母是0
     ? 0

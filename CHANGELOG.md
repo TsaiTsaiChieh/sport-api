@@ -6,18 +6,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+#### Fix:
+-  大神排行榜 增加 all 情況 ***by alangets*** [#421](https://github.com/gets-info/sports-api/pull/421)
+-  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
+-  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
+-  補上賣牌判斷及抓今明兩天的情況 ***by alangets*** [#419](https://github.com/gets-info/sports-api/pull/419)
+-  補上logger顯示有內容值 ***by alangets*** [#418](https://github.com/gets-info/sports-api/pull/418)
+-  依照目前 pub/sub 的情況，修改程式碼 ***by alangets*** [#416](https://github.com/gets-info/sports-api/pull/416)
+-  settleSpreadResult settleTotalsResult 多一個判斷是null 回傳錯誤碼 ***by alangets*** [#415](https://github.com/gets-info/sports-api/pull/415)
+-  test程式錯誤 ***by alangets*** [#413](https://github.com/gets-info/sports-api/pull/413)
+-  adjust the setting of gash vm server ***by gsihenry*** [#412](https://github.com/gets-info/sports-api/pull/412)
+-  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
+-  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
+-  執行長需求賣牌要明天也包含 ***by alangets*** [#409](https://github.com/gets-info/sports-api/pull/409)
+#### Removed:
+#### DB:
+
+## [v1.1.3] - 2020-08-17
+#### Add:
+-  Add getTitlesPeriod throw error logic ***by TsaiTsaiChieh*** [#399](https://github.com/gets-info/sports-api/pull/399)
+#### Fix:
+-  修正結算賽事 settleMatch logger 不正確情況 ***by alangets*** [#406](https://github.com/gets-info/sports-api/pull/406)
+-  大神是否賣牌，多補上 聯盟判斷 ***by alangets*** [#405](https://github.com/gets-info/sports-api/pull/405)
+-  目前先改成 全部大神隨機取4位 ***by alangets*** [#403](https://github.com/gets-info/sports-api/pull/403)
+-  adjust transfer log statement ***by gsihenry*** [#402](https://github.com/gets-info/sports-api/pull/402)
+-  依榮譽戰績顯示需求 ***by alangets*** [#401](https://github.com/gets-info/sports-api/pull/401)
+-  Fix endUnix logic ***by TsaiTsaiChieh*** [#400](https://github.com/gets-info/sports-api/pull/400)
+-  大神計算人數 要區分各聯盟 ***by alangets*** [#398](https://github.com/gets-info/sports-api/pull/398)
+-  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
+-  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
+***
+
+## [v1.1.2] - 2020-08-14
+#### Fix:
+-  修正 eslint 錯誤 ***by alangets*** [#395](https://github.com/gets-info/sports-api/pull/395)
+-  fix the transfer statement ***by gsihenry*** [#394](https://github.com/gets-info/sports-api/pull/394)
+-  Fix when matches are scheduled and the handicap did not exist, the spread.disable & totals.disable return false problem ***by TsaiTsaiChieh*** [#392](https://github.com/gets-info/sports-api/pull/392)
+-  edit firebase-admin cert path to environment variable ***by rex-getsinfo*** [#391](https://github.com/gets-info/sports-api/pull/391)
+#### Removed:
+-  blockInvalidMatch function ***by TsaiTsaiChieh*** [#393](https://github.com/gets-info/sports-api/pull/393)
+***
+
+## [v1.1.1] - 2020-08-14
+#### Add:
+-  Add spread & total disable logic when the match is invalid ***by TsaiTsaiChieh*** [#380](https://github.com/gets-info/sports-api/pull/380)
+-  Add team_id, pitcher name and ori_name field ***by TsaiTsaiChieh*** [#378](https://github.com/gets-info/sports-api/pull/378)
 -  Add five percent dividend  ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
 -  Add mysql-setting to .env file ***by TsaiTsaiChieh*** [#373](https://github.com/gets-info/sports-api/pull/373)
 -  Add getting pitchers data from MySQL and tune some log ***by TsaiTsaiChieh*** [#372](https://github.com/gets-info/sports-api/pull/372)
 #### Fix:
+-  home/hottpics return articles in 24 hours from now ***by rex-getsinfo*** [#389](https://github.com/gets-info/sports-api/pull/389)
+-  change neweb、gash、ezpay to official ***by gsihenry*** [#388](https://github.com/gets-info/sports-api/pull/388)
+-  logger 獨立 loggerUtil 及相關修改 ***by alangets*** [#387](https://github.com/gets-info/sports-api/pull/387)
+-  edit configs ***by rex-getsinfo*** [#386](https://github.com/gets-info/sports-api/pull/386)
+-  Cashflow-Purchase Coin ***by gsihenry*** [#384](https://github.com/gets-info/sports-api/pull/384)
+-  首次大神 SQL 和 首次儲值 判斷條件修改 ***by alangets*** [#383](https://github.com/gets-info/sports-api/pull/383)
+-  edit .gcloudignore ***by rex-getsinfo*** [#382](https://github.com/gets-info/sports-api/pull/382)
+-  edit configs to environment variable, access from process.env i… ***by rex-getsinfo*** [#381](https://github.com/gets-info/sports-api/pull/381)
+-  Fix ':league_id' to league_id in MySQL query due to the returning id of leagueCodebook function and tune some 'to' module ***by TsaiTsaiChieh*** [#379](https://github.com/gets-info/sports-api/pull/379)
+-  Refactor and fix the response did not contain default title field ***by TsaiTsaiChieh*** [#377](https://github.com/gets-info/sports-api/pull/377)
+-  原本只有本期上期為錯誤 ***by alangets*** [#376](https://github.com/gets-info/sports-api/pull/376)
 -  有榮譽戰績部份，需要先行合并 ***by alangets*** [#371](https://github.com/gets-info/sports-api/pull/371)
 -  修正計算近十場過盤率，未滿十場卻還是除以10的問題 ***by page40316*** [#370](https://github.com/gets-info/sports-api/pull/370)
 -  Fix getTitlesPeriod always dynamic calculate problem, import periods.json file instead ***by TsaiTsaiChieh*** [#369](https://github.com/gets-info/sports-api/pull/369)
+***
+
+## [v1.1.0] - 2020-08-10
+### Deploy to google app engine 
+#### Fix:
 -  refactor for google app engine ***by rex-getsinfo*** [#321](https://github.com/gets-info/sports-api/pull/367)
 -  CBA 即時比分欄位與 NBA 不同，需特別處理，刪除 pbp_statscore_CBA 中多餘欄位。 ***by page40316*** [#365](https://github.com/gets-info/sports-api/pull/365)
 -  盤口排程修正抓最新盤口。history/getSeason 多判斷 current 欄位。prematch 新增 ended 明日賽程撈取。prematch_statscore 系列改為比對 ID，相對比對姓名穩定。.優化棒球文字直播。即時比分頁與首頁新增team_id欄位。 ***by page40316*** [#364](https://github.com/gets-info/sports-api/pull/364)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.0.10] - 2020-08-06
@@ -33,7 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Page 開啟 acceptleague 中 NBA 權限，新增 NBA 賽程、盤口與文字直播待測試站測試。更改 CPBL, NPB 爬蟲 Lose 欄位改為 Loss。 ***by page40316*** [#351](https://github.com/gets-info/sports-api/pull/351)
 -  Remove teamBase API date parameter and add some missing field ***by TsaiTsaiChieh*** [#350](https://github.com/gets-info/sports-api/pull/350)
--  five percent dividend ***by gsihenry*** [#374](https://github.com/gets-info/sports-api/pull/374)
 -  Unread api ***by gsihenry*** [#352](https://github.com/gets-info/sports-api/pull/352)
 -  Add sport field in sport/matches API ***by TsaiTsaiChieh*** [#345](https://github.com/gets-info/sports-api/pull/345)
 -  Add MLB data about team statistics ***by TsaiTsaiChieh*** [#344](https://github.com/gets-info/sports-api/pull/344)

@@ -9,6 +9,7 @@ function honorModel(req) {
       const uid = req.body.uid;
       const type = req.body.type;
       const league_id = req.body.league_id;
+
       if (type === 'performance') {
         const now = new Date();
         const period = await modules.getTitlesNextPeriod(now, 'YYYY-MM-DD');
@@ -16,7 +17,7 @@ function honorModel(req) {
         const currentMonth = modules.moment().month();
 
         const next = {
-          next_god_date: period.end,
+          next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
           next_period_date: {
             begin: period.date,
             end: period.end
@@ -96,9 +97,9 @@ function honorModel(req) {
         // titles 已經有記錄 使用者 各聯盟 鑽金銀銅大神，可以直接取得
         // 取得真正聯盟 name_ch 不是直接從 matc__leagues
         const event = await db.sequelize.query(`
-          SELECT distinct titles.id, titles.period, 
+          SELECT distinct titles.id, titles.period,
                  titles.rank_id, ur.name as rank_name, titles.updatedAt,
-                 ml.name
+                 titles.league_id, ml.name
             FROM titles, user__ranks ur, match__leagues ml
            WHERE titles.uid = :uid
              AND titles.league_id = ml.league_id

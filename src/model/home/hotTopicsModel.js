@@ -1,8 +1,6 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const func = require('../topics/topicFunctions');
-// const Op = require('sequelize').Op;
+const Op = require('sequelize').Op;
 
 let countPerPage = 3;
 function dbFind(page) {
@@ -12,10 +10,10 @@ function dbFind(page) {
       if (page === null || page === 0) {
         resultFirst = await db.sequelize.models.topic__article.findAll({
           where: {
-            // createdAt: { // 撈七天內的文
-            //   [Op.lt]: new Date(),
-            //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
-            // },
+            createdAt: { // 撈1天內的文
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - 1 * 24 * 60 * 60 * 1000)
+            },
             status: 1,
             category: '賽事分析' // 撈一篇最高的賽事分析擺第一篇
           },
@@ -37,10 +35,10 @@ function dbFind(page) {
 
       const resultData = await db.sequelize.models.topic__article.findAndCountAll({
         where: {
-          // createdAt: {
-          //   [Op.lt]: new Date(),
-          //   [Op.gt]: new Date(new Date() - 7 * 24 * 60 * 60 * 1000)
-          // }
+          createdAt: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - 1 * 24 * 60 * 60 * 1000)
+          },
           status: 1
         },
         limit: countPerPage, // 每頁幾個

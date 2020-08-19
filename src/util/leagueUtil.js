@@ -1,6 +1,7 @@
 const AppErrors = require('./AppErrors');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const USER_SELL = { NORMAL: -1, GOD_FREE: 0, GOD_SELL: 1 };
+const USER_STATUS = { NORMAL: 1, GOD: 2 };
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
@@ -32,7 +33,8 @@ function league2Sport(league) {
     case 'ABL':
     case 'LMB':
       return {
-        sport: 'baseball'
+        sport: 'baseball',
+        sport_id: 16
       };
     case 'NBA':
     case 'SBL':
@@ -42,19 +44,23 @@ function league2Sport(league) {
     case 'CBA':
     case 'BJL':
       return {
-        sport: 'basketball'
+        sport: 'basketball',
+        sport_id: 18
       };
     case 'NHL':
       return {
-        sport: 'icehockey'
+        sport: 'icehockey',
+        sport_id: 17
       };
     case 'Soccer':
       return {
-        sport: 'soccer'
+        sport: 'soccer',
+        sport_id: 1
       };
     case 'eSoccer':
       return {
-        sport: 'esports'
+        sport: 'esports',
+        sport_id: 22
       };
     default:
       throw new AppErrors.UnknownLeague();
@@ -143,7 +149,7 @@ function leagueCodebook(league) {
     case 'NHL':
       return {
         id: '1926',
-        match: db.baseball_NHL,
+        match: db.icehockey_NHL,
         name_ch: '國家冰球聯盟'
       };
     case 'Soccer':
@@ -214,6 +220,7 @@ function leagueDecoder(leagueID) {
 module.exports = {
   MATCH_STATUS,
   USER_SELL,
+  USER_STATUS,
   league2Sport,
   leagueCodebook,
   leagueDecoder,

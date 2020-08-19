@@ -6,10 +6,6 @@ const request = require('request');
 async function mpgModel(data) {
   return new Promise(async function(resolve, reject) {
     try {
-      await db.sequelize.query('INSERT INTO invoice_tests (content) VALUES (\'invoice1\')');
-      const data_str = JSON.stringify(data.MerchantOrderNo);
-
-      await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${data_str}')`);
       /* 依照訂單編號撈取使用者資料 */
       const deposit = await db.CashflowDeposit.findOne({
         where: {
@@ -25,8 +21,6 @@ async function mpgModel(data) {
         attributes: ['name', 'email']
       });
 
-      const user_str = JSON.stringify(user);
-      await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${user_str}')`);
       data.tax_amt = Math.floor(data.Amt * 0.05);
       data.amt_minus_tax = data.Amt - data.tax_amt;
 
@@ -41,19 +35,14 @@ async function mpgModel(data) {
         item_count: 1,
         item_unit: '元',
         item_price: data.Amt,
-        item_amt: data.Amt,
-        CarrierNum: '/XU6NMDR'
+        item_amt: data.Amt
       };
-
-      // console.log(data2);
-      const data2_str = JSON.stringify(data2);
-      await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${data2_str}')`);
 
       data = data2;
 
       // console.log(data);
       /* 金流基本參數 */
-      const setting = ezpay_config.setting.test; // 讀取設定檔(測試/正式)
+      const setting = ezpay_config.setting.official; // 讀取設定檔(測試/正式)
       const common = ezpay_config.setting.common;
 
       const merchant_id = setting.merchant_id;
@@ -72,7 +61,6 @@ async function mpgModel(data) {
       // const now_format = modules.moment().format('YYYY-MM-DD');
       // console.log(now_format);
       // createTicket(exchange, uid);
-      await db.sequelize.query('INSERT INTO invoice_tests (content) VALUES (\'invoice3\')');
       const hash = {
         hash_key: HashKey,
         hash_iv: HashIV
@@ -101,15 +89,11 @@ async function mpgModel(data) {
         ItemAmt: data.item_amt
       };
 
-      const test_str = JSON.stringify(trade_info_arr);
-      await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${test_str}')`);
       console.log(trade_info_arr);
       const post_data = {
         hash: hash,
         trade_info_arr: trade_info_arr
       };
-      const post_data_arr = JSON.stringify(post_data);
-      await db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${post_data_arr}')`);
 
       request(
         {
@@ -118,7 +102,6 @@ async function mpgModel(data) {
           form: post_data
           // eslint-disable-next-line handle-callback-err
         }, function(error, response, body) {
-          db.sequelize.query('INSERT INTO invoice_tests (content) VALUES (\'invoice5\')');
           const trade_arr = {
             MerchantID_: merchant_id,
             PostData_: body.trim()
@@ -130,8 +113,6 @@ async function mpgModel(data) {
               form: trade_arr
               // eslint-disable-next-line handle-callback-err
             }, function(error, response, checkout) {
-              const res1 = JSON.stringify(checkout);
-              db.sequelize.query(`INSERT INTO invoice_tests (content) VALUES ('${res1}')`);
               resolve(checkout);
             });
         });

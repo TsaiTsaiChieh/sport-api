@@ -1,9 +1,9 @@
 
-const test_url = 'https://dosports.web.app/';
-const test_api_url = 'https://api-dosports.web.app/';
+const test_url = 'https://sportslottery-test.appspot.com/';
+const test_api_url = 'https://api-dot-sportslottery-test.appspot.com/';
 const test_cashflow_url = 'https://ccore.newebpay.com/MPG/mpg_gateway';
-const official_url = 'https://getsports.web.app/';
-const official_api_url = 'https://api-getsports.web.app/';
+const official_url = 'https://getsport.cc/';
+const official_api_url = 'https://api-dot-getsports-gsi.uc.r.appspot.com/';
 const official_cashflow_url = 'https://core.newebpay.com/MPG/mpg_gateway';
 const setting = {
   test: {
