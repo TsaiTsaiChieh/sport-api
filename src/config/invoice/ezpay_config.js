@@ -35,7 +35,7 @@ const setting = {
     print_flag: 'N', // 索取紙本發票
     category: 'B2C', // 發票種類
     status: '1', // 開立發票方式
-    php_sdk_url: 'https://test.gets-info.com/invoice/invoice_sdk.php'
+    php_sdk_url: 'https://cashflow.gets-info.com/invoice/invoice_sdk.php'
   }
 };
 
