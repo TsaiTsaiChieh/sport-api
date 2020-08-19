@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.4] - 2020-08-19
 #### Fix:
+-  fix donate reward dividend  ***by gsihenry*** [#423](https://github.com/gets-info/sports-api/pull/423)
 -  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
 -  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
 -  補上賣牌判斷及抓今明兩天的情況 ***by alangets*** [#419](https://github.com/gets-info/sports-api/pull/419)
