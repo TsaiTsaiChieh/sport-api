@@ -149,7 +149,7 @@ function leagueCodebook(league) {
     case 'NHL':
       return {
         id: '1926',
-        match: db.baseball_NHL,
+        match: db.icehockey_NHL,
         name_ch: '國家冰球聯盟'
       };
     case 'Soccer':

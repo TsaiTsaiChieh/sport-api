@@ -5,7 +5,7 @@ const verification = require('../util/verification');
 router.get('/getRanks/', require('../controller/user/getRanks'));
 
 router.get(
-  '/getUserProfile',
+  '/userProfile',
   verification.token,
   require('../controller/user/getUserProfile')
 );
