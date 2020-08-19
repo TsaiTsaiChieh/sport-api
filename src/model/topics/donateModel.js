@@ -108,7 +108,7 @@ async function donate(args) {
           fb_dividend = args.cost * 0.05;
           db.sequelize.models.cashflow_dividend.create({
             uid: uid,
-            expire_points: parseInt(fb_dividend),
+            expire_points: Math.round(fb_dividend),
             dividend_real: fb_dividend,
             status: 1,
             dividend_status: 1,
