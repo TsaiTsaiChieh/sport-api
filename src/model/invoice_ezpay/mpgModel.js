@@ -6,7 +6,6 @@ const request = require('request');
 async function mpgModel(data) {
   return new Promise(async function(resolve, reject) {
     try {
-
       /* 依照訂單編號撈取使用者資料 */
       const deposit = await db.CashflowDeposit.findOne({
         where: {

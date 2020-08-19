@@ -2,17 +2,27 @@ const { getTitlesPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { acceptLeague } = require('../../config/acceptValues');
 // const { CacheQuery } = require('../../util/redisUtil');
 
 async function winRateLists(args) {
   const range = args.range;
   const league = args.league;
-  const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
+
+  const league_id = [];
+  if (league === 'ALL') {
+    const len = acceptLeague.length;
+    for (let i = 0; i < len; i++) {
+      league_id.push(leagueCodebook(acceptLeague[i]).id);
+    }
+  } else {
+    league_id.push(leagueCodebook(league).id);
+  }
 
   // 將來如果要用 參數 或 後台參數 來鎖定聯盟，只要把格式改對應格式即可
   // let winRateLists = {
@@ -50,18 +60,22 @@ async function winRateLists(args) {
                                    this_season_win_bets, this_season_win_rate,
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   this_week_win_bets, this_week_win_rate,
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
                               from users__win__lists
-                             where users__win__lists.league_id = :league_id
+                             where users__win__lists.league_id in ( :league_id )
                              order by ${rangeWinRateCodebook(range)} desc
-                             limit 30
                           ) winlist,
                           (
                             select * 
                               from users
                              where status in (1, 2)
-                          ) users
+                          ) users,
+                          god_limits
                    where winlist.uid = users.uid
+                     and god_limits.league_id = winlist.league_id
+                     and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                     and god_limits.period = :period
                   ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -108,6 +122,7 @@ function repackage(ele, rangstr) {
   const data = {
     // win_rate: ele.win_rate,
     uid: ele.uid,
+    league_id: ele.league_id,
     avatar: ele.avatar,
     display_name: ele.display_name,
     status: ele.status

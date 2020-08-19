@@ -1,73 +1,70 @@
 const { moment } = require('../../util/modules');
-const firebaseAdmin = require('../../util/firebaseUtil');
-
+const { User } = require('../../util/dbUtil');
 function muted(args) {
   return new Promise(async function(resolve, reject) {
     try {
-      const firestore = firebaseAdmin().firestore();
-      const userDoc = await firestore.collection('users').doc(args.uid);
-      const userSnapshot = await userDoc.get();
+      const userDoc = await User.findOne({
+        attributes: [
+          'uid',
+          'display_name',
+          'status',
+          'email',
+          'block_count',
+          'block_message'
+        ],
+        where: {
+          uid: args.uid
+        },
+        raw: true
+      });
       /* step1: check if user exists */
-      if (!userSnapshot.exists) {
+      if (!userDoc) {
         reject({ code: 404, error: 'user not found' });
         return;
       }
       /* step2: check if user is an admin or himself/herself */
-      const user = userSnapshot.data();
-      if (user.status === 9) {
+      if (userDoc.status === 9) {
         reject({
           code: 403,
           error: 'forbidden, admin cannot mute other admin or himself/herself'
         });
         return;
       }
-      // blockCount default is 0, so this logic can combine
-      if (!user.blockCount) {
-        const expired = moment().add(1, 'days');
-        userDoc.set(
-          {
-            blockCount: 1,
-            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
-              new Date(expired)
-            )
-          },
-          { merge: true }
-        );
-      } else if (user.blockCount < 3) {
-        let expired = 0;
-        switch (user.blockCount) {
-          case 1:
-            expired = moment().add(3, 'days');
-            break;
-          case 2:
-            expired = moment().add(7, 'days');
-            break;
-        }
-        userDoc.set(
-          {
-            blockCount: user.blockCount + 1,
-            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
-              new Date(expired)
-            )
-          },
-          { merge: true }
-        );
-      } else if (user.blockCount >= 3) {
-        userDoc.set(
-          {
-            blockCount: user.blockCount + 1,
-            blockMessage: firebaseAdmin().firestore.Timestamp.fromDate(
-              new Date(moment().add(100, 'years'))
-            )
-          },
-          { merge: true }
-        );
+      let expired = moment().add(100, 'years');
+      switch (userDoc.block_count) {
+        case 0:
+          expired = moment().add(1, 'days');
+          break;
+        case 1:
+          expired = moment().add(3, 'days');
+          break;
+        case 2:
+          expired = moment().add(7, 'days');
+          break;
       }
+      const count = userDoc.block_count + 1;
+      await User.update(
+        {
+          block_message: expired,
+          block_count: count,
+          status: count < 3 ? userDoc.status : -1
+        },
+        {
+          where: { uid: args.uid }
+        });
+      // return resolve(unread_clean);
       resolve({
-        data: `Muted user: ${
-          args.uid
-        } successful, this user had been muted ${user.blockCount + 1} times`
+        display_name: userDoc.display_name,
+        uid: userDoc.uid,
+        status: userDoc.status,
+        count: count,
+        expired: expired
       });
+      // resolve({
+      //   data: `Muted user: ${
+      //     args.uid
+      //   } successful, this user had been muted ${count} times, ${expired}, ${userDoc.status}`
+      // });
     } catch (err) {
       console.log('error happened...', err);
       reject({ code: 500, error: err });

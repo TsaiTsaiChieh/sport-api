@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  大神排行榜 增加 all 情況 ***by alangets*** [#421](https://github.com/gets-info/sports-api/pull/421)
+-  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
+-  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
+-  補上賣牌判斷及抓今明兩天的情況 ***by alangets*** [#419](https://github.com/gets-info/sports-api/pull/419)
+-  補上logger顯示有內容值 ***by alangets*** [#418](https://github.com/gets-info/sports-api/pull/418)
+-  依照目前 pub/sub 的情況，修改程式碼 ***by alangets*** [#416](https://github.com/gets-info/sports-api/pull/416)
+-  settleSpreadResult settleTotalsResult 多一個判斷是null 回傳錯誤碼 ***by alangets*** [#415](https://github.com/gets-info/sports-api/pull/415)
+-  test程式錯誤 ***by alangets*** [#413](https://github.com/gets-info/sports-api/pull/413)
+-  adjust the setting of gash vm server ***by gsihenry*** [#412](https://github.com/gets-info/sports-api/pull/412)
 -  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
 -  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
 -  執行長需求賣牌要明天也包含 ***by alangets*** [#409](https://github.com/gets-info/sports-api/pull/409)
