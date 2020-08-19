@@ -5,13 +5,13 @@ const verification = require('../util/verification');
 router.get('/getRanks/', require('../controller/user/getRanks'));
 
 router.get(
-  '/profile',
+  '/myprofile',
   verification.token,
   require('../controller/user/getUserProfile')
 );
 
 router.post(
-  '/profile',
+  '/modifyUserProfile',
   verification.token,
   require('../controller/user/modifyUserProfile')
 );
