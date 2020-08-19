@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.3] - 2020-08-17
-#### Add:
+
+## [v1.1.4] - 2020-08-19
 #### Fix:
 -  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
 -  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
@@ -18,8 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
 -  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
 -  執行長需求賣牌要明天也包含 ***by alangets*** [#409](https://github.com/gets-info/sports-api/pull/409)
-#### Removed:
-#### DB:
+***
 
 ## [v1.1.3] - 2020-08-17
 #### Add:
