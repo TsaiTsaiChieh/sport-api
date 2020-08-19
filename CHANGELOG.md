@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  新增籃球賽前資訊，包含近十場過盤率以及勝敗和 ***by page40316*** [#422](https://github.com/gets-info/sports-api/pull/422)
 #### Fix:
 -  大神排行榜 增加 all 情況 ***by alangets*** [#421](https://github.com/gets-info/sports-api/pull/421)
 -  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
