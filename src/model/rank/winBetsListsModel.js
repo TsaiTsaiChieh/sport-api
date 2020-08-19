@@ -2,23 +2,32 @@ const { getTitlesPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { acceptLeague } = require('../../config/acceptValues');
 // const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists(args) {
   const range = args.range;
   const league = args.league;
-  const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
+  const league_id = [];
+  if (league === 'ALL') {
+    const len = acceptLeague.length;
+    for (let i = 0; i < len; i++) {
+      league_id.push(leagueCodebook(acceptLeague[i]).id);
+    }
+  } else {
+    league_id.push(leagueCodebook(league).id);
+  }
+
   const winBetsLists = {};
   winBetsLists[league] = [];
 
-  // eslint-disable-next-line no-unused-vars
-  for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
+  for (const key of Object.keys(winBetsLists)) { // 依 聯盟 進行排序
     const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
     // 當賣牌時，快取會無法跟上更新
@@ -38,7 +47,7 @@ async function winBetsLists(args) {
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
             from (
-                   select winlist.*, users.avatar, users.display_name, users.status
+                   select distinct winlist.*, users.avatar, users.display_name, users.status
                      from (
                             select uid, users__win__lists.league_id, 
                                    last_month_win_bets, last_month_win_rate, 
@@ -46,18 +55,22 @@ async function winBetsLists(args) {
                                    this_season_win_bets, this_season_win_rate,
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   this_week_win_bets, this_week_win_rate,
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
                               from users__win__lists
-                              where users__win__lists.league_id = :league_id
+                              where users__win__lists.league_id in ( :league_id )
                               order by ${rangeWinBetsCodebook(range)} desc
-                              limit 30
                           ) winlist,
                           (
                             select * 
                               from users
                               where status in (1, 2)
-                          ) users
+                          ) users,
+                          god_limits
                     where winlist.uid = users.uid
+                      and god_limits.league_id = winlist.league_id
+                      and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                      and god_limits.period = :period
                  ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -81,6 +94,7 @@ async function winBetsLists(args) {
         end: endUnix
       },
       limit: 30,
+      logging: true,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
@@ -104,6 +118,7 @@ function repackage(ele, rangstr) {
   const data = {
     // win_bets: ele.win_bets,
     uid: ele.uid,
+    league_id: ele.league_id,
     avatar: ele.avatar,
     display_name: ele.display_name,
     status: ele.status
