@@ -2,17 +2,27 @@ const { getTitlesPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { acceptLeague } = require('../../config/acceptValues');
 // const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists(args) {
   const range = args.range;
   const league = args.league;
-  const league_id = leagueCodebook(league).id;
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
+
+  const league_id = [];
+  if (league === 'ALL') {
+    const len = acceptLeague.length - 1;
+    for (let i = 0; i < len; i++) {
+      league_id.push(leagueCodebook(acceptLeague[i]).id);
+    }
+  } else {
+    league_id.push(leagueCodebook(league).id);
+  }
 
   const winBetsLists = {};
   winBetsLists[league] = [];
@@ -48,9 +58,8 @@ async function winBetsLists(args) {
                                    this_week_win_bets, this_week_win_rate,
                                    this_week1_of_period_win_bets, this_week1_of_period_win_rate
                               from users__win__lists
-                              where users__win__lists.league_id = :league_id
+                              where users__win__lists.league_id in ( :league_id )
                               order by ${rangeWinBetsCodebook(range)} desc
-                              limit 30
                           ) winlist,
                           (
                             select * 
@@ -84,8 +93,7 @@ async function winBetsLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      limit: 30, // sql 也有再次限制
-      logging: true,
+      limit: 30,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
@@ -109,6 +117,7 @@ function repackage(ele, rangstr) {
   const data = {
     // win_bets: ele.win_bets,
     uid: ele.uid,
+    league_id: ele.league_id,
     avatar: ele.avatar,
     display_name: ele.display_name,
     status: ele.status
