@@ -50,7 +50,8 @@ async function winRateLists(args) {
                                    this_season_win_bets, this_season_win_rate,
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   this_week_win_bets, this_week_win_rate,
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
                               from users__win__lists
                              where users__win__lists.league_id = :league_id
                              order by ${rangeWinRateCodebook(range)} desc
@@ -60,8 +61,12 @@ async function winRateLists(args) {
                             select * 
                               from users
                              where status in (1, 2)
-                          ) users
+                          ) users,
+                          god_limits
                    where winlist.uid = users.uid
+                     and god_limits.league_id = winlist.league_id
+                     and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                     and god_limits.period = :period
                   ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -84,7 +89,8 @@ async function winRateLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      limit: 30,
+      limit: 30, // sql 也有再次限制
+      logging: true,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {

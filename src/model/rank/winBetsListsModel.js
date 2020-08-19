@@ -17,8 +17,7 @@ async function winBetsLists(args) {
   const winBetsLists = {};
   winBetsLists[league] = [];
 
-  // eslint-disable-next-line no-unused-vars
-  for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
+  for (const key of Object.keys(winBetsLists)) { // 依 聯盟 進行排序
     const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
 
     // 當賣牌時，快取會無法跟上更新
@@ -38,7 +37,7 @@ async function winBetsLists(args) {
                  titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
                  titles.matches_rate1, titles.matches_rate2, titles.matches_continue
             from (
-                   select winlist.*, users.avatar, users.display_name, users.status
+                   select distinct winlist.*, users.avatar, users.display_name, users.status
                      from (
                             select uid, users__win__lists.league_id, 
                                    last_month_win_bets, last_month_win_rate, 
@@ -46,7 +45,8 @@ async function winBetsLists(args) {
                                    this_season_win_bets, this_season_win_rate,
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   this_week_win_bets, this_week_win_rate,
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
                               from users__win__lists
                               where users__win__lists.league_id = :league_id
                               order by ${rangeWinBetsCodebook(range)} desc
@@ -56,8 +56,12 @@ async function winBetsLists(args) {
                             select * 
                               from users
                               where status in (1, 2)
-                          ) users
+                          ) users,
+                          god_limits
                     where winlist.uid = users.uid
+                      and god_limits.league_id = winlist.league_id
+                      and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                      and god_limits.period = :period
                  ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -80,7 +84,8 @@ async function winBetsLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      limit: 30,
+      limit: 30, // sql 也有再次限制
+      logging: true,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
