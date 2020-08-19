@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, date3UnixInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -8,8 +8,9 @@ async function godlists() {
   const godLists = [];
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
+  const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
-  const endUnix = nowInfo.dateEndUnix;
+  const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
   // 取得 首頁預設值
   const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });
@@ -32,15 +33,23 @@ async function godlists() {
                from users
               where status = 2
            ) users,
-           users__win__lists uwl
+           users__win__lists uwl,
+           (
+             select distinct uid, league_id
+               from user__predictions
+              where match_scheduled between :begin and :end
+                and sell = 1
+           ) prediction
      where titles.uid = users.uid
        and titles.uid = uwl.uid
        and titles.league_id = uwl.league_id
+       and titles.uid = prediction.uid
+       and titles.league_id = prediction.league_id
        and titles.league_id = :league_id
        and titles.period = :period
   `, {
     replacements: {
-      league_id: 347,
+      league_id: league_id,
       period: period,
       begin: beginUnix,
       end: endUnix
@@ -53,16 +62,6 @@ async function godlists() {
   }
 
   if (!godListsQuery || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
-
-  // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
-  //      ,
-  //  (
-  //    select *
-  //      from user__predictions
-  //     where match_scheduled between :begin and :end
-  //  ) prediction
-
-  //  and titles.uid = prediction.uid
 
   godListsQuery.sort(fieldSorter(['order']));// 進行 order 排序，將來後台可能指定順序
 
