@@ -16,7 +16,7 @@ async function winRateLists(args) {
 
   const league_id = [];
   if (league === 'ALL') {
-    const len = acceptLeague.length - 1;
+    const len = acceptLeague.length;
     for (let i = 0; i < len; i++) {
       league_id.push(leagueCodebook(acceptLeague[i]).id);
     }
