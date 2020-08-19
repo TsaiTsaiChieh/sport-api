@@ -107,7 +107,7 @@ async function settleMatchesModel(args) {
         logger.warn('[Error][settleMatchesModel][Match] ', err);
         throw errs.dbErrsMsg('404', '13109', { addMsg: err.parent.code });
       }
-      if (r[0] !== 1) throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
+      if (r[0] !== 1) d(errs.errsMsg('404', '13110', { custMsg: r })); // throw errs.errsMsg('404', '13110', { custMsg: r }); // 更新筆數異常
     }
 
     result[bets_id] = { status: 1, msg: '賽事結算成功！' };
@@ -188,7 +188,7 @@ async function settleMatchesModel(args) {
       logger.warn('[Error][settleMatchesModel][Prediction] ', err);
       throw errs.dbErrsMsg('404', '13213', { addMsg: err.parent.code });
     }
-    if (r[0] !== 1) throw errs.errsMsg('404', '13214'); // 更新筆數異常
+    if (r[0] !== 1) d(errs.errsMsg('404', '13214')); // throw errs.errsMsg('404', '13214'); // 更新筆數異常
 
     result[data.uid] = { user__predictionss_id: data.id, status: 1, msg: '賽事結算成功！' };
   };
