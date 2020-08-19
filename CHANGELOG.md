@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
 -  補上賣牌判斷及抓今明兩天的情況 ***by alangets*** [#419](https://github.com/gets-info/sports-api/pull/419)
 -  補上logger顯示有內容值 ***by alangets*** [#418](https://github.com/gets-info/sports-api/pull/418)
 -  依照目前 pub/sub 的情況，修改程式碼 ***by alangets*** [#416](https://github.com/gets-info/sports-api/pull/416)
