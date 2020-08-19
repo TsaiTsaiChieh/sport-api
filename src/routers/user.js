@@ -4,8 +4,8 @@ const verification = require('../util/verification');
 
 router.get('/getRanks/', require('../controller/user/getRanks'));
 
-router.post(
-  '/getUserProfile',
+router.get(
+  '/myprofile',
   verification.token,
   require('../controller/user/getUserProfile')
 );
@@ -222,7 +222,7 @@ router.post(
 /* 大神結算 */
 router.post(
   '/settle_god_rank',
-  verification.token,
+  verification.token_v2,
   require('../controller/user/settleGodRankController')
 );
 

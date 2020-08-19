@@ -3,6 +3,9 @@ const { acceptLeague } = require('../../config/acceptValues');
 const winBetsListsModel = require('../../model/rank/winBetsListsModel');
 
 async function winBetsLists(req, res) {
+  const newAcceptLeague = acceptLeague.slice(0);
+  newAcceptLeague[acceptLeague.length] = 'ALL';
+
   const schema = {
     type: 'object',
     required: ['range', 'league'],
@@ -13,7 +16,7 @@ async function winBetsLists(req, res) {
       },
       league: {
         type: 'string',
-        enum: acceptLeague
+        enum: newAcceptLeague
       }
     }
   };

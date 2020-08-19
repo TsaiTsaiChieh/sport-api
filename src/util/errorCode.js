@@ -31,7 +31,9 @@ const errorCodeLists = {
   13213: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions spread_result, totals_result 失敗 資料庫原因錯誤', ''] },
   13214: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions spread_result, totals_result 異常 筆數不正確，只能一筆才對', ''] },
   13215: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算讓分 結果異常，不應該為空白', ''] },
+  132151: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算讓分 結果異常，不應該為null', ''] },
   13216: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算大小 結果異常，不應該為空白', ''] },
+  132161: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 賽事結算大小 結果異常，不應該為null', ''] },
   13243: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 失敗 ER_LOCK_DEADLOCK', ''] },
   13244: { msg: ['更新 使用者預測單 失敗'], backend: ['更新 Update user__predictions 失敗 ER_DUP_ENTRY', ''] },
 

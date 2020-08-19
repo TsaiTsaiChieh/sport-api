@@ -1,0 +1,16 @@
+.gcloudignore
+
+apidoc.json
+.git
+.gitignore
+.env
+.eslintignore
+.eslintrc.js
+.eslintcache
+.github
+.idea
+
+CHANGELOG.md
+Gruntfile.js
+README.md
+./src/test

@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getTitlesPeriod, coreDateInfo, date3UnixInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -8,8 +8,9 @@ async function godlists() {
   const godLists = [];
   const period = getTitlesPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
+  const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
-  const endUnix = nowInfo.dateEndUnix;
+  const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
   // 取得 首頁預設值
   const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });
@@ -32,10 +33,18 @@ async function godlists() {
                from users
               where status = 2
            ) users,
-           users__win__lists uwl
+           users__win__lists uwl,
+           (
+             select distinct uid, league_id
+               from user__predictions
+              where match_scheduled between :begin and :end
+                and sell = 1
+           ) prediction
      where titles.uid = users.uid
        and titles.uid = uwl.uid
        and titles.league_id = uwl.league_id
+       and titles.uid = prediction.uid
+       and titles.league_id = prediction.league_id
        and titles.league_id = :league_id
        and titles.period = :period
   `, {
@@ -54,19 +63,10 @@ async function godlists() {
 
   if (!godListsQuery || godListsQuery.length <= 0) return { godlists: godLists }; // 如果沒有找到資料回傳 []
 
-  // 底下正式上線的時候要補到上面的sql，這段是用來處理大神是否有預測單
-  //      ,
-  //  (
-  //    select *
-  //      from user__predictions
-  //     where match_scheduled between :begin and :end
-  //  ) prediction
-
-  //  and titles.uid = prediction.uid
-
   godListsQuery.sort(fieldSorter(['order']));// 進行 order 排序，將來後台可能指定順序
 
   // 鑽 金 銀 銅 隨機選一個
+  // 20200817 目前先改成 All Rand
   arrRandom(defaultLeague, godListsQuery, godLists); // 那一個聯盟需要隨機 資料來源陣例 回傳結果陣例
 
   return { godlists: godLists };
@@ -78,30 +78,37 @@ function getRandom(x) {
 
 function arrRandom(league, sortedArr, lists) { // 從陣列取得隨機人員
   // 鑽 金 銀 銅 隨機選一個
-  const diamondArr = [];
-  const goldArr = [];
-  const silverArr = [];
-  const copperArr = [];
-  const wants = 1; // 隨機取幾個
+  // const diamondArr = [];
+  // const goldArr = [];
+  // const silverArr = [];
+  // const copperArr = [];
+  // const wants = 4; // 隨機取幾個
 
-  sortedArr.forEach(async function(data) { // 把資料進行 鑽 金 銀 銅 分類
-    switch (data.rank_id) { // 大神等級分類
-      case 1: diamondArr.push(data); break;
-      case 2: goldArr.push(data); break;
-      case 3: silverArr.push(data); break;
-      case 4: copperArr.push(data); break;
-    }
-  });
+  // sortedArr.forEach(async function(data) { // 把資料進行 鑽 金 銀 銅 分類
+  //   switch (data.rank_id) { // 大神等級分類
+  //     case 1: diamondArr.push(data); break;
+  //     case 2: goldArr.push(data); break;
+  //     case 3: silverArr.push(data); break;
+  //     case 4: copperArr.push(data); break;
+  //   }
+  // });
 
+  const wants = sortedArr.length > 4 ? 4 : sortedArr.length; // 隨機取幾個 需要多判斷目前大神長度
   for (let i = 1; i <= wants; i++) {
-    [diamondArr, goldArr, silverArr, copperArr].forEach(function(arr) { // 鑽 金 銀 銅 依序產生
-      if (arr.length > 0) {
-        const index = getRandom(arr.length); // 取得隨機數
-        lists.push(repackage(league, arr[index]));
-        arr.splice(index, 1); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
-      }
-    });
+    // [diamondArr, goldArr, silverArr, copperArr].forEach(function(arr) { // 鑽 金 銀 銅 依序產生
+    // sortedArr.forEach(function(arr) {
+    //   if (arr.length > 0) {
+    //     const index = getRandom(arr.length); // 取得隨機數
+    //     lists.push(repackage(league, arr[index]));
+    //     arr.splice(index, 1); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
+    //   }
+    // });
+
+    const index = getRandom(sortedArr.length); // 取得隨機數
+    lists.push(repackage(league, sortedArr[index]));
+    sortedArr.splice(index, 1); // 移除已經加入顯示，如果第二次之後隨機取用，才不會重覆
   }
+  lists.sort(fieldSorter(['rank_id']));
 }
 
 function repackage(league, ele) { // 實際資料輸出格式
@@ -109,7 +116,8 @@ function repackage(league, ele) { // 實際資料輸出格式
     league_win_lists: {},
     uid: ele.uid,
     avatar: ele.avatar,
-    display_name: ele.display_name
+    display_name: ele.display_name,
+    rank_id: ele.rank_id
   };
 
   // 大神聯盟戰績表

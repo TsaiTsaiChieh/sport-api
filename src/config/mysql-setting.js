@@ -2,8 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const setting = {
   db_name: {
-    dev: 'dosport'
-    // dev: 'Page'
+    dev: process.env.SQL_DATABASE
   },
   db_user: 'root',
   db_password: 'dosportsSQL',
@@ -22,9 +21,9 @@ if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production
 } else {
   setting.host = '35.188.137.1';
   const SSL = {
-    key: fs.readFileSync(path.join(__dirname, '../auth/client-key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, '../auth/client-cert.pem')),
-    ca: fs.readFileSync(path.join(__dirname, '../auth/server-ca.pem')),
+    key: fs.readFileSync(path.join(__dirname, process.env.SQL_SSL_KEY_PATH)),
+    cert: fs.readFileSync(path.join(__dirname, process.env.SQL_SSL_CERT_PATH)),
+    ca: fs.readFileSync(path.join(__dirname, process.env.SQL_SSL_CA_PATH)),
     // ref: https://stackoverflow.com/questions/52465530/sequelize-connection-timeout-while-using-serverless-aurora-looking-for-a-way-to
     connectTimeout: 60000 // The milliseconds before a timeout occurs during the initial connection to the MySQL server.
   };
