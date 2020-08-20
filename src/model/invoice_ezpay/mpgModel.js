@@ -35,7 +35,8 @@ async function mpgModel(data) {
         item_count: 1,
         item_unit: '元',
         item_price: data.Amt,
-        item_amt: data.Amt
+        item_amt: data.Amt,
+        CarrierNum: user.invoice_carrier
       };
 
       data = data2;
