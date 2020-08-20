@@ -21,5 +21,4 @@ router.post(
   require('../controller/invoice_ezpay/carrierController')
 );
 
-
 module.exports = router;

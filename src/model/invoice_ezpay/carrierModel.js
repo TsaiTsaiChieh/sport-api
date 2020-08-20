@@ -4,10 +4,6 @@ async function carrierModel(req) {
     try {
       const uid = req.token.uid;
       const invoice_carrier = req.body.invoice_carrier;
-      const carrier = {
-        uid: uid,
-        invoice_carrier: invoice_carrier
-      };
 
       /* 新增/更新載具 */
       if (req.method === 'POST') {
