@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  cashflow daily mission ***by gsihenry*** [#428](https://github.com/gets-info/sports-api/pull/428)
 -  invoice carrier api ***by gsihenry*** [#427](https://github.com/gets-info/sports-api/pull/427)
 -  Add returning blockTime when user had been muted ***by TsaiTsaiChieh*** [#426](https://github.com/gets-info/sports-api/pull/426)
 -  err.stack to MysqlError error and rename filloutStatsRate function to filterOutStatsRate ***by TsaiTsaiChieh*** [#425](https://github.com/gets-info/sports-api/pull/425)
