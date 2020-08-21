@@ -122,7 +122,7 @@ async function missionRewardReceive(args) {
   const issue = {
     type: check1[0].type,
     reward_type: check1[0].reward_type,
-    reward_value: check1[0].reward_value,
+    reward_value: check1[0].reward_num,
     uid: userUid,
     type_id: check1[0].mission_item_id
   };
