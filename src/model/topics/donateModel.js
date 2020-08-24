@@ -126,8 +126,9 @@ async function donate(args) {
           attributes: ['ingot', 'coin', 'dividend'],
           raw: true
         });
+
         if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
-          await db.User.update({ dividend: purse_self.dividend + fb_dividend }, { where: { uid: uid } });
+          await db.User.update({ dividend: purse_self.dividend + Math.round(fb_dividend) }, { where: { uid: uid } });
         }
       } catch (e) {
         reject({ code: 500, error: 'update purse error' });
