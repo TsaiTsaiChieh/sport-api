@@ -2,6 +2,7 @@ const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/m
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
+const { acceptLeague } = require('../../config/acceptValues');
 // const { CacheQuery } = require('../../util/redisUtil');
 
 async function godlists(args) {
@@ -10,17 +11,26 @@ async function godlists(args) {
   // 取得當期期數
   const period = getTitlesPeriod(new Date()).period;
   const league = args.league;
-  const league_id = leagueCodebook(league).id;
   const nowInfo = coreDateInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
   const endUnix = nowInfo.dateEndUnix;
+
+  const league_id = [];
+  if (league === 'ALL') {
+    const len = acceptLeague.length;
+    for (let i = 0; i < len; i++) {
+      league_id.push(leagueCodebook(acceptLeague[i]).id);
+    }
+  } else {
+    league_id.push(leagueCodebook(league).id);
+  }
 
   // 當賣牌時，快取會無法跟上更新
   // const redisKey = ['rank', 'godLists', 'titles', league_id, period, beginUnix, endUnix].join(':');
 
   // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
   const [err, godListsQuery] = await to(db.sequelize.query(`
-      select titles.uid, users.avatar, users.display_name, titles.rank_id, 
+      select titles.uid, titles.league_id, users.avatar, users.display_name, titles.rank_id, 
              CASE prediction.sell
                WHEN 1 THEN 1
                WHEN 0 THEN 0
@@ -47,7 +57,7 @@ async function godlists(args) {
                 group by uid
              ) prediction
           on titles.uid = prediction.uid
-       where titles.league_id = :league_id
+       where titles.league_id in ( :league_id )
          and titles.period = :period
     `, {
     replacements: {
@@ -119,6 +129,7 @@ function rankGroup(sortedArr, godLists) { // 從陣列取得隨機人員
 function repackage_winBets(ele) { // 實際資料輸出格式
   const data = {
     uid: ele.uid,
+    league_id: ele.league_id,
     avatar: ele.avatar,
     display_name: ele.display_name,
     rank: `${ele.rank_id}`,
@@ -139,6 +150,7 @@ function repackage_winBets(ele) { // 實際資料輸出格式
 function repackage_winRate(ele) { // 實際資料輸出格式
   const data = {
     uid: ele.uid,
+    league_id: ele.league_id,
     avatar: ele.avatar,
     display_name: ele.display_name,
     rank: `${ele.rank_id}`,

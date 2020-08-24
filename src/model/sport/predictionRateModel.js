@@ -42,7 +42,7 @@ function searchMatches(args) {
 
       !results.length ? reject(new AppError.MatchNotFound()) : resolve(results);
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(err.stack));
     }
   });
 }
@@ -78,7 +78,7 @@ function searchPredictions(args, matches) {
         return resolve(results);
       }
     } catch (err) {
-      return reject(new AppError.MysqlError());
+      return reject(new AppError.MysqlError(err.stack));
     }
   });
 }
@@ -108,7 +108,7 @@ function repackageReturnData(league, predictions, matches) {
     statsRate.push(calculatePredictionRate(predictionGroupedMatchId[key]));
   }
   // 預測單的陣列數量需和賽事的一致
-  const eachMatchRate = filloutStatsRate(matches, statsRate);
+  const eachMatchRate = filterOutStatsRate(matches, statsRate);
   for (let i = 0; i < eachMatchRate.length; i++) {
     const match = eachMatchRate[i];
     if (match.status === scheduledStatus) {
@@ -151,7 +151,7 @@ function calculatePredictionRate(prediction) {
   return result;
 }
 
-function filloutStatsRate(matches, statsRate) {
+function filterOutStatsRate(matches, statsRate) {
   for (let i = 0; i < matches.length; i++) {
     for (let j = 0; j < statsRate.length; j++) {
       if (matches[i].id === statsRate[j].id) {

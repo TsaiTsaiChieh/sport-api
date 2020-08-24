@@ -1,7 +1,7 @@
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/message/createMessage');
 const httpStatus = require('http-status');
-const logger = require('../../util/loggerUtil');
+const { logger } = require('../../util/loggerUtil');
 
 async function createMessage(req, res) {
   const now = new Date();

@@ -120,6 +120,10 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: 0
     },
+    /* 會員發票載具 */
+    invoice_carrier: {
+      type: Sequelize.STRING
+    },
     rank1_count: {
       type: Sequelize.INTEGER
     },

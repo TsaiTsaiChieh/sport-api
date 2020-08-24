@@ -421,68 +421,7 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
         Loss: vsHomeAtHomeGet
       }
     };
-    // let temp = {
-    //   homeTotalWin: homeAtHomeWin + homeAtAwayWin,
-    //   homeTotalLose: homeAtHomeLose + homeAtAwayLose,
-    //   homeTotalDraw: homeAtHomeDraw + homeAtAwayDraw,
-    //   homeAtHomeWin: homeAtHomeWin,
-    //   homeAtHomeLose: homeAtHomeLose,
-    //   homeAtHomeDraw: homeAtHomeDraw,
-    //   homeAtAwayWin: homeAtAwayWin,
-    //   homeAtAwayLose: homeAtAwayLose,
-    //   homeAtAwayDraw: homeAtAwayDraw,
-    //   homeTotalGet: homeAtHomeGet + homeAtAwayGet,
-    //   homeTotalLoss: homeAtHomeLoss + homeAtAwayLoss,
-    //   homeAtHomeGet: homeAtHomeGet,
-    //   homeAtHomeLoss: homeAtHomeLoss,
-    //   homeAtAwayGet: homeAtAwayGet,
-    //   homeAtAwayLoss: homeAtAwayLoss,
-    //   awayTotalWin: awayAtHomeWin + awayAtAwayWin,
-    //   awayTotalLose: awayAtHomeLose + awayAtAwayLose,
-    //   awayTotalDraw: awayAtHomeDraw + awayAtAwayDraw,
-    //   awayAtHomeWin: awayAtHomeWin,
-    //   awayAtHomeLose: awayAtHomeLose,
-    //   awayAtHomeDraw: awayAtHomeDraw,
-    //   awayAtAwayWin: awayAtAwayWin,
-    //   awayAtAwayLose: awayAtAwayLose,
-    //   awayAtAwayDraw: awayAtAwayDraw,
-    //   awayTotalGet: awayAtHomeGet + awayAtAwayGet,
-    //   awayTotalLoss: awayAtHomeLoss + awayAtAwayLoss,
-    //   awayAtHomeGet: awayAtHomeGet,
-    //   awayAtHomeLoss: awayAtHomeLoss,
-    //   awayAtAwayGet: awayAtAwayGet,
-    //   awayAtAwayLoss: awayAtAwayLoss,
-    //   vsHomeTotalWin: vsHomeAtHomeWin + vsHomeAtAwayWin, //
-    //   vsHomeTotalLose: vsHomeAtHomeLose + vsHomeAtAwayLose,
-    //   vsHomeTotalDraw: vsHomeAtHomeDraw + vsHomeAtAwayDraw,
-    //   vsHomeAtHomeWin: vsHomeAtHomeWin,
-    //   vsHomeAtHomeLose: vsHomeAtHomeLose,
-    //   vsHomeAtHomeDraw: vsHomeAtHomeDraw,
-    //   vsHomeAtAwayWin: vsHomeAtAwayWin,
-    //   vsHomeAtAwayLose: vsHomeAtAwayLose,
-    //   vsHomeAtAwayDraw: vsHomeAtAwayDraw,
-    //   vsHomeTotalGet: vsHomeAtHomeGet + vsHomeAtAwayGet,
-    //   vsHomeTotalLoss: vsHomeAtHomeLoss + vsHomeAtAwayLoss,
-    //   vsHomeAtHomeGet: vsHomeAtHomeGet,
-    //   vsHomeAtHomeLoss: vsHomeAtHomeLoss,
-    //   vsHomeAtAwayGet: vsHomeAtAwayGet,
-    //   vsHomeAtAwayLoss: vsHomeAtAwayLoss, //
-    //   vsAwayTotalWin: vsHomeAtAwayLose + vsHomeAtHomeLose,
-    //   vsAwayTotalLose: vsHomeAtAwayWin + vsHomeAtHomeWin,
-    //   vsAwayTotalDraw: vsHomeAtAwayDraw + vsHomeAtHomeDraw,
-    //   vsAwayAtHomeWin: vsHomeAtAwayLose,
-    //   vsAwayAtHomeLose: vsHomeAtAwayWin,
-    //   vsAwayAtHomeDraw: vsHomeAtAwayDraw,
-    //   vsAwayAtAwayWin: vsHomeAtHomeLose,
-    //   vsAwayAtAwayLose: vsHomeAtHomeWin,
-    //   vsAwayAtAwayDraw: vsHomeAtHomeDraw,
-    //   vsAwayTotalGet: vsHomeAtAwayLoss + vsHomeAtHomeLoss,
-    //   vsAwayTotalLoss: vsHomeAtAwayGet + vsHomeAtHomeGet,
-    //   vsAwayAtHomeGet: vsHomeAtAwayLoss,
-    //   vsAwayAtHomeLoss: vsHomeAtAwayGet,
-    //   vsAwayAtAwayGet: vsHomeAtHomeLoss,
-    //   vsAwayAtAwayLoss: vsHomeAtHomeGet
-    // };
+
     dataSeason.push(total);
     dataSeason.push(atHome);
     dataSeason.push(atAway);
@@ -495,8 +434,6 @@ async function repackage(args, homeEvents, awayEvents, twoTeamsEvents) {
     dataVS.push(vsTotalScore);
     dataVS.push(vsAtHomeScore);
     dataVS.push(vsAtAwayScore);
-    // data.push(dataSeason);
-    // data.push(dataVS);
     data = {
       Season: dataSeason,
       VS: dataVS
