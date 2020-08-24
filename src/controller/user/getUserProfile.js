@@ -1,7 +1,27 @@
-const userUtils = require('../../util/userUtil');
+const { User } = require('../../util/dbUtil');
+
+async function getUserProfile(req, res) {
+  try {
+    const uid = req.token.uid;
+    const record = await User.findOne({
+      where: {
+        uid: uid
+      }
+    });
+    if (record) {
+      return res.json(record);
+    } else {
+      return res.status(404).json({ message: 'unregistered' });
+    }
+  } catch (err) {
+    console.error('Error in controller/user/getUserProfile by Rex', err);
+    return res.status(500).json({ message: 'error' });
+  }
+}
+module.exports = getUserProfile;
 
 /**
- * @api {post} /user/getUserProfile Get User Profile
+ * @api {get} /user/getUserProfile Get User Profile
  * @apiVersion 1.0.0
  * @apiName getUserProfile
  * @apiGroup User
@@ -22,51 +42,36 @@ const userUtils = require('../../util/userUtil');
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  {
-    "success": true,
-    "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
-    "data": {
-        "blockMessage": {
-            "_seconds": 1575907200,
-            "_nanoseconds": 0
-        },
-        "ingot": 0,
-        "avatar": "https://www.techrum.vn/chevereto/images/2016/05/05/Bkm4d.jpg",
-        "uid": "zmPF5Aht60Y6GdBbGnrOSlWcgV53",
-        "birthday": {
-            "_seconds": 1573194036,
-            "_nanoseconds": 370000000
-        },
-        "phone": "+886999999123",
-        "dividend": 0,
-        "referrer": "bnKcVVaiIaUf3daVMNTTK5gH4hf1",
-        "coin": 0,
-        "signature": "簽名檔33",
-        "status": 1,
-        "email": "test3q@email.com",
-        "name": "真名",
-        "point": 250,
-        "displayName": "測試displayName",
-        "denys": [],
-        "titles": [
-            {
-                "rank": 1,
-                "league": "MLB",
-                "sport": 16
-            },
-            {
-                "rank": 3,
-                "league": "CPBL",
-                "sport": 16
-            }
-        ],
-        "defaultTitle": {
-            "rank": 1,
-            "league": "MLB",
-            "sport": 16
-        }
-    },
-    "status": 1
-}
+    "id": 3,
+    "uid": "40lFV6SJAVYpw0zZbIuUp7gL9Py2",
+    "status": 1,
+    "avatar": "https://firebasestorage.googleapis.com/v0/b/sportslottery-test.appspot.com/o/avatar%2Fdefault-avatar.jpg?alt=media",
+    "birthday": 1582502400,
+    "birthday_tw": "2020-02-24",
+    "display_name": "炸裂設計師",
+    "dividend": 0,
+    "email": "tmp@tmp.tmp124",
+    "name": "測試2號",
+    "country_code": null,
+    "phone": "0900123480",
+    "point": 0,
+    "signature": "",
+    "fan_count": 2,
+    "default_title": "1",
+    "default_god_league_rank": null,
+    "accuse_credit": 20,
+    "block_count": 0,
+    "unread_count": 0,
+    "block_message": "2020-02-23T16:00:00.000Z",
+    "coin": 0,
+    "ingot": 0,
+    "rank1_count": 0,
+    "rank2_count": 16,
+    "rank3_count": 0,
+    "rank4_count": 0,
+    "createdAt": "2020-04-12T16:00:01.000Z",
+    "updatedAt": "2020-07-31T03:17:52.000Z"
+ }
  *
  * @apiError TokenMissing session cookie not exist.
  *
@@ -74,15 +79,3 @@ const userUtils = require('../../util/userUtil');
  *     HTTP/1.1 401 Token Missing
  *     missing token
  */
-async function getUserProfile(req, res) {
-  const uid = req.token.uid;
-  userUtils.getUserProfile(uid).then(firestoreUser => {
-    // res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json(firestoreUser);
-  }).catch(error => {
-    console.log('getUserProfile - getUserProfile false : ', error);
-    return res.status(500).send('error');
-  });
-}
-
-module.exports = getUserProfile;

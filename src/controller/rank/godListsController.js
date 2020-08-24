@@ -3,13 +3,16 @@ const { acceptLeague } = require('../../config/acceptValues');
 const godListsModel = require('../../model/rank/godListsModel');
 
 async function godlists(req, res) {
+  const newAcceptLeague = acceptLeague.slice(0);
+  newAcceptLeague[acceptLeague.length] = 'ALL';
+
   const schema = {
     type: 'object',
     required: ['league'],
     properties: {
       league: {
         type: 'string',
-        enum: acceptLeague
+        enum: newAcceptLeague
       }
     }
   };

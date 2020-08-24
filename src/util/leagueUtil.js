@@ -1,6 +1,7 @@
 const AppErrors = require('./AppErrors');
 const MATCH_STATUS = { SCHEDULED: 2, INPLAY: 1, END: 0, ABNORMAL: -1, VALID: 1 };
 const USER_SELL = { NORMAL: -1, GOD_FREE: 0, GOD_SELL: 1 };
+const USER_STATUS = { NORMAL: 1, GOD: 2 };
 // database name general setting
 const db = {
   basketball_NBA: 'basketball_NBA',
@@ -32,7 +33,8 @@ function league2Sport(league) {
     case 'ABL':
     case 'LMB':
       return {
-        sport: 'baseball'
+        sport: 'baseball',
+        sport_id: 16
       };
     case 'NBA':
     case 'SBL':
@@ -42,19 +44,23 @@ function league2Sport(league) {
     case 'CBA':
     case 'BJL':
       return {
-        sport: 'basketball'
+        sport: 'basketball',
+        sport_id: 18
       };
     case 'NHL':
       return {
-        sport: 'icehockey'
+        sport: 'icehockey',
+        sport_id: 17
       };
     case 'Soccer':
       return {
-        sport: 'soccer'
+        sport: 'soccer',
+        sport_id: 1
       };
     case 'eSoccer':
       return {
-        sport: 'esports'
+        sport: 'esports',
+        sport_id: 22
       };
     default:
       throw new AppErrors.UnknownLeague();
@@ -64,103 +70,103 @@ function leagueCodebook(league) {
   switch (league) {
     case 'NBA':
       return {
-        id: 2274,
+        id: '2274',
         match: db.basketball_NBA,
         name_ch: '美國國家籃球協會'
       };
     case 'SBL':
       return {
-        id: 8251,
+        id: '8251',
         match: db.basketball_SBL,
         name_ch: '超級籃球聯賽'
       };
     case 'WNBA':
       return {
-        id: 244,
+        id: '244',
         match: db.basketball_WNBA,
         name_ch: '美國國家女子籃球協會'
       };
     case 'NBL':
       return {
-        id: 1714,
+        id: '1714',
         match: db.basketball_NBL,
         name_ch: '澳洲職籃'
       };
     case 'CBA':
       return {
-        id: 2319,
+        id: '2319',
         match: db.basketball_CBA,
         name_ch: '中國職籃'
       };
     case 'KBL':
       return {
-        id: 2148,
+        id: '2148',
         match: db.basketball_KBL,
         name_ch: '韓國職籃'
       };
     case 'BJL':
       return {
-        id: 1298,
+        id: '1298',
         match: db.basketball_BJL,
         name_ch: '日本職籃'
       };
     case 'MLB':
       return {
-        id: 3939,
+        id: '3939',
         match: db.baseball_MLB,
         name_ch: '美國職棒大聯盟'
       };
     case 'NPB':
       return {
-        id: 347,
+        id: '347',
         match: db.baseball_NPB,
         name_ch: '日本職棒'
       };
     case 'CPBL':
       return {
-        id: 11235,
+        id: '11235',
         match: db.baseball_CPBL,
         name_ch: '中華職棒'
       };
     case 'KBO':
       return {
-        id: 349,
+        id: '349',
         match: db.baseball_KBO,
         name_ch: '韓國職棒'
       };
     case 'ABL':
       return {
-        id: 2759,
+        id: '2759',
         match: db.baseball_ABL,
         name_ch: '澳洲職棒'
       };
     case 'LMB':
       return {
-        id: 4412,
+        id: '4412',
         match: db.baseball_LMB,
         name_ch: '墨西哥職棒'
       };
     case 'NHL':
       return {
-        id: 1926,
-        match: db.baseball_NHL,
+        id: '1926',
+        match: db.icehockey_NHL,
         name_ch: '國家冰球聯盟'
       };
     case 'Soccer':
       return {
-        id: 8,
+        id: '8',
         match: db.Soccer,
         name_ch: '足球'
       };
     case 'eSoccer':
       return {
-        id: 22000,
+        id: '22000',
         match: db.eSoccer,
         name_ch: '足球電競'
       };
     case 'eGame':
       return {
-        id: 23000,
+        id: '23000',
         match: db.eGame,
         name_ch: '電競遊戲'
       };
@@ -214,6 +220,7 @@ function leagueDecoder(leagueID) {
 module.exports = {
   MATCH_STATUS,
   USER_SELL,
+  USER_STATUS,
   league2Sport,
   leagueCodebook,
   leagueDecoder,

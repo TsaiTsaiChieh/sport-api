@@ -3,6 +3,7 @@ const leagueUtil = require('../../util/leagueUtil');
 const dbEngine = require('../../util/databaseEngine');
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
+const to = require('await-to-js').default;
 const SELL = 1;
 const PAID = 1;
 
@@ -23,19 +24,19 @@ async function purchasePredictions(args) {
   // 6. 新增購牌記錄和更新餘額到 user__buys & users table，若失敗要回滾 update transactionsForPurchase
   // Destructuring assignment
   let err, godData, deposit, overage, purchaseData;
-  [err] = await modules.to(isTheSameUser(args));
+  [err] = await to(isTheSameUser(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err, godData] = await modules.to(checkGodUserRank(args));
+  [err, godData] = await to(checkGodUserRank(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err] = await modules.to(checkGodPredictions(args));
+  [err] = await to(checkGodPredictions(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err, deposit] = await modules.to(getUserDividendAndCoin(args));
+  [err, deposit] = await to(getUserDividendAndCoin(args));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err, overage] = await modules.to(checkUserDepositIsEnough(args, godData, deposit));
+  [err, overage] = await to(checkUserDepositIsEnough(args, godData, deposit));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err, purchaseData] = await modules.to(repackagePurchaseData(args, godData));
+  [err, purchaseData] = await to(repackagePurchaseData(args, godData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
-  [err] = await modules.to(transactionsForPurchase(args, overage, purchaseData));
+  [err] = await to(transactionsForPurchase(args, overage, purchaseData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   return repackageReturnData(args);
 }
@@ -47,7 +48,7 @@ function isTheSameUser(args) {
 
 async function checkGodUserRank(args) {
   const { period } = modules.getTitlesPeriod(args.now);
-  const [err, result] = await modules.to(db.sequelize.query(
+  const [err, result] = await to(db.sequelize.query(
     // index is const (users); index_merge (titles), taking 165ms
     `SELECT users.uid, titles.rank_id
        FROM users
@@ -74,12 +75,12 @@ async function checkGodUserRank(args) {
 async function checkGodPredictions(args) {
   const begin = modules.convertTimezone(args.matches_date);
   const end = modules.convertTimezone(args.matches_date, { op: 'add', value: 1, unit: 'days' }) - 1;
-  const [err, results] = await modules.to(db.sequelize.query(
+  const [err, results] = await to(db.sequelize.query(
     // index is range (user__predictions), taking 165ms
     `SELECT bets_id, match_scheduled
        FROM user__predictions
       WHERE uid = :god_uid
-        AND league_id = ':league_id'
+        AND league_id = :league_id
         AND match_scheduled BETWEEN ${begin} AND ${end}
         AND SELL = ${SELL}
    ORDER BY match_scheduled DESC
@@ -101,7 +102,7 @@ async function checkGodPredictions(args) {
 }
 
 async function getUserDividendAndCoin(args) {
-  const [err, result] = await modules.to(db.sequelize.query(
+  const [err, result] = await to(db.sequelize.query(
     // index is const (users), taking 160ms
     `SELECT dividend, coin
        FROM users
@@ -141,7 +142,7 @@ async function checkUserDepositIsEnough(args, godData, deposit) {
 }
 
 async function repackagePurchaseData(args, godData) {
-  const [getSeasonErr, season] = await modules.to(dbEngine.getSeason(leagueUtil.leagueCodebook(args.god_title).id));
+  const [getSeasonErr, season] = await to(dbEngine.getSeason(leagueUtil.leagueCodebook(args.god_title).id));
   if (getSeasonErr) throw new AppErrors.MysqlError(`${getSeasonErr.stack} by TsaiChieh`);
   const data = {
     uid: modules.validateProperty(args.token, 'uid'),
@@ -158,7 +159,7 @@ async function repackagePurchaseData(args, godData) {
     buy_date_tw: args.now.getTime()
   };
 
-  const [err, result] = await modules.to(Promise.resolve(data));
+  const [err, result] = await to(Promise.resolve(data));
   if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   return result;
 }
@@ -186,7 +187,7 @@ async function repackageReturnData(args) {
     discount: args.discount,
     message: 'success'
   };
-  const [err, result] = await modules.to(Promise.resolve(data));
+  const [err, result] = await to(Promise.resolve(data));
 
   if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh`);
   return result;

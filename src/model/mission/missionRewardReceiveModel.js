@@ -1,10 +1,11 @@
-/* eslint-disable prefer-const */
 const { date3UnixInfo } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
-const logger = require('firebase-functions/lib/logger');
+const { logger } = require('../../util/loggerUtil');
+
 const { setUserMissionStatus } = require('../../util/missionUtil');
+const cashflow_util = require('../../util/cashflowUtil');
 
 async function missionRewardReceive(args) {
   const userUid = args.token.uid;
@@ -18,7 +19,8 @@ async function missionRewardReceive(args) {
   // mission_item(每日、活動-預測)
   if (type === 'mission_item') {
     check1 = await db.sequelize.query(`
-      select missions.type
+      select missions.type, 
+             mission_items.mission_item_id, mission_items.reward_type, mission_items.reward_num
         from missions, mission_items
        where missions.mission_id = mission_items.mission_id
          and mission_items.mission_item_id = :id
@@ -34,6 +36,7 @@ async function missionRewardReceive(args) {
     if (check1.length === 0) throw errs.dbErrsMsg('404', '15215'); // 查不到
   }
 
+  // 目前 首次大神任務 不在此處理
   // if (type === 'mission_god') {
   //   check1 = await db.sequelize.query(`
   //     select missions.type
@@ -52,6 +55,7 @@ async function missionRewardReceive(args) {
   //   if (check1.length === 0) throw errs.dbErrsMsg('404', '15216'); // 查不到
   // }
 
+  // 目前 首次儲值任務 不在此處理
   // if (type === 'mission_deposit') {
   //   check1 = await db.sequelize.query(`
   //     select missions.type
@@ -70,8 +74,9 @@ async function missionRewardReceive(args) {
   //   if (check1.length === 0) throw errs.dbErrsMsg('404', '15217'); // 查不到
   // }
 
-  let missionStatusUpdateParms, check2, err;
-  const trans = await db.sequelize.transaction();
+  if (!check1) throw errs.dbErrsMsg('404', '150152'); // chekc1 無值情況，代表 type 為 mission_god 或 mission_deposit，目前不會有這種情況，需要中斷
+
+  let missionStatusUpdateParms; //, check2, err;
 
   // 取得 mission type 0: 每日  1: 進階  2: 活動
   if (check1[0].type === 0) { // 每日 daily
@@ -87,7 +92,14 @@ async function missionRewardReceive(args) {
     // if (type === 'mission_deposit') missionStatusUpdateParms = { status: 1, mission_item_id: id };
   }
 
-  [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
+  if (!missionStatusUpdateParms) {
+    throw errs.dbErrsMsg('404', '150153'); // missionStatusUpdateParms 無值情況，必需要有值才對
+  }
+
+  // Transaction Start
+  const trans = await db.sequelize.transaction();
+
+  const [err, check2] = await to(setUserMissionStatus(userUid, missionStatusUpdateParms, 2, trans));
   if (err) {
     logger.warn('[Error][missionRewardReciveModel][setUserMissionStatus] ', err);
     await trans.rollback();
@@ -101,6 +113,20 @@ async function missionRewardReceive(args) {
   }
 
   // 實際發放獎勵，呼叫金流相關操作
+  // check1 需要取得
+  // reward
+  //   mission_item_id
+  //   reward_type
+  //   reward_num
+  /* 發放搞任務獎勵 */
+  const issue = {
+    type: check1[0].type,
+    reward_type: check1[0].reward_type,
+    reward_value: check1[0].reward_num,
+    uid: userUid,
+    type_id: check1[0].mission_item_id
+  };
+  cashflow_util.cashflow_issue(issue, trans);
 
   await trans.commit();
   return { status: 'ok' };

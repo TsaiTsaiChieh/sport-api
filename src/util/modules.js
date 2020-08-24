@@ -3,12 +3,13 @@ const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 require('moment-timezone');
 const { zone_tw } = require('../config/env_values');
-const UTF0 = 0;
 const UTF8 = 8;
-// const errs = require('./errorCode');
+const oneDayMinusOneUnix = 86399;
 const to = require('await-to-js').default;
 const AppErrors = require('./AppErrors');
 const NP = require('number-precision');
+const periods = require('../config/periods.json');
+
 // 輸入的時間為該時區 ，輸出轉為 GMT 時間
 /*
   date: 2020-07-01 or 20200701
@@ -32,7 +33,7 @@ function convertTimezone(date, operation, zone = zone_tw) {
     }
   }
   return moment.tz(date, zone).unix();
-}
+};
 
 // 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
 /*
@@ -171,91 +172,34 @@ function dateFormat(date) {
 /**
  * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
  * @params date = new Date();
- * ！非常重要！ 目前前端會使用這個模組，一但有修改程式碼，務必和前端同步
  */
-function getTitlesPeriod(date, format = 'YYYYMMDD') {
-  // date = new Date()
-  const specificDate = '20200302';
-  const years = [
-    2020,
-    2021,
-    2022,
-    2023,
-    2024,
-    2025,
-    2026,
-    2027,
-    2028,
-    2029,
-    2030
-  ];
-  let weeks = 0;
-  for (let i = 0; i < years.length; i++) {
-    const year = years[i];
-    const weeksInYear = moment(year).isoWeeksInYear(); // always 53
-    weeks += weeksInYear;
-  }
+function getTitlesPeriod(date) {
+  const now = moment(date).utcOffset(UTF8).unix();
+  if (typeof now !== 'number') throw new Error('Input not acceptable');
+  try {
+    for (let i = 0; i < periods.length; i++) {
+      const ele = periods[i];
+      const beginUnix = ele.begin.unix;
+      const endUnix = ele.end.unix;
+      const middleUnix = ele.middle.unix;
 
-  weeks -= moment(specificDate).weeks(); // 減去從 specificDate 已過幾週
-
-  const periodTenYear = Math.ceil(weeks / 2);
-  for (let i = 0; i < periodTenYear; i++) {
-    const begin = moment(specificDate)
-      .utcOffset(UTF8)
-      .add(i * 2 - 1, 'weeks')
-      .endOf('isoWeek')
-      .valueOf();
-    const middle = moment(specificDate)
-      .utcOffset(UTF8)
-      .add(i * 2, 'weeks')
-      .endOf('isoWeek')
-      .valueOf();
-    const end = moment(specificDate)
-      .utcOffset(UTF8)
-      .add(i * 2 + 1, 'weeks')
-      .endOf('isoWeek')
-      .valueOf();
-
-    if (begin <= date && date <= end) {
-      const periodBeginDate = moment(specificDate) // 該期開始計算的日期
-        .utcOffset(UTF8)
-        .add(i * 2 - 2, 'weeks')
-        .format(format);
-      const periodBeginDateBeginUnix = moment
-        .tz(periodBeginDate, format, zone_tw)
-        .unix();
-      const periodBeginDateEndUnix =
-        moment.tz(periodBeginDate, format, zone_tw).add(1, 'days').unix() - 1;
-
-      const periodEndDate = moment(specificDate) // 該期結束計算的日期
-        .utcOffset(UTF8)
-        .add(i * 2, 'weeks')
-        .subtract(1, 'days')
-        .format(format);
-      const periodEndDateBeginUnix = moment
-        .tz(periodEndDate, format, zone_tw)
-        .unix();
-      const periodEndDateEndUnix =
-        moment.tz(periodEndDate, format, zone_tw).add(1, 'days').unix() - 1;
-
-      const nowWeekOfyear = moment.tz(date, zone_tw).week();
-      const nowDayOfYear = moment.tz(date, zone_tw).format('DDD');
-
-      return {
-        period: i, // 期數
-        date: periodBeginDate, // 該期開始計算的日期
-        end: periodEndDate, // 該期結束計算的日期
-        weekPeriod: date < middle ? 1 : 2, // 該期數是第幾個星期
-        periodBeginDateBeginUnix: periodBeginDateBeginUnix,
-        periodBeginDateEndUnix: periodBeginDateEndUnix,
-        periodEndDateBeginUnix: periodEndDateBeginUnix,
-        periodEndDateEndUnix: periodEndDateEndUnix,
-        inputDateWeekOfyear: nowWeekOfyear, // 該日期在該年的第幾星期
-        inputDateDayOfYear: nowDayOfYear // 該日期在該年的第幾天
-      };
+      if (beginUnix <= now && now <= endUnix + oneDayMinusOneUnix) {
+        const lastPeriod = periods[i - 1];
+        return {
+          period: lastPeriod.period,
+          date: lastPeriod.begin.format,
+          end: lastPeriod.end.format,
+          weekPeriod: now < middleUnix ? 1 : 2,
+          periodBeginDateBeginUnix: lastPeriod.begin.unix,
+          periodBeginDateEndUnix: lastPeriod.begin.unix + oneDayMinusOneUnix,
+          periodEndDateBeginUnix: lastPeriod.end.unix,
+          periodEndDateEndUnix: lastPeriod.end.unix + oneDayMinusOneUnix
+        };
+      }
     }
+  } catch (err) {
+    throw new Error(`Input is ${date}, throw error: ${err.stack}`);
   }
-  return 0;
 }
 
 /**
@@ -285,9 +229,9 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
     periodBeginDateBeginUnix: periodBeginDate.dateBeginUnix,
     periodBeginDateEndUnix: periodBeginDate.dateEndUnix,
     periodEndDateBeginUnix: periodEndDate.dateBeginUnix,
-    periodEndDateEndUnix: periodEndDate.dateEndUnix,
-    inputDateWeekOfyear: t.inputDateWeekOfyear,
-    inputDateDayOfYear: t.inputDateDayOfYear
+    periodEndDateEndUnix: periodEndDate.dateEndUnix
+    // inputDateWeekOfYear: t.inputDateWeekOfYear,
+    // inputDateDayOfYear: t.inputDateDayOfYear
   };
 }
 
@@ -540,7 +484,6 @@ module.exports = {
   getTitles,
   getAllTitles,
   userStatusCodebook,
-  UTF0,
   UTF8,
   convertTimezone,
   convertTimezoneFormat,

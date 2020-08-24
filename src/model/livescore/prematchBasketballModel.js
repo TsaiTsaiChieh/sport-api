@@ -6,7 +6,7 @@ const AppErrors = require('../../util/AppErrors');
 const { logger } = require('firebase-functions');
 const limit = 10;
 
-function prematchBaseball(args) {
+function prematchBasketball(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const teamsDataFromMySQL = await getHomeAndAwayTeamFromMySQL(args);
@@ -17,6 +17,21 @@ function prematchBaseball(args) {
       return resolve(repackagePrematch(args, teamsDataFromFirestore, teamsDataFromMySQL, { homeEvents, awayEvents }, tenFightData));
     } catch (err) {
       return reject(err);
+    }
+  });
+}
+
+function getPrematchFromFirestore(args, matchData) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const { home_id, away_id, season } = matchData;
+      const homeData = await firestore.collection(`basketball_${args.league}`).doc(home_id).get();
+      const awayData = await firestore.collection(`basketball_${args.league}`).doc(away_id).get();
+      // error handle when home or away data is not found
+      if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
+      return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
+    } catch (err) {
+      return reject(new AppErrors.FirestoreQueryError(err.stack));
     }
   });
 }
@@ -59,21 +74,6 @@ function getHomeAndAwayTeamFromMySQL(args) {
   });
 }
 
-function getPrematchFromFirestore(args, matchData) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const { home_id, away_id, season } = matchData;
-      const homeData = await firestore.collection(`baseball_${args.league}`).doc(home_id).get();
-      const awayData = await firestore.collection(`baseball_${args.league}`).doc(away_id).get();
-      // error handle when home or away data is not found
-      if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
-      return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
-    } catch (err) {
-      return reject(new AppErrors.FirestoreQueryError(err.stack));
-    }
-  });
-}
-
 function queryHomeEvents(args) {
   return new Promise(async function(resolve, reject) {
     try {
@@ -106,7 +106,6 @@ function queryHomeEvents(args) {
           type: db.sequelize.QueryTypes.SELECT
         }
       );
-
       return resolve(queries);
     } catch (err) {
       return reject(new AppErrors.MysqlError(err.stack));
@@ -154,12 +153,108 @@ function queryAwayEvents(args) {
   });
 }
 
-function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fights) {
-  const { homeData, awayData } = teamsFromFirestore;
-  const rate = repackagePassRate(events);
-  const tenFights = repackageTenFights(args, fights);
-  const { homePlayer, awayPlayer, homePlayerIsNull, awayPlayerIsNull } = checkPlayer(teamsFromMySQL);
+function queryTenFightEvent(args) {
+  return new Promise(async function(resolve, reject) {
+    try {
+      const queries = await db.sequelize.query(
+        // take 169 ms
+        `(
+          SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, total.over_tw AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+                   match__spreads AS spread,
+                   match__totals AS total,
+                   match__teams AS home,
+                   match__teams AS away
+             WHERE game.bets_id = :event_id
+               AND five.bets_id != :event_id
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = :leagueID
+               AND five.home_id = home.team_id
+               AND five.away_id = away.team_id 
+               AND five.spread_id = spread.spread_id
+               AND five.totals_id = total.totals_id
+					 )
+					 UNION(
+            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   NULL AS spread_home_tw, NULL AS spread_away_tw, total.over_tw AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+									 match__teams AS home,
+									 match__totals AS total,
+                   match__teams AS away
+             WHERE game.bets_id = :event_id
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
+               AND five.bets_id != :event_id
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = :leagueID
+               AND five.home_id = home.team_id
+               AND five.away_id = away.team_id 
+							 AND five.spread_id IS NULL 
+							 AND five.totals_id = total.totals_id    
+					) 
+					UNION(
+            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, NULL AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+									 match__teams AS home,
+									 match__spreads AS spread,
+                   match__teams AS away
+             WHERE game.bets_id = :event_id
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
+               AND five.bets_id != :event_id
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = :leagueID
+               AND five.home_id = home.team_id
+							 AND five.away_id = away.team_id 
+							 AND five.spread_id = spread.spread_id
+               AND five.totals_id IS NULL  
+          ) 
+          UNION(
+            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
+                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
+                   NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS totals_over_tw
+              FROM matches AS game,
+                   matches AS five,
+                   match__teams AS home,
+                   match__teams AS away
+             WHERE game.bets_id = :event_id
+               AND five.status = ${leagueUtil.MATCH_STATUS.END}
+               AND five.bets_id != :event_id
+               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
+               AND five.league_id = :leagueID
+               AND five.home_id = home.team_id
+               AND five.away_id = away.team_id 
+               AND (five.spread_id IS NULL AND five.totals_id IS NULL)       
+          ) 
+          ORDER BY scheduled   
+          LIMIT 10             
+          `,
+        {
+          replacements: {
+            leagueID: leagueUtil.leagueCodebook(args.league).id,
+            event_id: args.event_id
+          },
+          type: db.sequelize.QueryTypes.SELECT
+        }
+      );
+      return resolve(queries);
+    } catch (err) {
+      return reject(new AppErrors.MysqlError(err.stack));
+    }
+  });
+}
 
+function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events, tenFightData) {
+  const { homeData, awayData } = teamsDataFromFirestore;
+  const rate = repackagePassRate(events);
+  const tenFights = repackageTenFights(args, tenFightData);
   try {
     const data = {
       season: teamsFromMySQL.season,
@@ -194,7 +289,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           spread_rate: Number((rate.home_spread_rate).toFixed(2)),
           totals_rate: Number((rate.home_totals_rate).toFixed(2)),
           L10: homeData.team_base.L10,
-          STRK: homeData.team_base.STRK,
           Win: homeData.team_base.Win,
           Loss: homeData.team_base.Loss,
           Draw: homeData.team_base.Draw,
@@ -202,24 +296,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           at_away: homeData.team_base.at_away,
           per_R: homeData.team_base.per_R,
           allow_per_R: homeData.team_base.per_allow_R
-        },
-        pitcher: {
-          id: homePlayerIsNull ? null : homePlayer.pitchers.id,
-          name: homePlayerIsNull ? null : homePlayer.pitchers.name,
-          ori_name: homePlayerIsNull ? null : homePlayer.pitchers.ori_name,
-          Win: homePlayerIsNull ? null : homePlayer.pitchers.Win,
-          Loss: homePlayerIsNull ? null : homePlayer.pitchers.Loss,
-          ERA: homePlayerIsNull ? null : homePlayer.pitchers.ERA,
-          SO: homePlayerIsNull ? null : homePlayer.pitchers.SO,
-          jersey_id: homePlayerIsNull ? null : homePlayer.pitchers.jersey_id
-        },
-        team_hit: {
-          R: homeData.team_hit.R,
-          H: homeData.team_hit.H,
-          HR: homeData.team_hit.HR,
-          AVG: homeData.team_hit.AVG,
-          OBP: homeData.team_hit.OBP,
-          SLG: homeData.team_hit.SLG
         }
       },
       away: {
@@ -234,7 +310,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           spread_rate: Number((rate.away_spread_rate).toFixed(2)),
           totals_rate: Number((rate.away_totals_rate).toFixed(2)),
           L10: awayData.team_base.L10,
-          STRK: awayData.team_base.STRK,
           Win: awayData.team_base.Win,
           Loss: awayData.team_base.Loss,
           Draw: awayData.team_base.Draw,
@@ -242,24 +317,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           at_away: awayData.team_base.at_away,
           per_R: awayData.team_base.per_R,
           allow_per_R: awayData.team_base.allow_per_R
-        },
-        pitcher: {
-          id: awayPlayerIsNull ? null : awayPlayer.pitchers.id,
-          name: awayPlayerIsNull ? null : awayPlayer.pitchers.name,
-          ori_name: awayPlayerIsNull ? null : awayPlayer.pitchers.ori_name,
-          Win: awayPlayerIsNull ? null : awayPlayer.pitchers.Win,
-          Loss: awayPlayerIsNull ? null : awayPlayer.pitchers.Loss,
-          ERA: awayPlayerIsNull ? null : awayPlayer.pitchers.ERA,
-          SO: awayPlayerIsNull ? null : awayPlayer.pitchers.SO,
-          jersey_id: awayPlayerIsNull ? null : awayPlayer.pitchers.jersey_id
-        },
-        team_hit: {
-          R: awayData.team_hit.R,
-          H: awayData.team_hit.H,
-          HR: awayData.team_hit.HR,
-          AVG: awayData.team_hit.AVG,
-          OBP: awayData.team_hit.OBP,
-          SLG: awayData.team_hit.SLG
         }
       },
       L10_record: tenFights
@@ -270,29 +327,99 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   }
 }
 
-function checkPlayer(teamsFromMySQL) {
-  const homePlayer = JSON.parse(teamsFromMySQL.home_player);
-  const awayPlayer = JSON.parse(teamsFromMySQL.away_player);
-  let homePlayerIsNull = true;
-  let awayPlayerIsNull = true;
+function repackageTenFights(args, events) {
+  try {
+    const data = [];
+    for (let i = 0; i < events.length; i++) {
+      const ele = events[i];
 
-  if (homePlayer) {
-    homePlayerIsNull = homePlayer.pitchers === null;
-    if (homePlayer.pitchers) {
-      if (homePlayer.pitchers.id === 0) homePlayerIsNull = true;
+      let temp;
+      if (ele.spread_result === 'fair|away') {
+        ele.spread_result = 'away';
+      }
+      if (ele.spread_result === 'fair|home') {
+        ele.spread_result = 'home';
+      }
+      if (ele.totals_result === 'fair|over') {
+        ele.totals_result = 'over';
+      }
+      if (ele.totals_result === 'fair|under') {
+        ele.totals_result = 'under';
+      }
+      let result_tw;
+      if (ele.spread_home_tw && ele.spread_home_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `讓${ele.spread_home_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `受讓${ele.spread_home_tw}`;
+        } else {
+        }
+      } else if (ele.spread_away_tw && ele.spread_away_tw !== 'pk') {
+        if (ele.spread_result === 'home') {
+          result_tw = `受讓${ele.spread_away_tw}`;
+        } else if (ele.spread_result === 'away') {
+          result_tw = `讓${ele.spread_away_tw}`;
+        } else {
+        }
+      } else if (ele.spread_home_tw === 'pk' || ele.spread_away_tw === 'pk') {
+        result_tw = 'pk';
+      } else {
+        result_tw = null;
+      }
+
+      if (args.league === 'eSoccer') {
+        temp = {
+          scheduled: ele.scheduled,
+          id: ele.id,
+          home_name_ch: ele.home_alias_ch
+            ? ele.home_alias_ch.split('(')[0].trim()
+            : ele.home_alias.split('(')[0].trim(),
+
+          away_name_ch: ele.away_alias_ch
+            ? ele.away_alias_ch.split('(')[0].trim()
+            : ele.away_alias.split('(')[0].trim(),
+
+          home_points: ele.home_points,
+          away_points: ele.away_points,
+          spread_result: ele.spread_result,
+          totals_result: ele.totals_result,
+          home_tw: ele.spread_home_tw,
+          away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
+          over_tw: ele.totals_over_tw
+        };
+      } else {
+        temp = {
+          scheduled: ele.scheduled,
+          id: ele.id,
+          home_name_ch: ele.home_alias_ch
+            ? ele.home_alias_ch
+            : ele.home_alias,
+          away_name_ch: ele.away_alias_ch
+            ? ele.away_alias_ch
+            : ele.away_alias,
+          home_points: ele.home_points,
+          away_points: ele.away_points,
+          spread_result: ele.spread_result,
+          totals_result: ele.totals_result,
+          home_tw: ele.spread_home_tw,
+          away_tw: ele.spread_away_tw,
+          result_tw: result_tw,
+          over_tw: ele.totals_over_tw
+        };
+      }
+      data.push(temp);
     }
+
+    return data;
+  } catch (err) {
+    logger.error(err.stack);
+    throw new AppErrors.RepackageError(err.stack);
   }
-  if (awayPlayer) {
-    awayPlayerIsNull = awayPlayer.pitchers === null;
-    if (awayPlayer.pitchers) {
-      if (awayPlayer.pitchers.id === 0) awayPlayerIsNull = true;
-    }
-  }
-  return { homePlayer, awayPlayer, homePlayerIsNull, awayPlayerIsNull };
 }
 
-function repackagePassRate(events) {
-  const { homeEvents, awayEvents } = events;
+function repackagePassRate(result) {
+  const { homeEvents, awayEvents } = result;
   try {
     let homeAtGivePass = 0;
     let homeAtGiveFail = 0;
@@ -509,193 +636,4 @@ function repackagePassRate(events) {
   }
 }
 
-function queryTenFightEvent(args) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const queries = await db.sequelize.query(
-        // take 169 ms
-        `(
-          SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
-                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                   spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, total.over_tw AS totals_over_tw
-              FROM matches AS game,
-                   matches AS five,
-                   match__spreads AS spread,
-                   match__totals AS total,
-                   match__teams AS home,
-                   match__teams AS away
-             WHERE game.bets_id = :event_id
-               AND five.bets_id != :event_id
-               AND five.status = ${leagueUtil.MATCH_STATUS.END}
-               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = :leagueID
-               AND five.home_id = home.team_id
-               AND five.away_id = away.team_id 
-               AND five.spread_id = spread.spread_id
-               AND five.totals_id = total.totals_id
-					 )
-					 UNION(
-            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
-                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                   NULL AS spread_home_tw, NULL AS spread_away_tw, total.over_tw AS totals_over_tw
-              FROM matches AS game,
-                   matches AS five,
-									 match__teams AS home,
-									 match__totals AS total,
-                   match__teams AS away
-             WHERE game.bets_id = :event_id
-               AND five.status = ${leagueUtil.MATCH_STATUS.END}
-               AND five.bets_id != :event_id
-               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = :leagueID
-               AND five.home_id = home.team_id
-               AND five.away_id = away.team_id 
-							 AND five.spread_id IS NULL 
-							 AND five.totals_id = total.totals_id    
-					) 
-					UNION(
-            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
-                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                   spread.home_tw AS spread_home_tw, spread.away_tw AS spread_away_tw, NULL AS totals_over_tw
-              FROM matches AS game,
-                   matches AS five,
-									 match__teams AS home,
-									 match__spreads AS spread,
-                   match__teams AS away
-             WHERE game.bets_id = :event_id
-               AND five.status = ${leagueUtil.MATCH_STATUS.END}
-               AND five.bets_id != :event_id
-               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = :leagueID
-               AND five.home_id = home.team_id
-							 AND five.away_id = away.team_id 
-							 AND five.spread_id = spread.spread_id
-               AND five.totals_id IS NULL  
-          ) 
-          UNION(
-            SELECT five.bets_id AS id, five.home_points AS home_points, five.away_points AS away_points, five.spread_result AS spread_result, five.totals_result AS totals_result, five.scheduled AS scheduled,
-                   home.name AS home_name, home.alias_ch AS home_alias_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
-                   NULL AS spread_home_tw, NULL AS spread_away_tw, NULL AS totals_over_tw
-              FROM matches AS game,
-                   matches AS five,
-                   match__teams AS home,
-                   match__teams AS away
-             WHERE game.bets_id = :event_id
-               AND five.status = ${leagueUtil.MATCH_STATUS.END}
-               AND five.bets_id != :event_id
-               AND ((game.home_id = five.home_id AND game.away_id = five.away_id) OR (game.home_id = five.away_id AND game.away_id = five.home_id))
-               AND five.league_id = :leagueID
-               AND five.home_id = home.team_id
-               AND five.away_id = away.team_id 
-               AND (five.spread_id IS NULL AND five.totals_id IS NULL)       
-          ) 
-          ORDER BY scheduled   
-          LIMIT 10             
-          `,
-        {
-          replacements: {
-            leagueID: leagueUtil.leagueCodebook(args.league).id,
-            event_id: args.event_id
-          },
-          type: db.sequelize.QueryTypes.SELECT
-        }
-      );
-      return resolve(queries);
-    } catch (err) {
-      return reject(new AppErrors.MysqlError(err.stack));
-    }
-  });
-}
-
-function repackageTenFights(args, events) {
-  try {
-    const data = [];
-    for (let i = 0; i < events.length; i++) {
-      const ele = events[i];
-
-      let temp;
-      if (ele.spread_result === 'fair|away') {
-        ele.spread_result = 'away';
-      }
-      if (ele.spread_result === 'fair|home') {
-        ele.spread_result = 'home';
-      }
-      if (ele.totals_result === 'fair|over') {
-        ele.totals_result = 'over';
-      }
-      if (ele.totals_result === 'fair|under') {
-        ele.totals_result = 'under';
-      }
-      let result_tw;
-      if (ele.spread_home_tw && ele.spread_home_tw !== 'pk') {
-        if (ele.spread_result === 'home') {
-          result_tw = `讓${ele.spread_home_tw}`;
-        } else if (ele.spread_result === 'away') {
-          result_tw = `受讓${ele.spread_home_tw}`;
-        } else {
-        }
-      } else if (ele.spread_away_tw && ele.spread_away_tw !== 'pk') {
-        if (ele.spread_result === 'home') {
-          result_tw = `受讓${ele.spread_away_tw}`;
-        } else if (ele.spread_result === 'away') {
-          result_tw = `讓${ele.spread_away_tw}`;
-        } else {
-        }
-      } else if (ele.spread_home_tw === 'pk' || ele.spread_away_tw === 'pk') {
-        result_tw = 'pk';
-      } else {
-        result_tw = null;
-      }
-
-      if (args.league === 'eSoccer') {
-        temp = {
-          scheduled: ele.scheduled,
-          id: ele.id,
-          home_name_ch: ele.home_alias_ch
-            ? ele.home_alias_ch.split('(')[0].trim()
-            : ele.home_alias.split('(')[0].trim(),
-
-          away_name_ch: ele.away_alias_ch
-            ? ele.away_alias_ch.split('(')[0].trim()
-            : ele.away_alias.split('(')[0].trim(),
-
-          home_points: ele.home_points,
-          away_points: ele.away_points,
-          spread_result: ele.spread_result,
-          totals_result: ele.totals_result,
-          home_tw: ele.spread_home_tw,
-          away_tw: ele.spread_away_tw,
-          result_tw: result_tw,
-          over_tw: ele.totals_over_tw
-        };
-      } else {
-        temp = {
-          scheduled: ele.scheduled,
-          id: ele.id,
-          home_name_ch: ele.home_alias_ch
-            ? ele.home_alias_ch
-            : ele.home_alias,
-          away_name_ch: ele.away_alias_ch
-            ? ele.away_alias_ch
-            : ele.away_alias,
-          home_points: ele.home_points,
-          away_points: ele.away_points,
-          spread_result: ele.spread_result,
-          totals_result: ele.totals_result,
-          home_tw: ele.spread_home_tw,
-          away_tw: ele.spread_away_tw,
-          result_tw: result_tw,
-          over_tw: ele.totals_over_tw
-        };
-      }
-      data.push(temp);
-    }
-
-    return data;
-  } catch (err) {
-    logger.error(err.stack);
-    throw new AppErrors.RepackageError(err.stack);
-  }
-}
-
-module.exports = prematchBaseball;
+module.exports = prematchBasketball;
