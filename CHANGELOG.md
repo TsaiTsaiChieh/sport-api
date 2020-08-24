@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  Add {} to logger ***by TsaiTsaiChieh*** [#424](https://github.com/gets-info/sports-api/pull/424)
 -  新增籃球賽前資訊，包含近十場過盤率以及勝敗和 ***by page40316*** [#422](https://github.com/gets-info/sports-api/pull/422)
 #### Fix:
+-  fix donating not given five percent dividend ***by gsihenry*** [#429](https://github.com/gets-info/sports-api/pull/429)
 #### Removed:
 #### DB:
 
