@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.5] - 2020-08-24
+#### Add:
+-  soccer of acceptLeague, enable prediction and live score
 -  cashflow daily mission ***by gsihenry*** [#428](https://github.com/gets-info/sports-api/pull/428)
 -  invoice carrier api ***by gsihenry*** [#427](https://github.com/gets-info/sports-api/pull/427)
 -  Add returning blockTime when user had been muted ***by TsaiTsaiChieh*** [#426](https://github.com/gets-info/sports-api/pull/426)
@@ -14,8 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  新增籃球賽前資訊，包含近十場過盤率以及勝敗和 ***by page40316*** [#422](https://github.com/gets-info/sports-api/pull/422)
 #### Fix:
 -  fix donating not given five percent dividend ***by gsihenry*** [#429](https://github.com/gets-info/sports-api/pull/429)
-#### Removed:
-#### DB:
+***
 
 ## [v1.1.4] - 2020-08-19
 #### Fix:
