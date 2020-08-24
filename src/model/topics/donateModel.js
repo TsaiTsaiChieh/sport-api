@@ -85,13 +85,55 @@ async function donate(args) {
   return new Promise(async function(resolve, reject) {
     const t = await db.sequelize.transaction();
     try {
+      const uid = args.token.uid;
+      let article;
+
       if (typeof args.token === 'undefined') {
         reject({ code: 403, error: 'token expired' });
         return;
       }
 
-      const uid = args.token.uid;
-      let article;
+      /** * 打賞發放紅利記錄 ***/
+      /* 最小可打賞金額判斷 */
+      if (args.cost < 2) {
+        reject({ code: 500, error: '低於最小可打賞金額' });
+        return;
+      }
+
+      const scheduled = modules.moment().unix();
+      let fb_dividend = 0;
+      /* 最低回饋打賞金額:10(依據四捨五入原則回饋1紅利) */
+      try {
+        if (args.cost >= 10) {
+          fb_dividend = args.cost * 0.05;
+          db.sequelize.models.cashflow_dividend.create({
+            uid: uid,
+            expire_points: parseInt(fb_dividend),
+            dividend_real: fb_dividend,
+            status: 1,
+            dividend_status: 1,
+            scheduled: scheduled
+          });
+        }
+      } catch (e) {
+        reject({ code: 500, error: 'issue dividend error' });
+      }
+
+      /** * 打賞發放紅利錢包給紅利 ***/
+      try {
+        const purse_self = await db.User.findOne({
+          where: { uid: uid },
+          attributes: ['ingot', 'coin', 'dividend'],
+          raw: true
+        });
+
+        if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
+          await db.User.update({ dividend: purse_self.dividend + Math.round(fb_dividend) }, { where: { uid: uid } });
+        }
+      } catch (e) {
+        reject({ code: 500, error: 'update purse error' });
+      }
+
       try {
         article = await dbFind(args.article_id); // 確認文章
         if (!article[0]) {
@@ -132,7 +174,7 @@ async function donate(args) {
       let dividend = 0;
       const ingot = args.cost - Math.round(args.cost / 2);
       const ingot_real = args.cost - args.cost / 2;
-      const scheduled = modules.moment().unix();
+
       if (args.type === 'coin') {
         money_type = 1;
         coin = (-1) * args.cost;
