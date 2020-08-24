@@ -90,13 +90,14 @@ async function repackageReturnData(historyData, periodData) {
   const data = {};
   data.periods = periodData.periods;
   data.begin_date = [];
+  data.leagues = {};
   for (let i = periodData.length - 1; i >= 0; i--) data.begin_date.push(periodData[i].begin.format);
-
   const groupByLeague = modules.groupBy(historyData, 'league_id');
   groupByLeague.map(function(eachLeagueItems) {
     // Initial
     const league = leagueUtil.leagueDecoder(eachLeagueItems[0].league_id);
-    data[league] = {};
+    data.leagues[league] = {};
+
     for (let i = periodData.length - 1; i >= 0; i--) {
       const pastPredictions = new Array(TWO_WEEKS);
       for (let j = 0; j < TWO_WEEKS; j++) {
@@ -114,7 +115,7 @@ async function repackageReturnData(historyData, periodData) {
         });
         pastPredictions[j] = tempArray;
       }
-      data[league][`period_${periodData[i].period}`] = pastPredictions.reverse();
+      data.leagues[league][`period_${periodData[i].period}`] = pastPredictions.reverse();
     }
   });
 
