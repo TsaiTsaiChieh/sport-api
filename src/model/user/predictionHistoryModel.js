@@ -1,11 +1,12 @@
 const modules = require('../../util/modules');
+const to = require('await-to-js').default;
 const leagueUtil = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 const dbEngine = require('../../util/databaseEngine');
 const AppErrors = require('../../util/AppErrors');
 const TWO_WEEKS = 14;
+const lastPeriod = 3;
 const ONE_DAY_UNIX = modules.convertTimezone(0, { op: 'add', value: 1, unit: 'days' });
-
 const settlement = {
   loss: -1,
   lossHalf: -0.5,
@@ -23,22 +24,29 @@ const settlement = {
 
 async function predictionHistory(args) {
   let err, userData, historyData, historyLogs;
-  [err, userData] = await modules.to(dbEngine.findUser(args.uid));
+  [err, userData] = await to(dbEngine.findUser(args.uid));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  [err, historyData] = await modules.to(getUserPredictionData(args, userData));
+  const periodData = calculatePeriodData(args.now);
+  [err, historyData] = await to(getUserPredictionData(userData, periodData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
-  [err, historyLogs] = await modules.to(repackageReturnData(args, historyData));
+  [err, historyLogs] = await to(repackageReturnData(historyData, periodData));
   if (err) throw new AppErrors.PredictionHistoryModelError(err.stack, err.status);
   return historyLogs;
 }
 
-async function getUserPredictionData(args, userData) {
-  args.begin = modules.moment(args.now).unix();
-  const beforeDate = modules.convertTimezoneFormat(args.begin, { op: 'subtract', value: TWO_WEEKS - 1, unit: 'days' });
-  // before will be 00:00:00 GMT+0800
-  args.before = modules.convertTimezone(beforeDate);
+function calculatePeriodData(now) {
+  const { period } = modules.getTitlesPeriod(now);
+  const periods = [];
+  for (let i = 0; i < lastPeriod; i++) periods.push(period - i);
+  const PeriodData = modules.getEachPeriodData(periods);
+  PeriodData.periods = periods;
+  return PeriodData;
+}
 
-  const [err, results] = await modules.to(db.sequelize.query(
+async function getUserPredictionData(userData, periodData) {
+  const begin = periodData[0].begin.unix;
+  const end = periodData[periodData.length - 1].end.unix;
+  const [err, results] = await to(db.sequelize.query(
     // index is ref (user__predictions); eq_ref (matches); eq_ref (matches__teams[home]); eq_ref (matches__teams[away]); ref (match__spreads); ref (match__totals), taking 165ms
     `SELECT game.bets_id, game.league_id, game.sport_id, game.scheduled, game.home_points, game.away_points, 
             home.team_id AS home_id, home.image_id AS home_image_id, home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch,
@@ -58,57 +66,59 @@ async function getUserPredictionData(args, userData) {
          ON spread.spread_id = prediction.spread_id
   LEFT JOIN match__totals AS totals
          ON totals.totals_id = prediction.totals_id
-      WHERE prediction.uid = '${userData.uid}'
-        AND game.scheduled BETWEEN ${args.before} and ${args.begin}
-        AND game.status = ${leagueUtil.MATCH_STATUS.END}
-        AND game.flag_prematch = ${leagueUtil.MATCH_STATUS.VALID}`,
+      WHERE prediction.uid = :uid
+        AND game.scheduled BETWEEN :begin and :end
+        AND game.status = :status
+        AND game.flag_prematch = :flag_prematch
+   ORDER BY game.scheduled DESC`,
     {
-      type: db.sequelize.QueryTypes.SELECT
+      type: db.sequelize.QueryTypes.SELECT,
+      replacements: {
+        uid: userData.uid,
+        status: leagueUtil.MATCH_STATUS.END,
+        begin,
+        end,
+        flag_prematch: leagueUtil.MATCH_STATUS.VALID
+      }
     }));
 
   if (err) throw new AppErrors.MysqlError(err.stack);
   return results;
 }
 
-async function repackageReturnData(args, historyData) {
+async function repackageReturnData(historyData, periodData) {
   const data = {};
-  let league; // "data" object property
-  // "groupByLeague" is an array which contains many objects,
-  // grouped by property which is league_id,
-  // this object looks like:
-  // [
-  //    [ {NBA Data}, {NBA Data}, {NBA Data} ],
-  //    [ {eSoccer Data}, {eSoccer Data},... ]
-  // ]
+  data.periods = periodData.periods;
+  data.begin_date = [];
+  data.leagues = {};
+  for (let i = periodData.length - 1; i >= 0; i--) data.begin_date.push(periodData[i].begin.format);
   const groupByLeague = modules.groupBy(historyData, 'league_id');
   groupByLeague.map(function(eachLeagueItems) {
-    // Create an array, a.k.a "pastPredictions",
-    // to save the past prediction data which from no array today to 14 days ago,
-    // and each array belongs to each different league.
-    const pastPredictions = new Array(TWO_WEEKS);
-    for (let i = 0; i < TWO_WEEKS; i++) {
-      const tempArray = []; // To save repackage match data temp array
-      // "eachLeagueItems" contains each match information,
-      // like match id, schedule time, spread id and so on.
-      eachLeagueItems.map(async function(match) {
-        league = leagueUtil.leagueDecoder(match.league_id);
-        const matchDate = modules.convertTimezoneFormat(match.scheduled);
-        // Get the match date unix time
-        const matchUnix = modules.convertTimezone(matchDate);
-        const addOneDayUnix = args.before + (i * ONE_DAY_UNIX);
+    // Initial
+    const league = leagueUtil.leagueDecoder(eachLeagueItems[0].league_id);
+    data.leagues[league] = {};
 
-        if (matchUnix === addOneDayUnix) {
-          // XXX error handling should be more careful
-          const [err, result] = await modules.to(repackageMatchDate(match, matchDate));
-          if (err) throw new AppErrors.RepackageError(err.stack);
-          tempArray.push(result);
-        }
-      });
-      pastPredictions[i] = tempArray;
+    for (let i = periodData.length - 1; i >= 0; i--) {
+      const pastPredictions = new Array(TWO_WEEKS);
+      for (let j = 0; j < TWO_WEEKS; j++) {
+        const tempArray = [];
+        eachLeagueItems.map(async function(match) {
+          const matchDate = modules.convertTimezoneFormat(match.scheduled);
+          const matchUnix = modules.convertTimezone(matchDate);
+          const addOneDayUnix = periodData[i].begin.unix + (j * ONE_DAY_UNIX);
+
+          if (matchUnix === addOneDayUnix) {
+            const [err, result] = await modules.to(repackageMatchDate(match, matchDate));
+            if (err) throw new AppErrors.RepackageError(err.stack);
+            tempArray.push(result);
+          }
+        });
+        pastPredictions[j] = tempArray;
+      }
+      data.leagues[league][`period_${periodData[i].period}`] = pastPredictions.reverse();
     }
-    // For decreasing date reason so reverse the array
-    data[league] = pastPredictions.reverse();
   });
+
   return data;
 }
 
@@ -169,7 +179,7 @@ async function repackageMatchDate(ele, matchDate) {
     }
   };
   // XXX error handling should be more careful
-  // const [err, result] = await modules.to(Promise.resolve(data));
+  // const [err, result] = await to(Promise.resolve(data));
   // if (err) throw new AppErrors.RepackageError(`${err.stack} by TsaiChieh);
   return data;
 }
