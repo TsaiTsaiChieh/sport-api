@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add returning data for a total of 3 periods in user/prediction_history API ***by TsaiTsaiChieh*** [#430](https://github.com/gets-info/sports-api/pull/430)
 #### Fix:
 #### Removed:
 #### DB:
