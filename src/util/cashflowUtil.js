@@ -28,7 +28,7 @@ async function cashflow_issue(param, trans = null) {
     } else if (activity_type === 'deposit') {
       mission_deposit_id = type_id;
     }
-  } else if (type === 1) {
+  } else if (type === 0) {
     mission_item_id = type_id;
   }
   if (reward_type === 'ingot') {

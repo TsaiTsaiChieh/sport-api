@@ -5,6 +5,7 @@ const to = require('await-to-js').default;
 const { logger } = require('../../util/loggerUtil');
 
 const { setUserMissionStatus } = require('../../util/missionUtil');
+const cashflow_util = require('../../util/cashflowUtil');
 
 async function missionRewardReceive(args) {
   const userUid = args.token.uid;
@@ -117,6 +118,15 @@ async function missionRewardReceive(args) {
   //   mission_item_id
   //   reward_type
   //   reward_num
+  /* 發放搞任務獎勵 */
+  const issue = {
+    type: check1[0].type,
+    reward_type: check1[0].reward_type,
+    reward_value: check1[0].reward_num,
+    uid: userUid,
+    type_id: check1[0].mission_item_id
+  };
+  cashflow_util.cashflow_issue(issue, trans);
 
   await trans.commit();
   return { status: 'ok' };

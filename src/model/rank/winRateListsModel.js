@@ -61,7 +61,8 @@ async function winRateLists(args) {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate,
-                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate,
+                                   this_week1_of_period_correct_counts,this_week1_of_period_fault_counts
                               from users__win__lists
                              where users__win__lists.league_id in ( :league_id )
                              order by ${rangeWinRateCodebook(range)} desc
@@ -74,7 +75,7 @@ async function winRateLists(args) {
                           god_limits
                    where winlist.uid = users.uid
                      and god_limits.league_id = winlist.league_id
-                     and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                     and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
                      and god_limits.period = :period
                   ) winlist 
             left join titles 
@@ -90,7 +91,7 @@ async function winRateLists(args) {
                  ) prediction
               on titles.uid = prediction.uid
              and titles.league_id = prediction.league_id
-           order by ${rangeWinRateCodebook(range)} desc
+           order by ${rangeWinRateCodebook(range)} desc limit 30
         `, {
       replacements: {
         league_id: league_id,
@@ -98,14 +99,12 @@ async function winRateLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      limit: 30,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
       console.error('[Error][rank][winRateListsModel] ', err);
       throw errs.dbErrsMsg('404', '14010');
     }
-
     if (!leagueWinRateListsQuery || leagueWinRateListsQuery.length <= 0) return { userlists: winRateLists }; // 如果沒有找到資料回傳 []
 
     leagueWinRateListsQuery.forEach(function(data) { // 這裡有順序性
