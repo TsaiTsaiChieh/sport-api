@@ -70,7 +70,7 @@ async function winBetsLists(args) {
                           god_limits
                     where winlist.uid = users.uid
                       and god_limits.league_id = winlist.league_id
-                      and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) > god_limits.first_week_win_handicap
+                      and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
                       and god_limits.period = :period
                  ) winlist 
             left join titles 
