@@ -450,14 +450,14 @@ async function updateWins() {
            last_week1_of_period_win_rate = this_week1_of_period_win_rate,
            last_week1_of_period_correct_counts = this_week1_of_period_correct_counts,
            last_week1_of_period_fault_counts = this_week1_of_period_fault_counts,
-           this_period_win_bets = NULL,
-           this_period_win_rate = NULL,
-           this_period_correct_counts = NULL,
-           this_period_fault_counts = NULL,
-           this_week1_of_period_win_bets = NULL,
-           this_week1_of_period_win_rate = NULL,
-           this_week1_of_period_correct_counts = NULL,
-           this_week1_of_period_fault_counts = NULL
+           this_period_win_bets = 0,
+           this_period_win_rate = 0,
+           this_period_correct_counts = 0,
+           this_period_fault_counts = 0,
+           this_week1_of_period_win_bets = 0,
+           this_week1_of_period_win_rate = 0,
+           this_week1_of_period_correct_counts = 0,
+           this_week1_of_period_fault_counts = 0
   `, {
     type: db.sequelize.QueryTypes.UPDATE
   });
