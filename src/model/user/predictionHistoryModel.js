@@ -115,7 +115,7 @@ async function repackageReturnData(historyData, periodData) {
         });
         pastPredictions[j] = tempArray;
       }
-      data.leagues[league][`period_${periodData[i].period}`] = pastPredictions.reverse();
+      data.leagues[league][`period_${periodData[i].period}`] = pastPredictions;
     }
   });
 
