@@ -154,13 +154,6 @@ function date3UnixInfo(sdateUnix, zone = zone_tw) {
   return date3Info(sdateUnix, zone);
 }
 
-function createError(code, error) {
-  const err = {};
-  err.code = code;
-  err.error = error;
-  return err;
-}
-
 function dateFormat(date) {
   return {
     year: date.substring(0, 4),
@@ -200,6 +193,22 @@ function getTitlesPeriod(date) {
   } catch (err) {
     throw new Error(`Input is ${date}, throw error: ${err.stack}`);
   }
+}
+
+/**
+ * @description 回傳 periodsArray 的期數 begin, end object
+ * @params periodsArray = [12, 11, 10]
+ */
+function getEachPeriodData(periodsArray) {
+  const data = [];
+  for (let i = 0; i < periods.length; i++) {
+    const ele = periods[i];
+    const nextEle = periods[i + 1];
+    for (let j = 0; j < periodsArray.length; j++) {
+      if (ele.period === periodsArray[j]) data.push({ period: ele.period, begin: nextEle.begin, end: { format: nextEle.end.format, unix: nextEle.end.unix + oneDayMinusOneUnix } });
+    }
+  }
+  return data;
 }
 
 /**
@@ -476,10 +485,10 @@ function validateProperty(data, propertyName) {
 }
 
 module.exports = {
-  createError,
   moment,
   dateFormat,
   getTitlesPeriod,
+  getEachPeriodData,
   getTitlesNextPeriod,
   getTitles,
   getAllTitles,

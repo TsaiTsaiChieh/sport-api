@@ -174,7 +174,7 @@ async function settleGodTitle(args) {
     });
 
     if (!isEmulator) {
-      logger.info(`[user settleGodTitleModel] ### 2.1 2.2 2.3 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id}`,
+      logger.info(`[user settleGodTitleModel] ### 2.1 2.2 2.3 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id} ...`,
         allLogs);
     }
     d('\n gs');
@@ -249,7 +249,7 @@ async function settleGodTitle(args) {
     });
 
     if (!isEmulator) {
-      logger.info(`[user settleGodTitleModel] ### 2.4 2.5 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id}`,
+      logger.info(`[user settleGodTitleModel] ### 2.4 2.5 uid: ${uid_league_data.uid} league_id: ${uid_league_data.league_id} ...`,
         allLogs);
     }
     d('\n gs');

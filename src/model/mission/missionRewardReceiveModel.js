@@ -119,7 +119,6 @@ async function missionRewardReceive(args) {
   //   reward_type
   //   reward_num
   /* 發放搞任務獎勵 */
-
   const issue = {
     type: check1[0].type,
     reward_type: check1[0].reward_type,

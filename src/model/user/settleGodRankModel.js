@@ -403,7 +403,8 @@ async function updateGodInfo(period) {
 // 本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數 移到上期，本期|本期第一周 勝率/勝注/正確盤數/錯誤盤數
 async function updateWins() {
   // 底下 SQL 為出錯後，還原"本期"資料的方式  期數要設正確
-  // 實際上更新資料眾多，底下只是 本期 的範例
+  // 實際上更新資料眾多，底下只是 本期 的範例，可自行改成 this_week, this_month
+  // 需要注意，當 src 沒有資料筆數 join 該 uid, league_id 無法更新該值，請閱下面的 SQL
   // update users__win__lists, (
   //        select uid, league_id,
   //               sum(win_bets) this_period_win_bets,
@@ -419,6 +420,26 @@ async function updateWins() {
   //  where uid = src.uid
   //    and league_id = src.league_id;
 
+  // 該 week、month、period 都沒下預測時，需要特別另外處理， week、month、period 自行替換
+  // 主要使用在 last_week, last_month, last_period 資料異常時的處理
+  // select uwl.uid, uwl.league_id, count(uwlh.uid) count
+  //   from users__win__lists uwl
+  //   left join users__win__lists__histories uwlh
+  //     on uwl.uid = uwlh.uid
+  //    and uwl.league_id = uwlh.league_id
+  //    and uwlh.week = 31
+  //  where uwl.uid = 'iUk8O3q13sPmCfvTLcgnX8f4S7e2'
+  //  group by uid, league_id;
+
+  // select uwl.uid, uwl.league_id, count(uwlh.uid) count
+  //   from users__win__lists uwl
+  //   left join users__win__lists__histories uwlh
+  //     on uwl.uid = uwlh.uid
+  //    and uwl.league_id = uwlh.league_id
+  //    and uwlh.week = 33
+  //  group by uid, league_id
+  // having count = 0
+
   await db.sequelize.query(`
     update users__win__lists
        set last_period_win_bets = this_period_win_bets,
@@ -429,14 +450,14 @@ async function updateWins() {
            last_week1_of_period_win_rate = this_week1_of_period_win_rate,
            last_week1_of_period_correct_counts = this_week1_of_period_correct_counts,
            last_week1_of_period_fault_counts = this_week1_of_period_fault_counts,
-           this_period_win_bets = NULL,
-           this_period_win_rate = NULL,
-           this_period_correct_counts = NULL,
-           this_period_fault_counts = NULL,
-           this_week1_of_period_win_bets = NULL,
-           this_week1_of_period_win_rate = NULL,
-           this_week1_of_period_correct_counts = NULL,
-           this_week1_of_period_fault_counts = NULL
+           this_period_win_bets = 0,
+           this_period_win_rate = 0,
+           this_period_correct_counts = 0,
+           this_period_fault_counts = 0,
+           this_week1_of_period_win_bets = 0,
+           this_week1_of_period_win_rate = 0,
+           this_week1_of_period_correct_counts = 0,
+           this_week1_of_period_fault_counts = 0
   `, {
     type: db.sequelize.QueryTypes.UPDATE
   });

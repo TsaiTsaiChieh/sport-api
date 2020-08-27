@@ -44,4 +44,8 @@ router.get(
 // 棒球賽前數據
 router.get('/prematch_baseball',
   require('../controller/livescore/prematchBaseballController'));
+
+// 籃球賽前數據
+router.get('/prematch_basketball',
+  require('../controller/livescore/prematchBasketballController'));
 module.exports = router;
