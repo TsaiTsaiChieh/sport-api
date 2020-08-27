@@ -341,13 +341,13 @@ async function dbNewsCreate(insertData) {
           replacements: { uid: insertData.token.uid, period: period },
           type: db.sequelize.QueryTypes.SELECT
         });
-        if(price_data.length>0){
+        if (price_data.length > 0) {
           price = price_data[0].price;
           insertData.title = price;
           insertData.scheduled = modules.moment().unix();
           insertData.sort = 2;// 售牌
         }
-  
+
         if (sell === 0) {
           insertData.title = 0;
         }
@@ -375,8 +375,6 @@ async function dbNewsCreate(insertData) {
         favoriteplayer.forEach(function(player) {
           db.User.increment('unread_count', { where: { uid: player.god_uid } });
         });
-
-       
       }
       return resolve({ news_status: 'success' });
     } catch (err) {

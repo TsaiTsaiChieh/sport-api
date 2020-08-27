@@ -5,6 +5,7 @@ const to = require('await-to-js').default;
 const { logger } = require('../../util/loggerUtil');
 
 const { setUserMissionStatus } = require('../../util/missionUtil');
+const cashflow_util = require('../../util/cashflowUtil');
 
 async function missionRewardReceive(args) {
   const userUid = args.token.uid;
@@ -13,7 +14,6 @@ async function missionRewardReceive(args) {
   const nowInfo = date3UnixInfo(Date.now());
   const todayUnix = nowInfo.dateBeginUnix; // 用來判斷是否還在活動期間內
   let check1;
-
 
   // 取得 mission type： mission_item(每日、活動-預測)  mission_god(活動-大神)  mission_deposit(活動-儲值)
   // mission_item(每日、活動-預測)
@@ -130,21 +130,19 @@ async function missionRewardReceive(args) {
   console.log(check1, check2);
   cashflow_util.cashflow_issue(issue, trans);
 
-
   const purse_self = await db.User.findOne({
     where: { uid: userUid },
     attributes: ['ingot', 'coin', 'dividend'],
     raw: true
   });
 
-  if(issue.reward_type==='ingot'){
+  if (issue.reward_type === 'ingot') {
     await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: userUid } });
-  }else if(issue.reward_type==='coin'){
+  } else if (issue.reward_type === 'coin') {
     await db.User.update({ coin: purse_self.coin + issue.reward_value }, { where: { uid: userUid } });
-  }else if(issue.reward_type==='dividend'){
+  } else if (issue.reward_type === 'dividend') {
     await db.User.update({ dividend: purse_self.dividend + issue.reward_value }, { where: { uid: userUid } });
   }
-
 
   // await trans.commit();
   return { status: 'ok' };
