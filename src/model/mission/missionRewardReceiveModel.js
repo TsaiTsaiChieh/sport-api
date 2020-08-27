@@ -14,6 +14,7 @@ async function missionRewardReceive(args) {
   const todayUnix = nowInfo.dateBeginUnix; // 用來判斷是否還在活動期間內
   let check1;
 
+
   // 取得 mission type： mission_item(每日、活動-預測)  mission_god(活動-大神)  mission_deposit(活動-儲值)
   // mission_item(每日、活動-預測)
   if (type === 'mission_item') {
@@ -117,8 +118,35 @@ async function missionRewardReceive(args) {
   //   mission_item_id
   //   reward_type
   //   reward_num
+  /* 發放搞任務獎勵 */
 
-  await trans.commit();
+  const issue = {
+    type: check1[0].type,
+    reward_type: check1[0].reward_type,
+    reward_value: check1[0].reward_num,
+    uid: userUid,
+    type_id: check1[0].mission_item_id
+  };
+  console.log(check1, check2);
+  cashflow_util.cashflow_issue(issue, trans);
+
+
+  const purse_self = await db.User.findOne({
+    where: { uid: userUid },
+    attributes: ['ingot', 'coin', 'dividend'],
+    raw: true
+  });
+
+  if(issue.reward_type==='ingot'){
+    await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: userUid } });
+  }else if(issue.reward_type==='coin'){
+    await db.User.update({ coin: purse_self.coin + issue.reward_value }, { where: { uid: userUid } });
+  }else if(issue.reward_type==='dividend'){
+    await db.User.update({ dividend: purse_self.dividend + issue.reward_value }, { where: { uid: userUid } });
+  }
+
+
+  // await trans.commit();
   return { status: 'ok' };
 }
 

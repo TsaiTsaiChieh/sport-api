@@ -87,7 +87,7 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
   }
 
   if (parms.status) whereSql.status = parms.status;
-  if (parms.dateUnix) whereSql.date_timestamp = parms.dateUnix;
+  // if (parms.dateUnix) whereSql.date_timestamp = parms.dateUnix;
 
   const [err, r] = await to(db.UserMission.update({
     status: updateStatus
@@ -101,7 +101,6 @@ async function setUserMissionStatus(uid, parms, updateStatus, trans = null) {
     await insideTrans.rollback();
     throw errs.dbErrsMsg('404', '15010', { addMsg: err.parent.code });
   }
-
   // 結果檢查交給呼叫者
   // if (r[0] !== 1) { throw errs.dbErrsMsg('404', '15012');}
   if (!trans) await insideTrans.commit();
@@ -527,7 +526,7 @@ async function activityDepositMissionLogin(uid, todayUnix) {
                 and missions.type = 2
                 and missions.activity_type = 'deposit'
                 and missions.status = 1
-                and :todayUnix between start_date and end_date
+                
            ) mission_deposit
       left join user__missions
         on mission_deposit.mission_deposit_id = user__missions.mission_deposit_id
@@ -550,7 +549,6 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
 
   for (const data of Object.values(mission)) { // um 為 user_missions table
     if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
-
     // 是否首次儲值
     const depositCount = await db.CashflowDeposit.count({
       where: {
@@ -568,7 +566,6 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
       });
     }
   };
-
   return result;
 }
 

@@ -110,6 +110,19 @@ async function transferModel(method, args, uid) {
           WHERE status=0
             AND uid = :uid
             AND scheduled BETWEEN :begin AND :end
+          UNION
+         SELECT ingot, coin, dividend, "搞任務-首次大神給予獎勵" as title, "mission_god" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_god_id=1
+          UNION
+         SELECT 0 as ingot, 0 as coin, 0 as dividend, "搞任務-首次儲值給予獎勵" as title, "mission_deposit" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_deposit_id=1
+          UNION
+         SELECT ingot, coin, dividend, "搞任務-每日任務給予獎勵" as title, "mission_daily" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_item_id IS NOT NULL
+            AND mission_item_id <> 0
          ) transfer
         ORDER BY scheduled DESC
          
