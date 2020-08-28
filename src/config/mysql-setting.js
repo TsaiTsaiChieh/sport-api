@@ -4,8 +4,8 @@ const setting = {
   db_name: {
     dev: process.env.SQL_DATABASE
   },
-  db_user: 'root',
-  db_password: 'dosportsSQL',
+  db_user: process.env.SQL_USER,
+  db_password: process.env.SQL_PASSWORD,
   dialect: 'mysql',
   pool: {
     max: 3000,
