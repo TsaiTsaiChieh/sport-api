@@ -64,6 +64,9 @@ function checkUserMuted(userData, now) {
   return new Promise(async function(resolve, reject) {
     try {
       const { block_message } = userData;
+      if (userData.status < 1) {
+        return reject(new AppErrors.UserHadBeenFreezed());
+      }
       if (block_message) {
         const blockTime = new Date(block_message).getTime();
         if (now <= blockTime) {

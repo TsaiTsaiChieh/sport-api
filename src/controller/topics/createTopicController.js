@@ -6,6 +6,10 @@ async function createTopic(req, res) {
   const league = types.getLeague();
   const category = types.getCategory();
   const user = await func.getUserInfo([req.token.uid]);
+  if (user[0].status < 1) {
+    res.status(400).json({ code: 400, message: 'user freeze' });
+    return;
+  }
   if (user[0].status === 9) {
     category.push(1);
   }
