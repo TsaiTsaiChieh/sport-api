@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  not allow chat,topic,predict for freeze user accounts ***by rex-getsinfo*** [#435](https://github.com/gets-info/sports-api/pull/435)
 #### Fix:
 #### Removed:
 #### DB:
