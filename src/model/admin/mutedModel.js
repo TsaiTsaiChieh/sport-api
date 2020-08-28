@@ -46,8 +46,7 @@ function muted(args) {
       await User.update(
         {
           block_message: expired,
-          block_count: count,
-          status: count < 3 ? userDoc.status : -1
+          block_count: count
         },
         {
           where: { uid: args.uid }
@@ -56,7 +55,6 @@ function muted(args) {
       resolve({
         display_name: userDoc.display_name,
         uid: userDoc.uid,
-        status: userDoc.status,
         count: count,
         expired: expired
       });
