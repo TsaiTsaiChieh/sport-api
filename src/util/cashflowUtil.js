@@ -22,16 +22,21 @@ async function cashflow_issue(param, trans = null) {
   let mission_item_id = 0; // 預設每日任務id為NULL
 
   const scheduled = modules.moment().unix();
+  const whereSql = { uid: uid };
 
   if (type === 2) {
     if (activity_type === 'god') {
       mission_god_id = type_id;
+      whereSql.mission_god_id = mission_god_id;
     } else if (activity_type === 'deposit') {
       mission_deposit_id = type_id;
+      whereSql.mission_deposit_id = mission_deposit_id;
     }
   } else if (type === 0) {
     mission_item_id = type_id;
+    whereSql.mission_item_id = mission_item_id;
   }
+
   if (reward_type === 'ingot') {
     ingot = reward_value;
   } else if (reward_type === 'coin') {
@@ -55,7 +60,9 @@ async function cashflow_issue(param, trans = null) {
   };
   // console.log(cashflow_mission);
   try {
-    const created = await db.CashflowMission.create(cashflow_mission);
+    const created = await db.CashflowMission.findOrCreate({
+      where: whereSql, 
+      defaults: cashflow_mission});
     return created;
   } catch (e) {
     await insideTrans.rollback();
