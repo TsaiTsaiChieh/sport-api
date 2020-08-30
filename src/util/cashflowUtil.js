@@ -61,8 +61,10 @@ async function cashflow_issue(param, trans = null) {
   // console.log(cashflow_mission);
   try {
     const created = await db.CashflowMission.findOrCreate({
-      where: whereSql, 
-      defaults: cashflow_mission});
+      where: whereSql,
+      defaults: cashflow_mission,
+      transaction: insideTrans
+    });
     return created;
   } catch (e) {
     await insideTrans.rollback();

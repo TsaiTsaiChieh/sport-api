@@ -119,14 +119,14 @@ async function missionRewardReceive(args) {
             raw: true
           });
 
-          await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: god.uid } });
+          await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: god.uid }, transaction:trans });
           /* 存入錢包-END */
 
           // 最後新增完成任務
           // const [err] = await to(addUserMissionStatus(god.uid,
           //   { mission_god_id: reward.mission_god_id, status: 2 }, trans));
 
-          const [err] = await to(setUserMissionStatus(god.uid, missionStatusUpdateParms, 2));
+          const [err] = await to(setUserMissionStatus(god.uid, missionStatusUpdateParms, 2, trans));
 
           if (err) {
             logger.warn('[Error][god_nextPeriod][addUserMissionStatus] ', err);
@@ -172,7 +172,7 @@ async function missionRewardReceive(args) {
     });
 
     // Transaction Start
-    // const trans = await db.sequelize.transaction();
+    
     if (users_mission) {
       var date = users_mission.updatedAt.getDate();
       var month = users_mission.updatedAt.getMonth(); // Be careful! January is 0 not 1
@@ -188,6 +188,7 @@ async function missionRewardReceive(args) {
       /* 搞任務給予紀錄(create or update) */
 
       for (const cashflow_mlist of cashflow_mission_list) {
+        const trans = await db.sequelize.transaction();
         if (cashflow_mlist.mission_deposit_id) {
           const param = {
             uid: users_mission.uid,
@@ -204,7 +205,7 @@ async function missionRewardReceive(args) {
             // await addUserMissionStatus(users_mission.uid,
             //   { mission_deposit_id: 1, status: 2 });
 
-            await to(setUserMissionStatus(users_mission.uid, missionStatusUpdateParms, 2));
+            await to(setUserMissionStatus(users_mission.uid, missionStatusUpdateParms, 2, trans));
 
             /* 使用者更新抽獎券 */
 
@@ -212,17 +213,22 @@ async function missionRewardReceive(args) {
             await db.User.update({
               deposit_lottery: param.deposit_lottery
             }, {
-              where: { uid: users_mission.uid }
+              where: { uid: users_mission.uid },
+              transaction: trans
             });
           } catch (e) {
             console.log(e);
           }
         }
+        await trans.commit();
       }
     }
 
     if (check1.length > 1) throw errs.dbErrsMsg('404', '15212'); // 取得多筆不正確
     if (check1.length === 0) throw errs.dbErrsMsg('404', '15217'); // 查不到
+
+    
+
   } else if (type === 'mission_item') {
     check1 = await db.sequelize.query(`
       select missions.type, 
