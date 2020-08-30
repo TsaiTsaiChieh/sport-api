@@ -367,7 +367,7 @@ async function activityGodMissionLogin(uid, todayUnix) {
                 and missions.type = 2
                 and missions.activity_type = 'god'
                 and missions.status = 1
-                and :todayUnix between start_date and end_date
+               
            ) mission_god
       left join user__missions
         on mission_god.mission_god_id = user__missions.mission_god_id
@@ -389,25 +389,27 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
   const result = [];
 
   for (const data of Object.values(mission)) { // um 為 user_missions table
-    if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
+    console.log('middle');
+    console.log(data);
+    if (data.length <= 0) continue; // 無活動, 無效 或 已領(有資料)
 
     // 是否首次大神
-    const titlesCount = await db.sequelize.query(`
-      select count(*) count
-        from (
-                select distinct period
-                  from titles
-                 where uid = :uid
-             ) a
-    `, {
-      replacements: {
-        uid: uid
-      },
-      type: db.sequelize.QueryTypes.SELECT
-    });
+    // const titlesCount = await db.sequelize.query(`
+    //   select count(*) count
+    //     from (
+    //             select distinct period
+    //               from titles
+    //              where uid = :uid
+    //          ) a
+    // `, {
+    //   replacements: {
+    //     uid: uid
+    //   },
+    //   type: db.sequelize.QueryTypes.SELECT
+    // });
 
     // true: 有活動, 有效
-    if (!data.um_mission_god_id && titlesCount[0].count === 1) { // 必需是 沒有領取過 且 首次為大神 才會出現
+    if (data.um_mission_god_id !== undefined) { // 必需是 沒有領取過 且 首次為大神 才會出現
       result.push({
         mission_god_id: data.mission_god_id,
         reward_type: data.reward_type,
@@ -417,6 +419,8 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
         copper_reward: data.copper_reward ? data.copper_reward : 0
       });
     }
+    console.log('middle2');
+    console.log(result);
   };
 
   return result;
@@ -548,17 +552,19 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
   const result = [];
 
   for (const data of Object.values(mission)) { // um 為 user_missions table
-    if (data.length <= 0 || data.um_uid) continue; // 無活動, 無效 或 已領(有資料)
+    console.log(data, data.length, mission, mission.length, data.um_uid);
+    if (data.length <= 0) continue; // 無活動, 無效 或 已領(有資料)
+
     // 是否首次儲值
-    const depositCount = await db.CashflowDeposit.count({
-      where: {
-        uid: uid,
-        order_status: 1
-      }
-    });
+    // const depositCount = await db.CashflowDeposit.count({
+    //   where: {
+    //     uid: uid,
+    //     order_status: 1
+    //   }
+    // });
 
     // true: 有活動, 有效
-    if (!data.um_mission_deposit_id && depositCount === 1) { // 必需是 沒有領取過 且 首次儲值 才會出現
+    if (data.um_mission_deposit_id) { // 必需是 沒有領取過 且 首次儲值 才會出現
       result.push({
         mission_deposit_id: data.mission_deposit_id,
         reward_type: data.reward_type,

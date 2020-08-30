@@ -21,7 +21,8 @@ async function cashflow_issue(param, trans = null) {
   let mission_deposit_id = 0; // 預設購買搞幣任務id為NULL
   let mission_item_id = 0; // 預設每日任務id為NULL
 
-  const issue_timestamp = modules.moment().unix();
+  const scheduled = modules.moment().unix();
+
   if (type === 2) {
     if (activity_type === 'god') {
       mission_god_id = type_id;
@@ -50,9 +51,9 @@ async function cashflow_issue(param, trans = null) {
     mission_god_id: mission_god_id,
     mission_deposit_id: mission_deposit_id,
     mission_item_id: mission_item_id,
-    issue_timestamp: issue_timestamp
+    scheduled: scheduled
   };
-
+  // console.log(cashflow_mission);
   try {
     const created = await db.CashflowMission.create(cashflow_mission);
     return created;

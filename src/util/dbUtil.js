@@ -124,6 +124,9 @@ const User = sequelize.define(
     invoice_carrier: {
       type: Sequelize.STRING
     },
+    deposit_lottery: {
+      type: Sequelize.INTEGER
+    },
     rank1_count: {
       type: Sequelize.INTEGER
     },
@@ -2295,11 +2298,11 @@ const CashflowMission = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER
     },
-    lottery: {
+    deposit_lottery: {
       type: Sequelize.INTEGER
     },
-    issue_timestamp: {
-      type: Sequelize.INTEGER
+    scheduled: {
+      type: Sequelize.STRING
     },
     createdAt: {
       type: Sequelize.DATE(3),
