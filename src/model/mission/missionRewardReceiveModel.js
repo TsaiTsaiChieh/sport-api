@@ -119,7 +119,7 @@ async function missionRewardReceive(args) {
             raw: true
           });
 
-          await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: god.uid }, transaction:trans });
+          await db.User.update({ ingot: purse_self.ingot + issue.reward_value }, { where: { uid: god.uid }, transaction: trans });
           /* 存入錢包-END */
 
           // 最後新增完成任務
@@ -172,7 +172,7 @@ async function missionRewardReceive(args) {
     });
 
     // Transaction Start
-    
+
     if (users_mission) {
       var date = users_mission.updatedAt.getDate();
       var month = users_mission.updatedAt.getMonth(); // Be careful! January is 0 not 1
@@ -226,9 +226,6 @@ async function missionRewardReceive(args) {
 
     if (check1.length > 1) throw errs.dbErrsMsg('404', '15212'); // 取得多筆不正確
     if (check1.length === 0) throw errs.dbErrsMsg('404', '15217'); // 查不到
-
-    
-
   } else if (type === 'mission_item') {
     check1 = await db.sequelize.query(`
       select missions.type, 
