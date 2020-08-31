@@ -13,8 +13,6 @@ function honorModel(req) {
       if (type === 'performance') {
         const now = new Date();
         const period = await modules.getTitlesPeriod(now);
-        const currentSeason = modules.moment().year();
-        const currentMonth = modules.moment().month();
 
         const next = {
           next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
@@ -57,7 +55,7 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id},
+            bind: { uid: uid, league_id: league_id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -66,10 +64,10 @@ function honorModel(req) {
         wins[period.period - 1] = await db.sequelize.query(
           `
             SELECT  vl.name, 
-                    uwl.last_period_win_rate,
-                    uwl.last_period_win_bets,
-                    last_week1_of_period_correct_counts + last_week1_of_period_fault_counts last_week1_of_period_correct_counts,
-                    last_period_correct_counts + last_period_fault_counts last_period_correct_counts,
+                    uwl.last_period_win_rate as this_period_win_rate,
+                    uwl.last_period_win_bets as this_period_win_bets,
+                    last_week1_of_period_correct_counts + last_week1_of_period_fault_counts this_week1_of_period_correct_counts,
+                    last_period_correct_counts + last_period_fault_counts this_period_correct_counts,
                     (
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
@@ -94,7 +92,7 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id},
+            bind: { uid: uid, league_id: league_id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
