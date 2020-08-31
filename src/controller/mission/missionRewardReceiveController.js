@@ -26,12 +26,7 @@ async function mission(req, res) {
 
   try {
     req.body.token = req.token; // 從 cookie 取得 __session 中 token
-
-    switch (req.query.type) {
-      case 'mission_item':
-        res.json(await missionRewardReceiveModel(req));
-        break;
-    }
+    res.json(await missionRewardReceiveModel(req));
   } catch (err) {
     console.error('[missionRewardReceiveController]', err);
     res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });

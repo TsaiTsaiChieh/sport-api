@@ -120,6 +120,13 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: 0
     },
+    /* 會員發票載具 */
+    invoice_carrier: {
+      type: Sequelize.STRING
+    },
+    deposit_lottery: {
+      type: Sequelize.INTEGER
+    },
     rank1_count: {
       type: Sequelize.INTEGER
     },
@@ -877,124 +884,164 @@ const Users_WinLists = sequelize.define(
       type: Sequelize.STRING
     },
     last_season_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_season_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_season_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_season_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_period_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_period_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_period_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_period_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_week1_of_period_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_week1_of_period_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_week1_of_period_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_week1_of_period_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_month_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_month_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_month_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_month_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_week_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_week_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     last_week_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     last_week_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_season_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_season_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_season_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_season_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_period_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_period_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_period_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_period_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_week1_of_period_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_week1_of_period_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_week1_of_period_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_week1_of_period_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_month_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_month_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_month_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_month_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_week_win_bets: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_week_win_rate: {
-      type: Sequelize.FLOAT
+      type: Sequelize.FLOAT,
+      defaultValue: 0
     },
     this_week_correct_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     },
     this_week_fault_counts: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     }
   },
   {
@@ -2251,11 +2298,11 @@ const CashflowMission = sequelize.define(
     dividend: {
       type: Sequelize.INTEGER
     },
-    lottery: {
+    deposit_lottery: {
       type: Sequelize.INTEGER
     },
-    issue_timestamp: {
-      type: Sequelize.INTEGER
+    scheduled: {
+      type: Sequelize.STRING
     },
     createdAt: {
       type: Sequelize.DATE(3),
