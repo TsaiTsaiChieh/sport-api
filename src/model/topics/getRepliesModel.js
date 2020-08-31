@@ -6,6 +6,7 @@ function dbFind(aid, page) {
     try {
       const result = await db.sequelize.models.topic__reply.findAndCountAll({
         where: {
+          status: 1,
           article_id: aid
         },
         limit: countPerPage, // 每頁幾個
