@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  not allow chat,topic,predict for freeze user accounts ***by rex-getsinfo*** [#435](https://github.com/gets-info/sports-api/pull/435)
 #### Fix:
+-  home ranks ***by rex-getsinfo*** [#438](https://github.com/gets-info/sports-api/pull/438)
 -  unify report field ***by eric13e*** [#437](https://github.com/gets-info/sports-api/pull/437)
 -  adjust the mission code of taking over ***by gsihenry*** [#436](https://github.com/gets-info/sports-api/pull/436)
 #### Removed:
