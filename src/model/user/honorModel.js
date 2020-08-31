@@ -12,7 +12,7 @@ function honorModel(req) {
 
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesNextPeriod(now, 'YYYY-MM-DD');
+        const period = await modules.getTitlesPeriod(now);
         const currentSeason = modules.moment().year();
         const currentMonth = modules.moment().month();
 
@@ -23,9 +23,9 @@ function honorModel(req) {
             end: period.end
           }
         };
-        let wins = {};
-      
-        /*本期*/
+        const wins = {};
+
+        /* 本期 */
         wins[period.period] = await db.sequelize.query(
           `
             SELECT  vl.name, 
@@ -64,8 +64,8 @@ function honorModel(req) {
           }
         );
 
-        /*上期*/
-        wins[period.period-1] = await db.sequelize.query(
+        /* 上期 */
+        wins[period.period - 1] = await db.sequelize.query(
           `
             SELECT  vl.name, 
                     uwl.last_period_win_rate,
