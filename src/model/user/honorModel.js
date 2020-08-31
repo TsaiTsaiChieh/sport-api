@@ -23,8 +23,10 @@ function honorModel(req) {
             end: period.end
           }
         };
-
-        const wins = await db.sequelize.query(
+        let wins = {};
+      
+        /*本期*/
+        wins[period.period] = await db.sequelize.query(
           `
             SELECT  vl.name, 
                     uwl.this_period_win_rate,
@@ -50,6 +52,45 @@ function honorModel(req) {
                          AND league_id = $league_id
                          AND status in (1, 2)
                        ORDER BY this_month_win_bets DESC
+                    ) bets_rank
+              FROM  users__win__lists uwl, view__leagues vl 
+             WHERE  uwl.uid = $uid
+               AND  vl.league_id = uwl.league_id
+               AND  uwl.league_id = $league_id
+          `,
+          {
+            bind: { uid: uid, league_id: league_id, current_period: period.period, currentMonth: currentMonth, currentSeason: currentSeason },
+            type: db.sequelize.QueryTypes.SELECT
+          }
+        );
+
+        /*上期*/
+        wins[period.period-1] = await db.sequelize.query(
+          `
+            SELECT  vl.name, 
+                    uwl.last_period_win_rate,
+                    uwl.last_period_win_bets,
+                    uwl.last_month_win_rate,
+                    uwl.last_month_win_bets,
+                    last_week1_of_period_correct_counts + last_week1_of_period_fault_counts last_week1_of_period_correct_counts,
+                    last_period_correct_counts + last_period_fault_counts last_period_correct_counts,
+                    (
+                      SELECT COUNT(*)
+                        FROM users__win__lists l1, users u
+                       WHERE l1.uid = u.uid
+                         AND l1.last_month_win_rate >= uwl.last_month_win_rate
+                         AND league_id = $league_id
+                         AND status in (1, 2)
+                       ORDER BY last_month_win_rate DESC
+                    ) rate_rank,
+                    (
+                      SELECT COUNT(*)
+                        FROM users__win__lists l1, users u
+                       WHERE l1.uid = u.uid
+                         AND l1.last_month_win_bets >= uwl.last_month_win_bets
+                         AND league_id = $league_id
+                         AND status in (1, 2)
+                       ORDER BY last_month_win_bets DESC
                     ) bets_rank
               FROM  users__win__lists uwl, view__leagues vl 
              WHERE  uwl.uid = $uid
