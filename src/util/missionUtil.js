@@ -409,7 +409,7 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
     });
 
     // true: 有活動, 有效
-    if (data.um_mission_god_id !== undefined && titleCount===1) { // 必需是 沒有領取過 且 首次為大神 才會出現
+    if (data.um_mission_god_id !== undefined && titlesCount === 1) { // 必需是 沒有領取過 且 首次為大神 才會出現
       result.push({
         mission_god_id: data.mission_god_id,
         reward_type: data.reward_type,
@@ -564,7 +564,7 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
     });
 
     // true: 有活動, 有效
-    if (data.um_mission_deposit_id !== undefined && depositCount===1) { // 必需是 沒有領取過 且 首次儲值 才會出現
+    if (data.um_mission_deposit_id !== undefined && depositCount === 1) { // 必需是 沒有領取過 且 首次儲值 才會出現
       result.push({
         mission_deposit_id: data.mission_deposit_id,
         reward_type: data.reward_type,
