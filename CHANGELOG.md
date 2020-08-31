@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.6] - 2020-08-26
 #### Add:
+-  not allow chat,topic,predict for freeze user accounts ***by rex-getsinfo*** [#435](https://github.com/gets-info/sports-api/pull/435)
+#### Fix:
+-  home ranks ***by rex-getsinfo*** [#438](https://github.com/gets-info/sports-api/pull/438)
+-  unify report field ***by eric13e*** [#437](https://github.com/gets-info/sports-api/pull/437)
+-  adjust the mission code of taking over ***by gsihenry*** [#436](https://github.com/gets-info/sports-api/pull/436)
+#### Removed:
+#### DB:
+***
+
+## [v1.1.6] - 2020-08-26
+#### Add:
 -  Add returning leagues data not reverse ***by TsaiTsaiChieh*** [#432](https://github.com/gets-info/sports-api/pull/432)
 -  Add returning data for a total of 3 periods in user/prediction_history API ***by TsaiTsaiChieh*** [#430](https://github.com/gets-info/sports-api/pull/430)
 #### Fix:

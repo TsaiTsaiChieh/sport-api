@@ -23,8 +23,8 @@ async function winBetsLists() {
   for (const [key, value] of Object.entries(winBetsLists)) { // 依 聯盟 進行排序
     const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
     const league_id = defaultLeagueID;
-    const order = 'this_month_win_bets';
-    const limit = 10;
+    // const order = 'this_month_win_bets';
+    const limit = 5;
     const period = getTitlesPeriod(new Date()).period;
 
     const redisKey = ['home', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
@@ -34,12 +34,8 @@ async function winBetsLists() {
                    select winlist.*, users.avatar, users.display_name
                      from (
                             select uid, users__win__lists.league_id, 
-                                   last_month_win_bets, last_month_win_rate, 
-                                   last_week_win_bets, last_week_win_rate,
-                                   this_season_win_bets, this_season_win_rate,
-                                   this_period_win_bets, this_period_win_rate,
-                                   this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   last_period_win_bets, last_period_win_rate, 
+                                   last_period_correct_counts
                               from users__win__lists
                              where league_id = :league_id
                           ) winlist,
@@ -53,8 +49,9 @@ async function winBetsLists() {
            inner join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
+             and titles.rank_id = 1
              and titles.period = :period
-           order by ${order} desc
+           order by last_period_win_bets desc,last_period_win_rate desc,last_period_correct_counts desc
            limit ${limit}
       `, {
       replacements: {
@@ -90,7 +87,7 @@ function repackage(ele) {
   };
 
   /* 欄位無資料防呆 */
-  data.win_bets = ele.this_month_win_bets == null ? null : ele.this_month_win_bets.toString();
+  data.win_bets = ele.last_period_win_bets == null ? null : ele.last_period_win_bets.toString();
   data.rank = ele.rank_id == null ? null : ele.rank_id.toString();
 
   return data;

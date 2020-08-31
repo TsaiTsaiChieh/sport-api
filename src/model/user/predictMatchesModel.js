@@ -274,7 +274,7 @@ function sendPrediction(args, filter) {
       return reject(new AppErrors.UserPredictFailed({ failed: filter.failed }));
     } else if (neededResult) {
       await insertDB(args, filter.needed);
-      await createNewsDB(args, filter.needed);
+      await dbNewsCreate(args);
       return resolve(repackageReturnData(filter));
     }
   });
@@ -322,16 +322,17 @@ async function insertDB(args, needed) {
   });
 }
 
-async function createNewsDB(insertData, needed) {
+async function dbNewsCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
+      console.log('start');
+      console.log(insertData);
       insertData.uid = insertData.token.uid;
       /* 讀取售牌金額 */
       const date = new Date();
       const period = modules.getTitlesPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
-
       if (sell === 0 || sell === 1) {
         const price_data = await db.sequelize.query(`
             SELECT * FROM user__ranks ur INNER JOIN titles t ON t.rank_id=ur.rank_id WHERE uid = :uid AND period = :period LIMIT 1
@@ -340,16 +341,16 @@ async function createNewsDB(insertData, needed) {
           replacements: { uid: insertData.token.uid, period: period },
           type: db.sequelize.QueryTypes.SELECT
         });
-        price = price_data[0].price;
-
-        insertData.title = price;
-        insertData.scheduled = modules.moment().unix();
-        insertData.sort = 2;// 售牌
+        if (price_data.length > 0) {
+          price = price_data[0].price;
+          insertData.title = price;
+          insertData.scheduled = modules.moment().unix();
+          insertData.sort = 2;// 售牌
+        }
 
         if (sell === 0) {
           insertData.title = 0;
         }
-
         insertData.match_scheduled_tw = insertData.matches[0].match_scheduled_tw;
         const record = await db.sequelize.models.user__new.findOne({
           where: {
@@ -359,7 +360,7 @@ async function createNewsDB(insertData, needed) {
           },
           raw: true
         });
-        if (record) {
+        if (!record) {
           await db.sequelize.models.user__new.create(insertData);
         }
 

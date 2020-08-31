@@ -43,7 +43,7 @@ function queryAllMatches(args) {
                 AND game.spread_id = spread.spread_id
                 AND game.scheduled*1000 BETWEEN :begin AND :end
 								AND game.ori_league_id = league.ori_league_id
-								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}')
+								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}' OR game.status = '${leagueUtil.MATCH_STATUS.POSTPONED}' OR game.status = '${leagueUtil.MATCH_STATUS.CANCELLED}')
            )
            UNION(
              SELECT game.bets_id AS id, game.status AS status, game.scheduled AS scheduled,
@@ -60,7 +60,7 @@ function queryAllMatches(args) {
                 AND game.spread_id IS NULL
                 AND game.scheduled*1000 BETWEEN :begin AND :end
 								AND game.ori_league_id = league.ori_league_id
-								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}')
+								AND (game.status = '${leagueUtil.MATCH_STATUS.SCHEDULED}' OR game.status = '${leagueUtil.MATCH_STATUS.INPLAY}' OR game.status = '${leagueUtil.MATCH_STATUS.END}' OR game.status = '${leagueUtil.MATCH_STATUS.POSTPONED}' OR game.status = '${leagueUtil.MATCH_STATUS.CANCELLED}')
            )
            ORDER BY scheduled
            `,
