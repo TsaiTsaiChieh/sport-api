@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  invoice carrier status and default value ***by gsihenry*** [#441](https://github.com/gets-info/sports-api/pull/441)
 -  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
+-  rank of god ***by rex-getsinfo*** [#442](https://github.com/gets-info/sports-api/pull/442)
 -  Fix acceptLeague in sell_information API and and titles table unique key to avoid duplicate selection ***by TsaiTsaiChieh*** [#440](https://github.com/gets-info/sports-api/pull/440)
 #### Removed:
 #### DB:
