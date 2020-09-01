@@ -6,8 +6,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
--  大神排行榜 增加 all 情況 ***by alangets*** [#421](https://github.com/gets-info/sports-api/pull/421)
+#### Removed:
+#### DB:
+***
+
+## [v1.1.7] - 2020-08-31
+#### Add:
+-  not allow chat,topic,predict for freeze user accounts ***by rex-getsinfo*** [#435](https://github.com/gets-info/sports-api/pull/435)
+#### Fix:
+-  home ranks ***by rex-getsinfo*** [#438](https://github.com/gets-info/sports-api/pull/438)
+-  unify report field ***by eric13e*** [#437](https://github.com/gets-info/sports-api/pull/437)
+-  adjust the mission code of taking over ***by gsihenry*** [#436](https://github.com/gets-info/sports-api/pull/436)
+***
+
+## [v1.1.6] - 2020-08-26
+#### Add:
+-  Add returning leagues data not reverse ***by TsaiTsaiChieh*** [#432](https://github.com/gets-info/sports-api/pull/432)
+-  Add returning data for a total of 3 periods in user/prediction_history API ***by TsaiTsaiChieh*** [#430](https://github.com/gets-info/sports-api/pull/430)
+#### Fix:
+-  adjust condition of win bet and rate ***by rex-getsinfo*** [#433](https://github.com/gets-info/sports-api/pull/433)
+-  condition of winBestList and winRateList with prediction times … ***by rex-getsinfo*** [#431](https://github.com/gets-info/sports-api/pull/431)
+***
+
+## [v1.1.5] - 2020-08-24
+#### Add:
+-  soccer of acceptLeague, enable prediction and live score
+-  cashflow daily mission ***by gsihenry*** [#428](https://github.com/gets-info/sports-api/pull/428)
+-  invoice carrier api ***by gsihenry*** [#427](https://github.com/gets-info/sports-api/pull/427)
+-  Add returning blockTime when user had been muted ***by TsaiTsaiChieh*** [#426](https://github.com/gets-info/sports-api/pull/426)
+-  err.stack to MysqlError error and rename filloutStatsRate function to filterOutStatsRate ***by TsaiTsaiChieh*** [#425](https://github.com/gets-info/sports-api/pull/425)
+-  Add {} to logger ***by TsaiTsaiChieh*** [#424](https://github.com/gets-info/sports-api/pull/424)
+-  新增籃球賽前資訊，包含近十場過盤率以及勝敗和 ***by page40316*** [#422](https://github.com/gets-info/sports-api/pull/422)
+#### Fix:
+-  fix donating not given five percent dividend ***by gsihenry*** [#429](https://github.com/gets-info/sports-api/pull/429)
+***
+
+## [v1.1.4] - 2020-08-19
+#### Fix:
+-  fix donate reward dividend  ***by gsihenry*** [#423](https://github.com/gets-info/sports-api/pull/423)
 -  處理 eslint 錯誤 ***by alangets*** [#417](https://github.com/gets-info/sports-api/pull/417)
 -  adjust router getuserprofile to userprofile ***by rex-getsinfo*** [#420](https://github.com/gets-info/sports-api/pull/420)
 -  補上賣牌判斷及抓今明兩天的情況 ***by alangets*** [#419](https://github.com/gets-info/sports-api/pull/419)
@@ -19,8 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  refactor getUserProfile ***by rex-getsinfo*** [#411](https://github.com/gets-info/sports-api/pull/411)
 -  settle checkUserRight close ***by alangets*** [#410](https://github.com/gets-info/sports-api/pull/410)
 -  執行長需求賣牌要明天也包含 ***by alangets*** [#409](https://github.com/gets-info/sports-api/pull/409)
-#### Removed:
-#### DB:
+***
 
 ## [v1.1.3] - 2020-08-17
 #### Add:

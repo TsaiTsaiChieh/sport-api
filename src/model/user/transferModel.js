@@ -51,13 +51,13 @@ async function transferModel(method, args, uid) {
             AND status=1    
             AND scheduled BETWEEN :begin AND :end 
           UNION
-         SELECT cd.ingot, 0 AS coin, 0 AS dividend, "玩家打賞此篇文章" as title, "donating" as en_title, NULL as name, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
+         SELECT cd.ingot, 0 AS coin, 0 AS dividend, "玩家打賞你的文章" as title, "donating" as en_title, NULL as name, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
            FROM cashflow_donates cd, topic__articles ta
           WHERE cd.article_id = ta.article_id
             AND cd.uid = :uid     
             AND scheduled BETWEEN :begin AND :end
           UNION
-         SELECT 0 as ingot, cd.coin, cd.dividend, "此篇文章已被打賞" as title, "donated" as en_title, NULL as name, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
+         SELECT 0 as ingot, cd.coin, cd.dividend, "打賞此篇文章" as title, "donated" as en_title, NULL as name, NULL as name_ch, NULL as display_name, ta.title as article_title, scheduled 
            FROM cashflow_donates cd, topic__articles ta
           WHERE cd.article_id = ta.article_id
             AND cd.from_uid = :uid
@@ -110,6 +110,19 @@ async function transferModel(method, args, uid) {
           WHERE status=0
             AND uid = :uid
             AND scheduled BETWEEN :begin AND :end
+          UNION
+         SELECT ingot, coin, dividend, "搞任務-首次大神給予獎勵" as title, "mission_god" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_god_id=1
+          UNION
+         SELECT 0 as ingot, 0 as coin, 0 as dividend, "搞任務-首次儲值給予獎勵" as title, "mission_deposit" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_deposit_id=1
+          UNION
+         SELECT ingot, coin, dividend, "搞任務-每日任務給予獎勵" as title, "mission_daily" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_item_id IS NOT NULL
+            AND mission_item_id <> 0
          ) transfer
         ORDER BY scheduled DESC
          

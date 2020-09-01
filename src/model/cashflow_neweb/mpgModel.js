@@ -8,22 +8,22 @@ async function mpgModel(res) {
 
   return new Promise(async function(resolve, reject) {
     try {
-      // const result = await db.PurchaseList.findOne({
-      //   attributes: [
-      //     'list_id',
-      //     'coin',
-      //     'dividend'
-      //   ],
-      //   where: {
-      //     'list_id': exchange.list_id,
-      //     'coin': exchange.coin,
-      //     'dividend': exchange.dividend
-      //   },
-      //   raw: true
-      // });
-      // if(!result){
-      //   reject({'msg':'沒有該項商品'})
-      // }
+      const result = await db.PurchaseList.findOne({
+        attributes: [
+          'list_id',
+          'coin',
+          'dividend'
+        ],
+        where: {
+          list_id: exchange.list_id,
+          coin: exchange.coin,
+          dividend: exchange.dividend
+        },
+        raw: true
+      });
+      if (!result) {
+        reject({ msg: '沒有該項商品' });
+      }
 
       const setting = neweb_config.setting.official; // 讀取設定檔(測試/正式)
       const common = neweb_config.setting.common;

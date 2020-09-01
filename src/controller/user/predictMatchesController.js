@@ -3,6 +3,9 @@ const ajv = require('../../util/ajvUtil');
 const model = require('../../model/user/predictMatchesModel');
 
 async function predictMatches(req, res) {
+  if (req.token.customClaims.role < 1) {
+    return res.status(400).json({ code: 400, message: 'user freeze' });
+  }
   const now = Date.now();
   const spreadSchema = {
     type: 'array',

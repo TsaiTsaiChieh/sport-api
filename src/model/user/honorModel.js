@@ -12,9 +12,7 @@ function honorModel(req) {
 
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesNextPeriod(now, 'YYYY-MM-DD');
-        const currentSeason = modules.moment().year();
-        const currentMonth = modules.moment().month();
+        const period = await modules.getTitlesPeriod(now);
 
         const next = {
           next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
@@ -23,14 +21,14 @@ function honorModel(req) {
             end: period.end
           }
         };
+        const wins = {};
 
-        const wins = await db.sequelize.query(
+        /* 本期 */
+        wins[period.period] = await db.sequelize.query(
           `
             SELECT  vl.name, 
                     uwl.this_period_win_rate,
                     uwl.this_period_win_bets,
-                    uwl.this_month_win_rate,
-                    uwl.this_month_win_bets,
                     this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
                     this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
                     (
@@ -57,7 +55,44 @@ function honorModel(req) {
                AND  uwl.league_id = $league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id, current_period: period.period, currentMonth: currentMonth, currentSeason: currentSeason },
+            bind: { uid: uid, league_id: league_id },
+            type: db.sequelize.QueryTypes.SELECT
+          }
+        );
+
+        /* 上期 */
+        wins[period.period - 1] = await db.sequelize.query(
+          `
+            SELECT  vl.name, 
+                    uwl.last_period_win_rate as this_period_win_rate,
+                    uwl.last_period_win_bets as this_period_win_bets,
+                    last_week1_of_period_correct_counts + last_week1_of_period_fault_counts this_week1_of_period_correct_counts,
+                    last_period_correct_counts + last_period_fault_counts this_period_correct_counts,
+                    (
+                      SELECT COUNT(*)
+                        FROM users__win__lists l1, users u
+                       WHERE l1.uid = u.uid
+                         AND l1.last_period_win_rate >= uwl.last_period_win_rate
+                         AND league_id = $league_id
+                         AND status in (1, 2)
+                       ORDER BY last_period_win_rate DESC
+                    ) rate_rank,
+                    (
+                      SELECT COUNT(*)
+                        FROM users__win__lists l1, users u
+                       WHERE l1.uid = u.uid
+                         AND l1.last_period_win_bets >= uwl.last_period_win_bets
+                         AND league_id = $league_id
+                         AND status in (1, 2)
+                       ORDER BY last_period_win_bets DESC
+                    ) bets_rank
+              FROM  users__win__lists uwl, view__leagues vl 
+             WHERE  uwl.uid = $uid
+               AND  vl.league_id = uwl.league_id
+               AND  uwl.league_id = $league_id
+          `,
+          {
+            bind: { uid: uid, league_id: league_id },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

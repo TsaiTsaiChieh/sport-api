@@ -31,7 +31,8 @@ function createMessage(args) {
       // add message data to firestore & realtime and response
       return resolve(await insert2Firebase(args, { userData, defaultTitle }));
     } catch (err) {
-      return reject(new AppErrors.CreateMessageError(err.stack));
+      // status 1213 is for userMuted error returning
+      return err.status === 1213 ? reject(err) : reject(new AppErrors.CreateMessageError(err));
     }
   });
 }
@@ -63,10 +64,13 @@ function checkUserMuted(userData, now) {
   return new Promise(async function(resolve, reject) {
     try {
       const { block_message } = userData;
+      if (userData.status < 1) {
+        return reject(new AppErrors.UserHadBeenFreezed());
+      }
       if (block_message) {
-        const blockDate = new Date(block_message);
-        if (now <= blockDate) {
-          return reject(new AppErrors.UserHadBeenMuted());
+        const blockTime = new Date(block_message).getTime();
+        if (now <= blockTime) {
+          return reject(new AppErrors.UserHadBeenMuted(blockTime));
         }
       }
       return resolve();
