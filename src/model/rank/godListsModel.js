@@ -30,14 +30,13 @@ async function godlists(args) {
 
   // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
   const [err, godListsQuery] = await to(db.sequelize.query(`
-      select titles.uid, titles.league_id, users.avatar, users.display_name, titles.rank_id, 
+      select titles.uid, titles.league_id, users.avatar, users.display_name, titles.rank_id, winlist.last_period_win_bets as win_bets, winlist.last_period_win_rate as win_rate,
              CASE prediction.sell
                WHEN 1 THEN 1
                WHEN 0 THEN 0
                ELSE -1
              END sell,
              titles.default_title,
-             titles.win_bets, titles.win_rate,
              titles.continue, 
              titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
              titles.matches_rate1, titles.matches_rate2, titles.matches_continue
@@ -57,6 +56,11 @@ async function godlists(args) {
                 group by uid
              ) prediction
           on titles.uid = prediction.uid
+         left join 
+            (
+                select uid, league_id, last_period_win_bets, last_period_win_rate from users__win__lists 
+            ) winlist
+          on winlist.uid = titles.uid and winlist.league_id = titles.league_id
        where titles.league_id in ( :league_id )
          and titles.period = :period
     `, {
