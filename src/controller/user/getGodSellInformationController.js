@@ -1,7 +1,7 @@
 const ajv = require('../../util/ajvUtil');
 const httpStatus = require('http-status');
 const model = require('../../model/user/getGodSellInformationModel');
-const { acceptNumberAndLetter } = require('../../config/acceptValues');
+const { acceptNumberAndLetter, acceptLeague } = require('../../config/acceptValues');
 
 async function godSellInformation(req, res) {
   const schema = {
@@ -10,7 +10,7 @@ async function godSellInformation(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: ['NBA', 'eSoccer']
+        enum: acceptLeague
       },
       date: {
         type: 'string',
