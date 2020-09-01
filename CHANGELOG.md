@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
+-  Fix acceptLeague in sell_information API and and titles table unique key to avoid duplicate selection ***by TsaiTsaiChieh*** [#440](https://github.com/gets-info/sports-api/pull/440)
 #### Removed:
 #### DB:
 ***
