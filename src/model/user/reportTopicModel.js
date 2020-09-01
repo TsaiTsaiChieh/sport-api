@@ -20,8 +20,7 @@ async function reportTopic(args) {
         uid: uid,
         type: args.type,
         article_id: args.article_id,
-        reason: args.reason,
-        content: args.content,
+        content: args.content || args.reason, // 與檢舉玩家 accuseUser.js 統一欄位
         images: JSON.stringify(args.images)
       };
       await dbCreate(insertData);
