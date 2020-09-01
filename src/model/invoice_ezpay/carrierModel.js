@@ -8,7 +8,7 @@ async function carrierModel(req) {
       /* 新增/更新載具 */
       if (req.method === 'POST') {
         try {
-          if(req.body.carrier_status===0){
+          if (req.body.carrier_status === 0) {
             invoice_carrier = '/ABCDEFG';
           }
           const carrier_status = db.User.update({
