@@ -6,8 +6,12 @@ async function getUserProfile(req, res) {
     const record = await User.findOne({
       where: {
         uid: uid
-      }
+      },
+      raw: true
     });
+
+    record.invoice_carrier === '/ABCDEFG' ? record.carrier_status = 0 : record.carrier_status = 1;
+
     if (record) {
       return res.json(record);
     } else {

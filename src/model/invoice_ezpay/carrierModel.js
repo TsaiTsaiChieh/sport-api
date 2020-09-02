@@ -9,7 +9,8 @@ async function carrierModel(req) {
       if (req.method === 'POST') {
         try {
           if (req.body.carrier_status === 0) {
-            invoice_carrier = '/ABCDEFG';
+            const default_invoice_carrier = '/ABCDEFG';
+            invoice_carrier = default_invoice_carrier;
           }
           const carrier_status = db.User.update({
             invoice_carrier: invoice_carrier
