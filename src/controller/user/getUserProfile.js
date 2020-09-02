@@ -1,5 +1,5 @@
 const { User } = require('../../util/dbUtil');
-
+const ezpay_config = require('../../config/invoice/ezpay_config');
 async function getUserProfile(req, res) {
   try {
     const uid = req.token.uid;
@@ -9,8 +9,8 @@ async function getUserProfile(req, res) {
       },
       raw: true
     });
-
-    record.invoice_carrier === '/ABCDEFG' ? record.carrier_status = 0 : record.carrier_status = 1;
+    console.log(ezpay_config.default_invoice_carrier);
+    record.invoice_carrier === ezpay_config.default_invoice_carrier ? record.carrier_status = 0 : record.carrier_status = 1;
 
     if (record) {
       return res.json(record);
