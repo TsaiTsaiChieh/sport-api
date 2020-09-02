@@ -24,7 +24,7 @@ async function winRateLists() {
     const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
     const league_id = defaultLeagueID;
     // const order = 'this_month_win_rate';
-    const limit = 10;
+    const limit = 5;
     const period = getLastPeriod(new Date()).period;
 
     const redisKey = ['home', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
