@@ -122,7 +122,7 @@ async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUni
     },
     type: db.sequelize.QueryTypes.SELECT
   });
-  
+
   return matchs;
 }
 
@@ -163,16 +163,16 @@ async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
                 group by league_id, match_date
         ) a
   `, {
-  replacements: {
-    userUid: userUid,
-    begin: beginUnix,
-    end: endUnix
-  },
-  type: db.sequelize.QueryTypes.SELECT
+    replacements: {
+      userUid: userUid,
+      begin: beginUnix,
+      end: endUnix
+    },
+    type: db.sequelize.QueryTypes.SELECT
   });
 
-  if(league_count[0].league_count<=1){
-  matchs[0].correct_count = 0;
+  if (league_count[0].league_count <= 1) {
+    matchs[0].correct_count = 0;
   }
 
   return matchs;
