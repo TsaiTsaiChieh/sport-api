@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  myprofile add carrier status ***by gsihenry*** [#446](https://github.com/gets-info/sports-api/pull/446)
 -  invoice carrier status and default value ***by gsihenry*** [#441](https://github.com/gets-info/sports-api/pull/441)
 -  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
