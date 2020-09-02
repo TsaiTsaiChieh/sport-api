@@ -330,7 +330,7 @@ async function dbNewsCreate(insertData) {
       insertData.uid = insertData.token.uid;
       /* 讀取售牌金額 */
       const date = new Date();
-      const period = modules.getTitlesPeriod(date).period;
+      const period = modules.getLastPeriod(date).period;
       const sell = insertData.sell;
       let price = 0;
       if (sell === 0 || sell === 1) {

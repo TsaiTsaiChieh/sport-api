@@ -1,4 +1,4 @@
-const { getTitlesPeriod } = require('../util/modules');
+const { getLastPeriod } = require('../util/modules');
 const httpStatus = require('http-status');
 const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
@@ -208,7 +208,7 @@ async function getRoleAndTitles(uid) {
       const titlesResult = await db.Title.findAll({
         where: {
           uid,
-          period: getTitlesPeriod(new Date()).period
+          period: getLastPeriod(new Date()).period
         },
         attributes: ['league_id']
       });

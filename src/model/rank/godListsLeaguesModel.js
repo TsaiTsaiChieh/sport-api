@@ -1,11 +1,11 @@
-const { getTitlesPeriod } = require('../../util/modules');
+const { getLastPeriod } = require('../../util/modules');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 async function godlistsLeagues() {
   const leagueLists = [];
   // 取得當期期數
-  const period = getTitlesPeriod(new Date()).period;
+  const period = getLastPeriod(new Date()).period;
 
   try {
     // 依 聯盟 取出是 大神資料 和 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)

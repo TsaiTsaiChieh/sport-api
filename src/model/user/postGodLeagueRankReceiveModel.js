@@ -1,4 +1,4 @@
-const { getTitlesPeriod } = require('../../util/modules');
+const { getLastPeriod } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -7,7 +7,7 @@ const to = require('await-to-js').default;
 async function postGodLeagueRankReceiveBack(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
   const leagues = args.leagues;
 
   const result = { success: [] };

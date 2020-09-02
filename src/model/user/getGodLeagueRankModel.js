@@ -1,4 +1,4 @@
-const { getTitlesPeriod } = require('../../util/modules');
+const { getLastPeriod } = require('../../util/modules');
 const { leagueDecoder } = require('../../util/leagueUtil');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -6,7 +6,7 @@ const db = require('../../util/dbUtil');
 async function getGodLeagueRank(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
   const result = { titleAnimate: { period: period } };
 
   // 使用者 本期 未閱

@@ -1,4 +1,4 @@
-const { date3UnixInfo, getTitlesPeriod } = require('../../util/modules');
+const { date3UnixInfo, getLastPeriod } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
@@ -48,7 +48,7 @@ async function missionRewardReceive(args) {
       missionStatusUpdateParms = { status: 1, mission_god_id: id, dateUnix: todayUnix };
     }
 
-    const period = getTitlesPeriod(Date.now());
+    const period = getLastPeriod(Date.now());
     const gods = await db.sequelize.query(`
       select uid, min(rank_id) rank_id
         from titles

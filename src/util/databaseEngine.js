@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, coreDateInfo, getTitlesPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
+const { moment, coreDateInfo, getLastPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
 const { logger } = require('./loggerUtil');
 const modules = require('../util/modules');
 
@@ -159,7 +159,7 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
 // matches_fail_status  -1 全額退款，0 一般退款  判斷依據是 預測數 是否等同 預測無效數
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
   const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
-  const period = getTitlesPeriod(matches_date_unix * 1000).period;
+  const period = getLastPeriod(matches_date_unix * 1000).period;
 
   const infos = await db.sequelize.query(`
     select users.uid, users.avatar, users.display_name,

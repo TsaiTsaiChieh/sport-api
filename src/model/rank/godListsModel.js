@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getLastPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -9,7 +9,7 @@ async function godlists(args) {
   const godLists = {};
 
   // 取得當期期數
-  const period = getTitlesPeriod(new Date()).period;
+  const period = getLastPeriod(new Date()).period;
   const league = args.league;
   const nowInfo = coreDateInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
