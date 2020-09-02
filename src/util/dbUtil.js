@@ -257,7 +257,11 @@ const Title = sequelize.define(
       { fields: ['uid'] },
       { fields: ['period'] },
       { fields: ['period_date'] },
-      { fields: ['league_id'] }
+      { fields: ['league_id'] },
+      {
+        unique: true,
+        fields: ['uid', 'period', 'league_id']
+      }
     ]
   }
 );
