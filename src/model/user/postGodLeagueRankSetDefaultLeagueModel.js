@@ -6,7 +6,6 @@ const to = require('await-to-js').default;
 async function postGodLeagueRankSetDefaultLeague(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  // const period = getTitlesPeriod(Date.now()).period;
   const league_id = leagueCodebook(args.league).id;
 
   const result = { success: [] };

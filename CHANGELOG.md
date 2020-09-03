@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  myprofile add carrier status ***by gsihenry*** [#446](https://github.com/gets-info/sports-api/pull/446)
 -  invoice carrier status and default value ***by gsihenry*** [#441](https://github.com/gets-info/sports-api/pull/441)
 -  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
+-  fix the predict mission(different league prediction) correct count problem ***by gsihenry*** [#447](https://github.com/gets-info/sports-api/pull/447)
+-  Fix user/prediction_history API period and rename getTitlesPeriod function to getLastPeriod ***by TsaiTsaiChieh*** [#444](https://github.com/gets-info/sports-api/pull/444)
 -  mission finished ***by gsihenry*** [#443](https://github.com/gets-info/sports-api/pull/443)
 -  rank of god ***by rex-getsinfo*** [#442](https://github.com/gets-info/sports-api/pull/442)
 -  Fix acceptLeague in sell_information API and and titles table unique key to avoid duplicate selection ***by TsaiTsaiChieh*** [#440](https://github.com/gets-info/sports-api/pull/440)

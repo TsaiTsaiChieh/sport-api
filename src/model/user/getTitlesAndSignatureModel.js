@@ -25,7 +25,7 @@ function getGodAllTitles(args, userData) {
     try {
       if (userData.status !== GOD_STATUS) return resolve([]);
       if (userData.status === GOD_STATUS) {
-        const { period } = modules.getTitlesPeriod(args.now);
+        const { period } = modules.getLastPeriod(args.now);
         // index is index_merge(titles), taking 170ms
         const result = await db.Title.findAll({
           where: { uid: args.uid, period },

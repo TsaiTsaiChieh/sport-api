@@ -35,7 +35,7 @@ async function predictionHistory(args) {
 }
 
 function calculatePeriodData(now) {
-  const { period } = modules.getTitlesPeriod(now);
+  const { period } = modules.getCurrentPeriod(now);
   const periods = [];
   for (let i = 0; i < lastPeriod; i++) periods.push(period - i);
   const PeriodData = modules.getEachPeriodData(periods);

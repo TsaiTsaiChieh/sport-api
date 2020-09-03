@@ -39,8 +39,10 @@ const setting = {
   }
 };
 
+const default_invoice_carrier = '/ABCDEFG';
 module.exports = {
-  setting
+  setting,
+  default_invoice_carrier
 };
 
 // const merchantID = '32509619'; 																					// 商店代號
