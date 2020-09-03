@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  invoice carrier status and default value ***by gsihenry*** [#441](https://github.com/gets-info/sports-api/pull/441)
 -  Add HonorBoard period ***by gsihenry*** [#439](https://github.com/gets-info/sports-api/pull/439)
 #### Fix:
+-  Fix the win_rate should be last_period_win_rate from users__win__lists table and add ORDER BY RAND() SQL query ***by TsaiTsaiChieh*** [#449](https://github.com/gets-info/sports-api/pull/449)
 -  dividend expire sum problem ***by gsihenry*** [#448](https://github.com/gets-info/sports-api/pull/448)
 -  fix the predict mission(different league prediction) correct count problem ***by gsihenry*** [#447](https://github.com/gets-info/sports-api/pull/447)
 -  Fix user/prediction_history API period and rename getTitlesPeriod function to getLastPeriod ***by TsaiTsaiChieh*** [#444](https://github.com/gets-info/sports-api/pull/444)
