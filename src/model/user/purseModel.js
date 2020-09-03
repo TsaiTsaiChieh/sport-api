@@ -20,10 +20,18 @@ async function purseModel(args, method, uid) {
 
       const expire = await db.sequelize.query(
         `
+        SELECT SUM(dividend) as expire_dividend
+        FROM(
           SELECT SUM(expire_points) as dividend
             FROM cashflow_dividends 
-           WHERE uid=$uid
-             AND scheduled BETWEEN $from AND $to
+          WHERE uid=$uid
+          AND scheduled BETWEEN $from AND $to
+          UNION
+          SELECT SUM(dividend) as dividend
+            FROM cashflow_donates
+          WHERE from_uid=$uid
+          AND scheduled BETWEEN $from AND $to
+          ) a
         `,
         {
           plain: true,
