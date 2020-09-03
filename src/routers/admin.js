@@ -121,16 +121,6 @@ router.post(
   verification.admin,
   require('../controller/admin/givePointsController')
 );
-router.post(
-  '/giveTitle',
-  verification.admin,
-  require('../controller/admin/giveTitleController')
-);
-router.delete(
-  '/deleteTitle',
-  verification.admin,
-  require('../controller/admin/deleteTitleController')
-);
 
 // can comment out verification.admin, if auth is not allowed
 router.post(

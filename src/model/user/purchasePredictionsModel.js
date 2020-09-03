@@ -47,7 +47,7 @@ function isTheSameUser(args) {
 }
 
 async function checkGodUserRank(args) {
-  const { period } = modules.getTitlesPeriod(args.now);
+  const { period } = modules.getLastPeriod(args.now);
   const [err, result] = await to(db.sequelize.query(
     // index is const (users); index_merge (titles), taking 165ms
     `SELECT users.uid, titles.rank_id

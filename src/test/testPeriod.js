@@ -10,11 +10,11 @@ const { zone_tw } = require('../config/env_values');
 const UTF8 = 8;
 const specificDate = '20200302';
 const fs = require('fs');
-const { getTitlesPeriod } = require('../util/modules');
+const { getLastPeriod } = require('../util/modules');
 
 
 function testPeriod(req, res) {
-  const period = getTitlesPeriod(new Date());
+  const period = getLastPeriod(new Date());
   console.log(period);
   // const dataArray = exportPeriodFile();
   // res.json(dataArray);

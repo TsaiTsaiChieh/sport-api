@@ -1,5 +1,5 @@
 // const { leagueCodebook, leagueDecoder } = require('../../util/leagueUtil');
-const { date3YMDInfo, getTitlesNextPeriod, moment, NP } = require('../../util/modules');
+const { date3YMDInfo, getCurrentPeriod, moment, NP } = require('../../util/modules');
 const { logger } = require('../../util/loggerUtil');
 const { predictionsWinList } = require('../../util/settleModules');
 const { getSeason } = require('../../util/databaseEngine'); // checkUserRight
@@ -55,7 +55,7 @@ async function settleWinList(args) {
   const datInfo = date3YMDInfo(args.date);
   const begin = datInfo.dateBeginUnix;
   const end = datInfo.dateEndUnix;
-  const tp = getTitlesNextPeriod(begin * 1000);
+  const tp = getCurrentPeriod(begin * 1000);
   const period = tp.period;
   const weekOfPeriod = tp.weekPeriod;
   const dayOfYear = toNumber(moment(begin * 1000).format('DDD')); // 日期是 一年中的第幾天

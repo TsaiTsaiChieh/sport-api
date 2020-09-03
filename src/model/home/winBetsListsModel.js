@@ -1,4 +1,4 @@
-const { getTitlesPeriod, to } = require('../../util/modules');
+const { getLastPeriod, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -25,7 +25,7 @@ async function winBetsLists() {
     const league_id = defaultLeagueID;
     // const order = 'this_month_win_bets';
     const limit = 5;
-    const period = getTitlesPeriod(new Date()).period;
+    const period = getLastPeriod(new Date()).period;
 
     const redisKey = ['home', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
     const [err, leagueWinBetsListsQuery] = await to(CacheQuery(db.sequelize, `

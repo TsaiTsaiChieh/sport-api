@@ -89,7 +89,7 @@ function getTitleRank(args) {
       const result = await db.Title.findOne({
         where: {
           uid: args.token.uid,
-          period: modules.getTitlesPeriod(args.now).period,
+          period: modules.getLastPeriod(args.now).period,
           league_id: leagueUtil.leagueCodebook(args.league).id
         },
         attributes: ['rank_id']

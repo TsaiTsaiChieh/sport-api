@@ -12,7 +12,7 @@ function honorModel(req) {
 
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getTitlesPeriod(now);
+        const period = await modules.getCurrentPeriod(now);
 
         const next = {
           next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
