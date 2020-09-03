@@ -1,12 +1,13 @@
-const { getTitlesPeriod, coreDateInfo, date3UnixInfo, fieldSorter, to } = require('../../util/modules');
+const { getLastPeriod, coreDateInfo, date3UnixInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { CacheQuery } = require('../../util/redisUtil');
+const limit = 4;
 
 async function godlists() {
   const godLists = [];
-  const period = getTitlesPeriod(new Date()).period;
+  const period = getLastPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
@@ -22,8 +23,7 @@ async function godlists() {
   // 將來有排序條件，可以orderBy，但會和下面的order衝突
   const [err, godListsQuery] = await to(CacheQuery(db.sequelize, `
     select titles.uid, users.avatar, users.display_name,titles.rank_id, titles.default_title, 
-           titles.win_rate, 
-           uwl.last_month_win_rate,
+           uwl.last_month_win_rate, uwl.last_period_win_rate,
            titles.continue,
            titles.predict_rate1, titles.predict_rate2, titles.predict_rate3, titles.win_bets_continue,
            titles.matches_rate1, titles.matches_rate2, titles.matches_continue
@@ -47,12 +47,16 @@ async function godlists() {
        and titles.league_id = prediction.league_id
        and titles.league_id = :league_id
        and titles.period = :period
+  ORDER BY RAND()
+     LIMIT :limit;
+
   `, {
     replacements: {
       league_id: league_id,
       period: period,
       begin: beginUnix,
-      end: endUnix
+      end: endUnix,
+      limit
     },
     type: db.sequelize.QueryTypes.SELECT
   }, redisKey));
@@ -125,7 +129,7 @@ function repackage(league, ele) { // 實際資料輸出格式
   data.league_win_lists[league] = { // 聯盟 戰績表
     rank: `${ele.rank_id}`,
     default_title: ele.default_title,
-    win_rate: ele.win_rate === null ? 0 : ele.win_rate,
+    win_rate: ele.last_period_win_rate === null ? 0 : ele.last_period_win_rate,
     last_month_win_rate: ele.last_month_win_rate === null ? 0 : ele.last_month_win_rate,
     continue: ele.continue, // 連贏Ｎ場
     predict_rate: [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3], // 近N日 N過 N

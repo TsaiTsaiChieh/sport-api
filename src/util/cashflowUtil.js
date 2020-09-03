@@ -24,17 +24,19 @@ async function cashflow_issue(param, trans = null) {
   const scheduled = modules.moment().unix();
   const whereSql = { uid: uid };
 
-  if (type === 2) {
-    if (activity_type === 'god') {
-      mission_god_id = type_id;
-      whereSql.mission_god_id = mission_god_id;
-    } else if (activity_type === 'deposit') {
-      mission_deposit_id = type_id;
-      whereSql.mission_deposit_id = mission_deposit_id;
-    }
-  } else if (type === 0) {
+  if (type_id === 3 || type_id === 4 || type === 0) {
     mission_item_id = type_id;
     whereSql.mission_item_id = mission_item_id;
+  } else {
+    if (type === 2) {
+      if (activity_type === 'god') {
+        mission_god_id = type_id;
+        whereSql.mission_god_id = mission_god_id;
+      } else if (activity_type === 'deposit') {
+        mission_deposit_id = type_id;
+        whereSql.mission_deposit_id = mission_deposit_id;
+      }
+    }
   }
 
   if (reward_type === 'ingot') {
@@ -58,7 +60,7 @@ async function cashflow_issue(param, trans = null) {
     mission_item_id: mission_item_id,
     scheduled: scheduled
   };
-  // console.log(cashflow_mission);
+
   try {
     const created = await db.CashflowMission.findOrCreate({
       where: whereSql,

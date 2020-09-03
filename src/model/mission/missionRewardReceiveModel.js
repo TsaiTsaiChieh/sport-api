@@ -1,4 +1,4 @@
-const { date3UnixInfo, getTitlesPeriod } = require('../../util/modules');
+const { date3UnixInfo, getLastPeriod } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const errs = require('../../util/errorCode');
 const to = require('await-to-js').default;
@@ -48,7 +48,7 @@ async function missionRewardReceive(args) {
       missionStatusUpdateParms = { status: 1, mission_god_id: id, dateUnix: todayUnix };
     }
 
-    const period = getTitlesPeriod(Date.now());
+    const period = getLastPeriod(Date.now());
     const gods = await db.sequelize.query(`
       select uid, min(rank_id) rank_id
         from titles
@@ -138,9 +138,10 @@ async function missionRewardReceive(args) {
         }
       }
     }
-
+    return { status: 'ok' };
   // 目前 首次儲值任務 不在此處理
   } else if (type === 'mission_deposit') {
+    // args.token.uid = 'vl2qMYWJTnTLbmO4rtN8rxdodCo2';
     check1 = await db.sequelize.query(`
       select missions.type
         from missions, mission_deposits
@@ -154,12 +155,10 @@ async function missionRewardReceive(args) {
       },
       type: db.sequelize.QueryTypes.SELECT
     });
-
     let missionStatusUpdateParms; //, check2, err;
     if (check1[0].type === 2) {
       missionStatusUpdateParms = { status: 1, mission_deposit_id: id, dateUnix: todayUnix };
     }
-
     const users_mission = await db.CashflowDeposit.findOne({
       attributes: [
         'uid',
@@ -186,10 +185,9 @@ async function missionRewardReceive(args) {
       const cashflow_mission_list = await activityDepositsCheckStatusReturnReward(users_mission.uid, users_mission.pay_timestamp);
 
       /* 搞任務給予紀錄(create or update) */
-
       for (const cashflow_mlist of cashflow_mission_list) {
         const trans = await db.sequelize.transaction();
-        if (cashflow_mlist.mission_deposit_id) {
+        if (cashflow_mlist.mission_deposit_id !== undefined) {
           const param = {
             uid: users_mission.uid,
             mission_deposit_id: cashflow_mlist.mission_deposit_id,
@@ -204,7 +202,6 @@ async function missionRewardReceive(args) {
             /* add user_mission data */
             // await addUserMissionStatus(users_mission.uid,
             //   { mission_deposit_id: 1, status: 2 });
-
             await to(setUserMissionStatus(users_mission.uid, missionStatusUpdateParms, 2, trans));
 
             /* 使用者更新抽獎券 */
@@ -223,9 +220,9 @@ async function missionRewardReceive(args) {
         await trans.commit();
       }
     }
-
     if (check1.length > 1) throw errs.dbErrsMsg('404', '15212'); // 取得多筆不正確
     if (check1.length === 0) throw errs.dbErrsMsg('404', '15217'); // 查不到
+    return { status: 'ok' };
   } else if (type === 'mission_item') {
     check1 = await db.sequelize.query(`
       select missions.type, 

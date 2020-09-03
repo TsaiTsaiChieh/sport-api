@@ -1,4 +1,4 @@
-const { getTitlesPeriod } = require('../../util/modules');
+const { getLastPeriod } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const { checkUserRight } = require('../../util/databaseEngine');
 const errs = require('../../util/errorCode');
@@ -8,7 +8,7 @@ const to = require('await-to-js').default;
 async function postGodLeagueRankSetAllLeagueTitle(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
 
   const result = { success: [] };
 
