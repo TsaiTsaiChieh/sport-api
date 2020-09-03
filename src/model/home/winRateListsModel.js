@@ -1,4 +1,4 @@
-const { getTitlesPeriod, to } = require('../../util/modules');
+const { getLastPeriod, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -23,9 +23,9 @@ async function winRateLists() {
   for (const [key, value] of Object.entries(winRateLists)) { // 依 聯盟 進行排序
     const leagueWinRateLists = []; // 儲存 聯盟處理完成資料
     const league_id = defaultLeagueID;
-    const order = 'this_month_win_rate';
-    const limit = 10;
-    const period = getTitlesPeriod(new Date()).period;
+    // const order = 'this_month_win_rate';
+    const limit = 5;
+    const period = getLastPeriod(new Date()).period;
 
     const redisKey = ['home', 'winRateLists', 'users__win__lists', 'titles', league_id, period].join(':');
     const [err, leagueWinRateListsQuery] = await to(CacheQuery(db.sequelize, `
@@ -35,12 +35,8 @@ async function winRateLists() {
                    select winlist.*, users.avatar, users.display_name
                      from (
                             select uid, users__win__lists.league_id, 
-                                   last_month_win_bets, last_month_win_rate, 
-                                   last_week_win_bets, last_week_win_rate,
-                                   this_season_win_bets, this_season_win_rate,
-                                   this_period_win_bets, this_period_win_rate,
-                                   this_month_win_bets, this_month_win_rate,
-                                   this_week_win_bets, this_week_win_rate
+                                   last_period_win_bets, last_period_win_rate, 
+                                   last_period_correct_counts
                               from users__win__lists
                              where league_id = :league_id
                           ) winlist,
@@ -54,8 +50,9 @@ async function winRateLists() {
            inner join titles 
               on winlist.uid = titles.uid 
              and winlist.league_id = titles.league_id
+             and titles.rank_id in (2,3,4)
              and titles.period = :period
-           order by ${order} desc
+           order by last_period_win_rate desc,last_period_win_bets desc,last_period_correct_counts desc
            limit ${limit}
     `, {
       replacements: {
@@ -91,7 +88,7 @@ function repackage(ele) {
   };
 
   /* 欄位無資料防呆 */
-  data.win_rate = ele.this_month_win_rate == null ? null : ele.this_month_win_rate.toString();
+  data.win_rate = ele.last_period_win_rate == null ? null : ele.last_period_win_rate.toString();
   data.rank = ele.rank_id == null ? null : ele.rank_id.toString();
 
   return data;

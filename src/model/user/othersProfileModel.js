@@ -34,7 +34,7 @@ function getDefaultTitle(args, otherUserData) {
         LEFT JOIN titles ON (users.uid = titles.uid 
               AND users.default_god_league_rank = titles.league_id)
             WHERE titles.uid = :othersUid
-              AND titles.period = ${modules.getTitlesPeriod(args.now).period}
+              AND titles.period = ${modules.getLastPeriod(args.now).period}
             LIMIT 1`,
           {
             type: db.sequelize.QueryTypes.SELECT,

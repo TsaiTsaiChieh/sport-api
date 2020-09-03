@@ -1,4 +1,4 @@
-const { getTitlesPeriod, getAllTitles } = require('../../util/modules');
+const { getLastPeriod, getAllTitles } = require('../../util/modules');
 const { leagueDecoder } = require('../../util/leagueUtil');
 // const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -6,7 +6,7 @@ const db = require('../../util/dbUtil');
 async function getGodLeagueRankAllTitle(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
   let result = {};
 
   // 使用者 本期 所有 聯盟大神 稱號 和 成就

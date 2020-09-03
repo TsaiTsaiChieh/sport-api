@@ -5,7 +5,10 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const compression = require('compression');
+const Haven = require('domain-haven');
+
 const app = express();
+app.use(Haven.haven());
 app.use(compression());
 app.disable('x-powered-by');
 app.use(cookieParser());
@@ -33,10 +36,14 @@ app.use((req, res, next) => {
   next();
 });
 
+const localOrigin = 'http://172.16.21';
+
 const corsList = process.env.corsList.split(',');
 const corsOptions = {
   origin: function(origin, callback) {
     if (corsList.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else if (origin.includes(localOrigin)) {
       callback(null, true);
     } else {
       console.log('Not allowed by CORS', origin);

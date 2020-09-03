@@ -1,8 +1,9 @@
-const { getTitlesPeriod } = require('../util/modules');
+const { getLastPeriod } = require('../util/modules');
 const httpStatus = require('http-status');
 const leagueUtil = require('../util/leagueUtil');
 const firebaseAdmin = require('../util/firebaseUtil');
 const db = require('../util/dbUtil');
+const FREEZE_USER = -1;
 const UNREGISTER = 0;
 const NORMAL_USER = 1;
 const GOD_USER = 2;
@@ -198,6 +199,8 @@ async function getRoleAndTitles(uid) {
   });
   if (!userResults) return { role: UNREGISTER, titles: [] };
   switch (userResults.status) {
+    case FREEZE_USER:
+      return { role: FREEZE_USER, titles: [] };
     case NORMAL_USER:
       return { role: NORMAL_USER, titles: [] };
     case GOD_USER:
@@ -205,7 +208,7 @@ async function getRoleAndTitles(uid) {
       const titlesResult = await db.Title.findAll({
         where: {
           uid,
-          period: getTitlesPeriod(new Date()).period
+          period: getLastPeriod(new Date()).period
         },
         attributes: ['league_id']
       });
@@ -223,7 +226,7 @@ async function getRoleAndTitles(uid) {
     case ADMIN_USER:
       return { role: ADMIN_USER, titles: ['Admin'] };
     default:
-      return { role: NORMAL_USER, titles: [] };
+      return { role: UNREGISTER, titles: [] };
   }
 }
 

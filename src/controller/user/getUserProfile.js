@@ -1,13 +1,17 @@
 const { User } = require('../../util/dbUtil');
-
+const ezpay_config = require('../../config/invoice/ezpay_config');
 async function getUserProfile(req, res) {
   try {
     const uid = req.token.uid;
     const record = await User.findOne({
       where: {
         uid: uid
-      }
+      },
+      raw: true
     });
+    console.log(ezpay_config.default_invoice_carrier);
+    record.invoice_carrier === ezpay_config.default_invoice_carrier ? record.carrier_status = 0 : record.carrier_status = 1;
+
     if (record) {
       return res.json(record);
     } else {

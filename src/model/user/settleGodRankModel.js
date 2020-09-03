@@ -1,4 +1,4 @@
-const { getTitlesPeriod, groupsByOrdersLimit } = require('../../util/modules');
+const { getLastPeriod, groupsByOrdersLimit } = require('../../util/modules');
 const db = require('../../util/dbUtil');
 const { logger } = require('../../util/loggerUtil');
 
@@ -38,7 +38,7 @@ async function settleGodRank() {
   // 6. 預防再有重複，新增最後一筆下注時間判斷?
 
   // period 例：目前時間在 12 期區間，需要計算符合大神為 11 期區間 (上一期)
-  // getTitlesPeriod(now) 依上面說明為取得 11 期
+  // getLastPeriod(now) 依上面說明為取得 11 期
   // nowPeriod = 12 本期
   // lastPeriod = 11 上一期
   // users__win__lists__histories 新增資料的 period 是用 nowPeriod，大神產生計算要使用 lastPeriod
@@ -46,8 +46,8 @@ async function settleGodRank() {
   // 大神產生實際是依照上期的資料，來產生上一期大神
   // 本期資料是在累計算，直到下一期開始的第一天時，該天 本期資料會變成上一期資料，取得本期已經是下一期
   const now = new Date();
-  const lastPeriod = getTitlesPeriod(now).period; // 上一期期數
-  const lastPeriod_date = getTitlesPeriod(now).date; // 上一期開始日期
+  const lastPeriod = getLastPeriod(now).period; // 上一期期數
+  const lastPeriod_date = getLastPeriod(now).date; // 上一期開始日期
   const last2Period = lastPeriod - 1; // 上上期期數
   const nowPeriod = lastPeriod + 1;
   const diamondList = {};
@@ -450,14 +450,14 @@ async function updateWins() {
            last_week1_of_period_win_rate = this_week1_of_period_win_rate,
            last_week1_of_period_correct_counts = this_week1_of_period_correct_counts,
            last_week1_of_period_fault_counts = this_week1_of_period_fault_counts,
-           this_period_win_bets = NULL,
-           this_period_win_rate = NULL,
-           this_period_correct_counts = NULL,
-           this_period_fault_counts = NULL,
-           this_week1_of_period_win_bets = NULL,
-           this_week1_of_period_win_rate = NULL,
-           this_week1_of_period_correct_counts = NULL,
-           this_week1_of_period_fault_counts = NULL
+           this_period_win_bets = 0,
+           this_period_win_rate = 0,
+           this_period_correct_counts = 0,
+           this_period_fault_counts = 0,
+           this_week1_of_period_win_bets = 0,
+           this_week1_of_period_win_rate = 0,
+           this_week1_of_period_correct_counts = 0,
+           this_week1_of_period_fault_counts = 0
   `, {
     type: db.sequelize.QueryTypes.UPDATE
   });

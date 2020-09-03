@@ -1,4 +1,4 @@
-const { getTitlesPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
+const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -8,7 +8,7 @@ const { acceptLeague } = require('../../config/acceptValues');
 async function winBetsLists(args) {
   const range = args.range;
   const league = args.league;
-  const period = getTitlesPeriod(new Date()).period;
+  const period = getCurrentPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
   const beginUnix = nowInfo.dateBeginUnix;
@@ -56,7 +56,8 @@ async function winBetsLists(args) {
                                    this_period_win_bets, this_period_win_rate,
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate,
-                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate
+                                   this_week1_of_period_win_bets, this_week1_of_period_win_rate,
+                                   this_week1_of_period_correct_counts,this_week1_of_period_fault_counts
                               from users__win__lists
                               where users__win__lists.league_id in ( :league_id )
                               order by ${rangeWinBetsCodebook(range)} desc
@@ -69,7 +70,7 @@ async function winBetsLists(args) {
                           god_limits
                     where winlist.uid = users.uid
                       and god_limits.league_id = winlist.league_id
-                      and winlist.this_week1_of_period_win_bets > god_limits.first_week_win_handicap
+                      and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
                       and god_limits.period = :period
                  ) winlist 
             left join titles 
@@ -85,7 +86,7 @@ async function winBetsLists(args) {
                  ) prediction
               on titles.uid = prediction.uid
              and titles.league_id = prediction.league_id
-           order by ${rangeWinBetsCodebook(range)} desc
+           order by ${rangeWinBetsCodebook(range)} desc limit 30
       `, {
       replacements: {
         league_id: league_id,
@@ -93,7 +94,6 @@ async function winBetsLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      limit: 30,
       logging: true,
       type: db.sequelize.QueryTypes.SELECT
     }));

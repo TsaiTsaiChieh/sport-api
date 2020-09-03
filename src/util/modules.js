@@ -154,13 +154,6 @@ function date3UnixInfo(sdateUnix, zone = zone_tw) {
   return date3Info(sdateUnix, zone);
 }
 
-function createError(code, error) {
-  const err = {};
-  err.code = code;
-  err.error = error;
-  return err;
-}
-
 function dateFormat(date) {
   return {
     year: date.substring(0, 4),
@@ -169,10 +162,6 @@ function dateFormat(date) {
   };
 }
 
-/**
- * @description 回傳頭銜期數、開始/結束日期和該期是第幾個星期
- * @params date = new Date();
- */
 function getTitlesPeriod(date) {
   const now = moment(date).utcOffset(UTF8).unix();
   if (typeof now !== 'number') throw new Error('Input not acceptable');
@@ -203,11 +192,65 @@ function getTitlesPeriod(date) {
 }
 
 /**
- * @description 回傳 下一期數、開始/結束日期和 目前日期 位於 該期是第幾個星期
- * @params date = new Date();
+ * @description 回傳「上期」的期數、開始/結束日期和該期是第幾個星期，因為大神是因為「上兩週（上期）」表現得很不錯才會成為本期的大神的
+ * @params date = new Date() or Date.now()
  */
+function getLastPeriod(date) {
+  return getCurrentPeriod(moment.tz(date, zone_tw).subtract(2, 'weeks'));
+}
+
+/**
+ * @description 回傳 periodsArray 的期數 begin, end object
+ * @params periodsArray = [12, 11, 10]
+ */
+function getEachPeriodData(periodsArray) {
+  // TODO periodsArray should sort, the order is decreasing
+  const data = [];
+  for (let i = 0; i < periods.length; i++) {
+    const ele = periods[i];
+    for (let j = 0; j < periodsArray.length; j++) {
+      if (ele.period === periodsArray[j]) data.push({ period: ele.period, begin: ele.begin, end: { format: ele.end.format, unix: ele.end.unix + oneDayMinusOneUnix } });
+    }
+  }
+  return data;
+}
+
+/**
+ * @description 回傳本期數、開始/結束日期和 目前日期 位於 該期是第幾個星期
+ * @params date = new Date() or Date.now()
+ */
+
+function getCurrentPeriod(date) {
+  const now = moment(date).utcOffset(UTF8).unix();
+  if (typeof now !== 'number') throw new Error('Input not acceptable');
+  try {
+    for (let i = 0; i < periods.length; i++) {
+      const ele = periods[i];
+      const beginUnix = ele.begin.unix;
+      const endUnix = ele.end.unix;
+      const middleUnix = ele.middle.unix;
+
+      if (beginUnix <= now && now <= endUnix + oneDayMinusOneUnix) {
+        const lastPeriod = periods[i];
+        return {
+          period: lastPeriod.period,
+          date: lastPeriod.begin.format,
+          end: lastPeriod.end.format,
+          weekPeriod: now < middleUnix ? 1 : 2,
+          periodBeginDateBeginUnix: lastPeriod.begin.unix,
+          periodBeginDateEndUnix: lastPeriod.begin.unix + oneDayMinusOneUnix,
+          periodEndDateBeginUnix: lastPeriod.end.unix,
+          periodEndDateEndUnix: lastPeriod.end.unix + oneDayMinusOneUnix
+        };
+      }
+    }
+  } catch (err) {
+    throw new Error(`Input is ${date}, throw error: ${err.stack}`);
+  }
+}
+
 function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
-  const t = getTitlesPeriod(sdate, format);
+  const t = getLastPeriod(sdate, format);
   if (t === 0) return 0;
 
   const periodBeginDateUnix = convertDateYMDToGTM0Unix(t.date, {
@@ -230,8 +273,6 @@ function getTitlesNextPeriod(sdate, format = 'YYYYMMDD') {
     periodBeginDateEndUnix: periodBeginDate.dateEndUnix,
     periodEndDateBeginUnix: periodEndDate.dateBeginUnix,
     periodEndDateEndUnix: periodEndDate.dateEndUnix
-    // inputDateWeekOfYear: t.inputDateWeekOfYear,
-    // inputDateDayOfYear: t.inputDateDayOfYear
   };
 }
 
@@ -476,11 +517,13 @@ function validateProperty(data, propertyName) {
 }
 
 module.exports = {
-  createError,
   moment,
   dateFormat,
   getTitlesPeriod,
   getTitlesNextPeriod,
+  getLastPeriod,
+  getCurrentPeriod,
+  getEachPeriodData,
   getTitles,
   getAllTitles,
   userStatusCodebook,

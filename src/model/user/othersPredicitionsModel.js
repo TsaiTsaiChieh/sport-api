@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 const {
-  getTitlesPeriod, date3UnixInfo, convertDateYMDToGTM0Unix, convertGTM0UnixToDateYMD,
+  getLastPeriod, date3UnixInfo, convertDateYMDToGTM0Unix, convertGTM0UnixToDateYMD,
   sliceTeamAndPlayer, groupBy, getTitles
 } = require('../../util/modules');
 // const errs = require('../../util/errorCode');
@@ -42,7 +42,7 @@ async function othersPredictions(args) {
   const userUid = !args.token ? null : args.token.uid; // 需要判斷 有登入的話，判斷有沒有購牌
 
   const othersUid = args.othersUid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
   const nowInfo = date3UnixInfo(Date.now());
   const yesterdayUnix = nowInfo.yesterdayBeginUnix;
   const todayUnix = nowInfo.dateBeginUnix;

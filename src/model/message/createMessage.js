@@ -3,7 +3,7 @@ const firestore = firebaseAdmin().firestore();
 const database = firebaseAdmin().database();
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
-const { getTitlesPeriod } = require('../../util/modules');
+const { getLastPeriod } = require('../../util/modules');
 const { findUser } = require('../../util/databaseEngine');
 const { leagueDecoder, league2Sport, USER_STATUS } = require('../../util/leagueUtil');
 const MESSAGE_STATUS = {
@@ -21,7 +21,7 @@ function createMessage(args) {
       const userData = await findUser(args.token.uid);
       // If user status is 1 (normal user), do not get the default title
       if (userData.status === USER_STATUS.GOD) {
-        const { period } = getTitlesPeriod(args.now);
+        const { period } = getLastPeriod(args.now);
         defaultTitle = await getUserDefaultTitle(args.token.uid, period);
       }
       // Check user block message time
@@ -64,6 +64,9 @@ function checkUserMuted(userData, now) {
   return new Promise(async function(resolve, reject) {
     try {
       const { block_message } = userData;
+      if (userData.status < 1) {
+        return reject(new AppErrors.UserHadBeenFreezed());
+      }
       if (block_message) {
         const blockTime = new Date(block_message).getTime();
         if (now <= blockTime) {
