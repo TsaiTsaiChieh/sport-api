@@ -35,19 +35,19 @@ function honorModel(req) {
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
                        WHERE l1.uid = u.uid
-                         AND l1.this_month_win_rate >= uwl.this_month_win_rate
+                         AND l1.this_period_win_rate >= uwl.this_period_win_rate
                          AND league_id = $league_id
                          AND status in (1, 2)
-                       ORDER BY this_month_win_rate DESC
+                       ORDER BY this_period_win_rate DESC
                     ) rate_rank,
                     (
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
                        WHERE l1.uid = u.uid
-                         AND l1.this_month_win_bets >= uwl.this_month_win_bets
+                         AND l1.this_period_win_bets >= uwl.this_period_win_bets
                          AND league_id = $league_id
                          AND status in (1, 2)
-                       ORDER BY this_month_win_bets DESC
+                       ORDER BY this_period_win_bets DESC
                     ) bets_rank
               FROM  users__win__lists uwl, view__leagues vl 
              WHERE  uwl.uid = $uid
