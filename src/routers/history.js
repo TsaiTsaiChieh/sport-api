@@ -32,4 +32,11 @@ router.get(
   '/seasonhandicap',
   require('../controller/history/seasonHandicapController')
 );
+
+// 進階資料
+router.get(
+  '/start_pitcher',
+  require('../controller/history/startPitcherController')
+);
+
 module.exports = router;
