@@ -393,15 +393,15 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
     if (data.length <= 0) continue; // 無活動, 無效 或 已領(有資料)
 
     // 是否首次大神
-    const titlesCount = await db.sequelize.query(`
-      select count(*) as count from titles where uid=:uid
-    `, {
-      replacements: {
-        uid: uid
-      },
-      raw: true,
-      type: db.sequelize.QueryTypes.SELECT
-    });
+    // const titlesCount = await db.sequelize.query(`
+    //   select count(*) as count from titles where uid=:uid
+    // `, {
+    //   replacements: {
+    //     uid: uid
+    //   },
+    //   raw: true,
+    //   type: db.sequelize.QueryTypes.SELECT
+    // });
 
     // true: 有活動, 有效
     if (data.um_mission_god_id !== undefined) { // 必需是 沒有領取過 且 首次為大神 才會出現
