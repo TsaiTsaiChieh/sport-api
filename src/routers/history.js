@@ -35,8 +35,18 @@ router.get(
 
 // 進階資料
 router.get(
-  '/start_pitcher',
-  require('../controller/history/startPitcherController')
+  '/probable_pitcher',
+  require('../controller/history/probablePitcherController')
+);
+
+router.get(
+  '/probable_pitcher_past_game',
+  require('../controller/history/probablePitcherPastGameController')
+);
+
+router.get(
+  '/team_batting_information',
+  require('../controller/history/teamBattingInformationController')
 );
 
 module.exports = router;

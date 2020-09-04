@@ -1,9 +1,9 @@
 const { acceptLeague } = require('../../config/acceptValues');
 const httpStatus = require('http-status');
 const ajv = require('../../util/ajvUtil');
-const model = require('../../model/history/startPitcherModel');
+const model = require('../../model/history/probablePitcherPastGameModel');
 
-async function startPitcher(req, res) {
+async function probablePitcherPastGame(req, res) {
   const schema = {
     required: ['league', 'event_id'],
     properties: {
@@ -24,7 +24,7 @@ async function startPitcher(req, res) {
   try {
     res.json(await model(req.query));
   } catch (err) {
-    console.error('Error in controller/history/startPitcher by DY', err);
+    console.error('Error in controller/history/probablePitcherPastGame by DY', err);
     res
       .status(err.code)
       .json(
@@ -35,4 +35,4 @@ async function startPitcher(req, res) {
   }
 }
 
-module.exports = startPitcher;
+module.exports = probablePitcherPastGame;
