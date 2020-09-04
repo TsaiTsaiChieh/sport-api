@@ -61,7 +61,7 @@ function honorModel(req) {
           {
             replacements: { uid: uid, league_id: league_id, period: period.period },
             type: db.sequelize.QueryTypes.SELECT,
-            logging:true
+            logging: true
           }
         );
 
@@ -74,7 +74,7 @@ function honorModel(req) {
           this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
           this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
                   (
-                    SELECT COUNT(*)
+                    SELECT COUNT(*)+1
                       FROM users__win__lists l1, users u
                     WHERE l1.uid = u.uid
                       AND l1.this_period_win_rate > uwl.this_period_win_rate
@@ -84,7 +84,7 @@ function honorModel(req) {
                     ORDER BY l1.this_period_win_rate desc, l1.this_period_win_bets desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
                   ) rate_rank,
                   (
-                    SELECT COUNT(*)
+                    SELECT COUNT(*)+1
                       FROM users__win__lists l1, users u
                     WHERE l1.uid = u.uid
                       AND l1.this_period_win_bets > uwl.this_period_win_bets
@@ -101,7 +101,7 @@ function honorModel(req) {
             AND  uwl.league_id = :league_id
           `,
           {
-            replacements: { uid: uid, league_id: league_id, period: period.period  },
+            replacements: { uid: uid, league_id: league_id, period: period.period },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
