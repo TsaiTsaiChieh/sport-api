@@ -404,7 +404,7 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
     });
 
     // true: 有活動, 有效
-    if (data.um_mission_god_id !== undefined && titlesCount === 1) { // 必需是 沒有領取過 且 首次為大神 才會出現
+    if (data.um_mission_god_id !== undefined) { // 必需是 沒有領取過 且 首次為大神 才會出現
       result.push({
         mission_god_id: data.mission_god_id,
         reward_type: data.reward_type,
