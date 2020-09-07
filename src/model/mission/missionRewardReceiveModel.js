@@ -107,7 +107,7 @@ async function missionRewardReceive(args) {
             type_id: reward.mission_god_id,
             reward_god_rank: god.rank_id
           };
-         
+
           /* 存入搞任務-金流-START */
           await cashflowUtil.cashflow_issue(issue, trans);
           /* 存入搞任務-金流-END */
