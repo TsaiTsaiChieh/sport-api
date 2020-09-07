@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  fix honorboard rank ***by gsihenry*** [#453](https://github.com/gets-info/sports-api/pull/453)
 -  adjust honorboard period ***by gsihenry*** [#451](https://github.com/gets-info/sports-api/pull/451)
 #### Removed:
 #### DB:
