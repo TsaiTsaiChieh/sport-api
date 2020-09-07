@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add the response data should be order by pin field first in POST topics API ***by TsaiTsaiChieh*** [#456](https://github.com/gets-info/sports-api/pull/456)
 -  system message refactor ***by gsihenry*** [#454](https://github.com/gets-info/sports-api/pull/454)
 #### Fix:
 -  fix honorboard rank ***by gsihenry*** [#453](https://github.com/gets-info/sports-api/pull/453)
