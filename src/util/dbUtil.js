@@ -1287,12 +1287,20 @@ const Topic_Article = sequelize.define(
     },
     delete_reason: {
       type: Sequelize.TEXT
+    },
+    pin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
     }
   },
   {
     indexes: [
       {
         fields: ['article_id', 'uid', 'league', 'category']
+      },
+      { // For pin article
+        fields: ['league', 'category', 'pin']
       }
     ]
   }
@@ -1510,6 +1518,11 @@ const Service_Contact = sequelize.define('service__contact', {
   images: {
     type: Sequelize.TEXT,
     allowNull: true
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 });
 
