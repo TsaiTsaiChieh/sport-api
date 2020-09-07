@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  adjust honorboard period ***by gsihenry*** [#451](https://github.com/gets-info/sports-api/pull/451)
 #### Removed:
 #### DB:
+-  Add pin field in topic__articles table and add status field in service__contacts table ***by TsaiTsaiChieh*** [#455](https://github.com/gets-info/sports-api/pull/455)
 ***
 
 ## [v1.1.8] - 2020-09-03
