@@ -1728,6 +1728,38 @@ const News = sequelize.define(
   }
 );
 
+const News_Sys = sequelize.define(
+  'user__news__sys',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    target: {
+      type: Sequelize.TEXT
+    },
+    del: {
+      type: Sequelize.TEXT
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    content: {
+      type: Sequelize.STRING
+    },
+    timestamp: {
+      type: Sequelize.STRING
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
+      }
+    ]
+  }
+);
+
 const News_System = sequelize.define(
   'user__news__system',
   {
@@ -2713,6 +2745,7 @@ const dbUtil = {
   UserBuy,
   Honor_board,
   News,
+  News_Sys,
   News_System,
   Bank,
   Transfer_Status,
