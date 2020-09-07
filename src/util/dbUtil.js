@@ -1297,10 +1297,19 @@ const Topic_Article = sequelize.define(
   {
     indexes: [
       {
-        fields: ['article_id', 'uid', 'league', 'category']
+        fields: ['league']
       },
-      { // For pin article
-        fields: ['league', 'category', 'pin']
+      {
+        fields: ['uid']
+      },
+      {
+        fields: ['article_id', 'category']
+      },
+      {
+        fields: ['status', 'league', 'category']
+      },
+      {
+        fields: ['status', 'category']
       }
     ]
   }
