@@ -9,10 +9,19 @@ const modules = require('../util/modules');
 function findUser(uid) {
   return new Promise(async function(resolve, reject) {
     try {
-      // index is const, taking 165ms
-      const result = await db.User.findOne({ where: { uid }, raw: true });
+      // const result = await db.User.findOne(
+      //   { where: { uid }, raw: true, include: [{ model: db.User_Blacklist, required: false }] });
+      // indexes are const in user & user_blacklists table, taking 165ms
+      const result = await db.sequelize.query(
+        `SELECT * 
+           FROM users AS user 
+      LEFT JOIN user__blacklists AS blacklist ON user.uid = blacklist.uid
+          WHERE user.uid = :uid`, {
+          type: db.sequelize.QueryTypes.SELECT,
+          replacements: { uid }
+        });
       if (!result) return reject(new AppError.UserNotFound());
-      return resolve(result); // else return user data
+      return resolve(result[0]); // else return user data
     } catch (err) {
       return reject(new AppError.UserNotFound(err.stack));
     }
