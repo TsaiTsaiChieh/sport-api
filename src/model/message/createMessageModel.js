@@ -4,7 +4,6 @@ const database = firebaseAdmin().database();
 const db = require('../../util/dbUtil');
 const AppErrors = require('../../util/AppErrors');
 const { getLastPeriod } = require('../../util/modules');
-const { findUser } = require('../../util/databaseEngine');
 const { leagueDecoder, league2Sport, USER_STATUS } = require('../../util/leagueUtil');
 const MESSAGE_STATUS = {
   RETRACT: 0, // 使用者自行刪除，所以全部人皆看不到
@@ -17,22 +16,19 @@ function createMessage(args) {
     try {
       args.createTime = firebaseAdmin().firestore.Timestamp.now();
       let defaultTitle = null;
-      // Check if user exists and get default title
-      const userData = await findUser(args.token.uid);
+
       // If user status is 1 (normal user), do not get the default title
+      const { userData } = args;
       if (userData.status === USER_STATUS.GOD) {
         const { period } = getLastPeriod(args.now);
         defaultTitle = await getUserDefaultTitle(args.token.uid, period);
       }
-      // Check user block message time
-      await checkUserMuted(userData, args.now);
       // Get reply message info
       args.replyMessageObj = await replyMessage(args);
       // add message data to firestore & realtime and response
       return resolve(await insert2Firebase(args, { userData, defaultTitle }));
     } catch (err) {
-      // status 1213 is for userMuted error returning
-      return err.status === 1213 ? reject(err) : reject(new AppErrors.CreateMessageError(err));
+      return reject(new AppErrors.CreateMessageError(err));
     }
   });
 }
@@ -59,26 +55,6 @@ function getUserDefaultTitle(uid, period) {
     }
   });
 };
-
-function checkUserMuted(userData, now) {
-  return new Promise(async function(resolve, reject) {
-    try {
-      const { block_message } = userData;
-      if (userData.status < 1) {
-        return reject(new AppErrors.UserHadBeenFreezed());
-      }
-      if (block_message) {
-        const blockTime = new Date(block_message).getTime();
-        if (now <= blockTime) {
-          return reject(new AppErrors.UserHadBeenMuted(blockTime));
-        }
-      }
-      return resolve();
-    } catch (err) {
-      return resolve(err.stack);
-    }
-  });
-}
 
 function replyMessage(args) {
   return new Promise(async function(resolve, reject) {
