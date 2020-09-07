@@ -293,9 +293,10 @@ async function missionActivityGod(args) {
   //
   // 任務 大神
   const activityGodLists = await activityGodMissionLogin(userUid, todayUnix);
+
   if (activityGodLists.length > 0) {
     for (const data of Object.values(activityGodLists)) {
-      data.now_finish_nums = (data.status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
+      data.now_finish_nums = (data.um_status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
       result.push(repackageActivityGod(data));
     };
   }
@@ -389,22 +390,16 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
   const result = [];
 
   for (const data of Object.values(mission)) { // um 為 user_missions table
-    console.log('middle');
-    console.log(data);
     if (data.length <= 0) continue; // 無活動, 無效 或 已領(有資料)
 
     // 是否首次大神
     const titlesCount = await db.sequelize.query(`
-      select count(*) count
-        from (
-                select distinct period
-                  from titles
-                 where uid = :uid
-             ) a
+      select count(*) as count from titles where uid=:uid
     `, {
       replacements: {
         uid: uid
       },
+      raw: true,
       type: db.sequelize.QueryTypes.SELECT
     });
 
@@ -419,8 +414,6 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
         copper_reward: data.copper_reward ? data.copper_reward : 0
       });
     }
-    console.log('middle2');
-    console.log(result);
   };
 
   return result;
@@ -460,7 +453,7 @@ async function missionActivityDeposit(args) {
   const activityDepositLists = await activityDepositMissionLogin(userUid, todayUnix);
   if (activityDepositLists.length > 0) {
     for (const data of Object.values(activityDepositLists)) {
-      data.now_finish_nums = (data.status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
+      data.now_finish_nums = (data.um_status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
       result.push(repackageActivityDeposit(data));
     };
   }
@@ -562,7 +555,7 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
         order_status: 1
       }
     });
-
+    console.log(depositCount);
     // true: 有活動, 有效
     if (data.um_mission_deposit_id !== undefined && depositCount === 1) { // 必需是 沒有領取過 且 首次儲值 才會出現
       result.push({
@@ -571,6 +564,7 @@ async function activityDepositsCheckStatusReturnReward(uid, todayUnix) {
         reward_num: data.reward_num ? data.reward_num : 0
       });
     }
+    console.log(result);
   };
   return result;
 }

@@ -1,11 +1,11 @@
-const { getTitlesPeriod, getTitles } = require('../../util/modules');
+const { getLastPeriod, getTitles } = require('../../util/modules');
 const { leagueDecoder } = require('../../util/leagueUtil');
 const db = require('../../util/dbUtil');
 
 async function getGodLeagueRankDefaultLeague(args) {
   // args.token 需求 token.uid
   const userUid = args.token.uid;
-  const period = getTitlesPeriod(Date.now()).period;
+  const period = getLastPeriod(Date.now()).period;
   let result = {};
 
   // 使用者 本期 未閱

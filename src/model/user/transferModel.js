@@ -123,6 +123,11 @@ async function transferModel(method, args, uid) {
            FROM cashflow_missions
           WHERE mission_item_id IS NOT NULL
             AND mission_item_id <> 0
+            AND mission_item_id NOT IN (3, 4)
+          UNION
+         SELECT ingot, coin, dividend, "搞任務-活動任務給予獎勵" as title, "mission_activity" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_missions
+          WHERE mission_item_id IN (3, 4)
          ) transfer
         ORDER BY scheduled DESC
          

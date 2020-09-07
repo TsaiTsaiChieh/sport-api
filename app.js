@@ -5,7 +5,10 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const compression = require('compression');
+const Haven = require('domain-haven');
+
 const app = express();
+app.use(Haven.haven());
 app.use(compression());
 app.disable('x-powered-by');
 app.use(cookieParser());
