@@ -1287,12 +1287,20 @@ const Topic_Article = sequelize.define(
     },
     delete_reason: {
       type: Sequelize.TEXT
+    },
+    pin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
     }
   },
   {
     indexes: [
       {
         fields: ['article_id', 'uid', 'league', 'category']
+      },
+      { // For pin article
+        fields: ['league', 'category', 'pin']
       }
     ]
   }
@@ -1510,6 +1518,11 @@ const Service_Contact = sequelize.define('service__contact', {
   images: {
     type: Sequelize.TEXT,
     allowNull: true
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 });
 
@@ -1717,6 +1730,38 @@ const News = sequelize.define(
     },
     scheduled: {
       type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
+      }
+    ]
+  }
+);
+
+const News_Sys = sequelize.define(
+  'user__news__sys',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    target: {
+      type: Sequelize.TEXT
+    },
+    del: {
+      type: Sequelize.TEXT
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    content: {
+      type: Sequelize.STRING
+    },
+    timestamp: {
+      type: Sequelize.STRING
     }
   },
   {
@@ -2713,6 +2758,7 @@ const dbUtil = {
   UserBuy,
   Honor_board,
   News,
+  News_Sys,
   News_System,
   Bank,
   Transfer_Status,
