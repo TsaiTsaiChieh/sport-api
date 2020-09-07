@@ -296,7 +296,7 @@ async function missionActivityGod(args) {
 
   if (activityGodLists.length > 0) {
     for (const data of Object.values(activityGodLists)) {
-      data.now_finish_nums = (data.um_status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
+      data.now_finish_nums = (data.um_status === 1 || data.um_status === 2) ? 1 : 0; // 已完成的情況下，現在完成任務量要為 1
       result.push(repackageActivityGod(data));
     };
   }
@@ -413,6 +413,7 @@ async function activityGodCheckStatusReturnReward(uid, todayUnix) {
         sliver_reward: data.sliver_reward ? data.sliver_reward : 0,
         copper_reward: data.copper_reward ? data.copper_reward : 0
       });
+      console.log(result);
     }
   };
 
