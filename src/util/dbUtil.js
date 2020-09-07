@@ -2379,6 +2379,36 @@ const CashflowMission = sequelize.define(
     ]
   }
 );
+
+const CashflowLogs = sequelize.define(
+  'cashflow_transfer_logs',
+  {
+    title: {
+      type: Sequelize.STRING
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    ingot_real: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    },
+    coin_real: {
+      type: Sequelize.INTEGER
+    },
+    dividend: {
+      type: Sequelize.INTEGER
+    },
+    dividend_real: {
+      type: Sequelize.INTEGER
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    }
+  }
+);
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2783,6 +2813,7 @@ const dbUtil = {
   CashflowSell,
   CashflowDonate,
   CashflowMission,
+  CashflowLogs,
   PurchaseList,
   Token,
   AdminLogging,

@@ -24,7 +24,11 @@ async function cashflow_issue(param, trans = null) {
   const scheduled = modules.moment().unix();
   const whereSql = { uid: uid };
 
-  if (type_id === 3 || type_id === 4 || type === 0) {
+  if (type === 0) {
+    mission_item_id = type_id;
+    whereSql.mission_item_id = mission_item_id;
+    whereSql.scheduled = scheduled;
+  } else if (type_id === 3 || type_id === 4) {
     mission_item_id = type_id;
     whereSql.mission_item_id = mission_item_id;
   } else {
