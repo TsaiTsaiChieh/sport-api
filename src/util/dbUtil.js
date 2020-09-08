@@ -151,6 +151,54 @@ const User = sequelize.define(
 );
 
 /*
+ * 使用者被禁言（聊天室）和次數、水桶（討論區）和次數、禁預（預測賽事）
+ * 一旦有被處決才會 insert，非每位使用者都有初始值
+ */
+
+const User_Blacklist = sequelize.define('user__blacklist',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    muted_time: {
+      type: Sequelize.DATE
+    },
+    muted_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    bucketed_time: {
+      type: Sequelize.DATE
+    },
+    bucketed_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    banned_time: {
+      type: Sequelize.DATE
+    },
+    banned_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid']
+      }
+    ]
+  }
+);
+
+/*
  * 帳號禁言記錄
  */
 const User_BlockLog = sequelize.define('user__blocklog', {
@@ -2767,6 +2815,19 @@ const godLimit = sequelize.define(
   }
 );
 
+/*
+* Relations
+*/
+// One-to-One
+// User.hasOne(User_Blacklist, {
+//   onDelete: 'SET NULL', // default
+//   onUpdate: 'CASCADE', // default
+//   foreignKey: 'uid'
+// });
+// User_Blacklist.belongsTo(User, { foreignKey: 'uid' });
+// One-to-Many
+// Many-to-Many
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2779,6 +2840,7 @@ const dbUtil = {
   Prediction,
   PredictionDescription,
   User,
+  User_Blacklist,
   User_BlockLog,
   Title,
   Collection,
