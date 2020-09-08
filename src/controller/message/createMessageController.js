@@ -1,5 +1,5 @@
 const ajv = require('../../util/ajvUtil');
-const model = require('../../model/message/createMessage');
+const model = require('../../model/message/createMessageModel');
 const httpStatus = require('http-status');
 const { logger } = require('../../util/loggerUtil');
 
@@ -69,6 +69,7 @@ async function createMessage(req, res) {
 
   req.body.token = req.token;
   req.body.now = now;
+  req.body.userData = req.userData;
   try {
     res.json(await model(req.body));
   } catch (err) {

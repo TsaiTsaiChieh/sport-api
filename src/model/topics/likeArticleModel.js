@@ -54,8 +54,7 @@ function unlike(uid, article_id) {
         },
         raw: true
       });
-      // console.log(result);
-      // console.log('unlike success');
+
       resolve();
     } catch (error) {
       console.error(error);
@@ -63,24 +62,18 @@ function unlike(uid, article_id) {
     }
   });
 }
-function countLikes(article_id) {
+function countLikes(article_id, isPositive) {
   return new Promise(async function(resolve, reject) {
-    const result = await db.sequelize.models.topic__like.count({
-      where: {
-        article_id: article_id
-      },
-      raw: true
-    });
-    const article = await db.sequelize.models.topic__article.findOne({
-      where: {
-        article_id: article_id
-      }
-    });
+    const article = await db.Topic_Article.findOne({ where: { article_id } });
+
     if (article) {
-      article.update({ like_count: result });
+      // 因應後台編輯按讚數，從計算 topic__like 總數，改為依據欄位 like_count +-1
+      const like_count = isPositive ? article.like_count - 1 : article.like_count + 1;
+
+      article.update({ like_count });
       resolve();
     } else {
-      resolve('re count like failed');
+      reject('count like failed');
     }
   });
 }
@@ -106,15 +99,13 @@ async function likeArticle(args) {
         return;
       }
 
-      // console.log(args.like);
       if (args.like === true) {
         await checkLiked(uid, args.article_id);
         await like(uid, args.article_id);
       } else {
         await unlike(uid, args.article_id);
       }
-
-      await countLikes(args.article_id);
+      await countLikes(args.article_id, args.like);
 
       resolve({ code: 200 });
     } catch (err) {

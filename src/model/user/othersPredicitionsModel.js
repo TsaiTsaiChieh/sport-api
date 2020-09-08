@@ -64,7 +64,7 @@ async function othersPredictions(args) {
   // !!! 登入人員ID先註解掉，正式上線要打開
   //
   const predictionsInfoDocs = await db.sequelize.query(`
-    select prediction.*, 
+    select DISTINCT prediction.*, 
            spread.handicap spread_handicap, spread.home_tw, spread.away_tw,
            totals.handicap totals_handicap, totals.over_tw,
            users.status users_status, users.default_god_league_rank,

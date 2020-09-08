@@ -101,6 +101,8 @@ async function topicCheckByDateBetween(uid, beginUnix, endUnix, category) {
 // 預測賽事 當日 單(同)一聯盟 ?盤勝利 (限一次)
 // begin、end: 日期區間
 async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUnix) {
+  const from = moment(new Date()).format('YYYY-MM-DD 00:00:00');
+  const to = moment(new Date()).format('YYYY-MM-DD 23:59:59');
   const matchs = await db.sequelize.query(`
     select league_id, match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
       from (
@@ -108,8 +110,9 @@ async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUni
                     if (spread_result_flag > 0, 1, 0) spread_corrct_count,
                     if (totals_result_flag > 0, 1, 0) totals_corrct_count
                from user__predictions
-               where uid = userUid
-               and match_date BETWEEN beginUnix AND endUnix
+               where uid = :userUid
+               and match_date BETWEEN :begin AND :end
+               and updatedAt BETWEEN :from AND :to
                 and (spread_result_flag > 0 or totals_result_flag > 0)
            ) a
      group by league_id, match_date
@@ -118,17 +121,48 @@ async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUni
     replacements: {
       userUid: userUid,
       begin: beginUnix,
-      end: endUnix
+      end: endUnix,
+      from: from,
+      to: to
+    },
+    logging: true,
+    type: db.sequelize.QueryTypes.SELECT
+  });
+  const league_count = await db.sequelize.query(`
+  select count(league_id) as league_count, match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
+  from (
+        select league_id, match_date, 
+                if (spread_result_flag > 0, 1, 0) spread_corrct_count,
+                if (totals_result_flag > 0, 1, 0) totals_corrct_count
+          from user__predictions
+          where uid = :userUid
+          and match_date BETWEEN :begin AND :end
+          and updatedAt BETWEEN :from AND :to
+            and (spread_result_flag > 0 or totals_result_flag > 0)
+              group by league_id, match_date
+      ) a
+`, {
+    replacements: {
+      userUid: userUid,
+      begin: beginUnix,
+      end: endUnix,
+      from: from,
+      to: to
     },
     type: db.sequelize.QueryTypes.SELECT
   });
 
+  if (league_count[0].league_count <= 1 && matchs[0] !== undefined) {
+    matchs[0].correct_count = 0;
+  }
   return matchs;
 }
 
 // 預測賽事 當日 不同聯盟 ?盤勝利 (限一次)
 // begin、end: 日期區間
 async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
+  const from = moment(new Date()).format('YYYY-MM-DD 00:00:00');
+  const to = moment(new Date()).format('YYYY-MM-DD 23:59:59');
   const matchs = await db.sequelize.query(`
     select match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
       from (
@@ -136,8 +170,9 @@ async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
                     if (spread_result_flag > 0, 1, 0) spread_corrct_count, 
                     if (totals_result_flag > 0, 1, 0) totals_corrct_count
                from user__predictions
-               where uid = userUid
-               and match_date BETWEEN beginUnix AND endUnix
+               where uid = :userUid
+               and match_date BETWEEN :begin AND :end
+               and updatedAt BETWEEN :from AND :to
                 and (spread_result_flag > 0 or totals_result_flag > 0)
            ) a
      group by match_date
@@ -146,34 +181,12 @@ async function predictCorrectDailyByDateBetween(userUid, beginUnix, endUnix) {
     replacements: {
       userUid: userUid,
       begin: beginUnix,
-      end: endUnix
+      end: endUnix,
+      from: from,
+      to: to
     },
     type: db.sequelize.QueryTypes.SELECT
   });
-  const league_count = await db.sequelize.query(`
-    select count(league_id) as league_count, match_date, sum(spread_corrct_count) + sum(totals_corrct_count) correct_count
-    from (
-          select league_id, match_date, 
-                  if (spread_result_flag > 0, 1, 0) spread_corrct_count,
-                  if (totals_result_flag > 0, 1, 0) totals_corrct_count
-            from user__predictions
-            where uid = userUid
-            and match_date BETWEEN beginUnix AND endUnix
-              and (spread_result_flag > 0 or totals_result_flag > 0)
-                group by league_id, match_date
-        ) a
-  `, {
-    replacements: {
-      userUid: userUid,
-      begin: beginUnix,
-      end: endUnix
-    },
-    type: db.sequelize.QueryTypes.SELECT
-  });
-
-  if (league_count[0].league_count <= 1) {
-    matchs[0].correct_count = 0;
-  }
 
   return matchs;
 }
