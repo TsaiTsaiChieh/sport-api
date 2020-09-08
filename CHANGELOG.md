@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.9] - 2020-09-08
+#### Add:
 -  Add checkMuted, checkBanned middleware ***by TsaiTsaiChieh*** [#461](https://github.com/gets-info/sports-api/pull/461)
 -  Add check muted middleware in POST /messages API ***by TsaiTsaiChieh*** [#459](https://github.com/gets-info/sports-api/pull/459)
 -  base on topic__articles like_count ***by eric13e*** [#458](https://github.com/gets-info/sports-api/pull/458)
@@ -15,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fix:
 -  fix honorboard rank ***by gsihenry*** [#453](https://github.com/gets-info/sports-api/pull/453)
 -  adjust honorboard period ***by gsihenry*** [#451](https://github.com/gets-info/sports-api/pull/451)
-#### Removed:
 #### DB:
 -  Add pin field in topic__articles table and add status field in service__contacts table ***by TsaiTsaiChieh*** [#455](https://github.com/gets-info/sports-api/pull/455)
 ***
