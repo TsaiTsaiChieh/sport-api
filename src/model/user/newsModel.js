@@ -29,16 +29,14 @@ function newsModel(method, args, uid) {
             ],
             updatedAt: {
               [Op.between]: [time.begin_month, time.end]
-            },
-            
+            }
+
           },
-          raw:true
+          raw: true
         };
 
         const user_filter = await db.News_Sys.findAll(user_filter_condition);
 
-        
-       
         /* 讀取最愛玩家資料 */
         const favorite_user = await db.sequelize.query(
         `
@@ -77,11 +75,11 @@ function newsModel(method, args, uid) {
             }
         );
 
-        if(user_filter && user_filter.length){
+        if (user_filter && user_filter.length) {
           newsList.system = user_filter;
         }
 
-        if(user_data && user_data.length){
+        if (user_data && user_data.length) {
           newsList.user = user_data;
         }
 
