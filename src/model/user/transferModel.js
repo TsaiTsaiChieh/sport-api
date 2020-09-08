@@ -128,6 +128,10 @@ async function transferModel(method, args, uid) {
          SELECT ingot, coin, dividend, "搞任務-活動任務給予獎勵" as title, "mission_activity" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_missions
           WHERE mission_item_id IN (3, 4)
+          UNION 
+         SELECT ingot, coin, dividend, title, NULL as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
+           FROM cashflow_transfer_logs
+          WHERE uid = :uid
          ) transfer
         ORDER BY scheduled DESC
          

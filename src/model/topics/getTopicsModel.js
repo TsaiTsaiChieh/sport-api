@@ -8,12 +8,14 @@ function dbFind(where, page, order) {
   return new Promise(async function(resolve, reject) {
     try {
       // await db.sequelize.models.topic__article.sync({ force: false, alter: true }); // 有新增欄位時才用
+      // index is const or ref
       const result = await db.sequelize.models.topic__article.findAndCountAll({
         where: where,
         limit: countPerPage, // 每頁幾個
         offset: countPerPage * page, // 跳過幾個 = limit * index
         order: order,
         distinct: true,
+        indexes: 'topic__articles_status_league_category_pin',
         raw: true
       });
       // console.log(result)
@@ -50,14 +52,10 @@ async function getTopics(args) {
         page = args.page;
       }
 
-      let order = [];
-      if (args.sortBy === 'view') {
-        order = [['view_count', 'DESC']];
-      } else if (args.sortBy === 'like') {
-        order = [['like_count', 'DESC']];
-      } else {
-        order = [['article_id', 'DESC']];
-      }
+      const order = [['pin', 'DESC']]; // the pin should be the top place
+      if (args.sortBy === 'view') order.push([['view_count', 'DESC']]);
+      else if (args.sortBy === 'like') order.push([['like_count', 'DESC']]);
+      else order.push([['article_id', 'DESC']]);
 
       const topics = await dbFind(where, page, order);
 

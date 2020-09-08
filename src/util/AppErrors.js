@@ -265,6 +265,17 @@ class UserHadBeenFreezed extends ExtendableError {
     super(message, status, isPublic, code);
   }
 }
+
+class UserHadBeenBucketed extends ExtendableError {
+  constructor(
+    message = '使用者已被禁止發文/回覆',
+    status = 1215,
+    isPublic = true,
+    code = httpStatus.FORBIDDEN
+  ) {
+    super(message, status, isPublic, code);
+  }
+}
 /* --------------------------- 500  INTERNAL SERVER ERROR --------------------------- */
 class MysqlError extends ExtendableError {
   constructor(
@@ -583,6 +594,7 @@ module.exports = {
   CouldNotBuyOwnPredictions,
   UserHadBeenMuted,
   UserHadBeenFreezed,
+  UserHadBeenBucketed,
   UserPredictFailed,
   DeletePredictionsFailed,
   UserPredictSomeFailed,

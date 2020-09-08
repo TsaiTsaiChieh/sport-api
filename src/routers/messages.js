@@ -1,4 +1,5 @@
 const verification = require('../util/verification');
+const { checkMuted } = require('../util/checkBlacklist');
 const express = require('express');
 const router = express.Router();
 
@@ -16,7 +17,8 @@ router.get(
 router.post(
   '/',
   verification.token,
-  require('../controller/message/createMessage')
+  checkMuted,
+  require('../controller/message/createMessageController')
 );
 
 router.delete(

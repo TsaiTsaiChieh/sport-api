@@ -12,7 +12,7 @@ function honorModel(req) {
 
       if (type === 'performance') {
         const now = new Date();
-        const period = await modules.getCurrentPeriod(now);
+        const period = await modules.getTitlesPeriod(now);
 
         const next = {
           next_god_date: modules.convertGTM0UnixToDateYMD(period.periodEndDateEndUnix + 1, { format: 'YYYY-MM-DD' }),
@@ -26,73 +26,82 @@ function honorModel(req) {
         /* 本期 */
         wins[period.period] = await db.sequelize.query(
           `
-            SELECT  vl.name, 
-                    uwl.this_period_win_rate,
-                    uwl.this_period_win_bets,
-                    this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
-                    this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
+            SELECT  vl.name,
+            uwl.this_period_win_rate,
+            uwl.this_period_win_bets,
+            this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
+            this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
                     (
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
-                       WHERE l1.uid = u.uid
-                         AND l1.this_month_win_rate >= uwl.this_month_win_rate
-                         AND league_id = $league_id
-                         AND status in (1, 2)
-                       ORDER BY this_month_win_rate DESC
+                      WHERE l1.uid = u.uid
+                        AND l1.this_period_win_rate > uwl.this_period_win_rate
+                        AND league_id = :league_id
+                        AND status in (1, 2)
+                        AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
+                      ORDER BY l1.this_period_win_rate desc, l1.this_period_win_bets desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
                     ) rate_rank,
                     (
                       SELECT COUNT(*)
                         FROM users__win__lists l1, users u
-                       WHERE l1.uid = u.uid
-                         AND l1.this_month_win_bets >= uwl.this_month_win_bets
-                         AND league_id = $league_id
-                         AND status in (1, 2)
-                       ORDER BY this_month_win_bets DESC
+                      WHERE l1.uid = u.uid
+                        AND l1.this_period_win_bets > uwl.this_period_win_bets
+                        AND league_id = :league_id
+                        AND status in (1, 2)
+                        AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
+                      ORDER BY l1.this_period_win_bets desc, l1.this_period_win_rate desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
                     ) bets_rank
-              FROM  users__win__lists uwl, view__leagues vl 
-             WHERE  uwl.uid = $uid
-               AND  vl.league_id = uwl.league_id
-               AND  uwl.league_id = $league_id
+              FROM  users__win__lists uwl, view__leagues vl, god_limits
+            WHERE  uwl.uid = :uid
+              AND  vl.league_id = uwl.league_id
+              AND  god_limits.league_id=uwl.league_id
+              and  god_limits.period = :period
+              AND  uwl.league_id = :league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id },
-            type: db.sequelize.QueryTypes.SELECT
+            replacements: { uid: uid, league_id: league_id, period: period.period },
+            type: db.sequelize.QueryTypes.SELECT,
+            logging: true
           }
         );
 
         /* 上期 */
         wins[period.period - 1] = await db.sequelize.query(
           `
-            SELECT  vl.name, 
-                    uwl.last_period_win_rate as this_period_win_rate,
-                    uwl.last_period_win_bets as this_period_win_bets,
-                    last_week1_of_period_correct_counts + last_week1_of_period_fault_counts this_week1_of_period_correct_counts,
-                    last_period_correct_counts + last_period_fault_counts this_period_correct_counts,
-                    (
-                      SELECT COUNT(*)
-                        FROM users__win__lists l1, users u
-                       WHERE l1.uid = u.uid
-                         AND l1.last_period_win_rate >= uwl.last_period_win_rate
-                         AND league_id = $league_id
-                         AND status in (1, 2)
-                       ORDER BY last_period_win_rate DESC
-                    ) rate_rank,
-                    (
-                      SELECT COUNT(*)
-                        FROM users__win__lists l1, users u
-                       WHERE l1.uid = u.uid
-                         AND l1.last_period_win_bets >= uwl.last_period_win_bets
-                         AND league_id = $league_id
-                         AND status in (1, 2)
-                       ORDER BY last_period_win_bets DESC
-                    ) bets_rank
-              FROM  users__win__lists uwl, view__leagues vl 
-             WHERE  uwl.uid = $uid
-               AND  vl.league_id = uwl.league_id
-               AND  uwl.league_id = $league_id
+          SELECT  vl.name,
+          uwl.this_period_win_rate,
+          uwl.this_period_win_bets,
+          this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
+          this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
+                  (
+                    SELECT COUNT(*)+1
+                      FROM users__win__lists l1, users u
+                    WHERE l1.uid = u.uid
+                      AND l1.this_period_win_rate > uwl.this_period_win_rate
+                      AND league_id = :league_id
+                      AND status in (1, 2)
+                      AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
+                    ORDER BY l1.this_period_win_rate desc, l1.this_period_win_bets desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
+                  ) rate_rank,
+                  (
+                    SELECT COUNT(*)+1
+                      FROM users__win__lists l1, users u
+                    WHERE l1.uid = u.uid
+                      AND l1.this_period_win_bets > uwl.this_period_win_bets
+                      AND league_id = :league_id
+                      AND status in (1, 2)
+                      AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
+                    ORDER BY l1.this_period_win_bets desc, l1.this_period_win_rate desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
+                  ) bets_rank
+            FROM  users__win__lists uwl, view__leagues vl, god_limits
+          WHERE  uwl.uid = :uid
+            AND  vl.league_id = uwl.league_id
+            AND  god_limits.league_id=uwl.league_id
+            and  god_limits.period = :period
+            AND  uwl.league_id = :league_id
           `,
           {
-            bind: { uid: uid, league_id: league_id },
+            replacements: { uid: uid, league_id: league_id, period: period.period },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

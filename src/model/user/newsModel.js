@@ -1,18 +1,17 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-
+const Op = require('sequelize').Op;
 function newsModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
       if (method === 'POST') {
+        const time = {};
+        const newsList = {};
+        time.end = modules.moment(new Date()).format('YYYY-MM-DD');
         /* 取前一個月時間 */
-        const end = modules.moment(new Date()).unix();
-        const begin = modules.moment(new Date()).subtract(1, 'months').unix();
-
-        /* 系統訊息設定 */
-        const page_system = args.page_system || 0;
-        const limit_system = args.limit_system || 10;
-        const start_system = page_system * limit_system;
+        time.begin_month = modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD');
+        /* 取前一周時間 */
+        time.begin_week = modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD');
 
         /* 使用者訊息設定 */
         const page_user = args.page_user || 0;
@@ -20,40 +19,36 @@ function newsModel(method, args, uid) {
         const start_user = page_user * limit_user;
 
         /* 系統訊息資料 */
-        const delete_id_query = await db.sequelize.query(
-          `
-          SELECT system_id
-            FROM user__news__systems
-           WHERE uid=$uid
-          `,
-          {
-            bind: { uid: uid },
-            type: db.sequelize.QueryTypes.SELECT
-          }
-        );
-        const news_id = [];
-        delete_id_query.forEach(function(ele) {
-          news_id.push(ele.system_id.toString());
-        });
+        const data = [];
+        const user_filter_condition = {
+          where: {
+            target: {
+              // 模糊查詢
+              [Op.like]: '%' + uid + '%'
+            }
+          },
+          raw: true
+        };
 
-        const system = await db.sequelize.query(
-          `
-          SELECT un.news_id, un.title, un.content, un.status, un.scheduled, un.createdAt, un.updatedAt, un.active
-            FROM user__news un
-            LEFT JOIN user__news__systems uns ON uns.system_id=un.news_id
-           WHERE un.scheduled BETWEEN :begin and :end
-             AND un.status=1
-             AND un.active=1
-             AND (un.uid IS NULL OR un.uid=:uid)
-           ORDER BY un.scheduled DESC
-           LIMIT :start_system, :limit_system
-          `,
-          {
-            // logging: true,
-            replacements: { begin: begin, end: end, start_system: start_system, limit_system: limit_system, news_id: news_id.join(), uid },
-            type: db.sequelize.QueryTypes.SELECT
-          }
-        );
+        const user_filter = await db.News_Sys.findAll(user_filter_condition);
+
+        const condition = {
+          where: {
+            target: '-1'
+          },
+          raw: true
+        };
+        const message = await db.News_Sys.findAll(condition);
+        if (user_filter[0] !== undefined) {
+          data.push(user_filter[0]);
+        }
+        if (message[0]) {
+          data.push(message[0]);
+        }
+
+        if (data.length > 0) {
+          newsList.system = data;
+        }
 
         /* 讀取最愛玩家資料 */
         const favorite_user = await db.sequelize.query(
@@ -61,43 +56,42 @@ function newsModel(method, args, uid) {
           SELECT god_uid
             FROM user__favoriteplayers
            WHERE uid = :uid
+             AND updatedAt BETWEEN :begin AND :end
         `,
         {
-          replacements: { uid: uid },
+          replacements: { uid: uid, begin: time.begin_week, end: time.end },
           type: db.sequelize.QueryTypes.SELECT
         }
         );
+        if (favorite_user.length > 0) {
+          const uids = [];
+          favorite_user.forEach(function(user) {
+            uids.push(user.god_uid);
+          });
+          /* 使用者訊息資料 */
+          const user = await db.sequelize.query(
+            `
+            SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.league, un.title, un.content, un.status, un.match_scheduled_tw, un.scheduled, un.createdAt, un.updatedAt
+              FROM user__news un, users u
+            WHERE un.updatedAt BETWEEN :begin and :end
+              AND u.uid = un.uid
+              AND un.status=0
+              AND un.active=1
+              AND un.uid in ( :uids)
+            ORDER BY un.updatedAt DESC
+              LIMIT :start_user, :limit_user
+            `,
+            {
 
-        const uids = [];
-        favorite_user.forEach(function(user) {
-          uids.push(user.god_uid);
-        });
-        // console.log(uids.join());
-        // console.log(favorite_user);return;
-        /* 使用者訊息資料 */
-        const user = await db.sequelize.query(
-          `
-          SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.league, un.title, un.content, un.status, un.match_scheduled_tw, un.scheduled, un.createdAt, un.updatedAt
-            FROM user__news un, users u
-          WHERE un.scheduled BETWEEN :begin and :end
-            AND u.uid = un.uid
-            AND un.status=0
-            AND un.active=1
-            AND un.uid in ( :uids)
-          ORDER BY un.scheduled DESC
-            LIMIT :start_user, :limit_user
-          `,
-          {
-            // logging: true,
-            replacements: { uids: uids, begin: begin, end: end, start_user: start_user, limit_user: limit_user },
-            type: db.sequelize.QueryTypes.SELECT
+              replacements: { uids: uids, begin: time.begin_week, end: time.end, start_user: start_user, limit_user: limit_user },
+              type: db.sequelize.QueryTypes.SELECT
+            }
+          );
+
+          if (user.length > 0) {
+            newsList.user = user;
           }
-        );
-
-        const newsList = {
-          system: system,
-          user: user
-        };
+        }
         resolve(newsList);
       } else if (method === 'PUT') {
         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');

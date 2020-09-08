@@ -39,4 +39,11 @@ router.post(
   '/lottery',
   require('../controller/cashflow/LotteryController')
 );
+
+/* 後台修改金流訊息 */
+router.post(
+  '/system',
+  require('../controller/cashflow/SystemController')
+);
+
 module.exports = router;
