@@ -16,7 +16,6 @@ function newsModel(method, args, uid) {
         /* 使用者訊息設定 */
         const page_user = args.page_user || 0;
         const limit_user = args.limit_user || 10;
-        const start_user = page_user * limit_user;
 
         /* 系統訊息資料 */
         const data = [];
@@ -56,42 +55,48 @@ function newsModel(method, args, uid) {
           SELECT god_uid
             FROM user__favoriteplayers
            WHERE uid = :uid
-             AND updatedAt BETWEEN :begin AND :end
+          
         `,
         {
           replacements: { uid: uid, begin: time.begin_week, end: time.end },
           type: db.sequelize.QueryTypes.SELECT
         }
         );
+        const uids = [''];
         if (favorite_user.length > 0) {
-          const uids = [];
           favorite_user.forEach(function(user) {
             uids.push(user.god_uid);
           });
-          /* 使用者訊息資料 */
-          const user = await db.sequelize.query(
+        }
+
+        /* 使用者訊息資料 */
+        const user_data = await db.sequelize.query(
             `
             SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.league, un.title, un.content, un.status, un.match_scheduled_tw, un.scheduled, un.createdAt, un.updatedAt
               FROM user__news un, users u
-            WHERE un.updatedAt BETWEEN :begin and :end
-              AND u.uid = un.uid
+            WHERE u.uid = un.uid
               AND un.status=0
               AND un.active=1
               AND un.uid in ( :uids)
+              AND un.updatedAt BETWEEN :begin and :end
             ORDER BY un.updatedAt DESC
-              LIMIT :start_user, :limit_user
             `,
             {
-
-              replacements: { uids: uids, begin: time.begin_week, end: time.end, start_user: start_user, limit_user: limit_user },
+              replacements: { uids: uids, begin: time.begin_week, end: time.end },
               type: db.sequelize.QueryTypes.SELECT
             }
-          );
+        );
 
-          if (user.length > 0) {
-            newsList.user = user;
-          }
-        }
+        // let user_uids = [];
+        // user_data.forEach(function(user) {
+        //   user_uids.push(user);
+        // });
+
+        // console.log(user_uids);
+
+        // console.log(user_data);return;
+        newsList.user = user_data;
+
         resolve(newsList);
       } else if (method === 'PUT') {
         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
