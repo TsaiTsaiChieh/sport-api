@@ -68,7 +68,7 @@ function countLikes(article_id, isPositive) {
 
     if (article) {
       // 因應後台編輯按讚數，從計算 topic__like 總數，改為依據欄位 like_count +-1
-      const like_count = isPositive ? article.like_count - 1 : article.like_count + 1;
+      const like_count = isPositive ? article.like_count + 1 : article.like_count - 1;
 
       article.update({ like_count });
       resolve();
