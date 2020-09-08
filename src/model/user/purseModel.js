@@ -40,7 +40,7 @@ async function purseModel(args, method, uid) {
         }
       );
 
-      const expire_dividend = parseInt(expire.dividend);
+      const expire_dividend = expire.dividend === undefined ? 0 : parseInt(expire.dividend);
       const purseList = {
         purse,
         expire_dividend
