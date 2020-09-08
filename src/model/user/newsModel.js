@@ -1,6 +1,6 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const Op = require('Sequelize').Op;
+const Op = require('sequelize').Op;
 function newsModel(method, args, uid) {
   return new Promise(async function(resolve, reject) {
     try {
