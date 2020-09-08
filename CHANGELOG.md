@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add checkMuted, checkBanned middleware ***by TsaiTsaiChieh*** [#461](https://github.com/gets-info/sports-api/pull/461)
 -  Add check muted middleware in POST /messages API ***by TsaiTsaiChieh*** [#459](https://github.com/gets-info/sports-api/pull/459)
 -  base on topic__articles like_count ***by eric13e*** [#458](https://github.com/gets-info/sports-api/pull/458)
 -  cashflow system-use api ***by gsihenry*** [#457](https://github.com/gets-info/sports-api/pull/457)
