@@ -7,44 +7,38 @@ function newsModel(method, args, uid) {
       if (method === 'POST') {
         const time = {};
         const newsList = {};
-        time.end = modules.moment(new Date()).format('YYYY-MM-DD');
+        time.end = await modules.moment(new Date()).format('YYYY-MM-DD HH:MM:SS');
         /* 取前一個月時間 */
-        time.begin_month = modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD');
+        time.begin_month = await modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD HH:MM:SS');
         /* 取前一周時間 */
-        time.begin_week = modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD');
+        time.begin_week = await modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD HH:MM:SS');
 
         /* 系統訊息資料 */
-        const data = [];
         const user_filter_condition = {
           where: {
-            target: {
-              // 模糊查詢
-              [Op.like]: '%' + uid + '%'
-            }
+            [Op.or]: [
+              {
+                target: {
+                  // 模糊查詢
+                  [Op.like]: '%' + uid + '%'
+                }
+              },
+              {
+                target: -1
+              }
+            ],
+            updatedAt: {
+              [Op.between]: [time.begin_month, time.end]
+            },
+            
           },
-          raw: true
+          raw:true
         };
 
         const user_filter = await db.News_Sys.findAll(user_filter_condition);
 
-        const condition = {
-          where: {
-            target: '-1'
-          },
-          raw: true
-        };
-        const message = await db.News_Sys.findAll(condition);
-        if (user_filter[0] !== undefined) {
-          data.push(user_filter[0]);
-        }
-        if (message[0]) {
-          data.push(message[0]);
-        }
-
-        if (data.length > 0) {
-          newsList.system = data;
-        }
-
+        
+       
         /* 讀取最愛玩家資料 */
         const favorite_user = await db.sequelize.query(
         `
@@ -83,15 +77,13 @@ function newsModel(method, args, uid) {
             }
         );
 
-        // let user_uids = [];
-        // user_data.forEach(function(user) {
-        //   user_uids.push(user);
-        // });
+        if(user_filter && user_filter.length){
+          newsList.system = user_filter;
+        }
 
-        // console.log(user_uids);
-
-        // console.log(user_data);return;
-        newsList.user = user_data;
+        if(user_data && user_data.length){
+          newsList.user = user_data;
+        }
 
         resolve(newsList);
       } else if (method === 'PUT') {
