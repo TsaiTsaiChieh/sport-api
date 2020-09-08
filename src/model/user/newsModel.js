@@ -13,10 +13,6 @@ function newsModel(method, args, uid) {
         /* 取前一周時間 */
         time.begin_week = modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD');
 
-        /* 使用者訊息設定 */
-        const page_user = args.page_user || 0;
-        const limit_user = args.limit_user || 10;
-
         /* 系統訊息資料 */
         const data = [];
         const user_filter_condition = {
