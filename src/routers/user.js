@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const verification = require('../util/verification');
+const { checkBanned } = require('../util/checkBlacklist');
 
-router.get('/getRanks/', require('../controller/user/getRanks'));
+router.get('/getRanks', require('../controller/user/getRanks'));
 
 router.get(
   '/myprofile',
@@ -56,6 +57,7 @@ router.get('/getClaim/:uid', require('../controller/user/getClaimController'));
 router.post(
   '/predictions',
   verification.token_v2,
+  checkBanned,
   require('../controller/user/predictMatchesController')
 );
 /* ------------ 個人預測頁 ------------ */

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const verification = require('../util/verification');
+const { checkBucketed } = require('../util/checkBlacklist');
 
 router.get('/', function(req, res) {
   const data = { msg: 'Please use POST.' };
@@ -33,6 +34,7 @@ router.post(
 router.post(
   '/createTopic',
   verification.token,
+  checkBucketed,
   require('../controller/topics/createTopicController')
 );
 router.post(
