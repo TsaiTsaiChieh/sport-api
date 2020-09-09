@@ -61,20 +61,23 @@ async function checkUserRight(uid, rightArr = [], source = null) {
 }
 
 // 查該大神販售牌組的購牌人數
-async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_unix) {
+async function countGodSellPredictionBuyers(god_uid, league_id, matches_date) {
+  let fake = 0;
   const [err, counts] = await to(db.UserBuy.count({
     where: {
       god_uid: god_uid,
       league_id: league_id,
-      matches_date: matches_date_unix
+      matches_date: matches_date
     }
   }));
+  const result = await db.UserBuyFake.findOne({ attributes: ['fake_purchase'], where: { league_id, god_uid, matches_date }, raw: true });
+  if (result) fake = result.fake_purchase;
+
   if (err) {
     logger.warn('[Error][databaseEngine][countGodSellPredictionBuyers] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
-
-  return counts;
+  return counts + fake;
 }
 
 // 檢查該 uid 是否有購買特定大神牌組
