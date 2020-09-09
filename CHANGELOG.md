@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  adjust non-PA to PA ***by gsihenry*** [#465](https://github.com/gets-info/sports-api/pull/465)
 #### Fix:
+-  fix honorboard period ***by gsihenry*** [#467](https://github.com/gets-info/sports-api/pull/467)
 -  forum count likes add condition ***by eric13e*** [#466](https://github.com/gets-info/sports-api/pull/466)
 -  dividend statement adjust ***by gsihenry*** [#464](https://github.com/gets-info/sports-api/pull/464)
 -  news optimization ***by gsihenry*** [#463](https://github.com/gets-info/sports-api/pull/463)
