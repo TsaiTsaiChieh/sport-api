@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  adjust carrier-use input default value ***by gsihenry*** [#462](https://github.com/gets-info/sports-api/pull/462)
 #### Removed:
 #### DB:
 ***
