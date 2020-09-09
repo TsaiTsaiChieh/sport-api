@@ -10,7 +10,8 @@ async function getUserProfile(req, res) {
       raw: true
     });
     console.log(ezpay_config.default_invoice_carrier);
-    record.invoice_carrier === ezpay_config.default_invoice_carrier ? record.carrier_status = 0 : record.carrier_status = 1;
+
+    !record.invoice_carrier === ezpay_config.default_invoice_carrier ? record.carrier_status = 1 : record.carrier_status = 0;
 
     if (record) {
       return res.json(record);
