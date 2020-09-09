@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.10] - 2020-09-09
 #### Add:
+#### Fix:
+-  findUser function ***by TsaiTsaiChieh*** [#470](https://github.com/gets-info/sports-api/pull/470)
+#### Removed:
+#### DB:
+***
+
+## [v1.1.10] - 2020-09-09
+#### Add:
 -  新增即時比分頁 NBA 賽前資訊 ***by page40316*** [#468](https://github.com/gets-info/sports-api/pull/468)
 -  add home recommand god list of all league, remove default league limit ***by rex-getsinfo*** [#469](https://github.com/gets-info/sports-api/pull/469)
 -  adjust non-PA to PA ***by gsihenry*** [#465](https://github.com/gets-info/sports-api/pull/465)
