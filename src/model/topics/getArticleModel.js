@@ -99,11 +99,9 @@ async function getArticle(args) {
       }
 
       let userInfo = [];
-      let likeCount = [];
       let replyCount = [];
       try {
         userInfo = await func.getUserInfo([article.uid]);
-        likeCount = await func.getTopicLikeCount([args.aid]);
         replyCount = await func.getTopicReplyCount([args.aid]);
         // console.log(userInfo);
       } catch (error) {
@@ -113,7 +111,6 @@ async function getArticle(args) {
 
       article = JSON.parse(JSON.stringify(article, null, 4)); // 把sequelize的object轉成一般的obj
       article.user_info = userInfo[0];
-      article.like_count = likeCount.length > 0 ? likeCount[0].count : 0;
       article.reply_count = replyCount.length > 0 ? replyCount[0].count : 0;
       article.donate_count = await getDonatedCount(args.aid);
       const uid = (args.token !== null) ? args.token.uid : null;

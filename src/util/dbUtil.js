@@ -151,6 +151,54 @@ const User = sequelize.define(
 );
 
 /*
+ * 使用者被禁言（聊天室）和次數、水桶（討論區）和次數、禁預（預測賽事）
+ * 一旦有被處決才會 insert，非每位使用者都有初始值
+ */
+
+const User_Blacklist = sequelize.define('user__blacklist',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    muted_time: {
+      type: Sequelize.DATE
+    },
+    muted_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    bucketed_time: {
+      type: Sequelize.DATE
+    },
+    bucketed_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    banned_time: {
+      type: Sequelize.DATE
+    },
+    banned_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['uid']
+      }
+    ]
+  }
+);
+
+/*
  * 帳號禁言記錄
  */
 const User_BlockLog = sequelize.define('user__blocklog', {
@@ -1287,12 +1335,29 @@ const Topic_Article = sequelize.define(
     },
     delete_reason: {
       type: Sequelize.TEXT
+    },
+    pin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
     }
   },
   {
     indexes: [
       {
-        fields: ['article_id', 'uid', 'league', 'category']
+        fields: ['league']
+      },
+      {
+        fields: ['uid']
+      },
+      {
+        fields: ['article_id', 'category']
+      },
+      {
+        fields: ['status', 'league', 'category']
+      },
+      {
+        fields: ['status', 'category']
       }
     ]
   }
@@ -1510,6 +1575,11 @@ const Service_Contact = sequelize.define('service__contact', {
   images: {
     type: Sequelize.TEXT,
     allowNull: true
+  },
+  status: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 });
 
@@ -1717,6 +1787,38 @@ const News = sequelize.define(
     },
     scheduled: {
       type: Sequelize.INTEGER
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['news_id', 'uid', 'status', 'active', 'scheduled']
+      }
+    ]
+  }
+);
+
+const News_Sys = sequelize.define(
+  'user__news__sys',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true
+    },
+    target: {
+      type: Sequelize.TEXT
+    },
+    del: {
+      type: Sequelize.TEXT
+    },
+    title: {
+      type: Sequelize.STRING
+    },
+    content: {
+      type: Sequelize.STRING
+    },
+    timestamp: {
+      type: Sequelize.STRING
     }
   },
   {
@@ -2325,6 +2427,36 @@ const CashflowMission = sequelize.define(
     ]
   }
 );
+
+const CashflowLogs = sequelize.define(
+  'cashflow_transfer_logs',
+  {
+    title: {
+      type: Sequelize.STRING
+    },
+    ingot: {
+      type: Sequelize.INTEGER
+    },
+    ingot_real: {
+      type: Sequelize.INTEGER
+    },
+    coin: {
+      type: Sequelize.INTEGER
+    },
+    coin_real: {
+      type: Sequelize.INTEGER
+    },
+    dividend: {
+      type: Sequelize.INTEGER
+    },
+    dividend_real: {
+      type: Sequelize.INTEGER
+    },
+    scheduled: {
+      type: Sequelize.STRING
+    }
+  }
+);
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
@@ -2683,6 +2815,19 @@ const godLimit = sequelize.define(
   }
 );
 
+/*
+* Relations
+*/
+// One-to-One
+// User.hasOne(User_Blacklist, {
+//   onDelete: 'SET NULL', // default
+//   onUpdate: 'CASCADE', // default
+//   foreignKey: 'uid'
+// });
+// User_Blacklist.belongsTo(User, { foreignKey: 'uid' });
+// One-to-Many
+// Many-to-Many
+
 const dbUtil = {
   sequelize,
   Sequelize,
@@ -2695,6 +2840,7 @@ const dbUtil = {
   Prediction,
   PredictionDescription,
   User,
+  User_Blacklist,
   User_BlockLog,
   Title,
   Collection,
@@ -2713,6 +2859,7 @@ const dbUtil = {
   UserBuy,
   Honor_board,
   News,
+  News_Sys,
   News_System,
   Bank,
   Transfer_Status,
@@ -2728,6 +2875,7 @@ const dbUtil = {
   CashflowSell,
   CashflowDonate,
   CashflowMission,
+  CashflowLogs,
   PurchaseList,
   Token,
   AdminLogging,

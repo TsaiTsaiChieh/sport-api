@@ -38,7 +38,8 @@ async function mpgModel(res) {
       const trade_arr = {
         serial_number: exchange.merchant_order_no,
         coin: exchange.coin,
-        return_url: setting.return_url
+        return_url: setting.return_url,
+        paid: exchange.paid
       };
 
       request(
