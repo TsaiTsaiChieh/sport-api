@@ -3,7 +3,7 @@ const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { CacheQuery } = require('../../util/redisUtil');
-const limit = 4;
+const limit = 6;
 
 async function godlists() {
   const godLists = [];
@@ -45,14 +45,12 @@ async function godlists() {
        and titles.league_id = uwl.league_id
        and titles.uid = prediction.uid
        and titles.league_id = prediction.league_id
-       and titles.league_id = :league_id
        and titles.period = :period
   ORDER BY RAND()
      LIMIT :limit;
 
   `, {
     replacements: {
-      league_id: league_id,
       period: period,
       begin: beginUnix,
       end: endUnix,
