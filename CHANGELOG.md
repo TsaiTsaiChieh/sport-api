@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  adjust non-PA to PA ***by gsihenry*** [#465](https://github.com/gets-info/sports-api/pull/465)
 #### Fix:
 -  dividend statement adjust ***by gsihenry*** [#464](https://github.com/gets-info/sports-api/pull/464)
 -  news optimization ***by gsihenry*** [#463](https://github.com/gets-info/sports-api/pull/463)
