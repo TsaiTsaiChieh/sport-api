@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add fakePurcase count to countGodSellPredictionBuyers function ***by TsaiTsaiChieh*** [#472](https://github.com/gets-info/sports-api/pull/472)
 #### Fix:
 -  home god_list league error ***by rex-getsinfo*** [#471](https://github.com/gets-info/sports-api/pull/471)
 -  findUser function ***by TsaiTsaiChieh*** [#470](https://github.com/gets-info/sports-api/pull/470)
