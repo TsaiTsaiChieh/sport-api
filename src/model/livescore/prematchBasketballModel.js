@@ -287,7 +287,8 @@ function checkPlayer(teamsFromMySQL, teamsDataFromFirestore) {
       for (let i = 0; i < Object.keys(teamsDataFromFirestore.homeData.players).length; i++) {
         const playId = Object.keys(teamsDataFromFirestore.homeData.players)[i];
         const matchPlayer = teamsDataFromFirestore.homeData.players[`${playId}`].name;
-        if (mainPlayer === matchPlayer) {
+        const simpleMatchPlayer = `${matchPlayer.split(' ')[0][0]}. ${matchPlayer.split(' ')[1]}`;
+        if (mainPlayer === matchPlayer || mainPlayer === simpleMatchPlayer) {
           homePlayer[j] = teamsDataFromFirestore.homeData.players[`${playId}`];
           homePlayer[j].pos = homePlayerPos[j];
         }
