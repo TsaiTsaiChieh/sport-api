@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  add home recommand god list of all league, remove default league limit ***by rex-getsinfo*** [#469](https://github.com/gets-info/sports-api/pull/469)
 -  adjust non-PA to PA ***by gsihenry*** [#465](https://github.com/gets-info/sports-api/pull/465)
 #### Fix:
 -  fix honorboard period ***by gsihenry*** [#467](https://github.com/gets-info/sports-api/pull/467)
