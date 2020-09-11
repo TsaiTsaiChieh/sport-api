@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Add not showing matches are ended logic in home/god_lists API ***by TsaiTsaiChieh*** [#474](https://github.com/gets-info/sports-api/pull/474)
 -  Add fakePurcase count to countGodSellPredictionBuyers function ***by TsaiTsaiChieh*** [#472](https://github.com/gets-info/sports-api/pull/472)
 #### Fix:
 -  home god_list league error ***by rex-getsinfo*** [#471](https://github.com/gets-info/sports-api/pull/471)
