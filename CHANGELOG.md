@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v1.1.12] - 2020-09-09
 #### Add:
 -  Add not showing matches are ended logic in home/god_lists API ***by TsaiTsaiChieh*** [#474](https://github.com/gets-info/sports-api/pull/474)
 -  Add fakePurcase count to countGodSellPredictionBuyers function ***by TsaiTsaiChieh*** [#472](https://github.com/gets-info/sports-api/pull/472)
