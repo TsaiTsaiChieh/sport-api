@@ -7,6 +7,17 @@ async function teamBattingInformation(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const data = await queryEvents(args);
+      if (data.length <= 0) {
+        resolve({
+          describe: 'AVG, OBP, SLG, averageR, HR, BB, SO',
+          homeRecord: {
+
+          },
+          awayRecord: {
+
+          }
+        });
+      };
       const result = await queryPitchers(data);
       resolve(result);
     } catch (err) {
@@ -24,10 +35,12 @@ async function queryEvents(args) {
           SELECT league_id, home_id, away_id
 						FROM matches AS game
 					 WHERE game.bets_id = :event_id
+					   AND game.league_id = :league_id
         )`,
         {
           replacements: {
-            event_id: args.event_id
+            event_id: args.event_id,
+            league_id: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
         }

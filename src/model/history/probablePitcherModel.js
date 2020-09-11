@@ -7,6 +7,16 @@ async function probablePitcher(args) {
   return new Promise(async function(resolve, reject) {
     try {
       const data = await queryEvents(args);
+      if (data.length <= 0) {
+        resolve({
+          homeHistory: {
+
+          },
+          awayHistory: {
+
+          }
+        });
+      };
       const result = await queryPitchers(data);
       resolve(result);
     } catch (err) {
@@ -24,12 +34,15 @@ async function queryEvents(args) {
           SELECT league_id, home_id, away_id, home_player, away_player
 						FROM matches AS game
 					 WHERE game.bets_id = :event_id
+					   AND game.league_id = :league_id
         )`,
         {
           replacements: {
-            event_id: args.event_id
+            event_id: args.event_id,
+            league_id: leagueUtil.leagueCodebook(args.league).id
           },
           type: db.sequelize.QueryTypes.SELECT
+
         }
       );
 
@@ -47,42 +60,50 @@ async function queryPitchers(data) {
   const homePlayer = JSON.parse(data[0].home_player);
   const awayPlayer = JSON.parse(data[0].away_player);
   const result = {};
-  if (homePlayer.pitchers !== null) {
-    if (homePlayer.pitchers.id !== 0) {
-      const homeData = (await firestore.collection(collectionName).doc(data[0].home_id).get()).data();
-      const homeTemp = homeData[`season_${season}`].pitchers[`${homePlayer.pitchers.id}`];
-      result.homePitcher = {
-        player: homeTemp.ori_name,
-        win: homeTemp.Win,
-        lose: homeTemp.Loss,
-        ERA: homeTemp.ERA,
-        BA: homeTemp.babip,
-        Inning: homeTemp.IP,
-        whip: homeTemp.WHIP,
-        SO: homeTemp.SO,
-        BB: homeTemp.BB
-      };
+  if (homePlayer !== null) {
+    if (homePlayer.pitchers !== null) {
+      if (homePlayer.pitchers.id !== 0) {
+        const homeData = (await firestore.collection(collectionName).doc(data[0].home_id).get()).data();
+        const homeTemp = homeData[`season_${season}`].pitchers[`${homePlayer.pitchers.id}`];
+        result.homePitcher = {
+          player: homeTemp.ori_name,
+          win: homeTemp.Win,
+          lose: homeTemp.Loss,
+          ERA: homeTemp.ERA,
+          BA: homeTemp.babip,
+          Inning: homeTemp.IP,
+          whip: homeTemp.WHIP,
+          SO: homeTemp.SO,
+          BB: homeTemp.BB
+        };
+      } else {
+        result.homePitcher = {};
+      }
     } else {
       result.homePitcher = {};
     }
   } else {
     result.homePitcher = {};
   }
-  if (awayPlayer.pitchers !== null) {
-    if (awayPlayer.pitchers.id !== 0) {
-      const awayData = (await firestore.collection(collectionName).doc(data[0].away_id).get()).data();
-      const awayTemp = awayData[`season_${season}`].pitchers[`${awayPlayer.pitchers.id}`];
-      result.awayPitcher = {
-        player: awayTemp.ori_name,
-        win: awayTemp.Win,
-        lose: awayTemp.Loss,
-        ERA: awayTemp.ERA,
-        BA: awayTemp.babip,
-        Inning: awayTemp.IP,
-        whip: awayTemp.WHIP,
-        SO: awayTemp.SO,
-        BB: awayTemp.BB
-      };
+  if (awayPlayer !== null) {
+    if (awayPlayer.pitchers !== null) {
+      if (awayPlayer.pitchers.id !== 0) {
+        const awayData = (await firestore.collection(collectionName).doc(data[0].away_id).get()).data();
+        const awayTemp = awayData[`season_${season}`].pitchers[`${awayPlayer.pitchers.id}`];
+        result.awayPitcher = {
+          player: awayTemp.ori_name,
+          win: awayTemp.Win,
+          lose: awayTemp.Loss,
+          ERA: awayTemp.ERA,
+          BA: awayTemp.babip,
+          Inning: awayTemp.IP,
+          whip: awayTemp.WHIP,
+          SO: awayTemp.SO,
+          BB: awayTemp.BB
+        };
+      } else {
+        result.awayPitcher = {};
+      }
     } else {
       result.awayPitcher = {};
     }

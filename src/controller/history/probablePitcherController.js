@@ -1,4 +1,4 @@
-const { acceptLeague } = require('../../config/acceptValues');
+// const { acceptLeague } = require('../../config/acceptValues');
 const httpStatus = require('http-status');
 const ajv = require('../../util/ajvUtil');
 const model = require('../../model/history/probablePitcherModel');
@@ -9,7 +9,7 @@ async function probablePitcher(req, res) {
     properties: {
       league: {
         type: 'string',
-        enum: acceptLeague
+        enum: ['KBO', 'CPBL', 'NPB', 'MLB', 'ABL', 'LMB']
       },
       event_id: {
         type: 'string'
