@@ -70,31 +70,7 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
     }
   });
 };
-module.exports.getTopicLikeCount = async function(articles) { // 傳入array aid
-  return new Promise(async function(resolve, reject) {
-    try {
-      // SQL原意：SELECT article_id, COUNT(*) FROM topic__likes WHERE article_id = 116 OR article_id = 117 GROUP BY article_id;
-      const result = await db.sequelize.models.topic__like.findAll({
-        attributes: [
-          'article_id',
-          [db.sequelize.fn('COUNT', db.sequelize.col('article_id')), 'count']
-        ],
-        where: {
-          article_id: {
-            status: 1,
-            [Op.or]: articles
-          }
-        },
-        group: 'article_id',
-        raw: true
-      });
-      resolve(result);
-    } catch (error) {
-      console.error(error);
-      resolve({});
-    }
-  });
-};
+
 module.exports.getReplyLikeCount = async function(replies) { // 傳入array rid
   return new Promise(async function(resolve, reject) {
     try {
