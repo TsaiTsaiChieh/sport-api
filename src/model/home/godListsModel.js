@@ -35,9 +35,12 @@ async function godlists() {
            ) users,
            users__win__lists uwl,
            (
-             select distinct uid, league_id
+             select distinct uid, user__predictions.league_id 
                from user__predictions
-              where match_scheduled between :begin and :end
+          LEFT JOIN matches AS game
+                 ON user__predictions.bets_id = game.bets_id
+              WHERE game.status = 2
+                AND match_scheduled between :begin and :end
                 and sell = 1
            ) prediction
      where titles.uid = users.uid
