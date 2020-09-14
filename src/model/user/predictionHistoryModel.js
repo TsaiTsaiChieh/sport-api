@@ -9,10 +9,10 @@ const lastPeriod = 3;
 const ONE_DAY_UNIX = modules.convertTimezone(0, { op: 'add', value: 1, unit: 'days' });
 const settlement = {
   loss: -1,
-  lossHalf: -0.5,
+  // lossHalf: -0.5,
   fair: 0,
   win: 1,
-  winHalf: 0.5,
+  // winHalf: 0.5,
   abnormal: -2
 };
 /*
@@ -185,11 +185,11 @@ async function repackageMatchDate(ele, matchDate) {
 }
 
 function returnSettlement(flag) {
-  const { loss, lossHalf, fair, win, winHalf, abnormal } = settlement;
-  if (flag === abnormal) return abnormal;
-  if (flag === win || flag === winHalf) return win;
-  if (flag === fair) return fair;
-  if (flag === loss || flag === lossHalf) return loss;
+  const { loss, fair, win, abnormal } = settlement;
+  if (flag === abnormal) return abnormal; // 賽事異常
+  if (flag > fair) return win; // 大於 0 為贏
+  if (flag === fair) return fair; // 等於 0 為平手
+  if (flag < fair) return loss; // 小於 0 為輸
 }
 
 module.exports = predictionHistory;
