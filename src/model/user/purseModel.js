@@ -47,7 +47,7 @@ async function purseModel(args, method, uid) {
       };
       resolve(purseList);
     } catch (err) {
-      console.log('Error in  rank/searchUser by henry:  %o', err);
+      console.log('Error in  user/purse by henry:  %o', err);
       return reject(errs.errsMsg('500', '500', err.message));
     }
   });
