@@ -162,9 +162,9 @@ async function repackageMatchDate(ele, matchDate) {
         away_tw: ele.away_tw,
         predict: ele.spread_option,
         ori_bets: ele.spread_bets,
-        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null,
+        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null, // for 計算勝注
         result: ele.spread_result,
-        end: returnSettlement(ele.spread_result_flag)
+        end: returnSettlement(ele.spread_result_flag) // for 計算勝率
       },
       totals: {
         id: ele.totals_id,
