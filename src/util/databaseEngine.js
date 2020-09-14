@@ -13,7 +13,7 @@ function findUser(uid) {
       //   { where: { uid }, raw: true, include: [{ model: db.User_Blacklist, required: false }] });
       // indexes are const in user & user_blacklists table, taking 165ms
       const result = await db.sequelize.query(
-        `SELECT user.id, user.uid AS uid, user.status, user.avatar, user.birthday, user.birthday_tw, user.display_name, user.email, user.name, user.country_code, user.phone, user.point, user.signature, user.fans, user.fan_count, user.default_title, user.default_god_league_rank, user.accuse_credit, user.block_count, user.unread_count, user.dividend, user.coin, user.ingot, user.invoice_carrier, user.deposit_lottery, user.referrer, user.deny, user.rank1_count, user.rank2_count, user.rank3_count, user.rank4_count, user.createdAt, user.updatedAt, 
+        `SELECT user.id, user.uid AS uid, user.status, user.avatar, user.birthday, user.birthday_tw, user.display_name, user.email, user.name, user.country_code, user.phone, user.point, user.signature, user.fan_count, user.default_title, user.default_god_league_rank, user.accuse_credit, user.block_count, user.unread_count, user.dividend, user.coin, user.ingot, user.invoice_carrier, user.deposit_lottery, user.rank1_count, user.rank2_count, user.rank3_count, user.rank4_count, user.createdAt, user.updatedAt, 
                 blacklist.muted_time, blacklist.muted_count, blacklist.bucketed_time, blacklist.bucketed_count, blacklist.banned_time, blacklist.banned_count
            FROM users AS user 
       LEFT JOIN user__blacklists AS blacklist ON user.uid = blacklist.uid
@@ -24,6 +24,7 @@ function findUser(uid) {
       if (!result.length) return reject(new AppError.UserNotFound());
       return resolve(result[0]); // else return user data
     } catch (err) {
+      console.log(err);
       return reject(new AppError.UserNotFound(err.stack));
     }
   });

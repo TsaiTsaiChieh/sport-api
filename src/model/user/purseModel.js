@@ -6,6 +6,7 @@ async function purseModel(args, method, uid) {
     try {
       const from = modules.moment(new Date()).subtract(1, 'months').startOf('month').unix();// 上個月第一天
       const to = modules.moment(new Date()).subtract(1, 'months').endOf('month').unix();// 上個月最後一天
+      console.log(from, to)
       const purse = await db.sequelize.query(
         `
         SELECT coin, dividend, ingot
@@ -20,18 +21,23 @@ async function purseModel(args, method, uid) {
 
       const expire = await db.sequelize.query(
         `
-        SELECT SUM(dividend) as expire_dividend
-        FROM(
-          SELECT SUM(expire_points) as dividend
-            FROM cashflow_dividends 
-          WHERE uid=$uid
-          AND scheduled BETWEEN $from AND $to
-          UNION
-          SELECT SUM(dividend) as dividend
-            FROM cashflow_donates
-          WHERE from_uid=$uid
-          AND scheduled BETWEEN $from AND $to
-          ) a
+        SELECT SUM(dividend) as expire_dividend FROM(
+          SELECT  expire_points AS dividend, updatedAt
+               FROM cashflow_dividends 
+             WHERE uid=$uid
+             AND scheduled BETWEEN $from AND $to
+             UNION
+             SELECT dividend, updatedAt
+               FROM cashflow_donates
+             WHERE from_uid=$uid
+             AND scheduled BETWEEN $from AND $to
+            UNION
+            SELECT  dividend, updatedAt
+             FROM cashflow_deposits
+            WHERE order_status=1
+            AND uid=$uid
+            AND scheduled BETWEEN $from AND $to
+            ) a
         `,
         {
           plain: true,
@@ -40,7 +46,7 @@ async function purseModel(args, method, uid) {
         }
       );
 
-      const expire_dividend = expire.dividend === undefined ? 0 : parseInt(expire.dividend);
+      const expire_dividend = expire.expire_dividend === undefined ? 0 : parseInt(expire.expire_dividend);
       const purseList = {
         purse,
         expire_dividend
