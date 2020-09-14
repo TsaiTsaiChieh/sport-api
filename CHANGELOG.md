@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+#### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.13] - 2020-09-14
+#### Fix:
+-  Honorboard period ***by gsihenry*** [#482](https://github.com/gets-info/sports-api/pull/482)
+-  籃球賽前 API 欄位修正 (prematchBasketballModel) ***by page40316*** [#481](https://github.com/gets-info/sports-api/pull/481)
+-  adjust dividend ***by gsihenry*** [#480](https://github.com/gets-info/sports-api/pull/480)
+-  four part article countlikes ***by eric13e*** [#478](https://github.com/gets-info/sports-api/pull/478)
+-  remove user.referrer, user.deny selection due to missing these fields in test project ***by TsaiTsaiChieh*** [#479](https://github.com/gets-info/sports-api/pull/479)
+-  fix expire dividend ***by gsihenry*** [#476](https://github.com/gets-info/sports-api/pull/476)
+***
+
 ## [v1.1.12] - 2020-09-11
 #### Add:
 -  Add not showing matches are ended logic in home/god_lists API ***by TsaiTsaiChieh*** [#474](https://github.com/gets-info/sports-api/pull/474)
