@@ -7,6 +7,7 @@ const AppErrors = require('../../util/AppErrors');
 const TWO_WEEKS = 14;
 const lastPeriod = 3;
 const ONE_DAY_UNIX = modules.convertTimezone(0, { op: 'add', value: 1, unit: 'days' });
+const NP = require('number-precision');
 const settlement = {
   loss: -1,
   // lossHalf: -0.5,
@@ -162,7 +163,7 @@ async function repackageMatchDate(ele, matchDate) {
         away_tw: ele.away_tw,
         predict: ele.spread_option,
         ori_bets: ele.spread_bets,
-        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null, // for 計算勝注
+        bets: ele.spread_bets !== null ? NP.strip(ele.spread_bets * ele.spread_result_flag) : null, // for 計算勝注
         result: ele.spread_result,
         end: returnSettlement(ele.spread_result_flag) // for 計算勝率
       },
@@ -172,7 +173,7 @@ async function repackageMatchDate(ele, matchDate) {
         over_tw: ele.over_tw,
         predict: ele.totals_option,
         ori_bets: ele.totals_bets,
-        bets: ele.total_bets !== null ? ele.totals_bets * ele.totals_result_flag : null,
+        bets: ele.total_bets !== null ? NP.strip(ele.totals_bets * ele.totals_result_flag) : null,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
       }
