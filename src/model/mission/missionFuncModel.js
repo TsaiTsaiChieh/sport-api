@@ -128,7 +128,7 @@ async function predictCorrectLeagueDailyByDateBetween(userUid, beginUnix, endUni
     logging: true,
     type: db.sequelize.QueryTypes.SELECT
   });
-  
+
   return matchs;
 }
 
