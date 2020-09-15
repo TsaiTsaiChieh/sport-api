@@ -69,29 +69,29 @@ function honorModel(req) {
         wins[period.period - 1] = await db.sequelize.query(
           `
           SELECT  vl.name,
-          uwl.this_period_win_rate,
-          uwl.this_period_win_bets,
+          uwl.last_period_win_rate as this_period_win_rate,
+          uwl.last_period_win_bets as this_period_win_bets,
           this_week1_of_period_correct_counts + this_week1_of_period_fault_counts this_week1_of_period_correct_counts,
           this_period_correct_counts + this_period_fault_counts this_period_correct_counts,
                   (
                     SELECT COUNT(*)+1
                       FROM users__win__lists l1, users u
                     WHERE l1.uid = u.uid
-                      AND l1.this_period_win_rate > uwl.this_period_win_rate
+                      AND l1.last_period_win_rate > uwl.last_period_win_rate
                       AND league_id = :league_id
                       AND status in (1, 2)
                       AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
-                    ORDER BY l1.this_period_win_rate desc, l1.this_period_win_bets desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
+                    ORDER BY l1.last_period_win_rate desc, l1.last_period_win_bets desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
                   ) rate_rank,
                   (
                     SELECT COUNT(*)+1
                       FROM users__win__lists l1, users u
                     WHERE l1.uid = u.uid
-                      AND l1.this_period_win_bets > uwl.this_period_win_bets
+                      AND l1.last_period_win_bets > uwl.last_period_win_bets
                       AND league_id = :league_id
                       AND status in (1, 2)
                       AND (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
-                    ORDER BY l1.this_period_win_bets desc, l1.this_period_win_rate desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
+                    ORDER BY l1.last_period_win_bets desc, l1.last_period_win_rate desc, (l1.this_week1_of_period_correct_counts + l1.this_week1_of_period_fault_counts) DESC
                   ) bets_rank
             FROM  users__win__lists uwl, view__leagues vl, god_limits
           WHERE  uwl.uid = :uid
