@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  honorboard period ***by gsihenry*** [#485](https://github.com/gets-info/sports-api/pull/485)
 -  CashflowMission ***by gsihenry*** [#484](https://github.com/gets-info/sports-api/pull/484)
 #### Removed:
 #### DB:
