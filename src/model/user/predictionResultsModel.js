@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const modules = require('../../util/modules');
 const AppErrors = require('../../util/AppErrors');
 const db = require('../../util/dbUtil');
+const NP = require('number-precision');
 const settlement = {
   win: 1,
   fair: 0,
@@ -165,7 +166,7 @@ function repackageHandicap(option, handicap, result) {
       if (result === settlement.unsettlement) { handicap.end = null; handicap.bets = null; return; } // 未結算
 
       // 先計算勝負注數，再補上 .end 註記(不算、勝、負)
-      handicap.bets = handicap.ori_bets * result;
+      handicap.bets = NP.strip(handicap.ori_bets * result);
       if (result === settlement.fairOdd) { handicap.end = settlement.fair; return; } // 不算
       if (result > 0) { handicap.end = settlement.win; return; } // 勝注
       if (result < 0) { handicap.end = settlement.loss; return; } // 負注
