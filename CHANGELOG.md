@@ -4,8 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v1.1.12] - 2020-09-11
 #### Add:
+-  Add not showing matches are ended logic in home/god_lists API ***by TsaiTsaiChieh*** [#474](https://github.com/gets-info/sports-api/pull/474)
+-  Add fakePurcase count to countGodSellPredictionBuyers function ***by TsaiTsaiChieh*** [#472](https://github.com/gets-info/sports-api/pull/472)
+#### Fix:
+-  adjust dividend ***by gsihenry*** [#480](https://github.com/gets-info/sports-api/pull/480)
+-  four part article countlikes ***by eric13e*** [#478](https://github.com/gets-info/sports-api/pull/478)
+-  remove user.referrer, user.deny selection due to missing these fields in test project ***by TsaiTsaiChieh*** [#479](https://github.com/gets-info/sports-api/pull/479)
+-  fix expire dividend ***by gsihenry*** [#476](https://github.com/gets-info/sports-api/pull/476)
+-  news optimization ***by gsihenry*** [#475](https://github.com/gets-info/sports-api/pull/475)
+-  home god_list league error ***by rex-getsinfo*** [#471](https://github.com/gets-info/sports-api/pull/471)
+-  findUser function ***by TsaiTsaiChieh*** [#470](https://github.com/gets-info/sports-api/pull/470)
+***
+
+## [v1.1.10] - 2020-09-09
+#### Add:
+-  新增即時比分頁 NBA 賽前資訊 ***by page40316*** [#468](https://github.com/gets-info/sports-api/pull/468)
+-  add home recommand god list of all league, remove default league limit ***by rex-getsinfo*** [#469](https://github.com/gets-info/sports-api/pull/469)
 -  adjust non-PA to PA ***by gsihenry*** [#465](https://github.com/gets-info/sports-api/pull/465)
 #### Fix:
 -  fix honorboard period ***by gsihenry*** [#467](https://github.com/gets-info/sports-api/pull/467)
@@ -13,8 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  dividend statement adjust ***by gsihenry*** [#464](https://github.com/gets-info/sports-api/pull/464)
 -  news optimization ***by gsihenry*** [#463](https://github.com/gets-info/sports-api/pull/463)
 -  adjust carrier-use input default value ***by gsihenry*** [#462](https://github.com/gets-info/sports-api/pull/462)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.9] - 2020-09-08
@@ -108,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  fix neweb transaction problem ***by gsihenry*** [#397](https://github.com/gets-info/sports-api/pull/397)
 -  god_limit 需要使用上一期期數，SQL 調整位置 ***by alangets*** [#396](https://github.com/gets-info/sports-api/pull/396)
 ***
+
 
 ## [v1.1.2] - 2020-08-14
 #### Fix:

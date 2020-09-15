@@ -64,7 +64,7 @@ async function getTopics(args) {
       let usersInfo = [];
       const infosToGet = []; // 把aid存進來
       let repliesCount = [];
-      let likesCount = [];
+
       for (let i = 0; i < topics.rows.length; i++) {
         infosToGet.push(topics.rows[i].article_id);
         usersToGet.push(topics.rows[i].uid);
@@ -76,13 +76,7 @@ async function getTopics(args) {
         console.error(error);
         reject({ code: 500, error: 'get reply count failed' });
       }
-      /* 讀取按讚數 */
-      try {
-        likesCount = await func.getTopicLikeCount(infosToGet); // 拿到的東西格式 [ { aid: '1', count: 2 }, { aid: '2', count: 1 } ]
-      } catch (error) {
-        console.error(error);
-        reject({ code: 500, error: 'get like count failed' });
-      }
+
       /* 下面讀取user info */
       const usersToGetUnique = [...new Set(usersToGet)];
       try {
@@ -97,9 +91,7 @@ async function getTopics(args) {
         let replyCount = repliesCount.filter(obj => obj.article_id === topics.rows[i].article_id); // 處理留言數 把aid=id的那則挑出來
         replyCount = replyCount[0] ? replyCount[0].count : 0; // 解析格式 沒有資料的留言數為0
         topics.rows[i].reply_count = replyCount;
-        let likeCount = likesCount.filter(obj => obj.article_id === topics.rows[i].article_id); // 處理按讚數 把aid=id的那則挑出來
-        likeCount = likeCount[0] ? likeCount[0].count : 0; // 解析格式 沒有資料的留言數為0
-        topics.rows[i].like_count = likeCount;
+
         let userInfo = usersInfo.filter(obj => obj.uid === topics.rows[i].uid.toString()); // 處理userinfo 把uid=id的那則挑出來
         userInfo = userInfo[0] ? userInfo[0] : null;
         topics.rows[i].user_info = userInfo;

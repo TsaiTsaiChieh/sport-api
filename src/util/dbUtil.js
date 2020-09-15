@@ -694,6 +694,10 @@ const Match = sequelize.define(
         unique: true,
         fields: ['bets_id']
       },
+      {
+        unique: true,
+        fields: ['bets_id', 'league_id']
+      },
       { fields: ['scheduled', 'flag_prematch', 'status'] },
       {
         fields: ['status', 'spread_id']
@@ -1709,6 +1713,45 @@ const UserBuy = sequelize.define(
       // 可藉由此索引來搜尋購買者購買哪位大神、聯盟、和開打日期
       {
         fields: ['uid', 'league_id', 'god_uid', 'matches_date'],
+        unique: true
+      }
+    ]
+  }
+);
+
+const UserBuyFake = sequelize.define(
+  'user__buy__fake',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    league_id: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    god_uid: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    matches_date: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    matches_date_tw: {
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    fake_purchase: {
+      type: Sequelize.INTEGER,
+      allowNull: 0
+    }
+  },
+  {
+    indexes: [
+      {
+        fields: ['league_id', 'god_uid', 'matches_date'],
         unique: true
       }
     ]
@@ -2857,6 +2900,7 @@ const dbUtil = {
   Home_List,
   Service_Contact,
   UserBuy,
+  UserBuyFake,
   Honor_board,
   News,
   News_Sys,
