@@ -6,7 +6,6 @@ async function purseModel(args, method, uid) {
     try {
       const from = modules.moment(new Date()).subtract(1, 'months').startOf('month').unix();// 上個月第一天
       const to = modules.moment(new Date()).subtract(1, 'months').endOf('month').unix();// 上個月最後一天
-      console.log(from, to)
       const purse = await db.sequelize.query(
         `
         SELECT coin, dividend, ingot
