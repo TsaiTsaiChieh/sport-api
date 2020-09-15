@@ -95,8 +95,8 @@ async function transferModel(method, args, uid) {
            FROM cashflow_sells cs, cashflow_buys cb, users u, match__leagues ml
           WHERE cs.buy_id = cb.buy_id
             AND ml.league_id = cb.league_id
-            AND cs.uid = u.uid
-            AND cs.uid = :uid
+            AND cs.god_uid = u.uid
+            AND cs.god_uid = :uid
             AND cs.scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, expire_points as dividend, "消費紅利回饋" as title, "dividend_refund" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled

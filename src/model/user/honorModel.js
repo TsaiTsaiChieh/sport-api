@@ -101,7 +101,7 @@ function honorModel(req) {
             AND  uwl.league_id = :league_id
           `,
           {
-            replacements: { uid: uid, league_id: league_id, period: period.period },
+            replacements: { uid: uid, league_id: league_id, period: period.period - 1 },
             type: db.sequelize.QueryTypes.SELECT
           }
         );

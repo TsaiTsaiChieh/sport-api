@@ -108,7 +108,7 @@ async function donate(args) {
           fb_dividend = args.cost * 0.05;
           db.sequelize.models.cashflow_dividend.create({
             uid: uid,
-            expire_points: parseInt(fb_dividend),
+            expire_points: Math.round(fb_dividend),
             dividend_real: fb_dividend,
             status: 1,
             dividend_status: 1,
@@ -127,9 +127,10 @@ async function donate(args) {
           raw: true
         });
 
-        if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
-          await db.User.update({ dividend: purse_self.dividend + Math.round(fb_dividend) }, { where: { uid: uid } });
-        }
+        // if (typeof purse_deposit !== 'undefined' && typeof purse_self !== 'undefined') {
+        //   await db.User.update({ dividend: purse_self.dividend + Math.round(fb_dividend) }, { where: { uid: uid } });
+        // }
+        await db.User.update({ dividend: purse_self.dividend + Math.round(fb_dividend) }, { where: { uid: uid } });
       } catch (e) {
         reject({ code: 500, error: 'update purse error' });
       }

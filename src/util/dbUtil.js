@@ -13,7 +13,7 @@ const sequelize = new Sequelize(db_name, db_user, db_password, {
   timestamps: true,
   dialectOptions: mysql.setting.dialectOptions,
   pool: mysql.setting.pool,
-  // logging: false, // disable logging; default: console.log
+  logging: false, // disable logging; default: console.log
   timezone: mysql.setting.timezone // for writing to database
 });
 
