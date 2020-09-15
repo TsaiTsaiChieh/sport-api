@@ -1,8 +1,9 @@
-const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
+const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to , moment } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { acceptLeague } = require('../../config/acceptValues');
+const { zone_tw } = require('../../config/env_values');
 // const { CacheQuery } = require('../../util/redisUtil');
 
 async function winBetsLists(args) {
@@ -29,6 +30,7 @@ async function winBetsLists(args) {
 
   for (const key of Object.keys(winBetsLists)) { // 依 聯盟 進行排序
     const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
+    const predictCountsCondition = getRatioOfPredictCounts(key, range);
 
     // 當賣牌時，快取會無法跟上更新
     // const redisKey = ['rank', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
@@ -57,7 +59,7 @@ async function winBetsLists(args) {
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate,
                                    this_week1_of_period_win_bets, this_week1_of_period_win_rate,
-                                   this_week1_of_period_correct_counts,this_week1_of_period_fault_counts
+                                   ${range}_correct_counts,${range}_fault_counts
                               from users__win__lists
                               where users__win__lists.league_id in ( :league_id )
                               order by ${rangeWinBetsCodebook(range)} desc
@@ -66,12 +68,9 @@ async function winBetsLists(args) {
                             select * 
                               from users
                               where status in (1, 2)
-                          ) users,
-                          god_limits
+                          ) users
                     where winlist.uid = users.uid
-                      and god_limits.league_id = winlist.league_id
-                      and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
-                      and god_limits.period = :period
+                      and (winlist.${range}_correct_counts + winlist.${range}_fault_counts) >= :counts
                  ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -92,7 +91,8 @@ async function winBetsLists(args) {
         league_id: league_id,
         period: period,
         begin: beginUnix,
-        end: endUnix
+        end: endUnix,
+        counts: predictCountsCondition
       },
       logging: true,
       type: db.sequelize.QueryTypes.SELECT
@@ -159,4 +159,43 @@ function rangeWinBetsCodebook(range) {
   }
 }
 
+function getRatioOfPredictCounts(league, range) {
+  const ratio = league === 'ALL' ? 0.5 : leagueCodebook(league).predicts_perDay;
+  const nowDate = new Date();
+  const nowInfo = date3UnixInfo(nowDate);
+  switch (range) {
+    case 'this_period':
+    {
+      const currentPeriod = getCurrentPeriod(nowDate);
+      const periodBegin = moment.tz(currentPeriod.periodBeginDateBeginUnix * 1000, zone_tw);
+      const nowMoment = moment.tz(nowDate, zone_tw);
+      const days = nowMoment.diff(periodBegin, 'days');
+      return days * ratio;
+    }
+    case 'this_week':
+    {
+      const weekDays = nowInfo.mdate.isoWeekday();
+      return weekDays * ratio;
+    }
+    case 'last_week':
+    {
+      return 7 * ratio;
+    }
+    case 'this_month':
+    {
+      const monthDays = nowInfo.mdate.format('D');
+      return monthDays * ratio;
+    }
+    case 'last_month': {
+      const lastMonthDays = moment().subtract(1, 'months').endOf('month').date();
+      return lastMonthDays * ratio;
+    }
+    case 'this_season':
+    {
+      return 120 * ratio;
+    }
+    default:
+      return 0;
+  }
+}
 module.exports = winBetsLists;
