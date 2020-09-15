@@ -1,4 +1,4 @@
-const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to , moment } = require('../../util/modules');
+const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to, moment } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
