@@ -5,6 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.14] - 2020-09-15
 #### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.14] - 2020-09-15
+#### Add:
 -  Add settlement const variable to fit rate variation in the future and return error code in checkBlacklist middleware. Add checkBucketed middleware in POST topics/createReply API ***by TsaiTsaiChieh*** [#487](https://github.com/gets-info/sports-api/pull/487)
 #### Fix:
 -  rank conditions by each league ratio ***by rex-getsinfo*** [#488](https://github.com/gets-info/sports-api/pull/488)
