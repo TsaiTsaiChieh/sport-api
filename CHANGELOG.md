@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  gash add column for php use ***by gsihenry*** [#495](https://github.com/gets-info/sports-api/pull/495)
 #### Removed:
 #### DB:
 ***
