@@ -39,7 +39,8 @@ async function mpgModel(res) {
         serial_number: exchange.merchant_order_no,
         coin: exchange.coin,
         return_url: setting.return_url,
-        paid: exchange.paid
+        paid: exchange.paid,
+        category: exchange.category
       };
 
       request(
