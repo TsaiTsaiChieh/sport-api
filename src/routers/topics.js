@@ -50,6 +50,7 @@ router.post(
 router.post(
   '/createReply',
   verification.token,
+  checkBucketed,
   require('../controller/topics/createReplyController')
 );
 router.post(

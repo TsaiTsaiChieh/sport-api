@@ -41,13 +41,13 @@ function getHomeAndAwayTeamFromMySQL(args) {
     try {
       const result = await db.sequelize.query(
         // index is const, except match__seasons, match__spreads, match__totals table is ref, taking 170ms
-        `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled, game.home_player, game.away_player, 
+        `SELECT game.bets_id, game.league_id, game.home_id, game.away_id, game.season, game.status, game.scheduled, game.home_player, game.away_player, game.home_injury, game.away_injury,
                 home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id, 
                 away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id,
                 spread.spread_id, spread.handicap AS spread_handicap, spread.home_tw, spread.away_tw, spread.rate AS spread_rate, 
                 totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw, totals.rate AS totals_rate
           FROM (
-                  SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, matches.home_player, matches.away_player, season.season
+                  SELECT matches.bets_id, matches.league_id, matches.spread_id, matches.totals_id, matches.home_id, matches.away_id, matches.status, matches.scheduled, matches.home_player, matches.away_player, matches.home_injury, matches.away_injury, season.season
                     FROM matches
                LEFT JOIN match__seasons AS season ON season.league_id = matches.league_id
                    WHERE matches.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND UNIX_TIMESTAMP(season.end_date)
@@ -251,10 +251,132 @@ function queryTenFightEvent(args) {
   });
 }
 
+function checkPlayer(teamsFromMySQL, teamsDataFromFirestore) {
+  let homePlayerName;
+  let homePlayerPos;
+  let awayPlayerName;
+  let awayPlayerPos;
+  let homeInjuryName;
+  let homeInjuryPos;
+  let awayInjuryName;
+  let awayInjuryPos;
+  if ((teamsFromMySQL.home_player) !== null) {
+    homePlayerName = JSON.parse(teamsFromMySQL.home_player).players.name;
+    homePlayerPos = JSON.parse(teamsFromMySQL.home_player).players.pos;
+  }
+  if ((teamsFromMySQL.away_player) !== null) {
+    awayPlayerName = JSON.parse(teamsFromMySQL.away_player).players.name;
+    awayPlayerPos = JSON.parse(teamsFromMySQL.away_player).players.pos;
+  }
+  if ((teamsFromMySQL.home_injury) !== null) {
+    homeInjuryName = JSON.parse(teamsFromMySQL.home_injury).players.name;
+    homeInjuryPos = JSON.parse(teamsFromMySQL.home_injury).players.pos;
+  }
+  if ((teamsFromMySQL.away_injury) !== null) {
+    awayInjuryName = JSON.parse(teamsFromMySQL.away_injury).players.name;
+    awayInjuryPos = JSON.parse(teamsFromMySQL.away_injury).players.pos;
+  }
+  const homePlayer = [];
+  const awayPlayer = [];
+  const homeInjury = [];
+  const awayInjury = [];
+  // 主隊先發
+  if (homePlayerName) {
+    for (let j = 0; j < homePlayerName.length; j++) {
+      const mainPlayer = homePlayerName[j];
+      for (let i = 0; i < Object.keys(teamsDataFromFirestore.homeData.players).length; i++) {
+        const playId = Object.keys(teamsDataFromFirestore.homeData.players)[i];
+        const matchPlayer = teamsDataFromFirestore.homeData.players[`${playId}`].name;
+        const simpleMatchPlayer = `${matchPlayer.split(' ')[0][0]}. ${matchPlayer.split(' ')[1]}`;
+        if (mainPlayer === matchPlayer || mainPlayer === simpleMatchPlayer) {
+          homePlayer[j] = teamsDataFromFirestore.homeData.players[`${playId}`];
+          homePlayer[j].pos = homePlayerPos[j];
+        }
+      }
+    }
+  }
+  // 客隊先發
+  if (awayPlayerName) {
+    for (let j = 0; j < awayPlayerName.length; j++) {
+      const mainPlayer = awayPlayerName[j];
+      for (let i = 0; i < Object.keys(teamsDataFromFirestore.awayData.players).length; i++) {
+        const playId = Object.keys(teamsDataFromFirestore.awayData.players)[i];
+        const matchPlayer = teamsDataFromFirestore.awayData.players[`${playId}`].name;
+        const simpleMatchPlayer = `${matchPlayer.split(' ')[0][0]}. ${matchPlayer.split(' ')[1]}`;
+        if (mainPlayer === matchPlayer || mainPlayer === simpleMatchPlayer) {
+          awayPlayer[j] = teamsDataFromFirestore.awayData.players[`${playId}`];
+          awayPlayer[j].pos = awayPlayerPos[j];
+        }
+      }
+    }
+  }
+  if (homeInjuryName) {
+  // 主隊傷兵
+    for (let j = 0; j < homeInjuryName.length; j++) {
+      const mainPlayer = homeInjuryName[j];
+      for (let i = 0; i < Object.keys(teamsDataFromFirestore.homeData.players).length; i++) {
+        const playId = Object.keys(teamsDataFromFirestore.homeData.players)[i];
+        const matchPlayer = teamsDataFromFirestore.homeData.players[`${playId}`].name;
+        const simpleMatchPlayer = `${matchPlayer.split(' ')[0][0]}. ${matchPlayer.split(' ')[1]}`;
+        if (mainPlayer === matchPlayer || mainPlayer === simpleMatchPlayer) {
+          homeInjury[j] = teamsDataFromFirestore.homeData.players[`${playId}`];
+          homeInjury[j].pos = homeInjuryPos[j];
+        }
+      }
+    }
+  }
+  // 客隊傷兵
+  if (awayInjuryName) {
+    for (let j = 0; j < awayInjuryName.length; j++) {
+      const mainPlayer = awayInjuryName[j];
+      for (let i = 0; i < Object.keys(teamsDataFromFirestore.awayData.players).length; i++) {
+        const playId = Object.keys(teamsDataFromFirestore.awayData.players)[i];
+        const matchPlayer = teamsDataFromFirestore.awayData.players[`${playId}`].name;
+        const simpleMatchPlayer = `${matchPlayer.split(' ')[0][0]}. ${matchPlayer.split(' ')[1]}`;
+        if (mainPlayer === matchPlayer || mainPlayer === simpleMatchPlayer) {
+          awayInjury[j] = teamsDataFromFirestore.awayData.players[`${playId}`];
+          awayInjury[j].pos = awayInjuryPos[j];
+        }
+      }
+    }
+  }
+  let homePlayerIsNull = true;
+  let awayPlayerIsNull = true;
+  let homeInjuryIsNull = true;
+  let awayInjuryIsNull = true;
+  if (homePlayer) {
+    homePlayerIsNull = homePlayer.players === null;
+    if (homePlayer.players) {
+      if (homePlayer.players.id === 0) homePlayerIsNull = true;
+    }
+  }
+  if (awayPlayer) {
+    awayPlayerIsNull = awayPlayer.players === null;
+    if (awayPlayer.players) {
+      if (awayPlayer.players.id === 0) awayPlayerIsNull = true;
+    }
+  }
+  if (homeInjury) {
+    homeInjuryIsNull = homeInjury.players === null;
+    if (homeInjury.players) {
+      if (homeInjury.players.id === 0) homeInjuryIsNull = true;
+    }
+  }
+  if (awayInjury) {
+    awayInjuryIsNull = awayInjury.players === null;
+    if (awayInjury.players) {
+      if (awayInjury.players.id === 0) awayInjuryIsNull = true;
+    }
+  }
+  return { homePlayer, awayPlayer, homeInjury, awayInjury, homePlayerIsNull, awayPlayerIsNull, homeInjuryIsNull, awayInjuryIsNull };
+}
+
 function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events, tenFightData) {
   const { homeData, awayData } = teamsDataFromFirestore;
   const rate = repackagePassRate(events);
   const tenFights = repackageTenFights(args, tenFightData);
+  const { homePlayer, awayPlayer, homeInjury, awayInjury, homePlayerIsNull, awayPlayerIsNull, homeInjuryIsNull, awayInjuryIsNull } = checkPlayer(teamsFromMySQL, teamsDataFromFirestore);
+
   try {
     const data = {
       season: teamsFromMySQL.season,
@@ -296,7 +418,9 @@ function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events,
           at_away: homeData.team_base.at_away,
           per_R: homeData.team_base.per_R,
           allow_per_R: homeData.team_base.per_allow_R
-        }
+        },
+        players: homePlayerIsNull ? null : homePlayer,
+        injuries: homeInjuryIsNull ? null : homeInjury
       },
       away: {
         team_id: teamsFromMySQL.away_id,
@@ -316,8 +440,10 @@ function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events,
           at_home: awayData.team_base.at_home,
           at_away: awayData.team_base.at_away,
           per_R: awayData.team_base.per_R,
-          allow_per_R: awayData.team_base.allow_per_R
-        }
+          allow_per_R: awayData.team_base.per_allow_R
+        },
+        players: awayPlayerIsNull ? null : awayPlayer,
+        injuries: awayInjuryIsNull ? null : awayInjury
       },
       L10_record: tenFights
     };

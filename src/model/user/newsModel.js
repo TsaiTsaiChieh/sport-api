@@ -1,103 +1,70 @@
 const modules = require('../../util/modules');
 const db = require('../../util/dbUtil');
-const Op = require('sequelize').Op;
-function newsModel(method, args, uid) {
+
+function newsModel(req) {
   return new Promise(async function(resolve, reject) {
     try {
-      if (method === 'POST') {
-        const time = {};
-        const newsList = {};
-        time.end = modules.moment(new Date()).format('YYYY-MM-DD');
+      if (req.method === 'POST') {
+        const end = await modules.moment(new Date()).format('YYYY-MM-DD HH:MM:SS');
         /* 取前一個月時間 */
-        time.begin_month = modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD');
+        const begin_month = await modules.moment(new Date()).subtract(1, 'months').format('YYYY-MM-DD HH:MM:SS');
         /* 取前一周時間 */
-        time.begin_week = modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD');
+        const begin_week = await modules.moment(new Date()).subtract(1, 'weeks').format('YYYY-MM-DD HH:MM:SS');
 
-        /* 使用者訊息設定 */
-        const page_user = args.page_user || 0;
-        const limit_user = args.limit_user || 10;
-        const start_user = page_user * limit_user;
-
-        /* 系統訊息資料 */
-        const data = [];
-        const user_filter_condition = {
-          where: {
-            target: {
-              // 模糊查詢
-              [Op.like]: '%' + uid + '%'
-            }
-          },
-          raw: true
-        };
-
-        const user_filter = await db.News_Sys.findAll(user_filter_condition);
-
-        const condition = {
-          where: {
-            target: '-1'
-          },
-          raw: true
-        };
-        const message = await db.News_Sys.findAll(condition);
-        if (user_filter[0] !== undefined) {
-          data.push(user_filter[0]);
-        }
-        if (message[0]) {
-          data.push(message[0]);
-        }
-
-        if (data.length > 0) {
-          newsList.system = data;
-        }
-
+        if (req.body.message_type === 'system') {
+          const system_list = await db.sequelize.query(
+          `
+            SELECT * FROM user__news__sys WHERE (target = -1 OR target LIKE '${req.token.uid}') AND updatedAt BETWEEN '${begin_month}' AND '${end}'
+          `,
+          {
+            type: db.sequelize.QueryTypes.SELECT,
+            raw: true
+          }
+          );
+          resolve(system_list);
+        } else if (req.body.message_type === 'user') {
         /* 讀取最愛玩家資料 */
-        const favorite_user = await db.sequelize.query(
+          const favorite_user = await db.sequelize.query(
         `
           SELECT god_uid
             FROM user__favoriteplayers
-           WHERE uid = :uid
-             AND updatedAt BETWEEN :begin AND :end
+          WHERE uid = '${req.token.uid}'
+          GROUP BY god_uid
         `,
         {
-          replacements: { uid: uid, begin: time.begin_week, end: time.end },
-          type: db.sequelize.QueryTypes.SELECT
+          type: db.sequelize.QueryTypes.SELECT,
+          raw: true
         }
-        );
-        if (favorite_user.length > 0) {
-          const uids = [];
-          favorite_user.forEach(function(user) {
-            uids.push(user.god_uid);
-          });
+          );
+
+          const uids = Object.values(favorite_user).map(item => item.god_uid);
+
           /* 使用者訊息資料 */
-          const user = await db.sequelize.query(
+          const user_list = await db.sequelize.query(
             `
             SELECT un.news_id, un.uid, u.display_name, un.sort, un.sort_id, un.league, un.title, un.content, un.status, un.match_scheduled_tw, un.scheduled, un.createdAt, un.updatedAt
               FROM user__news un, users u
-            WHERE un.updatedAt BETWEEN :begin and :end
-              AND u.uid = un.uid
+            WHERE u.uid = un.uid
               AND un.status=0
               AND un.active=1
-              AND un.uid in ( :uids)
+              AND un.uid in ( :uids )
+              AND un.updatedAt BETWEEN '${begin_week}' and '${end}'
             ORDER BY un.updatedAt DESC
-              LIMIT :start_user, :limit_user
             `,
             {
-
-              replacements: { uids: uids, begin: time.begin_week, end: time.end, start_user: start_user, limit_user: limit_user },
-              type: db.sequelize.QueryTypes.SELECT
+              replacements: { uids: uids },
+              type: db.sequelize.QueryTypes.SELECT,
+              raw: true
             }
           );
 
-          if (user.length > 0) {
-            newsList.user = user;
-          }
+          resolve(user_list);
         }
-        resolve(newsList);
-      } else if (method === 'PUT') {
+      } else if (req.method === 'PUT') {
         const now = modules.moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
         const now_timestamp = modules.moment(new Date()).unix();
-        const title = args.title;
-        const content = args.content;
+        const title = req.body.title;
+        const content = req.body.content;
 
         const insert = db.sequelize.query(
           `
@@ -105,21 +72,21 @@ function newsModel(method, args, uid) {
             VALUES ($uid, $title, $content, 0, 1, $now_timestamp, $now, $now);
           `,
           {
-            bind: { uid: uid, title: title, content: content, now_timestamp: now_timestamp, now: now },
+            bind: { uid: req.token.uid, title: title, content: content, now_timestamp: now_timestamp, now: now },
             type: db.sequelize.QueryTypes.INSERT
           }
         );
         resolve(insert);
-      } else if (method === 'DELETE') {
-        const is_system = args.is_system;
-        const items = args.items;
+      } else if (req.method === 'DELETE') {
+        const is_system = req.body.is_system;
+        const items = req.body.items;
         const del_join = items.join(',');
         let del_res = [];
         if (is_system) {
           items.forEach(function(item) {
             del_res = db.News_System.upsert({
               system_id: item,
-              uid: uid,
+              uid: req.token.uid,
               active: 0
             });
           });
