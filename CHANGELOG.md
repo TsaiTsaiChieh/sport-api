@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.15] - 2020-09-16
+#### Fix:
 -  rank of bets and rate ***by rex-getsinfo*** [#494](https://github.com/gets-info/sports-api/pull/494)
 -  adjust demand for daily mission prediction rule ***by gsihenry*** [#493](https://github.com/gets-info/sports-api/pull/493)
 -  rank of this season limit number of prediction ***by rex-getsinfo*** [#492](https://github.com/gets-info/sports-api/pull/492)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.14] - 2020-09-15
