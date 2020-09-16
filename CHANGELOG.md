@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  rank of this season limit number of prediction ***by rex-getsinfo*** [#492](https://github.com/gets-info/sports-api/pull/492)
 #### Removed:
 #### DB:
 ***
