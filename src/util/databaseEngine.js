@@ -13,17 +13,18 @@ function findUser(uid) {
       //   { where: { uid }, raw: true, include: [{ model: db.User_Blacklist, required: false }] });
       // indexes are const in user & user_blacklists table, taking 165ms
       const result = await db.sequelize.query(
-        `SELECT * 
+        `SELECT user.id, user.uid AS uid, user.status, user.avatar, user.birthday, user.birthday_tw, user.display_name, user.email, user.name, user.country_code, user.phone, user.point, user.signature, user.fan_count, user.default_title, user.default_god_league_rank, user.accuse_credit, user.block_count, user.unread_count, user.dividend, user.coin, user.ingot, user.invoice_carrier, user.deposit_lottery, user.rank1_count, user.rank2_count, user.rank3_count, user.rank4_count, user.createdAt, user.updatedAt, 
+                blacklist.muted_time, blacklist.muted_count, blacklist.bucketed_time, blacklist.bucketed_count, blacklist.banned_time, blacklist.banned_count
            FROM users AS user 
       LEFT JOIN user__blacklists AS blacklist ON user.uid = blacklist.uid
           WHERE user.uid = :uid`, {
           type: db.sequelize.QueryTypes.SELECT,
           replacements: { uid }
         });
-
       if (!result.length) return reject(new AppError.UserNotFound());
       return resolve(result[0]); // else return user data
     } catch (err) {
+      console.log(err);
       return reject(new AppError.UserNotFound(err.stack));
     }
   });
@@ -61,20 +62,23 @@ async function checkUserRight(uid, rightArr = [], source = null) {
 }
 
 // 查該大神販售牌組的購牌人數
-async function countGodSellPredictionBuyers(god_uid, league_id, matches_date_unix) {
+async function countGodSellPredictionBuyers(god_uid, league_id, matches_date) {
+  let fake = 0;
   const [err, counts] = await to(db.UserBuy.count({
     where: {
       god_uid: god_uid,
       league_id: league_id,
-      matches_date: matches_date_unix
+      matches_date: matches_date
     }
   }));
+  const result = await db.UserBuyFake.findOne({ attributes: ['fake_purchase'], where: { league_id, god_uid, matches_date }, raw: true });
+  if (result) fake = result.fake_purchase;
+
   if (err) {
     logger.warn('[Error][databaseEngine][countGodSellPredictionBuyers] ', err);
     throw errs.dbErrsMsg('500', '500', { custMsg: err });
   };
-
-  return counts;
+  return counts + fake;
 }
 
 // 檢查該 uid 是否有購買特定大神牌組

@@ -7,12 +7,13 @@ const AppErrors = require('../../util/AppErrors');
 const TWO_WEEKS = 14;
 const lastPeriod = 3;
 const ONE_DAY_UNIX = modules.convertTimezone(0, { op: 'add', value: 1, unit: 'days' });
+const NP = require('number-precision');
 const settlement = {
   loss: -1,
-  lossHalf: -0.5,
+  // lossHalf: -0.5,
   fair: 0,
   win: 1,
-  winHalf: 0.5,
+  // winHalf: 0.5,
   abnormal: -2
 };
 /*
@@ -48,7 +49,7 @@ async function getUserPredictionData(userData, periodData) {
   const end = periodData[periodData.length - 1].end.unix;
   const [err, results] = await to(db.sequelize.query(
     // index is ref (user__predictions); eq_ref (matches); eq_ref (matches__teams[home]); eq_ref (matches__teams[away]); ref (match__spreads); ref (match__totals), taking 165ms
-    `SELECT game.bets_id, game.league_id, game.sport_id, game.scheduled, game.home_points, game.away_points, 
+    `SELECT DISTINCT game.bets_id, game.league_id, game.sport_id, game.scheduled, game.home_points, game.away_points, 
             home.team_id AS home_id, home.image_id AS home_image_id, home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch,
             away.team_id AS away_id, away.image_id AS away_image_id, away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch,
             prediction.sell, prediction.match_date, prediction.spread_id, prediction.spread_option, prediction.spread_bets, prediction.spread_result, prediction.spread_result_flag, 
@@ -162,9 +163,9 @@ async function repackageMatchDate(ele, matchDate) {
         away_tw: ele.away_tw,
         predict: ele.spread_option,
         ori_bets: ele.spread_bets,
-        bets: ele.spread_bets !== null ? ele.spread_bets * ele.spread_result_flag : null,
+        bets: ele.spread_bets !== null ? NP.strip(ele.spread_bets * ele.spread_result_flag) : null, // for 計算勝注
         result: ele.spread_result,
-        end: returnSettlement(ele.spread_result_flag)
+        end: returnSettlement(ele.spread_result_flag) // for 計算勝率
       },
       totals: {
         id: ele.totals_id,
@@ -172,7 +173,7 @@ async function repackageMatchDate(ele, matchDate) {
         over_tw: ele.over_tw,
         predict: ele.totals_option,
         ori_bets: ele.totals_bets,
-        bets: ele.total_bets !== null ? ele.totals_bets * ele.totals_result_flag : null,
+        bets: ele.total_bets !== null ? NP.strip(ele.totals_bets * ele.totals_result_flag) : null,
         result: ele.totals_result,
         end: returnSettlement(ele.totals_result_flag)
       }
@@ -185,11 +186,11 @@ async function repackageMatchDate(ele, matchDate) {
 }
 
 function returnSettlement(flag) {
-  const { loss, lossHalf, fair, win, winHalf, abnormal } = settlement;
-  if (flag === abnormal) return abnormal;
-  if (flag === win || flag === winHalf) return win;
-  if (flag === fair) return fair;
-  if (flag === loss || flag === lossHalf) return loss;
+  const { loss, fair, win, abnormal } = settlement;
+  if (flag === abnormal) return abnormal; // 賽事異常
+  if (flag > fair) return win; // 大於 0 為贏
+  if (flag === fair) return fair; // 等於 0 為平手
+  if (flag < fair) return loss; // 小於 0 為輸
 }
 
 module.exports = predictionHistory;

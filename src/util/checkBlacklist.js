@@ -22,7 +22,7 @@ async function checkMuted(req, res, next) {
     req.userData = userData;
     return next();
   } catch (err) {
-    return res.json(err);
+    return res.status(FORBIDDEN).json(err);
   }
 }
 
@@ -40,7 +40,7 @@ async function checkBanned(req, res, next) {
     await checkFreeze(userData.status);
     return next();
   } catch (err) {
-    return res.json(err);
+    return res.status(FORBIDDEN).json(err);
   }
 }
 
@@ -63,7 +63,7 @@ async function checkBucketed(req, res, next) {
     req.userData = userData;
     return next();
   } catch (err) {
-    return res.json(err);
+    return res.status(FORBIDDEN).json(err);
   }
 }
 

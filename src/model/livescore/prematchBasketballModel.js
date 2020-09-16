@@ -440,7 +440,7 @@ function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events,
           at_home: awayData.team_base.at_home,
           at_away: awayData.team_base.at_away,
           per_R: awayData.team_base.per_R,
-          allow_per_R: awayData.team_base.allow_per_R
+          allow_per_R: awayData.team_base.per_allow_R
         },
         players: awayPlayerIsNull ? null : awayPlayer,
         injuries: awayInjuryIsNull ? null : awayInjury
