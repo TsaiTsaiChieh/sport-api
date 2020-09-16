@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+#### Add:
+#### Fix:
+#### Removed:
+#### DB:
+***
+
 ## [v1.1.14] - 2020-09-15
 #### Add:
 -  Add settlement const variable to fit rate variation in the future and return error code in checkBlacklist middleware. Add checkBucketed middleware in POST topics/createReply API ***by TsaiTsaiChieh*** [#487](https://github.com/gets-info/sports-api/pull/487)
