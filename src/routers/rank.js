@@ -1,4 +1,3 @@
-// const verification = require('../util/verification');
 const express = require('express');
 const router = express.Router();
 
@@ -9,5 +8,6 @@ router.get('/god_lists', require('../controller/rank/godListsController'));
 router.get('/god_lists_leagues', require('../controller/rank/godListsLeaguesController'));
 router.get('/win_rate_lists', require('../controller/rank/winRateListsController'));
 router.get('/win_bets_lists', require('../controller/rank/winBetsListsController'));
+router.get('/win_lists', require('../controller/rank/winListsController'));
 
 module.exports = router;
