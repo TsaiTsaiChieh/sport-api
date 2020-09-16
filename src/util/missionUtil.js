@@ -117,7 +117,7 @@ async function missionDaily(args) {
 
   const nowInfo = date3UnixInfo(Date.now());
   const todayUnix = nowInfo.dateBeginUnix;
-  const today = moment(nowInfo.mdate).format("YYYY-MM-DD");
+  const today = moment(nowInfo.mdate).format('YYYY-MM-DD');
 
   const result = { daily: [] };
 
