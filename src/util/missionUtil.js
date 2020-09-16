@@ -5,7 +5,7 @@ const {
   topicCheckByDateBetween, predictHandicapCheckByDateBetween,
   predictCorrectDailyByDateBetween, predictCorrectLeagueDailyByDateBetween
 } = require('../model/mission/missionFuncModel');
-const { date3UnixInfo } = require('./modules');
+const { date3UnixInfo, moment } = require('./modules');
 const { logger } = require('./loggerUtil');
 const { CacheQuery, redis } = require('./redisUtil');
 
@@ -117,6 +117,7 @@ async function missionDaily(args) {
 
   const nowInfo = date3UnixInfo(Date.now());
   const todayUnix = nowInfo.dateBeginUnix;
+  const today = moment(nowInfo.mdate).format('YYYY-MM-DD');
 
   const result = { daily: [] };
 
@@ -150,7 +151,7 @@ async function missionDaily(args) {
     }
 
     if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
-      const matchs = await predictHandicapCheckByDateBetween(userUid, todayUnix, todayUnix);
+      const matchs = await predictHandicapCheckByDateBetween(userUid, today);
       data.now_finish_nums = matchs.length > 0 ? matchs[0].count : 0;
     }
 
