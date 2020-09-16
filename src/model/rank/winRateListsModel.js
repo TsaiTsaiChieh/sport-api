@@ -59,7 +59,7 @@ async function winRateLists(args) {
                   select winlist.*, users.avatar, users.display_name, users.status
                     from (
                             select uid, users__win__lists.league_id, 
-                                   last_month_win_bets, last_month_win_rate, 
+                                   last_month_win_bets, last_month_win_rate,
                                    last_week_win_bets, last_week_win_rate,
                                    this_season_win_bets, this_season_win_rate,
                                    this_period_win_bets, this_period_win_rate,
@@ -194,7 +194,7 @@ function getRatioOfPredictCounts(league, range) {
     }
     case 'this_season':
     {
-      return 120 * ratio;
+      return 30 * ratio;
     }
     default:
       return 0;
