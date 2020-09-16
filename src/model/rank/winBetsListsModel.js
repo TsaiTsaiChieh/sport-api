@@ -192,7 +192,7 @@ function getRatioOfPredictCounts(league, range) {
     }
     case 'this_season':
     {
-      return 120 * ratio;
+      return 30 * ratio;
     }
     default:
       return 0;
