@@ -33,7 +33,7 @@ async function winLists(req, res) {
   try {
     res.json(await winListsModel(req.query));
   } catch (err) {
-    console.error('[winBetsListsController]', err);
+    console.error('[winListsController]', err);
     res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }

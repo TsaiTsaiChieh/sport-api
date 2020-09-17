@@ -35,7 +35,7 @@ function getRatioOfPredictCounts(ratio, range) {
   }
 }
 
-function repackage(ele, rangstr) {
+function repackage(ele, rangstr, type) {
   const data = {
     // win_bets: ele.win_bets,
     uid: ele.uid,
@@ -45,7 +45,7 @@ function repackage(ele, rangstr) {
     status: ele.status
   };
 
-  data.win_bets = ele[rangstr];
+  data[`win_${type}`] = ele[rangstr];
 
   // 大神要 顯示 預設稱號
   if ([1, 2, 3, 4].includes(ele.rank_id)) {
