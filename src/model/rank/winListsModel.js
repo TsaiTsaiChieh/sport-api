@@ -118,7 +118,7 @@ async function winLists(args) {
     if (!leagueWinListsQuery || leagueWinListsQuery.length <= 0) return { userlists: winLists }; // 如果沒有找到資料回傳 []
 
     leagueWinListsQuery.forEach(function(data) { // 這裡有順序性
-      leagueWinLists.push(rankUtil.repackage(data, order));
+      leagueWinLists.push(rankUtil.repackage(data, order, type));
     });
 
     winLists[key] = leagueWinLists;
