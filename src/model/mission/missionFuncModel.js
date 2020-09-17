@@ -47,7 +47,7 @@ async function predictMatchCheckByDateBetween(userUid, beginUnix, endUnix) {
 // 預測盤數 不區分聯盟
 // begin、end: 日期區間
 
-async function predictHandicapCheckByDateBetween(userUid, today) {
+async function predictHandicapCheckByDateBetween(userUid, today, tomorrow) {
   const matchs = await db.sequelize.query(`
     select sum(spread_count) + sum(totals_count) count
     from (
@@ -56,14 +56,19 @@ async function predictHandicapCheckByDateBetween(userUid, today) {
                   if (totals_option is not null, 1, 0) totals_count
             from user__predictions
             where uid = :userUid
-              and updatedAt = :today
+              and (
+                    TO_DAYS(match_scheduled_tw) = TO_DAYS(:today)
+                      or 
+                    TO_DAYS(match_scheduled_tw) = TO_DAYS(:tomorrow)
+                  )
               and (spread_option is not null or totals_option is not null)
         ) a
     group by match_date
   `, {
     replacements: {
       userUid: userUid,
-      today: today
+      today: today,
+      tomorrow: tomorrow
     },
     type: db.sequelize.QueryTypes.SELECT
   });
