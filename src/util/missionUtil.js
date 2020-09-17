@@ -118,6 +118,7 @@ async function missionDaily(args) {
   const nowInfo = date3UnixInfo(Date.now());
   const todayUnix = nowInfo.dateBeginUnix;
   const today = moment(nowInfo.mdate).format('YYYY-MM-DD');
+  const tomorrow = moment(nowInfo.mdate).add(1, 'days').format('YYYY-MM-DD');
 
   const result = { daily: [] };
 
@@ -151,7 +152,7 @@ async function missionDaily(args) {
     }
 
     if (data.func_type === 'predictHandicapCheckByDateBetween') { // 預測
-      const matchs = await predictHandicapCheckByDateBetween(userUid, today);
+      const matchs = await predictHandicapCheckByDateBetween(userUid, today, tomorrow);
       data.now_finish_nums = matchs.length > 0 ? matchs[0].count : 0;
     }
 
