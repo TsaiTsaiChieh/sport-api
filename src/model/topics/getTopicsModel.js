@@ -52,9 +52,9 @@ async function getTopics(args) {
         page = args.page;
       }
 
-      const order = [['pin', 'DESC']]; // the pin should be the top place
+      let order = [['pin', 'DESC']]; // the pin should be the top place
       if (args.sortBy === 'view') order.push([['view_count', 'DESC']]);
-      else if (args.sortBy === 'like') order.push([['like_count', 'DESC']]);
+      else if (args.sortBy === 'like') order = [['like_count', 'DESC']];
       else order.push([['article_id', 'DESC']]);
 
       const topics = await dbFind(where, page, order);
