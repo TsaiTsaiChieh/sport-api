@@ -3,13 +3,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.15] - 2020-09-16
+## [v1.1.16] - 2020-09-17
 #### Fix:
 -  winListModel key of return object ***by rex-getsinfo*** [#497](https://github.com/gets-info/sports-api/pull/497)
 -  Fix hot topics should based on like_count field to sort, not included pin field in the forum ***by TsaiTsaiChieh*** [#496](https://github.com/gets-info/sports-api/pull/496)
 -  gash add column for php use ***by gsihenry*** [#495](https://github.com/gets-info/sports-api/pull/495)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.15] - 2020-09-16
