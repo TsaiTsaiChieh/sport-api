@@ -1580,6 +1580,10 @@ const Service_Contact = sequelize.define('service__contact', {
     type: Sequelize.TEXT,
     allowNull: true
   },
+  reply: {
+    type: Sequelize.TEXT,
+    allowNull: true
+  },
   status: {
     type: Sequelize.INTEGER,
     allowNull: false,
