@@ -5,6 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
+-  Service_Contact db column ***by eric13e*** [#499](https://github.com/gets-info/sports-api/pull/499)
 #### Fix:
 #### Removed:
 #### DB:
