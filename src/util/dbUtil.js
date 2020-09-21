@@ -2478,32 +2478,41 @@ const CashflowMission = sequelize.define(
 const CashflowLogs = sequelize.define(
   'cashflow_transfer_logs',
   {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
+    },
+    from_uid: {
+      allowNull: false,
+      type: Sequelize.STRING
+    },
+    level: {
+      type: Sequelize.STRING
+    },
+    uid: {
+      allowNull: false,
+      type: Sequelize.STRING
+    },
     title: {
       type: Sequelize.STRING
     },
     ingot: {
-      type: Sequelize.INTEGER
-    },
-    ingot_real: {
+      defaultValue: 0,
       type: Sequelize.INTEGER
     },
     coin: {
-      type: Sequelize.INTEGER
-    },
-    coin_real: {
+      defaultValue: 0,
       type: Sequelize.INTEGER
     },
     dividend: {
+      defaultValue: 0,
       type: Sequelize.INTEGER
-    },
-    dividend_real: {
-      type: Sequelize.INTEGER
-    },
-    scheduled: {
-      type: Sequelize.STRING
     }
   }
 );
+
 const PurchaseList = sequelize.define(
   'cashflow_purchase_list',
   {
