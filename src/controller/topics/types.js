@@ -26,7 +26,7 @@ function getLeague(not_ajv = false) {
       NBL: ['澳洲職籃', '澳籃'],
       KBL: ['韓國職籃', '韓籃'],
       CBA: ['中國職籃', '中籃'],
-      JBL: ['日本職籃', '日籃']
+      BJL: ['日本職籃', '日籃']
     },
     冰球: {
       NHL: ['NHL冰球', 'NHL']
@@ -45,7 +45,7 @@ function getLeague(not_ajv = false) {
   };
 
   if (!not_ajv) {
-    return ['MLB', 'CPBL', 'KBO', 'NPB', 'ABL', 'LMB', 'NBA', 'SBL', 'WNBA', 'NBL', 'KBL', 'CBA', 'JBL', 'NHL', 'Soccer', 'eSoccer'];
+    return ['MLB', 'CPBL', 'KBO', 'NPB', 'ABL', 'LMB', 'NBA', 'SBL', 'WNBA', 'NBL', 'KBL', 'CBA', 'BJL', 'NHL', 'Soccer', 'eSoccer'];
     // return acceptLeague;
   } else {
     return leagues;
