@@ -5,10 +5,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 #### Add:
--  Service_Contact db column ***by eric13e*** [#499](https://github.com/gets-info/sports-api/pull/499)
 #### Fix:
 #### Removed:
 #### DB:
+***
+
+## [v1.1.17] - 2020-09-22
+#### Add:
+-  Service_Contact db column ***by eric13e*** [#499](https://github.com/gets-info/sports-api/pull/499)
+#### Fix:
+-  league of topic: JBL->BJL ***by rex-getsinfo*** [#503](https://github.com/gets-info/sports-api/pull/503)
+-  purchase coin/dividend problem ***by gsihenry*** [#502](https://github.com/gets-info/sports-api/pull/502)
+-  adjust news ***by gsihenry*** [#501](https://github.com/gets-info/sports-api/pull/501)
+-  admin add ingot table ***by eric13e*** [#500](https://github.com/gets-info/sports-api/pull/500)
 ***
 
 ## [v1.1.16] - 2020-09-17
