@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Add:
 -  Service_Contact db column ***by eric13e*** [#499](https://github.com/gets-info/sports-api/pull/499)
 #### Fix:
+-  adjust news ***by gsihenry*** [#501](https://github.com/gets-info/sports-api/pull/501)
 -  admin add ingot table ***by eric13e*** [#500](https://github.com/gets-info/sports-api/pull/500)
 #### Removed:
 #### DB:
