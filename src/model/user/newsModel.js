@@ -2,11 +2,11 @@ const modules = require('../../util/modules');
 const moment = require('moment-timezone');
 const db = require('../../util/dbUtil');
 const { zone_tw } = require('../../config/env_values');
-const now = Date.now();
 
 function newsModel(req) {
   return new Promise(async function(resolve, reject) {
     try {
+      const now = Date.now();
       if (req.method === 'POST') {
         const end = await moment.tz(now, zone_tw).format('YYYY-MM-DD HH:mm:ss');
         /* 取前一個月時間 */
