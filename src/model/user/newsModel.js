@@ -17,7 +17,7 @@ function newsModel(req) {
         if (req.body.message_type === 'system') {
           const system_list = await db.sequelize.query(
           `
-            SELECT * FROM user__news__sys WHERE (target = -1 OR target LIKE '%${req.token.uid}%') AND updatedAt BETWEEN '${begin_month}' AND '${end}'
+            SELECT * FROM user__news__sys WHERE (target = -1 OR FIND_IN_SET('${req.token.uid}', target)) AND updatedAt BETWEEN '${begin_month}' AND '${end}'
           `,
           {
             type: db.sequelize.QueryTypes.SELECT,
