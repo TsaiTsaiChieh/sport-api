@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  get news time ***by eric13e*** [#504](https://github.com/gets-info/sports-api/pull/504)
 #### Removed:
 #### DB:
 ***
