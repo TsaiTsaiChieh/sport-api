@@ -2481,18 +2481,15 @@ const CashflowLogs = sequelize.define(
     id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
-      allowNull: false,
       autoIncrement: true
     },
     from_uid: {
-      allowNull: false,
       type: Sequelize.STRING
     },
     level: {
       type: Sequelize.STRING
     },
     uid: {
-      allowNull: false,
       type: Sequelize.STRING
     },
     title: {
@@ -2509,6 +2506,19 @@ const CashflowLogs = sequelize.define(
     dividend: {
       defaultValue: 0,
       type: Sequelize.INTEGER
+    },
+
+    ingot_real: {
+      type: Sequelize.INTEGER
+    },
+    coin_real: {
+      type: Sequelize.INTEGER
+    },
+    dividend_real: {
+      type: Sequelize.INTEGER
+    },
+    scheduled: {
+      type: Sequelize.STRING
     }
   }
 );
