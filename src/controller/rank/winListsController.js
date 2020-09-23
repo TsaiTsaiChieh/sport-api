@@ -1,18 +1,22 @@
 const ajv = require('../../util/ajvUtil');
 const { acceptLeague } = require('../../config/acceptValues');
-const winBetsListsModel = require('../../model/rank/winBetsListsModel');
+const winListsModel = require('../../model/rank/winListsModel');
 
-async function winBetsLists(req, res) {
+async function winLists(req, res) {
   const newAcceptLeague = acceptLeague.slice(0);
   newAcceptLeague[acceptLeague.length] = 'ALL';
 
   const schema = {
     type: 'object',
-    required: ['range', 'league'],
+    required: ['range', 'type', 'league'],
     properties: {
       range: {
         type: 'string',
         enum: ['this_period', 'this_week', 'last_week', 'this_month', 'last_month', 'this_season']
+      },
+      type: {
+        type: 'string',
+        enum: ['bets', 'rate']
       },
       league: {
         type: 'string',
@@ -27,14 +31,14 @@ async function winBetsLists(req, res) {
   }
 
   try {
-    res.json(await winBetsListsModel(req.query));
+    res.json(await winListsModel(req.query));
   } catch (err) {
-    console.error('[winBetsListsController]', err);
+    console.error('[winListsController]', err);
     res.status(err.code || 500).json(err.err || { code: 500, msg: '執行異常！' });
   }
 }
 
-module.exports = winBetsLists;
+module.exports = winLists;
 /**
  * @api {get} /win_bets_lists Get WinBets Lists
  * @apiVersion 1.0.0

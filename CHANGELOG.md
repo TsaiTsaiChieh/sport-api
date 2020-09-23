@@ -6,8 +6,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  sometimes cant get system news ***by gsihenry*** [#505](https://github.com/gets-info/sports-api/pull/505)
+-  get news time ***by eric13e*** [#504](https://github.com/gets-info/sports-api/pull/504)
 #### Removed:
 #### DB:
+***
+
+## [v1.1.17] - 2020-09-22
+#### Add:
+-  Service_Contact db column ***by eric13e*** [#499](https://github.com/gets-info/sports-api/pull/499)
+#### Fix:
+-  league of topic: JBL->BJL ***by rex-getsinfo*** [#503](https://github.com/gets-info/sports-api/pull/503)
+-  purchase coin/dividend problem ***by gsihenry*** [#502](https://github.com/gets-info/sports-api/pull/502)
+-  adjust news ***by gsihenry*** [#501](https://github.com/gets-info/sports-api/pull/501)
+-  admin add ingot table ***by eric13e*** [#500](https://github.com/gets-info/sports-api/pull/500)
+***
+
+## [v1.1.16] - 2020-09-17
+#### Fix:
+-  mission rule adjust ***by gsihenry*** [#498](https://github.com/gets-info/sports-api/pull/498)
+-  winListModel key of return object ***by rex-getsinfo*** [#497](https://github.com/gets-info/sports-api/pull/497)
+-  Fix hot topics should based on like_count field to sort, not included pin field in the forum ***by TsaiTsaiChieh*** [#496](https://github.com/gets-info/sports-api/pull/496)
+-  gash add column for php use ***by gsihenry*** [#495](https://github.com/gets-info/sports-api/pull/495)
+***
+
+## [v1.1.15] - 2020-09-16
+#### Fix:
+-  rank of bets and rate ***by rex-getsinfo*** [#494](https://github.com/gets-info/sports-api/pull/494)
+-  adjust demand for daily mission prediction rule ***by gsihenry*** [#493](https://github.com/gets-info/sports-api/pull/493)
+-  rank of this season limit number of prediction ***by rex-getsinfo*** [#492](https://github.com/gets-info/sports-api/pull/492)
 ***
 
 ## [v1.1.14] - 2020-09-15

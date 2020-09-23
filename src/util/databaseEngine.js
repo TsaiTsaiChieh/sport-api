@@ -269,8 +269,15 @@ async function createData(Data, status, action, inTrans = undefined) {
         throw new AppError.CreateUserBuysTableRollback(`${purchaseErr.stack} by TsaiChieh`);
       }
     }
+
+    const purse_self = await db.User.findOne({
+      where: { uid: Data.uid },
+      attributes: ['ingot', 'coin', 'dividend'],
+      raw: true
+    });
+
     const [overageErr] = await modules.to(db.User.update(
-      { coin: Data.coin, dividend: Data.dividend },
+      { coin: purse_self.coin - Data.coin, dividend: purse_self.dividend - Data.dividend },
       { where: { uid: Data.uid }, trans }));
     if (overageErr) {
       await trans.rollback();
