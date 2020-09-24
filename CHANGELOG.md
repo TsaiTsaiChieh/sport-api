@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.18] - 2020-09-24
+#### Fix:
 -  add carrier status of invoice ***by gsihenry*** [#506](https://github.com/gets-info/sports-api/pull/506)
 -  sometimes cant get system news ***by gsihenry*** [#505](https://github.com/gets-info/sports-api/pull/505)
 -  get news time ***by eric13e*** [#504](https://github.com/gets-info/sports-api/pull/504)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.17] - 2020-09-22
