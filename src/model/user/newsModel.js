@@ -2,11 +2,11 @@ const modules = require('../../util/modules');
 const moment = require('moment-timezone');
 const db = require('../../util/dbUtil');
 const { zone_tw } = require('../../config/env_values');
-const now = Date.now();
 
 function newsModel(req) {
   return new Promise(async function(resolve, reject) {
     try {
+      const now = Date.now();
       if (req.method === 'POST') {
         const end = await moment.tz(now, zone_tw).format('YYYY-MM-DD HH:mm:ss');
         /* 取前一個月時間 */
@@ -17,7 +17,7 @@ function newsModel(req) {
         if (req.body.message_type === 'system') {
           const system_list = await db.sequelize.query(
           `
-            SELECT * FROM user__news__sys WHERE (target = -1 OR target LIKE '%${req.token.uid}%') AND updatedAt BETWEEN '${begin_month}' AND '${end}'
+            SELECT * FROM user__news__sys WHERE (target = -1 OR FIND_IN_SET('${req.token.uid}', target)) AND updatedAt BETWEEN '${begin_month}' AND '${end}'
           `,
           {
             type: db.sequelize.QueryTypes.SELECT,
