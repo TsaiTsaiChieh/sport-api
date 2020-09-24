@@ -36,6 +36,9 @@ async function purchasePredictions(args) {
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   [err, purchaseData] = await to(repackagePurchaseData(args, godData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
+  // console.log('purchaseData');
+  // console.log(args, overage, purchaseData);
+
   [err] = await to(transactionsForPurchase(args, overage, purchaseData));
   if (err) throw new AppErrors.PurchasePredictionsModelError(err.stack, err.status);
   return repackageReturnData(args);
@@ -168,12 +171,50 @@ async function transactionsForPurchase(args, overage, purchaseData) {
   // First, start a transaction and save it into a variable
   const trans = await db.sequelize.transaction();
   // 寫入購牌紀錄（金流）table designed by Henry
-  purchaseData.dividend = overage.dividend;
-  purchaseData.dividend_real = overage.dividend;
-  purchaseData.coin = overage.coin;
-  purchaseData.coin_real = overage.coin;
   const status = PAID;
-  await dbEngine.createData(purchaseData, status, 'buy');
+
+  const buy_money = purchaseData;
+  const sell_money = await db.sequelize.query(
+    `
+     select * from user__ranks where rank_id = :rank_id
+    `,
+    {
+      plain: true,
+      replacements: { rank_id: purchaseData.god_rank },
+      type: db.sequelize.QueryTypes.SELECT
+    }
+  );
+
+  if (args.discount === true) {
+    const purse = await db.sequelize.query(
+      `
+       select * from users where uid = :uid
+      `,
+      {
+        plain: true,
+        replacements: { uid: purchaseData.uid },
+        type: db.sequelize.QueryTypes.SELECT
+      }
+    );
+    if (purse.dividend - sell_money.price > 0) {
+      buy_money.dividend = sell_money.price;
+      buy_money.dividend_real = sell_money.price;
+      buy_money.coin = 0;
+      buy_money.coin_real = 0;
+    } else {
+      buy_money.dividend = purse.dividend;
+      buy_money.dividend_real = purse.dividend;
+      buy_money.coin = sell_money.price - buy_money.dividend;
+      buy_money.coin_real = sell_money.price - buy_money.dividend_real;
+    }
+  } else {
+    buy_money.coin = sell_money.price;
+    buy_money.coin_real = sell_money.price;
+    buy_money.dividend = 0;
+    buy_money.dividend_real = 0;
+  }
+
+  await dbEngine.createData(buy_money, status, 'buy');
 
   // If the execution reaches this line, no errors were thrown, commit the transaction, otherwise, it will show this error: SequelizeDatabaseError: Lock wait timeout exceeded
   await trans.commit();

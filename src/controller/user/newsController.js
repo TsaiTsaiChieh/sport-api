@@ -1,7 +1,7 @@
 const newsModel = require('../../model/user/newsModel');
 async function news(req, res) {
   try {
-    res.json(await newsModel(req.method, req.body, req.token.uid));
+    res.json(await newsModel(req));
   } catch (e) {
     console.log(e);
     return res.status(500);

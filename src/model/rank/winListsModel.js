@@ -1,13 +1,16 @@
 const { getCurrentPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
+const rankUtil = require('../../util/rankUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 const { acceptLeague } = require('../../config/acceptValues');
+// const { zone_tw } = require('../../config/env_values');
 // const { CacheQuery } = require('../../util/redisUtil');
 
-async function winBetsLists(args) {
+async function winLists(args) {
   const range = args.range;
   const league = args.league;
+  const type = args.type;
   const period = getCurrentPeriod(new Date()).period;
   const nowInfo = coreDateInfo(new Date());
   const d3 = date3UnixInfo(new Date());
@@ -15,26 +18,36 @@ async function winBetsLists(args) {
   const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
   const league_id = [];
+  let limitCase = '';
+  const order = `${range}_win_${type}`;
   if (league === 'ALL') {
     const len = acceptLeague.length;
     for (let i = 0; i < len; i++) {
-      league_id.push(leagueCodebook(acceptLeague[i]).id);
+      const leagueCode = leagueCodebook(acceptLeague[i]);
+      const leagueID = leagueCode.id;
+      const ratio = rankUtil.getRatioOfPredictCounts(leagueCode.predicts_perDay, range);
+      league_id.push(leagueID);
+      limitCase += ` WHEN league_id = ${leagueID} THEN ${ratio} `;
     }
   } else {
-    league_id.push(leagueCodebook(league).id);
+    const leagueCode = leagueCodebook(league);
+    const leagueID = leagueCode.id;
+    const ratio = rankUtil.getRatioOfPredictCounts(leagueCode.predicts_perDay, range);
+    league_id.push(leagueID);
+    limitCase = ` WHEN league_id = ${leagueID} THEN ${ratio} `;
   }
 
-  const winBetsLists = {};
-  winBetsLists[league] = [];
+  const winLists = {};
+  winLists[league] = [];
 
-  for (const key of Object.keys(winBetsLists)) { // 依 聯盟 進行排序
-    const leagueWinBetsLists = []; // 儲存 聯盟處理完成資料
+  for (const key of Object.keys(winLists)) { // 依 聯盟 進行排序
+    const leagueWinLists = []; // 儲存 聯盟處理完成資料
 
     // 當賣牌時，快取會無法跟上更新
     // const redisKey = ['rank', 'winBetsLists', 'users__win__lists', 'titles', league_id, period].join(':');
 
     // 大神賣牌狀態 sell (-1：無狀態  0：免費  1：賣牌)
-    const [err, leagueWinBetsListsQuery] = await to(db.sequelize.query(`
+    const [err, leagueWinListsQuery] = await to(db.sequelize.query(`
           select winlist.*,
                  titles.rank_id, 
                  CASE prediction.sell
@@ -57,21 +70,21 @@ async function winBetsLists(args) {
                                    this_month_win_bets, this_month_win_rate,
                                    this_week_win_bets, this_week_win_rate,
                                    this_week1_of_period_win_bets, this_week1_of_period_win_rate,
-                                   this_week1_of_period_correct_counts,this_week1_of_period_fault_counts
+                                   (${range}_correct_counts + ${range}_fault_counts) as counts
                               from users__win__lists
                               where users__win__lists.league_id in ( :league_id )
-                              order by ${rangeWinBetsCodebook(range)} desc
+                              HAVING counts > 
+                                CASE 
+                                    ${limitCase}
+                                END
+                              order by ${order} desc
                           ) winlist,
                           (
                             select * 
                               from users
                               where status in (1, 2)
-                          ) users,
-                          god_limits
+                          ) users
                     where winlist.uid = users.uid
-                      and god_limits.league_id = winlist.league_id
-                      and (winlist.this_week1_of_period_correct_counts + winlist.this_week1_of_period_fault_counts) >= god_limits.first_week_win_handicap
-                      and god_limits.period = :period
                  ) winlist 
             left join titles 
               on winlist.uid = titles.uid 
@@ -86,7 +99,7 @@ async function winBetsLists(args) {
                  ) prediction
               on titles.uid = prediction.uid
              and titles.league_id = prediction.league_id
-           order by ${rangeWinBetsCodebook(range)} desc limit 30
+           order by ${order} desc limit 30
       `, {
       replacements: {
         league_id: league_id,
@@ -98,65 +111,19 @@ async function winBetsLists(args) {
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
-      console.error('[Error][rank][winBetsListsModel]', err);
+      console.error('[Error][rank][winListsModel]', err);
       throw errs.dbErrsMsg('404', '13910');
     }
 
-    if (!leagueWinBetsListsQuery || leagueWinBetsListsQuery.length <= 0) return { userlists: winBetsLists }; // 如果沒有找到資料回傳 []
+    if (!leagueWinListsQuery || leagueWinListsQuery.length <= 0) return { userlists: winLists }; // 如果沒有找到資料回傳 []
 
-    leagueWinBetsListsQuery.forEach(function(data) { // 這裡有順序性
-      leagueWinBetsLists.push(repackage(data, rangeWinBetsCodebook(range)));
+    leagueWinListsQuery.forEach(function(data) { // 這裡有順序性
+      leagueWinLists.push(rankUtil.repackage(data, order, type));
     });
 
-    winBetsLists[key] = leagueWinBetsLists;
+    winLists[key] = leagueWinLists;
   }
 
-  return { userlists: winBetsLists[league] };
+  return { userlists: winLists[league] };
 }
-
-function repackage(ele, rangstr) {
-  const data = {
-    // win_bets: ele.win_bets,
-    uid: ele.uid,
-    league_id: ele.league_id,
-    avatar: ele.avatar,
-    display_name: ele.display_name,
-    status: ele.status
-  };
-
-  data.win_bets = ele[rangstr];
-
-  // 大神要 顯示 預設稱號
-  if ([1, 2, 3, 4].includes(ele.rank_id)) {
-    data.rank = `${ele.rank_id}`;
-    data.sell = ele.sell;
-    data.default_title = ele.default_title;
-    data.continue = ele.continue; // 連贏Ｎ場
-    data.predict_rate = [ele.predict_rate1, ele.predict_rate2, ele.predict_rate3]; // 近N日 N過 N
-    data.predict_rate2 = [ele.predict_rate1, ele.predict_rate3]; // 近N日過 N
-    data.win_bets_continue = ele.win_bets_continue; // 勝注連過 Ｎ日
-    data.matches_rate = [ele.matches_rate1, ele.matches_rate2]; // 近 Ｎ 場過 Ｎ 場;
-    data.matches_continue = ele.matches_continue; // 連贏Ｎ場
-  }
-
-  return data;
-}
-
-function rangeWinBetsCodebook(range) {
-  switch (range) {
-    case 'this_period':
-      return 'this_period_win_bets';
-    case 'this_week':
-      return 'this_week_win_bets';
-    case 'last_week':
-      return 'last_week_win_bets';
-    case 'this_month':
-      return 'this_month_win_bets';
-    case 'last_month':
-      return 'last_month_win_bets';
-    case 'this_season':
-      return 'this_season_win_bets';
-  }
-}
-
-module.exports = winBetsLists;
+module.exports = winLists;
