@@ -38,7 +38,8 @@ function queryHomeEvents(args) {
            WHERE game.bets_id = :event_id
              AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
-             AND season.league_id = :leagueID
+						 AND season.league_id = :leagueID
+						 AND season.current = 1
              AND (game.home_id = historygame.home_id OR game.home_id = historygame.away_id) 
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND historygame.bets_id = spread.match_id
@@ -80,7 +81,8 @@ function queryAwayEvents(args) {
          WHERE game.bets_id = :event_id
            AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
            AND game.league_id = :leagueID
-           AND season.league_id = :leagueID
+					 AND season.league_id = :leagueID
+					 AND season.current = 1
            AND (game.away_id = historygame.home_id OR game.away_id = historygame.away_id) 
            AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
            AND historygame.bets_id = spread.match_id
@@ -122,7 +124,8 @@ function queryTwoTeamsEvents(args) {
            WHERE game.bets_id = :event_id
              AND historygame.status = ${leagueUtil.MATCH_STATUS.END}
              AND game.league_id = :leagueID
-             AND season.league_id = :leagueID
+						 AND season.league_id = :leagueID
+						 AND season.current = 1
              AND (game.home_id = historygame.home_id OR game.away_id = historygame.home_id) 
              AND (game.home_id = historygame.away_id OR game.away_id = historygame.away_id)
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)

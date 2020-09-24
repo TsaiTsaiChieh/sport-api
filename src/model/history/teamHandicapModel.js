@@ -29,7 +29,8 @@ function queryTeamHandicap(args) {
                  match__spreads spread,
                  match__totals  total
            WHERE (game.home_id = :team_id OR game.away_id = :team_id)
-             AND season.league_id = :leagueID
+						 AND season.league_id = :leagueID
+						 AND season.current = 1
              AND game.scheduled BETWEEN UNIX_TIMESTAMP(season.start_date) AND (UNIX_TIMESTAMP(season.end_date)+86400)
              AND game.spread_id = spread.spread_id
              AND game.totals_id = total.totals_id
