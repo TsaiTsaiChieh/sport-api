@@ -10,22 +10,23 @@ async function mpgModel(res) {
   //   const uid = '33333'; // 取得登入uid
   return new Promise(async function(resolve, reject) {
     try {
-      // const result = await db.PurchaseList.findOne({
-      //   attributes: [
-      //     'list_id',
-      //     'coin',
-      //     'dividend'
-      //   ],
-      //   where: {
-      //     'list_id': exchange.list_id,
-      //     'coin': exchange.coin,
-      //     'dividend': exchange.dividend
-      //   },
-      //   raw: true
-      // });
-      // if(!result){
-      //   reject({'msg':'沒有該項商品'})
-      // }
+      const result = await db.PurchaseList.findOne({
+        attributes: [
+          'list_id',
+          'coin',
+          'dividend'
+        ],
+        where: {
+          'list_id': exchange.list_id,
+          'coin': exchange.coin,
+          'dividend': exchange.dividend
+        },
+        logging:true,
+        raw: true
+      });
+      if(!result){
+        reject({'msg':'沒有該項商品'})
+      }
 
       const setting = gash_config.setting.official; // 讀取設定檔(測試/正式)
       exchange.merchant_order_no = neweb_sdk.get_order_no(); // 商品訂單編號
@@ -35,6 +36,11 @@ async function mpgModel(res) {
       /* 金流-Gash資料 */
       createOrder(exchange, uid); // 建立訂單到資料庫
 
+      /* 電信支付(需+15%手續費) */
+      if(exchange.category === 'telecom'){
+        exchange.coin = Math.floor(exchange.coin*1.15);
+      }
+
       const trade_arr = {
         serial_number: exchange.merchant_order_no,
         coin: exchange.coin,
@@ -42,7 +48,6 @@ async function mpgModel(res) {
         paid: exchange.paid,
         category: exchange.category
       };
-
       request(
         {
           method: 'post',
