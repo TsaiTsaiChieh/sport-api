@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -  service__contact add foreign key ***by eric13e*** [#509](https://github.com/gets-info/sports-api/pull/509)
 -  歷史數據頁 - 詳細投手資料與詳細隊伍資料 ***by page40316*** [#508](https://github.com/gets-info/sports-api/pull/508)
 #### Fix:
+-  add the fee of telecom ***by gsihenry*** [#510](https://github.com/gets-info/sports-api/pull/510)
 -  update imgurl with editArticle api ***by rex-getsinfo*** [#507](https://github.com/gets-info/sports-api/pull/507)
 #### Removed:
 #### DB:
