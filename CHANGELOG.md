@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  update imgurl with editArticle api ***by rex-getsinfo*** [#507](https://github.com/gets-info/sports-api/pull/507)
 #### Removed:
 #### DB:
 ***
