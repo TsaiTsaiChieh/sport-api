@@ -17,15 +17,15 @@ async function mpgModel(res) {
           'dividend'
         ],
         where: {
-          'list_id': exchange.list_id,
-          'coin': exchange.coin,
-          'dividend': exchange.dividend
+          list_id: exchange.list_id,
+          coin: exchange.coin,
+          dividend: exchange.dividend
         },
-        logging:true,
+        logging: true,
         raw: true
       });
-      if(!result){
-        reject({'msg':'沒有該項商品'})
+      if (!result) {
+        reject({ msg: '沒有該項商品' });
       }
 
       const setting = gash_config.setting.official; // 讀取設定檔(測試/正式)
@@ -37,8 +37,8 @@ async function mpgModel(res) {
       createOrder(exchange, uid); // 建立訂單到資料庫
 
       /* 電信支付(需+15%手續費) */
-      if(exchange.category === 'telecom'){
-        exchange.coin = Math.floor(exchange.coin*1.15);
+      if (exchange.category === 'telecom') {
+        exchange.coin = Math.floor(exchange.coin * 1.15);
       }
 
       const trade_arr = {
