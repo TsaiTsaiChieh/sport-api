@@ -1584,6 +1584,10 @@ const Service_Contact = sequelize.define('service__contact', {
     type: Sequelize.TEXT,
     allowNull: true
   },
+  news_sys_id: {
+    type: Sequelize.INTEGER,
+    allowNull: true
+  },
   status: {
     type: Sequelize.INTEGER,
     allowNull: false,
