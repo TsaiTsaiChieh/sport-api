@@ -52,16 +52,20 @@ function searchPredictions(args, matches) {
     const { user_type } = args;
     const matchArray = [];
     for (let i = 0; i < matches.length; i++) {
-      matchArray.push(matches[i].bets_id);
+      matchArray.push(String(matches[i].bets_id));
     }
+    console.log(matchArray);
     try {
       // 一般玩家 + 大神玩家
       if (user_type === 'all') {
         const results = await db.sequelize.query(
           `SELECT bets_id, spread_option, totals_option
              FROM user__predictions AS prediction FORCE INDEX(user__predictions_bets_id)
-            WHERE bets_id IN (${matchArray})`,
-          { type: db.sequelize.QueryTypes.SELECT }
+            WHERE bets_id IN (:matchArray)`,
+          {
+            replacements: { matchArray },
+            type: db.sequelize.QueryTypes.SELECT
+          }
         );
         return resolve(results);
       }
