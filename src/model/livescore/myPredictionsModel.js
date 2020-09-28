@@ -28,7 +28,7 @@ function getUserTodayPredictionsInformation(args) {
         `SELECT game.bets_id, game.status, game.scheduled, game.ori_league_id, game.league_id, game.ori_league_id, game.sport_id, game.home_id, game.away_id, game.spread_id, game.totals_id, game.home_points, game.away_points, 
                 home.name AS home_name, home.name_ch AS home_name_ch, home.alias AS home_alias, home.alias_ch AS home_alias_ch, home.image_id AS home_image_id,
                 away.name AS away_name, away.name_ch AS away_name_ch, away.alias AS away_alias, away.alias_ch AS away_alias_ch, away.image_id AS away_image_id, 
-                spread1.handicap AS spread_handicap, spread1.home_tw, spread1.away_tw,
+                spread2.handicap AS spread_handicap, spread2.home_tw, spread2.away_tw,
                 totals.totals_id, totals.handicap AS totals_handicap, totals.over_tw,
                 league.ori_league_id, league.name_ch, 
                 prediction.spread_option, prediction.spread_id AS user_predict_spread_id, prediction.totals_option, prediction.totals_id AS user_predict_totals_id
@@ -37,7 +37,7 @@ function getUserTodayPredictionsInformation(args) {
      INNER JOIN match__teams AS home ON game.home_id = home.team_id
      INNER JOIN match__teams AS away ON game.away_id = away.team_id
      INNER JOIN match__spreads AS spread1 ON (game.bets_id = spread1.match_id AND game.spread_id = spread1.spread_id)
-      LEFT JOIN match__spreads AS spread2 ON  (prediction.bets_id = spread2.match_id AND prediction.spread_id = spread2.spread_id)
+      LEFT JOIN match__spreads AS spread2 ON (prediction.bets_id = spread2.match_id AND prediction.spread_id = spread2.spread_id)
       LEFT JOIN match__totals AS totals ON (prediction.bets_id = totals.match_id AND prediction.totals_id = totals.totals_id)
      INNER JOIN match__leagues AS league ON game.ori_league_id = league.ori_league_id
           WHERE prediction.uid = :uid
