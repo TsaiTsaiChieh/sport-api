@@ -1,4 +1,4 @@
-const { getLastPeriod, coreDateInfo, fieldSorter, to } = require('../../util/modules');
+const { getLastPeriod, date3UnixInfo, fieldSorter, to } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -11,9 +11,13 @@ async function godlists(args) {
   // 取得當期期數
   const period = getLastPeriod(new Date()).period;
   const league = args.league;
-  const nowInfo = coreDateInfo(new Date());
-  const beginUnix = nowInfo.dateBeginUnix;
-  const endUnix = nowInfo.dateEndUnix;
+  // const nowInfo = coreDateInfo(new Date());
+  // const beginUnix = nowInfo.dateBeginUnix;
+  // const endUnix = nowInfo.dateEndOfNextDayUnix;
+
+  const dateInterval = date3UnixInfo(new Date());
+  const beginUnix = dateInterval.dateBeginUnix;
+  const endUnix = dateInterval.tomorrowEndUnix;
 
   const league_id = [];
   if (league === 'ALL') {
