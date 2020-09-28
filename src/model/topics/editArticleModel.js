@@ -70,10 +70,9 @@ async function createTopic(args) {
       const insertData = {
         league: args.league,
         category: args.category,
-        title: args.title
+        title: args.title,
+        imgurl: args.imgurl
       };
-
-      if (args.imgurl) insertData.imgurl = args.imgurl;
 
       // 過濾html tags
       insertData.content = sanitizeHtml(args.content, createTopicAllowed);

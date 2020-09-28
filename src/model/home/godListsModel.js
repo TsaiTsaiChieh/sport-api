@@ -1,4 +1,4 @@
-const { getLastPeriod, coreDateInfo, date3UnixInfo, to } = require('../../util/modules');
+const { getLastPeriod, date3UnixInfo, to } = require('../../util/modules');
 const { leagueDecoder } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
@@ -8,10 +8,10 @@ const limit = 6;
 async function godlists() {
   const godLists = [];
   const period = getLastPeriod(new Date()).period;
-  const nowInfo = coreDateInfo(new Date());
-  const d3 = date3UnixInfo(new Date());
-  const beginUnix = nowInfo.dateBeginUnix;
-  const endUnix = d3.tomorrowEndUnix; // nowInfo.dateEndUnix;
+  // const nowInfo = coreDateInfo(new Date());
+  const dateInterval = date3UnixInfo(new Date());
+  const beginUnix = dateInterval.dateBeginUnix;
+  const endUnix = dateInterval.tomorrowEndUnix; // nowInfo.dateEndUnix;
 
   // 取得 首頁預設值
   // const listLeague = await db.Home_List.findOneCache({ where: { id: 1 } });

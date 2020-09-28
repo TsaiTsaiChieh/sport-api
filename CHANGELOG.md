@@ -6,10 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
--  sometimes cant get system news ***by gsihenry*** [#505](https://github.com/gets-info/sports-api/pull/505)
--  get news time ***by eric13e*** [#504](https://github.com/gets-info/sports-api/pull/504)
 #### Removed:
 #### DB:
+***
+
+## [v1.1.20] - 2020-09-28
+#### Fix:
+-  date between of god_list sell info ***by rex-getsinfo*** [#513](https://github.com/gets-info/sports-api/pull/513)
+-  Fix only god button in sport/prediction_rate API and spread result not return user own prediction ***by TsaiTsaiChieh*** [#512](https://github.com/gets-info/sports-api/pull/512)
+***
+
+## [v1.1.19] - 2020-09-25
+#### Add:
+-  service__contact add foreign key ***by eric13e*** [#509](https://github.com/gets-info/sports-api/pull/509)
+-  歷史數據頁 - 詳細投手資料與詳細隊伍資料 ***by page40316*** [#508](https://github.com/gets-info/sports-api/pull/508)
+#### Fix:
+-  Fix when bets_id contains letter would error in prediction_rate API ***by TsaiTsaiChieh*** [#511](https://github.com/gets-info/sports-api/pull/511)
+-  add the fee of telecom ***by gsihenry*** [#510](https://github.com/gets-info/sports-api/pull/510)
+-  update imgurl with editArticle api ***by rex-getsinfo*** [#507](https://github.com/gets-info/sports-api/pull/507)
+***
+
+## [v1.1.18] - 2020-09-24
+#### Fix:
+-  add carrier status of invoice ***by gsihenry*** [#506](https://github.com/gets-info/sports-api/pull/506)
+-  sometimes cant get system news ***by gsihenry*** [#505](https://github.com/gets-info/sports-api/pull/505)
+-  get news time ***by eric13e*** [#504](https://github.com/gets-info/sports-api/pull/504)
 ***
 
 ## [v1.1.17] - 2020-09-22
