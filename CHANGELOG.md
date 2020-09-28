@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
--  date between of god_list sell info ***by rex-getsinfo*** [#513](https://github.com/gets-info/sports-api/pull/513)
--  Fix only god button in sport/prediction_rate API and spread result not return user own prediction ***by TsaiTsaiChieh*** [#512](https://github.com/gets-info/sports-api/pull/512)
 #### Removed:
 #### DB:
+***
+
+## [v1.1.20] - 2020-09-28
+#### Fix:
+-  date between of god_list sell info ***by rex-getsinfo*** [#513](https://github.com/gets-info/sports-api/pull/513)
+-  Fix only god button in sport/prediction_rate API and spread result not return user own prediction ***by TsaiTsaiChieh*** [#512](https://github.com/gets-info/sports-api/pull/512)
 ***
 
 ## [v1.1.19] - 2020-09-25
