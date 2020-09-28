@@ -33,7 +33,7 @@ function CoinModel(req) {
           /* 統計所有購買搞幣、紅利數量(藍新) */
           reporter = await db.sequelize.query(
                   `
-                  SELECT uid, third_party, SUM(coin) AS sum_coin, SUM(dividend) AS sum_dividend FROM cashflow_deposits WHERE (third_party IS NULL OR third_party='neweb') AND order_status = 1 GROUP BY uid
+                  SELECT uid, "neweb" as third_party, SUM(coin) AS sum_coin, SUM(dividend) AS sum_dividend FROM cashflow_deposits WHERE (third_party IS NULL OR third_party='neweb') AND order_status = 1 GROUP BY uid
                   `,
                   {
                     type: db.sequelize.QueryTypes.SELECT
