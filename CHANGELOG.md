@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  Fix only god button in sport/prediction_rate API and spread result not return user own prediction ***by TsaiTsaiChieh*** [#512](https://github.com/gets-info/sports-api/pull/512)
 #### Removed:
 #### DB:
 ***
