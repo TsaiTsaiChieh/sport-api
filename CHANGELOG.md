@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fix:
 #### Removed:
 #### DB:
+-  新增 home__livescore 表，為了首頁即時比分區塊邏輯 ***by page40316*** [#514](https://github.com/gets-info/sports-api/pull/514)
 ***
 
 ## [v1.1.20] - 2020-09-28
