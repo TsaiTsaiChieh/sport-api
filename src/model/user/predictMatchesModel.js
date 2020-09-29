@@ -183,10 +183,10 @@ function isGodUpdate(uid, i, filter) {
         `SELECT *
            FROM user__predictions AS prediction
           WHERE prediction.uid = :uid 
-            AND prediction.bets_id = ${ele.id} 
+            AND prediction.bets_id = :bets_id 
             AND ${handicapType}_id = ${handicapId}`,
         {
-          replacements: { uid },
+          replacements: { uid, bets_id: ele.id },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
