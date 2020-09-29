@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  predicts per day of ranking requirement ***by rex-getsinfo*** [#516](https://github.com/gets-info/sports-api/pull/516)
 -  adjust reporter api ***by gsihenry*** [#515](https://github.com/gets-info/sports-api/pull/515)
 #### Removed:
 #### DB:
