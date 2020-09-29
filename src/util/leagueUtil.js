@@ -73,7 +73,8 @@ function leagueCodebook(league) {
         id: '2274',
         match: db.basketball_NBA,
         name_ch: '美國國家籃球協會',
-        predicts_perDay: 1
+        // predicts_perDay: 2  // regular season
+        predicts_perDay: 1 // post season
       };
     case 'SBL':
       return {
@@ -94,14 +95,16 @@ function leagueCodebook(league) {
         id: '1714',
         match: db.basketball_NBL,
         name_ch: '澳洲職籃',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 0.8 // post season
       };
     case 'CBA':
       return {
         id: '2319',
         match: db.basketball_CBA,
         name_ch: '中國職籃',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 1 // post season
       };
     case 'KBL':
       return {
@@ -115,21 +118,24 @@ function leagueCodebook(league) {
         id: '1298',
         match: db.basketball_BJL,
         name_ch: '日本職籃',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 0.8 // post season
       };
     case 'MLB':
       return {
         id: '3939',
         match: db.baseball_MLB,
         name_ch: '美國職棒大聯盟',
-        predicts_perDay: 2
+        // predicts_perDay: 2  // regular season
+        predicts_perDay: 1 // post season
       };
     case 'NPB':
       return {
         id: '347',
         match: db.baseball_NPB,
         name_ch: '日本職棒',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 1 // post season
       };
     case 'CPBL':
       return {
@@ -150,28 +156,32 @@ function leagueCodebook(league) {
         id: '2759',
         match: db.baseball_ABL,
         name_ch: '澳洲職棒',
-        predicts_perDay: 1.2
+        predicts_perDay: 1.2 // regular season
+        // predicts_perDay: 0.8 // post season
       };
     case 'LMB':
       return {
         id: '4412',
         match: db.baseball_LMB,
         name_ch: '墨西哥職棒',
-        predicts_perDay: 1.2
+        predicts_perDay: 1.2 // regular season
+        // predicts_perDay: 0.8 // post season
       };
     case 'NHL':
       return {
         id: '1926',
         match: db.icehockey_NHL,
         name_ch: '國家冰球聯盟',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 1 // post season
       };
     case 'Soccer':
       return {
         id: '8',
         match: db.Soccer,
         name_ch: '足球',
-        predicts_perDay: 2
+        predicts_perDay: 2 // regular season
+        // predicts_perDay: 1 // post season
       };
     case 'eSoccer':
       return {
