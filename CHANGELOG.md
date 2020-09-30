@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### DB:
 ***
 
-## [v1.1.21] - 2020-09-30
+## [v1.1.22] - 2020-09-30
 #### Add:
 -  Add when now time is bigger than scheduled time, will ban prediction function ***by TsaiTsaiChieh*** [#519](https://github.com/gets-info/sports-api/pull/519)
 #### Fix:
