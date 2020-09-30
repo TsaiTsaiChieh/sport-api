@@ -9,12 +9,14 @@ async function buyModel(args, uid) {
   const end = args.end;
 
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
+  console.log(buy);
   if (err) {
     console.error('[Error][buyModel][getGodSellPredictionDatesWinBetsInfo] ', err);
     throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });
   }
   if (!buy) return buyList;
 
+ 
   for (const ele of buy) {
     buyList.push({
       date: ele.matches_date,
