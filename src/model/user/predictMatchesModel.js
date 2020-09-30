@@ -126,7 +126,7 @@ function checkIfError(result, args, ele, filter) {
       filter.failed.push(ele);
       return;
     }
-    if (result[0].status !== leagueUtil.MATCH_STATUS.SCHEDULED) { // 賽事已開打
+    if (result[0].status !== leagueUtil.MATCH_STATUS.SCHEDULED || Date.now() >= result[0].scheduled * 1000) { // 賽事已開打
       ele.code = httpStatus.CONFLICT;
       ele.error = `Match id: ${ele.id} in ${args.league} already started`;
       ele.error_ch = `賽事編號 ${ele.id}(${args.league}) 已經開始或結束，不能再下注`;
@@ -267,7 +267,6 @@ function isGodSellConsistent(args, i, filter) {
 }
 
 function sendPrediction(args, filter) {
-  // console.log(args);
   return new Promise(async function(resolve, reject) {
     const neededResult = isNeeded(filter.needed);
     if (!neededResult) {
@@ -325,8 +324,6 @@ async function insertDB(args, needed) {
 async function dbNewsCreate(insertData) {
   return new Promise(async function(resolve, reject) {
     try {
-      console.log('start');
-      console.log(insertData);
       insertData.uid = insertData.token.uid;
       /* 讀取售牌金額 */
       const date = new Date();
