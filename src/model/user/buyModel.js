@@ -9,6 +9,7 @@ async function buyModel(args, uid) {
   const end = args.end;
 
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
+
   if (err) {
     console.error('[Error][buyModel][getGodSellPredictionDatesWinBetsInfo] ', err);
     throw errs.dbErrsMsg('404', '50111', { addMsg: err.parent.code });

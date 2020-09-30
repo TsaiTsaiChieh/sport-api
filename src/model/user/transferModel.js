@@ -63,13 +63,13 @@ async function transferModel(method, args, uid) {
             AND cd.from_uid = :uid
             AND scheduled BETWEEN :begin AND :end
           UNION
-         SELECT 0 as ingot, cb.coin, cb.dividend, "購牌消費" as title, "buy" as en_title, ml.name, ml.name_ch, display_name, NULL as article_title, scheduled
-           FROM cashflow_buys cb, match__leagues ml, users u
-          WHERE cb.league_id = ml.league_id
-            AND cb.uid = u.uid
-            AND cb.uid = :uid
-            AND cb.status = 1
-            AND scheduled BETWEEN :begin AND :end
+        SELECT 0 as ingot, cb.coin, cb.dividend, "購牌消費" as title, "buy" as en_title, vl.name, vl.name AS name_ch, display_name, NULL as article_title, scheduled
+          FROM cashflow_buys cb, view__leagues vl, users u
+         WHERE cb.league_id = vl.league_id
+           AND cb.uid = u.uid
+           AND cb.uid = :uid
+           AND cb.status = 1
+           AND scheduled BETWEEN :begin AND :end
           UNION
          SELECT 0 as ingot, 0 as coin, 0 as dividend, "賽事無效退費(處理中)" as title, "dividend_expire" as en_title, NULL as name, NULL as name_ch, NULL as display_name, NULL as article_title, scheduled
            FROM cashflow_buys
