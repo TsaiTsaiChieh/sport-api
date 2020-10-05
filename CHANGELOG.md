@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  Fix correct prediction rate in god option in sport/prediction_rate API ***by TsaiTsaiChieh*** [#521](https://github.com/gets-info/sports-api/pull/521)
 -  transfer/buy api adjust ***by gsihenry*** [#520](https://github.com/gets-info/sports-api/pull/520)
 #### Removed:
 #### DB:
