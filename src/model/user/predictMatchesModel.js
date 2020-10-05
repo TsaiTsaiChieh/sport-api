@@ -381,6 +381,8 @@ async function dbNewsCreate(insertData) {
 }
 
 function repackagePrediction(args, ele) {
+  const { titles } = args.token.customClaims;
+  const userStatus = titles.includes(args.league) ? 2 : 1;
   const data = {
     bets_id: ele.id,
     league_id: ele.league_id,
@@ -389,7 +391,7 @@ function repackagePrediction(args, ele) {
     match_scheduled_tw: ele.match_scheduled_tw,
     match_date: ele.match_date,
     uid: args.token.uid,
-    user_status: args.token.customClaims.role
+    user_status: userStatus
   };
 
   if (ele.spread) {
