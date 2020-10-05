@@ -49,7 +49,8 @@ function searchMatches(args) {
 // 搜尋所有符合條件的預測單
 function searchPredictions(args, matches) {
   return new Promise(async function(resolve, reject) {
-    const { user_type } = args;
+    const { user_type, league } = args;
+    const leagueId = leagueUtil.leagueCodebook(league).id;
     const matchArray = [];
     for (let i = 0; i < matches.length; i++) {
       matchArray.push(String(matches[i].bets_id));
@@ -59,10 +60,12 @@ function searchPredictions(args, matches) {
       if (user_type === 'all') {
         const results = await db.sequelize.query(
           `SELECT bets_id, spread_option, totals_option
-             FROM user__predictions AS prediction FORCE INDEX(user__predictions_bets_id)
-            WHERE bets_id IN (:matchArray)`,
+             FROM user__predictions AS prediction 
+            FORCE INDEX(user__predictions_bets_id)
+            WHERE bets_id IN (:matchArray)
+              AND league_id = :leagueId`,
           {
-            replacements: { matchArray },
+            replacements: { matchArray, leagueId },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
@@ -72,11 +75,13 @@ function searchPredictions(args, matches) {
       if (user_type === 'god') {
         const results = await db.sequelize.query(
           `SELECT bets_id, spread_option, totals_option
-             FROM user__predictions AS prediction FORCE INDEX(user__predictions_bets_id)
+             FROM user__predictions AS prediction 
+            FORCE INDEX(user__predictions_bets_id)
             WHERE bets_id IN (:matchArray)
+              AND league_id = :leagueId
               AND user_status = :status`,
           {
-            replacements: { status: GOD_STATUS, matchArray },
+            replacements: { matchArray, leagueId, status: GOD_STATUS },
             type: db.sequelize.QueryTypes.SELECT
           }
         );
