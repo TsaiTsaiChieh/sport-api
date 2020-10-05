@@ -120,12 +120,12 @@ function isHandicapExist(args, i, filter) {
            FROM user__predictions
           WHERE uid = '${args.token.uid}'
             AND bets_id = :id
-            AND ${handicapType}_id = '${handicapId}'
+            AND ${handicapType}_id = :handicap_id
             AND sell = ${USER_SELL.NORMAL}
             AND league_id = ${leagueCodebook(args.league).id}`,
         {
           type: db.sequelize.QueryTypes.SELECT,
-          replacements: { id: ele.id }
+          replacements: { id: ele.id, handicap_id: handicapId }
         }
       );
       if (!result.length) {
@@ -168,12 +168,12 @@ function updatePredictions(args, filter) {
           const result = await db.sequelize.query(
             `UPDATE user__predictions
               SET ${handicapType}_id = NULL, ${handicapType}_bets = NULL, ${handicapType}_option = NULL
-            WHERE ${handicapType}_id = '${handicapId}'
+            WHERE ${handicapType}_id = :handicap_id
               AND bets_id = :id
               AND uid = '${args.token.uid}'`,
             {
               type: db.sequelize.QueryTypes.UPDATE,
-              replacements: { id: ele.id }
+              replacements: { handicap_id: handicapId, id: ele.id }
             }
           );
           // result = [undefined, 1] 代表有更新成功；反之 [undefined, 0]
