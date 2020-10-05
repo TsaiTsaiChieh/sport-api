@@ -99,7 +99,7 @@ async function isMatchValid(args, ele, filter) {
       );
       return resolve(checkIfError(result, args, ele, filter));
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -184,9 +184,9 @@ function isGodUpdate(uid, i, filter) {
            FROM user__predictions AS prediction
           WHERE prediction.uid = :uid 
             AND prediction.bets_id = :bets_id 
-            AND ${handicapType}_id = ${handicapId}`,
+            AND ${handicapType}_id = :handicap_id`,
         {
-          replacements: { uid, bets_id: ele.id },
+          replacements: { uid, bets_id: ele.id, handicap_id: handicapId },
           type: db.sequelize.QueryTypes.SELECT
         }
       );
@@ -200,7 +200,7 @@ function isGodUpdate(uid, i, filter) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -261,7 +261,7 @@ function isGodSellConsistent(args, i, filter) {
         } else return resolve();
       } else return resolve();
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
@@ -316,7 +316,7 @@ async function insertDB(args, needed) {
       }
       return resolve();
     } catch (err) {
-      return reject(new AppErrors.MysqlError(`${err.stack} by TsaiChieh`));
+      return reject(new AppErrors.MysqlError(err.stack));
     }
   });
 }
