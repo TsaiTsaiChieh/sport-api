@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+#### Removed:
+#### DB:
+***
+
+## [v1.1.23] - 2020-10-06
+#### Fix:
 -  Fix when handicapId contains letter error problem ***by TsaiTsaiChieh*** [#522](https://github.com/gets-info/sports-api/pull/522)
 -  Fix correct prediction rate in god option in sport/prediction_rate API ***by TsaiTsaiChieh*** [#521](https://github.com/gets-info/sports-api/pull/521)
 -  transfer/buy api adjust ***by gsihenry*** [#520](https://github.com/gets-info/sports-api/pull/520)
-#### Removed:
-#### DB:
 ***
 
 ## [v1.1.22] - 2020-09-30
