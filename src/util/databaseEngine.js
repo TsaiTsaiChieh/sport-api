@@ -2,7 +2,7 @@ const db = require('./dbUtil');
 const AppError = require('./AppErrors');
 const errs = require('./errorCode');
 const to = require('await-to-js').default;
-const { moment, coreDateInfo, getLastPeriod, convertDateYMDToGTM0Unix } = require('../util/modules');
+const { coreDateInfo } = require('../util/modules');
 const { logger } = require('./loggerUtil');
 const modules = require('../util/modules');
 
@@ -130,115 +130,115 @@ async function checkGodSellPrediction(god_uid, league_id, matches_date_unix) {
 
 // 查日期區間大神預測牌組勝注資訊
 // await getGodSellPredictionDatesWinBetsInfo('2WMRgHyUwvTLyHpLoANk7gWADZn1', '20200608', '20200608');
-async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
-  const range1 = moment().range(sDate, eDate);
-
-  const dateBetween = [];
-  Array.from(range1.by('day')).forEach(function(data) {
-    dateBetween.push(convertDateYMDToGTM0Unix(data.format('YYYYMMDD')));
-  });
-
-  // 取得 user__buys 購買資料
-  const buyLists = await db.sequelize.query(`
-    select uid, league_id, god_uid, matches_date, buy_status
-      from user__buys
-     where uid = :uid
-       and matches_date in (:dateBetween)
-  `, {
-    replacements: {
-      uid: uid,
-      dateBetween: dateBetween
-    },
-    type: db.sequelize.QueryTypes.SELECT
-  });
-
-  // 取得 該大神預測牌組勝注
-  const result = [];
-  for (const data of buyLists) {
-    const info = await getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, data.matches_date);
-
-    if (!info.length) continue; // 空陣列移除，不回傳 略過
-
-    result.push({
-      matches_date: data.matches_date,
-      buy_status: data.buy_status,
-      info: info[0] // 這裡預設情況下是只會有一筆，萬一有兩筆時，只存入第一筆
-    });
-  };
-
-  return result;
-}
+// async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
+//   const range1 = moment().range(sDate, eDate);
+//
+//   const dateBetween = [];
+//   Array.from(range1.by('day')).forEach(function(data) {
+//     dateBetween.push(convertDateYMDToGTM0Unix(data.format('YYYYMMDD')));
+//   });
+//
+//   // 取得 user__buys 購買資料
+//   const buyLists = await db.sequelize.query(`
+//     select uid, league_id, god_uid, matches_date, buy_status
+//       from user__buys
+//      where uid = :uid
+//        and matches_date in (:dateBetween)
+//   `, {
+//     replacements: {
+//       uid: uid,
+//       dateBetween: dateBetween
+//     },
+//     type: db.sequelize.QueryTypes.SELECT
+//   });
+//
+//   // 取得 該大神預測牌組勝注
+//   const result = [];
+//   for (const data of buyLists) {
+//     const info = await getGodSellPredictionWinBetsInfo(data.god_uid, data.league_id, data.matches_date);
+//
+//     if (!info.length) continue; // 空陣列移除，不回傳 略過
+//
+//     result.push({
+//       matches_date: data.matches_date,
+//       buy_status: data.buy_status,
+//       info: info[0] // 這裡預設情況下是只會有一筆，萬一有兩筆時，只存入第一筆
+//     });
+//   };
+//
+//   return result;
+// }
 
 // 查該大神預測牌組勝注
 // matches_fail_status  -1 全額退款，0 一般退款  判斷依據是 預測數 是否等同 預測無效數
-async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
-  const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
-  const period = getLastPeriod(matches_date_unix * 1000).period;
-
-  const infos = await db.sequelize.query(`
-    select users.uid, users.avatar, users.display_name,
-           titles.period, titles.rank_id, titles.price, titles.sub_price,
-           titles.league_id, titles.name,
-           win_bets, date_timestamp,
-           matches_fail_status
-      from (
-             select uid, avatar, display_name
-               from users
-              where uid = :uid
-           ) users,
-           (
-             select titles.uid, titles.league_id, view__leagues.name,
-                    titles.period, titles.rank_id, ranks.price, ranks.sub_price
-               from titles, user__ranks ranks, view__leagues
-              where titles.rank_id = ranks.rank_id
-                and titles.league_id = view__leagues.league_id
-                and uid = :uid
-                and titles.league_id = :league_id
-                and period = :period
-           ) titles,
-           (
-             select uid, league_id, win_bets, date_timestamp, 
-                    day_of_year, period, week_of_period, week, month, season
-               from users__win__lists__histories
-              where uid = :uid
-                and league_id = :league_id
-                and date_timestamp = :begin
-           ) histories,
-           (
-             select all_counts = failed_counts matches_fail_status
-               from (
-                      select count(predictions.id) all_counts
-                        from user__predictions predictions, matches
-                       where predictions.bets_id = matches.bets_id
-                         and predictions.uid = :uid
-                         and predictions.league_id = :league_id
-                         and predictions.match_date = :begin
-                    ) matches_all,
-                    (
-                      select count(predictions.id) failed_counts
-                        from user__predictions predictions, matches
-                       where predictions.bets_id = matches.bets_id
-                         and predictions.uid = :uid
-                         and predictions.league_id = :league_id
-                         and predictions.match_date = :begin
-                         and matches.status < 0
-                    ) matches_failed
-           ) failedcount
-     where users.uid = titles.uid
-       and titles.uid = histories.uid
-  `, {
-    replacements: {
-      uid: god_uid,
-      league_id: league_id,
-      begin: matches_date_unix,
-      end: end_unix,
-      period: period
-    },
-    type: db.sequelize.QueryTypes.SELECT
-  });
-
-  return infos;
-}
+// async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
+//   const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
+//   const period = getLastPeriod(matches_date_unix * 1000).period;
+//
+//   const infos = await db.sequelize.query(`
+//     select users.uid, users.avatar, users.display_name,
+//            titles.period, titles.rank_id, titles.price, titles.sub_price,
+//            titles.league_id, titles.name,
+//            win_bets, date_timestamp,
+//            matches_fail_status
+//       from (
+//              select uid, avatar, display_name
+//                from users
+//               where uid = :uid
+//            ) users,
+//            (
+//              select titles.uid, titles.league_id, view__leagues.name,
+//                     titles.period, titles.rank_id, ranks.price, ranks.sub_price
+//                from titles, user__ranks ranks, view__leagues
+//               where titles.rank_id = ranks.rank_id
+//                 and titles.league_id = view__leagues.league_id
+//                 and uid = :uid
+//                 and titles.league_id = :league_id
+//                 and period = :period
+//            ) titles,
+//            (
+//              select uid, league_id, win_bets, date_timestamp,
+//                     day_of_year, period, week_of_period, week, month, season
+//                from users__win__lists__histories
+//               where uid = :uid
+//                 and league_id = :league_id
+//                 and date_timestamp = :begin
+//            ) histories,
+//            (
+//              select all_counts = failed_counts matches_fail_status
+//                from (
+//                       select count(predictions.id) all_counts
+//                         from user__predictions predictions, matches
+//                        where predictions.bets_id = matches.bets_id
+//                          and predictions.uid = :uid
+//                          and predictions.league_id = :league_id
+//                          and predictions.match_date = :begin
+//                     ) matches_all,
+//                     (
+//                       select count(predictions.id) failed_counts
+//                         from user__predictions predictions, matches
+//                        where predictions.bets_id = matches.bets_id
+//                          and predictions.uid = :uid
+//                          and predictions.league_id = :league_id
+//                          and predictions.match_date = :begin
+//                          and matches.status < 0
+//                     ) matches_failed
+//            ) failedcount
+//      where users.uid = titles.uid
+//        and titles.uid = histories.uid
+//   `, {
+//     replacements: {
+//       uid: god_uid,
+//       league_id: league_id,
+//       begin: matches_date_unix,
+//       end: end_unix,
+//       period: period
+//     },
+//     type: db.sequelize.QueryTypes.SELECT
+//   });
+//
+//   return infos;
+// }
 
 async function createData(Data, status, action, inTrans = undefined) {
   const trans = inTrans !== undefined ? inTrans : await db.sequelize.transaction();
@@ -302,7 +302,5 @@ module.exports = {
   countGodSellPredictionBuyers,
   checkUidBuyGodSellPrediction,
   checkGodSellPrediction,
-  getGodSellPredictionDatesWinBetsInfo,
-  getGodSellPredictionWinBetsInfo,
   createData
 };
