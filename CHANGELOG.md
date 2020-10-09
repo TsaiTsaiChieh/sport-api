@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  order by scheduled desc of last 10 matches ***by rex-getsinfo*** [#525](https://github.com/gets-info/sports-api/pull/525)
 -  user buy list ***by rex-getsinfo*** [#524](https://github.com/gets-info/sports-api/pull/524)
 -  negative expire dividend ***by gsihenry*** [#523](https://github.com/gets-info/sports-api/pull/523)
 #### Removed:
