@@ -20,7 +20,7 @@ async function purseModel(args, method, uid) {
 
       const expire = await db.sequelize.query(
         `
-        SELECT SUM(dividend) as expire_dividend FROM(
+        SELECT IF(SUM(dividend)>0, SUM(dividend), 0)  as expire_dividend FROM(
           SELECT  expire_points AS dividend, updatedAt
                FROM cashflow_dividends 
              WHERE uid=$uid
