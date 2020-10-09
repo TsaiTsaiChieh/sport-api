@@ -121,7 +121,7 @@ function queryFiveFightEvent(args) {
                AND five.away_id = away.team_id 
                AND (five.spread_id IS NULL AND five.totals_id IS NULL)       
           ) 
-          ORDER BY scheduled   
+          ORDER BY scheduled desc
           LIMIT 10             
           `,
         {
