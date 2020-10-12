@@ -1,13 +1,17 @@
-const { NP, to, getLastPeriod, convertDateYMDToGTM0Unix, moment } = require('../../util/modules');
+const { NP, to, getLastPeriod, convertTimezone } = require('../../util/modules');
 const { leagueCodebook } = require('../../util/leagueUtil');
 const errs = require('../../util/errorCode');
 const db = require('../../util/dbUtil');
 
 async function buyModel(args, uid) {
   const buyList = [];
-  const begin = args.begin;
-  const end = args.end;
-
+  const begin = convertTimezone(args.begin);
+  const end = convertTimezone(args.end,
+    {
+      op: 'add',
+      value: 1,
+      unit: 'days'
+    }) - 1;
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
 
   if (err) {
@@ -19,7 +23,7 @@ async function buyModel(args, uid) {
   for (const ele of buy) {
     const bets = ele.info.win_bets ? NP.round(ele.info.win_bets, 2) : '-';
     buyList.push({
-      date: ele.matches_date,
+      date: ele.buy_date,
       god: {
         god_uid: ele.info.uid,
         god_name: ele.info.display_name,
@@ -40,27 +44,21 @@ async function buyModel(args, uid) {
 // 查日期區間大神預測牌組勝注資訊
 // await getGodSellPredictionDatesWinBetsInfo('2WMRgHyUwvTLyHpLoANk7gWADZn1', '20200608', '20200608');
 async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
-  const range1 = moment().range(sDate, eDate);
-
-  const dateBetween = [];
-  Array.from(range1.by('day')).forEach(function(data) {
-    dateBetween.push(convertDateYMDToGTM0Unix(data.format('YYYYMMDD')));
-  });
-
   // 取得 user__buys 購買資料
   const buyLists = await db.sequelize.query(`
-    select uid, league_id, god_uid, matches_date, buy_status
+    select uid, league_id, god_uid, buy_date, buy_status, matches_date
       from user__buys
      where uid = :uid
-       and matches_date in (:dateBetween)
+       and buy_date BETWEEN :begin AND :end
+     ORDER by buy_date desc
   `, {
     replacements: {
       uid: uid,
-      dateBetween: dateBetween
+      begin: sDate,
+      end: eDate
     },
     type: db.sequelize.QueryTypes.SELECT
   });
-
   // 取得 該大神預測牌組勝注
   const result = [];
   for (const data of buyLists) {
@@ -69,12 +67,11 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
     if (!info.length) continue; // 空陣列移除，不回傳 略過
 
     result.push({
-      matches_date: data.matches_date,
+      buy_date: data.buy_date,
       buy_status: data.buy_status,
       info: info[0] // 這裡預設情況下是只會有一筆，萬一有兩筆時，只存入第一筆
     });
-  };
-
+  }
   return result;
 }
 
@@ -83,7 +80,6 @@ async function getGodSellPredictionDatesWinBetsInfo(uid, sDate, eDate) {
 async function getGodSellPredictionWinBetsInfo(god_uid, league_id, matches_date_unix) {
   // const end_unix = coreDateInfo(matches_date_unix).dateEndUnix;
   const period = getLastPeriod(matches_date_unix * 1000).period;
-
   const infos = await db.sequelize.query(`
     select users.uid, users.avatar, users.display_name,
            titles.period, titles.rank_id, titles.price, titles.sub_price,
