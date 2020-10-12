@@ -66,8 +66,12 @@ function getPrematchFromFirestore(args, matchData) {
       const homeData = await firestore.collection(`baseball_${args.league}`).doc(home_id).get();
       const awayData = await firestore.collection(`baseball_${args.league}`).doc(away_id).get();
       // error handle when home or away data is not found
-      if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
-      return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
+      if (!homeData.exists || !awayData.exists || JSON.stringify(homeData.data()) === '{}' || JSON.stringify(awayData.data()) === '{}') {
+        // return reject(new AppErrors.TeamInformationNotFound());
+        return resolve({ homeData: {}, awayData: {} });
+      } else {
+        return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
+      }
     } catch (err) {
       return reject(new AppErrors.FirestoreQueryError(err.stack));
     }
@@ -159,7 +163,6 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
   const rate = repackagePassRate(events);
   const tenFights = repackageTenFights(args, fights);
   const { homePlayer, awayPlayer, homePlayerIsNull, awayPlayerIsNull } = checkPlayer(teamsFromMySQL);
-
   try {
     const data = {
       season: teamsFromMySQL.season,
@@ -193,15 +196,15 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         team_base: {
           spread_rate: Number((rate.home_spread_rate).toFixed(2)),
           totals_rate: Number((rate.home_totals_rate).toFixed(2)),
-          L10: homeData.team_base.L10,
-          STRK: homeData.team_base.STRK,
-          Win: homeData.team_base.Win,
-          Loss: homeData.team_base.Loss,
-          Draw: homeData.team_base.Draw,
-          at_home: homeData.team_base.at_home,
-          at_away: homeData.team_base.at_away,
-          per_R: homeData.team_base.per_R,
-          allow_per_R: homeData.team_base.per_allow_R
+          L10: homeData.team_base ? homeData.team_base.L10 : null,
+          STRK: homeData.team_base ? homeData.team_base.STRK : null,
+          Win: homeData.team_base ? homeData.team_base.Win : null,
+          Loss: homeData.team_base ? homeData.team_base.Loss : null,
+          Draw: homeData.team_base ? homeData.team_base.Draw : null,
+          at_home: homeData.team_base ? homeData.team_base.at_home : null,
+          at_away: homeData.team_base ? homeData.team_base.at_away : null,
+          per_R: homeData.team_base ? homeData.team_base.per_R : null,
+          allow_per_R: homeData.team_base ? homeData.team_base.per_allow_R : null
         },
         pitcher: {
           id: homePlayerIsNull ? null : homePlayer.pitchers.id,
@@ -214,12 +217,12 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           jersey_id: homePlayerIsNull ? null : homePlayer.pitchers.jersey_id
         },
         team_hit: {
-          R: homeData.team_hit.R,
-          H: homeData.team_hit.H,
-          HR: homeData.team_hit.HR,
-          AVG: homeData.team_hit.AVG,
-          OBP: homeData.team_hit.OBP,
-          SLG: homeData.team_hit.SLG
+          R: homeData.team_hit ? homeData.team_hit.R : null,
+          H: homeData.team_hit ? homeData.team_hit.H : null,
+          HR: homeData.team_hit ? homeData.team_hit.HR : null,
+          AVG: homeData.team_hit ? homeData.team_hit.AVG : null,
+          OBP: homeData.team_hit ? homeData.team_hit.OBP : null,
+          SLG: homeData.team_hit ? homeData.team_hit.SLG : null
         }
       },
       away: {
@@ -233,15 +236,15 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
         team_base: {
           spread_rate: Number((rate.away_spread_rate).toFixed(2)),
           totals_rate: Number((rate.away_totals_rate).toFixed(2)),
-          L10: awayData.team_base.L10,
-          STRK: awayData.team_base.STRK,
-          Win: awayData.team_base.Win,
-          Loss: awayData.team_base.Loss,
-          Draw: awayData.team_base.Draw,
-          at_home: awayData.team_base.at_home,
-          at_away: awayData.team_base.at_away,
-          per_R: awayData.team_base.per_R,
-          allow_per_R: awayData.team_base.allow_per_R
+          L10: awayData.team_base ? awayData.team_base.L10 : null,
+          STRK: awayData.team_base ? awayData.team_base.STRK : null,
+          Win: awayData.team_base ? awayData.team_base.Win : null,
+          Loss: awayData.team_base ? awayData.team_base.Loss : null,
+          Draw: awayData.team_base ? awayData.team_base.Draw : null,
+          at_home: awayData.team_base ? awayData.team_base.at_home : null,
+          at_away: awayData.team_base ? awayData.team_base.at_away : null,
+          per_R: awayData.team_base ? awayData.team_base.per_R : null,
+          allow_per_R: awayData.team_base ? awayData.team_base.allow_per_R : null
         },
         pitcher: {
           id: awayPlayerIsNull ? null : awayPlayer.pitchers.id,
@@ -254,12 +257,12 @@ function repackagePrematch(args, teamsFromFirestore, teamsFromMySQL, events, fig
           jersey_id: awayPlayerIsNull ? null : awayPlayer.pitchers.jersey_id
         },
         team_hit: {
-          R: awayData.team_hit.R,
-          H: awayData.team_hit.H,
-          HR: awayData.team_hit.HR,
-          AVG: awayData.team_hit.AVG,
-          OBP: awayData.team_hit.OBP,
-          SLG: awayData.team_hit.SLG
+          R: awayData.team_hit ? awayData.team_hit.R : null,
+          H: awayData.team_hit ? awayData.team_hit.H : null,
+          HR: awayData.team_hit ? awayData.team_hit.HR : null,
+          AVG: awayData.team_hit ? awayData.team_hit.AVG : null,
+          OBP: awayData.team_hit ? awayData.team_hit.OBP : null,
+          SLG: awayData.team_hit ? awayData.team_hit.SLG : null
         }
       },
       L10_record: tenFights
