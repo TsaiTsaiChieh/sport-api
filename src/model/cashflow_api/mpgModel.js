@@ -21,7 +21,6 @@ async function mpgModel(res) {
           coin: exchange.coin,
           dividend: exchange.dividend
         },
-        logging: true,
         raw: true
       });
       if (!result) {
@@ -71,7 +70,6 @@ async function createOrder(exchange, uid) {
     INSERT INTO cashflow_deposits (uid, money, money_real, coin, coin_real, dividend, dividend_real, serial_number, scheduled) VALUES (:uid, :money, :money_real, :coin, :coin_real, :dividend, :dividend_real, :serial_number, :scheduled)
     `,
     {
-      logging: true,
       replacements: {
         uid: uid,
         money: exchange.coin,

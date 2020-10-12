@@ -18,7 +18,8 @@ exports.redisConfig = {
 exports.corsList = process.env.corsList.split(',');
 
 exports.cookieOptions = {
-  maxAge: 60 * 60 * 24 * 7 * 1000,
+  // maxAge: 60 * 60 * 24 * 7 * 1000,
+  maxAge: 60 * 6 * 1000,
   sameSite: 'None',
   httpOnly: true,
   secure: true

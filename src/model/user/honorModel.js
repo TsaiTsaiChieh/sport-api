@@ -60,8 +60,7 @@ function honorModel(req) {
           `,
           {
             replacements: { uid: uid, league_id: league_id, period: period.period },
-            type: db.sequelize.QueryTypes.SELECT,
-            logging: true
+            type: db.sequelize.QueryTypes.SELECT
           }
         );
 

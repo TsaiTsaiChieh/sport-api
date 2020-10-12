@@ -475,7 +475,6 @@ async function insertGodLimit(lastPeriod, nowPeriod) {
       lastPeriod: lastPeriod,
       nowPeriod: nowPeriod
     },
-    logging: true,
     type: db.sequelize.QueryTypes.INSERT
   });
 }

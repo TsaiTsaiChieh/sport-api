@@ -147,7 +147,6 @@ async function transferModel(method, args, uid) {
         `
         ,
         {
-          logging: true,
           replacements: { uid: uid, begin: begin, end: end },
           type: db.sequelize.QueryTypes.SELECT
         });
