@@ -11,6 +11,7 @@ function prematchBasketball(args) {
     try {
       const teamsDataFromMySQL = await getHomeAndAwayTeamFromMySQL(args);
       const teamsDataFromFirestore = await getPrematchFromFirestore(args, teamsDataFromMySQL);
+      console.log(teamsDataFromFirestore);
       const homeEvents = await queryHomeEvents(args);
       const awayEvents = await queryAwayEvents(args);
       const tenFightData = await queryTenFightEvent(args);
@@ -28,8 +29,12 @@ function getPrematchFromFirestore(args, matchData) {
       const homeData = await firestore.collection(`basketball_${args.league}`).doc(home_id).get();
       const awayData = await firestore.collection(`basketball_${args.league}`).doc(away_id).get();
       // error handle when home or away data is not found
-      if (!homeData.exists || !awayData.exists) return reject(new AppErrors.TeamInformationNotFound());
-      return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
+      if (!homeData.exists || !awayData.exists || JSON.stringify(homeData.data()) === '{}' || JSON.stringify(awayData.data()) === '{}') {
+        // return reject(new AppErrors.TeamInformationNotFound());
+        return resolve({ homeData: {}, awayData: {} });
+      } else {
+        return resolve({ homeData: homeData.data()[`season_${season}`], awayData: awayData.data()[`season_${season}`] });
+      }
     } catch (err) {
       return reject(new AppErrors.FirestoreQueryError(err.stack));
     }
@@ -410,14 +415,14 @@ function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events,
         team_base: {
           spread_rate: Number((rate.home_spread_rate).toFixed(2)),
           totals_rate: Number((rate.home_totals_rate).toFixed(2)),
-          L10: homeData.team_base.L10,
-          Win: homeData.team_base.Win,
-          Loss: homeData.team_base.Loss,
-          Draw: homeData.team_base.Draw,
-          at_home: homeData.team_base.at_home,
-          at_away: homeData.team_base.at_away,
-          per_R: homeData.team_base.per_R,
-          allow_per_R: homeData.team_base.per_allow_R
+          L10: homeData.team_base ? homeData.team_base.L10 : null,
+          Win: homeData.team_base ? homeData.team_base.Win : null,
+          Loss: homeData.team_base ? homeData.team_base.Loss : null,
+          Draw: homeData.team_base ? homeData.team_base.Draw : null,
+          at_home: homeData.team_base ? homeData.team_base.at_home : null,
+          at_away: homeData.team_base ? homeData.team_base.at_away : null,
+          per_R: homeData.team_base ? homeData.team_base.per_R : null,
+          allow_per_R: homeData.team_base ? homeData.team_base.per_allow_R : null
         },
         players: homePlayerIsNull ? null : homePlayer,
         injuries: homeInjuryIsNull ? null : homeInjury
@@ -433,14 +438,14 @@ function repackagePrematch(args, teamsDataFromFirestore, teamsFromMySQL, events,
         team_base: {
           spread_rate: Number((rate.away_spread_rate).toFixed(2)),
           totals_rate: Number((rate.away_totals_rate).toFixed(2)),
-          L10: awayData.team_base.L10,
-          Win: awayData.team_base.Win,
-          Loss: awayData.team_base.Loss,
-          Draw: awayData.team_base.Draw,
-          at_home: awayData.team_base.at_home,
-          at_away: awayData.team_base.at_away,
-          per_R: awayData.team_base.per_R,
-          allow_per_R: awayData.team_base.per_allow_R
+          L10: awayData.team_base ? awayData.team_base.L10 : null,
+          Win: awayData.team_base ? awayData.team_base.Win : null,
+          Loss: awayData.team_base ? awayData.team_base.Loss : null,
+          Draw: awayData.team_base ? awayData.team_base.Draw : null,
+          at_home: awayData.team_base ? awayData.team_base.at_home : null,
+          at_away: awayData.team_base ? awayData.team_base.at_away : null,
+          per_R: awayData.team_base ? awayData.team_base.per_R : null,
+          allow_per_R: awayData.team_base ? awayData.team_base.per_allow_R : null
         },
         players: awayPlayerIsNull ? null : awayPlayer,
         injuries: awayInjuryIsNull ? null : awayInjury
