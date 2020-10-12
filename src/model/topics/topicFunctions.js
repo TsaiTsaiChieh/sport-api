@@ -58,7 +58,8 @@ module.exports.getTopicReplyCount = async function(articles) { // 傳入array ai
           article_id: {
             status: 1,
             [Op.or]: articles
-          }
+          },
+          status: 1
         },
         group: 'article_id',
         raw: true
