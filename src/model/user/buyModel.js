@@ -13,8 +13,6 @@ async function buyModel(args, uid) {
       unit: 'days'
     }) - 1;
   const [err, buy] = await to(getGodSellPredictionDatesWinBetsInfo(uid, begin, end));
-  console.log(begin)
-  console.log(end)
 
   if (err) {
     console.error('[Error][buyModel][getGodSellPredictionDatesWinBetsInfo] ', err);
