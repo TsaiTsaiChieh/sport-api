@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 #### Add:
 #### Fix:
+-  buy list query by buy_date; hot topics limit in 24 hours ***by rex-getsinfo*** [#529](https://github.com/gets-info/sports-api/pull/529)
 -  修改prematch棒球與籃球，當firestore無東西時的判斷（暫不影響目前功能，只會影響未來要開放卻還未爬蟲的聯盟） ***by page40316*** [#528](https://github.com/gets-info/sports-api/pull/528)
 -  topic not count hidden replies ***by eric13e*** [#527](https://github.com/gets-info/sports-api/pull/527)
 -  acceptLeague moved to env configs; disable sql logging ***by rex-getsinfo*** [#526](https://github.com/gets-info/sports-api/pull/526)
