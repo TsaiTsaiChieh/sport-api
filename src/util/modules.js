@@ -33,7 +33,7 @@ function convertTimezone(date, operation, zone = zone_tw) {
     }
   }
   return moment.tz(date, zone).unix();
-};
+}
 
 // 輸入的時間為 unix ，輸出轉為 YYYYMMDD 格式
 /*

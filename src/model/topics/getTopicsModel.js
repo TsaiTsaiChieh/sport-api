@@ -1,7 +1,6 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable promise/always-return */
 const db = require('../../util/dbUtil');
 const func = require('./topicFunctions');
+const Op = require('sequelize').Op;
 let countPerPage;
 
 function dbFind(where, page, order) {
@@ -18,7 +17,6 @@ function dbFind(where, page, order) {
         indexes: 'topic__articles_status_league_category_pin',
         raw: true
       });
-      // console.log(result)
       resolve(result);
     } catch (error) {
       console.error(error);
@@ -36,6 +34,13 @@ async function getTopics(args) {
       const where = {};
       let page = 0;
       countPerPage = args.count;
+
+      if (countPerPage === 4) {
+        where.createdAt = {
+          [Op.lt]: new Date(),
+          [Op.gt]: new Date(new Date() - 1 * 24 * 60 * 60 * 1000)
+        };
+      }
 
       if (typeof args.uid !== 'undefined' && args.uid !== null) {
         where.uid = args.uid;
