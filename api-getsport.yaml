@@ -32,5 +32,6 @@ env_variables:
   firebaseMeasurementId: 'G-KJ81TH7PPS'
   corsList: 'https://getsports.cc,https://getsport.cc,https://www.getsports.cc,https://www.getsport.cc,https://getsports-gsi.uc.r.appspot.com'
   certPath: '../auth/getsports-gsi-firebase-adminsdk.json'
+  acceptLeague: 'NBA,MLB,KBO,NPB,CPBL,Soccer'
 beta_settings:
   cloud_sql_instances: 'getsports-gsi:us-central1:getsports-cloudsql'

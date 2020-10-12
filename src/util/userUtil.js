@@ -6,7 +6,6 @@ const logger = require('firebase-functions/lib/logger');
 exports.getFirebaseUser = async function(accessToken) {
   const sub = accessToken.sub.toString();
   // const email = accessToken.email.toString();
-  logger.warn(JSON.stringify(accessToken));
   try {
     const userRecord = accessToken.email
       ? await firebaseAdmin().auth().getUserByEmail(accessToken.email)
@@ -87,7 +86,6 @@ exports.checkUniqueCollection = async function(collection, value) {
        `,
       {
         plain: true,
-        logging: true,
         type: db.sequelize.QueryTypes.SELECT
       });
     console.log(nameCollection);

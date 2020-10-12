@@ -31,7 +31,6 @@ function favoritePlayerModel(args) {
           
          `,
         {
-          logging: true,
           replacements: { begin: begin, end: end, uid: uid },
           type: db.sequelize.QueryTypes.SELECT
         });
@@ -45,7 +44,7 @@ function favoritePlayerModel(args) {
         const league = args.body.league_name;
         const uids = items.join("','");
 
-        favorite_player = await db.sequelize.query(
+        await db.sequelize.query(
           `
           DELETE FROM user__favoriteplayers
            WHERE god_uid in ('${uids}')
@@ -53,7 +52,6 @@ function favoritePlayerModel(args) {
              AND league=$league
            `,
           {
-            logging: true,
             bind: { uid: uid, league: league },
             type: db.sequelize.QueryTypes.DELETE
           });

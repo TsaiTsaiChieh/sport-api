@@ -32,5 +32,6 @@ env_variables:
   firebaseMeasurementId: 'G-WRP22SQG9M'
   corsList: 'http://localhost:5000,http://127.0.0.1:5000,http://localhost:8080,http://localhost:8081,http://localhost:9528,https://dosports.web.app,https://api-dosports.web.app,https://admin-dosports.web.app,https://frontend-dot-sportslottery-test.appspot.com,https://front.gets-info.com,https://getsports.cc,https://www.getsports.cc,https://sportslottery-test.appspot.com,http://getsport.gets-info.com'
   certPath: '../auth/sportslottery-test-adminsdk.json'
+  acceptLeague: 'MLB,CPBL,KBO,NPB,ABL,LMB,NBA,SBL,WNBA,NBL,KBL,CBA,BJL,NHL,Soccer,eSoccer'
 beta_settings:
   cloud_sql_instances: 'sportslottery-test:us-central1:do-sports'

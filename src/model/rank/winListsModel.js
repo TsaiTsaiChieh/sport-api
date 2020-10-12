@@ -107,7 +107,6 @@ async function winLists(args) {
         begin: beginUnix,
         end: endUnix
       },
-      logging: true,
       type: db.sequelize.QueryTypes.SELECT
     }));
     if (err) {
