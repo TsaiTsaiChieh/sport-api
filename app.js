@@ -85,6 +85,4 @@ const server = app.listen(port, () => {
   console.log(`Getsport API listening at http://localhost:${port}`);
 });
 
-const acceptValues = require('./src/config/acceptValues');
-console.log(acceptValues.acceptLeague)
 server.keepAliveTimeout = 60 * 1000;
